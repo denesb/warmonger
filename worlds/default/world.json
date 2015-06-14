@@ -1,0 +1,261 @@
+{
+    name: "default",
+    display_name: "Default world",
+    village_gold_pt: 1,
+    city_gold_pt: 3,
+
+    terrain_types: [
+        {
+            name: "plains",
+            display_name: "Plains",
+        },
+        {
+            name: "hills",
+            display_name: "Hills",
+        },
+        {
+            name: "mountains",
+            display_name: "Mountains",
+        },
+        {
+            name: "forest",
+            display_name: "Forest",
+        }
+    ],
+
+    unit_types: [
+        {
+            name: "infantry",
+            display_name: "Infantry",
+            movement_points: 8,
+            terrain_movement: {
+                plains: 2,
+                hills: 3,
+                mountains: -1,
+                forest: 3
+            },
+            terrain_attack_bonus: {},
+            terrain_defense_bonus: {
+                forest: 10
+            }
+        },
+        {
+            name: "missile",
+            display_name: "Missile",
+            movement_points: 8,
+            terrain_movement: {
+                plains: 2,
+                hills: 3,
+                mountains: -1,
+                forest: 3
+            },
+            terrain_attack_bonus: {
+                hills: 20
+            },
+            terrain_defense_bonus: {
+                forest: 10
+            }
+        },
+        {
+            name: "cavalry",
+            display_name: "Cavalry",
+            movement_points: 14,
+            terrain_movement: {
+                plains: 2,
+                hills: 3,
+                mountains: -1,
+                forest: 4
+            },
+            terrain_attack_bonus: {
+                plains: 20,
+                forest: -20
+            },
+            terrain_defense_bonus: {
+                forest: -20
+            }
+        }
+    ],
+
+    unit_levels: [
+        {
+            level: 1,
+            name: "recruit",
+            display_name: "Recruit",
+            xp: 30
+        },
+        {
+            level: 2,
+            name: "experienced",
+            display_name: "Experienced",
+            xp: 60 
+        },
+        {
+            level: 3,
+            name: "veteran",
+            display_name: "Vetaran",
+            xp: 90
+        }
+    ],
+
+    weapon_types: [
+        {
+            name: "cut",
+            display_name: "Cut"
+        },
+        {
+            name: "pierce",
+            display_name: "Pierce"
+        },
+        {
+            name: "crush",
+            display_name: "Crush"
+        }
+    ],
+
+    weapons: [
+        {
+            name: "spear",
+            display_name: "Spear",
+            range: 0,
+            damage: {
+                pierce: 5
+            }
+        },
+        {
+            name: "shortsword",
+            display_name: "Shortsword",
+            range: 0,
+            damage: {
+                cut: 6
+                pierce: 3
+            }
+        },
+        {
+            name: "longsword",
+            display_name: "Longsword",
+            range: 0,
+            damage: {
+                cut: 9,
+                pierce: 6
+            }
+        },
+        {
+            name: "lance",
+            display_name: "Lance",
+            range: 0,
+            damage: {
+                pierce: 7
+            }
+        },
+        {
+            name: "bow",
+            display_name: "Bow",
+            range: 2,
+            damage: {
+                pierce: 6
+            }
+        }
+    ],
+
+    armors: [
+        {
+            name: "cloth",
+            display_name: "Cloth",
+            defense: {
+                cut: 0,
+                pierce: 0,
+                crush: 0
+            }
+        },
+        {
+            name: "leather",
+            display_name: "Leather",
+            defense: {
+                cut: 10,
+                pierce: 5,
+                crush: 15
+            }
+        },
+        {
+            name: "mail",
+            display_name: "Mail",
+            defense: {
+                cut: 30,
+                pierce: 15,
+                crush: 20
+            }
+        },
+        {
+            name: "plate",
+            display_name: "Plate",
+            defense: {
+                cut: 50,
+                pierce: 40,
+                crush: 25
+            }
+        }
+    ],
+
+    factions: [
+        {
+            name: "default",
+            display_name: "Default",
+            units: [
+                {
+                    name: "spearman",
+                    display_name: "Spearman",
+                    rank: "soldier",
+                    type: "infantry",
+                    level: 1,
+                    armor: "leather",
+                    weapons: ["spear"]
+                },
+                {
+                    name: "swordsman",
+                    display_name: "Swordsman",
+                    rank: "soldier",
+                    type: "infantry",
+                    level: 1,
+                    armor: "leather",
+                    weapons: ["shortsword"]
+                },
+                {
+                    name: "archer",
+                    display_name: "Archer",
+                    rank: "soldier",
+                    type: "missile",
+                    level: 1,
+                    armor: "cloth",
+                    weapons: ["bow", "shortsword"]
+                },
+                {
+                    name: "horsemen",
+                    display_name: "Horsemen",
+                    rank: "soldier",
+                    type: "cavalry",
+                    level: 1,
+                    armor: "leather",
+                    weapons: ["lance", "shortsword"]
+                },
+                {
+                    name: "seargant",
+                    display_name: "Seargant",
+                    rank: "officer",
+                    type: "infantry",
+                    level: 1,
+                    armor: "mail",
+                    weapons: ["lance", "longsword"]
+                },
+                {
+                    name: "king",
+                    display_name: "King",
+                    rank: "leader",
+                    type: "cavalry",
+                    level: 3,
+                    armor: "plate",
+                    weapons: ["lance", "longsword"]
+                }
+            ],
+        }
+    ]
+}

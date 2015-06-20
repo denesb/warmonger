@@ -1,0 +1,6 @@
+{
+    "plains": "terrain/plains.png",
+    "hills": "terrain/hills.png",
+    "forest": "terrain/forest.png",
+    "mountains": "terrain/mountains.png"
+}

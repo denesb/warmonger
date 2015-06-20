@@ -2,16 +2,26 @@ SRC = $$PWD
 
 INCLUDEPATH += $$SRC
 
-#HEADERS += 
+HEADERS += \
+    $$SRC/core/GameEngine.h \
+    $$SRC/core/WorldMeta.h \
+    $$SRC/core/World.h
 
 SOURCES += \
-           $$SRC/main.cpp
+    $$SRC/Warmonger.cpp \
+    $$SRC/core/GameEngine.cpp \
+    $$SRC/core/WorldMeta.cpp \
+    $$SRC/core/World.cpp
 
 # Add more folders to ship with the application, here
-qml.source = qml/warmonger
-qml.target = qml
-DEPLOYMENTFOLDERS = qml
+qml.source = ui/qml
+qml.target =
+
+worlds.source = ../worlds
+worlds.target = 
+
+DEPLOYMENTFOLDERS = qml worlds
 
 # Please do not modify the following two lines. Required for deployment.
-include($$SRC/qtquick2applicationviewer.pri)
+include($$SRC/ui/qtquick2applicationviewer.pri)
 qtcAddDeployment()

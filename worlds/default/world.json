@@ -1,6 +1,4 @@
 {
-    "name": "default",
-    "display_name": "Default world",
     "village_gold_pt": 1,
     "city_gold_pt": 3,
 
@@ -204,7 +202,7 @@
                 {
                     "name": "spearman",
                     "display_name": "Spearman",
-                    "hitpoints": 35,
+                    "hitpoints": 30,
                     "rank": "soldier",
                     "type": "infantry",
                     "level": 1,
@@ -214,7 +212,7 @@
                 {
                     "name": "swordsman",
                     "display_name": "Swordsman",
-                    "hitpoints": 35,
+                    "hitpoints": 30,
                     "rank": "soldier",
                     "type": "infantry",
                     "level": 1,
@@ -234,7 +232,7 @@
                 {
                     "name": "horsemen",
                     "display_name": "Horsemen",
-                    "hitpoints": 40,
+                    "hitpoints": 35,
                     "rank": "soldier",
                     "type": "cavalry",
                     "level": 1,
@@ -244,7 +242,7 @@
                 {
                     "name": "seargant",
                     "display_name": "Seargant",
-                    "hitpoints": 38,
+                    "hitpoints": 35,
                     "rank": "officer",
                     "type": "infantry",
                     "level": 1,
@@ -254,7 +252,7 @@
                 {
                     "name": "king",
                     "display_name": "King",
-                    "hitpoints": 80,
+                    "hitpoints": 50,
                     "rank": "leader",
                     "type": "cavalry",
                     "level": 3,

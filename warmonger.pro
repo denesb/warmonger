@@ -1,4 +1,3 @@
-# Additional import path used to resolve QML modules in Creator's code model
-QML_IMPORT_PATH =
+CONFIG += C++11
 
 include(src/src.pri)

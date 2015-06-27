@@ -1,4 +1,6 @@
 #include <QDir>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #include "core/GameEngine.h"
 
@@ -9,14 +11,12 @@ GameEngine::GameEngine()
     QDir worldsDir("worlds");
     worldsDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
     worldsDir.setSorting(QDir::Name);
+	const QString worldsDirPath = worldsDir.canonicalPath();
 
     for(const QString worldDirName : worldsDir.entryList())
     {
-        QString worldPath = worldsDir.canonicalPath() + "/" + worldDirName;
-        WorldMeta *worldMeta = new WorldMeta(worldPath, this);
-
-        this->worldsMeta.append(worldMeta);
-    }
+		this->worlds.append(this->worldFromDir(worldsDirPath + "/" + worldDirName));
+	}
 }
 
 int GameEngine::getVersion()
@@ -24,7 +24,25 @@ int GameEngine::getVersion()
     return 0;
 }
 
-QList<WorldMeta*> GameEngine::getWorldList()
+QList<World*> GameEngine::getWorldList()
 {
-    return this->worldsMeta;
+    return this->worlds;
+}
+
+World *GameEngine::worldFromDir(const QString &worldDir)
+{
+	QFile worldFile(worldDir + "/world.json");
+
+    if (!worldFile.open(QIODevice::ReadOnly))
+    {
+        //TODO: throw something
+    }
+
+    QByteArray jsonData = worldFile.readAll();
+    QJsonDocument doc(QJsonDocument::fromJson(jsonData));
+
+    World *world = new World(this);
+	world->fromJson(doc.object());
+
+	return world;
 }

@@ -4,14 +4,18 @@ INCLUDEPATH += $$SRC
 
 HEADERS += \
     $$SRC/core/GameEngine.h \
-    $$SRC/core/WorldMeta.h \
-    $$SRC/core/World.h
+	$$SRC/core/WorldItem.h \
+    $$SRC/core/World.h \
+	$$SRC/core/TerrainType.h \
+	$$SRC/core/UnitClass.h
 
 SOURCES += \
     $$SRC/Warmonger.cpp \
     $$SRC/core/GameEngine.cpp \
-    $$SRC/core/WorldMeta.cpp \
-    $$SRC/core/World.cpp
+	$$SRC/core/WorldItem.cpp \
+    $$SRC/core/World.cpp \
+	$$SRC/core/TerrainType.cpp \
+	$$SRC/core/UnitClass.cpp
 
 # Add more folders to ship with the application, here
 qml.source = ui/qml

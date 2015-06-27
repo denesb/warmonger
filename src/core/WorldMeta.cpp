@@ -5,21 +5,27 @@
 
 using namespace core;
 
-WorldMeta::WorldMeta(const QString &path, QObject *parent) :
-    QObject(parent),
-    path(path)
+WorldMeta::WorldMeta(
+	const QString &name,
+	const QString &displayName,
+	const QString &description,
+	const QString &path,
+	QObject *parent
+) :
+	QObject(parent),
+	name(name),
+	displayName(displayName),
+	description(description),
+	path(path)
 {
-    QFile metaFile(path + QStringLiteral("/meta.json"));
+}
 
-    if (!metaFile.open(QIODevice::ReadOnly))
-    {
-        //TODO: throw something
-    }
-
-    QByteArray metaJson = metaFile.readAll();
-    QJsonDocument metaDoc(QJsonDocument::fromJson(metaJson));
-
-    this->init(metaDoc.object());
+WorldMeta::WorldMeta(const QJsonObject &obj, QObject *parent) :
+	QObject(parent)
+{
+    this->name = obj["name"].toString();
+    this->displayName = obj["display_name"].toString();
+    this->description = obj["description"].toString();
 }
 
 QString WorldMeta::getName() const
@@ -42,9 +48,6 @@ QString WorldMeta::getPath() const
     return this->path;
 }
 
-void WorldMeta::init(const QJsonObject &metaObject)
+QJsonObject toJson() const
 {
-    this->name = metaObject["name"].toString();
-    this->displayName = metaObject["display_name"].toString();
-    this->description = metaObject["description"].toString();
 }

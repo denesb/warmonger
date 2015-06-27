@@ -1,9 +1,9 @@
+#ifndef CORE_GAME_ENGINE_H
+#define CORE_GAME_ENGINE_H
+
 #include <QList>
 
 #include "core/World.h"
-
-#ifndef CORE_GAME_ENGINE_H
-#define CORE_GAME_ENGINE_H
 
 namespace core {
 
@@ -13,17 +13,15 @@ class GameEngine :
     Q_OBJECT
 
 public:
-    Q_PROPERTY(int               version READ getVersion)
-    Q_PROPERTY(QList<WorldMeta*> worlds  READ getWorldList)
-
     GameEngine();
 
     int getVersion();
 
-    QList<WorldMeta*> getWorldList();
-
+    QList<World*> getWorldList();
+	
 private:
-    QList<WorldMeta*> worldsMeta;
+	World *worldFromDir(const QString &worldDir);
+
     QList<World*> worlds;
 };
 

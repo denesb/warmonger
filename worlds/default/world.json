@@ -1,127 +1,106 @@
 {
-    "village_gold_pt": 1,
-    "city_gold_pt": 3,
+    "villageGoldPt": 1,
+    "cityGoldPt": 3,
 
-    "terrain_types": [
+    "terrainTypes": [
         {
-            "name": "plains",
-            "display_name": "Plains",
+            "objectName": "plains",
+            "displayName": "Plains",
         },
         {
-            "name": "hills",
-            "display_name": "Hills",
+            "objectName": "hills",
+            "displayName": "Hills",
         },
         {
-            "name": "mountains",
-            "display_name": "Mountains",
+            "objectName": "mountains",
+            "displayName": "Mountains",
         },
         {
-            "name": "forest",
-            "display_name": "Forest",
+            "objectName": "forest",
+            "displayName": "Forest",
         }
     ],
 
-    "unit_types": [
+    "unitClasses": [
         {
-            "name": "infantry",
-            "display_name": "Infantry",
-            "movement_points": 8,
-            "terrain_movement": {
+            "objectName": "infantry",
+            "displayName": "Infantry",
+            "movementPoints": 8,
+            "terrainMovements": {
                 "plains": 2,
                 "hills": 3,
                 "mountains": -1,
                 "forest": 3
             },
-            "terrain_attack_bonus": {},
-            "terrain_defense_bonus": {
+            "terrainAttacks": {},
+            "terrainDefenses": {
                 "forest": 10
             }
         },
         {
-            "name": "missile",
-            "display_name": "Missile",
-            "movement_points": 8,
-            "terrain_movement": {
+            "objectName": "missile",
+            "displayName": "Missile",
+            "movementPoints": 8,
+            "terrainMovements": {
                 "plains": 2,
                 "hills": 3,
                 "mountains": -1,
                 "forest": 3
             },
-            "terrain_attack_bonus": {
+            "terrainAttacks": {
                 "hills": 20
             },
-            "terrain_defense_bonus": {
+            "terrainDefenses": {
                 "forest": 10
             }
         },
         {
-            "name": "cavalry",
-            "display_name": "Cavalry",
-            "movement_points": 14,
-            "terrain_movement": {
+            "objectName": "cavalry",
+            "displayName": "Cavalry",
+            "movementPoints": 14,
+            "terrainMovements": {
                 "plains": 2,
                 "hills": 3,
                 "mountains": -1,
                 "forest": 4
             },
-            "terrain_attack_bonus": {
+            "terrainAttacks": {
                 "plains": 20,
                 "forest": -20
             },
-            "terrain_defense_bonus": {
+            "terrainDefenses": {
                 "forest": -20
             }
         }
     ],
 
-    "unit_levels": [
+    "weaponTypes": [
         {
-            "level": 1,
-            "name": "recruit",
-            "display_name": "Recruit",
-            "xp": 30
+            "objectName": "cut",
+            "displayName": "Cut"
         },
         {
-            "level": 2,
-            "name": "experienced",
-            "display_name": "Experienced",
-            "xp": 60 
+            "objectName": "pierce",
+            "displayName": "Pierce"
         },
         {
-            "level": 3,
-            "name": "veteran",
-            "display_name": "Vetaran",
-            "xp": 90
-        }
-    ],
-
-    "weapon_types": [
-        {
-            "name": "cut",
-            "display_name": "Cut"
-        },
-        {
-            "name": "pierce",
-            "display_name": "Pierce"
-        },
-        {
-            "name": "crush",
-            "display_name": "Crush"
+            "objectName": "crush",
+            "displayName": "Crush"
         }
     ],
 
     "weapons": [
         {
-            "name": "spear",
-            "display_name": "Spear",
+            "objectName": "spear",
+            "displayName": "Spear",
             "range": 0,
             "damage": {
                 "pierce": 5
             }
         },
         {
-            "name": "shortsword",
-            "display_name": "Shortsword",
+            "objectName": "shortsword",
+            "displayName": "Shortsword",
             "range": 0,
             "damage": {
                 "cut": 6
@@ -129,8 +108,8 @@
             }
         },
         {
-            "name": "longsword",
-            "display_name": "Longsword",
+            "objectName": "longsword",
+            "displayName": "Longsword",
             "range": 0,
             "damage": {
                 "cut": 9,
@@ -138,16 +117,16 @@
             }
         },
         {
-            "name": "lance",
-            "display_name": "Lance",
+            "objectName": "lance",
+            "displayName": "Lance",
             "range": 0,
             "damage": {
                 "pierce": 7
             }
         },
         {
-            "name": "bow",
-            "display_name": "Bow",
+            "objectName": "bow",
+            "displayName": "Bow",
             "range": 2,
             "damage": {
                 "pierce": 6
@@ -157,8 +136,8 @@
 
     "armors": [
         {
-            "name": "cloth",
-            "display_name": "Cloth",
+            "objectName": "cloth",
+            "displayName": "Cloth",
             "defense": {
                 "cut": 0,
                 "pierce": 0,
@@ -166,8 +145,8 @@
             }
         },
         {
-            "name": "leather",
-            "display_name": "Leather",
+            "objectName": "leather",
+            "displayName": "Leather",
             "defense": {
                 "cut": 10,
                 "pierce": 5,
@@ -175,8 +154,8 @@
             }
         },
         {
-            "name": "mail",
-            "display_name": "Mail",
+            "objectName": "mail",
+            "displayName": "Mail",
             "defense": {
                 "cut": 30,
                 "pierce": 15,
@@ -184,8 +163,8 @@
             }
         },
         {
-            "name": "plate",
-            "display_name": "Plate",
+            "objectName": "plate",
+            "displayName": "Plate",
             "defense": {
                 "cut": 50,
                 "pierce": 40,
@@ -196,12 +175,12 @@
 
     "factions": [
         {
-            "name": "default",
-            "display_name": "Default",
-            "units": [
+            "objectName": "default",
+            "displayName": "Default",
+			"unitTypes": [
                 {
-                    "name": "spearman",
-                    "display_name": "Spearman",
+                    "objectName": "spearman",
+                    "displayName": "Spearman",
                     "hitpoints": 30,
                     "rank": "soldier",
                     "type": "infantry",
@@ -210,8 +189,8 @@
                     "weapons": ["spear"]
                 },
                 {
-                    "name": "swordsman",
-                    "display_name": "Swordsman",
+                    "objectName": "swordsman",
+                    "displayName": "Swordsman",
                     "hitpoints": 30,
                     "rank": "soldier",
                     "type": "infantry",
@@ -220,8 +199,8 @@
                     "weapons": ["shortsword"]
                 },
                 {
-                    "name": "archer",
-                    "display_name": "Archer",
+                    "objectName": "archer",
+                    "displayName": "Archer",
                     "hitpoints": 30,
                     "rank": "soldier",
                     "type": "missile",
@@ -230,8 +209,8 @@
                     "weapons": ["bow", "shortsword"]
                 },
                 {
-                    "name": "horsemen",
-                    "display_name": "Horsemen",
+                    "objectName": "horsemen",
+                    "displayName": "Horsemen",
                     "hitpoints": 35,
                     "rank": "soldier",
                     "type": "cavalry",
@@ -240,8 +219,8 @@
                     "weapons": ["lance", "shortsword"]
                 },
                 {
-                    "name": "seargant",
-                    "display_name": "Seargant",
+                    "objectName": "seargant",
+                    "displayName": "Seargant",
                     "hitpoints": 35,
                     "rank": "officer",
                     "type": "infantry",
@@ -250,8 +229,8 @@
                     "weapons": ["lance", "longsword"]
                 },
                 {
-                    "name": "king",
-                    "display_name": "King",
+                    "objectName": "king",
+                    "displayName": "King",
                     "hitpoints": 50,
                     "rank": "leader",
                     "type": "cavalry",

@@ -13,21 +13,22 @@ class WorldMeta :
     Q_OBJECT
 
 public:
-    Q_PROPERTY(QString name        READ getName)
-    Q_PROPERTY(QString displayName READ getDisplayName)
-    Q_PROPERTY(QString descripion  READ getDescription)
-    Q_PROPERTY(QString path        READ getPath)
-
-    WorldMeta(const QString &path, QObject *parent = nullptr);
+    WorldMeta(
+		const QString &name,
+		const QString &displayName,
+		const QString &description,
+		const QString &path,
+		QObject *parent = nullptr
+	);
+	WorldMeta(const QJsonObject &obj, QObject *parent = nullptr);
 
     QString getName() const;
     QString getDisplayName() const;
     QString getDescription() const;
     QString getPath() const;
 
+	QJsonObject toJson() const;
 private:
-    void init(const QJsonObject &metaObject);
-
     QString name;
     QString displayName;
     QString description;

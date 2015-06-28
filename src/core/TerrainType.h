@@ -13,8 +13,6 @@ class TerrainType :
 public:
 	TerrainType(QObject *parent = nullptr);
 	~TerrainType();
-
-	WorldItem * getWorldItem(const QString &className, const QString &objectName) const;
 };
 
 }; // namespace core

@@ -11,45 +11,38 @@ class UnitClass :
 	public WorldItem
 {
 public:
-	typedef QMap<TerrainType *, int> TerrainInfluenceMap;
-
 	UnitClass(QObject *parent = nullptr);
 	~UnitClass();
 
 	int getMovementPoints() const;
 	void setMovementPoints(int movementPoints);
 
-	TerrainInfluenceMap getMovements() const;
-	void setMovements(const TerrainInfluenceMap &movements);
+	QMap<TerrainType *, int> getMovements() const;
+	void setMovements(const QMap<TerrainType *, int> &movements);
 
 	int getMovement(TerrainType *terrainType) const;
 	void setMovement(TerrainType *terrainType, int movement);
 
-	TerrainInfluenceMap getAttacks() const;
-	void setAttacks(const TerrainInfluenceMap &attacks);
+	QMap<TerrainType *, int> getAttacks() const;
+	void setAttacks(const QMap<TerrainType *, int> &attacks);
 
 	int getAttack(TerrainType *terrainType) const;
 	void setAttack(TerrainType *terrainType, int attack);
 
-	TerrainInfluenceMap getDefenses() const;
-	void setDefenses(const TerrainInfluenceMap &defenses);
+	QMap<TerrainType *, int> getDefenses() const;
+	void setDefenses(const QMap<TerrainType *, int> &defenses);
 
 	int getDefense(TerrainType *terrainType) const;
 	void setDefense(TerrainType *terrainType, int defense);
-
-	WorldItem * getWorldItem(const QString &className, const QString &objectName) const;
 
 	void fromJson(const QJsonObject &json);
 	QJsonObject toJson() const;
 
 private:
-	TerrainInfluenceMap terrainInfluenceMapFromJson(const QJsonObject &obj);
-	QJsonObject terrainInfluenceMapToJson(const TerrainInfluenceMap &influenceMap) const;
-
 	int movementPoints;
-	TerrainInfluenceMap movements;
-	TerrainInfluenceMap attacks;
-	TerrainInfluenceMap defenses;
+	QMap<TerrainType *, int> movements;
+	QMap<TerrainType *, int> attacks;
+	QMap<TerrainType *, int> defenses;
 };
 
 }; // namespace core

@@ -3,7 +3,8 @@
 using namespace core;
 
 WorldItem::WorldItem(QObject *parent) :
-	QObject(parent)
+	QObject(parent),
+	displayName("")
 {
 }
 

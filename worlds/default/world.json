@@ -78,7 +78,7 @@
         }
     ],
 
-    "weaponTypes": [
+    "damageTypes": [
         {
             "objectName": "cut",
             "displayName": "Cut"
@@ -98,7 +98,7 @@
             "objectName": "spear",
             "displayName": "Spear",
             "range": 0,
-            "damage": {
+            "damages": {
                 "pierce": 5
             }
         },
@@ -106,7 +106,7 @@
             "objectName": "shortsword",
             "displayName": "Shortsword",
             "range": 0,
-            "damage": {
+            "damages": {
                 "cut": 6
                 "pierce": 3
             }
@@ -115,7 +115,7 @@
             "objectName": "longsword",
             "displayName": "Longsword",
             "range": 0,
-            "damage": {
+            "damages": {
                 "cut": 9,
                 "pierce": 6
             }
@@ -124,7 +124,7 @@
             "objectName": "lance",
             "displayName": "Lance",
             "range": 0,
-            "damage": {
+            "damages": {
                 "pierce": 7
             }
         },
@@ -132,7 +132,7 @@
             "objectName": "bow",
             "displayName": "Bow",
             "range": 2,
-            "damage": {
+            "damages": {
                 "pierce": 6
             }
         }
@@ -142,7 +142,7 @@
         {
             "objectName": "cloth",
             "displayName": "Cloth",
-            "defense": {
+            "defenses": {
                 "cut": 0,
                 "pierce": 0,
                 "crush": 0
@@ -151,7 +151,7 @@
         {
             "objectName": "leather",
             "displayName": "Leather",
-            "defense": {
+            "defenses": {
                 "cut": 10,
                 "pierce": 5,
                 "crush": 15
@@ -160,7 +160,7 @@
         {
             "objectName": "mail",
             "displayName": "Mail",
-            "defense": {
+            "defenses": {
                 "cut": 30,
                 "pierce": 15,
                 "crush": 20
@@ -169,7 +169,7 @@
         {
             "objectName": "plate",
             "displayName": "Plate",
-            "defense": {
+            "defenses": {
                 "cut": 50,
                 "pierce": 40,
                 "crush": 25
@@ -177,72 +177,73 @@
         }
     ],
 
+	"unitTypes": [
+		{
+			"objectName": "spearman",
+			"displayName": "Spearman",
+			"hitpoints": 30,
+			"rank": "Soldier",
+			"class": "infantry",
+			"level": 1,
+			"armor": "leather",
+			"weapons": ["spear"]
+		},
+		{
+			"objectName": "swordsman",
+			"displayName": "Swordsman",
+			"hitpoints": 30,
+			"rank": "Soldier",
+			"class": "infantry",
+			"level": 1,
+			"armor": "leather",
+			"weapons": ["shortsword"]
+		},
+		{
+			"objectName": "archer",
+			"displayName": "Archer",
+			"hitpoints": 30,
+			"rank": "Soldier",
+			"class": "missile",
+			"level": 1,
+			"armor": "cloth",
+			"weapons": ["bow", "shortsword"]
+		},
+		{
+			"objectName": "horsemen",
+			"displayName": "Horsemen",
+			"hitpoints": 35,
+			"rank": "Soldier",
+			"class": "cavalry",
+			"level": 1,
+			"armor": "leather",
+			"weapons": ["lance", "shortsword"]
+		},
+		{
+			"objectName": "seargant",
+			"displayName": "Seargant",
+			"hitpoints": 35,
+			"rank": "Officer",
+			"class": "infantry",
+			"level": 1,
+			"armor": "mail",
+			"weapons": ["lance", "longsword"]
+		},
+		{
+			"objectName": "king",
+			"displayName": "King",
+			"hitpoints": 50,
+			"rank": "Leader",
+			"class": "cavalry",
+			"level": 3,
+			"armor": "plate",
+			"weapons": ["lance", "longsword"]
+		}
+	],
+
     "factions": [
         {
             "objectName": "default",
             "displayName": "Default",
-			"unitTypes": [
-                {
-                    "objectName": "spearman",
-                    "displayName": "Spearman",
-                    "hitpoints": 30,
-                    "rank": "soldier",
-                    "type": "infantry",
-                    "level": 1,
-                    "armor": "leather",
-                    "weapons": ["spear"]
-                },
-                {
-                    "objectName": "swordsman",
-                    "displayName": "Swordsman",
-                    "hitpoints": 30,
-                    "rank": "soldier",
-                    "type": "infantry",
-                    "level": 1,
-                    "armor": "leather",
-                    "weapons": ["shortsword"]
-                },
-                {
-                    "objectName": "archer",
-                    "displayName": "Archer",
-                    "hitpoints": 30,
-                    "rank": "soldier",
-                    "type": "missile",
-                    "level": 1,
-                    "armor": "cloth",
-                    "weapons": ["bow", "shortsword"]
-                },
-                {
-                    "objectName": "horsemen",
-                    "displayName": "Horsemen",
-                    "hitpoints": 35,
-                    "rank": "soldier",
-                    "type": "cavalry",
-                    "level": 1,
-                    "armor": "leather",
-                    "weapons": ["lance", "shortsword"]
-                },
-                {
-                    "objectName": "seargant",
-                    "displayName": "Seargant",
-                    "hitpoints": 35,
-                    "rank": "officer",
-                    "type": "infantry",
-                    "level": 1,
-                    "armor": "mail",
-                    "weapons": ["lance", "longsword"]
-                },
-                {
-                    "objectName": "king",
-                    "displayName": "King",
-                    "hitpoints": 50,
-                    "rank": "leader",
-                    "type": "cavalry",
-                    "level": 3,
-                    "armor": "plate",
-                    "weapons": ["lance", "longsword"]
-                }
-            ],
         }
     ]
 }

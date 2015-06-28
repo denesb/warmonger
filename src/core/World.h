@@ -3,6 +3,11 @@
 
 #include "core/TerrainType.h"
 #include "core/UnitClass.h"
+#include "core/DamageType.h"
+#include "core/Weapon.h"
+#include "core/Armor.h"
+#include "core/UnitType.h"
+#include "core/Faction.h"
 
 namespace core {
 
@@ -20,16 +25,32 @@ public:
 	int getCityGoldPt() const;
 	void setCityGoldPt(int cityGoldPt);
 
-	WorldItem * getWorldItem(const QString &className, const QString &objectName) const;
+	QString getDescription() const;
+	void setDescription(const QString &description);
+
+	QList<TerrainType *> getTerrainTypes() const;
+	void setTerrainTypes(const QList<TerrainType *> &terrainTypes);
+
+	QList<UnitClass *> getUnitClasses() const;
+	void setUnitClasses(const QList<UnitClass *> &unitClasses);
+
+	QList<DamageType *> getDamageTypes() const;
+	void setDamageTypes(const QList<DamageType *> &damageTypes);
 
 	void fromJson(const QJsonObject &obj);
 	QJsonObject toJson() const;
 
 private:
+	QString description;
 	int villageGoldPt;
 	int cityGoldPt;
 	QList<TerrainType *> terrainTypes;
 	QList<UnitClass *> unitClasses;
+	QList<DamageType *> damageTypes;
+	QList<Weapon *> weapons;
+	QList<Armor *> armors;
+	QList<UnitType *> unitTypes;
+	QList<Faction *> factions;
 };
 
 }; // namespace core

@@ -3,9 +3,7 @@
 
 #include <QString>
 #include <QObject>
-#include <QJsonValue>
 #include <QJsonObject>
-#include <QJsonArray>
 
 namespace core {
 
@@ -24,25 +22,8 @@ public:
 
 	bool isRootWorldItem();
 
-	virtual WorldItem * getWorldItem(const QString &className, const QString &objectName) const = 0;
-
 	virtual void fromJson(const QJsonObject &obj);
 	virtual QJsonObject toJson() const;
-
-	template<class P>
-	QList<P *> propertyListFromJson(const QJsonArray &array)
-	{
-		QList<P *> list;
-
-		for (const QJsonValue item : array)
-		{
-			P *property = new P(this);
-			property->fromJson(item.toObject());
-			list.append(property);
-		}
-
-		return std::move(list);
-	}
 	
 private:
 	QString displayName;

@@ -5,32 +5,14 @@
 
 using namespace core;
 
-WorldMeta::WorldMeta(
-	const QString &name,
-	const QString &displayName,
-	const QString &description,
-	const QString &path,
-	QObject *parent
-) :
-	QObject(parent),
-	name(name),
-	displayName(displayName),
-	description(description),
-	path(path)
-{
-}
-
-WorldMeta::WorldMeta(const QJsonObject &obj, QObject *parent) :
+WorldMeta::WorldMeta(QObject *parent) :
 	QObject(parent)
 {
-    this->name = obj["name"].toString();
-    this->displayName = obj["display_name"].toString();
-    this->description = obj["description"].toString();
 }
 
-QString WorldMeta::getName() const
+QString WorldMeta::getObjectName() const
 {
-    return this->name;
+    return this->objectName();
 }
 
 QString WorldMeta::getDisplayName() const
@@ -38,16 +20,41 @@ QString WorldMeta::getDisplayName() const
     return this->displayName;
 }
 
+void WorldMeta::setDisplayName(const QString &displayName)
+{
+	this->displayName = displayName;
+}
+
 QString WorldMeta::getDescription() const
 {
     return this->description;
 }
 
-QString WorldMeta::getPath() const
+void WorldMeta::setDescription(const QString &description)
 {
-    return this->path;
+	this->description = description;
 }
 
-QJsonObject toJson() const
+WorldMeta * WorldMeta::newFromJson(const QJsonObject &obj, QObject *parent)
 {
+	WorldMeta *worldMeta = new WorldMeta(parent);
+	worldMeta->fromJson(obj);
+	return worldMeta;
+}
+
+void WorldMeta::fromJson(const QJsonObject &obj)
+{
+    this->setObjectName(obj["objectName"].toString());
+    this->displayName = obj["displayName"].toString();
+    this->description = obj["description"].toString();
+}
+
+QJsonObject WorldMeta::toJson() const
+{
+	QJsonObject obj;
+	obj["objectName"] = this->objectName();
+	obj["displayName"] = this->displayName;
+	obj["description"] = this->description;
+
+	return std::move(obj);
 }

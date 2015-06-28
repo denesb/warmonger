@@ -1,9 +1,9 @@
+#ifndef CORE_WORLD_META_H
+#define CORE_WORLD_META_H
+
 #include <QObject>
 #include <QString>
 #include <QJsonObject>
-
-#ifndef CORE_WORLD_META_H
-#define CORE_WORLD_META_H
 
 namespace core {
 
@@ -13,26 +13,23 @@ class WorldMeta :
     Q_OBJECT
 
 public:
-    WorldMeta(
-		const QString &name,
-		const QString &displayName,
-		const QString &description,
-		const QString &path,
-		QObject *parent = nullptr
-	);
-	WorldMeta(const QJsonObject &obj, QObject *parent = nullptr);
+	WorldMeta(QObject *parent = nullptr);
 
-    QString getName() const;
+    QString getObjectName() const;
+
     QString getDisplayName() const;
-    QString getDescription() const;
-    QString getPath() const;
+	void setDisplayName(const QString &displayName);
 
+	QString getDescription() const;
+	void setDescription(const QString &description);
+
+	static WorldMeta * newFromJson(const QJsonObject &obj, QObject *parent = nullptr);
+	void fromJson(const QJsonObject &obj);
 	QJsonObject toJson() const;
 private:
     QString name;
     QString displayName;
     QString description;
-    QString path;
 };
 
 }; // namespace core

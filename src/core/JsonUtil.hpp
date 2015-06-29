@@ -1,9 +1,12 @@
-#ifndef TORE_JSON_UTIL_HPP
-#define TORE_JSON_UTIL_HPP
+#ifndef CORE_JSON_UTIL_HPP
+#define CORE_JSON_UTIL_HPP
 
 #include <QObject>
+#include <QString>
 #include <QList>
 #include <QMap>
+#include <QFile>
+#include <QJsonDocument>
 #include <QJsonValue>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -108,6 +111,23 @@ QJsonObject objectValueMapToJson(const QMap<T *, int> &map)
 	return std::move(obj);
 }
 
+template<typename T>
+T * newFromJsonFile(const QString &path, QObject *parent = nullptr)
+{
+	QFile jsonFile(path);
+
+    if (!jsonFile.open(QIODevice::ReadOnly))
+    {
+        //TODO: throw something
+    }
+
+    QByteArray jsonData = jsonFile.readAll();
+    QJsonDocument doc(QJsonDocument::fromJson(jsonData));
+	QJsonObject obj = doc.object();
+
+	return newFromJson<T>(obj, parent);
+}
+
 }; // namespace core
 
-#endif // TORE_JSON_UTIL_HPP
+#endif // CORE_JSON_UTIL_HPP

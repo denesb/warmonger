@@ -1,18 +1,11 @@
-#include <QFile>
-#include <QJsonDocument>
-
 #include "core/WorldMeta.h"
+#include "core/JsonUtil.hpp"
 
 using namespace core;
 
 WorldMeta::WorldMeta(QObject *parent) :
 	QObject(parent)
 {
-}
-
-QString WorldMeta::getObjectName() const
-{
-    return this->objectName();
 }
 
 QString WorldMeta::getDisplayName() const
@@ -33,13 +26,6 @@ QString WorldMeta::getDescription() const
 void WorldMeta::setDescription(const QString &description)
 {
 	this->description = description;
-}
-
-WorldMeta * WorldMeta::newFromJson(const QJsonObject &obj, QObject *parent)
-{
-	WorldMeta *worldMeta = new WorldMeta(parent);
-	worldMeta->fromJson(obj);
-	return worldMeta;
 }
 
 void WorldMeta::fromJson(const QJsonObject &obj)

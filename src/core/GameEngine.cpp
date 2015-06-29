@@ -1,48 +1,74 @@
 #include <QDir>
-#include <QJsonDocument>
-#include <QJsonObject>
 
 #include "core/GameEngine.h"
+#include "core/JsonUtil.hpp"
 
 using namespace core;
 
 GameEngine::GameEngine()
 {
-    QDir worldsDir("worlds");
-    worldsDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
-    worldsDir.setSorting(QDir::Name);
-	const QString worldsDirPath = worldsDir.canonicalPath();
+}
 
-    for(const QString worldDirName : worldsDir.entryList())
-    {
-		this->worlds.append(this->worldFromDir(worldsDirPath + "/" + worldDirName));
+GameEngine::~GameEngine()
+{
+}
+
+QStringList GameEngine::getWorldSearchPath() const
+{
+	return this->worldSearchPath;
+}
+
+void GameEngine::setWorldSearchPath(const QStringList &worldSearchPath)
+{
+	if (this->worldSearchPath != worldSearchPath)
+	{
+		this->worldSearchPath = worldSearchPath;
+		this->scanWorldSearchPath();
 	}
 }
 
-int GameEngine::getVersion()
+QList<WorldMeta*> GameEngine::getWorldMetaList() const
 {
-    return 0;
+    return this->worldMetas;
 }
 
-QList<World*> GameEngine::getWorldList()
+World * GameEngine::loadWorld(const QString &worldName)
 {
-    return this->worlds;
+	return newFromJsonFile<World>(this->pathToWorld[worldName]);
 }
 
-World *GameEngine::worldFromDir(const QString &worldDir)
+void GameEngine::scanWorldSearchPath()
 {
-	QFile worldFile(worldDir + "/world.json");
+	this->pathToWorld.clear();
 
-    if (!worldFile.open(QIODevice::ReadOnly))
-    {
-        //TODO: throw something
-    }
+	for (const QString scanPath : this->worldSearchPath)
+	{
+		QDir scanDir(scanPath);
+		scanDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+		scanDir.setSorting(QDir::Name);
 
-    QByteArray jsonData = worldFile.readAll();
-    QJsonDocument doc(QJsonDocument::fromJson(jsonData));
+		for(const QString dir : scanDir.entryList())
+		{
+			const QString path = scanPath + "/" + dir;
+			if (QFile::exists(path + "/world.json"))
+			{
+				this->pathToWorld[dir] = path;
+			}
+		}
+	}
+}
 
-    World *world = new World(this);
-	world->fromJson(doc.object());
+void GameEngine::loadWorldMetaList()
+{
+	for (WorldMeta *worldMeta : this->worldMetas)
+	{
+		worldMeta->deleteLater();
+	}
+	this->worldMetas.clear();
 
-	return world;
+	QMap<QString, QString>::ConstIterator it;
+	for (it = this->pathToWorld.constBegin(); it != this->pathToWorld.constEnd(); it++)
+	{
+		this->worldMetas.append(newFromJsonFile<WorldMeta>(it.value(), this));
+	}
 }

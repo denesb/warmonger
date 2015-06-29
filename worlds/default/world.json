@@ -244,6 +244,14 @@
         {
             "objectName": "default",
             "displayName": "Default",
+			"unitTypes": [
+				"spearman",
+				"swordsman",
+				"archer",
+				"horsemen",
+				"seargant",
+				"king"
+			]
         }
     ]
 }

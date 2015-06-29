@@ -20,6 +20,7 @@ SOURCES += \
     $$SRC/Warmonger.cpp \
     $$SRC/core/GameEngine.cpp \
 	$$SRC/core/WorldItem.cpp \
+    $$SRC/core/WorldMeta.cpp \
     $$SRC/core/World.cpp \
 	$$SRC/core/TerrainType.cpp \
 	$$SRC/core/UnitClass.cpp \

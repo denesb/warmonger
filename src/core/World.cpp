@@ -3,6 +3,8 @@
 
 using namespace core;
 
+const QString World::WorldDefinitionFile = "world.json";
+
 World::World(QObject *parent) :
     WorldItem(parent),
     description(""),

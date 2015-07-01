@@ -17,6 +17,8 @@ class World :
     Q_OBJECT
 
 public:
+    static const QString WorldDefinitionFile;
+
     World(QObject *parent = nullptr);
 
     int getVillageGoldPt() const;

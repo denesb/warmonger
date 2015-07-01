@@ -35,7 +35,7 @@ QList<WorldMeta*> GameEngine::getWorldMetaList() const
 
 World * GameEngine::loadWorld(const QString &worldName)
 {
-    return newFromJsonFile<World>(this->pathToWorld[worldName] + "/world.json");
+    return newFromJsonFile<World>(this->pathToWorld[worldName] + "/" + World::WorldDefinitionFile);
 }
 
 void GameEngine::scanWorldSearchPath()
@@ -53,7 +53,7 @@ void GameEngine::scanWorldSearchPath()
         for(const QString dir : scanDir.entryList())
         {
             const QString path = scanCanonicalPath + "/" + dir;
-            if (QFile::exists(path + "/world.json"))
+            if (QFile::exists(path + "/" + World::WorldDefinitionFile))
             {
                 this->pathToWorld[dir] = path;
             }
@@ -72,6 +72,6 @@ void GameEngine::loadWorldMetaList()
     QMap<QString, QString>::ConstIterator it;
     for (it = this->pathToWorld.constBegin(); it != this->pathToWorld.constEnd(); it++)
     {
-        this->worldMetas.append(newFromJsonFile<WorldMeta>(it.value() + "/world.json", this));
+        this->worldMetas.append(newFromJsonFile<WorldMeta>(it.value() + "/" + World::WorldDefinitionFile, this));
     }
 }

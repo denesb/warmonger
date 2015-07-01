@@ -1,7 +1,7 @@
 {
     "objectName": "default",
     "displayName": "Default world",
-    "description": "Detailed description about the world comes here...."
+    "description": "Detailed description about the world comes here....",
 
     "villageGoldPt": 1,
     "cityGoldPt": 3,
@@ -9,19 +9,19 @@
     "terrainTypes": [
         {
             "objectName": "plains",
-            "displayName": "Plains",
+            "displayName": "Plains"
         },
         {
             "objectName": "hills",
-            "displayName": "Hills",
+            "displayName": "Hills"
         },
         {
             "objectName": "mountains",
-            "displayName": "Mountains",
+            "displayName": "Mountains"
         },
         {
             "objectName": "forest",
-            "displayName": "Forest",
+            "displayName": "Forest"
         }
     ],
 
@@ -107,7 +107,7 @@
             "displayName": "Shortsword",
             "range": 0,
             "damages": {
-                "cut": 6
+                "cut": 6,
                 "pierce": 3
             }
         },

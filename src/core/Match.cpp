@@ -5,13 +5,13 @@
 using namespace core;
 
 Match::Match(const World *world, Map *map, QObject *parent) :
-	QObject(parent),
-	world(world),
-	map(map)
+    QObject(parent),
+    world(world),
+    map(map)
 {
 }
 
 Match::Match(const QJsonObject &json, QObject *parent) :
-	QObject(parent)
+    QObject(parent)
 {
 }

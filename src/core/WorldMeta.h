@@ -13,16 +13,16 @@ class WorldMeta :
     Q_OBJECT
 
 public:
-	WorldMeta(QObject *parent = nullptr);
+    WorldMeta(QObject *parent = nullptr);
 
     QString getDisplayName() const;
-	void setDisplayName(const QString &displayName);
+    void setDisplayName(const QString &displayName);
 
-	QString getDescription() const;
-	void setDescription(const QString &description);
+    QString getDescription() const;
+    void setDescription(const QString &description);
 
-	void fromJson(const QJsonObject &obj);
-	QJsonObject toJson() const;
+    void fromJson(const QJsonObject &obj);
+    QJsonObject toJson() const;
 
 private:
     QString name;

@@ -17,20 +17,20 @@ class GameEngine :
 
 public:
     GameEngine();
-	~GameEngine();
+    ~GameEngine();
 
-	QStringList getWorldSearchPath() const;
-	void setWorldSearchPath(const QStringList &worldSearchPath);
+    QStringList getWorldSearchPath() const;
+    void setWorldSearchPath(const QStringList &worldSearchPath);
 
     QList<WorldMeta*> getWorldMetaList() const;
-	World * loadWorld(const QString &worldName);
-	
+    World * loadWorld(const QString &worldName);
+    
 private:
-	void scanWorldSearchPath();
-	void loadWorldMetaList();
+    void scanWorldSearchPath();
+    void loadWorldMetaList();
 
-	QStringList worldSearchPath;
-	QMap<QString, QString> pathToWorld;
+    QStringList worldSearchPath;
+    QMap<QString, QString> pathToWorld;
     QList<WorldMeta*> worldMetas;
     World* world;
 };

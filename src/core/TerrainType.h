@@ -6,13 +6,13 @@
 namespace core {
 
 class TerrainType :
-	public WorldItem
+    public WorldItem
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	TerrainType(QObject *parent = nullptr);
-	~TerrainType();
+    TerrainType(QObject *parent = nullptr);
+    ~TerrainType();
 };
 
 }; // namespace core

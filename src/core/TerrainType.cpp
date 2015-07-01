@@ -3,7 +3,7 @@
 using namespace core;
 
 TerrainType::TerrainType(QObject *parent) :
-	WorldItem(parent)
+    WorldItem(parent)
 {
 }
 

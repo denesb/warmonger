@@ -9,49 +9,49 @@
 namespace core {
 
 class UnitType :
-	public WorldItem
+    public WorldItem
 {
-	Q_OBJECT;
+    Q_OBJECT;
 
 public:
-	enum UnitRank
-	{
-		Soldier = 0,
-		Officer = 1,
-		Leader = 2
-	};
+    enum UnitRank
+    {
+        Soldier = 0,
+        Officer = 1,
+        Leader = 2
+    };
 
-	UnitType(QObject *parent = nullptr);
-	~UnitType();
+    UnitType(QObject *parent = nullptr);
+    ~UnitType();
 
-	int getHitpoints() const;
-	void setHitpoints(int hitpoints);
+    int getHitpoints() const;
+    void setHitpoints(int hitpoints);
 
-	UnitRank getUnitRank() const;
-	void setUnitRank(UnitRank rank);
+    UnitRank getUnitRank() const;
+    void setUnitRank(UnitRank rank);
 
-	UnitClass *getUnitClass() const;
-	void setUnitClass(UnitClass *klass);
+    UnitClass *getUnitClass() const;
+    void setUnitClass(UnitClass *klass);
 
-	int getLevel() const;
-	void setLevel(int level);
+    int getLevel() const;
+    void setLevel(int level);
 
-	Armor * getArmor() const;
-	void setArmor(Armor *armor);
+    Armor * getArmor() const;
+    void setArmor(Armor *armor);
 
-	QList<Weapon *> getWeapons() const;
-	void setWeapons(const QList<Weapon *> &weapons);
+    QList<Weapon *> getWeapons() const;
+    void setWeapons(const QList<Weapon *> &weapons);
 
-	void fromJson(const QJsonObject &obj);
-	QJsonObject toJson() const;
+    void fromJson(const QJsonObject &obj);
+    QJsonObject toJson() const;
 
 private:
-	int hitpoints;
-	UnitRank rank;
-	UnitClass *klass;
-	int level;
-	Armor *armor;
-	QList<Weapon *> weapons;
+    int hitpoints;
+    UnitRank rank;
+    UnitClass *klass;
+    int level;
+    Armor *armor;
+    QList<Weapon *> weapons;
 };
 
 }; // namespace core

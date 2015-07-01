@@ -17,40 +17,40 @@ class World :
     Q_OBJECT
 
 public:
-	World(QObject *parent = nullptr);
+    World(QObject *parent = nullptr);
 
-	int getVillageGoldPt() const;
-	void setVillageGoldPt(int villageGoldPt);
+    int getVillageGoldPt() const;
+    void setVillageGoldPt(int villageGoldPt);
 
-	int getCityGoldPt() const;
-	void setCityGoldPt(int cityGoldPt);
+    int getCityGoldPt() const;
+    void setCityGoldPt(int cityGoldPt);
 
-	QString getDescription() const;
-	void setDescription(const QString &description);
+    QString getDescription() const;
+    void setDescription(const QString &description);
 
-	QList<TerrainType *> getTerrainTypes() const;
-	void setTerrainTypes(const QList<TerrainType *> &terrainTypes);
+    QList<TerrainType *> getTerrainTypes() const;
+    void setTerrainTypes(const QList<TerrainType *> &terrainTypes);
 
-	QList<UnitClass *> getUnitClasses() const;
-	void setUnitClasses(const QList<UnitClass *> &unitClasses);
+    QList<UnitClass *> getUnitClasses() const;
+    void setUnitClasses(const QList<UnitClass *> &unitClasses);
 
-	QList<DamageType *> getDamageTypes() const;
-	void setDamageTypes(const QList<DamageType *> &damageTypes);
+    QList<DamageType *> getDamageTypes() const;
+    void setDamageTypes(const QList<DamageType *> &damageTypes);
 
-	void fromJson(const QJsonObject &obj);
-	QJsonObject toJson() const;
+    void fromJson(const QJsonObject &obj);
+    QJsonObject toJson() const;
 
 private:
-	QString description;
-	int villageGoldPt;
-	int cityGoldPt;
-	QList<TerrainType *> terrainTypes;
-	QList<UnitClass *> unitClasses;
-	QList<DamageType *> damageTypes;
-	QList<Weapon *> weapons;
-	QList<Armor *> armors;
-	QList<UnitType *> unitTypes;
-	QList<Faction *> factions;
+    QString description;
+    int villageGoldPt;
+    int cityGoldPt;
+    QList<TerrainType *> terrainTypes;
+    QList<UnitClass *> unitClasses;
+    QList<DamageType *> damageTypes;
+    QList<Weapon *> weapons;
+    QList<Armor *> armors;
+    QList<UnitType *> unitTypes;
+    QList<Faction *> factions;
 };
 
 }; // namespace core

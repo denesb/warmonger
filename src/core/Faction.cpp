@@ -4,7 +4,7 @@
 using namespace core;
 
 Faction::Faction(QObject *parent) :
-	WorldItem(parent)
+    WorldItem(parent)
 {
 }
 
@@ -14,25 +14,25 @@ Faction::~Faction()
 
 QList<UnitType *> Faction::getUnitTypes() const
 {
-	return this->unitTypes;
+    return this->unitTypes;
 }
 
 void Faction::setUnitTypes(const QList<UnitType *> &unitTypes)
 {
-	this->unitTypes = unitTypes;
+    this->unitTypes = unitTypes;
 }
 
 void Faction::fromJson(const QJsonObject &obj)
 {
-	WorldItem::fromJson(obj);
-	this->unitTypes = referenceListFromJson<UnitType>(obj["unitTypes"].toArray(), this);
+    WorldItem::fromJson(obj);
+    this->unitTypes = referenceListFromJson<UnitType>(obj["unitTypes"].toArray(), this);
 }
 
 QJsonObject Faction::toJson() const
 {
-	QJsonObject &&obj = WorldItem::toJson();
+    QJsonObject &&obj = WorldItem::toJson();
 
-	obj["unitTypes"] = referenceListToJson<UnitType>(this->unitTypes);
+    obj["unitTypes"] = referenceListToJson<UnitType>(this->unitTypes);
 
-	return std::move(obj);
+    return std::move(obj);
 }

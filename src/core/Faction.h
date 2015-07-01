@@ -6,22 +6,22 @@
 namespace core {
 
 class Faction :
-	public WorldItem
+    public WorldItem
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	Faction(QObject *parent = nullptr);
-	~Faction();
+    Faction(QObject *parent = nullptr);
+    ~Faction();
 
-	QList<UnitType *> getUnitTypes() const;
-	void setUnitTypes(const QList<UnitType *> &unitTypes);
+    QList<UnitType *> getUnitTypes() const;
+    void setUnitTypes(const QList<UnitType *> &unitTypes);
 
-	void fromJson(const QJsonObject &obj);
-	QJsonObject toJson() const;
+    void fromJson(const QJsonObject &obj);
+    QJsonObject toJson() const;
 
 private:
-	QList<UnitType *> unitTypes;
+    QList<UnitType *> unitTypes;
 };
 
 }; // namespace core

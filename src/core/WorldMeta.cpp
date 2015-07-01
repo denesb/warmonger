@@ -4,7 +4,7 @@
 using namespace core;
 
 WorldMeta::WorldMeta(QObject *parent) :
-	QObject(parent)
+    QObject(parent)
 {
 }
 
@@ -15,7 +15,7 @@ QString WorldMeta::getDisplayName() const
 
 void WorldMeta::setDisplayName(const QString &displayName)
 {
-	this->displayName = displayName;
+    this->displayName = displayName;
 }
 
 QString WorldMeta::getDescription() const
@@ -25,7 +25,7 @@ QString WorldMeta::getDescription() const
 
 void WorldMeta::setDescription(const QString &description)
 {
-	this->description = description;
+    this->description = description;
 }
 
 void WorldMeta::fromJson(const QJsonObject &obj)
@@ -37,10 +37,10 @@ void WorldMeta::fromJson(const QJsonObject &obj)
 
 QJsonObject WorldMeta::toJson() const
 {
-	QJsonObject obj;
-	obj["objectName"] = this->objectName();
-	obj["displayName"] = this->displayName;
-	obj["description"] = this->description;
+    QJsonObject obj;
+    obj["objectName"] = QJsonValue(this->objectName());
+    obj["displayName"] = this->displayName;
+    obj["description"] = this->description;
 
-	return std::move(obj);
+    return std::move(obj);
 }

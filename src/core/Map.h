@@ -12,7 +12,7 @@ class Map :
     Q_OBJECT
 
 public:
-	Map(const QJsonObject &json, QObject *parent = nullptr);
+    Map(const QJsonObject &json, QObject *parent = nullptr);
 
 private:
 };

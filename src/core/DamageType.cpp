@@ -3,7 +3,7 @@
 using namespace core;
 
 DamageType::DamageType(QObject *parent) :
-	WorldItem(parent)
+    WorldItem(parent)
 {
 }
 

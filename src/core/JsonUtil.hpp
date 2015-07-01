@@ -16,105 +16,105 @@ namespace core {
 template<typename T>
 T * newFromJson(const QJsonObject &obj, QObject *parent = nullptr)
 {
-	T *instance = new T(parent);
-	instance->fromJson(obj);
-	return instance;
+    T *instance = new T(parent);
+    instance->fromJson(obj);
+    return instance;
 }
 
 template<typename T>
 QList<T *> newListFromJson(const QJsonArray &array, QObject *parent = nullptr)
 {
-	QList<T *> list;
+    QList<T *> list;
 
-	for (const QJsonValue v : array)
-	{
-		T *instance = new T(parent);
-		instance->fromJson(v.toObject());
-		list.append(instance);
-	}
+    for (const QJsonValue v : array)
+    {
+        T *instance = new T(parent);
+        instance->fromJson(v.toObject());
+        list.append(instance);
+    }
 
-	return std::move(list);
+    return std::move(list);
 }
 
 template<typename T>
 QJsonArray listToJson(const QList<T *> &list)
 {
-	QJsonArray array;
+    QJsonArray array;
 
-	for (const T *instance : list)
-	{
-		array.append(instance->toJson());
-	}
+    for (const T *instance : list)
+    {
+        array.append(instance->toJson());
+    }
 
-	return std::move(array);
+    return std::move(array);
 }
 
 template<typename T>
 QList<T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
 {
-	QList<T *> list;
-	QObject *parent = owner->parent();
+    QList<T *> list;
+    QObject *parent = owner->parent();
 
-	for (const QJsonValue v : array)
-	{
-		const QString name = v.toString();
-		T * instance = parent->findChild<T *>(name);
-		list.append(instance);
-	}
+    for (const QJsonValue v : array)
+    {
+        const QString name = v.toString();
+        T * instance = parent->findChild<T *>(name);
+        list.append(instance);
+    }
 
-	return std::move(list);
+    return std::move(list);
 }
 
 template<typename T>
 QJsonArray referenceListToJson(const QList<T *> &list)
 {
-	QJsonArray array;
+    QJsonArray array;
 
-	for (const T * instance : list)
-	{
-		array.append(instance->objectName());
-	}
+    for (const T * instance : list)
+    {
+        array.append(instance->objectName());
+    }
 
-	return std::move(array);
+    return std::move(array);
 }
 
 template<typename T>
 QMap<T *, int> objectValueMapFromJson(const QJsonObject &obj, const QObject * const owner)
 {
-	QMap<T *, int> map;
-	QObject *parent = owner->parent();
+    QMap<T *, int> map;
+    QObject *parent = owner->parent();
 
-	QJsonObject::const_iterator it;
+    QJsonObject::const_iterator it;
     for(it = obj.constBegin(); it != obj.constEnd(); it++)
-	{
-		const QString name = it.key();
-		T *instance = parent->findChild<T *>(name);
+    {
+        const QString name = it.key();
+        T *instance = parent->findChild<T *>(name);
 
-		map[instance] = it.value().toInt();
-	}
+        map[instance] = it.value().toInt();
+    }
 
-	return std::move(map);
+    return std::move(map);
 }
 
 template<typename T>
 QJsonObject objectValueMapToJson(const QMap<T *, int> &map)
 {
-	QJsonObject obj;
+    QJsonObject obj;
 
-	typename QMap<T *, int>::const_iterator it;
+    typename QMap<T *, int>::const_iterator it;
     for(it = map.constBegin(); it != map.constEnd(); it++)
-	{
-		T *instance = it.key();
-		obj[instance->objectName()] = it.value();
-	}
-	
-	return std::move(obj);
+    {
+        T *instance = it.key();
+        obj[instance->objectName()] = it.value();
+    }
+    
+    return std::move(obj);
 }
 
 template<typename T>
 T * newFromJsonFile(const QString &path, QObject *parent = nullptr)
 {
-	QFile jsonFile(path);
+    QFile jsonFile(path);
 
     if (!jsonFile.open(QIODevice::ReadOnly))
     {
@@ -122,10 +122,15 @@ T * newFromJsonFile(const QString &path, QObject *parent = nullptr)
     }
 
     QByteArray jsonData = jsonFile.readAll();
-    QJsonDocument doc(QJsonDocument::fromJson(jsonData));
-	QJsonObject obj = doc.object();
 
-	return newFromJson<T>(obj, parent);
+    jsonFile.close();
+    
+    QJsonParseError parseError;
+
+    QJsonDocument doc(QJsonDocument::fromJson(jsonData, &parseError));
+    QJsonObject obj = doc.object();
+
+    return newFromJson<T>(obj, parent);
 }
 
 }; // namespace core

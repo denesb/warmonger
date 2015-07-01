@@ -8,25 +8,25 @@
 namespace core {
 
 class WorldItem :
-	public QObject
+    public QObject
 {
-	Q_OBJECT
-	Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName)
+    Q_OBJECT
+    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName)
 
 public:
-	WorldItem(QObject *parent = nullptr);
-	virtual ~WorldItem();
+    WorldItem(QObject *parent = nullptr);
+    virtual ~WorldItem();
 
-	QString getDisplayName() const;
-	void setDisplayName(const QString &displayName);
+    QString getDisplayName() const;
+    void setDisplayName(const QString &displayName);
 
-	bool isRootWorldItem();
+    bool isRootWorldItem();
 
-	virtual void fromJson(const QJsonObject &obj);
-	virtual QJsonObject toJson() const;
-	
+    virtual void fromJson(const QJsonObject &obj);
+    virtual QJsonObject toJson() const;
+    
 private:
-	QString displayName;
+    QString displayName;
 };
 
 }; // namespace core

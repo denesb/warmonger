@@ -6,13 +6,13 @@
 namespace core {
 
 class DamageType :
-	public WorldItem
+    public WorldItem
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	DamageType(QObject *parent = nullptr);
-	~DamageType();
+    DamageType(QObject *parent = nullptr);
+    ~DamageType();
 };
 
 }; // namespace core

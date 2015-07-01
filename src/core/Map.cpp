@@ -3,6 +3,6 @@
 using namespace core;
 
 Map::Map(QObject &parent) :
-	QObject(parent)
+    QObject(parent)
 {
 }

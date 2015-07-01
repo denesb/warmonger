@@ -17,17 +17,17 @@ class Match :
 
 public:
     Match(const World *world, Map *map, QObject *parent = nullptr);
-	Match(const QJsonObject &json, QObject *parent = nullptr);
+    Match(const QJsonObject &json, QObject *parent = nullptr);
 
-	Player * getPlayers() const;
-	Player * getPlayer(int i) const;
+    Player * getPlayers() const;
+    Player * getPlayer(int i) const;
 
-	void save() const;
+    void save() const;
 
 private:
-	World *world;
-	Map *map;
-	QList<Player *> players;
+    World *world;
+    Map *map;
+    QList<Player *> players;
 };
 
 }; // namespace core

@@ -22,8 +22,12 @@ public:
     QStringList getWorldSearchPath() const;
     void setWorldSearchPath(const QStringList &worldSearchPath);
 
-    QList<WorldMeta*> getWorldMetaList() const;
+    QList<WorldMeta *> getWorldMetaList() const;
     World * loadWorld(const QString &worldName);
+
+signals:
+    void worldSearchPathChanged(const QStringList &worldSearchPath);
+    void worldMetaListChanged(const QList<WorldMeta *> &worldMetaList);
     
 private:
     void scanWorldSearchPath();

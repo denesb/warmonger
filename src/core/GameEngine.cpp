@@ -23,6 +23,9 @@ void GameEngine::setWorldSearchPath(const QStringList &worldSearchPath)
     if (this->worldSearchPath != worldSearchPath)
     {
         this->worldSearchPath = worldSearchPath;
+
+        emit this->worldSearchPathChanged(this->worldSearchPath);
+
         this->scanWorldSearchPath();
         this->loadWorldMetaList();
     }

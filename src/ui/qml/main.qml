@@ -5,27 +5,40 @@ import QtQuick.Layouts 1.1
 Item {
     id: root
 
-    width: 800
-    height: 600
-
     Rectangle {
         id: main_menu
-        anchors.fill: parent
+        width: 200
+        height: 300
+        color: "#646464"
 
         Rectangle {
-            anchors.left: parent.left
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            width: 100
+            anchors.fill: parent
+            color: "#646464"
 
-            Text {
+            Rectangle {
+                anchors.left: parent.left
                 anchors.top: parent.top
-                
-                text: "Warmonger, game engine v" + engine.version
-            }
+                anchors.bottom: parent.bottom
+                anchors.margins: 10
+                width: 100
+                radius: 5
+                border.width: 1
+                border.color: "#353535"
 
-            Text {
-                text: "1) " + engine.worlds[0].displayName
+                ListView {
+                    anchors.fill: parent
+
+                    model: worldListModel
+                    delegate: Rectangle {
+                        color: red
+                        radius: 5
+                        Text {
+                            anchors.fill: parent
+                            anchors.margins: 5
+                            text: displayName
+                        }
+                    }
+                }
             }
         }
     }

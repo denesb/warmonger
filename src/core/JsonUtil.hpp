@@ -125,7 +125,7 @@ T * newFromJsonFile(const QString &path, QObject *parent = nullptr)
 
     jsonFile.close();
     
-    QJsonParseError parseError;
+    QJsonParseError parseError; //TODO: do something with this
 
     QJsonDocument doc(QJsonDocument::fromJson(jsonData, &parseError));
     QJsonObject obj = doc.object();

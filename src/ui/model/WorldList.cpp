@@ -8,15 +8,9 @@ WorldList::WorldList(QObject *parent) :
 {
 }
 
-void WorldList::addWorld(const core::WorldMeta *world)
+void WorldList::setData(const QList<core::WorldMeta *> &worlds)
 {
-    beginInsertRows(QModelIndex(), this->rowCount(), this->rowCount());
-    this->worlds << world;
-    endInsertRows();
-}
-
-void WorldList::addWorlds(const QList<core::WorldMeta *> &worlds)
-{
+    this->worlds.clear();
     beginInsertRows(QModelIndex(), this->rowCount(), this->rowCount());
     for (const core::WorldMeta *world : worlds)
     {

@@ -3,11 +3,12 @@ SRC = $$PWD
 INCLUDEPATH += $$SRC
 
 HEADERS += \
-    $$SRC/core/GameEngine.h \
+    $$SRC/Warmonger.h \
     $$SRC/core/JsonUtil.hpp \
     $$SRC/core/WorldMeta.h \
     $$SRC/core/WorldItem.h \
     $$SRC/core/World.h \
+    $$SRC/core/WorldLoader.h \
     $$SRC/core/TerrainType.h \
     $$SRC/core/UnitClass.h \
     $$SRC/core/DamageType.h \
@@ -18,11 +19,12 @@ HEADERS += \
     $$SRC/ui/model/WorldList.h
 
 SOURCES += \
+    $$SRC/main.cpp \
     $$SRC/Warmonger.cpp \
-    $$SRC/core/GameEngine.cpp \
     $$SRC/core/WorldItem.cpp \
     $$SRC/core/WorldMeta.cpp \
     $$SRC/core/World.cpp \
+    $$SRC/core/WorldLoader.cpp \
     $$SRC/core/TerrainType.cpp \
     $$SRC/core/UnitClass.cpp \
     $$SRC/core/DamageType.cpp \

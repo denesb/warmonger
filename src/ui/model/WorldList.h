@@ -21,9 +21,7 @@ public:
 
     WorldList(QObject *parent = nullptr);
 
-    void addWorld(const core::WorldMeta *world);
-
-    void addWorlds(const QList<core::WorldMeta *> &worlds);
+    void setData(const QList<core::WorldMeta *> &worlds);
 
     int rowCount(const QModelIndex & parent = QModelIndex()) const;
 

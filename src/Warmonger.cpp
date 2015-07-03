@@ -1,31 +1,53 @@
-#include <QtGui/QGuiApplication>
+#include <QGuiApplication>
 #include <QQmlContext>
 #include <QDebug>
 
+#include "Warmonger.h"
 #include "qtquick2applicationviewer.h"
-#include "core/GameEngine.h"
-#include "ui/model/WorldList.h"
 
-int main(int argc, char *argv[])
+using namespace warmonger;
+
+Warmonger::Warmonger(QObject *parent) :
+    QObject(parent),
+    worldLoader(nullptr),
+    worldList(nullptr)
+{
+}
+
+Warmonger::~Warmonger()
+{
+}
+
+int Warmonger::exec(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
-    core::GameEngine *engine = new core::GameEngine();
-
-    QStringList worldSearchPath;
-    worldSearchPath.append("worlds");
-
-    engine->setWorldSearchPath(worldSearchPath);
-
-    ui::model::WorldList *worldList = new ui::model::WorldList();
-
-    worldList->addWorlds(engine->getWorldMetaList());
-
-    QtQuick2ApplicationViewer viewer;
-    viewer.rootContext()->setContextProperty("engine", engine);
-    viewer.rootContext()->setContextProperty("worldListModel", worldList);
-    viewer.setMainQmlFile(QStringLiteral("qml/main.qml"));
-    viewer.showExpanded();
+    this->setupModels();
+    this->setupViews();
 
     return app.exec();
+}
+
+void Warmonger::setupModels()
+{
+    this->worldLoader = new core::WorldLoader(this);
+    this->worldList = new ui::model::WorldList(this);
+
+    QObject::connect(this->worldLoader,
+            &core::WorldLoader::worldListChanged,
+            this->worldList,
+            &ui::model::WorldList::setData);
+
+    //TODO: this does not belong here, will come from settings
+    QStringList worldSearchPath;
+    worldSearchPath.append("worlds");
+    this->worldLoader->setSearchPath(worldSearchPath);
+}
+
+void Warmonger::setupViews()
+{
+    QtQuick2ApplicationViewer viewer;
+    viewer.rootContext()->setContextProperty("warmonger", this);
+    viewer.setMainQmlFile(QStringLiteral("qml/main.qml"));
+    viewer.showExpanded();
 }

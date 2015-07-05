@@ -6,6 +6,7 @@
 #include "core/Armor.h"
 #include "core/Weapon.h"
 
+namespace warmonger {
 namespace core {
 
 class UnitType :
@@ -55,5 +56,6 @@ private:
 };
 
 }; // namespace core
+}; // namespace warmonger
 
 #endif // CORE_UNIT_TYPE_H

@@ -1,7 +1,7 @@
 #include "core/Armor.h"
 #include "core/JsonUtil.hpp"
 
-using namespace core;
+using namespace warmonger::core;
 
 Armor::Armor(QObject *parent) :
     WorldItem(parent)

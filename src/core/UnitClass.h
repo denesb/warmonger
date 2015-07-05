@@ -5,6 +5,7 @@
 
 #include "core/TerrainType.h"
 
+namespace warmonger {
 namespace core {
 
 class UnitClass :
@@ -46,5 +47,6 @@ private:
 };
 
 }; // namespace core
+}; // namespace warmonger
 
 #endif // CORE_UNIT_CLASS_H

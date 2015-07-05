@@ -5,6 +5,7 @@
 
 #include "core/DamageType.h"
 
+namespace warmonger {
 namespace core {
 
 class Armor :
@@ -34,5 +35,6 @@ private:
 };
 
 }; // namespace core
+}; // namespace warmonger
 
 #endif // CORE_ARMOR_H

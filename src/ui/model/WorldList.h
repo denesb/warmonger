@@ -3,9 +3,11 @@
 
 #include <QAbstractListModel>
 
-#include "core/WorldMeta.h"
+#include "core/World.h"
 
-namespace ui { namespace model {
+namespace warmonger {
+namespace ui {
+namespace model {
 
 class WorldList :
     public QAbstractListModel
@@ -21,7 +23,7 @@ public:
 
     WorldList(QObject *parent = nullptr);
 
-    void setData(const QList<core::WorldMeta *> &worlds);
+    void setData(const QList<core::World *> &worlds);
 
     int rowCount(const QModelIndex & parent = QModelIndex()) const;
 
@@ -31,9 +33,11 @@ protected:
     QHash<int, QByteArray> roleNames() const;
 
 private:
-    QList<const core::WorldMeta *> worlds;
+    QList<const core::World *> worlds;
 };
 
-}; }; // namespace ui::model
+}; // namespace model
+}; // namespace ui
+}; // namespace warmonger
 
 #endif // UI_MODEL_WORLDLIST_H

@@ -1,7 +1,7 @@
 #include "core/Faction.h"
 #include "core/JsonUtil.hpp"
 
-using namespace core;
+using namespace warmonger::core;
 
 Faction::Faction(QObject *parent) :
     WorldItem(parent)

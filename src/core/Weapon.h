@@ -6,6 +6,7 @@
 #include "core/WorldItem.h"
 #include "core/DamageType.h"
 
+namespace warmonger {
 namespace core {
 
 class Weapon :
@@ -35,5 +36,6 @@ private:
 };
 
 }; // namespace core
+}; // namespace warmonger
 
 #endif // CORE_WEAPON_H

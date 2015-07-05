@@ -1,7 +1,7 @@
 #include "core/World.h"
 #include "core/JsonUtil.hpp"
 
-using namespace core;
+using namespace warmonger::core;
 
 const QString World::WorldDefinitionFile = "world.json";
 

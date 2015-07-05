@@ -1,6 +1,6 @@
 #include "core/DamageType.h"
 
-using namespace core;
+using namespace warmonger::core;
 
 DamageType::DamageType(QObject *parent) :
     WorldItem(parent)

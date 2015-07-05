@@ -5,9 +5,9 @@
 #include <QStringList>
 #include <QString>
 
-#include "core/WorldMeta.h"
 #include "core/World.h"
 
+namespace warmonger {
 namespace core {
 
 class WorldLoader :
@@ -22,12 +22,12 @@ public:
     QStringList getSearchPath() const;
     void setSearchPath(const QStringList &searchPath);
 
-    QList<WorldMeta *> getWorldList() const;
+    QList<World *> getWorldList() const;
     World * loadWorld(const QString &worldName);
 
 signals:
     void searchPathChanged(const QStringList &searchPath);
-    void worldListChanged(const QList<WorldMeta *> &worldList);
+    void worldListChanged(const QList<World *> &worldList);
 
 public slots:
 
@@ -37,9 +37,10 @@ private:
 
     QStringList searchPath;
     QMap<QString, QString> pathToWorldMap;
-    QList<WorldMeta*> worldList;
+    QList<World*> worldList;
 };
 
 }; // namespace core
+}; // namespace warmonger
 
 #endif // CORE_WORLD_LOADER_H

@@ -1,7 +1,7 @@
 #include "core/Weapon.h"
 #include "core/JsonUtil.hpp"
 
-using namespace core;
+using namespace warmonger::core;
 
 Weapon::Weapon(QObject *parent) :
     WorldItem(parent),

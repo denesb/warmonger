@@ -1,7 +1,7 @@
 #include "core/UnitType.h"
 #include "core/JsonUtil.hpp"
 
-using namespace core;
+using namespace warmonger::core;
 
 UnitType::UnitType(QObject *parent) :
     WorldItem(parent),

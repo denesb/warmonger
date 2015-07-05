@@ -11,6 +11,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+namespace warmonger {
 namespace core {
 
 template<typename T>
@@ -134,5 +135,6 @@ T * newFromJsonFile(const QString &path, QObject *parent = nullptr)
 }
 
 }; // namespace core
+}; // namespace warmonger
 
 #endif // CORE_JSON_UTIL_HPP

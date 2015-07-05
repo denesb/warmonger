@@ -1,6 +1,6 @@
 #include "ui/model/WorldList.h"
 
-using namespace ui::model;
+using namespace warmonger::ui::model;
 
 WorldList::WorldList(QObject *parent) :
     QAbstractListModel(parent),
@@ -8,11 +8,11 @@ WorldList::WorldList(QObject *parent) :
 {
 }
 
-void WorldList::setData(const QList<core::WorldMeta *> &worlds)
+void WorldList::setData(const QList<core::World *> &worlds)
 {
     this->worlds.clear();
     beginInsertRows(QModelIndex(), this->rowCount(), this->rowCount());
-    for (const core::WorldMeta *world : worlds)
+    for (const core::World *world : worlds)
     {
         this->worlds << world;
     }
@@ -30,7 +30,7 @@ QVariant WorldList::data(const QModelIndex &index, int role) const
     if (index.row() < 0 || index.row() >= worlds.count())
         return QVariant();
 
-    const core::WorldMeta *world = worlds[index.row()];
+    const core::World *world = worlds[index.row()];
 
     if (role == ObjectNameRole)
         return world->objectName();

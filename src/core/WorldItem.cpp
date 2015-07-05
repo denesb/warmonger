@@ -1,6 +1,6 @@
 #include "core/WorldItem.h"
 
-using namespace core;
+using namespace warmonger::core;
 
 WorldItem::WorldItem(QObject *parent) :
 	QObject(parent),

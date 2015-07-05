@@ -3,6 +3,7 @@
 
 #include "core/WorldItem.h"
 
+namespace warmonger {
 namespace core {
 
 class TerrainType :
@@ -16,5 +17,6 @@ public:
 };
 
 }; // namespace core
+}; // namespace warmonger
 
 #endif // TERRAIN_TYPE_WORLD_H

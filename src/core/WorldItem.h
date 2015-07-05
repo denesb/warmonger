@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QJsonObject>
 
+namespace warmonger {
 namespace core {
 
 class WorldItem :
@@ -30,5 +31,6 @@ private:
 };
 
 }; // namespace core
+}; // namespace warmonger
 
 #endif // CORE_WORLD_ELEMENT_H

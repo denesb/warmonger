@@ -3,6 +3,7 @@
 
 #include "core/WorldItem.h"
 
+namespace warmonger {
 namespace core {
 
 class DamageType :
@@ -16,5 +17,6 @@ public:
 };
 
 }; // namespace core
+}; // namespace warmonger
 
 #endif // CORE_DAMAGE_TYPE_H

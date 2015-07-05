@@ -9,6 +9,7 @@
 #include "core/UnitType.h"
 #include "core/Faction.h"
 
+namespace warmonger {
 namespace core {
 
 class World :
@@ -56,5 +57,6 @@ private:
 };
 
 }; // namespace core
+}; // namespace warmonger
 
 #endif // CORE_WORLD_H

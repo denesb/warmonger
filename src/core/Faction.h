@@ -3,6 +3,7 @@
 
 #include "core/UnitType.h"
 
+namespace warmonger {
 namespace core {
 
 class Faction :
@@ -25,5 +26,6 @@ private:
 };
 
 }; // namespace core
+}; // namespace warmonger
 
 #endif // CORE_FACTION_H

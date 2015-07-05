@@ -3,7 +3,7 @@
 #include "core/WorldLoader.h"
 #include "core/JsonUtil.hpp"
 
-using namespace core;
+using namespace warmonger::core;
 
 WorldLoader::WorldLoader(QObject *parent) :
     QObject(parent)
@@ -32,7 +32,7 @@ void WorldLoader::setSearchPath(const QStringList &searchPath)
     }
 }
 
-QList<WorldMeta*> WorldLoader::getWorldList() const
+QList<World*> WorldLoader::getWorldList() const
 {
     return this->worldList;
 }
@@ -67,15 +67,15 @@ void WorldLoader::scanSearchPath()
 
 void WorldLoader::loadWorldList()
 {
-    for (WorldMeta *worldMeta : this->worldList)
+    for (World *world : this->worldList)
     {
-        worldMeta->deleteLater();
+        world->deleteLater();
     }
     this->worldList.clear();
 
     QMap<QString, QString>::ConstIterator it;
     for (it = this->pathToWorldMap.constBegin(); it != this->pathToWorldMap.constEnd(); it++)
     {
-        this->worldList.append(newFromJsonFile<WorldMeta>(it.value() + "/" + World::WorldDefinitionFile, this));
+        this->worldList.append(newFromJsonFile<World>(it.value() + "/" + World::WorldDefinitionFile, this));
     }
 }

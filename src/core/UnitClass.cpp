@@ -1,7 +1,7 @@
 #include "core/UnitClass.h"
 #include "core/JsonUtil.hpp"
 
-using namespace core;
+using namespace warmonger::core;
 
 UnitClass::UnitClass(QObject *parent) :
     WorldItem(parent),

@@ -5,7 +5,7 @@ using namespace warmonger::core;
 
 UnitType::UnitType(QObject *parent) :
     WorldItem(parent),
-    hitpoints(0),
+    hitPoints(0),
     rank(UnitType::Soldier),
     klass(nullptr),
     level(0),
@@ -18,14 +18,14 @@ UnitType::~UnitType()
 {
 }
 
-int UnitType::getHitpoints() const
+int UnitType::getHitPoints() const
 {
-    return this->hitpoints;
+    return this->hitPoints;
 }
 
-void UnitType::setHitpoints(int hitpoints)
+void UnitType::setHitPoints(int hitPoints)
 {
-    this->hitpoints = hitpoints;
+    this->hitPoints = hitPoints;
 }
 
 UnitType::UnitRank UnitType::getUnitRank() const
@@ -82,7 +82,7 @@ void UnitType::fromJson(const QJsonObject &obj)
 {
     WorldItem::fromJson(obj);
 
-    this->hitpoints = obj["hitpoints"].toInt();
+    this->hitPoints = obj["hitPoints"].toInt();
     const QString rankStr = obj["rank"].toString();
     if (rankStr == "Soldier")
     {
@@ -110,7 +110,7 @@ QJsonObject UnitType::toJson() const
 {
     QJsonObject &&obj = WorldItem::toJson();
 
-    obj["hitpoints"] = this->hitpoints;
+    obj["hitPoints"] = this->hitPoints;
     obj["rank"] = this->rank;
     obj["class"] = this->klass->objectName();
     obj["level"] = this->level;

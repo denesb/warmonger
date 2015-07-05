@@ -1,5 +1,5 @@
-#ifndef CORE_WORLD_ELEMENT_H
-#define CORE_WORLD_ELEMENT_H
+#ifndef CORE_WORLD_ITEM_H
+#define CORE_WORLD_ITEM_H
 
 #include <QString>
 #include <QObject>
@@ -33,4 +33,4 @@ private:
 }; // namespace core
 }; // namespace warmonger
 
-#endif // CORE_WORLD_ELEMENT_H
+#endif // CORE_WORLD_ITEM_H

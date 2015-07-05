@@ -2,6 +2,7 @@
 #define CORE_WORLD_LOADER_H
 
 #include <QList>
+#include <QMap>
 #include <QStringList>
 #include <QString>
 

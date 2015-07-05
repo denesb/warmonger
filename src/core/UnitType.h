@@ -25,8 +25,8 @@ public:
     UnitType(QObject *parent = nullptr);
     ~UnitType();
 
-    int getHitpoints() const;
-    void setHitpoints(int hitpoints);
+    int getHitPoints() const;
+    void setHitPoints(int hitPoints);
 
     UnitRank getUnitRank() const;
     void setUnitRank(UnitRank rank);
@@ -47,7 +47,7 @@ public:
     QJsonObject toJson() const;
 
 private:
-    int hitpoints;
+    int hitPoints;
     UnitRank rank;
     UnitClass *klass;
     int level;

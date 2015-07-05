@@ -1,16 +1,21 @@
 #ifndef CORE_WORLD_H
 #define CORE_WORLD_H
 
-#include "core/TerrainType.h"
-#include "core/UnitClass.h"
-#include "core/DamageType.h"
-#include "core/Weapon.h"
-#include "core/Armor.h"
-#include "core/UnitType.h"
-#include "core/Faction.h"
+#include <QList>
+
+#include "core/WorldItem.h"
 
 namespace warmonger {
 namespace core {
+
+class TerrainType;
+class UnitClass;
+class DamageType;
+class Weapon;
+class Armor;
+class UnitType;
+class SettlementType;
+class Faction;
 
 class World :
     public WorldItem
@@ -21,13 +26,7 @@ public:
     static const QString WorldDefinitionFile;
 
     World(QObject *parent = nullptr);
-
-    int getVillageGoldPt() const;
-    void setVillageGoldPt(int villageGoldPt);
-
-    int getCityGoldPt() const;
-    void setCityGoldPt(int cityGoldPt);
-
+ 
     QString getDescription() const;
     void setDescription(const QString &description);
 
@@ -40,14 +39,18 @@ public:
     QList<DamageType *> getDamageTypes() const;
     void setDamageTypes(const QList<DamageType *> &damageTypes);
 
+    //TODO: getter/setter for Weapon, Armor
+
+    QList<SettlementType *> getSettlementTypes() const;
+    void setSettlementTypes(const QList<SettlementType *> &settlementTypes);
+
     void fromJson(const QJsonObject &obj);
     QJsonObject toJson() const;
 
 private:
     QString description;
-    int villageGoldPt;
-    int cityGoldPt;
     QList<TerrainType *> terrainTypes;
+    QList<SettlementType *> settlementTypes;
     QList<UnitClass *> unitClasses;
     QList<DamageType *> damageTypes;
     QList<Weapon *> weapons;

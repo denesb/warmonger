@@ -3,9 +3,6 @@
     "displayName": "Default world",
     "description": "Detailed description about the world comes here....",
 
-    "villageGoldPt": 1,
-    "cityGoldPt": 3,
-
     "terrainTypes": [
         {
             "objectName": "plains",
@@ -181,7 +178,7 @@
 		{
 			"objectName": "spearman",
 			"displayName": "Spearman",
-			"hitpoints": 30,
+			"hitPoints": 30,
 			"rank": "Soldier",
 			"class": "infantry",
 			"level": 1,
@@ -191,7 +188,7 @@
 		{
 			"objectName": "swordsman",
 			"displayName": "Swordsman",
-			"hitpoints": 30,
+			"hitPoints": 30,
 			"rank": "Soldier",
 			"class": "infantry",
 			"level": 1,
@@ -201,7 +198,7 @@
 		{
 			"objectName": "archer",
 			"displayName": "Archer",
-			"hitpoints": 30,
+			"hitPoints": 30,
 			"rank": "Soldier",
 			"class": "missile",
 			"level": 1,
@@ -211,7 +208,7 @@
 		{
 			"objectName": "horsemen",
 			"displayName": "Horsemen",
-			"hitpoints": 35,
+			"hitPoints": 35,
 			"rank": "Soldier",
 			"class": "cavalry",
 			"level": 1,
@@ -221,7 +218,7 @@
 		{
 			"objectName": "seargant",
 			"displayName": "Seargant",
-			"hitpoints": 35,
+			"hitPoints": 35,
 			"rank": "Officer",
 			"class": "infantry",
 			"level": 1,
@@ -231,7 +228,7 @@
 		{
 			"objectName": "king",
 			"displayName": "King",
-			"hitpoints": 50,
+			"hitPoints": 50,
 			"rank": "Leader",
 			"class": "cavalry",
 			"level": 3,
@@ -239,6 +236,29 @@
 			"weapons": ["lance", "longsword"]
 		}
 	],
+
+    "settlementTypes": [
+        {
+            "objectName": "village",
+            "displayName": "Village",
+            "goldPerTurn": 2,
+            "recruits": [
+                "spearman",
+				"swordsman",
+				"archer"
+            ]
+        },
+        {
+            "objectName": "castle",
+            "displayName": "Castle",
+            "goldPerTurn": 4,
+            "recruits": [
+				"horsemen",
+				"seargant"
+            ]
+        }
+
+    ],
 
     "factions": [
         {

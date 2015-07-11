@@ -14,21 +14,21 @@ class SettlementType :
     Q_OBJECT;
 
 public:
-    SettlementType(QObject *parent = nullptr);
+    SettlementType(QObject *parent);
     ~SettlementType();
 
     int getGoldPerTurn() const;
     void setGoldPerTurn(int goldPerTurn);
 
-    QList<UnitType *> getRecruits() const;
-    void setRecruits(const QList<UnitType *> &recruits);
+    QList<const UnitType *> getRecruits() const;
+    void setRecruits(const QList<const UnitType *> &recruits);
 
     void fromJson(const QJsonObject &obj);
     QJsonObject toJson() const;
 
 private:
     int goldPerTurn;
-    QList<UnitType *> recruits;
+    QList<const UnitType *> recruits;
 };
 
 }; // namespace core

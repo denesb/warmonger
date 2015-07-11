@@ -1,4 +1,7 @@
 #include "core/UnitType.h"
+#include "core/UnitClass.h"
+#include "core/Armor.h"
+#include "core/Weapon.h"
 #include "core/JsonUtil.hpp"
 
 using namespace warmonger::core;
@@ -38,12 +41,12 @@ void UnitType::setUnitRank(UnitType::UnitRank rank)
     this->rank = rank;
 }
 
-UnitClass *UnitType::getUnitClass() const
+const UnitClass *UnitType::getUnitClass() const
 {
     return this->klass;
 }
 
-void UnitType::setUnitClass(UnitClass *klass)
+void UnitType::setUnitClass(const UnitClass *klass)
 {
     this->klass = klass;
 }
@@ -58,22 +61,22 @@ void UnitType::setLevel(int level)
     this->level = level;
 }
 
-Armor * UnitType::getArmor() const
+const Armor * UnitType::getArmor() const
 {
     return this->armor;
 }
 
-void UnitType::setArmor(Armor *armor)
+void UnitType::setArmor(const Armor *armor)
 {
     this->armor = armor;
 }
 
-QList<Weapon *> UnitType::getWeapons() const
+QList<const Weapon *> UnitType::getWeapons() const
 {
     return this->weapons;
 }
 
-void UnitType::setWeapons(const QList<Weapon *> &weapons)
+void UnitType::setWeapons(const QList<const Weapon *> &weapons)
 {
     this->weapons = weapons;
 }

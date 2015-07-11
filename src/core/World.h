@@ -25,24 +25,42 @@ class World :
 public:
     static const QString WorldDefinitionFile;
 
-    World(QObject *parent = nullptr);
+    World(QObject *parent);
  
     QString getDescription() const;
     void setDescription(const QString &description);
 
-    QList<TerrainType *> getTerrainTypes() const;
+    QList<const TerrainType *> getTerrainTypes() const;
+    QList<TerrainType *> getTerrainTypes();
     void setTerrainTypes(const QList<TerrainType *> &terrainTypes);
 
-    QList<UnitClass *> getUnitClasses() const;
+    QList<const UnitClass *> getUnitClasses() const;
+    QList<UnitClass *> getUnitClasses();
     void setUnitClasses(const QList<UnitClass *> &unitClasses);
 
-    QList<DamageType *> getDamageTypes() const;
+    QList<const DamageType *> getDamageTypes() const;
+    QList<DamageType *> getDamageTypes();
     void setDamageTypes(const QList<DamageType *> &damageTypes);
 
-    //TODO: getter/setter for Weapon, Armor
+    QList<const Armor *> getArmors() const;
+    QList<Armor *> getArmors();
+    void setArmors(const QList<Armor *> &armors);
 
-    QList<SettlementType *> getSettlementTypes() const;
+    QList<const Weapon *> getWeapons() const;
+    QList<Weapon *> getWeapons();
+    void setWeapons(const QList<Weapon *> &weapons);
+
+    QList<const UnitType *> getUnitTypes() const;
+    QList<UnitType *> getUnitTypes();
+    void setUnitTypes(const QList<UnitType *> &unitTypes);
+
+    QList<const SettlementType *> getSettlementTypes() const;
+    QList<SettlementType *> getSettlementTypes();
     void setSettlementTypes(const QList<SettlementType *> &settlementTypes);
+
+    QList<const Faction *> getFactions() const;
+    QList<Faction *> getFactions();
+    void setFactions(const QList<Faction *> &factions);
 
     void fromJson(const QJsonObject &obj);
     QJsonObject toJson() const;
@@ -50,12 +68,12 @@ public:
 private:
     QString description;
     QList<TerrainType *> terrainTypes;
-    QList<SettlementType *> settlementTypes;
     QList<UnitClass *> unitClasses;
     QList<DamageType *> damageTypes;
     QList<Weapon *> weapons;
     QList<Armor *> armors;
     QList<UnitType *> unitTypes;
+    QList<SettlementType *> settlementTypes;
     QList<Faction *> factions;
 };
 

@@ -20,22 +20,22 @@ Unit::~Unit()
 {
 }
 
-UnitType * Unit::getUnitType() const
+const UnitType * Unit::getUnitType() const
 {
     return this->unitType;
 }
 
-void Unit::setUnitType(UnitType *unitType)
+void Unit::setUnitType(const UnitType *unitType)
 {
     this->unitType = unitType;
 }
 
-QPoint Unit::getPosition() const
+MapPosition Unit::getPosition() const
 {
     return this->position;
 }
 
-void Unit::setPosition(const QPoint &position)
+void Unit::setPosition(const MapPosition &position)
 {
     this->position = position;
 }
@@ -76,7 +76,7 @@ void Unit::fromJson(const QJsonObject &obj)
     World *world = this->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
 
     this->unitType = world->findChild<UnitType *>(obj["unitType"].toString());
-    this->position = str2pos(obj["position"].toString());
+    this->position = MapPosition(obj["position"].toString());
     this->hitPoints = obj["hitPoints"].toInt();
     this->movementPoints = obj["movementPoints"].toInt();
     this->experience = obj["experience"].toInt();
@@ -87,7 +87,7 @@ QJsonObject Unit::toJson() const
     QJsonObject obj;
 
     obj["unitType"] = this->unitType->objectName();
-    obj["position"] = pos2str(this->position);
+    obj["position"] = this->position.toStr();
     obj["hitPoints"] = this->hitPoints;
     obj["movementPoints"] = this->movementPoints;
     obj["experience"] = this->experience;

@@ -1,4 +1,5 @@
 #include "core/UnitClass.h"
+#include "core/TerrainType.h"
 #include "core/JsonUtil.hpp"
 
 using namespace warmonger::core;
@@ -26,62 +27,62 @@ void UnitClass::setMovementPoints(int movementPoints)
     this->movementPoints = movementPoints;
 }
 
-QMap<TerrainType *, int> UnitClass::getMovements() const
+QMap<const TerrainType *, int> UnitClass::getMovements() const
 {
     return this->movements;
 }
 
-void UnitClass::setMovements(const QMap<TerrainType *, int> &movements)
+void UnitClass::setMovements(const QMap<const TerrainType *, int> &movements)
 {
     this->movements = movements;
 }
 
-int UnitClass::getMovement(TerrainType *terrainType) const
+int UnitClass::getMovement(const TerrainType *terrainType) const
 {
     return this->movements[terrainType];
 }
 
-void UnitClass::setMovement(TerrainType *terrainType, int movement)
+void UnitClass::setMovement(const TerrainType *terrainType, int movement)
 {
     this->movements[terrainType] = movement;
 }
 
-QMap<TerrainType *, int> UnitClass::getAttacks() const
+QMap<const TerrainType *, int> UnitClass::getAttacks() const
 {
     return this->attacks;
 }
 
-void UnitClass::setAttacks(const QMap<TerrainType *, int> &attacks)
+void UnitClass::setAttacks(const QMap<const TerrainType *, int> &attacks)
 {
     this->attacks = attacks;
 }
 
-int UnitClass::getAttack(TerrainType *terrainType) const
+int UnitClass::getAttack(const TerrainType *terrainType) const
 {
     return this->attacks[terrainType];
 }
 
-void UnitClass::setAttack(TerrainType *terrainType, int attack)
+void UnitClass::setAttack(const TerrainType *terrainType, int attack)
 {
     this->attacks[terrainType] = attack;
 }
 
-QMap<TerrainType *, int> UnitClass::getDefenses() const
+QMap<const TerrainType *, int> UnitClass::getDefenses() const
 {
     return this->defenses;
 }
 
-void UnitClass::setDefenses(const QMap<TerrainType *, int> &defenses)
+void UnitClass::setDefenses(const QMap<const TerrainType *, int> &defenses)
 {
     this->defenses = defenses;
 }
 
-int UnitClass::getDefense(TerrainType *terrainType) const
+int UnitClass::getDefense(const TerrainType *terrainType) const
 {
     return this->defenses[terrainType];
 }
 
-void UnitClass::setDefense(TerrainType *terrainType, int defense)
+void UnitClass::setDefense(const TerrainType *terrainType, int defense)
 {
     this->defenses[terrainType] = defense;
 }
@@ -90,9 +91,9 @@ void UnitClass::fromJson(const QJsonObject &obj)
 {
     WorldItem::fromJson(obj);
     this->movementPoints = obj["movementPoints"].toInt();
-    this->movements = objectValueMapFromJson<TerrainType>(obj["terrainMovements"].toObject(), this);
-    this->attacks = objectValueMapFromJson<TerrainType>(obj["terrainAttacks"].toObject(), this);
-    this->defenses = objectValueMapFromJson<TerrainType>(obj["terrainDefenses"].toObject(), this);
+    this->movements = objectValueMapFromJson<const TerrainType>(obj["terrainMovements"].toObject(), this);
+    this->attacks = objectValueMapFromJson<const TerrainType>(obj["terrainAttacks"].toObject(), this);
+    this->defenses = objectValueMapFromJson<const TerrainType>(obj["terrainDefenses"].toObject(), this);
 }
 
 QJsonObject UnitClass::toJson() const

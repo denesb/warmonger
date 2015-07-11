@@ -1,4 +1,5 @@
 #include "core/Faction.h"
+#include "core/UnitType.h"
 #include "core/JsonUtil.hpp"
 
 using namespace warmonger::core;
@@ -12,12 +13,12 @@ Faction::~Faction()
 {
 }
 
-QList<UnitType *> Faction::getUnitTypes() const
+QList<const UnitType *> Faction::getUnitTypes() const
 {
     return this->unitTypes;
 }
 
-void Faction::setUnitTypes(const QList<UnitType *> &unitTypes)
+void Faction::setUnitTypes(const QList<const UnitType *> &unitTypes)
 {
     this->unitTypes = unitTypes;
 }

@@ -13,7 +13,7 @@ class GameObject :
     Q_OBJECT
 
 public:
-    GameObject(QObject *parent = nullptr);
+    GameObject(QObject *parent);
     virtual ~GameObject();
 
     virtual void fromJson(const QJsonObject &obj) = 0;

@@ -17,7 +17,7 @@ class WorldLoader :
     Q_OBJECT
 
 public:
-    WorldLoader(QObject *parent = nullptr);
+    WorldLoader(QObject *parent);
     ~WorldLoader();
 
     QStringList getSearchPath() const;

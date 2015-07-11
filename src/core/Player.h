@@ -11,8 +11,6 @@ namespace warmonger {
 namespace core {
 
 class Faction;
-class Unit;
-class Settlement;
 
 class Player :
     public GameObject
@@ -20,7 +18,7 @@ class Player :
     Q_OBJECT
 
 public:
-    Player(QObject *parent = nullptr);
+    Player(QObject *parent);
     ~Player();
 
     QString getDisplayName() const;
@@ -32,8 +30,8 @@ public:
     int getGoldBalance() const;
     void setGoldBalance(int goldBalance);
 
-    Faction * getFaction() const;
-    void setFaction(Faction *faction);
+    const Faction * getFaction() const;
+    void setFaction(const Faction *faction);
 
     void fromJson(const QJsonObject &obj);
     QJsonObject toJson() const;
@@ -42,7 +40,7 @@ private:
     QString displayName;
     QColor color;
     int goldBalance;
-    Faction *faction;
+    const Faction *faction;
 };
 
 }; // namespace core

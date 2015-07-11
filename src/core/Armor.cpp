@@ -1,4 +1,5 @@
 #include "core/Armor.h"
+#include "core/DamageType.h"
 #include "core/JsonUtil.hpp"
 
 using namespace warmonger::core;
@@ -22,22 +23,22 @@ void Armor::setRange(int range)
     this->range = range;
 }
 
-QMap<DamageType *, int> Armor::getDefenses() const
+QMap<const DamageType *, int> Armor::getDefenses() const
 {
     return this->defenses;
 }
 
-void Armor::setDefenses(const QMap<DamageType *, int> &defenses)
+void Armor::setDefenses(const QMap<const DamageType *, int> &defenses)
 {
     this->defenses = defenses;
 }
 
-int Armor::getDefense(DamageType * const damageType) const
+int Armor::getDefense(const DamageType * const damageType) const
 {
     return this->defenses[damageType];
 }
 
-void Armor::setDefense(DamageType * const damageType, int defense)
+void Armor::setDefense(const DamageType * const damageType, int defense)
 {
     this->defenses[damageType] = defense;
 }

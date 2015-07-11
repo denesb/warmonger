@@ -3,8 +3,9 @@
 
 #include <QObject>
 #include <QJsonObject>
-#include <QPoint>
 #include <QMap>
+
+#include "core/MapPosition.h"
 
 namespace warmonger {
 namespace core {
@@ -35,25 +36,25 @@ public:
         NorthWest
     };
 
-    MapTile(QObject *parent = nullptr);
+    MapTile(QObject *parent);
     ~MapTile();
 
-    TerrainType *getTerrainType() const;
-    void setTerrainType(TerrainType *terrainType);
+    const TerrainType *getTerrainType() const;
+    void setTerrainType(const TerrainType *terrainType);
 
-    QPoint getPosition() const;
-    void setPosition(const QPoint &position);
+    MapPosition getPosition() const;
+    void setPosition(const MapPosition &position);
 
-    MapTile * getNeighbour(Direction direction) const;
-    void setNeighbour(Direction direction, MapTile *mapTile);
+    const MapTile * getNeighbour(Direction direction) const;
+    void setNeighbour(Direction direction, const MapTile *mapTile);
 
     void fromJson(const QJsonObject &obj);
     QJsonObject toJson() const;
 
 private:
-    TerrainType *terrainType;
-    QPoint position;
-    QMap<Direction, MapTile *> neighbours;
+    const TerrainType *terrainType;
+    MapPosition position;
+    QMap<Direction, const MapTile *> neighbours;
 };
 
 }; // namespace core

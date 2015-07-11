@@ -16,7 +16,7 @@ namespace warmonger {
 namespace core {
 
 template<typename T>
-T * newFromJson(const QJsonObject &obj, QObject *parent = nullptr)
+T * newFromJson(const QJsonObject &obj, QObject *parent)
 {
     T *instance = new T(parent);
     instance->fromJson(obj);
@@ -24,7 +24,7 @@ T * newFromJson(const QJsonObject &obj, QObject *parent = nullptr)
 }
 
 template<typename T>
-QList<T *> newListFromJson(const QJsonArray &array, QObject *parent = nullptr)
+QList<T *> newListFromJson(const QJsonArray &array, QObject *parent)
 {
     QList<T *> list;
 
@@ -52,15 +52,15 @@ QJsonArray listToJson(const QList<T *> &list)
 }
 
 template<typename T>
-QList<T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
+QList<const T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
 {
-    QList<T *> list;
+    QList<const T *> list;
     QObject *parent = owner->parent();
 
     for (const QJsonValue v : array)
     {
         const QString name = v.toString();
-        T * instance = parent->findChild<T *>(name);
+        const T * instance = parent->findChild<T *>(name);
         list.append(instance);
     }
 
@@ -68,7 +68,7 @@ QList<T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
 }
 
 template<typename T>
-QJsonArray referenceListToJson(const QList<T *> &list)
+QJsonArray referenceListToJson(const QList<const T *> &list)
 {
     QJsonArray array;
 
@@ -81,16 +81,16 @@ QJsonArray referenceListToJson(const QList<T *> &list)
 }
 
 template<typename T>
-QMap<T *, int> objectValueMapFromJson(const QJsonObject &obj, const QObject * const owner)
+QMap<const T *, int> objectValueMapFromJson(const QJsonObject &obj, const QObject * const owner)
 {
-    QMap<T *, int> map;
+    QMap<const T *, int> map;
     QObject *parent = owner->parent();
 
     QJsonObject::const_iterator it;
     for(it = obj.constBegin(); it != obj.constEnd(); it++)
     {
         const QString name = it.key();
-        T *instance = parent->findChild<T *>(name);
+        const T *instance = parent->findChild<T *>(name);
 
         map[instance] = it.value().toInt();
     }
@@ -99,14 +99,14 @@ QMap<T *, int> objectValueMapFromJson(const QJsonObject &obj, const QObject * co
 }
 
 template<typename T>
-QJsonObject objectValueMapToJson(const QMap<T *, int> &map)
+QJsonObject objectValueMapToJson(const QMap<const T *, int> &map)
 {
     QJsonObject obj;
 
-    typename QMap<T *, int>::const_iterator it;
+    typename QMap<const T *, int>::const_iterator it;
     for(it = map.constBegin(); it != map.constEnd(); it++)
     {
-        T *instance = it.key();
+        const T *instance = it.key();
         obj[instance->objectName()] = it.value();
     }
     
@@ -114,7 +114,7 @@ QJsonObject objectValueMapToJson(const QMap<T *, int> &map)
 }
 
 template<typename T>
-T * newFromJsonFile(const QString &path, QObject *parent = nullptr)
+T * newFromJsonFile(const QString &path, QObject *parent)
 {
     QFile jsonFile(path);
 

@@ -2,12 +2,13 @@
 #define CORE_UNIT_TYPE_H
 
 #include "core/WorldItem.h"
-#include "core/UnitClass.h"
-#include "core/Armor.h"
-#include "core/Weapon.h"
 
 namespace warmonger {
 namespace core {
+
+class UnitClass;
+class Armor;
+class Weapon;
 
 class UnitType :
     public WorldItem
@@ -22,7 +23,7 @@ public:
         Leader = 2
     };
 
-    UnitType(QObject *parent = nullptr);
+    UnitType(QObject *parent);
     ~UnitType();
 
     int getHitPoints() const;
@@ -31,17 +32,17 @@ public:
     UnitRank getUnitRank() const;
     void setUnitRank(UnitRank rank);
 
-    UnitClass *getUnitClass() const;
-    void setUnitClass(UnitClass *klass);
+    const UnitClass * getUnitClass() const;
+    void setUnitClass(const UnitClass *klass);
 
     int getLevel() const;
     void setLevel(int level);
 
-    Armor * getArmor() const;
-    void setArmor(Armor *armor);
+    const Armor * getArmor() const;
+    void setArmor(const Armor *armor);
 
-    QList<Weapon *> getWeapons() const;
-    void setWeapons(const QList<Weapon *> &weapons);
+    QList<const Weapon *> getWeapons() const;
+    void setWeapons(const QList<const Weapon *> &weapons);
 
     void fromJson(const QJsonObject &obj);
     QJsonObject toJson() const;
@@ -49,10 +50,10 @@ public:
 private:
     int hitPoints;
     UnitRank rank;
-    UnitClass *klass;
+    const UnitClass *klass;
     int level;
-    Armor *armor;
-    QList<Weapon *> weapons;
+    const Armor *armor;
+    QList<const Weapon *> weapons;
 };
 
 }; // namespace core

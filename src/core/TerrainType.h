@@ -12,7 +12,7 @@ class TerrainType :
     Q_OBJECT
 
 public:
-    TerrainType(QObject *parent = nullptr);
+    TerrainType(QObject *parent);
     ~TerrainType();
 };
 

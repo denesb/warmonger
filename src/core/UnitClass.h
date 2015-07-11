@@ -3,47 +3,51 @@
 
 #include <QMap>
 
-#include "core/TerrainType.h"
+#include "core/WorldItem.h"
 
 namespace warmonger {
 namespace core {
 
+class TerrainType;
+
 class UnitClass :
     public WorldItem
 {
+    Q_OBJECT
+
 public:
-    UnitClass(QObject *parent = nullptr);
+    UnitClass(QObject *parent);
     ~UnitClass();
 
     int getMovementPoints() const;
     void setMovementPoints(int movementPoints);
 
-    QMap<TerrainType *, int> getMovements() const;
-    void setMovements(const QMap<TerrainType *, int> &movements);
+    QMap<const TerrainType *, int> getMovements() const;
+    void setMovements(const QMap<const TerrainType *, int> &movements);
 
-    int getMovement(TerrainType *terrainType) const;
-    void setMovement(TerrainType *terrainType, int movement);
+    int getMovement(const TerrainType *terrainType) const;
+    void setMovement(const TerrainType *terrainType, int movement);
 
-    QMap<TerrainType *, int> getAttacks() const;
-    void setAttacks(const QMap<TerrainType *, int> &attacks);
+    QMap<const TerrainType *, int> getAttacks() const;
+    void setAttacks(const QMap<const TerrainType *, int> &attacks);
 
-    int getAttack(TerrainType *terrainType) const;
-    void setAttack(TerrainType *terrainType, int attack);
+    int getAttack(const TerrainType *terrainType) const;
+    void setAttack(const TerrainType *terrainType, int attack);
 
-    QMap<TerrainType *, int> getDefenses() const;
-    void setDefenses(const QMap<TerrainType *, int> &defenses);
+    QMap<const TerrainType *, int> getDefenses() const;
+    void setDefenses(const QMap<const TerrainType *, int> &defenses);
 
-    int getDefense(TerrainType *terrainType) const;
-    void setDefense(TerrainType *terrainType, int defense);
+    int getDefense(const TerrainType *terrainType) const;
+    void setDefense(const TerrainType *terrainType, int defense);
 
     void fromJson(const QJsonObject &json);
     QJsonObject toJson() const;
 
 private:
     int movementPoints;
-    QMap<TerrainType *, int> movements;
-    QMap<TerrainType *, int> attacks;
-    QMap<TerrainType *, int> defenses;
+    QMap<const TerrainType *, int> movements;
+    QMap<const TerrainType *, int> attacks;
+    QMap<const TerrainType *, int> defenses;
 };
 
 }; // namespace core

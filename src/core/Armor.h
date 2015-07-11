@@ -3,10 +3,12 @@
 
 #include <QMap>
 
-#include "core/DamageType.h"
+#include "core/WorldItem.h"
 
 namespace warmonger {
 namespace core {
+
+class DamageType;
 
 class Armor :
     public WorldItem
@@ -14,24 +16,24 @@ class Armor :
     Q_OBJECT
 
 public:
-    Armor(QObject *parent = nullptr);
+    Armor(QObject *parent);
     ~Armor();
 
     int getRange() const;
     void setRange(int range);
 
-    QMap<DamageType *, int> getDefenses() const;
-    void setDefenses(const QMap<DamageType *, int> &damages);
+    QMap<const DamageType *, int> getDefenses() const;
+    void setDefenses(const QMap<const DamageType *, int> &damages);
 
-    int getDefense(DamageType * const damageType) const;
-    void setDefense(DamageType * const damageType, int defense);
+    int getDefense(const DamageType * const damageType) const;
+    void setDefense(const DamageType * const damageType, int defense);
 
     void fromJson(const QJsonObject &obj);
     QJsonObject toJson() const;
 
 private:
     int range;
-    QMap<DamageType *, int> defenses;
+    QMap<const DamageType *, int> defenses;
 };
 
 }; // namespace core

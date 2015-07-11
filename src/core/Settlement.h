@@ -4,6 +4,7 @@
 #include <QPoint>
 
 #include "core/GameObject.h"
+#include "core/MapPosition.h"
 
 namespace warmonger {
 namespace core {
@@ -16,18 +17,21 @@ class Settlement :
     Q_OBJECT
 
 public:
-    Settlement(QObject *parent = nullptr);
+    Settlement(QObject *parent);
     ~Settlement();
 
-    QPoint getPosition() const;
-    void setPosition(const QPoint &position);
+    const SettlementType * getSettlementType() const;
+    void setSettlementType(const SettlementType *settlementType);
+
+    MapPosition getPosition() const;
+    void setPosition(const MapPosition &position);
 
     void fromJson(const QJsonObject &obj);
     QJsonObject toJson() const;
 
 private:
-    SettlementType *settlementType;
-    QPoint position;
+    const SettlementType *settlementType;
+    MapPosition position;
 };
 
 }; // namespace core

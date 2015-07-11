@@ -7,8 +7,18 @@
 namespace warmonger {
 namespace core {
 
-QString pos2str(const QPoint &pos);
-QPoint str2pos(QString str);
+template <typename T>
+QList<const T *> listConstClone(const QList<T *> &list)
+{
+    QList<const T *> constList;
+
+    for (const T *i : list)
+    {
+        constList << i;
+    }
+
+    return std::move(constList);
+}
 
 }; // namespace core
 }; // namespace warmonger

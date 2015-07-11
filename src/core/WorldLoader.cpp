@@ -39,7 +39,7 @@ QList<World*> WorldLoader::getWorldList() const
 
 World * WorldLoader::loadWorld(const QString &worldName)
 {
-    return newFromJsonFile<World>(this->pathToWorldMap[worldName] + "/" + World::WorldDefinitionFile);
+    return newFromJsonFile<World>(this->pathToWorldMap[worldName] + "/" + World::WorldDefinitionFile, nullptr);
 }
 
 void WorldLoader::scanSearchPath()

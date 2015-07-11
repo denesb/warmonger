@@ -1,16 +1,17 @@
 #ifndef CORE_MAP_H
 #define CORE_MAP_H
 
-#include <QPoint>
 #include <QMap>
 #include <QList>
 #include <QString>
 
 #include "core/GameObject.h"
+#include "core/MapPosition.h"
 
 namespace warmonger {
 namespace core {
 
+class World;
 class MapTile;
 class Player;
 class Unit;
@@ -22,33 +23,49 @@ class Map :
     Q_OBJECT
 
 public:
-    Map(QObject *parent = nullptr);
+    Map(QObject *parent);
     ~Map();
 
-    QString getDisplayName() const;
+    QString getDisplayName()const;
     void setDisplayName(const QString &displayName);
 
-    MapTile * getMapTile(const QPoint &position) const;
-    void setMapTile(const QPoint &position, MapTile *mapTile);
+    const World * getWorld() const;
+    void setWorld(const World *world);
 
-    QList<Unit *> getUnits() const;
+    int getWidth() const;
+    void setWidth(int width);
+
+    int getHeight() const;
+    void setHeight(int height);
+
+    const MapTile * getMapTile(const MapPosition &position) const;
+    MapTile * getMapTile(const MapPosition &position);
+    void setMapTile(const MapPosition &position, MapTile *mapTile);
+
+    QList<const Player *> getPlayers() const;
+    QList<Player *> getPlayers();
+    void setPlayers(const QList<Player *> &units);
+
+    QList<const Unit *> getUnits() const;
+    QList<Unit *> getUnits();
     void setUnits(const QList<Unit *> &units);
 
-    QList<Settlement *> getSettlemets() const;
+    QList<const Settlement *> getSettlemets() const;
+    QList<Settlement *> getSettlemets();
     void setSettlements(const QList<Settlement *> &settlements);
 
     void fromJson(const QJsonObject &obj);
     QJsonObject toJson() const;
 
 private:
-    QMap<QPoint, MapTile *> mapTilesFromJson(const QJsonObject &obj);
-    QJsonObject mapTilesFromJson(const QMap<QPoint, MapTile *> &mapTiles);
+    QMap<MapPosition, MapTile *> mapTilesFromJson(const QJsonObject &obj);
+    QJsonObject mapTilesToJson(const QMap<MapPosition, MapTile *> &mapTiles) const;
 
     QString displayName;
-    World *world;
+    const World *world;
     int width;
     int height;
-    QMap<QPoint, MapTile *> mapTiles;
+    QMap<MapPosition, MapTile *> mapTiles;
     QList<Player *> players;
     QList<Unit *> units;
     QList<Settlement *> settlements;

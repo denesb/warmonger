@@ -1,10 +1,12 @@
 #ifndef CORE_FACTION_H
 #define CORE_FACTION_H
 
-#include "core/UnitType.h"
+#include "core/WorldItem.h"
 
 namespace warmonger {
 namespace core {
+
+class UnitType;
 
 class Faction :
     public WorldItem
@@ -12,17 +14,17 @@ class Faction :
     Q_OBJECT
 
 public:
-    Faction(QObject *parent = nullptr);
+    Faction(QObject *parent);
     ~Faction();
 
-    QList<UnitType *> getUnitTypes() const;
-    void setUnitTypes(const QList<UnitType *> &unitTypes);
+    QList<const UnitType *> getUnitTypes() const;
+    void setUnitTypes(const QList<const UnitType *> &unitTypes);
 
     void fromJson(const QJsonObject &obj);
     QJsonObject toJson() const;
 
 private:
-    QList<UnitType *> unitTypes;
+    QList<const UnitType *> unitTypes;
 };
 
 }; // namespace core

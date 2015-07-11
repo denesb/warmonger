@@ -15,7 +15,7 @@ class WorldItem :
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName)
 
 public:
-    WorldItem(QObject *parent = nullptr);
+    WorldItem(QObject *parent);
     virtual ~WorldItem();
 
     QString getDisplayName() const;

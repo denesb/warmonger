@@ -49,12 +49,12 @@ void Player::setGoldBalance(int goldBalance)
     this->goldBalance = goldBalance;
 }
 
-Faction * Player::getFaction() const
+const Faction * Player::getFaction() const
 {
     return this->faction;
 }
 
-void Player::setFaction(Faction *faction)
+void Player::setFaction(const Faction *faction)
 {
     this->faction = faction;
 }

@@ -25,12 +25,12 @@ void SettlementType::setGoldPerTurn(int goldPerTurn)
     this->goldPerTurn = goldPerTurn;
 }
 
-QList<UnitType *> SettlementType::getRecruits() const
+QList<const UnitType *> SettlementType::getRecruits() const
 {
     return this->recruits;
 }
 
-void SettlementType::setRecruits(const QList<UnitType *> &recruits)
+void SettlementType::setRecruits(const QList<const UnitType *> &recruits)
 {
     this->recruits = recruits;
 }

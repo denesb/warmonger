@@ -12,7 +12,7 @@ class DamageType :
     Q_OBJECT
 
 public:
-    DamageType(QObject *parent = nullptr);
+    DamageType(QObject *parent);
     ~DamageType();
 };
 

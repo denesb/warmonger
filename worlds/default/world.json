@@ -262,8 +262,8 @@
 
     "factions": [
         {
-            "objectName": "default",
-            "displayName": "Default",
+            "objectName": "kingdom",
+            "displayName": "The Kingdom",
 			"unitTypes": [
 				"spearman",
 				"swordsman",

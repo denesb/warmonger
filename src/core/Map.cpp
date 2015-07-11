@@ -12,6 +12,7 @@ using namespace warmonger::core;
 Map::Map(QObject *parent) :
     GameObject(parent),
     displayName(),
+    description(),
     world(nullptr),
     width(0),
     height(0),
@@ -34,6 +35,16 @@ QString Map::getDisplayName() const
 void Map::setDisplayName(const QString &displayName)
 {
     this->displayName = displayName;
+}
+
+QString Map::getDescription()const
+{
+    return this->description;
+}
+
+void Map::setDescription(const QString &description)
+{
+    this->description = description;
 }
 
 const World * Map::getWorld() const
@@ -138,6 +149,7 @@ void Map::fromJson(const QJsonObject &obj)
 {
     this->setObjectName(obj["objectName"].toString());
     this->displayName = obj["displayName"].toString();
+    this->description = obj["description"].toString();
     this->width = obj["width"].toInt();
     this->height = obj["height"].toInt();
     this->mapTiles = this->mapTilesFromJson(obj["mapTiles"].toObject());
@@ -152,6 +164,7 @@ QJsonObject Map::toJson() const
 
     obj["objectName"] = this->objectName();
     obj["displayName"] = this->displayName;
+    obj["description"] = this->description;
     obj["width"] = this->width;
     obj["height"] = this->height;
     obj["mapTiles"] = this->mapTilesToJson(this->mapTiles);

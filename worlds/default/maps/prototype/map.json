@@ -1,0 +1,58 @@
+{
+    "objectName": "prototype",
+    "displayName": "Prototype map",
+    "description": "Experimental development map",
+    "world": "default",
+    "width": 4,
+    "height": 4,
+
+    "mapTiles": {
+        "0,0": {"terrainType": "plains"},
+        "0,1": {"terrainType": "plains"},
+        "0,2": {"terrainType": "plains"},
+        "0,3": {"terrainType": "plains"},
+        "1,0": {"terrainType": "plains"},
+        "1,1": {"terrainType": "plains"},
+        "1,2": {"terrainType": "plains"},
+        "1,3": {"terrainType": "plains"},
+        "2,0": {"terrainType": "plains"},
+        "2,1": {"terrainType": "plains"},
+        "2,2": {"terrainType": "plains"},
+        "2,3": {"terrainType": "plains"},
+        "3,0": {"terrainType": "plains"},
+        "3,1": {"terrainType": "plains"},
+        "3,2": {"terrainType": "plains"},
+        "3,3": {"terrainType": "plains"}
+    },
+
+    "players": [
+        {
+            "objectName": "player1",
+            "displayName": "Player 1",
+            "color": "#00FF00",
+            "goldBalance": 0,
+            "faction": "kingdom"
+        },
+        {
+            "objectName": "player2",
+            "displayName": "Player 2",
+            "color": "#0000FF",
+            "goldBalance": 0,
+            "faction": "kingdom"
+        }
+    ],
+
+    "units": [
+    ],
+
+    "settlements": [
+        {
+            "settlementType": "castle",
+            "position": "0,0"
+        },
+        {
+            "settlementType": "castle",
+            "position": "3,3"
+        }
+    ]
+}

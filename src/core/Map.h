@@ -29,6 +29,9 @@ public:
     QString getDisplayName()const;
     void setDisplayName(const QString &displayName);
 
+    QString getDescription()const;
+    void setDescription(const QString &description);
+
     const World * getWorld() const;
     void setWorld(const World *world);
 
@@ -62,6 +65,7 @@ private:
     QJsonObject mapTilesToJson(const QMap<MapPosition, MapTile *> &mapTiles) const;
 
     QString displayName;
+    QString description;
     const World *world;
     int width;
     int height;

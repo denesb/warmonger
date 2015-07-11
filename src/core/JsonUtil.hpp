@@ -135,9 +135,6 @@ T * newFromJsonFile(const QString &path, QObject *parent = nullptr)
     return newFromJson<T>(obj, parent);
 }
 
-QJsonObject toJson(const QPoint &point);
-QPoint fromJson(const QJsonObject &obj);
-
 }; // namespace core
 }; // namespace warmonger
 

@@ -3,7 +3,6 @@
 #include "core/Unit.h"
 #include "core/Settlement.h"
 #include "core/World.h"
-#include "core/JsonUtil.hpp"
 
 using namespace warmonger::core;
 
@@ -12,9 +11,7 @@ Player::Player(QObject *parent) :
     displayName(),
     color(),
     goldBalance(0),
-    faction(nullptr),
-    units(),
-    settlements()
+    faction(nullptr)
 {
 }
 
@@ -62,26 +59,6 @@ void Player::setFaction(Faction *faction)
     this->faction = faction;
 }
 
-QList<Unit *> Player::getUnits() const
-{
-    return this->units;
-}
-
-void Player::setUnits(const QList<Unit *> &units)
-{
-    this->units = units;
-}
-
-QList<Settlement *> Player::getSettlemets() const
-{
-    return this->settlements;
-}
-
-void Player::setSettlements(const QList<Settlement *> &settlements)
-{
-    this->settlements = settlements;
-}
-
 void Player::fromJson(const QJsonObject &obj)
 {
     //TODO: error handling
@@ -92,8 +69,6 @@ void Player::fromJson(const QJsonObject &obj)
     this->color = QColor(obj["color"].toString());
     this->goldBalance = obj["goldBalance"].toInt();
     this->faction = world->findChild<Faction *>(obj["faction"].toString());
-    this->units = newListFromJson<Unit>(obj["units"].toArray(), this);
-    this->settlements = newListFromJson<Settlement>(obj["settlements"].toArray(), this);
 }
 
 QJsonObject Player::toJson() const
@@ -105,8 +80,6 @@ QJsonObject Player::toJson() const
     obj["color"] = this->color.name();
     obj["goldBalance"] = this->goldBalance;
     obj["faction"] = this->faction->objectName();
-    obj["unit"] = listToJson<Unit>(this->units);
-    obj["settlements"] = listToJson<Settlement>(this->settlements);
 
     return std::move(obj);
 }

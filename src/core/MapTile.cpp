@@ -2,6 +2,7 @@
 #include "core/World.h"
 #include "core/TerrainType.h"
 #include "core/JsonUtil.hpp"
+#include "Util.h"
 
 using namespace warmonger::core;
 
@@ -60,7 +61,7 @@ void MapTile::fromJson(const QJsonObject &obj)
     World *world = this->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
 
     this->terrainType = world->findChild<TerrainType *>(obj["terrainType"].toString());
-    this->position = core::fromJson(obj["position"].toObject());
+    this->position = str2pos(obj["position"].toString());
 }
 
 QJsonObject MapTile::toJson() const
@@ -68,7 +69,7 @@ QJsonObject MapTile::toJson() const
     QJsonObject obj;
 
     obj["terrainType"] = this->terrainType->objectName();
-    obj["position"] = core::toJson(this->position);
+    obj["position"] = pos2str(this->position);
 
     return std::move(obj);
 }

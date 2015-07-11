@@ -35,12 +35,6 @@ public:
     Faction * getFaction() const;
     void setFaction(Faction *faction);
 
-    QList<Unit *> getUnits() const;
-    void setUnits(const QList<Unit *> &units);
-
-    QList<Settlement *> getSettlemets() const;
-    void setSettlements(const QList<Settlement *> &settlements);
-
     void fromJson(const QJsonObject &obj);
     QJsonObject toJson() const;
 
@@ -49,8 +43,6 @@ private:
     QColor color;
     int goldBalance;
     Faction *faction;
-    QList<Unit *> units;
-    QList<Settlement *> settlements;
 };
 
 }; // namespace core

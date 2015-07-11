@@ -5,6 +5,7 @@ INCLUDEPATH += $$SRC
 HEADERS += \
     $$SRC/Warmonger.h \
     $$SRC/core/JsonUtil.hpp \
+    $$SRC/core/Util.h \
     $$SRC/core/WorldItem.h \
     $$SRC/core/World.h \
     $$SRC/core/WorldLoader.h \
@@ -26,7 +27,7 @@ HEADERS += \
 SOURCES += \
     $$SRC/main.cpp \
     $$SRC/Warmonger.cpp \
-    $$SRC/core/JsonUtil.cpp \
+    $$SRC/core/Util.cpp \
     $$SRC/core/WorldItem.cpp \
     $$SRC/core/World.cpp \
     $$SRC/core/WorldLoader.cpp \

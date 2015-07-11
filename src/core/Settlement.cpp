@@ -2,6 +2,7 @@
 #include "core/SettlementType.h"
 #include "core/World.h"
 #include "core/JsonUtil.hpp"
+#include "Util.h"
 
 using namespace warmonger::core;
 
@@ -32,7 +33,7 @@ void Settlement::fromJson(const QJsonObject &obj)
     World *world = this->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
 
     this->settlementType = world->findChild<SettlementType *>(obj["settlementType"].toString());
-    this->position = core::fromJson(obj["position"].toObject());
+    this->position = str2pos(obj["position"].toString());
 }
 
 QJsonObject Settlement::toJson() const
@@ -40,7 +41,7 @@ QJsonObject Settlement::toJson() const
     QJsonObject obj;
 
     obj["settlementType"] = this->settlementType->objectName();
-    obj["position"] = core::toJson(this->position);
+    obj["position"] = pos2str(this->position);
 
     return std::move(obj);
 }

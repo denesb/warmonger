@@ -41,6 +41,9 @@ public:
     QJsonObject toJson() const;
 
 private:
+    QMap<QPoint, MapTile *> mapTilesFromJson(const QJsonObject &obj);
+    QJsonObject mapTilesFromJson(const QMap<QPoint, MapTile *> &mapTiles);
+
     QString displayName;
     World *world;
     int width;

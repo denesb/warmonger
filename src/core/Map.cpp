@@ -70,10 +70,53 @@ void Map::fromJson(const QJsonObject &obj)
 {
     this->setObjectName(obj["objectName"].toString());
     this->displayName = obj["displayName"].toString();
-    this->width = obj["displayName"].toInt();
+    this->width = obj["width"].toInt();
     this->height = obj["height"].toInt();
+    this->mapTiles = this->mapTilesFromJson(obj["mapTiles"].toObject());
+    this->players = newListFromJson<Player>(obj["players"].toArray(), this);
+    this->units = newListFromJson<Unit>(obj["units"].toArray(), this);
+    this->settlements = newListFromJson<Settlement>(obj["settlements"].toArray(), this);
 }
 
 QJsonObject Map::toJson() const
 {
+    QJsonObject obj;
+
+    obj["objectName"] = this->objectName();
+    obj["displayName"] = this->displayName;
+    obj["width"] = this->width;
+    obj["height"] = this->height;
+    obj["mapTiles"] = this->mapTilesToJson(this->mapTiles);
+    obj["players"] = listToJson<Player *>(this->players);
+    obj["units"] = listToJson<Unit *>(this->units);
+    obj["settlements"] = listToJson<Settlement *>(this->settlements);
+
+    return std::move(obj);
+}
+
+QMap<QPoint, MapTile *> Map::mapTilesFromJson(const QJsonObject &obj)
+{
+    QMap<QPoint, MapTile *> mapTiles;
+    QJsonObject::constIterator it;
+    for (it = obj.constBegin(); it != obj.constEnd(); it++)
+    {
+        QPoint pos = str2pos(it.key());
+        mapTiles[pos] = newFromJson<MapTile>(it.value().toObject());
+    }
+
+    return std::move(mapTiles);
+}
+
+QJsonObject Map::mapTilesFromJson(const QMap<QPoint, MapTile *> &mapTiles)
+{
+    QJsonObject obj;
+
+    QMap<QPoint, MapTile *>::constIterator it;
+    for (it = mapTiles.constBegin(); it != mapTiles.constEnd(); it++)
+    {
+        QString pos = pos2str(it.key());
+        obj[pos] it.value()->toJson();
+    }
+
+    return std::move(obj);
 }

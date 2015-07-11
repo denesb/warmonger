@@ -9,6 +9,8 @@
 
 using namespace warmonger::core;
 
+const QString Map::MapDefinitionFile = "map.json";
+
 Map::Map(QObject *parent) :
     GameObject(parent),
     displayName(),

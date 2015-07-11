@@ -9,6 +9,7 @@ HEADERS += \
     $$SRC/core/GameObject.h \
     $$SRC/core/JsonUtil.hpp \
     $$SRC/core/Map.h \
+    $$SRC/core/MapLoader.h \
     $$SRC/core/MapPosition.h \
     $$SRC/core/MapTile.h \
     $$SRC/core/Player.h \
@@ -23,7 +24,6 @@ HEADERS += \
     $$SRC/core/World.h \
     $$SRC/core/WorldItem.h \
     $$SRC/core/WorldLoader.h \
-    $$SRC/ui/model/WorldList.h \
     $$SRC/Warmonger.h
 
 SOURCES += \
@@ -32,6 +32,7 @@ SOURCES += \
     $$SRC/core/Faction.cpp \
     $$SRC/core/GameObject.cpp \
     $$SRC/core/Map.cpp \
+    $$SRC/core/MapLoader.cpp \
     $$SRC/core/MapPosition.cpp \
     $$SRC/core/MapTile.cpp \
     $$SRC/core/Player.cpp \
@@ -46,8 +47,7 @@ SOURCES += \
     $$SRC/core/World.cpp \
     $$SRC/core/WorldItem.cpp \
     $$SRC/core/WorldLoader.cpp \
-    $$SRC/ui/model/WorldList.cpp \
-    $$SRC/main.cpp \
+    $$SRC/Main.cpp \
     $$SRC/Warmonger.cpp
 
 # Add more folders to ship with the application, here

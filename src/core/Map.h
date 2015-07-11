@@ -23,6 +23,8 @@ class Map :
     Q_OBJECT
 
 public:
+    static const QString MapDefinitionFile;
+
     Map(QObject *parent);
     ~Map();
 

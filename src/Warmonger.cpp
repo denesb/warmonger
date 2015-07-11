@@ -10,7 +10,9 @@ using namespace warmonger;
 Warmonger::Warmonger(QObject *parent) :
     QObject(parent),
     worldLoader(nullptr),
-    worldList(nullptr)
+    mapLoader(nullptr),
+    world(nullptr),
+    map(nullptr)
 {
 }
 
@@ -31,23 +33,25 @@ int Warmonger::exec(int argc, char *argv[])
 void Warmonger::setupModels()
 {
     this->worldLoader = new core::WorldLoader(this);
-    this->worldList = new ui::model::WorldList(this);
 
-    QObject::connect(this->worldLoader,
-            &core::WorldLoader::worldListChanged,
-            this->worldList,
-            &ui::model::WorldList::setData);
-
-    //TODO: this does not belong here, will come from settings
     QStringList worldSearchPath;
-    worldSearchPath.append("worlds");
+    worldSearchPath << "worlds";
     this->worldLoader->setSearchPath(worldSearchPath);
+
+    this->mapLoader = new core::MapLoader(this);
+
+    QStringList mapSearchPath;
+    mapSearchPath << "worlds/default/maps";
+    this->mapLoader->setSearchPath(mapSearchPath);
+
+    this->world = this->worldLoader->getWorldList()[0];
+    this->map = this->mapLoader->getMapList()[0];
 }
 
 void Warmonger::setupViews()
 {
     QtQuick2ApplicationViewer viewer;
     viewer.rootContext()->setContextProperty("warmonger", this);
-    viewer.setMainQmlFile(QStringLiteral("qml/main.qml"));
+    viewer.setMainQmlFile(QStringLiteral("qml/Main.qml"));
     viewer.showExpanded();
 }

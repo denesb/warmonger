@@ -1,8 +1,12 @@
 #ifndef WARMONGER_H
 #define WARMONGER_H
 
+#include <QObject>
+
+#include "core/World.h"
 #include "core/WorldLoader.h"
-#include "ui/model/WorldList.h"
+#include "core/Map.h"
+#include "core/MapLoader.h"
 
 namespace warmonger {
 
@@ -22,7 +26,9 @@ private:
     void setupViews();
 
     core::WorldLoader *worldLoader;
-    ui::model::WorldList *worldList;
+    core::MapLoader *mapLoader;
+    core::World *world;
+    core::Map *map;
 };
 
 }; // namespace warmonger

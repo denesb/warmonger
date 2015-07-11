@@ -1,5 +1,5 @@
-#ifndef CORE_WORLD_LOADER_H
-#define CORE_WORLD_LOADER_H
+#ifndef CORE_MAP_LOADER_H
+#define CORE_MAP_LOADER_H
 
 #include <QList>
 #include <QMap>
@@ -9,39 +9,39 @@
 namespace warmonger {
 namespace core {
 
-class World;
+class Map;
 
-class WorldLoader :
+class MapLoader :
     public QObject
 {
     Q_OBJECT
 
 public:
-    WorldLoader(QObject *parent);
-    ~WorldLoader();
+    MapLoader(QObject *parent);
+    ~MapLoader();
 
     QStringList getSearchPath() const;
     void setSearchPath(const QStringList &searchPath);
 
-    QList<World *> getWorldList() const;
-    World * loadWorld(const QString &worldName);
+    QList<Map *> getMapList() const;
+    Map * loadMap(const QString &mapName);
 
 signals:
     void searchPathChanged(const QStringList &searchPath);
-    void worldListChanged(const QList<World *> &worldList);
+    void mapListChanged(const QList<Map *> &mapList);
 
 public slots:
 
 private:
     void scanSearchPath();
-    void loadWorldList();
+    void loadMapList();
 
     QStringList searchPath;
-    QMap<QString, QString> pathToWorldMap;
-    QList<World*> worldList;
+    QMap<QString, QString> pathToMapMap;
+    QList<Map*> mapList;
 };
 
 }; // namespace core
 }; // namespace warmonger
 
-#endif // CORE_WORLD_LOADER_H
+#endif // CORE_MAP_LOADER_H

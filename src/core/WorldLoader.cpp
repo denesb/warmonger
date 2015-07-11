@@ -1,6 +1,7 @@
 #include <QDir>
 
 #include "core/WorldLoader.h"
+#include "core/World.h"
 #include "core/JsonUtil.hpp"
 
 using namespace warmonger::core;

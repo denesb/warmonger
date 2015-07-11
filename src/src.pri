@@ -1,5 +1,15 @@
+# Don't add any other folders!
 INCLUDEPATH += src
 
+#
+# All file list's are separated into groups by their module.
+# Please keep the lists sorted!
+#
+
+# app
+HEADERS += src/Warmonger.h
+
+# core
 HEADERS += \
     src/core/Armor.h \
     src/core/DamageType.h \
@@ -21,9 +31,19 @@ HEADERS += \
     src/core/Weapon.h \
     src/core/World.h \
     src/core/WorldItem.h \
-    src/core/WorldLoader.h \
-    src/Warmonger.h
+    src/core/WorldLoader.h
 
+# ui
+HEADERS += \
+    src/ui/qtquick2applicationviewer.h \
+    src/ui/MapModel.h
+
+# app
+SOURCES += \
+    src/Main.cpp \
+    src/Warmonger.cpp
+
+# core
 SOURCES += \
     src/core/Armor.cpp \
     src/core/DamageType.cpp \
@@ -44,25 +64,32 @@ SOURCES += \
     src/core/Weapon.cpp \
     src/core/World.cpp \
     src/core/WorldItem.cpp \
-    src/core/WorldLoader.cpp \
-    src/Main.cpp \
-    src/Warmonger.cpp
+    src/core/WorldLoader.cpp
 
+# ui
+SOURCES += \
+    src/ui/qtquick2applicationviewer.cpp \
+    src/ui/MapModel.cpp
+
+# qml
 OTHER_FILES += \
     src/ui/qml/GamePlay.qml \
     src/ui/qml/Main.qml \
     src/ui/qml/Map.qml \
-    src/ui/qml/WorldList.qml
+    src/ui/qml/WorldList.qml \
 
-# Add more folders to ship with the application, here
-qml.source = ui/qml
+# js
+OTHER_FILES += \
+    src/ui/js/Map.js
+
+# deplyment
+qml.source = src/ui/qml
 qml.target =
 
-worlds.source = ../worlds
-worlds.target = 
+js.source = src/ui/js
+js.target = qml
 
-DEPLOYMENTFOLDERS = qml worlds
+worlds.source = worlds
+worlds.target =
 
-# Please do not modify the following two lines. Required for deployment.
-include(ui/qtquick2applicationviewer.pri)
-qtcAddDeployment()
+DEPLOYMENTFOLDERS = qml js worlds

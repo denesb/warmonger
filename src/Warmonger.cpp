@@ -11,9 +11,14 @@ Warmonger::Warmonger(int argc, char *argv[]) :
     worldLoader(nullptr),
     mapLoader(nullptr),
     world(nullptr),
-    map(nullptr)
+    map(nullptr),
+    mapModel(nullptr)
 {
+    this->setupModels();
+
     this->viewer.setMainQmlFile(QStringLiteral("qml/Main.qml"));
+    this->viewer.rootContext()->setContextProperty("warmonger", this);
+    this->viewer.rootContext()->setContextProperty("mapModel", this->mapModel);
     this->viewer.showExpanded();
 }
 
@@ -37,4 +42,6 @@ void Warmonger::setupModels()
 
     this->world = this->worldLoader->getWorldList()[0];
     this->map = this->mapLoader->getMapList()[0];
+
+    this->mapModel = new ui::MapModel(this->map, this);
 }

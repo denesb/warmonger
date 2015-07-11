@@ -82,19 +82,17 @@ void Map::setHeight(int height)
 const MapTile * Map::getMapTile(const MapPosition &position) const
 {
     if (!this->mapTiles.contains(position))
-    {
-        //TODO: throw something
-    }
-    return this->mapTiles[position];
+        return nullptr;
+    else
+        return this->mapTiles[position];
 }
 
 MapTile * Map::getMapTile(const MapPosition &position)
 {
     if (!this->mapTiles.contains(position))
-    {
-        //TODO: throw something
-    }
-    return this->mapTiles[position];
+        return nullptr;
+    else
+        return this->mapTiles[position];
 }
 
 void Map::setMapTile(const MapPosition &position, MapTile *mapTile)

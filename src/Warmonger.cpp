@@ -1,33 +1,24 @@
-#include <QGuiApplication>
 #include <QQmlContext>
 #include <QDebug>
 
 #include "Warmonger.h"
-#include "qtquick2applicationviewer.h"
 
 using namespace warmonger;
 
-Warmonger::Warmonger(QObject *parent) :
-    QObject(parent),
+Warmonger::Warmonger(int argc, char *argv[]) :
+    QGuiApplication(argc, argv),
+    viewer(),
     worldLoader(nullptr),
     mapLoader(nullptr),
     world(nullptr),
     map(nullptr)
 {
+    this->viewer.setMainQmlFile(QStringLiteral("qml/Main.qml"));
+    this->viewer.showExpanded();
 }
 
 Warmonger::~Warmonger()
 {
-}
-
-int Warmonger::exec(int argc, char *argv[])
-{
-    QGuiApplication app(argc, argv);
-
-    this->setupModels();
-    this->setupViews();
-
-    return app.exec();
 }
 
 void Warmonger::setupModels()
@@ -46,12 +37,4 @@ void Warmonger::setupModels()
 
     this->world = this->worldLoader->getWorldList()[0];
     this->map = this->mapLoader->getMapList()[0];
-}
-
-void Warmonger::setupViews()
-{
-    QtQuick2ApplicationViewer viewer;
-    viewer.rootContext()->setContextProperty("warmonger", this);
-    viewer.setMainQmlFile(QStringLiteral("qml/Main.qml"));
-    viewer.showExpanded();
 }

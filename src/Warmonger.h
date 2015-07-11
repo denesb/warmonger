@@ -1,8 +1,9 @@
 #ifndef WARMONGER_H
 #define WARMONGER_H
 
-#include <QObject>
+#include <QGuiApplication>
 
+#include "ui/qtquick2applicationviewer.h"
 #include "core/World.h"
 #include "core/WorldLoader.h"
 #include "core/Map.h"
@@ -11,26 +12,24 @@
 namespace warmonger {
 
 class Warmonger :
-    public QObject
+    public QGuiApplication
 {
     Q_OBJECT
 
 public:
-    Warmonger(QObject *parent = nullptr);
+    Warmonger(int argc, char *argv[]);
     ~Warmonger();
-
-    int exec(int argc, char *argv[]);
 
 private:
     void setupModels();
-    void setupViews();
 
+    QtQuick2ApplicationViewer viewer;
     core::WorldLoader *worldLoader;
     core::MapLoader *mapLoader;
     core::World *world;
     core::Map *map;
 };
 
-}; // namespace warmonger
+} // namespace warmonger
 
 #endif // WAMNOGER_H

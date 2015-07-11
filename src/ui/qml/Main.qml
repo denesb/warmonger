@@ -2,15 +2,17 @@ import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Layouts 1.1
 
-Item {
-    id: root
-
-    Rectangle {
-        id: main_menu
-        width: 200
-        height: 300
-        color: "#646464"
-
-
+Rectangle {
+    width: 360
+    height: 360
+    Text {
+        text: qsTr("Hello World")
+        anchors.centerIn: parent
+    }
+    MouseArea {
+        anchors.fill: parent
+        onClicked: {
+            Qt.quit();
+        }
     }
 }

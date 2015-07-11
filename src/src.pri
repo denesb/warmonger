@@ -50,6 +50,12 @@ SOURCES += \
     $$SRC/Main.cpp \
     $$SRC/Warmonger.cpp
 
+OTHER_FILES += \
+    src/ui/qml/GamePlay.qml \
+    src/ui/qml/Main.qml \
+    src/ui/qml/Map.qml \
+    src/ui/qml/WorldList.qml
+
 # Add more folders to ship with the application, here
 qml.source = ui/qml
 qml.target =

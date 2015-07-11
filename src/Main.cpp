@@ -2,6 +2,6 @@
 
 int main(int argc, char *argv[])
 {
-    warmonger::Warmonger warmonger;
-    return warmonger.exec(argc, argv);
+    warmonger::Warmonger warmonger(argc, argv);
+    return warmonger.exec();
 }

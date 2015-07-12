@@ -6,9 +6,8 @@
 #include "ui/qtquick2applicationviewer.h"
 #include "ui/MapModel.h"
 #include "core/World.h"
-#include "core/WorldLoader.h"
 #include "core/Map.h"
-#include "core/MapLoader.h"
+#include "core/Loader.hpp"
 
 namespace warmonger {
 
@@ -25,8 +24,8 @@ private:
     void setupModels();
 
     QtQuick2ApplicationViewer viewer;
-    core::WorldLoader *worldLoader;
-    core::MapLoader *mapLoader;
+    core::Loader<core::World> worldLoader;
+    core::Loader<core::Map> mapLoader;
     core::World *world;
     core::Map *map;
     ui::MapModel *mapModel;

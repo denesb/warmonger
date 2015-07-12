@@ -12,7 +12,7 @@
 
 using namespace warmonger::core;
 
-const QString World::WorldDefinitionFile = "world.json";
+const QString World::DefinitionFile = "world.json";
 
 World::World(QObject *parent) :
     WorldItem(parent),
@@ -159,6 +159,8 @@ void World::setFactions(const QList<Faction *> &factions)
 
 void World::fromJson(const QJsonObject &obj)
 {
+    WorldItem::fromJson(obj);
+
     this->description = obj["description"].toString();
     this->terrainTypes = newListFromJson<TerrainType>(obj["terrainTypes"].toArray(), this);
     this->unitClasses = newListFromJson<UnitClass>(obj["unitClasses"].toArray(), this);

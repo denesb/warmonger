@@ -1,7 +1,8 @@
 #include "core/Settlement.h"
 #include "core/SettlementType.h"
 #include "core/World.h"
-#include "Util.h"
+#include "core/Util.h"
+#include "core/Error.h"
 
 using namespace warmonger::core;
 
@@ -38,10 +39,14 @@ void Settlement::setPosition(const MapPosition &position)
 
 void Settlement::fromJson(const QJsonObject &obj)
 {
-    //TODO: error handling
     World *world = this->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
+    if (world == nullptr)
+        throw Error(Error::NullPointer);
 
     this->settlementType = world->findChild<SettlementType *>(obj["settlementType"].toString());
+    if (this->settlementType == nullptr)
+        throw Error(Error::UnresolvedReference, {"SettlementType", obj["settlementType"].toString()});
+
     this->position = MapPosition(obj["position"].toString());
 }
 

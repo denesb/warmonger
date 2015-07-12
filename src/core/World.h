@@ -23,7 +23,7 @@ class World :
     Q_OBJECT
 
 public:
-    static const QString WorldDefinitionFile;
+    static const QString DefinitionFile;
 
     World(QObject *parent);
  

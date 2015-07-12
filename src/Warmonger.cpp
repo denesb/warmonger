@@ -8,8 +8,8 @@ using namespace warmonger;
 Warmonger::Warmonger(int argc, char *argv[]) :
     QGuiApplication(argc, argv),
     viewer(),
-    worldLoader(nullptr),
-    mapLoader(nullptr),
+    worldLoader(this),
+    mapLoader(this),
     world(nullptr),
     map(nullptr),
     mapModel(nullptr)
@@ -18,7 +18,7 @@ Warmonger::Warmonger(int argc, char *argv[]) :
 
     this->viewer.setMainQmlFile(QStringLiteral("qml/Main.qml"));
     this->viewer.rootContext()->setContextProperty("warmonger", this);
-    this->viewer.rootContext()->setContextProperty("mapModel", this->mapModel);
+    //this->viewer.rootContext()->setContextProperty("mapModel", this->mapModel);
     this->viewer.showExpanded();
 }
 
@@ -28,20 +28,31 @@ Warmonger::~Warmonger()
 
 void Warmonger::setupModels()
 {
-    this->worldLoader = new core::WorldLoader(this);
-
     QStringList worldSearchPath;
     worldSearchPath << "worlds";
-    this->worldLoader->setSearchPath(worldSearchPath);
-
-    this->mapLoader = new core::MapLoader(this);
+    this->worldLoader.setSearchPath(worldSearchPath);
 
     QStringList mapSearchPath;
     mapSearchPath << "worlds/default/maps";
-    this->mapLoader->setSearchPath(mapSearchPath);
+    this->mapLoader.setSearchPath(mapSearchPath);
 
-    this->world = this->worldLoader->getWorldList()[0];
-    this->map = this->mapLoader->getMapList()[0];
+    this->world = this->worldLoader.get("default");
 
-    this->mapModel = new ui::MapModel(this->map, this);
+    qDebug() << this->world->objectName();
+    qDebug() << this->world->toJson();
+
+    //this->map = this->mapLoader.get("prototype");
+    //this->map->setParent(this);
+    //qDebug() << this->map->toJson();
+    
+    QList<core::Map *> mlist = this->mapLoader.getList();
+    for (core::Map *m : mlist)
+    {
+        qDebug() << m->objectName();
+        qDebug() << m->toJson();
+    }
+
+
+
+    //this->mapModel = new ui::MapModel(this->map, this);
 }

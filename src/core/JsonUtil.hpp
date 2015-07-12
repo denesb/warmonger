@@ -12,6 +12,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+#include "core/Error.h"
+
 namespace warmonger {
 namespace core {
 
@@ -56,11 +58,17 @@ QList<const T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
 {
     QList<const T *> list;
     QObject *parent = owner->parent();
+    if (parent == nullptr)
+        throw Error(Error::NullPointer);
 
     for (const QJsonValue v : array)
     {
         const QString name = v.toString();
         const T * instance = parent->findChild<T *>(name);
+
+        if (instance == nullptr)
+            throw Error(Error::UnresolvedReference, {"T", name});
+
         list.append(instance);
     }
 
@@ -85,12 +93,17 @@ QMap<const T *, int> objectValueMapFromJson(const QJsonObject &obj, const QObjec
 {
     QMap<const T *, int> map;
     QObject *parent = owner->parent();
+    if (parent == nullptr)
+        throw Error(Error::NullPointer);
 
     QJsonObject::const_iterator it;
     for(it = obj.constBegin(); it != obj.constEnd(); it++)
     {
         const QString name = it.key();
         const T *instance = parent->findChild<T *>(name);
+
+        if (instance == nullptr)
+            throw Error(Error::UnresolvedReference, {"T", name});
 
         map[instance] = it.value().toInt();
     }
@@ -119,19 +132,20 @@ T * newFromJsonFile(const QString &path, QObject *parent)
     QFile jsonFile(path);
 
     if (!jsonFile.open(QIODevice::ReadOnly))
-    {
-        //TODO: throw something
-    }
+        throw Error(Error::CannotOpenFile, {path});
 
     QByteArray jsonData = jsonFile.readAll();
 
     jsonFile.close();
-    
-    QJsonParseError parseError; //TODO: do something with this
+
+    QJsonParseError parseError;
 
     QJsonDocument doc(QJsonDocument::fromJson(jsonData, &parseError));
-    QJsonObject obj = doc.object();
 
+    if (parseError.error != QJsonParseError::NoError)
+        throw Error(Error::JsonParse, {parseError.errorString()});
+
+    QJsonObject obj = doc.object();
     return newFromJson<T>(obj, parent);
 }
 

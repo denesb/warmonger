@@ -13,11 +13,12 @@ HEADERS += src/Warmonger.h
 HEADERS += \
     src/core/Armor.h \
     src/core/DamageType.h \
+    src/core/Error.h \
     src/core/Faction.h \
     src/core/GameObject.h \
     src/core/JsonUtil.hpp \
+    src/core/Loader.hpp \
     src/core/Map.h \
-    src/core/MapLoader.h \
     src/core/MapPosition.h \
     src/core/MapTile.h \
     src/core/Player.h \
@@ -30,8 +31,7 @@ HEADERS += \
     src/core/Util.h \
     src/core/Weapon.h \
     src/core/World.h \
-    src/core/WorldItem.h \
-    src/core/WorldLoader.h
+    src/core/WorldItem.h
 
 # ui
 HEADERS += \
@@ -47,10 +47,10 @@ SOURCES += \
 SOURCES += \
     src/core/Armor.cpp \
     src/core/DamageType.cpp \
+    src/core/Error.cpp \
     src/core/Faction.cpp \
     src/core/GameObject.cpp \
     src/core/Map.cpp \
-    src/core/MapLoader.cpp \
     src/core/MapPosition.cpp \
     src/core/MapTile.cpp \
     src/core/Player.cpp \
@@ -63,8 +63,7 @@ SOURCES += \
     src/core/Util.cpp \
     src/core/Weapon.cpp \
     src/core/World.cpp \
-    src/core/WorldItem.cpp \
-    src/core/WorldLoader.cpp
+    src/core/WorldItem.cpp
 
 # ui
 SOURCES += \

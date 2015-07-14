@@ -2,6 +2,7 @@
 #include <QDebug>
 
 #include "Warmonger.h"
+#include "core/Exception.h"
 
 using namespace warmonger;
 
@@ -14,12 +15,20 @@ Warmonger::Warmonger(int argc, char *argv[]) :
     map(nullptr),
     mapModel(nullptr)
 {
-    this->setupModels();
+    try
+    {
+        this->setupModels();
 
-    this->viewer.setMainQmlFile(QStringLiteral("qml/Main.qml"));
-    this->viewer.rootContext()->setContextProperty("warmonger", this);
-    //this->viewer.rootContext()->setContextProperty("mapModel", this->mapModel);
-    this->viewer.showExpanded();
+        this->viewer.setMainQmlFile(QStringLiteral("qml/Main.qml"));
+        this->viewer.rootContext()->setContextProperty("warmonger", this);
+        //this->viewer.rootContext()->setContextProperty("mapModel", this->mapModel);
+        this->viewer.showExpanded();
+    }
+    catch (core::Exception &e)
+    {
+        qDebug() << e.getMessageWithContext();
+        throw;
+    }
 }
 
 Warmonger::~Warmonger()

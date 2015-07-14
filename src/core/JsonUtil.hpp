@@ -12,7 +12,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-#include "core/Error.h"
+#include "core/Exception.h"
 
 namespace warmonger {
 namespace core {
@@ -59,7 +59,7 @@ QList<const T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
     QList<const T *> list;
     QObject *parent = owner->parent();
     if (parent == nullptr)
-        throw Error(Error::NullPointer);
+        throw Exception(Exception::NullPointer, W_CTX);
 
     for (const QJsonValue v : array)
     {
@@ -67,7 +67,7 @@ QList<const T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
         const T * instance = parent->findChild<T *>(name);
 
         if (instance == nullptr)
-            throw Error(Error::UnresolvedReference, {"T", name});
+            throw Exception(Exception::UnresolvedReference, W_CTX, {"T", name});
 
         list.append(instance);
     }
@@ -94,7 +94,7 @@ QMap<const T *, int> objectValueMapFromJson(const QJsonObject &obj, const QObjec
     QMap<const T *, int> map;
     QObject *parent = owner->parent();
     if (parent == nullptr)
-        throw Error(Error::NullPointer);
+        throw Exception(Exception::NullPointer, W_CTX);
 
     QJsonObject::const_iterator it;
     for(it = obj.constBegin(); it != obj.constEnd(); it++)
@@ -103,7 +103,7 @@ QMap<const T *, int> objectValueMapFromJson(const QJsonObject &obj, const QObjec
         const T *instance = parent->findChild<T *>(name);
 
         if (instance == nullptr)
-            throw Error(Error::UnresolvedReference, {"T", name});
+            throw Exception(Exception::UnresolvedReference, W_CTX, {"T", name});
 
         map[instance] = it.value().toInt();
     }
@@ -132,7 +132,7 @@ T * newFromJsonFile(const QString &path, QObject *parent)
     QFile jsonFile(path);
 
     if (!jsonFile.open(QIODevice::ReadOnly))
-        throw Error(Error::CannotOpenFile, {path});
+        throw Exception(Exception::CannotOpenFile, W_CTX, {path});
 
     QByteArray jsonData = jsonFile.readAll();
 
@@ -143,7 +143,7 @@ T * newFromJsonFile(const QString &path, QObject *parent)
     QJsonDocument doc(QJsonDocument::fromJson(jsonData, &parseError));
 
     if (parseError.error != QJsonParseError::NoError)
-        throw Error(Error::JsonParse, {parseError.errorString()});
+        throw Exception(Exception::JsonParse, W_CTX, {parseError.errorString()});
 
     QJsonObject obj = doc.object();
     return newFromJson<T>(obj, parent);

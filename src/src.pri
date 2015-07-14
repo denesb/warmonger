@@ -13,7 +13,7 @@ HEADERS += src/Warmonger.h
 HEADERS += \
     src/core/Armor.h \
     src/core/DamageType.h \
-    src/core/Error.h \
+    src/core/Exception.h \
     src/core/Faction.h \
     src/core/GameObject.h \
     src/core/JsonUtil.hpp \
@@ -47,7 +47,7 @@ SOURCES += \
 SOURCES += \
     src/core/Armor.cpp \
     src/core/DamageType.cpp \
-    src/core/Error.cpp \
+    src/core/Exception.cpp \
     src/core/Faction.cpp \
     src/core/GameObject.cpp \
     src/core/Map.cpp \

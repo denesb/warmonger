@@ -15,7 +15,7 @@ using namespace warmonger::core;
 const QString World::DefinitionFile = "world.json";
 
 World::World(QObject *parent) :
-    WorldItem(parent),
+    GameObject(parent),
     description(""),
     terrainTypes(),
     unitClasses(),
@@ -157,10 +157,8 @@ void World::setFactions(const QList<Faction *> &factions)
     this->factions = factions;
 }
 
-void World::fromJson(const QJsonObject &obj)
+void World::dataFromJson(const QJsonObject &obj)
 {
-    WorldItem::fromJson(obj);
-
     this->description = obj["description"].toString();
     this->terrainTypes = newListFromJson<TerrainType>(obj["terrainTypes"].toArray(), this);
     this->unitClasses = newListFromJson<UnitClass>(obj["unitClasses"].toArray(), this);
@@ -172,10 +170,8 @@ void World::fromJson(const QJsonObject &obj)
     this->factions = newListFromJson<Faction>(obj["factions"].toArray(), this);
 }
 
-QJsonObject World::toJson() const
+void World::dataToJson(QJsonObject &obj) const
 {
-    QJsonObject &&obj = WorldItem::toJson();
-
     obj["description"] = this->description;
     obj["terrainTypes"] = listToJson<TerrainType>(this->terrainTypes);
     obj["unitClasses"] = listToJson<UnitClass>(this->unitClasses);
@@ -185,6 +181,4 @@ QJsonObject World::toJson() const
     obj["unitTypes"] = listToJson<UnitType>(this->unitTypes);
     obj["settlementTypes"] = listToJson<SettlementType>(this->settlementTypes);
     obj["factions"] = listToJson<Faction>(this->factions);
-
-    return std::move(obj);
 }

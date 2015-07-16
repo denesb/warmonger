@@ -26,10 +26,10 @@ public:
     MapPosition getPosition() const;
     void setPosition(const MapPosition &position);
 
-    void fromJson(const QJsonObject &obj);
-    QJsonObject toJson() const;
-
 private:
+    void dataFromJson(const QJsonObject &obj);
+    void dataToJson(QJsonObject &obj) const;
+
     const SettlementType *settlementType;
     MapPosition position;
 };

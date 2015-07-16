@@ -7,7 +7,7 @@
 using namespace warmonger::core;
 
 UnitType::UnitType(QObject *parent) :
-    WorldItem(parent),
+    GameObject(parent),
     hitPoints(0),
     rank(UnitType::Soldier),
     klass(nullptr),
@@ -81,10 +81,8 @@ void UnitType::setWeapons(const QList<const Weapon *> &weapons)
     this->weapons = weapons;
 }
 
-void UnitType::fromJson(const QJsonObject &obj)
+void UnitType::dataFromJson(const QJsonObject &obj)
 {
-    WorldItem::fromJson(obj);
-
     this->hitPoints = obj["hitPoints"].toInt();
     const QString rankStr = obj["rank"].toString();
     if (rankStr == "Soldier")
@@ -109,16 +107,12 @@ void UnitType::fromJson(const QJsonObject &obj)
     this->weapons = referenceListFromJson<Weapon>(obj["weapons"].toArray(), this);
 }
 
-QJsonObject UnitType::toJson() const
+void UnitType::dataToJson(QJsonObject &obj) const
 {
-    QJsonObject &&obj = WorldItem::toJson();
-
     obj["hitPoints"] = this->hitPoints;
     obj["rank"] = this->rank;
     obj["class"] = this->klass->objectName();
     obj["level"] = this->level;
     obj["armor"] = this->armor->objectName();
     obj["weapons"] = referenceListToJson<Weapon>(this->weapons);
-
-    return std::move(obj);
 }

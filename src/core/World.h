@@ -3,7 +3,7 @@
 
 #include <QList>
 
-#include "core/WorldItem.h"
+#include "core/GameObject.h"
 
 namespace warmonger {
 namespace core {
@@ -18,7 +18,7 @@ class SettlementType;
 class Faction;
 
 class World :
-    public WorldItem
+    public GameObject
 {
     Q_OBJECT
 
@@ -62,10 +62,10 @@ public:
     QList<Faction *> getFactions();
     void setFactions(const QList<Faction *> &factions);
 
-    void fromJson(const QJsonObject &obj);
-    QJsonObject toJson() const;
-
 private:
+    void dataFromJson(const QJsonObject &obj);
+    void dataToJson(QJsonObject &obj) const;
+
     QString description;
     QList<TerrainType *> terrainTypes;
     QList<UnitClass *> unitClasses;
@@ -77,7 +77,7 @@ private:
     QList<Faction *> factions;
 };
 
-}; // namespace core
-}; // namespace warmonger
+} // namespace core
+} // namespace warmonger
 
 #endif // CORE_WORLD_H

@@ -3,7 +3,7 @@
 
 #include <QMap>
 
-#include "core/WorldItem.h"
+#include "core/GameObject.h"
 
 namespace warmonger {
 namespace core {
@@ -11,7 +11,7 @@ namespace core {
 class TerrainType;
 
 class UnitClass :
-    public WorldItem
+    public GameObject
 {
     Q_OBJECT
 
@@ -40,17 +40,17 @@ public:
     int getDefense(const TerrainType *terrainType) const;
     void setDefense(const TerrainType *terrainType, int defense);
 
-    void fromJson(const QJsonObject &json);
-    QJsonObject toJson() const;
-
 private:
+    void dataFromJson(const QJsonObject &obj);
+    void dataToJson(QJsonObject &obj) const;
+
     int movementPoints;
     QMap<const TerrainType *, int> movements;
     QMap<const TerrainType *, int> attacks;
     QMap<const TerrainType *, int> defenses;
 };
 
-}; // namespace core
-}; // namespace warmonger
+} // namespace core
+} // namespace warmonger
 
 #endif // CORE_UNIT_CLASS_H

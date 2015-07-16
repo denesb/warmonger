@@ -7,7 +7,7 @@
 using namespace warmonger::core;
 
 MapTile::MapTile(QObject *parent) :
-    QObject(parent),
+    GameObject(parent),
     terrainType(nullptr),
     position(),
     neighbours({
@@ -55,7 +55,7 @@ void MapTile::setNeighbour(Direction direction, const MapTile *mapTile)
     this->neighbours[direction] = mapTile;
 }
 
-void MapTile::fromJson(const QJsonObject &obj)
+void MapTile::dataFromJson(const QJsonObject &obj)
 {
     //TODO: error handling
     World *world = this->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
@@ -64,12 +64,8 @@ void MapTile::fromJson(const QJsonObject &obj)
     this->position = MapPosition(obj["position"].toString());
 }
 
-QJsonObject MapTile::toJson() const
+void MapTile::dataToJson(QJsonObject &obj) const
 {
-    QJsonObject obj;
-
     obj["terrainType"] = this->terrainType->objectName();
     obj["position"] = this->position.toStr();
-
-    return std::move(obj);
 }

@@ -39,7 +39,7 @@ void Settlement::setPosition(const MapPosition &position)
     this->position = position;
 }
 
-void Settlement::fromJson(const QJsonObject &obj)
+void Settlement::dataFromJson(const QJsonObject &obj)
 {
     World *world = this->parent()->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
     if (world == nullptr)
@@ -59,12 +59,8 @@ void Settlement::fromJson(const QJsonObject &obj)
     this->position = MapPosition(obj["position"].toString());
 }
 
-QJsonObject Settlement::toJson() const
+void Settlement::dataToJson(QJsonObject &obj) const
 {
-    QJsonObject obj;
-
     obj["settlementType"] = this->settlementType->objectName();
     obj["position"] = this->position.toStr();
-
-    return std::move(obj);
 }

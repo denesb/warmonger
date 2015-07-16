@@ -20,26 +20,7 @@ QList<const T *> listConstClone(const QList<T *> &list)
     return std::move(constList);
 }
 
-template <typename T>
-T * resolveReference(QObject *node, const QString &objectName)
-{
-    QObject *parent = node->parent();
-    T *object{nullptr};
-
-    if (parent != nullptr)
-    {
-        object = parent->findChild<T *>(objectName);
-
-        if (object == nullptr)
-        {
-            object = resolveReference(parent, objectName);
-        }
-    }
-
-    return object;
-}
-
-}; // namespace core
-}; // namespace warmonger
+} // namespace core
+} // namespace warmonger
 
 #endif // CORE_UTIL_H

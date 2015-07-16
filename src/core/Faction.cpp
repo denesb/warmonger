@@ -5,7 +5,7 @@
 using namespace warmonger::core;
 
 Faction::Faction(QObject *parent) :
-    WorldItem(parent)
+    GameObject(parent)
 {
 }
 
@@ -23,17 +23,12 @@ void Faction::setUnitTypes(const QList<const UnitType *> &unitTypes)
     this->unitTypes = unitTypes;
 }
 
-void Faction::fromJson(const QJsonObject &obj)
+void Faction::dataFromJson(const QJsonObject &obj)
 {
-    WorldItem::fromJson(obj);
     this->unitTypes = referenceListFromJson<UnitType>(obj["unitTypes"].toArray(), this);
 }
 
-QJsonObject Faction::toJson() const
+void Faction::dataToJson(QJsonObject &obj) const
 {
-    QJsonObject &&obj = WorldItem::toJson();
-
     obj["unitTypes"] = referenceListToJson<UnitType>(this->unitTypes);
-
-    return std::move(obj);
 }

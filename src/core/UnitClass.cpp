@@ -5,7 +5,7 @@
 using namespace warmonger::core;
 
 UnitClass::UnitClass(QObject *parent) :
-    WorldItem(parent),
+    GameObject(parent),
     movementPoints(0),
     movements(),
     attacks(),
@@ -87,24 +87,19 @@ void UnitClass::setDefense(const TerrainType *terrainType, int defense)
     this->defenses[terrainType] = defense;
 }
 
-void UnitClass::fromJson(const QJsonObject &obj)
+void UnitClass::dataFromJson(const QJsonObject &obj)
 {
-    WorldItem::fromJson(obj);
     this->movementPoints = obj["movementPoints"].toInt();
     this->movements = objectValueMapFromJson<const TerrainType>(obj["terrainMovements"].toObject(), this);
     this->attacks = objectValueMapFromJson<const TerrainType>(obj["terrainAttacks"].toObject(), this);
     this->defenses = objectValueMapFromJson<const TerrainType>(obj["terrainDefenses"].toObject(), this);
 }
 
-QJsonObject UnitClass::toJson() const
+void UnitClass::dataToJson(QJsonObject &obj) const
 {
-    QJsonObject &&obj = WorldItem::toJson();
-
     obj["movementPoints"] = this->movementPoints;
     obj["terrainMovements"] = objectValueMapToJson(this->movements);
     obj["terrainAttacks"] = objectValueMapToJson(this->attacks);
     obj["terrainDefenses"] = objectValueMapToJson(this->defenses);
-
-    return std::move(obj);
 }
 

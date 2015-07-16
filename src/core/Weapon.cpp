@@ -5,7 +5,7 @@
 using namespace warmonger::core;
 
 Weapon::Weapon(QObject *parent) :
-    WorldItem(parent),
+    GameObject(parent),
     damages()
 {
 }
@@ -44,19 +44,14 @@ void Weapon::setDamage(const DamageType *const damageType, int damage)
     this->damages[damageType] = damage;
 }
 
-void Weapon::fromJson(const QJsonObject &obj)
+void Weapon::dataFromJson(const QJsonObject &obj)
 {
-    WorldItem::fromJson(obj);
     this->range = obj["range"].toInt();
     this->damages = objectValueMapFromJson<DamageType>(obj["damages"].toObject(), this);
 }
 
-QJsonObject Weapon::toJson() const
+void Weapon::dataToJson(QJsonObject &obj) const
 {
-    QJsonObject &&obj = WorldItem::toJson();
-
     obj["range"] = this->range;
     obj["damages"] = objectValueMapToJson<DamageType>(this->damages);
-
-    return std::move(obj);
 }

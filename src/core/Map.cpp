@@ -15,7 +15,6 @@ const QString Map::DefinitionFile = "map.json";
 
 Map::Map(QObject *parent) :
     GameObject(parent),
-    displayName(),
     description(),
     world(nullptr),
     width(0),
@@ -29,16 +28,6 @@ Map::Map(QObject *parent) :
 
 Map::~Map()
 {
-}
-
-QString Map::getDisplayName() const
-{
-    return this->displayName;
-}
-
-void Map::setDisplayName(const QString &displayName)
-{
-    this->displayName = displayName;
 }
 
 QString Map::getDescription()const
@@ -147,10 +136,8 @@ void Map::setSettlements(const QList<Settlement *> &settlements)
     this->settlements = settlements;
 }
 
-void Map::fromJson(const QJsonObject &obj)
+void Map::dataFromJson(const QJsonObject &obj)
 {
-    this->setObjectName(obj["objectName"].toString());
-    this->displayName = obj["displayName"].toString();
     this->description = obj["description"].toString();
 
     const QString worldName(obj["world"].toString());
@@ -170,12 +157,8 @@ void Map::fromJson(const QJsonObject &obj)
     this->settlements = newListFromJson<Settlement>(obj["settlements"].toArray(), this);
 }
 
-QJsonObject Map::toJson() const
+void Map::dataToJson(QJsonObject &obj) const
 {
-    QJsonObject obj;
-
-    obj["objectName"] = this->objectName();
-    obj["displayName"] = this->displayName;
     obj["description"] = this->description;
     obj["world"] = this->world->objectName();
     obj["width"] = this->width;
@@ -184,8 +167,6 @@ QJsonObject Map::toJson() const
     obj["players"] = listToJson<Player>(this->players);
     obj["units"] = listToJson<Unit>(this->units);
     obj["settlements"] = listToJson<Settlement>(this->settlements);
-
-    return std::move(obj);
 }
 
 QMap<MapPosition, MapTile *> Map::mapTilesFromJson(const QJsonObject &obj)

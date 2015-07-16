@@ -35,10 +35,10 @@ public:
     int getExperience() const;
     void setExperience(int experience);
 
-    void fromJson(const QJsonObject &obj);
-    QJsonObject toJson() const;
-
 private:
+    void dataFromJson(const QJsonObject &obj);
+    void dataToJson(QJsonObject &obj) const;
+
     const UnitType *unitType;
     MapPosition position;
     int hitPoints;
@@ -46,7 +46,7 @@ private:
     int experience;
 };
 
-}; // namespace core
-}; // namespace warmonger
+} // namespace core
+} // namespace warmonger
 
 #endif // CORE_UNIT_H

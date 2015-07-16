@@ -34,7 +34,7 @@ private:
     int y;
 };
 
-}; // namespace core
-}; // namespace warmonger
+} // namespace core
+} // namespace warmonger
 
 #endif // CORE_MAP_POSITION_H

@@ -1,22 +1,26 @@
 #ifndef CORE_DAMAGE_TYPE_H
 #define CORE_DAMAGE_TYPE_H
 
-#include "core/WorldItem.h"
+#include "core/GameObject.h"
 
 namespace warmonger {
 namespace core {
 
 class DamageType :
-    public WorldItem
+    public GameObject
 {
     Q_OBJECT
 
 public:
     DamageType(QObject *parent);
     ~DamageType();
+
+private:
+    void dataFromJson(const QJsonObject &obj);
+    void dataToJson(QJsonObject &obj) const;
 };
 
-}; // namespace core
-}; // namespace warmonger
+} // namespace core
+} // namespace warmonger
 
 #endif // CORE_DAMAGE_TYPE_H

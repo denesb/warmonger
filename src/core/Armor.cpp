@@ -5,7 +5,7 @@
 using namespace warmonger::core;
 
 Armor::Armor(QObject *parent) :
-    WorldItem(parent)
+    GameObject(parent)
 {
 }
 
@@ -43,19 +43,14 @@ void Armor::setDefense(const DamageType * const damageType, int defense)
     this->defenses[damageType] = defense;
 }
 
-void Armor::fromJson(const QJsonObject &obj)
+void Armor::dataFromJson(const QJsonObject &obj)
 {
-    WorldItem::fromJson(obj);
     this->range = obj["range"].toInt();
     this->defenses = objectValueMapFromJson<DamageType>(obj["defenses"].toObject(), this);
 }
 
-QJsonObject Armor::toJson() const
+void Armor::dataToJson(QJsonObject &obj) const
 {
-    QJsonObject &&obj = WorldItem::toJson();
-
     obj["range"] = this->range;
     obj["defenses"] = objectValueMapToJson<DamageType>(this->defenses);
-
-    return obj;
 }

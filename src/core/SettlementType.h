@@ -1,7 +1,7 @@
 #ifndef CORE_SETTLEMENT_TYPE_H
 #define CORE_SETTLEMENT_TYPE_H
 
-#include "core/WorldItem.h"
+#include "core/GameObject.h"
 
 namespace warmonger {
 namespace core {
@@ -9,7 +9,7 @@ namespace core {
 class UnitType;
 
 class SettlementType :
-    public WorldItem
+    public GameObject
 {
     Q_OBJECT;
 
@@ -23,15 +23,15 @@ public:
     QList<const UnitType *> getRecruits() const;
     void setRecruits(const QList<const UnitType *> &recruits);
 
-    void fromJson(const QJsonObject &obj);
-    QJsonObject toJson() const;
-
 private:
+    void dataFromJson(const QJsonObject &obj);
+    void dataToJson(QJsonObject &obj) const;
+
     int goldPerTurn;
     QList<const UnitType *> recruits;
 };
 
-}; // namespace core
-}; // namespace warmonger
+} // namespace core
+} // namespace warmonger
 
 #endif // CORE_SETTLEMENT_TYPE_H

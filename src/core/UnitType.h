@@ -1,7 +1,7 @@
 #ifndef CORE_UNIT_TYPE_H
 #define CORE_UNIT_TYPE_H
 
-#include "core/WorldItem.h"
+#include "core/GameObject.h"
 
 namespace warmonger {
 namespace core {
@@ -11,7 +11,7 @@ class Armor;
 class Weapon;
 
 class UnitType :
-    public WorldItem
+    public GameObject
 {
     Q_OBJECT;
 
@@ -44,10 +44,10 @@ public:
     QList<const Weapon *> getWeapons() const;
     void setWeapons(const QList<const Weapon *> &weapons);
 
-    void fromJson(const QJsonObject &obj);
-    QJsonObject toJson() const;
-
 private:
+    void dataFromJson(const QJsonObject &obj);
+    void dataToJson(QJsonObject &obj) const;
+
     int hitPoints;
     UnitRank rank;
     const UnitClass *klass;
@@ -56,7 +56,7 @@ private:
     QList<const Weapon *> weapons;
 };
 
-}; // namespace core
-}; // namespace warmonger
+} // namespace core
+} // namespace warmonger
 
 #endif // CORE_UNIT_TYPE_H

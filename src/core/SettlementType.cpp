@@ -5,7 +5,7 @@
 using namespace warmonger::core;
 
 SettlementType::SettlementType(QObject *parent) :
-    WorldItem(parent),
+    GameObject(parent),
     goldPerTurn(0),
     recruits()
 {
@@ -35,21 +35,15 @@ void SettlementType::setRecruits(const QList<const UnitType *> &recruits)
     this->recruits = recruits;
 }
 
-void SettlementType::fromJson(const QJsonObject &obj)
+void SettlementType::dataFromJson(const QJsonObject &obj)
 {
-    WorldItem::fromJson(obj);
-
     this->goldPerTurn = obj["goldPerTurn"].toInt();
     this->recruits = referenceListFromJson<UnitType>(obj["recruits"].toArray(), this);
 }
 
-QJsonObject SettlementType::toJson() const
+void SettlementType::dataToJson(QJsonObject &obj) const
 {
-    QJsonObject &&obj = WorldItem::toJson();
-
     obj["goldPerTurn"] = this->goldPerTurn;
     obj["recruits"] = referenceListToJson<UnitType>(this->recruits);
-
-    return std::move(obj);
 }
 

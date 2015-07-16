@@ -21,9 +21,6 @@ public:
     Player(QObject *parent);
     ~Player();
 
-    QString getDisplayName() const;
-    void setDisplayName(const QString &displayName);
-
     QColor getColor() const;
     void setColor(const QColor &color);
 
@@ -33,17 +30,16 @@ public:
     const Faction * getFaction() const;
     void setFaction(const Faction *faction);
 
-    void fromJson(const QJsonObject &obj);
-    QJsonObject toJson() const;
-
 private:
-    QString displayName;
+    void dataFromJson(const QJsonObject &obj);
+    void dataToJson(QJsonObject &obj) const;
+
     QColor color;
     int goldBalance;
     const Faction *faction;
 };
 
-}; // namespace core
-}; // namespace warmonger
+} // namespace core
+} // namespace warmonger
 
 #endif // CORE_PLAYER_H

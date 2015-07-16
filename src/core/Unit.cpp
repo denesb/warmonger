@@ -70,7 +70,7 @@ void Unit::setExperience(int experience)
     this->experience = experience;
 }
 
-void Unit::fromJson(const QJsonObject &obj)
+void Unit::dataFromJson(const QJsonObject &obj)
 {
     //TODO: error handling
     World *world = this->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
@@ -82,15 +82,11 @@ void Unit::fromJson(const QJsonObject &obj)
     this->experience = obj["experience"].toInt();
 }
 
-QJsonObject Unit::toJson() const
+void Unit::dataToJson(QJsonObject &obj) const
 {
-    QJsonObject obj;
-
     obj["unitType"] = this->unitType->objectName();
     obj["position"] = this->position.toStr();
     obj["hitPoints"] = this->hitPoints;
     obj["movementPoints"] = this->movementPoints;
     obj["experience"] = this->experience;
-
-    return std::move(obj);
 }

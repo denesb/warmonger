@@ -28,9 +28,6 @@ public:
     Map(QObject *parent);
     ~Map();
 
-    QString getDisplayName()const;
-    void setDisplayName(const QString &displayName);
-
     QString getDescription()const;
     void setDescription(const QString &description);
 
@@ -59,14 +56,13 @@ public:
     QList<Settlement *> getSettlemets();
     void setSettlements(const QList<Settlement *> &settlements);
 
-    void fromJson(const QJsonObject &obj);
-    QJsonObject toJson() const;
-
 private:
+    void dataFromJson(const QJsonObject &obj);
+    void dataToJson(QJsonObject &obj) const;
+
     QMap<MapPosition, MapTile *> mapTilesFromJson(const QJsonObject &obj);
     QJsonObject mapTilesToJson(const QMap<MapPosition, MapTile *> &mapTiles) const;
 
-    QString displayName;
     QString description;
     const World *world;
     int width;
@@ -77,7 +73,7 @@ private:
     QList<Settlement *> settlements;
 };
 
-}; // namespace core
-}; // namespace warmonger
+} // namespace core
+} // namespace warmonger
 
 #endif // CORE_MAP_H

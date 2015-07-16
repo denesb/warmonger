@@ -5,6 +5,7 @@
 #include <QJsonObject>
 #include <QMap>
 
+#include "core/GameObject.h"
 #include "core/MapPosition.h"
 
 namespace warmonger {
@@ -21,7 +22,7 @@ class TerrainType;
  *      S
  */
 class MapTile :
-    public QObject
+    public GameObject
 {
     Q_OBJECT
 
@@ -48,16 +49,16 @@ public:
     const MapTile * getNeighbour(Direction direction) const;
     void setNeighbour(Direction direction, const MapTile *mapTile);
 
-    void fromJson(const QJsonObject &obj);
-    QJsonObject toJson() const;
-
 private:
+    void dataFromJson(const QJsonObject &obj);
+    void dataToJson(QJsonObject &obj) const;
+
     const TerrainType *terrainType;
     MapPosition position;
     QMap<Direction, const MapTile *> neighbours;
 };
 
-}; // namespace core
-}; // namespace warmonger
+} // namespace core
+} // namespace warmonger
 
 #endif // CORE_MAP_TILE_H

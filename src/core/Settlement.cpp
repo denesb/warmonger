@@ -1,8 +1,10 @@
+#include <QDebug>
 #include "core/Settlement.h"
 #include "core/SettlementType.h"
 #include "core/World.h"
 #include "core/Util.h"
 #include "core/Exception.h"
+#include "core/Log.h"
 
 using namespace warmonger::core;
 
@@ -39,13 +41,20 @@ void Settlement::setPosition(const MapPosition &position)
 
 void Settlement::fromJson(const QJsonObject &obj)
 {
-    World *world = this->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
+    World *world = this->parent()->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
     if (world == nullptr)
-        throw Exception(Exception::NullPointer, W_CTX);
+    {
+        qCCritical(root) << "world is null";
+        throw Exception(Exception::NullPointer);
+    }
 
-    this->settlementType = world->findChild<SettlementType *>(obj["settlementType"].toString());
+    const QString settlementTypeName = obj["settlementType"].toString();
+    this->settlementType = world->findChild<SettlementType *>(settlementTypeName);
     if (this->settlementType == nullptr)
-        throw Exception(Exception::UnresolvedReference, W_CTX, {"SettlementType", obj["settlementType"].toString()});
+    {
+        qCCritical(root) << "Unable to resolve reference <SettlementType>" << settlementTypeName;
+        throw Exception(Exception::UnresolvedReference, {"SettlementType", settlementTypeName});
+    }
 
     this->position = MapPosition(obj["position"].toString());
 }

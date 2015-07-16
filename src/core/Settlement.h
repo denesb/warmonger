@@ -34,7 +34,7 @@ private:
     MapPosition position;
 };
 
-}; // namespace core
-}; // namespace warmonger
+} // namespace core
+} // namespace warmonger
 
 #endif // CORE_SETTLEMENT_H

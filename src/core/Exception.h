@@ -8,26 +8,6 @@
 namespace warmonger {
 namespace core {
 
-#define W_CTX warmonger::core::ExceptionContext(__FILE__, __func__, __LINE__)
-
-class ExceptionContext
-{
-public:
-    ExceptionContext(const QString &file, const QString &func, int line);
-
-    QString getFile() const;
-    QString getFunc() const;
-    int getLine() const;
-
-    QString toStr() const;
-private:
-    static const QString template_str;
-
-    QString file;
-    QString func;
-    int line;
-};
-
 class Exception
 {
 public:
@@ -46,20 +26,19 @@ public:
         UnresolvedReference = 0x0102
     };
 
-    Exception(ErrorCode code, const ExceptionContext &context, const QStringList &args = QStringList());
+    Exception(ErrorCode code, const QStringList &args = QStringList());
     virtual ~Exception();
 
     ErrorCode getErrorCode() const;
-    ExceptionContext getContext() const;
     QString getMessage() const;
-    QString getMessageWithContext() const;
+
+    static QString getMessage(ErrorCode code);
 
 protected:
     static const QMap<ErrorCode, QString> messageDefinitions;
 
     ErrorCode code;
     QStringList args;
-    ExceptionContext context;
 };
 
 } // core

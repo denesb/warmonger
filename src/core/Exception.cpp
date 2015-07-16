@@ -2,41 +2,6 @@
 
 using namespace warmonger::core;
 
-const QString ExceptionContext::template_str = QString("%1:%2 in function %3");
-
-ExceptionContext::ExceptionContext(const QString &file, const QString &func, int line) :
-    file(file),
-    func(func),
-    line(line)
-{
-    int pos = this->file.lastIndexOf("src");
-
-    if (pos != -1)
-    {
-        this->file = this->file.mid(pos + 4);
-    }
-}
-
-QString ExceptionContext::toStr() const
-{
-    return ExceptionContext::template_str.arg(this->file).arg(this->line).arg(this->func);
-}
-
-QString ExceptionContext::getFile() const
-{
-    return this->file;
-}
-
-QString ExceptionContext::getFunc() const
-{
-    return this->func;
-}
-
-int ExceptionContext::getLine() const
-{
-    return this->line;
-}
-
 const QMap<Exception::ErrorCode, QString> Exception::messageDefinitions = {
     std::make_pair(Exception::General, QStringLiteral("General exception")),
     std::make_pair(Exception::NullPointer, QStringLiteral("Null pointer exception")),
@@ -49,10 +14,9 @@ const QMap<Exception::ErrorCode, QString> Exception::messageDefinitions = {
     std::make_pair(Exception::UnresolvedReference, QStringLiteral("Unable to resolve reference to (%1)%2"))
 };
 
-Exception::Exception(ErrorCode code, const ExceptionContext &context, const QStringList &args) :
+Exception::Exception(ErrorCode code, const QStringList &args) :
     code(code),
-    args(args),
-    context(context)
+    args(args)
 {
 }
 
@@ -63,11 +27,6 @@ Exception::~Exception()
 Exception::ErrorCode Exception::getErrorCode() const
 {
     return this->code;
-}
-
-ExceptionContext Exception::getContext() const
-{
-    return this->context;
 }
 
 QString Exception::getMessage() const
@@ -81,11 +40,7 @@ QString Exception::getMessage() const
     return msg;
 }
 
-QString Exception::getMessageWithContext() const
+QString Exception::getMessage(ErrorCode code)
 {
-    QString msg = this->getMessage();
-
-    msg += QStringLiteral(" in ") + this->context.toStr();
-
-    return msg;
+    return Exception::messageDefinitions[code];
 }

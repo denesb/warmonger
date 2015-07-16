@@ -18,6 +18,7 @@ HEADERS += \
     src/core/GameObject.h \
     src/core/JsonUtil.hpp \
     src/core/Loader.hpp \
+    src/core/Log.h \
     src/core/Map.h \
     src/core/MapPosition.h \
     src/core/MapTile.h \
@@ -50,6 +51,7 @@ SOURCES += \
     src/core/Exception.cpp \
     src/core/Faction.cpp \
     src/core/GameObject.cpp \
+    src/core/Log.cpp \
     src/core/Map.cpp \
     src/core/MapPosition.cpp \
     src/core/MapTile.cpp \

@@ -15,6 +15,7 @@ Warmonger::Warmonger(int argc, char *argv[]) :
     map(nullptr),
     mapModel(nullptr)
 {
+    qSetMessagePattern("%{type} - [%{category}] %{file}:%{line} %{message}");
     try
     {
         this->setupModels();
@@ -26,7 +27,6 @@ Warmonger::Warmonger(int argc, char *argv[]) :
     }
     catch (core::Exception &e)
     {
-        qDebug() << e.getMessageWithContext();
         throw;
     }
 }
@@ -60,8 +60,6 @@ void Warmonger::setupModels()
         qDebug() << m->objectName();
         qDebug() << m->toJson();
     }
-
-
 
     //this->mapModel = new ui::MapModel(this->map, this);
 }

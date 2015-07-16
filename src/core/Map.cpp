@@ -6,6 +6,8 @@
 #include "core/Settlement.h"
 #include "core/JsonUtil.hpp"
 #include "core/Util.h"
+#include "core/Exception.h"
+#include "core/Log.h"
 
 using namespace warmonger::core;
 
@@ -150,6 +152,16 @@ void Map::fromJson(const QJsonObject &obj)
     this->setObjectName(obj["objectName"].toString());
     this->displayName = obj["displayName"].toString();
     this->description = obj["description"].toString();
+
+    const QString worldName(obj["world"].toString());
+    World *world = this->parent()->findChild<World *>(worldName, Qt::FindDirectChildrenOnly);
+    if (world == nullptr)
+    {
+        qCCritical(root) << "Unable to resolve reference <World>" << worldName;
+        throw Exception(Exception::UnresolvedReference, {"World", worldName});
+    }
+
+    this->world = world;
     this->width = obj["width"].toInt();
     this->height = obj["height"].toInt();
     this->mapTiles = this->mapTilesFromJson(obj["mapTiles"].toObject());
@@ -165,6 +177,7 @@ QJsonObject Map::toJson() const
     obj["objectName"] = this->objectName();
     obj["displayName"] = this->displayName;
     obj["description"] = this->description;
+    obj["world"] = this->world->objectName();
     obj["width"] = this->width;
     obj["height"] = this->height;
     obj["mapTiles"] = this->mapTilesToJson(this->mapTiles);

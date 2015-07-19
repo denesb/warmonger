@@ -9,6 +9,17 @@ INCLUDEPATH += src
 # app
 HEADERS += src/Warmonger.h
 
+# log
+HEADERS += \
+    src/log/ConsoleHandler.h \
+    src/log/Handler.h \
+    src/log/Filter.h \
+    src/log/Formatter.h \
+    src/log/Logger.h \
+    src/log/LogLevel.h \
+    src/log/LogRecord.h \
+    src/log/LogStream.h
+
 # core
 HEADERS += \
     src/core/Armor.h \
@@ -42,6 +53,16 @@ HEADERS += \
 SOURCES += \
     src/Main.cpp \
     src/Warmonger.cpp
+
+# log
+SOURCES += \
+    src/log/ConsoleHandler.cpp \
+    src/log/Handler.cpp \
+    src/log/Filter.cpp \
+    src/log/Formatter.cpp \
+    src/log/Logger.cpp \
+    src/log/LogRecord.cpp \
+    src/log/LogStream.cpp
 
 # core
 SOURCES += \

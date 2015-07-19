@@ -1,7 +1,7 @@
 {
-    "objectName": "default",
-    "displayName": "Default world",
-    "description": "Detailed description about the world comes here....",
+    "objectName": "iron_age",
+    "displayName": "Iron Age",
+    "description": "Some detailed description about the world comes here....",
 
     "terrainTypes": [
         {
@@ -96,7 +96,24 @@
             "displayName": "Spear",
             "range": 0,
             "damages": {
-                "pierce": 5
+                "pierce": 6
+            }
+        },
+        {
+            "objectName": "hatchet",
+            "displayName": "Hatchet",
+            "range": 0,
+            "damages": {
+                "cut": 5
+            }
+        },
+        {
+            "objectName": "hunting_knife",
+            "displayName": "Hunting Knife",
+            "range": 0,
+            "damages": {
+                "cut": 2,
+                "pierce": 2
             }
         },
         {
@@ -104,7 +121,7 @@
             "displayName": "Shortsword",
             "range": 0,
             "damages": {
-                "cut": 6,
+                "cut": 4,
                 "pierce": 3
             }
         },
@@ -114,7 +131,7 @@
             "range": 0,
             "damages": {
                 "cut": 9,
-                "pierce": 6
+                "pierce": 5
             }
         },
         {
@@ -132,7 +149,16 @@
             "damages": {
                 "pierce": 6
             }
+        },
+        {
+            "objectName": "crossbow",
+            "displayName": "Crossbow",
+            "range": 2,
+            "damages": {
+                "pierce": 8
+            }
         }
+
     ],
 
     "armors": [
@@ -176,8 +202,48 @@
 
 	"unitTypes": [
 		{
-			"objectName": "spearman",
-			"displayName": "Spearman",
+			"objectName": "peasant",
+			"displayName": "Peasant",
+			"hitPoints": 30,
+			"rank": "Soldier",
+			"class": "infantry",
+			"level": 0,
+			"armor": "cloth",
+			"weapons": ["spear"]
+		},
+		{
+			"objectName": "levy_spearman",
+			"displayName": "Levy Spearman",
+			"hitPoints": 30,
+			"rank": "Soldier",
+			"class": "infantry",
+			"level": 1,
+			"armor": "cloth",
+			"weapons": ["spear"]
+		},
+		{
+			"objectName": "trained_spearman",
+			"displayName": "Trained Spearman",
+			"hitPoints": 30,
+			"rank": "Soldier",
+			"class": "infantry",
+			"level": 2,
+			"armor": "leather",
+			"weapons": ["spear"]
+		},
+		{
+			"objectName": "veteran_spearman",
+			"displayName": "Veteran Spearman",
+			"hitPoints": 30,
+			"rank": "Soldier",
+			"class": "infantry",
+			"level": 3,
+			"armor": "mail",
+			"weapons": ["spear"]
+		},
+		{
+			"objectName": "militia_spearman",
+			"displayName": "Milita Spearman",
 			"hitPoints": 30,
 			"rank": "Soldier",
 			"class": "infantry",
@@ -186,18 +252,48 @@
 			"weapons": ["spear"]
 		},
 		{
-			"objectName": "swordsman",
-			"displayName": "Swordsman",
+			"objectName": "huntsman",
+			"displayName": "Huntsman",
 			"hitPoints": 30,
 			"rank": "Soldier",
-			"class": "infantry",
-			"level": 1,
-			"armor": "leather",
-			"weapons": ["shortsword"]
+			"class": "missile",
+			"level": 0,
+			"armor": "cloth",
+			"weapons": ["bow", "hunting_knife"]
 		},
 		{
-			"objectName": "archer",
-			"displayName": "Archer",
+			"objectName": "levy_bowman",
+			"displayName": "Levy Bowman",
+			"hitPoints": 30,
+			"rank": "Soldier",
+			"class": "missile",
+			"level": 1,
+			"armor": "cloth",
+			"weapons": ["bow", "hatchet"]
+		},
+		{
+			"objectName": "trained_bowman",
+			"displayName": "Trained Bowman",
+			"hitPoints": 30,
+			"rank": "Soldier",
+			"class": "missile",
+			"level": 2,
+			"armor": "leather",
+			"weapons": ["bow", "hatchet"]
+		},
+		{
+			"objectName": "veteran_bowman",
+			"displayName": "Veteran Bowman",
+			"hitPoints": 30,
+			"rank": "Soldier",
+			"class": "missile",
+			"level": 3,
+			"armor": "leather",
+			"weapons": ["bow", "hatchet"]
+		},
+        {
+			"objectName": "militia_crossbowman",
+			"displayName": "Milita Crossbowman",
 			"hitPoints": 30,
 			"rank": "Soldier",
 			"class": "missile",
@@ -206,33 +302,73 @@
 			"weapons": ["bow", "shortsword"]
 		},
 		{
-			"objectName": "horsemen",
-			"displayName": "Horsemen",
-			"hitPoints": 35,
+			"objectName": "trained_crossbowman",
+			"displayName": "Trained Crossbowman",
+			"hitPoints": 30,
 			"rank": "Soldier",
-			"class": "cavalry",
-			"level": 1,
+			"class": "missile",
+			"level": 2,
 			"armor": "leather",
-			"weapons": ["lance", "shortsword"]
+			"weapons": ["crossbow", "shortsword"]
 		},
 		{
-			"objectName": "seargant",
-			"displayName": "Seargant",
-			"hitPoints": 35,
-			"rank": "Officer",
-			"class": "infantry",
-			"level": 1,
+			"objectName": "veteran_crossbowman",
+			"displayName": "Veteran Crossbowman",
+			"hitPoints": 30,
+			"rank": "Soldier",
+			"class": "missile",
+			"level": 3,
+			"armor": "leather",
+			"weapons": ["crossbow", "shortsword"]
+		},
+		{
+			"objectName": "young_knight",
+			"displayName": "Young Knight",
+			"hitPoints": 32,
+			"rank": "Soldier",
+			"class": "cavalry",
+			"level": 2,
 			"armor": "mail",
 			"weapons": ["lance", "longsword"]
 		},
 		{
-			"objectName": "king",
-			"displayName": "King",
-			"hitPoints": 50,
-			"rank": "Leader",
+			"objectName": "knight",
+			"displayName": "Knight",
+			"hitPoints": 35,
+			"rank": "Soldier",
 			"class": "cavalry",
 			"level": 3,
-			"armor": "plate",
+			"armor": "partial_plate",
+			"weapons": ["lance", "longsword"]
+		},
+		{
+			"objectName": "lancer",
+			"displayName": "Lancer",
+			"hitPoints": 40,
+			"rank": "Officer",
+			"class": "cavalry",
+			"level": 4,
+			"armor": "full_plate",
+			"weapons": ["lance", "longsword"]
+		},
+		{
+			"objectName": "sergeant",
+			"displayName": "Seargant",
+			"hitPoints": 35,
+			"rank": "Officer",
+			"class": "infantry",
+			"level": 3,
+			"armor": "mail",
+			"weapons": ["longsword"]
+		},
+		{
+			"objectName": "king",
+			"displayName": "King",
+			"hitPoints": 40,
+			"rank": "Leader",
+			"class": "cavalry",
+			"level": 4,
+			"armor": "full_plate",
 			"weapons": ["lance", "longsword"]
 		}
 	],
@@ -243,9 +379,8 @@
             "displayName": "Village",
             "goldPerTurn": 2,
             "recruits": [
-                "spearman",
-				"swordsman",
-				"archer"
+                "peasant",
+				"huntsman"
             ]
         },
         {
@@ -253,11 +388,23 @@
             "displayName": "Castle",
             "goldPerTurn": 4,
             "recruits": [
-				"horsemen",
-				"seargant"
+				"levy_spearman",
+				"levy_bowman",
+                "young_knight",
+				"sergeant"
+            ]
+        },
+        {
+            "objectName": "city",
+            "displayName": "City",
+            "goldPerTurn": 6,
+            "recruits": [
+				"militia_spearman",
+				"militia_crossbowman",
+                "young_knight",
+				"sergeant"
             ]
         }
-
     ],
 
     "factions": [
@@ -265,11 +412,22 @@
             "objectName": "kingdom",
             "displayName": "The Kingdom",
 			"unitTypes": [
-				"spearman",
-				"swordsman",
-				"archer",
-				"horsemen",
-				"seargant",
+				"peasant",
+				"levy_spearman",
+				"trained_spearman",
+				"veteran_spearman",
+				"militia_spearman",
+                "huntsman",
+                "levy_bowman",
+                "trained_bowman",
+                "veteran_bowman",
+                "militia_crossbowman",
+                "trained_crossbowman",
+                "veteran_crossbowman",
+                "young_knight",
+                "knight",
+                "lancer",
+                "sergeant",
 				"king"
 			]
         }

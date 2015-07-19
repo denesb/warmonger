@@ -45,7 +45,7 @@ Warmonger::~Warmonger()
 void Warmonger::setupModels()
 {
     QStringList mapSearchPath;
-    mapSearchPath << "worlds/default/maps";
+    mapSearchPath << "worlds/iron_age/maps";
     this->mapLoader.setSearchPath(mapSearchPath);
 
     this->map = this->mapLoader.load("prototype");

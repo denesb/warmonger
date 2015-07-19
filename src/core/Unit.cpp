@@ -72,10 +72,21 @@ void Unit::setExperience(int experience)
 
 void Unit::dataFromJson(const QJsonObject &obj)
 {
-    //TODO: error handling
     World *world = this->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
+    if (world == nullptr)
+    {
+        wError("core.Unit") << "world is null";
+        throw Exception(Exception::NullPointer);
+    }
 
-    this->unitType = world->findChild<UnitType *>(obj["unitType"].toString());
+    const QString unitTypeName = obj["unitType"].toString();
+    this->unitType = world->findChild<UnitType *>(unitTypeName);
+    if (this->unitType == nullptr)
+    {
+        wError("core.Unit") << "Unable to resolve reference <UnitType>" << unitTypeName;
+        throw Exception(Exception::UnresolvedReference, {"UnitType", unitTypeName});
+    }
+
     this->position = MapPosition(obj["position"].toString());
     this->hitPoints = obj["hitPoints"].toInt();
     this->movementPoints = obj["movementPoints"].toInt();

@@ -50,12 +50,23 @@ void Player::setFaction(const Faction *faction)
 
 void Player::dataFromJson(const QJsonObject &obj)
 {
-    //TODO: error handling
     World *world = this->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
+    if (world == nullptr)
+    {
+        wError("core.Player") << "world is null";
+        throw Exception(Exception::NullPointer);
+    }
 
     this->color = QColor(obj["color"].toString());
     this->goldBalance = obj["goldBalance"].toInt();
-    this->faction = world->findChild<Faction *>(obj["faction"].toString());
+
+    const QString factionName = obj["faction"].toString();
+    this->faction = world->findChild<Faction *>(factionName);
+    if (this->faction == nullptr)
+    {
+        wError("core.Player") << "Unable to resolve reference <Faction>" << factionName;
+        throw Exception(Exception::UnresolvedReference, {"Faction", factionName});
+    }
 }
 
 void Player::dataToJson(QJsonObject &obj) const

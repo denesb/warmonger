@@ -4,6 +4,9 @@
 #include <QObject>
 #include <QJsonObject>
 
+#include "log/LogStream.h"
+#include "core/Exception.h"
+
 namespace warmonger {
 namespace core {
 

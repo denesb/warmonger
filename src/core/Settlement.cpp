@@ -1,10 +1,8 @@
-#include <QDebug>
 #include "core/Settlement.h"
 #include "core/SettlementType.h"
 #include "core/World.h"
 #include "core/Util.h"
 #include "core/Exception.h"
-#include "core/Log.h"
 
 using namespace warmonger::core;
 
@@ -44,7 +42,7 @@ void Settlement::dataFromJson(const QJsonObject &obj)
     World *world = this->parent()->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
     if (world == nullptr)
     {
-        qCCritical(root) << "world is null";
+        wError("core.Settlement") << "world is null";
         throw Exception(Exception::NullPointer);
     }
 
@@ -52,7 +50,7 @@ void Settlement::dataFromJson(const QJsonObject &obj)
     this->settlementType = world->findChild<SettlementType *>(settlementTypeName);
     if (this->settlementType == nullptr)
     {
-        qCCritical(root) << "Unable to resolve reference <SettlementType>" << settlementTypeName;
+        wError("core.Settlement") << "Unable to resolve reference <SettlementType>" << settlementTypeName;
         throw Exception(Exception::UnresolvedReference, {"SettlementType", settlementTypeName});
     }
 

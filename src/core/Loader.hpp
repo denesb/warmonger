@@ -7,6 +7,8 @@
 #include <QStringList>
 #include <QString>
 #include <QObject>
+#include <QFile>
+#include <QJsonDocument>
 
 #include "core/JsonUtil.hpp"
 
@@ -20,8 +22,7 @@ public:
     Loader(QObject *owner) :
         owner(owner),
         searchPath(),
-        pathMap(),
-        list()
+        pathMap()
     {}
 
     ~Loader()
@@ -39,27 +40,50 @@ public:
             this->searchPath = searchPath;
 
             this->scanSearchPath();
-            this->loadList();
         }
     }
 
-    QList<T *> getList() const
+    T * load(const QString &name) const
     {
-        return this->list;
-    }
+        const QString path(this->pathMap[name] + "/" + T::DefinitionFile);
+        QFile jsonFile(path);
 
-    T * get(const QString &name)
-    {
-        T * foundItem{nullptr};
-        for (T *item : this->list)
+        if (!jsonFile.open(QIODevice::ReadOnly))
         {
-            if (item->objectName() == name)
-            {
-                foundItem = item;
-            }
+            wError("core.Loader") << "Failed to open file " << path;
+            throw Exception(Exception::FileOpenFailed, {path});
         }
 
-        return foundItem;
+        QByteArray jsonData = jsonFile.readAll();
+
+        jsonFile.close();
+
+        QJsonParseError parseError;
+
+        QJsonDocument doc(QJsonDocument::fromJson(jsonData, &parseError));
+
+        if (parseError.error != QJsonParseError::NoError)
+        {
+            wError("core.Loader") << "Error while parsing " << path << " : " << parseError.errorString();
+            throw Exception(Exception::JsonParse, {parseError.errorString()});
+        }
+
+        QJsonObject obj = doc.object();
+        wInfo("core.Loader") << "Loaded Json document from " << path;
+        return newFromJson<T>(obj, this->owner);
+    }
+
+    QList<T *> loadList() const
+    {
+        QList<T *> list;
+
+        QMap<QString, QString>::ConstIterator it;
+        for (it = this->pathMap.constBegin(); it != this->pathMap.constEnd(); it++)
+        {
+            list.append(this->load(it.key()));
+        }
+
+        return std::move(list);
     }
 
 private:
@@ -86,25 +110,9 @@ private:
         }
     }
 
-    void loadList()
-    {
-        for (T *item : this->list)
-        {
-            item->deleteLater();
-        }
-        this->list.clear();
-
-        QMap<QString, QString>::ConstIterator it;
-        for (it = this->pathMap.constBegin(); it != this->pathMap.constEnd(); it++)
-        {
-            this->list.append(newFromJsonFile<T>(it.value() + "/" + T::DefinitionFile, owner));
-        }
-    }
-
     QObject *owner;
     QStringList searchPath;
     QMap<QString, QString> pathMap;
-    QList<T *> list;
 };
 
 } // namespace core

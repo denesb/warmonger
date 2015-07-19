@@ -1,21 +1,27 @@
 #include <QQmlContext>
-#include <QDebug>
 
 #include "Warmonger.h"
 #include "core/Exception.h"
+#include "log/LogStream.h"
+#include "log/ConsoleHandler.h"
 
 using namespace warmonger;
 
 Warmonger::Warmonger(int argc, char *argv[]) :
     QGuiApplication(argc, argv),
     viewer(),
-    worldLoader(this),
     mapLoader(this),
-    world(nullptr),
     map(nullptr),
     mapModel(nullptr)
 {
-    qSetMessagePattern("%{type} - [%{category}] %{file}:%{line} %{message}");
+    log::Logger::init();
+
+    std::shared_ptr<log::ConsoleHandler> consoleHandler(new log::ConsoleHandler());
+    consoleHandler->setLevel(log::Debug);
+
+    log::Logger *rootLogger = log::Logger::get("root");
+    rootLogger->addHandler(consoleHandler);
+
     try
     {
         this->setupModels();
@@ -27,6 +33,7 @@ Warmonger::Warmonger(int argc, char *argv[]) :
     }
     catch (core::Exception &e)
     {
+        wError("warmonger") << "Caught exception: " << e.getMessage();
         throw;
     }
 }
@@ -37,29 +44,11 @@ Warmonger::~Warmonger()
 
 void Warmonger::setupModels()
 {
-    QStringList worldSearchPath;
-    worldSearchPath << "worlds";
-    this->worldLoader.setSearchPath(worldSearchPath);
-
     QStringList mapSearchPath;
     mapSearchPath << "worlds/default/maps";
     this->mapLoader.setSearchPath(mapSearchPath);
 
-    this->world = this->worldLoader.get("default");
-
-    qDebug() << this->world->objectName();
-    qDebug() << this->world->toJson();
-
-    //this->map = this->mapLoader.get("prototype");
-    //this->map->setParent(this);
-    //qDebug() << this->map->toJson();
-    
-    QList<core::Map *> mlist = this->mapLoader.getList();
-    for (core::Map *m : mlist)
-    {
-        qDebug() << m->objectName();
-        qDebug() << m->toJson();
-    }
-
+    this->map = this->mapLoader.load("prototype");
+    //wDebug("warmonger") << this->map->toJson();
     //this->mapModel = new ui::MapModel(this->map, this);
 }

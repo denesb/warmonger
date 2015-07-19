@@ -5,9 +5,9 @@
 #include "core/Unit.h"
 #include "core/Settlement.h"
 #include "core/JsonUtil.hpp"
+#include "core/Loader.hpp"
 #include "core/Util.h"
 #include "core/Exception.h"
-#include "core/Log.h"
 
 using namespace warmonger::core;
 
@@ -141,11 +141,17 @@ void Map::dataFromJson(const QJsonObject &obj)
     this->description = obj["description"].toString();
 
     const QString worldName(obj["world"].toString());
-    World *world = this->parent()->findChild<World *>(worldName, Qt::FindDirectChildrenOnly);
+
+    Loader<World> worldLoader(this);
+    QStringList worldSearchPath;
+    worldSearchPath << "worlds";
+    worldLoader.setSearchPath(worldSearchPath);
+
+    World *world = worldLoader.load(worldName);
     if (world == nullptr)
     {
-        qCCritical(root) << "Unable to resolve reference <World>" << worldName;
-        throw Exception(Exception::UnresolvedReference, {"World", worldName});
+        wError("core.Map") << "Failed to load <World>" << worldName;
+        throw Exception(Exception::ResourceLoadFailed, {"World", worldName});
     }
 
     this->world = world;

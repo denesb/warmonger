@@ -15,15 +15,18 @@ public:
     {
         // 0x0000 -> 0x0100 General errors
         General = 0x0000,
-        NullPointer = 0x0001,
+        NullPointer,
+        // 0x0100 -> 0x0200 IO errors
         IO = 0x0002,
-        FileNotFound = 0x0003,
-        CannotOpenFile = 0x0004,
-        CannotReadFile = 0x0005,
-        // 0x0100 -> 0x0200 Serialization (from and to JSON) related errors
+        FileNotFound,
+        FileOpenFailed,
+        FileReadFailed,
+        // 0x0200 -> 0x0300 Serialization (from and to JSON) related errors
         Serialization = 0x0100,
-        JsonParse = 0x0101,
-        UnresolvedReference = 0x0102
+        JsonParse,
+        UnresolvedReference,
+        ResourceLoadFailed,
+        InvalidValue
     };
 
     Exception(ErrorCode code, const QStringList &args = QStringList());

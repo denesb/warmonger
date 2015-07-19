@@ -24,9 +24,7 @@ private:
     void setupModels();
 
     QtQuick2ApplicationViewer viewer;
-    core::Loader<core::World> worldLoader;
     core::Loader<core::Map> mapLoader;
-    core::World *world;
     core::Map *map;
     ui::MapModel *mapModel;
 };

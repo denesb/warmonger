@@ -5,15 +5,12 @@
 #include <QString>
 #include <QList>
 #include <QMap>
-#include <QFile>
 #include <QPoint>
-#include <QJsonDocument>
 #include <QJsonValue>
 #include <QJsonObject>
 #include <QJsonArray>
 
 #include "core/Exception.h"
-#include "core/Log.h"
 
 namespace warmonger {
 namespace core {
@@ -60,7 +57,10 @@ QList<const T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
     QList<const T *> list;
     QObject *parent = owner->parent();
     if (parent == nullptr)
+    {
+        wError("core.JsonUtil") << "Parent of owner " << owner->objectName() << " is null";
         throw Exception(Exception::NullPointer);
+    }
 
     for (const QJsonValue v : array)
     {
@@ -68,7 +68,10 @@ QList<const T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
         const T * instance = parent->findChild<T *>(name);
 
         if (instance == nullptr)
+        {
+            wError("core.JsonUtil") << "Unable to find children " << name << " of " << parent->objectName();
             throw Exception(Exception::UnresolvedReference, {"T", name});
+        }
 
         list.append(instance);
     }
@@ -95,7 +98,10 @@ QMap<const T *, int> objectValueMapFromJson(const QJsonObject &obj, const QObjec
     QMap<const T *, int> map;
     QObject *parent = owner->parent();
     if (parent == nullptr)
+    {
+        wError("core.JsonUtil") << "Parent of owner " << owner->objectName() << " is null";
         throw Exception(Exception::NullPointer);
+    }
 
     QJsonObject::const_iterator it;
     for(it = obj.constBegin(); it != obj.constEnd(); it++)
@@ -104,7 +110,10 @@ QMap<const T *, int> objectValueMapFromJson(const QJsonObject &obj, const QObjec
         const T *instance = parent->findChild<T *>(name);
 
         if (instance == nullptr)
+        {
+            wError("core.JsonUtil") << "Unable to find children " << name << " of " << parent->objectName();
             throw Exception(Exception::UnresolvedReference, {"T", name});
+        }
 
         map[instance] = it.value().toInt();
     }
@@ -125,29 +134,6 @@ QJsonObject objectValueMapToJson(const QMap<const T *, int> &map)
     }
     
     return std::move(obj);
-}
-
-template<typename T>
-T * newFromJsonFile(const QString &path, QObject *parent)
-{
-    QFile jsonFile(path);
-
-    if (!jsonFile.open(QIODevice::ReadOnly))
-        throw Exception(Exception::CannotOpenFile, {path});
-
-    QByteArray jsonData = jsonFile.readAll();
-
-    jsonFile.close();
-
-    QJsonParseError parseError;
-
-    QJsonDocument doc(QJsonDocument::fromJson(jsonData, &parseError));
-
-    if (parseError.error != QJsonParseError::NoError)
-        throw Exception(Exception::JsonParse, {parseError.errorString()});
-
-    QJsonObject obj = doc.object();
-    return newFromJson<T>(obj, parent);
 }
 
 } // namespace core

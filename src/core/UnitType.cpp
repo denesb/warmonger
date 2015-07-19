@@ -99,7 +99,8 @@ void UnitType::dataFromJson(const QJsonObject &obj)
     }
     else
     {
-        //TODO: error handling
+        wError("core.UnitType") << "Invalid unit rank: " << rankStr;
+        throw Exception(Exception::InvalidValue, {rankStr});
     }
     this->klass = this->parent()->findChild<UnitClass *>(obj["class"].toString());
     this->level = obj["level"].toInt();

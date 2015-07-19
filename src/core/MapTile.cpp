@@ -57,10 +57,21 @@ void MapTile::setNeighbour(Direction direction, const MapTile *mapTile)
 
 void MapTile::dataFromJson(const QJsonObject &obj)
 {
-    //TODO: error handling
     World *world = this->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
+    if (world == nullptr)
+    {
+        wError("core.MapTile") << "world is null";
+        throw Exception(Exception::NullPointer);
+    }
 
-    this->terrainType = world->findChild<TerrainType *>(obj["terrainType"].toString());
+    const QString terrainTypeName = obj["terrainType"].toString();
+    this->terrainType = world->findChild<TerrainType *>(terrainTypeName);
+    if (this->terrainType == nullptr)
+    {
+        wError("core.MapTile") << "Unable to resolve reference <TerrainType>" << terrainTypeName;
+        throw Exception(Exception::UnresolvedReference, {"TerrainType", terrainTypeName});
+    }
+    
     this->position = MapPosition(obj["position"].toString());
 }
 

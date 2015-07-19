@@ -69,7 +69,7 @@ QList<const T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
 
         if (instance == nullptr)
         {
-            wError("core.JsonUtil") << "Unable to find children " << name << " of " << parent->objectName();
+            wError("core.JsonUtil") << "Unable to find child " << name << " of " << parent->objectName();
             throw Exception(Exception::UnresolvedReference, {"T", name});
         }
 
@@ -111,7 +111,7 @@ QMap<const T *, int> objectValueMapFromJson(const QJsonObject &obj, const QObjec
 
         if (instance == nullptr)
         {
-            wError("core.JsonUtil") << "Unable to find children " << name << " of " << parent->objectName();
+            wError("core.JsonUtil") << "Unable to find child " << name << " of " << parent->objectName();
             throw Exception(Exception::UnresolvedReference, {"T", name});
         }
 

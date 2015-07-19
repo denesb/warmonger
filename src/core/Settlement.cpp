@@ -39,7 +39,7 @@ void Settlement::setPosition(const MapPosition &position)
 
 void Settlement::dataFromJson(const QJsonObject &obj)
 {
-    World *world = this->parent()->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
+    World *world = this->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
     if (world == nullptr)
     {
         wError("core.Settlement") << "world is null";

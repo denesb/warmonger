@@ -40,7 +40,7 @@ public:
     MapTile(QObject *parent);
     ~MapTile();
 
-    const TerrainType *getTerrainType() const;
+    const TerrainType * getTerrainType() const;
     void setTerrainType(const TerrainType *terrainType);
 
     MapPosition getPosition() const;

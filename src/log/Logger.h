@@ -13,6 +13,10 @@ namespace log {
 class Logger
 {
 public:
+    static const QMap<QtMsgType, LogLevel> qtMsgType2LogLevel;
+
+    static void qtMessageHandler(QtMsgType type, const QMessageLogContext &ctx, const QString &msg);
+
     static void init();
     static Logger * get(const QString &name);
 

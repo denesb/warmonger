@@ -28,7 +28,7 @@ Warmonger::Warmonger(int argc, char *argv[]) :
 
         this->viewer.setMainQmlFile(QStringLiteral("qml/Main.qml"));
         this->viewer.rootContext()->setContextProperty("warmonger", this);
-        //this->viewer.rootContext()->setContextProperty("mapModel", this->mapModel);
+        this->viewer.rootContext()->setContextProperty("mapModel", this->mapModel);
         this->viewer.showExpanded();
     }
     catch (core::Exception &e)
@@ -49,6 +49,5 @@ void Warmonger::setupModels()
     this->mapLoader.setSearchPath(mapSearchPath);
 
     this->map = this->mapLoader.load("prototype");
-    //wDebug("warmonger") << this->map->toJson();
-    //this->mapModel = new ui::MapModel(this->map, this);
+    this->mapModel = new ui::MapModel(map, this);
 }

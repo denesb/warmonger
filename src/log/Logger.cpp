@@ -5,6 +5,21 @@ using namespace warmonger::log;
 
 QMap<QString, Logger*> Logger::loggers = QMap<QString, Logger*>();
 
+const QMap<QtMsgType, LogLevel> Logger::qtMsgType2LogLevel{
+    std::make_pair(QtDebugMsg, Debug),
+    std::make_pair(QtWarningMsg, Warning),
+    std::make_pair(QtCriticalMsg, Critical),
+    std::make_pair(QtFatalMsg, Critical),
+    std::make_pair(QtSystemMsg, Critical)
+};
+
+void Logger::qtMessageHandler(QtMsgType type, const QMessageLogContext &ctx, const QString &msg)
+{
+    LogRecord record(Logger::qtMsgType2LogLevel[type], "qt", ctx.file, ctx.function, ctx.line);
+    record.setMsg(msg);
+    Logger::get("qt")->logRecord(record);
+}
+
 void Logger::init()
 {
     Logger *root = new Logger("root", nullptr);
@@ -12,6 +27,8 @@ void Logger::init()
     Logger::loggers["root"] = root;
     Logger::loggers[""] = root;
     Logger::loggers[QString()] = root;
+
+    qInstallMessageHandler(Logger::qtMessageHandler);
 }
 
 Logger * Logger::get(const QString &name)

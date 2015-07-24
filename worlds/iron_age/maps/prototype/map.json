@@ -3,27 +3,203 @@
     "displayName": "Prototype map",
     "description": "Experimental development map",
     "world": "iron_age",
-    "width": 4,
-    "height": 4,
+    "maxWidth": 4,
+    "maxHeight": 4,
 
-    "mapTiles": {
-        "0,0": {"terrainType": "plains"},
-        "0,1": {"terrainType": "plains"},
-        "0,2": {"terrainType": "plains"},
-        "0,3": {"terrainType": "plains"},
-        "1,0": {"terrainType": "plains"},
-        "1,1": {"terrainType": "plains"},
-        "1,2": {"terrainType": "plains"},
-        "1,3": {"terrainType": "plains"},
-        "2,0": {"terrainType": "plains"},
-        "2,1": {"terrainType": "plains"},
-        "2,2": {"terrainType": "plains"},
-        "2,3": {"terrainType": "plains"},
-        "3,0": {"terrainType": "plains"},
-        "3,1": {"terrainType": "plains"},
-        "3,2": {"terrainType": "plains"},
-        "3,3": {"terrainType": "plains"}
-    },
+    "mapNodes": [
+        {
+            "objectName": "mapNode0",
+            "terrainType": "plains",
+            "neighbours": [
+                "",
+                "mapNode1",
+                "mapNode5",
+                "mapNode4",
+                "",
+                ""
+            ]
+        },
+        {
+            "objectName": "mapNode1",
+            "terrainType": "plains",
+            "neighbours": [
+                "",
+                "",
+                "mapNode2",
+                "mapNode5",
+                "mapNode0",
+                ""
+            ]
+        },
+        {
+            "objectName": "mapNode2",
+            "terrainType": "plains",
+            "neighbours": [
+                "",
+                "mapNode3",
+                "mapNode7",
+                "mapNode6",
+                "mapNode5",
+                "mapNode1"
+            ]
+        },
+        {
+            "objectName": "mapNode3",
+            "terrainType": "plains",
+            "neighbours": [
+                "",
+                "",
+                "",
+                "mapNode7",
+                "mapNode2",
+                ""
+            ]
+        },
+        {
+            "objectName": "mapNode4",
+            "terrainType": "plains",
+            "neighbours": [
+                "mapNode0",
+                "mapNode5",
+                "mapNode9",
+                "mapNode8",
+                "",
+                ""
+            ]
+        },
+        {
+            "objectName": "mapNode5",
+            "terrainType": "plains",
+            "neighbours": [
+                "mapNode1",
+                "mapNode2",
+                "mapNode6",
+                "mapNode9",
+                "mapNode4",
+                "mapNode0"
+            ]
+        },
+        {
+            "objectName": "mapNode6",
+            "terrainType": "plains",
+            "neighbours": [
+                "mapNode2",
+                "mapNode7",
+                "mapNode11",
+                "mapNode10",
+                "mapNode9",
+                "mapNode5"
+            ]
+        },
+        {
+            "objectName": "mapNode7",
+            "terrainType": "plains",
+            "neighbours": [
+                "mapNode3",
+                "",
+                "",
+                "mapNode11",
+                "mapNode6",
+                "mapNode2"
+            ]
+        },
+        {
+            "objectName": "mapNode8",
+            "terrainType": "plains",
+            "neighbours": [
+                "mapNode4",
+                "mapNode9",
+                "mapNode13",
+                "mapNode12",
+                "",
+                ""
+            ]
+        },
+        {
+            "objectName": "mapNode9",
+            "terrainType": "plains",
+            "neighbours": [
+                "mapNode5",
+                "mapNode6",
+                "mapNode10",
+                "mapNode13",
+                "mapNode8",
+                "mapNode4"
+            ]
+        },
+        {
+            "objectName": "mapNode10",
+            "terrainType": "plains",
+            "neighbours": [
+                "mapNode6",
+                "mapNode11",
+                "mapNode15",
+                "mapNode14",
+                "mapNode13",
+                "mapNode9"
+            ]
+        },
+        {
+            "objectName": "mapNode11",
+            "terrainType": "plains",
+            "neighbours": [
+                "mapNode7",
+                "",
+                "",
+                "mapNode15",
+                "mapNode10",
+                "mapNode6"
+            ]
+        },
+        {
+            "objectName": "mapNode12",
+            "terrainType": "plains",
+            "neighbours": [
+                "mapNode8",
+                "mapNode13",
+                "",
+                "",
+                "",
+                ""
+            ]
+        },
+        {
+            "objectName": "mapNode13",
+            "terrainType": "plains",
+            "neighbours": [
+                "mapNode9",
+                "mapNode10",
+                "mapNode14",
+                "",
+                "mapNode12",
+                "mapNode8"
+            ]
+        },
+        {
+            "objectName": "mapNode14",
+            "terrainType": "plains",
+            "neighbours": [
+                "mapNode10",
+                "mapNode15",
+                "",
+                "",
+                "",
+                "mapNode13"
+            ]
+        },
+        {
+            "objectName": "mapNode15",
+            "terrainType": "plains",
+            "neighbours": [
+                "mapNode11",
+                "",
+                "",
+                "",
+                "mapNode14",
+                "mapNode10"
+            ]
+        }
+    ],
 
     "players": [
         {
@@ -47,12 +223,14 @@
 
     "settlements": [
         {
+            "objectName": "castle0",
             "settlementType": "castle",
-            "position": "0,0"
+            "mapNode": "mapNode0"
         },
         {
+            "objectName": "castle1",
             "settlementType": "castle",
-            "position": "3,3"
+            "mapNode": "mapNode15"
         }
     ]
 }

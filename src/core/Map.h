@@ -1,18 +1,16 @@
 #ifndef CORE_MAP_H
 #define CORE_MAP_H
 
-#include <QMap>
 #include <QList>
 #include <QString>
 
 #include "core/GameObject.h"
-#include "core/MapPosition.h"
 
 namespace warmonger {
 namespace core {
 
 class World;
-class MapTile;
+class MapNode;
 class Player;
 class Unit;
 class Settlement;
@@ -34,15 +32,15 @@ public:
     const World * getWorld() const;
     void setWorld(const World *world);
 
-    int getWidth() const;
-    void setWidth(int width);
+    int getMaxWidth() const;
+    void setMaxWidth(int maxWidth);
 
-    int getHeight() const;
-    void setHeight(int height);
+    int getMaxHeight() const;
+    void setMaxHeight(int maxHeight);
 
-    const MapTile * getMapTile(const MapPosition &position) const;
-    MapTile * getMapTile(const MapPosition &position);
-    void setMapTile(const MapPosition &position, MapTile *mapTile);
+    QList<const MapNode *> getMapNodes() const;
+    QList<MapNode *> getMapNodes();
+    void setMapNodes(const QList<MapNode *> &mapNodes);
 
     QList<const Player *> getPlayers() const;
     QList<Player *> getPlayers();
@@ -52,22 +50,19 @@ public:
     QList<Unit *> getUnits();
     void setUnits(const QList<Unit *> &units);
 
-    QList<const Settlement *> getSettlemets() const;
-    QList<Settlement *> getSettlemets();
+    QList<const Settlement *> getSettlements() const;
+    QList<Settlement *> getSettlements();
     void setSettlements(const QList<Settlement *> &settlements);
 
 private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
-    QMap<MapPosition, MapTile *> mapTilesFromJson(const QJsonObject &obj);
-    QJsonObject mapTilesToJson(const QMap<MapPosition, MapTile *> &mapTiles) const;
-
     QString description;
     const World *world;
-    int width;
-    int height;
-    QMap<MapPosition, MapTile *> mapTiles;
+    int maxWidth;
+    int maxHeight;
+    QList<MapNode *> mapNodes;
     QList<Player *> players;
     QList<Unit *> units;
     QList<Settlement *> settlements;

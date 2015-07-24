@@ -65,12 +65,16 @@ QList<const T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
     for (const QJsonValue v : array)
     {
         const QString name = v.toString();
-        const T * instance = parent->findChild<T *>(name);
-
-        if (instance == nullptr)
+        const T *instance{nullptr};
+        if (!name.isEmpty())
         {
-            wError("core.JsonUtil") << "Unable to find child " << name << " of " << parent->objectName();
-            throw Exception(Exception::UnresolvedReference, {"T", name});
+            instance = parent->findChild<T *>(name);
+            if (instance == nullptr)
+            {
+                Exception e(Exception::UnresolvedReference, {"T", name});
+                wError("core.JsonUtil") << e.getMessage();
+                throw e;
+            }
         }
 
         list.append(instance);

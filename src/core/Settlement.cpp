@@ -1,5 +1,6 @@
 #include "core/Settlement.h"
 #include "core/SettlementType.h"
+#include "core/MapNode.h"
 #include "core/World.h"
 #include "core/Util.h"
 #include "core/Exception.h"
@@ -9,7 +10,7 @@ using namespace warmonger::core;
 Settlement::Settlement(QObject *parent) :
     GameObject(parent),
     settlementType(nullptr),
-    position()
+    mapNode(nullptr)
 {
 }
 
@@ -27,14 +28,14 @@ void Settlement::setSettlementType(const SettlementType *settlementType)
     this->settlementType = settlementType;
 }
 
-MapPosition Settlement::getPosition() const
+const MapNode * Settlement::getMapNode() const
 {
-    return this->position;
+    return this->mapNode;
 }
 
-void Settlement::setPosition(const MapPosition &position)
+void Settlement::setMapNode(const MapNode *mapNode)
 {
-    this->position = position;
+    this->mapNode = mapNode;
 }
 
 void Settlement::dataFromJson(const QJsonObject &obj)
@@ -50,15 +51,23 @@ void Settlement::dataFromJson(const QJsonObject &obj)
     this->settlementType = world->findChild<SettlementType *>(settlementTypeName);
     if (this->settlementType == nullptr)
     {
-        wError("core.Settlement") << "Unable to resolve reference <SettlementType>" << settlementTypeName;
-        throw Exception(Exception::UnresolvedReference, {"SettlementType", settlementTypeName});
+        Exception e(Exception::UnresolvedReference, {"SettlementType", settlementTypeName});
+        wError("core.Settlement") << e.getMessage();
+        throw e;
     }
 
-    this->position = MapPosition(obj["position"].toString());
+    const QString mapNodeName = obj["mapNode"].toString();
+    this->mapNode = this->parent()->findChild<MapNode *>(mapNodeName);
+    if (this->mapNode == nullptr)
+    {
+        Exception e(Exception::UnresolvedReference, {"MapNode", mapNodeName});
+        wError("core.Settlement") << e.getMessage();
+        throw e;
+    }
 }
 
 void Settlement::dataToJson(QJsonObject &obj) const
 {
     obj["settlementType"] = this->settlementType->objectName();
-    obj["position"] = this->position.toStr();
+    obj["mapNode"] = this->mapNode->objectName();
 }

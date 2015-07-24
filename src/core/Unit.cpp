@@ -1,5 +1,6 @@
 #include "core/Unit.h"
 #include "core/UnitType.h"
+#include "core/MapNode.h"
 #include "core/World.h"
 #include "core/JsonUtil.hpp"
 #include "Util.h"
@@ -9,7 +10,7 @@ using namespace warmonger::core;
 Unit::Unit(QObject *parent) :
     GameObject(parent),
     unitType(nullptr),
-    position(),
+    mapNode(nullptr),
     hitPoints(0),
     movementPoints(0),
     experience(0)
@@ -30,14 +31,14 @@ void Unit::setUnitType(const UnitType *unitType)
     this->unitType = unitType;
 }
 
-MapPosition Unit::getPosition() const
+const MapNode * Unit::getMapNode() const
 {
-    return this->position;
+    return this->mapNode;
 }
 
-void Unit::setPosition(const MapPosition &position)
+void Unit::setMapNode(const MapNode *mapNode)
 {
-    this->position = position;
+    this->mapNode = mapNode;
 }
 
 int Unit::getHitpoints() const
@@ -87,7 +88,15 @@ void Unit::dataFromJson(const QJsonObject &obj)
         throw Exception(Exception::UnresolvedReference, {"UnitType", unitTypeName});
     }
 
-    this->position = MapPosition(obj["position"].toString());
+    const QString mapNodeName = obj["mapNode"].toString();
+    this->mapNode = this->parent()->findChild<MapNode *>(mapNodeName);
+    if (this->mapNode == nullptr)
+    {
+        Exception e(Exception::UnresolvedReference, {"MapNode", mapNodeName});
+        wError("core.Unit") << e.getMessage();
+        throw e;
+    }
+
     this->hitPoints = obj["hitPoints"].toInt();
     this->movementPoints = obj["movementPoints"].toInt();
     this->experience = obj["experience"].toInt();
@@ -96,7 +105,7 @@ void Unit::dataFromJson(const QJsonObject &obj)
 void Unit::dataToJson(QJsonObject &obj) const
 {
     obj["unitType"] = this->unitType->objectName();
-    obj["position"] = this->position.toStr();
+    obj["mapNode"] = this->mapNode->objectName();
     obj["hitPoints"] = this->hitPoints;
     obj["movementPoints"] = this->movementPoints;
     obj["experience"] = this->experience;

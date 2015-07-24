@@ -1,6 +1,6 @@
 #include "core/Map.h"
 #include "core/World.h"
-#include "core/MapTile.h"
+#include "core/MapNode.h"
 #include "core/Player.h"
 #include "core/Unit.h"
 #include "core/Settlement.h"
@@ -17,9 +17,9 @@ Map::Map(QObject *parent) :
     GameObject(parent),
     description(),
     world(nullptr),
-    width(0),
-    height(0),
-    mapTiles(),
+    maxWidth(0),
+    maxHeight(0),
+    mapNodes(),
     players(),
     units(),
     settlements()
@@ -50,45 +50,39 @@ void Map::setWorld(const World *world)
     this->world = world;
 }
 
-int Map::getWidth() const
+int Map::getMaxWidth() const
 {
-    return this->width;
+    return this->maxWidth;
 }
 
-void Map::setWidth(int width)
+void Map::setMaxWidth(int maxWidth)
 {
-    this->width = width;
+    this->maxWidth = maxWidth;
 }
 
-int Map::getHeight() const
+int Map::getMaxHeight() const
 {
-    return this->height;
+    return this->maxHeight;
 }
 
-void Map::setHeight(int height)
+void Map::setMaxHeight(int maxHeight)
 {
-    this->height = height;
+    this->maxHeight = maxHeight;
 }
 
-const MapTile * Map::getMapTile(const MapPosition &position) const
+QList<const MapNode *> Map::getMapNodes() const
 {
-    if (!this->mapTiles.contains(position))
-        return nullptr;
-    else
-        return this->mapTiles[position];
+    return listConstClone(this->mapNodes);
 }
 
-MapTile * Map::getMapTile(const MapPosition &position)
+QList<MapNode *> Map::getMapNodes()
 {
-    if (!this->mapTiles.contains(position))
-        return nullptr;
-    else
-        return this->mapTiles[position];
+    return this->mapNodes;
 }
 
-void Map::setMapTile(const MapPosition &position, MapTile *mapTile)
+void Map::setMapNodes(const QList<MapNode *> &mapNodes)
 {
-    this->mapTiles[position] = mapTile;
+    this->mapNodes = mapNodes;
 }
 
 QList<const Player *> Map::getPlayers() const
@@ -121,12 +115,12 @@ void Map::setUnits(const QList<Unit *> &units)
     this->units = units;
 }
 
-QList<const Settlement *> Map::getSettlemets() const
+QList<const Settlement *> Map::getSettlements() const
 {
     return listConstClone(this->settlements);
 }
 
-QList<Settlement *> Map::getSettlemets()
+QList<Settlement *> Map::getSettlements()
 {
     return this->settlements;
 }
@@ -155,9 +149,9 @@ void Map::dataFromJson(const QJsonObject &obj)
     }
 
     this->world = world;
-    this->width = obj["width"].toInt();
-    this->height = obj["height"].toInt();
-    this->mapTiles = this->mapTilesFromJson(obj["mapTiles"].toObject());
+    this->maxWidth = obj["maxWidth"].toInt();
+    this->maxHeight = obj["maxHeight"].toInt();
+    this->mapNodes = newListFromJson<MapNode>(obj["mapNodes"].toArray(), this);
     this->players = newListFromJson<Player>(obj["players"].toArray(), this);
     this->units = newListFromJson<Unit>(obj["units"].toArray(), this);
     this->settlements = newListFromJson<Settlement>(obj["settlements"].toArray(), this);
@@ -167,37 +161,10 @@ void Map::dataToJson(QJsonObject &obj) const
 {
     obj["description"] = this->description;
     obj["world"] = this->world->objectName();
-    obj["width"] = this->width;
-    obj["height"] = this->height;
-    obj["mapTiles"] = this->mapTilesToJson(this->mapTiles);
+    obj["maxWidth"] = this->maxWidth;
+    obj["maxHeight"] = this->maxHeight;
+    obj["mapNodes"] = listToJson<MapNode>(this->mapNodes);
     obj["players"] = listToJson<Player>(this->players);
     obj["units"] = listToJson<Unit>(this->units);
     obj["settlements"] = listToJson<Settlement>(this->settlements);
-}
-
-QMap<MapPosition, MapTile *> Map::mapTilesFromJson(const QJsonObject &obj)
-{
-    QMap<MapPosition, MapTile *> mapTiles;
-
-    QJsonObject::ConstIterator it;
-    for (it = obj.constBegin(); it != obj.constEnd(); it++)
-    {
-        MapPosition pos(it.key());
-        mapTiles[pos] = newFromJson<MapTile>(it.value().toObject(), this);
-    }
-
-    return std::move(mapTiles);
-}
-
-QJsonObject Map::mapTilesToJson(const QMap<MapPosition, MapTile *> &mapTiles) const
-{
-    QJsonObject obj;
-
-    QMap<MapPosition, MapTile *>::ConstIterator it;
-    for (it = mapTiles.constBegin(); it != mapTiles.constEnd(); it++)
-    {
-        obj[it.key().toStr()] = it.value()->toJson();
-    }
-
-    return std::move(obj);
 }

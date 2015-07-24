@@ -33,7 +33,7 @@ Warmonger::Warmonger(int argc, char *argv[]) :
     }
     catch (core::Exception &e)
     {
-        wError("warmonger") << "Caught exception: " << e.getMessage();
+        wCritical("warmonger") << "Caught exception: " << e.getMessage();
         throw;
     }
 }

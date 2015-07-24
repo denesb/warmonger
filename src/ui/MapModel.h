@@ -1,7 +1,8 @@
-#ifndef UI_MODEL_MAP_H
-#define UI_MODEL_MAP_H
+#ifndef UI_MAP_MODEL_H
+#define UI_MAP_MODEL_H
 
 #include <QAbstractItemModel>
+#include <QHash>
 
 #include "core/Map.h"
 
@@ -28,7 +29,7 @@ public:
     Q_INVOKABLE QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
 
 private:
-    void buildDataModel();
+    void buildMapNodes();
 
     const core::Map *map;
 };
@@ -36,4 +37,4 @@ private:
 } // namespace ui
 } // namespace warmonger
 
-#endif // UI_MODEL_MAP_H
+#endif // UI_MAP_MODEL_H

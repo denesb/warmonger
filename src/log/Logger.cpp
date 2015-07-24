@@ -9,8 +9,8 @@ const QMap<QtMsgType, LogLevel> Logger::qtMsgType2LogLevel{
     std::make_pair(QtDebugMsg, Debug),
     std::make_pair(QtWarningMsg, Warning),
     std::make_pair(QtCriticalMsg, Critical),
-    std::make_pair(QtFatalMsg, Critical),
-    std::make_pair(QtSystemMsg, Critical)
+    std::make_pair(QtFatalMsg, Fatal),
+    std::make_pair(QtSystemMsg, System)
 };
 
 void Logger::qtMessageHandler(QtMsgType type, const QMessageLogContext &ctx, const QString &msg)

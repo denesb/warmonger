@@ -4,12 +4,12 @@
 #include <QPoint>
 
 #include "core/GameObject.h"
-#include "core/MapPosition.h"
 
 namespace warmonger {
 namespace core {
 
 class UnitType;
+class MapNode;
 
 class Unit :
     public GameObject
@@ -23,8 +23,8 @@ public:
     const UnitType * getUnitType() const;
     void setUnitType(const UnitType *unitType);
 
-    MapPosition getPosition() const;
-    void setPosition(const MapPosition &position);
+    const MapNode * getMapNode() const;
+    void setMapNode(const MapNode *mapNode);
 
     int getHitpoints() const;
     void setHitpoints(int hitPoints);
@@ -40,7 +40,7 @@ private:
     void dataToJson(QJsonObject &obj) const;
 
     const UnitType *unitType;
-    MapPosition position;
+    const MapNode * mapNode;
     int hitPoints;
     int movementPoints;
     int experience;

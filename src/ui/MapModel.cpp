@@ -1,6 +1,5 @@
 #include "ui/MapModel.h"
-#include "core/MapPosition.h"
-#include "core/MapTile.h"
+#include "core/MapNode.h"
 #include "core/TerrainType.h"
 
 using namespace warmonger::ui;
@@ -15,7 +14,7 @@ MapModel::MapModel(const core::Map *map, QObject *parent) :
 int MapModel::rowCount(const QModelIndex &parent) const
 {
     if (parent == QModelIndex())
-        return this->map->getHeight();
+        return this->map->getMaxHeight();
     else
         return 3;
 }
@@ -23,7 +22,7 @@ int MapModel::rowCount(const QModelIndex &parent) const
 int MapModel::columnCount(const QModelIndex &parent) const
 {
     if (parent == QModelIndex())
-        return this->map->getWidth();
+        return this->map->getMaxWidth();
     else
         return 1;
 }
@@ -41,8 +40,7 @@ QModelIndex MapModel::index(int row, int column, const QModelIndex & parent) con
             return QModelIndex();
     }
 
-    core::MapPosition *ptr = new core::MapPosition(row, column);
-    return createIndex(row, column, static_cast<void *>(ptr));
+    return createIndex(row, column, static_cast<void *>(nullptr));
 }
 
 QModelIndex MapModel::parent(const QModelIndex & index) const
@@ -53,15 +51,25 @@ QModelIndex MapModel::parent(const QModelIndex & index) const
 QVariant MapModel::data(const QModelIndex &index, int role) const
 {
     wDebug("ui.MapModel") << index.column() << "," << index.row();
-    const core::MapPosition position(index.column(), index.row());
-    const core::MapTile *mapTile = map->getMapTile(position);
+//    const core::MapPosition position(index.column(), index.row());
+    //const core::MapTile *mapTile = map->getMapTile(position);
 
-    wDebug("ui.MapModel") << "tile: " << mapTile->objectName();
+    //wDebug("ui.MapModel") << "tile: " << mapTile->objectName();
 
-    if (mapTile == nullptr)
-        return QVariant();
+    //if (mapTile == nullptr)
+     //   return QVariant();
 
-    wDebug("ui.MapModel") << "asdad";
+    //return QVariant(mapTile->getTerrainType()->objectName());
+    return QVariant();
+}
 
-    return QVariant(mapTile->getTerrainType()->objectName());
+void MapModel::buildMapNodes()
+{
+    for (const core::Settlement *settlement : this->map->getSettlements())
+    {
+    }
+
+    for (const core::Unit *unit : this->map->getUnits())
+    {
+    }
 }

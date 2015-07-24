@@ -3,10 +3,9 @@
 
 #include <QObject>
 #include <QJsonObject>
-#include <QMap>
+#include <QHash>
 
 #include "core/GameObject.h"
-#include "core/MapPosition.h"
 
 namespace warmonger {
 namespace core {
@@ -21,7 +20,7 @@ class TerrainType;
  * SW \____/ SE
  *      S
  */
-class MapTile :
+class MapNode :
     public GameObject
 {
     Q_OBJECT
@@ -29,33 +28,31 @@ class MapTile :
 public:
     enum Direction
     {
-        North,
-        NorthEast,
-        SouthEast,
-        South,
-        SouthWest,
-        NorthWest
+        North = 0,
+        NorthEast = 1,
+        SouthEast = 2,
+        South = 3,
+        SouthWest = 4,
+        NorthWest = 5
     };
 
-    MapTile(QObject *parent);
-    ~MapTile();
+    MapNode(QObject *parent);
+    ~MapNode();
 
     const TerrainType * getTerrainType() const;
     void setTerrainType(const TerrainType *terrainType);
 
-    MapPosition getPosition() const;
-    void setPosition(const MapPosition &position);
-
-    const MapTile * getNeighbour(Direction direction) const;
-    void setNeighbour(Direction direction, const MapTile *mapTile);
+    const MapNode * getNeighbour(Direction direction) const;
+    const QList<const MapNode *> getNeighbours() const;
+    void setNeighbour(Direction direction, const MapNode *neighbour);
+    void setNeighbours(const QList<const MapNode *> &neighbours);
 
 private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
     const TerrainType *terrainType;
-    MapPosition position;
-    QMap<Direction, const MapTile *> neighbours;
+    QList<const MapNode *> neighbours;
 };
 
 } // namespace core

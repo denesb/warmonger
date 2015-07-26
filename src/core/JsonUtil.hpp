@@ -11,6 +11,7 @@
 #include <QJsonArray>
 
 #include "core/Exception.h"
+#include "core/Util.h"
 
 namespace warmonger {
 namespace core {
@@ -68,13 +69,7 @@ QList<const T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
         const T *instance{nullptr};
         if (!name.isEmpty())
         {
-            instance = parent->findChild<T *>(name);
-            if (instance == nullptr)
-            {
-                Exception e(Exception::UnresolvedReference, {"T", name});
-                wError("core.JsonUtil") << e.getMessage();
-                throw e;
-            }
+            instance = resolveReference<T>(name, parent, "core.JsonUtil");
         }
 
         list.append(instance);
@@ -110,14 +105,7 @@ QMap<const T *, int> objectValueMapFromJson(const QJsonObject &obj, const QObjec
     QJsonObject::const_iterator it;
     for(it = obj.constBegin(); it != obj.constEnd(); it++)
     {
-        const QString name = it.key();
-        const T *instance = parent->findChild<T *>(name);
-
-        if (instance == nullptr)
-        {
-            wError("core.JsonUtil") << "Unable to find child " << name << " of " << parent->objectName();
-            throw Exception(Exception::UnresolvedReference, {"T", name});
-        }
+        const T *instance = resolveReference<T>(it.key(), parent, "core.JsonUtil");
 
         map[instance] = it.value().toInt();
     }

@@ -35,6 +35,8 @@ public:
         SouthWest = 4,
         NorthWest = 5
     };
+    static const QHash<QString, Direction> str2direction;
+    static const QHash<Direction, QString> direction2str;
 
     MapNode(QObject *parent);
     ~MapNode();
@@ -43,16 +45,16 @@ public:
     void setTerrainType(const TerrainType *terrainType);
 
     const MapNode * getNeighbour(Direction direction) const;
-    const QList<const MapNode *> getNeighbours() const;
+    const QHash<Direction, const MapNode *> getNeighbours() const;
     void setNeighbour(Direction direction, const MapNode *neighbour);
-    void setNeighbours(const QList<const MapNode *> &neighbours);
+    void setNeighbours(const QHash<Direction, const MapNode *> &neighbours);
 
 private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
     const TerrainType *terrainType;
-    QList<const MapNode *> neighbours;
+    QHash<Direction, const MapNode *> neighbours;
 };
 
 } // namespace core

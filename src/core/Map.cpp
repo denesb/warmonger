@@ -17,8 +17,6 @@ Map::Map(QObject *parent) :
     GameObject(parent),
     description(),
     world(nullptr),
-    maxWidth(0),
-    maxHeight(0),
     mapNodes(),
     players(),
     units(),
@@ -48,26 +46,6 @@ const World * Map::getWorld() const
 void Map::setWorld(const World *world)
 {
     this->world = world;
-}
-
-int Map::getMaxWidth() const
-{
-    return this->maxWidth;
-}
-
-void Map::setMaxWidth(int maxWidth)
-{
-    this->maxWidth = maxWidth;
-}
-
-int Map::getMaxHeight() const
-{
-    return this->maxHeight;
-}
-
-void Map::setMaxHeight(int maxHeight)
-{
-    this->maxHeight = maxHeight;
 }
 
 QList<const MapNode *> Map::getMapNodes() const
@@ -149,9 +127,7 @@ void Map::dataFromJson(const QJsonObject &obj)
     }
 
     this->world = world;
-    this->maxWidth = obj["maxWidth"].toInt();
-    this->maxHeight = obj["maxHeight"].toInt();
-    this->mapNodes = newListFromJson<MapNode>(obj["mapNodes"].toArray(), this);
+    this->mapNodes = this->mapNodesFromJson(obj["mapNodes"].toObject());
     this->players = newListFromJson<Player>(obj["players"].toArray(), this);
     this->units = newListFromJson<Unit>(obj["units"].toArray(), this);
     this->settlements = newListFromJson<Settlement>(obj["settlements"].toArray(), this);
@@ -161,10 +137,40 @@ void Map::dataToJson(QJsonObject &obj) const
 {
     obj["description"] = this->description;
     obj["world"] = this->world->objectName();
-    obj["maxWidth"] = this->maxWidth;
-    obj["maxHeight"] = this->maxHeight;
-    obj["mapNodes"] = listToJson<MapNode>(this->mapNodes);
+    obj["mapNodes"] = this->mapNodesToJson(this->mapNodes);
     obj["players"] = listToJson<Player>(this->players);
     obj["units"] = listToJson<Unit>(this->units);
     obj["settlements"] = listToJson<Settlement>(this->settlements);
+}
+
+QList<MapNode *> Map::mapNodesFromJson(const QJsonObject &obj)
+{
+    QList<MapNode *> mapNodes;
+    mapNodes = newListFromJson<MapNode>(obj["nodes"].toArray(), this);
+
+    QJsonArray connections = obj["connections"].toArray();
+    for (const QJsonValue connection : connections)
+    {
+        const QJsonObject connectionObj = connection.toObject();
+        const QString nodeNameA = connectionObj["nodeA"].toString();
+        const QString nodeNameB = connectionObj["nodeB"].toString();
+        const MapNode::Direction nodeDirectionA = MapNode::str2direction[connectionObj["directionA"].toString()];
+        const MapNode::Direction nodeDirectionB = MapNode::str2direction[connectionObj["directionB"].toString()];
+
+        MapNode *nodeA = resolveReference<MapNode>(nodeNameA, this, "core.MapNode");
+        MapNode *nodeB = resolveReference<MapNode>(nodeNameB, this, "core.MapNode");
+
+        nodeA->setNeighbour(nodeDirectionA, nodeB);
+        nodeB->setNeighbour(nodeDirectionB, nodeA);
+    }
+
+    return std::move(mapNodes);
+}
+
+QJsonObject Map::mapNodesToJson(const QList<MapNode *> &mapNodes) const
+{
+    QJsonObject obj;
+    obj["nodes"] = listToJson<MapNode>(this->mapNodes);
+
+    return std::move(obj);
 }

@@ -1,5 +1,5 @@
-#ifndef EXCEPTION_H
-#define EXCEPTION_H
+#ifndef CORE_EXCEPTION_H
+#define CORE_EXCEPTION_H
 
 #include <QMap>
 #include <QString>
@@ -47,4 +47,4 @@ protected:
 } // core
 } // warmonger
 
-#endif // EXCEPTION_H
+#endif // CORE_EXCEPTION_H

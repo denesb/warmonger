@@ -32,12 +32,6 @@ public:
     const World * getWorld() const;
     void setWorld(const World *world);
 
-    int getMaxWidth() const;
-    void setMaxWidth(int maxWidth);
-
-    int getMaxHeight() const;
-    void setMaxHeight(int maxHeight);
-
     QList<const MapNode *> getMapNodes() const;
     QList<MapNode *> getMapNodes();
     void setMapNodes(const QList<MapNode *> &mapNodes);
@@ -58,10 +52,11 @@ private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
+    QList<MapNode *> mapNodesFromJson(const QJsonObject &obj);
+    QJsonObject mapNodesToJson(const QList<MapNode *> &mapNodes) const;
+
     QString description;
     const World *world;
-    int maxWidth;
-    int maxHeight;
     QList<MapNode *> mapNodes;
     QList<Player *> players;
     QList<Unit *> units;

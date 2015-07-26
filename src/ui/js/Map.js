@@ -7,9 +7,9 @@ function onPaint() {
     console.log(mm.columnCount);
     console.log(mm.rowCount);
 
-    var index = mm.index(1, 3);
+    //var index = mm.index(1, 3);
 
-    console.log(mm.data(index));
+    //console.log(mm.data(index));
 
     ctx.beginPath();
     ctx.moveTo(100, 150);

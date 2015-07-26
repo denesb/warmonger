@@ -3,11 +3,15 @@
 
 #include <QString>
 #include <QPoint>
+#include <QObject>
+
+#include "core/Exception.h"
+#include "log/LogStream.h"
 
 namespace warmonger {
 namespace core {
 
-template <typename T>
+template<typename T>
 QList<const T *> listConstClone(const QList<T *> &list)
 {
     QList<const T *> constList;
@@ -18,6 +22,19 @@ QList<const T *> listConstClone(const QList<T *> &list)
     }
 
     return std::move(constList);
+}
+
+template<typename T>
+T* resolveReference(const QString &objectName, QObject *parent, const QString &moduleName)
+{
+    T *obj = parent->findChild<T *>(objectName);
+    if (obj == nullptr)
+    {
+        Exception e(Exception::UnresolvedReference, {"T", objectName});
+        wError(moduleName) << e.getMessage();
+        throw e;
+    }
+    return obj;
 }
 
 } // namespace core

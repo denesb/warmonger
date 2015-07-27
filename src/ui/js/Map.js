@@ -1,15 +1,21 @@
 function onPaint() {
     var ctx = mapCanvas.getContext('2d');
-    var mm = mapModel;
 
-    console.log(mm);
-    console.log(mm.objectName);
-    console.log(mm.columnCount);
-    console.log(mm.rowCount);
+    console.log(map);
+    console.log(map.displayName);
+    console.log(map.world);
 
-    //var index = mm.index(1, 3);
+    for (var i = 0; i < map.mapNodes.length; i++) {
+        var node = map.mapNodes[i];
+        console.log(node);
+        console.log(node.objectName);
+        console.log(node.terrainType);
+        console.log(node.terrainType.objectName);
+    }
 
-    //console.log(mm.data(index));
+    console.log(map.players);
+    console.log(map.units);
+    console.log(map.settlements);
 
     ctx.beginPath();
     ctx.moveTo(100, 150);

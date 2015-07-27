@@ -4,6 +4,7 @@
 #include <QString>
 #include <QPoint>
 #include <QObject>
+#include <QVariant>
 
 #include "core/Exception.h"
 #include "log/LogStream.h"
@@ -22,6 +23,19 @@ QList<const T *> listConstClone(const QList<T *> &list)
     }
 
     return std::move(constList);
+}
+
+template<typename T>
+QVariantList toQVariantList(const QList<T *> &list)
+{
+    QVariantList vlist;
+
+    for (T *i : list)
+    {
+        vlist << QVariant::fromValue<QObject *>(i);
+    }
+
+    return std::move(vlist);
 }
 
 template<typename T>

@@ -19,6 +19,12 @@ class Map :
     public GameObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString description READ getDescription)
+    Q_PROPERTY(QVariant world READ readWorld)
+    Q_PROPERTY(QVariantList mapNodes READ readMapNodes)
+    Q_PROPERTY(QVariantList players READ readPlayers)
+    Q_PROPERTY(QVariantList units READ readUnits)
+    Q_PROPERTY(QVariantList settlements READ readSettlements)
 
 public:
     static const QString DefinitionFile;
@@ -29,21 +35,26 @@ public:
     QString getDescription()const;
     void setDescription(const QString &description);
 
+    QVariant readWorld() const;
     const World * getWorld() const;
     void setWorld(const World *world);
 
+    QVariantList readMapNodes() const;
     QList<const MapNode *> getMapNodes() const;
     QList<MapNode *> getMapNodes();
     void setMapNodes(const QList<MapNode *> &mapNodes);
 
+    QVariantList readPlayers() const;
     QList<const Player *> getPlayers() const;
     QList<Player *> getPlayers();
     void setPlayers(const QList<Player *> &units);
 
+    QVariantList readUnits() const;
     QList<const Unit *> getUnits() const;
     QList<Unit *> getUnits();
     void setUnits(const QList<Unit *> &units);
 
+    QVariantList readSettlements() const;
     QList<const Settlement *> getSettlements() const;
     QList<Settlement *> getSettlements();
     void setSettlements(const QList<Settlement *> &settlements);

@@ -44,8 +44,7 @@ HEADERS += \
 
 # ui
 HEADERS += \
-    src/ui/qtquick2applicationviewer.h \
-    src/ui/MapModel.h
+    src/ui/qtquick2applicationviewer.h
 
 # app
 SOURCES += \
@@ -84,8 +83,7 @@ SOURCES += \
 
 # ui
 SOURCES += \
-    src/ui/qtquick2applicationviewer.cpp \
-    src/ui/MapModel.cpp
+    src/ui/qtquick2applicationviewer.cpp
 
 # qml
 OTHER_FILES += \

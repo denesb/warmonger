@@ -4,7 +4,6 @@
 #include <QGuiApplication>
 
 #include "ui/qtquick2applicationviewer.h"
-#include "ui/MapModel.h"
 #include "core/World.h"
 #include "core/Map.h"
 #include "core/Loader.hpp"
@@ -26,7 +25,6 @@ private:
     QtQuick2ApplicationViewer viewer;
     core::Loader<core::Map> mapLoader;
     core::Map *map;
-    ui::MapModel *mapModel;
 };
 
 } // namespace warmonger

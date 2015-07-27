@@ -24,6 +24,7 @@ class MapNode :
     public GameObject
 {
     Q_OBJECT
+    Q_PROPERTY(QVariant terrainType READ readTerrainType)
 
 public:
     enum Direction
@@ -41,6 +42,7 @@ public:
     MapNode(QObject *parent);
     ~MapNode();
 
+    QVariant readTerrainType() const;
     const TerrainType * getTerrainType() const;
     void setTerrainType(const TerrainType *terrainType);
 

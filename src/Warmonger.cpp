@@ -11,8 +11,7 @@ Warmonger::Warmonger(int argc, char *argv[]) :
     QGuiApplication(argc, argv),
     viewer(),
     mapLoader(this),
-    map(nullptr),
-    mapModel(nullptr)
+    map(nullptr)
 {
     log::Logger::init();
 
@@ -28,7 +27,7 @@ Warmonger::Warmonger(int argc, char *argv[]) :
 
         this->viewer.setMainQmlFile(QStringLiteral("qml/Main.qml"));
         this->viewer.rootContext()->setContextProperty("warmonger", this);
-        this->viewer.rootContext()->setContextProperty("mapModel", this->mapModel);
+        this->viewer.rootContext()->setContextProperty("map", this->map);
         this->viewer.showExpanded();
     }
     catch (core::Exception &e)
@@ -49,5 +48,4 @@ void Warmonger::setupModels()
     this->mapLoader.setSearchPath(mapSearchPath);
 
     this->map = this->mapLoader.load("prototype");
-    this->mapModel = new ui::MapModel(map, this);
 }

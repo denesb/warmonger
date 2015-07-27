@@ -42,6 +42,13 @@ MapNode::~MapNode()
 {
 }
 
+
+QVariant MapNode::readTerrainType() const
+{
+    TerrainType *o = const_cast<TerrainType *>(this->terrainType);
+    return QVariant::fromValue<QObject *>(o);
+}
+
 const TerrainType * MapNode::getTerrainType() const
 {
     return this->terrainType;

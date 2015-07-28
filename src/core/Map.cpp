@@ -38,12 +38,6 @@ void Map::setDescription(const QString &description)
     this->description = description;
 }
 
-QVariant Map::readWorld() const
-{
-    World *o = const_cast<World *>(this->world);
-    return QVariant::fromValue<QObject *>(o);
-}
-
 const World * Map::getWorld() const
 {
     return this->world;
@@ -54,9 +48,10 @@ void Map::setWorld(const World *world)
     this->world = world;
 }
 
-QList<QVariant> Map::readMapNodes() const
+QVariant Map::readWorld() const
 {
-    return toQVariantList<MapNode>(this->mapNodes);
+    World *o = const_cast<World *>(this->world);
+    return QVariant::fromValue<QObject *>(o);
 }
 
 QList<const MapNode *> Map::getMapNodes() const
@@ -74,9 +69,9 @@ void Map::setMapNodes(const QList<MapNode *> &mapNodes)
     this->mapNodes = mapNodes;
 }
 
-QVariantList Map::readPlayers() const
+QList<QVariant> Map::readMapNodes() const
 {
-    return toQVariantList<Player>(this->players);
+    return toQVariantList<MapNode>(this->mapNodes);
 }
 
 QList<const Player *> Map::getPlayers() const
@@ -94,9 +89,9 @@ void Map::setPlayers(const QList<Player *> &players)
     this->players = players;
 }
 
-QVariantList Map::readUnits() const
+QVariantList Map::readPlayers() const
 {
-    return toQVariantList<Unit>(this->units);
+    return toQVariantList<Player>(this->players);
 }
 
 QList<const Unit *> Map::getUnits() const
@@ -114,9 +109,9 @@ void Map::setUnits(const QList<Unit *> &units)
     this->units = units;
 }
 
-QVariantList Map::readSettlements() const
+QVariantList Map::readUnits() const
 {
-    return toQVariantList<Settlement>(this->settlements);
+    return toQVariantList<Unit>(this->units);
 }
 
 QList<const Settlement *> Map::getSettlements() const
@@ -132,6 +127,11 @@ QList<Settlement *> Map::getSettlements()
 void Map::setSettlements(const QList<Settlement *> &settlements)
 {
     this->settlements = settlements;
+}
+
+QVariantList Map::readSettlements() const
+{
+    return toQVariantList<Settlement>(this->settlements);
 }
 
 void Map::dataFromJson(const QJsonObject &obj)

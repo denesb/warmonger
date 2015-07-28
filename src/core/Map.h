@@ -35,29 +35,29 @@ public:
     QString getDescription()const;
     void setDescription(const QString &description);
 
-    QVariant readWorld() const;
     const World * getWorld() const;
     void setWorld(const World *world);
+    QVariant readWorld() const;
 
-    QVariantList readMapNodes() const;
     QList<const MapNode *> getMapNodes() const;
     QList<MapNode *> getMapNodes();
     void setMapNodes(const QList<MapNode *> &mapNodes);
+    QVariantList readMapNodes() const;
 
-    QVariantList readPlayers() const;
     QList<const Player *> getPlayers() const;
     QList<Player *> getPlayers();
     void setPlayers(const QList<Player *> &units);
+    QVariantList readPlayers() const;
 
-    QVariantList readUnits() const;
     QList<const Unit *> getUnits() const;
     QList<Unit *> getUnits();
     void setUnits(const QList<Unit *> &units);
+    QVariantList readUnits() const;
 
-    QVariantList readSettlements() const;
     QList<const Settlement *> getSettlements() const;
     QList<Settlement *> getSettlements();
     void setSettlements(const QList<Settlement *> &settlements);
+    QVariantList readSettlements() const;
 
 private:
     void dataFromJson(const QJsonObject &obj);

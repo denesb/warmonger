@@ -42,13 +42,6 @@ MapNode::~MapNode()
 {
 }
 
-
-QVariant MapNode::readTerrainType() const
-{
-    TerrainType *o = const_cast<TerrainType *>(this->terrainType);
-    return QVariant::fromValue<QObject *>(o);
-}
-
 const TerrainType * MapNode::getTerrainType() const
 {
     return this->terrainType;
@@ -57,6 +50,12 @@ const TerrainType * MapNode::getTerrainType() const
 void MapNode::setTerrainType(const TerrainType *terrainType)
 {
     this->terrainType = terrainType;
+}
+
+QVariant MapNode::readTerrainType() const
+{
+    TerrainType *o = const_cast<TerrainType *>(this->terrainType);
+    return QVariant::fromValue<QObject *>(o);
 }
 
 const MapNode * MapNode::getNeighbour(Direction direction) const
@@ -77,6 +76,22 @@ void MapNode::setNeighbour(MapNode::Direction direction, const MapNode *neighbou
 void MapNode::setNeighbours(const QHash<MapNode::Direction, const MapNode *> &neighbours)
 {
     this->neighbours = neighbours;
+}
+
+QVariantMap MapNode::readNeighbours() const
+{
+    QVariantMap vmap;
+    QHash<Direction, const MapNode *>::ConstIterator it;
+    for (it = this->neighbours.constBegin(); it != this->neighbours.constEnd(); it++)
+    {
+        if (it.value() != nullptr)
+        {
+            MapNode *neighbour = const_cast<MapNode *>(it.value());
+            vmap.insert(MapNode::direction2str[it.key()], QVariant::fromValue<QObject *>(neighbour));
+        }
+    }
+
+    return std::move(vmap);
 }
 
 void MapNode::dataFromJson(const QJsonObject &obj)

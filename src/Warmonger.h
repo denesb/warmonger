@@ -14,10 +14,16 @@ class Warmonger :
     public QGuiApplication
 {
     Q_OBJECT
+    Q_PROPERTY(QVariant map READ readMap NOTIFY mapChanged)
 
 public:
     Warmonger(int argc, char *argv[]);
     ~Warmonger();
+
+    QVariant readMap() const;
+
+signals:
+    void mapChanged() const;
 
 private:
     void setupModels();

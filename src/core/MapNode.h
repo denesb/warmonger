@@ -25,6 +25,7 @@ class MapNode :
 {
     Q_OBJECT
     Q_PROPERTY(QVariant terrainType READ readTerrainType)
+    Q_PROPERTY(QVariantMap neighbours READ readNeighbours);
 
 public:
     enum Direction
@@ -42,14 +43,15 @@ public:
     MapNode(QObject *parent);
     ~MapNode();
 
-    QVariant readTerrainType() const;
     const TerrainType * getTerrainType() const;
     void setTerrainType(const TerrainType *terrainType);
+    QVariant readTerrainType() const;
 
     const MapNode * getNeighbour(Direction direction) const;
     const QHash<Direction, const MapNode *> getNeighbours() const;
     void setNeighbour(Direction direction, const MapNode *neighbour);
     void setNeighbours(const QHash<Direction, const MapNode *> &neighbours);
+    QVariantMap readNeighbours() const;
 
 private:
     void dataFromJson(const QJsonObject &obj);

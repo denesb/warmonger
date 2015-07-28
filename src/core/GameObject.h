@@ -14,7 +14,7 @@ class GameObject :
     public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName)
+    Q_PROPERTY(QString displayName READ getDisplayName)
 
 public:
     GameObject(QObject *parent);

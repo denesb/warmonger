@@ -25,10 +25,11 @@ Warmonger::Warmonger(int argc, char *argv[]) :
     {
         this->setupModels();
 
-        this->viewer.setMainQmlFile(QStringLiteral("qml/Main.qml"));
         this->viewer.rootContext()->setContextProperty("warmonger", this);
-        this->viewer.rootContext()->setContextProperty("map", this->map);
+        this->viewer.setMainQmlFile(QStringLiteral("qml/Main.qml"));
         this->viewer.showExpanded();
+
+        emit mapChanged();
     }
     catch (core::Exception &e)
     {
@@ -39,6 +40,11 @@ Warmonger::Warmonger(int argc, char *argv[]) :
 
 Warmonger::~Warmonger()
 {
+}
+
+QVariant Warmonger::readMap() const
+{
+    return QVariant::fromValue<QObject *>(this->map);
 }
 
 void Warmonger::setupModels()

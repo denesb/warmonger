@@ -16,16 +16,23 @@ class Armor;
 class UnitType;
 class SettlementType;
 class Faction;
+class WorldResources;
 
 class World :
     public GameObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString path READ getPath);
+    Q_PROPERTY(QString description READ getDescription);
+    Q_PROPERTY(QVariant resources READ readResources);
 
 public:
     static const QString DefinitionFile;
 
     World(QObject *parent);
+
+    QString getPath() const;
+    void setPath(const QString &path);
  
     QString getDescription() const;
     void setDescription(const QString &description);
@@ -62,10 +69,16 @@ public:
     QList<Faction *> getFactions();
     void setFactions(const QList<Faction *> &factions);
 
+    const WorldResources * getResources() const;
+    WorldResources * getResources();
+    void setResources(WorldResources *resources);
+    QVariant readResources() const;
+
 private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
+    QString path;
     QString description;
     QList<TerrainType *> terrainTypes;
     QList<UnitClass *> unitClasses;
@@ -75,6 +88,7 @@ private:
     QList<UnitType *> unitTypes;
     QList<SettlementType *> settlementTypes;
     QList<Faction *> factions;
+    WorldResources *resources;
 };
 
 } // namespace core

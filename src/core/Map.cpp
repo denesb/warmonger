@@ -15,6 +15,7 @@ const QString Map::DefinitionFile = "map.json";
 
 Map::Map(QObject *parent) :
     GameObject(parent),
+    path(),
     description(),
     world(nullptr),
     mapNodes(),
@@ -26,6 +27,16 @@ Map::Map(QObject *parent) :
 
 Map::~Map()
 {
+}
+
+QString Map::getPath() const
+{
+    return this->path;
+}
+
+void Map::setPath(const QString &path)
+{
+    this->path = path;
 }
 
 QString Map::getDescription()const

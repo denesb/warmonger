@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QJsonObject>
+#include <QVariant>
 
 #include "log/LogStream.h"
 #include "core/Exception.h"

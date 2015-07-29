@@ -19,6 +19,7 @@ class Map :
     public GameObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString path READ getPath);
     Q_PROPERTY(QString description READ getDescription)
     Q_PROPERTY(QVariant world READ readWorld)
     Q_PROPERTY(QVariantList mapNodes READ readMapNodes)
@@ -31,6 +32,9 @@ public:
 
     Map(QObject *parent);
     ~Map();
+
+    QString getPath() const;
+    void setPath(const QString &path);
 
     QString getDescription()const;
     void setDescription(const QString &description);
@@ -66,6 +70,7 @@ private:
     QList<MapNode *> mapNodesFromJson(const QJsonObject &obj);
     QJsonObject mapNodesToJson(const QList<MapNode *> &mapNodes) const;
 
+    QString path;
     QString description;
     const World *world;
     QList<MapNode *> mapNodes;

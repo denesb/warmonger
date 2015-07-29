@@ -10,7 +10,7 @@ const QMap<Exception::ErrorCode, QString> Exception::messageDefinitions = {
     std::make_pair(Exception::FileOpenFailed, QStringLiteral("Cannot open file %1")),
     std::make_pair(Exception::FileReadFailed, QStringLiteral("Cannot read file %1")),
     std::make_pair(Exception::Serialization, QStringLiteral("Serialization error")),
-    std::make_pair(Exception::JsonParse, QStringLiteral("Json parse error: %1")),
+    std::make_pair(Exception::JsonParse, QStringLiteral("Json parse error while parsing %1: %2")),
     std::make_pair(Exception::UnresolvedReference, QStringLiteral("Unable to resolve reference to <%1>%2")),
     std::make_pair(Exception::ResourceLoadFailed, QStringLiteral("Failed to load resource <%1>%2")),
     std::make_pair(Exception::InvalidValue, QStringLiteral("Invalid value %1"))

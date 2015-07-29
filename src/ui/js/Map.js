@@ -1,10 +1,5 @@
-//paths must be absolute
-var terrainTypes = {
-    'plains': 'worlds/iron_age/terrainTypes/images/plains.png',
-    'hills': 'worlds/iron_age/terrainTypes/images/hills.png',
-    'mountains': 'worlds/iron_age/terrainTypes/images/mountains.png',
-    'forest': 'worlds/iron_age/terrainTypes/images/forest.png'
-};
+var loadQueue = [];
+var ready;
 
 var directionMap = {
     'North': {x: 0, y: -1},
@@ -15,14 +10,22 @@ var directionMap = {
     'NorthWest': {x: -0.75, y: -0.5}
 };
 
-var resources = {};
-
 function loadMapResources() {
-    mapCanvas.loadImage(terrainTypes['plains']);
+    var resources = warmonger.map.world.resources;
+    var path;
+
+    ready = false;
+
+    for (var terrainTypeName in resources.terrainTypePaths) {
+        path = resources.terrainTypePaths[terrainTypeName];
+        loadQueue.push(path);
+        mapCanvas.loadImage(path);
+    }
 }
 
 function onMapResourcesLoaded() {
-    drawMap();
+    ready = true;
+    mapCanvas.requestPaint();
 }
 
 function onMapChanged() {
@@ -34,8 +37,9 @@ function drawNode(ctx, mapNode, visitedNodes, x, y) {
     console.log("(" + x + "," + y + ")");
 
     visitedNodes[mapNode] = true;
+    var image = warmonger.map.world.resources.terrainTypePaths[mapNode.terrainType.objectName];
 
-    ctx.drawImage(terrainTypes['plains'], x * 128, y * 128);
+    ctx.drawImage(image, x * 128, y * 128);
 
     for (var direction in mapNode.neighbours) {
         var neighbour = mapNode.neighbours[direction];
@@ -66,9 +70,29 @@ function onPaint(region) {
     console.log("onPaint");
     console.log(region);
 
-    drawMap(ctx);
+    if (ready) {
+        drawMap(ctx);
+    }
 }
 
 function onImageLoaded() {
-    onMapResourcesLoaded();
+    var image;
+
+    for (var i = 0; i < loadQueue.length; i++) {
+        image = loadQueue[i];
+        if (mapCanvas.isImageError(image)) {
+            console.error("Error loading image " + image);
+            loadQueue.splice(i, 1);
+        }
+
+        if (mapCanvas.isImageLoaded(image)) {
+            console.log("Successfully loaded image " + image);
+            loadQueue.splice(i, 1);
+        }
+    }
+
+    if (loadQueue.length == 0) {
+        console.log("All images loaded");
+        onMapResourcesLoaded();
+    }
 }

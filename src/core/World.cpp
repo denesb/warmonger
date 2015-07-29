@@ -7,6 +7,7 @@
 #include "core/Armor.h"
 #include "core/UnitType.h"
 #include "core/Faction.h"
+#include "core/WorldResources.h"
 #include "core/JsonUtil.hpp"
 #include "core/Util.h"
 
@@ -16,6 +17,7 @@ const QString World::DefinitionFile = "world.json";
 
 World::World(QObject *parent) :
     GameObject(parent),
+    path(),
     description(""),
     terrainTypes(),
     unitClasses(),
@@ -25,6 +27,16 @@ World::World(QObject *parent) :
     unitTypes(),
     factions()
 {
+}
+
+QString World::getPath() const
+{
+    return this->path;
+}
+
+void World::setPath(const QString &path)
+{
+    this->path = path;
 }
 
 QString World::getDescription() const
@@ -157,6 +169,26 @@ void World::setFactions(const QList<Faction *> &factions)
     this->factions = factions;
 }
 
+const WorldResources * World::getResources() const
+{
+    return this->resources;
+}
+
+WorldResources * World::getResources()
+{
+    return this->resources;
+}
+
+void World::setResources(WorldResources *resources)
+{
+    this->resources = resources;
+}
+
+QVariant World::readResources() const
+{
+    return QVariant::fromValue<QObject *>(this->resources);
+}
+
 void World::dataFromJson(const QJsonObject &obj)
 {
     this->description = obj["description"].toString();
@@ -168,6 +200,9 @@ void World::dataFromJson(const QJsonObject &obj)
     this->unitTypes = newListFromJson<UnitType>(obj["unitTypes"].toArray(), this);
     this->settlementTypes = newListFromJson<SettlementType>(obj["settlementTypes"].toArray(), this);
     this->factions = newListFromJson<Faction>(obj["factions"].toArray(), this);
+
+    this->resources = new WorldResources(this);
+    this->resources->loadFromJsonFile();
 }
 
 void World::dataToJson(QJsonObject &obj) const
@@ -181,4 +216,6 @@ void World::dataToJson(QJsonObject &obj) const
     obj["unitTypes"] = listToJson<UnitType>(this->unitTypes);
     obj["settlementTypes"] = listToJson<SettlementType>(this->settlementTypes);
     obj["factions"] = listToJson<Faction>(this->factions);
+
+    //TODO: write resources
 }

@@ -64,13 +64,18 @@ public:
 
         if (parseError.error != QJsonParseError::NoError)
         {
-            wError("core.Loader") << "Error while parsing " << path << " : " << parseError.errorString();
-            throw Exception(Exception::JsonParse, {parseError.errorString()});
+            Exception e(Exception::JsonParse, {path, parseError.errorString()});
+            wError("core.Loader") << e.getMessage();
+            throw e;
         }
 
         QJsonObject obj = doc.object();
         wInfo("core.Loader") << "Loaded Json document from " << path;
-        return newFromJson<T>(obj, this->owner);
+
+        T *instance = new T(this->owner);
+        instance->setPath(this->pathMap[name]);
+        instance->fromJson(obj);
+        return instance;
     }
 
     QList<T *> loadList() const

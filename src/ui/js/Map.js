@@ -1,67 +1,114 @@
-var loadQueue = [];
-var ready;
+// The current map
+var MAP;
 
-var directionMap = {
-    'North': {x: 0, y: -1},
-    'NorthEast': {x: 0.75, y: -0.5},
-    'SouthEast': {x: 0.75, y: 0.5},
-    'South': {x: 0, y: 1},
-    'SouthWest': {x: -0.75, y: 0.5},
-    'NorthWest': {x: -0.75, y: -0.5}
+/*
+ * Constants
+ */
+var TILE_SIZE = 128;
+var TILE_OVERLAP = 31;
+var TILE_DISPLACEMENT = {
+    'North': {x: 0, y: -TILE_SIZE},
+    'NorthEast': {x: TILE_SIZE - TILE_OVERLAP, y: -TILE_SIZE/2},
+    'SouthEast': {x: TILE_SIZE - TILE_OVERLAP, y: TILE_SIZE/2},
+    'South': {x: 0, y: TILE_SIZE},
+    'SouthWest': {x: -(TILE_SIZE - TILE_OVERLAP), y: TILE_SIZE/2},
+    'NorthWest': {x: -(TILE_SIZE - TILE_OVERLAP), y: -TILE_SIZE/2}
 };
 
-function loadMapResources() {
-    var resources = warmonger.map.world.resources;
-    var path;
+/*
+ * Map class.
+ */
+var Map = function(map) {
+    this.map = map;
+    this.mapNodes = [];
+    this.loadQueue = [];
+    this.ready = false;
 
-    ready = false;
+    this.createNode = function(mapNode, x, y, visitedNodes) {
+        visitedNodes[mapNode] = true;
 
-    for (var terrainTypeName in resources.terrainTypePaths) {
-        path = resources.terrainTypePaths[terrainTypeName];
-        loadQueue.push(path);
-        mapCanvas.loadImage(path);
+        this.mapNodes.push(new MapNode(mapNode, x, y));
+
+        for (var direction in mapNode.neighbours) {
+            var neighbour = mapNode.neighbours[direction];
+
+            if (neighbour in visitedNodes) continue;
+
+            var d= TILE_DISPLACEMENT[direction];
+            this.createNode(neighbour, x + d.x, y + d.y, visitedNodes);
+        }
     }
+
+    this.paint = function(ctx) {
+        for (var i = 0; i < this.mapNodes.length; i++) {
+            this.mapNodes[i].paint(ctx);
+        }
+    }
+
+    this.loadResources = function() {
+        var resources = this.map.world.resources;
+        var path;
+
+        for (var terrainTypeName in resources.terrainTypePaths) {
+            path = resources.terrainTypePaths[terrainTypeName];
+            this.loadQueue.push(path);
+            mapCanvas.loadImage(path);
+        }
+    }
+
+    this.onResourceLoaded = function() {
+        var image;
+
+        for (var i = 0; i < this.loadQueue.length; i++) {
+            image = this.loadQueue[i];
+            if (mapCanvas.isImageError(image)) {
+                console.error("Error loading image " + image);
+                this.loadQueue.splice(i, 1);
+            }
+
+            if (mapCanvas.isImageLoaded(image)) {
+                console.log("Successfully loaded image " + image);
+                this.loadQueue.splice(i, 1);
+            }
+        }
+
+        if (this.loadQueue.length == 0) {
+            console.log("All images loaded");
+            this.onResourcesLoaded();
+        }
+    }
+
+    this.onResourcesLoaded = function() {
+        this.ready = true;
+        mapCanvas.requestPaint();
+    }
+
+    this.loadResources();
+    this.createNode(this.map.mapNodes[0], 0, 0, {});
 }
 
-function onMapResourcesLoaded() {
-    ready = true;
-    mapCanvas.requestPaint();
+/*
+ * MapNode class.
+ */
+var MapNode = function(mapNode, x, y) {
+    this.mapNode = mapNode;
+    this.image = warmonger.map.world.resources.terrainTypePaths[this.mapNode.terrainType.objectName];
+    this.x = x;
+    this.y = y;
+
+    this.paint = function(ctx) {
+        console.log("painting: " + this.mapNode.objectName);
+        console.log(this.x + "," + this.y);
+        ctx.drawImage(this.image, this.x, this.y);
+    }
 }
 
 function onMapChanged() {
-    loadMapResources();
+    MAP = new Map(warmonger.map);
 }
 
-function drawNode(ctx, mapNode, visitedNodes, x, y) {
-    console.log("drawNode: " + mapNode.objectName);
-    console.log("(" + x + "," + y + ")");
-
-    visitedNodes[mapNode] = true;
-    var image = warmonger.map.world.resources.terrainTypePaths[mapNode.terrainType.objectName];
-
-    ctx.drawImage(image, x * 128, y * 128);
-
-    for (var direction in mapNode.neighbours) {
-        var neighbour = mapNode.neighbours[direction];
-
-        if (neighbour in visitedNodes) {
-            continue;
-        }
-
-        var d = directionMap[direction];
-        var xx = x + d.x;
-        var yy = y + d.y;
-        drawNode(ctx, neighbour, visitedNodes, xx, yy);
-    }
-}
-
-function drawMap(ctx) {
-    var mapNode;
-    var x = 0, y = 0;
-    var visitedNodes = {};
-
-    mapNode = warmonger.map.mapNodes[0];
-    drawNode(ctx, mapNode, visitedNodes, x, y);
+function onImageLoaded() {
+    MAP.onResourceLoaded();
 }
 
 function onPaint(region) {
@@ -70,29 +117,5 @@ function onPaint(region) {
     console.log("onPaint");
     console.log(region);
 
-    if (ready) {
-        drawMap(ctx);
-    }
-}
-
-function onImageLoaded() {
-    var image;
-
-    for (var i = 0; i < loadQueue.length; i++) {
-        image = loadQueue[i];
-        if (mapCanvas.isImageError(image)) {
-            console.error("Error loading image " + image);
-            loadQueue.splice(i, 1);
-        }
-
-        if (mapCanvas.isImageLoaded(image)) {
-            console.log("Successfully loaded image " + image);
-            loadQueue.splice(i, 1);
-        }
-    }
-
-    if (loadQueue.length == 0) {
-        console.log("All images loaded");
-        onMapResourcesLoaded();
-    }
+    MAP.paint(ctx);
 }

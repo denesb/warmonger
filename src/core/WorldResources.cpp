@@ -16,7 +16,6 @@ WorldResources::WorldResources(QObject *parent) :
     unitTypePaths()
 {
     World *world = qobject_cast<World *>(this->parent());
-    wDebug("core.WorldResources") << world->getPath();
     this->basePath = world->getPath() + QStringLiteral("/resources/");
 }
 

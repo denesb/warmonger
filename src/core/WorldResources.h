@@ -12,21 +12,16 @@ class WorldResources :
     public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QVariantMap terrainTypePaths READ readTerrainTypePaths)
-    Q_PROPERTY(QVariantMap settlementTypePaths READ readSettlementTypePaths)
-    Q_PROPERTY(QVariantMap unitTypePaths READ readUnitTypePaths)
+    Q_PROPERTY(QString basePath READ getBasePath)
+    Q_PROPERTY(QVariantMap paths READ readPaths)
 
 public:
     WorldResources(QObject *parent);
 
-    QString getTerrainTypePath(const QString &terrainTypeName);
-    QVariantMap readTerrainTypePaths() const;
+    QString getBasePath() const;
 
-    QString getSettlementTypePath(const QString &settlementTypeName);
-    QVariantMap readSettlementTypePaths() const;
-
-    QString getUnitTypePath(const QString &unitTypeName);
-    QVariantMap readUnitTypePaths() const;
+    Q_INVOKABLE QString getPath(const QString &resourceName);
+    QVariantMap readPaths() const;
 
     void loadFromJsonFile();
     void fromJson(const QJsonObject &obj);
@@ -38,9 +33,7 @@ private:
     QJsonObject mapToJson(const QMap<QString, QString> &map) const;
 
     QString basePath;
-    QMap<QString, QString> terrainTypePaths;
-    QMap<QString, QString> settlementTypePaths;
-    QMap<QString, QString> unitTypePaths;
+    QMap<QString, QString> resourcePaths;
 };
 
 } // namespace core

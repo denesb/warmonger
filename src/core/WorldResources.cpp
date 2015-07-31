@@ -11,42 +11,25 @@ using namespace warmonger::core;
 WorldResources::WorldResources(QObject *parent) :
     QObject(parent),
     basePath(),
-    terrainTypePaths(),
-    settlementTypePaths(),
-    unitTypePaths()
+    resourcePaths()
 {
     World *world = qobject_cast<World *>(this->parent());
     this->basePath = world->getPath() + QStringLiteral("/resources/");
 }
 
-QString WorldResources::getTerrainTypePath(const QString &terrainTypeName)
+QString WorldResources::getBasePath() const
 {
-    return this->basePath + this->terrainTypePaths[terrainTypeName];
+    return this->basePath;
 }
 
-QVariantMap WorldResources::readTerrainTypePaths() const
+QString WorldResources::getPath(const QString &resourceName)
 {
-    return std::move(this->toQVariantMap(this->terrainTypePaths));
+    return this->basePath + this->resourcePaths[resourceName];
 }
 
-QString WorldResources::getSettlementTypePath(const QString &settlementTypeName)
+QVariantMap WorldResources::readPaths() const
 {
-    return this->basePath + this->settlementTypePaths[settlementTypeName];
-}
-
-QVariantMap WorldResources::readSettlementTypePaths() const
-{
-    return std::move(this->toQVariantMap(this->settlementTypePaths));
-}
-
-QString WorldResources::getUnitTypePath(const QString &unitTypeName)
-{
-    return this->basePath + this->unitTypePaths[unitTypeName];
-}
-
-QVariantMap WorldResources::readUnitTypePaths() const
-{
-    return std::move(this->toQVariantMap(this->unitTypePaths));
+    return std::move(this->toQVariantMap(this->resourcePaths));
 }
 
 void WorldResources::loadFromJsonFile()
@@ -69,7 +52,7 @@ void WorldResources::loadFromJsonFile()
 
     if (parseError.error != QJsonParseError::NoError)
     {
-        Exception e(Exception::JsonParse, {parseError.errorString()});
+        Exception e(Exception::JsonParse, {path, parseError.errorString()});
         wError("core.WorldResources") << e.getMessage();
         throw e;
     }
@@ -78,21 +61,16 @@ void WorldResources::loadFromJsonFile()
 
     this->fromJson(doc.object());
 }
-
 void WorldResources::fromJson(const QJsonObject &obj)
 {
-    this->terrainTypePaths = this->mapFromJson(obj["terrainTypes"].toObject());
-    this->settlementTypePaths = this->mapFromJson(obj["settlementTypes"].toObject());
-    this->unitTypePaths = this->mapFromJson(obj["unitTypes"].toObject());
+    this->resourcePaths = this->mapFromJson(obj);
 }
 
 QJsonObject WorldResources::toJson() const
 {
     QJsonObject obj;
 
-    obj["terrainTypes"] = this->mapToJson(this->terrainTypePaths);
-    obj["settlementTypes"] = this->mapToJson(this->settlementTypePaths);
-    obj["unitTypes"] = this->mapToJson(this->unitTypePaths);
+    obj = this->mapToJson(this->resourcePaths);
 
     return std::move(obj);
 }
@@ -109,7 +87,6 @@ QVariantMap WorldResources::toQVariantMap(const QMap<QString, QString> &qmap) co
 
     return std::move(vmap);
 }
-
 
 QMap<QString, QString> WorldResources::mapFromJson(const QJsonObject &obj) const
 {
@@ -133,5 +110,4 @@ QJsonObject WorldResources::mapToJson(const QMap<QString, QString> &map) const
     }
 
     return std::move(obj);
-
 }

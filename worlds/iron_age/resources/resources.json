@@ -1,14 +1,9 @@
 {
-    "terrainTypes": {
-        "plains": "terrainTypes/plains.png",
-        "hills": "terrainTypes//hills.png",
-        "forest": "terrainTypes/forest.png",
-        "mountains": "terrainTypes/mountains.png"
-    },
+    "unknown": "unknown.png",
+    "border": "border.png",
 
-    "settlementTypes": {
-    },
-
-    "unitTypes": {
-    }
+    "plains": "terrainTypes/plains.png",
+    "hills": "terrainTypes//hills.png",
+    "forest": "terrainTypes/forest.png",
+    "mountains": "terrainTypes/mountains.png"
 }

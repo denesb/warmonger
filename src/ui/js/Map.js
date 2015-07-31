@@ -49,8 +49,8 @@ var Map = function(map) {
         var resources = this.map.world.resources;
         var path;
 
-        for (var terrainTypeName in resources.terrainTypePaths) {
-            path = resources.terrainTypePaths[terrainTypeName];
+        for (var resource in resources.paths) {
+            path = resources.getPath(resource);
             this.loadQueue.push(path);
             mapCanvas.loadImage(path);
         }
@@ -92,14 +92,20 @@ var Map = function(map) {
  */
 var MapNode = function(mapNode, x, y) {
     this.mapNode = mapNode;
-    this.image = warmonger.map.world.resources.terrainTypePaths[this.mapNode.terrainType.objectName];
+    this.image = warmonger.map.world.resources.getPath(this.mapNode.terrainType.objectName);
     this.x = x;
     this.y = y;
 
     this.paint = function(ctx) {
         console.log("painting: " + this.mapNode.objectName);
         console.log(this.x + "," + this.y);
-        ctx.drawImage(this.image, this.x, this.y);
+
+        ctx.save();
+
+        ctx.translate(this.x, this.y)
+        ctx.drawImage(this.image, 0, 0);
+
+        ctx.restore();
     }
 }
 

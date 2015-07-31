@@ -5,5 +5,7 @@
     "plains": "terrainTypes/plains.png",
     "hills": "terrainTypes//hills.png",
     "forest": "terrainTypes/forest.png",
-    "mountains": "terrainTypes/mountains.png"
+    "mountains": "terrainTypes/mountains.png",
+
+    "plains_icon": "terrainTypes/plains_icon.png"
 }

@@ -7,7 +7,7 @@ Rectangle {
     height: 360
     color: "yellow"
 
-    Map {
+    MapEditor {
         anchors.fill: parent
     }
 }

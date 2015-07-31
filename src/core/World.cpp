@@ -64,6 +64,11 @@ void World::setTerrainTypes(const QList<TerrainType *> &terrainTypes)
     this->terrainTypes = terrainTypes;
 }
 
+QVariantList World::readTerrainTypes() const
+{
+    return toQVariantList<TerrainType>(this->terrainTypes);
+}
+
 QList<const UnitClass *> World::getUnitClasses() const
 {
     return listConstClone(this->unitClasses);

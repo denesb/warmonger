@@ -67,13 +67,13 @@ var Map = function(map) {
             }
 
             if (mapCanvas.isImageLoaded(image)) {
-                console.log("Successfully loaded image " + image);
+                console.info("Successfully loaded image " + image);
                 this.loadQueue.splice(i, 1);
             }
         }
 
         if (this.loadQueue.length == 0) {
-            console.log("All images loaded");
+            console.info("All resources loaded");
             this.onResourcesLoaded();
         }
     }
@@ -97,9 +97,6 @@ var MapNode = function(mapNode, x, y) {
     this.y = y;
 
     this.paint = function(ctx) {
-        console.log("painting: " + this.mapNode.objectName);
-        console.log(this.x + "," + this.y);
-
         ctx.save();
 
         ctx.translate(this.x, this.y)
@@ -119,9 +116,6 @@ function onImageLoaded() {
 
 function onPaint(region) {
     var ctx = mapCanvas.getContext('2d');
-
-    console.log("onPaint");
-    console.log(region);
 
     MAP.paint(ctx);
 }

@@ -20,7 +20,7 @@ public:
 
     QString getBasePath() const;
 
-    Q_INVOKABLE QString getPath(const QString &resourceName);
+    Q_INVOKABLE QString getPath(const QString &resourceName) const;
     QVariantMap readPaths() const;
 
     void loadFromJsonFile();

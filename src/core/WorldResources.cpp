@@ -22,7 +22,7 @@ QString WorldResources::getBasePath() const
     return this->basePath;
 }
 
-QString WorldResources::getPath(const QString &resourceName)
+QString WorldResources::getPath(const QString &resourceName) const
 {
     return this->basePath + this->resourcePaths[resourceName];
 }

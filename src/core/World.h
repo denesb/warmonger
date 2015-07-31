@@ -25,6 +25,7 @@ class World :
     Q_PROPERTY(QString path READ getPath);
     Q_PROPERTY(QString description READ getDescription);
     Q_PROPERTY(QVariant resources READ readResources);
+    Q_PROPERTY(QVariantList terrainTypes READ readTerrainTypes)
 
 public:
     static const QString DefinitionFile;
@@ -40,6 +41,7 @@ public:
     QList<const TerrainType *> getTerrainTypes() const;
     QList<TerrainType *> getTerrainTypes();
     void setTerrainTypes(const QList<TerrainType *> &terrainTypes);
+    QVariantList readTerrainTypes() const;
 
     QList<const UnitClass *> getUnitClasses() const;
     QList<UnitClass *> getUnitClasses();

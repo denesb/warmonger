@@ -92,11 +92,13 @@ OTHER_FILES += \
     src/ui/qml/GamePlay.qml \
     src/ui/qml/Main.qml \
     src/ui/qml/Map.qml \
-    src/ui/qml/WorldList.qml \
+    src/ui/qml/MapEditor.qml \
+    src/ui/qml/WorldList.qml
 
 # js
 OTHER_FILES += \
-    src/ui/js/Map.js
+    src/ui/js/Map.js \
+    src/ui/js/MapEditor.js
 
 # deplyment
 qml.source = src/ui/qml

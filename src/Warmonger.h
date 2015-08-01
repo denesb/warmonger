@@ -22,6 +22,8 @@ public:
 
     QVariant readMap() const;
 
+    Q_INVOKABLE QVariant createHexagon(const QPoint &boundingRectCorner, int boundingRectSize, int side);
+
 signals:
     void mapChanged() const;
 

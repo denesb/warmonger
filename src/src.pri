@@ -45,7 +45,8 @@ HEADERS += \
 
 # ui
 HEADERS += \
-    src/ui/qtquick2applicationviewer.h
+    src/ui/qtquick2applicationviewer.h \
+    src/ui/Hexagon.h
 
 # app
 SOURCES += \
@@ -85,7 +86,8 @@ SOURCES += \
 
 # ui
 SOURCES += \
-    src/ui/qtquick2applicationviewer.cpp
+    src/ui/qtquick2applicationviewer.cpp \
+    src/ui/Hexagon.cpp
 
 # qml
 OTHER_FILES += \

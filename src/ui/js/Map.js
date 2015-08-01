@@ -1,11 +1,11 @@
-// The current map
-var MAP;
+.pragma library
 
 /*
  * Constants
  */
 var TILE_SIZE = 128;
-var TILE_OVERLAP = 31;
+var HEX_SIDE = 66
+var TILE_OVERLAP = (TILE_SIZE - HEX_SIDE) / 2;
 var TILE_DISPLACEMENT = {
     'North': {x: 0, y: -TILE_SIZE},
     'NorthEast': {x: TILE_SIZE - TILE_OVERLAP, y: -TILE_SIZE/2},
@@ -15,11 +15,18 @@ var TILE_DISPLACEMENT = {
     'NorthWest': {x: -(TILE_SIZE - TILE_OVERLAP), y: -TILE_SIZE/2}
 };
 
+function newMap(app, map, canvas) {
+    return new Map(app, map, canvas);
+}
+
 /*
  * Map class.
  */
-var Map = function(map) {
+var Map = function(map, canvas, warmonger) {
+    this.warmonger = warmonger;
     this.map = map;
+    this.canvas = canvas;
+
     this.mapNodes = [];
     this.loadQueue = [];
     this.ready = false;
@@ -27,7 +34,7 @@ var Map = function(map) {
     this.createNode = function(mapNode, x, y, visitedNodes) {
         visitedNodes[mapNode] = true;
 
-        this.mapNodes.push(new MapNode(mapNode, x, y));
+        this.mapNodes.push(new MapNode(mapNode, x, y, this));
 
         for (var direction in mapNode.neighbours) {
             var neighbour = mapNode.neighbours[direction];
@@ -39,7 +46,9 @@ var Map = function(map) {
         }
     }
 
-    this.paint = function(ctx) {
+    this.paint = function(canvas, region) {
+        var ctx = canvas.getContext("2d");
+
         for (var i = 0; i < this.mapNodes.length; i++) {
             this.mapNodes[i].paint(ctx);
         }
@@ -52,7 +61,7 @@ var Map = function(map) {
         for (var resource in resources.paths) {
             path = resources.getPath(resource);
             this.loadQueue.push(path);
-            mapCanvas.loadImage(path);
+            this.canvas.loadImage(path);
         }
     }
 
@@ -61,12 +70,12 @@ var Map = function(map) {
 
         for (var i = 0; i < this.loadQueue.length; i++) {
             image = this.loadQueue[i];
-            if (mapCanvas.isImageError(image)) {
+            if (this.canvas.isImageError(image)) {
                 console.error("Error loading image " + image);
                 this.loadQueue.splice(i, 1);
             }
 
-            if (mapCanvas.isImageLoaded(image)) {
+            if (this.canvas.isImageLoaded(image)) {
                 console.info("Successfully loaded image " + image);
                 this.loadQueue.splice(i, 1);
             }
@@ -80,7 +89,7 @@ var Map = function(map) {
 
     this.onResourcesLoaded = function() {
         this.ready = true;
-        mapCanvas.requestPaint();
+        this.canvas.requestPaint();
     }
 
     this.loadResources();
@@ -90,32 +99,26 @@ var Map = function(map) {
 /*
  * MapNode class.
  */
-var MapNode = function(mapNode, x, y) {
+var MapNode = function(mapNode, x, y, parent) {
+    this.parent = parent;
     this.mapNode = mapNode;
-    this.image = warmonger.map.world.resources.getPath(this.mapNode.terrainType.objectName);
+    this.terrainImage = this.parent.map.world.resources.getPath(this.mapNode.terrainType.objectName);
+    this.borderImage = this.parent.map.world.resources.getPath("border");
     this.x = x;
     this.y = y;
+
+    this.hex = this.parent.warmonger.createHexagon(Qt.point(this.x, this.y), TILE_SIZE, HEX_SIDE);
+
+    console.log(this.hex);
 
     this.paint = function(ctx) {
         ctx.save();
 
         ctx.translate(this.x, this.y)
-        ctx.drawImage(this.image, 0, 0);
+
+        ctx.drawImage(this.terrainImage, 0, 0);
+        ctx.drawImage(this.borderImage, 0, 0);
 
         ctx.restore();
     }
-}
-
-function onMapChanged() {
-    MAP = new Map(warmonger.map);
-}
-
-function onImageLoaded() {
-    MAP.onResourceLoaded();
-}
-
-function onPaint(region) {
-    var ctx = mapCanvas.getContext('2d');
-
-    MAP.paint(ctx);
 }

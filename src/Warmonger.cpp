@@ -4,6 +4,7 @@
 #include "core/Exception.h"
 #include "log/LogStream.h"
 #include "log/ConsoleHandler.h"
+#include "ui/Hexagon.h"
 
 using namespace warmonger;
 
@@ -29,7 +30,7 @@ Warmonger::Warmonger(int argc, char *argv[]) :
         this->viewer.setMainQmlFile(QStringLiteral("qml/Main.qml"));
         this->viewer.showExpanded();
 
-        emit mapChanged();
+//        emit mapChanged();
     }
     catch (core::Exception &e)
     {
@@ -45,6 +46,12 @@ Warmonger::~Warmonger()
 QVariant Warmonger::readMap() const
 {
     return QVariant::fromValue<QObject *>(this->map);
+}
+
+QVariant Warmonger::createHexagon(const QPoint &boundingRectCorner, int boundingRectSize, int side)
+{
+    ui::Hexagon *h = new ui::Hexagon(boundingRectCorner, boundingRectSize, side);
+    return QVariant::fromValue<QObject *>(h);
 }
 
 void Warmonger::setupModels()

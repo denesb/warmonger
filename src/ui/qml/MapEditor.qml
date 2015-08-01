@@ -29,6 +29,9 @@ Rectangle {
             width: 1
             color: "black"
         }
+
+        onClicked: console.log(mouse)
+        onPositionChanged: console.log(mouse)
     }
 
     Rectangle {
@@ -87,7 +90,7 @@ Rectangle {
                         ListView {
                             anchors.fill: parent
 
-                            model: warmonger.map.world.settlementTypes
+                            model: warmonger.map.world.terrainTypes
                             delegate: MapItem {
                                 onClicked: MapEditor.selectMapItem(model.modelData.objectName)
                             }
@@ -101,7 +104,7 @@ Rectangle {
                         ListView {
                             anchors.fill: parent
 
-                            model: warmonger.map.world.unitTypes
+                            model: warmonger.map.world.terrainTypes
                             delegate: MapItem {
                                 onClicked: MapEditor.selectMapItem(model.modelData.objectName)
                             }

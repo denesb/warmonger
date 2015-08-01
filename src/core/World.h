@@ -26,7 +26,7 @@ class World :
     Q_PROPERTY(QVariant terrainTypes READ readTerrainTypes NOTIFY terrainTypesChanged)
     Q_PROPERTY(QVariant unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
     Q_PROPERTY(QVariant settlementTypes READ readSettlementTypes NOTIFY settlementTypesChanged)
-    Q_PROPERTY(QVariantMap resourcePaths READ readResourcePaths);
+    Q_PROPERTY(QVariantMap resourcePaths READ readResourcePaths NOTIFY resourcePathsChanged);
 
 public:
     static const QString DefinitionFile;

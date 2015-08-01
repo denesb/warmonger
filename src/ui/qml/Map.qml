@@ -8,7 +8,7 @@ Rectangle {
     signal clicked(var mouse)
     signal positionChanged(var mouse)
 
-    property var mapObject: Map.newMap(warmonger.map, mapCanvas, warmonger)
+    property var mapObject
 
     Component.onCompleted: {
         map.mapObject = Map.newMap(warmonger.map, mapCanvas, warmonger)

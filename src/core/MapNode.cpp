@@ -49,7 +49,11 @@ const TerrainType * MapNode::getTerrainType() const
 
 void MapNode::setTerrainType(const TerrainType *terrainType)
 {
-    this->terrainType = terrainType;
+    if (this->terrainType != terrainType)
+    {
+        this->terrainType = terrainType;
+        emit terrainTypeChanged();
+    }
 }
 
 QVariant MapNode::readTerrainType() const
@@ -70,12 +74,20 @@ const QHash<MapNode::Direction, const MapNode *> MapNode::getNeighbours() const
 
 void MapNode::setNeighbour(MapNode::Direction direction, const MapNode *neighbour)
 {
-    this->neighbours[direction] = neighbour;
+    if (this->neighbours[direction] != neighbour)
+    {
+        this->neighbours[direction] = neighbour;
+        emit neighboursChanged();
+    }
 }
 
 void MapNode::setNeighbours(const QHash<MapNode::Direction, const MapNode *> &neighbours)
 {
-    this->neighbours = neighbours;
+    if (this->neighbours != neighbours)
+    {
+        this->neighbours = neighbours;
+        emit neighboursChanged();
+    }
 }
 
 QVariantMap MapNode::readNeighbours() const

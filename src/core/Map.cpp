@@ -81,7 +81,11 @@ QList<MapNode *> Map::getMapNodes()
 
 void Map::setMapNodes(const QList<MapNode *> &mapNodes)
 {
-    this->mapNodes = mapNodes;
+    if (this->mapNodes != mapNodes)
+    {
+        this->mapNodes = mapNodes;
+        emit mapNodesChanged();
+    }
 }
 
 QVariant Map::readMapNodes() const

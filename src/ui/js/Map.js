@@ -109,8 +109,6 @@ var MapNode = function(mapNode, x, y, parent) {
 
     this.hex = this.parent.warmonger.createHexagon(Qt.point(this.x, this.y), TILE_SIZE, HEX_SIDE);
 
-    console.log(this.hex);
-
     this.paint = function(ctx) {
         ctx.save();
 

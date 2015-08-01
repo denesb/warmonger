@@ -22,7 +22,7 @@ class Map :
     Q_PROPERTY(QString path READ getPath);
     Q_PROPERTY(QString description READ getDescription)
     Q_PROPERTY(QVariant world READ readWorld NOTIFY worldChanged)
-    Q_PROPERTY(QVariant mapNodes READ readMapNodes)
+    Q_PROPERTY(QVariant mapNodes READ readMapNodes NOTIFY mapNodesChanged)
     Q_PROPERTY(QVariant players READ readPlayers)
     Q_PROPERTY(QVariant units READ readUnits)
     Q_PROPERTY(QVariant settlements READ readSettlements)
@@ -65,6 +65,7 @@ public:
 
 signals:
     void worldChanged();
+    void mapNodesChanged();
 
 private:
     void dataFromJson(const QJsonObject &obj);

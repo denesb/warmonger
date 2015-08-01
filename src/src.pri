@@ -40,8 +40,7 @@ HEADERS += \
     src/core/UnitType.h \
     src/core/Util.h \
     src/core/Weapon.h \
-    src/core/World.h \
-    src/core/WorldResources.h
+    src/core/World.h
 
 # ui
 HEADERS += \
@@ -81,8 +80,7 @@ SOURCES += \
     src/core/UnitType.cpp \
     src/core/Util.cpp \
     src/core/Weapon.cpp \
-    src/core/World.cpp \
-    src/core/WorldResources.cpp
+    src/core/World.cpp
 
 # ui
 SOURCES += \

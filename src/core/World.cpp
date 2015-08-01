@@ -1,3 +1,6 @@
+#include <QFile>
+#include <QJsonDocument>
+
 #include "core/World.h"
 #include "core/TerrainType.h"
 #include "core/SettlementType.h"
@@ -7,7 +10,7 @@
 #include "core/Armor.h"
 #include "core/UnitType.h"
 #include "core/Faction.h"
-#include "core/WorldResources.h"
+#include "core/World.h"
 #include "core/JsonUtil.hpp"
 #include "core/Util.h"
 
@@ -200,24 +203,28 @@ void World::setFactions(const QList<Faction *> &factions)
     this->factions = factions;
 }
 
-const WorldResources * World::getResources() const
+QMap<QString, QString> World::getResourcePaths() const
 {
-    return this->resources;
+    return this->resourcePaths;
 }
 
-WorldResources * World::getResources()
+void World::setResourcePaths(const QMap<QString, QString> &resourcePaths)
 {
-    return this->resources;
+    if (this->resourcePaths != resourcePaths)
+    {
+        this->resourcePaths = resourcePaths;
+        emit resourcePathsChanged();
+    }
 }
 
-void World::setResources(WorldResources *resources)
+QVariantMap World::readResourcePaths() const
 {
-    this->resources = resources;
+    return this->toQVariantMap(this->resourcePaths);
 }
 
-QVariant World::readResources() const
+QString World::getResourcePath(const QString &resourceName) const
 {
-    return QVariant::fromValue<QObject *>(this->resources);
+    return this->path + QStringLiteral("/resources/") + this->resourcePaths[resourceName];
 }
 
 void World::dataFromJson(const QJsonObject &obj)
@@ -232,8 +239,7 @@ void World::dataFromJson(const QJsonObject &obj)
     this->settlementTypes = newListFromJson<SettlementType>(obj["settlementTypes"].toArray(), this);
     this->factions = newListFromJson<Faction>(obj["factions"].toArray(), this);
 
-    this->resources = new WorldResources(this);
-    this->resources->loadFromJsonFile();
+    this->resourcePaths = this->mapFromJson(this->loadFromJsonFile(this->path + "/resources/resources.json"));
 }
 
 void World::dataToJson(QJsonObject &obj) const
@@ -249,4 +255,71 @@ void World::dataToJson(QJsonObject &obj) const
     obj["factions"] = listToJson<Faction>(this->factions);
 
     //TODO: write resources
+}
+
+QJsonObject World::loadFromJsonFile(const QString &path)
+{
+    QFile jsonFile(path);
+
+    if (!jsonFile.open(QIODevice::ReadOnly))
+    {
+        Exception e(Exception::FileOpenFailed, {path});
+        wError("core.World") << e.getMessage();
+        throw e;
+    }
+
+    QByteArray jsonData = jsonFile.readAll();
+    jsonFile.close();
+
+    QJsonParseError parseError;
+    QJsonDocument doc(QJsonDocument::fromJson(jsonData, &parseError));
+
+    if (parseError.error != QJsonParseError::NoError)
+    {
+        Exception e(Exception::JsonParse, {path, parseError.errorString()});
+        wError("core.World") << e.getMessage();
+        throw e;
+    }
+
+    wInfo("core.World") << "Loaded Json document from " << path;
+
+    return doc.object();
+}
+
+QVariantMap World::toQVariantMap(const QMap<QString, QString> &qmap) const
+{
+    const QString basePath = this->path + "/resources/";
+    QVariantMap vmap;
+    QMap<QString, QString>::ConstIterator it;
+    for (it = qmap.constBegin(); it != qmap.constEnd(); it++)
+    {
+        const QString path(basePath + it.value());
+        vmap.insert(it.key(), QVariant(path));
+    }
+
+    return std::move(vmap);
+}
+
+QMap<QString, QString> World::mapFromJson(const QJsonObject &obj) const
+{
+    QMap<QString, QString> map;
+    QJsonObject::ConstIterator it;
+    for (it = obj.constBegin(); it != obj.constEnd(); it++)
+    {
+        map.insert(it.key(), it.value().toString());
+    }
+
+    return std::move(map);
+}
+
+QJsonObject World::mapToJson(const QMap<QString, QString> &map) const
+{
+    QJsonObject obj;
+    QMap<QString, QString>::ConstIterator it;
+    for (it = map.constBegin(); it != map.constEnd(); it++)
+    {
+        obj[it.key()] = it.value();
+    }
+
+    return std::move(obj);
 }

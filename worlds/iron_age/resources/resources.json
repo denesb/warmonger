@@ -3,7 +3,7 @@
     "border": "border.png",
 
     "plains": "terrainTypes/plains.png",
-    "hills": "terrainTypes//hills.png",
+    "hills": "terrainTypes/hills.png",
     "forest": "terrainTypes/forest.png",
     "mountains": "terrainTypes/mountains.png"
 }

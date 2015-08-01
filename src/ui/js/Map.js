@@ -55,11 +55,11 @@ var Map = function(map, canvas, warmonger) {
     }
 
     this.loadResources = function() {
-        var resources = this.map.world.resources;
+        var resourcePaths = this.map.world.resourcePaths;
         var path;
 
-        for (var resource in resources.paths) {
-            path = resources.getPath(resource);
+        for (var resource in resourcePaths) {
+            path = resourcePaths[resource];
             this.loadQueue.push(path);
             this.canvas.loadImage(path);
         }
@@ -102,8 +102,8 @@ var Map = function(map, canvas, warmonger) {
 var MapNode = function(mapNode, x, y, parent) {
     this.parent = parent;
     this.mapNode = mapNode;
-    this.terrainImage = this.parent.map.world.resources.getPath(this.mapNode.terrainType.objectName);
-    this.borderImage = this.parent.map.world.resources.getPath("border");
+    this.terrainImage = this.parent.map.world.getResourcePath(this.mapNode.terrainType.objectName);
+    this.borderImage = this.parent.map.world.getResourcePath("border");
     this.x = x;
     this.y = y;
 

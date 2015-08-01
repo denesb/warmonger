@@ -16,7 +16,6 @@ class Armor;
 class UnitType;
 class SettlementType;
 class Faction;
-class WorldResources;
 
 class World :
     public GameObject
@@ -24,10 +23,10 @@ class World :
     Q_OBJECT
     Q_PROPERTY(QString path READ getPath NOTIFY pathChanged);
     Q_PROPERTY(QString description READ getDescription);
-    Q_PROPERTY(QVariant resources READ readResources);
     Q_PROPERTY(QVariant terrainTypes READ readTerrainTypes NOTIFY terrainTypesChanged)
     Q_PROPERTY(QVariant unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
     Q_PROPERTY(QVariant settlementTypes READ readSettlementTypes NOTIFY settlementTypesChanged)
+    Q_PROPERTY(QVariantMap resourcePaths READ readResourcePaths);
 
 public:
     static const QString DefinitionFile;
@@ -75,20 +74,26 @@ public:
     QList<Faction *> getFactions();
     void setFactions(const QList<Faction *> &factions);
 
-    const WorldResources * getResources() const;
-    WorldResources * getResources();
-    void setResources(WorldResources *resources);
-    QVariant readResources() const;
+    QMap<QString, QString> getResourcePaths() const;
+    void setResourcePaths(const QMap<QString, QString> &resourcePaths);
+    QVariantMap readResourcePaths() const;
+    Q_INVOKABLE QString getResourcePath(const QString &resourceName) const;
 
 signals:
     void pathChanged();
     void terrainTypesChanged();
     void unitTypesChanged();
     void settlementTypesChanged();
+    void resourcePathsChanged();
 
 private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
+
+    QJsonObject loadFromJsonFile(const QString &path);
+    QVariantMap toQVariantMap(const QMap<QString, QString> &qmap) const;
+    QMap<QString, QString> mapFromJson(const QJsonObject &obj) const;
+    QJsonObject mapToJson(const QMap<QString, QString> &map) const;
 
     QString path;
     QString description;
@@ -100,7 +105,8 @@ private:
     QList<UnitType *> unitTypes;
     QList<SettlementType *> settlementTypes;
     QList<Faction *> factions;
-    WorldResources *resources;
+
+    QMap<QString, QString> resourcePaths;
 };
 
 } // namespace core

@@ -6,7 +6,6 @@ import "js/MapEditor.js" as MapEditor
 
 Rectangle {
     Component.onCompleted: {
-        MapEditor.init()
     }
     Rectangle {
         id: mapEditorStatusBar
@@ -40,7 +39,7 @@ Rectangle {
             bottom: parent.bottom
         }
 
-        width: 300
+        width: 256
         color: "blue"
 
         Rectangle {
@@ -51,7 +50,7 @@ Rectangle {
                 right: parent.right
             }
 
-            height: 300
+            height: 288
             color: "yellow"
         }
 
@@ -59,23 +58,25 @@ Rectangle {
             id: mapEditorControls
             anchors {
                 top: mapEditorMiniMap.bottom
-                left: parent.left
                 right: parent.right
                 bottom: parent.bottom
+                left: parent.left
             }
 
             TabView {
                 anchors.fill: parent
 
                 Tab {
-                    title: "Terrain Types"
+                    title: "Terrain"
 
                     Rectangle {
-                        id: terrainTypeItems
+                        ListView {
+                            anchors.fill: parent
 
-                        GridLayout {
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            columns: 7
+                            model: warmonger.map.world.terrainTypes
+                            delegate: MapItem {
+                                onClicked: MapEditor.selectMapItem(model.modelData.objectName)
+                            }
                         }
                     }
                 }
@@ -83,12 +84,29 @@ Rectangle {
                     title: "Settlements"
 
                     Rectangle {
+                        ListView {
+                            anchors.fill: parent
+
+                            model: warmonger.map.world.settlementTypes
+                            delegate: MapItem {
+                                onClicked: MapEditor.selectMapItem(model.modelData.objectName)
+                            }
+                        }
                     }
                 }
                 Tab {
                     title: "Units"
 
                     Rectangle {
+                        ListView {
+                            anchors.fill: parent
+
+                            model: warmonger.map.world.unitTypes
+                            delegate: MapItem {
+                                onClicked: MapEditor.selectMapItem(model.modelData.objectName)
+                            }
+                        }
+
                     }
                 }
             }

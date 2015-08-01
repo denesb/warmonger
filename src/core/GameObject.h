@@ -15,7 +15,7 @@ class GameObject :
     public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString displayName READ getDisplayName)
+    Q_PROPERTY(QString displayName READ getDisplayName NOTIFY displayNameChanged)
 
 public:
     GameObject(QObject *parent);
@@ -26,6 +26,9 @@ public:
 
     void fromJson(const QJsonObject &obj);
     QJsonObject toJson() const;
+
+signals:
+    void displayNameChanged();
 
 private:
     virtual void dataFromJson(const QJsonObject &obj) = 0;

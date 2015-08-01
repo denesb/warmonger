@@ -19,7 +19,11 @@ QString GameObject::getDisplayName() const
 
 void GameObject::setDisplayName(const QString &displayName)
 {
-	this->displayName = displayName;
+    if (this->displayName != displayName)
+    {
+        this->displayName = displayName;
+        emit displayNameChanged();
+    }
 }
 
 void GameObject::fromJson(const QJsonObject &obj)

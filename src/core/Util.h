@@ -39,6 +39,19 @@ QVariantList toQVariantList(const QList<T *> &list)
 }
 
 template<typename T>
+QObjectList toQObjectList(const QList<T *> &list)
+{
+    QObjectList olist;
+
+    for (T *i : list)
+    {
+        olist << i;
+    }
+
+    return std::move(olist);
+}
+
+template<typename T>
 T* resolveReference(const QString &objectName, QObject *parent, const QString &moduleName)
 {
     T *obj = parent->findChild<T *>(objectName);

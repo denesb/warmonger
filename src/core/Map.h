@@ -21,11 +21,11 @@ class Map :
     Q_OBJECT
     Q_PROPERTY(QString path READ getPath);
     Q_PROPERTY(QString description READ getDescription)
-    Q_PROPERTY(QVariant world READ readWorld)
-    Q_PROPERTY(QVariantList mapNodes READ readMapNodes)
-    Q_PROPERTY(QVariantList players READ readPlayers)
-    Q_PROPERTY(QVariantList units READ readUnits)
-    Q_PROPERTY(QVariantList settlements READ readSettlements)
+    Q_PROPERTY(QVariant world READ readWorld NOTIFY worldChanged)
+    Q_PROPERTY(QVariant mapNodes READ readMapNodes)
+    Q_PROPERTY(QVariant players READ readPlayers)
+    Q_PROPERTY(QVariant units READ readUnits)
+    Q_PROPERTY(QVariant settlements READ readSettlements)
 
 public:
     static const QString DefinitionFile;
@@ -46,22 +46,25 @@ public:
     QList<const MapNode *> getMapNodes() const;
     QList<MapNode *> getMapNodes();
     void setMapNodes(const QList<MapNode *> &mapNodes);
-    QVariantList readMapNodes() const;
+    QVariant readMapNodes() const;
 
     QList<const Player *> getPlayers() const;
     QList<Player *> getPlayers();
     void setPlayers(const QList<Player *> &units);
-    QVariantList readPlayers() const;
+    QVariant readPlayers() const;
 
     QList<const Unit *> getUnits() const;
     QList<Unit *> getUnits();
     void setUnits(const QList<Unit *> &units);
-    QVariantList readUnits() const;
+    QVariant readUnits() const;
 
     QList<const Settlement *> getSettlements() const;
     QList<Settlement *> getSettlements();
     void setSettlements(const QList<Settlement *> &settlements);
-    QVariantList readSettlements() const;
+    QVariant readSettlements() const;
+
+signals:
+    void worldChanged();
 
 private:
     void dataFromJson(const QJsonObject &obj);

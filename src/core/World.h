@@ -22,10 +22,12 @@ class World :
     public GameObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString path READ getPath);
+    Q_PROPERTY(QString path READ getPath NOTIFY pathChanged);
     Q_PROPERTY(QString description READ getDescription);
     Q_PROPERTY(QVariant resources READ readResources);
-    Q_PROPERTY(QVariantList terrainTypes READ readTerrainTypes)
+    Q_PROPERTY(QVariant terrainTypes READ readTerrainTypes NOTIFY terrainTypesChanged)
+    Q_PROPERTY(QVariant unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
+    Q_PROPERTY(QVariant settlementTypes READ readSettlementTypes NOTIFY settlementTypesChanged)
 
 public:
     static const QString DefinitionFile;
@@ -41,7 +43,7 @@ public:
     QList<const TerrainType *> getTerrainTypes() const;
     QList<TerrainType *> getTerrainTypes();
     void setTerrainTypes(const QList<TerrainType *> &terrainTypes);
-    QVariantList readTerrainTypes() const;
+    QVariant readTerrainTypes() const;
 
     QList<const UnitClass *> getUnitClasses() const;
     QList<UnitClass *> getUnitClasses();
@@ -62,10 +64,12 @@ public:
     QList<const UnitType *> getUnitTypes() const;
     QList<UnitType *> getUnitTypes();
     void setUnitTypes(const QList<UnitType *> &unitTypes);
+    QVariant readUnitTypes() const;
 
     QList<const SettlementType *> getSettlementTypes() const;
     QList<SettlementType *> getSettlementTypes();
     void setSettlementTypes(const QList<SettlementType *> &settlementTypes);
+    QVariant readSettlementTypes() const;
 
     QList<const Faction *> getFactions() const;
     QList<Faction *> getFactions();
@@ -75,6 +79,12 @@ public:
     WorldResources * getResources();
     void setResources(WorldResources *resources);
     QVariant readResources() const;
+
+signals:
+    void pathChanged();
+    void terrainTypesChanged();
+    void unitTypesChanged();
+    void settlementTypesChanged();
 
 private:
     void dataFromJson(const QJsonObject &obj);

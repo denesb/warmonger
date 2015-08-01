@@ -11,12 +11,8 @@ function createMapItem(obj, container) {
 function init() {
     var terrainTypes = warmonger.map.world.terrainTypes;
     var terrainType;
+}
 
-    console.log("init");
-
-    for (var i = 0; i < terrainTypes.length; i++) {
-        terrainType = terrainTypes[i];
-
-        createMapItem(terrainType, terrainTypeItems);
-    }
+function selectMapItem(objectName) {
+    console.log(objectName);
 }

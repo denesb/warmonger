@@ -56,7 +56,11 @@ const World * Map::getWorld() const
 
 void Map::setWorld(const World *world)
 {
-    this->world = world;
+    if (this->world != world)
+    {
+        this->world = world;
+        emit worldChanged();
+    }
 }
 
 QVariant Map::readWorld() const
@@ -80,9 +84,9 @@ void Map::setMapNodes(const QList<MapNode *> &mapNodes)
     this->mapNodes = mapNodes;
 }
 
-QList<QVariant> Map::readMapNodes() const
+QVariant Map::readMapNodes() const
 {
-    return toQVariantList<MapNode>(this->mapNodes);
+    return QVariant::fromValue(toQObjectList<MapNode>(this->mapNodes));
 }
 
 QList<const Player *> Map::getPlayers() const
@@ -100,9 +104,9 @@ void Map::setPlayers(const QList<Player *> &players)
     this->players = players;
 }
 
-QVariantList Map::readPlayers() const
+QVariant Map::readPlayers() const
 {
-    return toQVariantList<Player>(this->players);
+    return QVariant::fromValue(toQObjectList<Player>(this->players));
 }
 
 QList<const Unit *> Map::getUnits() const
@@ -120,9 +124,9 @@ void Map::setUnits(const QList<Unit *> &units)
     this->units = units;
 }
 
-QVariantList Map::readUnits() const
+QVariant Map::readUnits() const
 {
-    return toQVariantList<Unit>(this->units);
+    return QVariant::fromValue(toQObjectList<Unit>(this->units));
 }
 
 QList<const Settlement *> Map::getSettlements() const
@@ -140,9 +144,9 @@ void Map::setSettlements(const QList<Settlement *> &settlements)
     this->settlements = settlements;
 }
 
-QVariantList Map::readSettlements() const
+QVariant Map::readSettlements() const
 {
-    return toQVariantList<Settlement>(this->settlements);
+    return QVariant::fromValue(toQObjectList<Settlement>(this->settlements));
 }
 
 void Map::dataFromJson(const QJsonObject &obj)

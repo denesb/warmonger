@@ -36,7 +36,11 @@ QString World::getPath() const
 
 void World::setPath(const QString &path)
 {
-    this->path = path;
+    if (this->path != path)
+    {
+        this->path = path;
+        emit pathChanged();
+    }
 }
 
 QString World::getDescription() const
@@ -61,12 +65,16 @@ QList<TerrainType *> World::getTerrainTypes()
 
 void World::setTerrainTypes(const QList<TerrainType *> &terrainTypes)
 {
-    this->terrainTypes = terrainTypes;
+    if (this->terrainTypes != terrainTypes)
+    {
+        this->terrainTypes = terrainTypes;
+        emit terrainTypesChanged();
+    }
 }
 
-QVariantList World::readTerrainTypes() const
+QVariant World::readTerrainTypes() const
 {
-    return toQVariantList<TerrainType>(this->terrainTypes);
+    return QVariant::fromValue(toQObjectList<TerrainType>(this->terrainTypes));
 }
 
 QList<const UnitClass *> World::getUnitClasses() const
@@ -141,7 +149,16 @@ QList<UnitType *> World::getUnitTypes()
 
 void World::setUnitTypes(const QList<UnitType *> &unitTypes)
 {
-    this->unitTypes = unitTypes;
+    if (this->unitTypes != unitTypes)
+    {
+        this->unitTypes = unitTypes;
+        emit unitTypesChanged();
+    }
+}
+
+QVariant World::readUnitTypes() const
+{
+    return QVariant::fromValue(toQObjectList<UnitType>(this->unitTypes));
 }
 
 QList<const SettlementType *> World::getSettlementTypes() const
@@ -156,7 +173,16 @@ QList<SettlementType *> World::getSettlementTypes()
 
 void World::setSettlementTypes(const QList<SettlementType *> &settlementTypes)
 {
-    this->settlementTypes = settlementTypes;
+    if (this->settlementTypes != settlementTypes)
+    {
+        this->settlementTypes = settlementTypes;
+        emit settlementTypesChanged();
+    }
+}
+
+QVariant World::readSettlementTypes() const
+{
+    return QVariant::fromValue(toQObjectList<SettlementType>(this->settlementTypes));
 }
 
 QList<const Faction *> World::getFactions() const

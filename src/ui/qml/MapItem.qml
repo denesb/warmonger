@@ -32,7 +32,7 @@ Rectangle {
             }
 
             source: {
-                warmonger.map.world.getResourcePath(model.modelData.objectName)
+                ui.map.world.getResourcePath(model.modelData.objectName)
             }
         }
         Label {

@@ -56,6 +56,20 @@ void World::setDescription(const QString &description)
     this->description = description;
 }
 
+QSize World::getTileSize() const
+{
+    return this->tileSize;
+}
+
+void World::setTileSize(const QSize &tileSize)
+{
+    if (this->tileSize != tileSize)
+    {
+        this->tileSize = tileSize;
+        emit tileSizeChanged();
+    }
+}
+
 QList<const TerrainType *> World::getTerrainTypes() const
 {
     return listConstClone(this->terrainTypes);
@@ -231,6 +245,7 @@ void World::dataFromJson(const QJsonObject &obj)
 {
     this->description = obj["description"].toString();
     this->terrainTypes = newListFromJson<TerrainType>(obj["terrainTypes"].toArray(), this);
+    this->tileSize = sizeFromJson(obj["tileSize"].toObject());
     this->unitClasses = newListFromJson<UnitClass>(obj["unitClasses"].toArray(), this);
     this->damageTypes = newListFromJson<DamageType>(obj["damageTypes"].toArray(), this);
     this->weapons = newListFromJson<Weapon>(obj["weapons"].toArray(), this);
@@ -245,6 +260,7 @@ void World::dataFromJson(const QJsonObject &obj)
 void World::dataToJson(QJsonObject &obj) const
 {
     obj["description"] = this->description;
+    obj["tileSize"] = sizeToJson(this->tileSize);
     obj["terrainTypes"] = listToJson<TerrainType>(this->terrainTypes);
     obj["unitClasses"] = listToJson<UnitClass>(this->unitClasses);
     obj["damageTypes"] = listToJson<DamageType>(this->damageTypes);

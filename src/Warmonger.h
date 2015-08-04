@@ -3,10 +3,7 @@
 
 #include <QGuiApplication>
 
-#include "ui/qtquick2applicationviewer.h"
-#include "core/World.h"
-#include "core/Map.h"
-#include "core/Loader.hpp"
+#include "ui/UserInterface.h"
 
 namespace warmonger {
 
@@ -14,27 +11,15 @@ class Warmonger :
     public QGuiApplication
 {
     Q_OBJECT
-    Q_PROPERTY(QVariant map READ readMap NOTIFY mapChanged)
 
 public:
     Warmonger(int argc, char *argv[]);
     ~Warmonger();
 
-    QVariant readMap() const;
-
-    Q_INVOKABLE QVariant createHexagon(const QPoint &boundingRectCorner, int boundingRectSize, int side);
-
-signals:
-    void mapChanged() const;
-
 private:
-    void setupModels();
-
-    QtQuick2ApplicationViewer viewer;
-    core::Loader<core::Map> mapLoader;
-    core::Map *map;
+    ui::UserInterface *ui;
 };
 
 } // namespace warmonger
 
-#endif // WAMNOGER_H
+#endif // WARMONGER_H

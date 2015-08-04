@@ -12,13 +12,15 @@ namespace core {
 
 class TerrainType;
 
-/*      N
- *     ____
- * NW /    \ NE
- *   /      \
- *   \      /
- * SW \____/ SE
- *      S
+/*
+ *
+ *  NW  /\  NE
+ *    /    \
+ * W |      | E
+ *   |      |
+ *    \    /
+ *  SW  \/  SE
+ *
  */
 class MapNode :
     public GameObject
@@ -30,12 +32,12 @@ class MapNode :
 public:
     enum Direction
     {
-        North = 0,
-        NorthEast = 1,
-        SouthEast = 2,
-        South = 3,
-        SouthWest = 4,
-        NorthWest = 5
+        West = 0,
+        NorthWest = 1,
+        NorthEast = 2,
+        East = 3,
+        SouthEast = 4,
+        SouthWest = 5
     };
     static const QHash<QString, Direction> str2direction;
     static const QHash<Direction, QString> direction2str;

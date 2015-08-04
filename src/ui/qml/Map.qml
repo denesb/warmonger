@@ -11,7 +11,7 @@ Rectangle {
     property var mapObject
 
     Component.onCompleted: {
-        map.mapObject = Map.newMap(warmonger.map, mapCanvas, warmonger)
+        map.mapObject = Map.newMap(ui.map, mapCanvas, ui)
     }
     Canvas {
         id: mapCanvas

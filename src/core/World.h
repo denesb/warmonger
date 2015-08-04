@@ -2,6 +2,7 @@
 #define CORE_WORLD_H
 
 #include <QList>
+#include <QSize>
 
 #include "core/GameObject.h"
 
@@ -23,6 +24,7 @@ class World :
     Q_OBJECT
     Q_PROPERTY(QString path READ getPath NOTIFY pathChanged);
     Q_PROPERTY(QString description READ getDescription);
+    Q_PROPERTY(QSize tileSize READ getTileSize);
     Q_PROPERTY(QVariant terrainTypes READ readTerrainTypes NOTIFY terrainTypesChanged)
     Q_PROPERTY(QVariant unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
     Q_PROPERTY(QVariant settlementTypes READ readSettlementTypes NOTIFY settlementTypesChanged)
@@ -38,6 +40,9 @@ public:
  
     QString getDescription() const;
     void setDescription(const QString &description);
+
+    QSize getTileSize() const;
+    void setTileSize(const QSize &tileSize);
 
     QList<const TerrainType *> getTerrainTypes() const;
     QList<TerrainType *> getTerrainTypes();
@@ -81,6 +86,7 @@ public:
 
 signals:
     void pathChanged();
+    void tileSizeChanged();
     void terrainTypesChanged();
     void unitTypesChanged();
     void settlementTypesChanged();
@@ -97,6 +103,7 @@ private:
 
     QString path;
     QString description;
+    QSize tileSize;
     QList<TerrainType *> terrainTypes;
     QList<UnitClass *> unitClasses;
     QList<DamageType *> damageTypes;

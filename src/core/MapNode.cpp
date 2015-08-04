@@ -7,33 +7,33 @@
 using namespace warmonger::core;
 
 const QHash<MapNode::Direction, QString> MapNode::direction2str{
-    std::make_pair(MapNode::North, "North"),
+    std::make_pair(MapNode::West, "West"),
+    std::make_pair(MapNode::NorthWest, "NorthWest"),
     std::make_pair(MapNode::NorthEast, "NorthEast"),
+    std::make_pair(MapNode::East, "East"),
     std::make_pair(MapNode::SouthEast, "SouthEast"),
-    std::make_pair(MapNode::South, "South"),
-    std::make_pair(MapNode::SouthWest, "SouthWest"),
-    std::make_pair(MapNode::NorthWest, "NorthWest")
+    std::make_pair(MapNode::SouthWest, "SouthWest")
 };
 
 const QHash<QString, MapNode::Direction> MapNode::str2direction{
-    std::make_pair("North", MapNode::North),
+    std::make_pair("West", MapNode::West),
+    std::make_pair("NorthWest", MapNode::NorthWest),
     std::make_pair("NorthEast", MapNode::NorthEast),
+    std::make_pair("East", MapNode::East),
     std::make_pair("SouthEast", MapNode::SouthEast),
-    std::make_pair("South", MapNode::South),
-    std::make_pair("SouthWest", MapNode::SouthWest),
-    std::make_pair("NorthWest", MapNode::NorthWest)
+    std::make_pair("SouthWest", MapNode::SouthWest)
 };
 
 MapNode::MapNode(QObject *parent) :
     GameObject(parent),
     terrainType(nullptr),
     neighbours({
-        std::make_pair(MapNode::North, nullptr),
+        std::make_pair(MapNode::West, nullptr),
+        std::make_pair(MapNode::NorthWest, nullptr),
         std::make_pair(MapNode::NorthEast, nullptr),
+        std::make_pair(MapNode::East, nullptr),
         std::make_pair(MapNode::SouthEast, nullptr),
-        std::make_pair(MapNode::South, nullptr),
-        std::make_pair(MapNode::SouthWest, nullptr),
-        std::make_pair(MapNode::NorthWest, nullptr)
+        std::make_pair(MapNode::SouthWest, nullptr)
     })
 {
 }

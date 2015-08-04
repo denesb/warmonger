@@ -28,20 +28,20 @@
             {
                 "nodeA": "mapNode0",
                 "nodeB": "mapNode1",
-                "directionA": "SouthEast",
-                "directionB": "NorthWest"
+                "directionA": "East",
+                "directionB": "West"
             },
             {
                 "nodeA": "mapNode0",
                 "nodeB": "mapNode2",
-                "directionA": "South",
-                "directionB": "North"
+                "directionA": "SouthEast",
+                "directionB": "NorthWest"
             },
             {
                 "nodeA": "mapNode1",
                 "nodeB": "mapNode3",
-                "directionA": "South",
-                "directionB": "North"
+                "directionA": "SouthEast",
+                "directionB": "NorthWest"
             },
             {
                 "nodeA": "mapNode1",
@@ -52,8 +52,8 @@
             {
                 "nodeA": "mapNode2",
                 "nodeB": "mapNode3",
-                "directionA": "SouthEast",
-                "directionB": "NorthWest"
+                "directionA": "East",
+                "directionB": "West"
             }
         ]
     },

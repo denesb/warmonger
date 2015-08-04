@@ -3,16 +3,16 @@
 /*
  * Constants
  */
-var TILE_SIZE = 128;
-var HEX_SIDE = 66
-var TILE_OVERLAP = (TILE_SIZE - HEX_SIDE) / 2;
+var TILE_WIDTH = 110;
+var TILE_HEIGHT = 128;
+var TILE_Y_DISP = TILE_HEIGHT - TILE_HEIGHT/4;
 var TILE_DISPLACEMENT = {
-    'North': {x: 0, y: -TILE_SIZE},
-    'NorthEast': {x: TILE_SIZE - TILE_OVERLAP, y: -TILE_SIZE/2},
-    'SouthEast': {x: TILE_SIZE - TILE_OVERLAP, y: TILE_SIZE/2},
-    'South': {x: 0, y: TILE_SIZE},
-    'SouthWest': {x: -(TILE_SIZE - TILE_OVERLAP), y: TILE_SIZE/2},
-    'NorthWest': {x: -(TILE_SIZE - TILE_OVERLAP), y: -TILE_SIZE/2}
+    'West': {x: -TILE_WIDTH, y: 0},
+    'NorthWest': {x: -TILE_WIDTH/2, y: -TILE_Y_DISP},
+    'NorthEast': {x: TILE_WIDTH/2, y: TILE_Y_DISP},
+    'East': {x: TILE_WIDTH, y: 0},
+    'SouthEast': {x: TILE_WIDTH/2, y: TILE_Y_DISP},
+    'SouthWest': {x: -TILE_WIDTH/2, y: -TILE_Y_DISP},
 };
 
 function newMap(app, map, canvas) {
@@ -22,8 +22,8 @@ function newMap(app, map, canvas) {
 /*
  * Map class.
  */
-var Map = function(map, canvas, warmonger) {
-    this.warmonger = warmonger;
+var Map = function(map, canvas, ui) {
+    this.ui = ui;
     this.map = map;
     this.canvas = canvas;
 
@@ -106,8 +106,6 @@ var MapNode = function(mapNode, x, y, parent) {
     this.borderImage = this.parent.map.world.getResourcePath("border");
     this.x = x;
     this.y = y;
-
-    this.hex = this.parent.warmonger.createHexagon(Qt.point(this.x, this.y), TILE_SIZE, HEX_SIDE);
 
     this.paint = function(ctx) {
         ctx.save();

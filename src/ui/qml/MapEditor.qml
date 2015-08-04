@@ -76,7 +76,7 @@ Rectangle {
                         ListView {
                             anchors.fill: parent
 
-                            model: warmonger.map.world.terrainTypes
+                            model: ui.map.world.terrainTypes
                             delegate: MapItem {
                                 onClicked: MapEditor.selectMapItem(model.modelData.objectName)
                             }
@@ -90,7 +90,7 @@ Rectangle {
                         ListView {
                             anchors.fill: parent
 
-                            model: warmonger.map.world.terrainTypes
+                            model: ui.map.world.terrainTypes
                             delegate: MapItem {
                                 onClicked: MapEditor.selectMapItem(model.modelData.objectName)
                             }
@@ -104,7 +104,7 @@ Rectangle {
                         ListView {
                             anchors.fill: parent
 
-                            model: warmonger.map.world.terrainTypes
+                            model: ui.map.world.terrainTypes
                             delegate: MapItem {
                                 onClicked: MapEditor.selectMapItem(model.modelData.objectName)
                             }

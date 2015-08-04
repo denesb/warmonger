@@ -6,6 +6,7 @@
 #include <QList>
 #include <QMap>
 #include <QPoint>
+#include <QSize>
 #include <QJsonValue>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -125,6 +126,21 @@ QJsonObject objectValueMapToJson(const QMap<const T *, int> &map)
         obj[instance->objectName()] = it.value();
     }
     
+    return std::move(obj);
+}
+
+inline QSize sizeFromJson(const QJsonObject &obj)
+{
+    return QSize(obj["width"].toInt(), obj["heigh"].toInt());
+}
+
+inline QJsonObject sizeToJson(const QSize &size)
+{
+    QJsonObject obj;
+
+    obj["width"] = size.width();
+    obj["height"] = size.height();
+
     return std::move(obj);
 }
 

@@ -44,8 +44,8 @@ Rectangle {
                 anchors.fill: parent
                 hoverEnabled: true
 
-                onClicked: map.mapObject.onClick(mouse)
-                onPositionChanged: map.mapObject.onPositionChange(mouse)
+                onClicked: map.mapObject.onClicked(mouse)
+                onPositionChanged: map.mapObject.onPositionChanged(mouse)
             }
         }
     }

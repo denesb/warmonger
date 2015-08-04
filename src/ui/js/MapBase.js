@@ -18,7 +18,7 @@ function displacement(dir, tileSize) {
  */
 var Map = function(ui, canvas) {
     this.ui = ui;
-    this.map = ui.map;
+    this.qobj = ui.map;
     this.canvas = canvas;
 
     this.mapNodes = [];
@@ -26,12 +26,12 @@ var Map = function(ui, canvas) {
     this.ready = false;
 
     this.loadResources();
-    this.createNode(this.map.mapNodes[0], 0, 0, {});
+    this.createNode(this.qobj.mapNodes[0], 0, 0, {});
 }
 
 Map.prototype.createNode = function(mapNode, x, y, visitedNodes) {
     visitedNodes[mapNode] = true;
-    var tileSize = this.ui.map.world.tileSize;
+    var tileSize = this.qobj.world.tileSize;
 
     this.mapNodes.push(new MapNode(mapNode, x, y, this));
 
@@ -54,7 +54,7 @@ Map.prototype.paint = function(region) {
 }
 
 Map.prototype.loadResources = function() {
-    var resourcePaths = this.map.world.resourcePaths;
+    var resourcePaths = this.qobj.world.resourcePaths;
     var path;
 
     for (var resource in resourcePaths) {
@@ -91,17 +91,26 @@ Map.prototype.onResourcesLoaded = function() {
     this.canvas.requestPaint();
 }
 
+Map.prototype.findMapNodeAt = function(point) {
+    for (var i = 0; i < this.mapNodes.length; i++) {
+        var mapNode = this.mapNodes[i];
+        if (mapNode.contains(point)) return mapNode;
+    }
+
+    return undefined;
+}
+
 /*
  * MapNode class.
  */
 var MapNode = function(mapNode, x, y, parent) {
     this.parent = parent;
-    this.mapNode = mapNode;
-    this.terrainImage = this.parent.map.world.getResourcePath(this.mapNode.terrainType.objectName);
-    this.borderImage = this.parent.map.world.getResourcePath("border");
+    this.qobj = mapNode;
+    this.terrainImage = this.parent.qobj.world.getResourcePath(this.qobj.terrainType.objectName);
+    this.borderImage = this.parent.qobj.world.getResourcePath("border");
     this.x = x;
     this.y = y;
-    this.boundingRect = Qt.rect(x, y, this.parent.map.world.tileSize.width, this.parent.map.world.tileSize.height);
+    this.boundingRect = Qt.rect(x, y, this.parent.qobj.world.tileSize.width, this.parent.qobj.world.tileSize.height);
 }
 
 MapNode.prototype.paint = function(ctx) {
@@ -113,4 +122,14 @@ MapNode.prototype.paint = function(ctx) {
     ctx.drawImage(this.borderImage, 0, 0);
 
     ctx.restore();
+}
+
+MapNode.prototype.transform = function(point) {
+    return Qt.point(point.x - this.x, point.y - this.y);
+}
+
+MapNode.prototype.contains = function(point) {
+    var localP = this.transform(point);
+
+    return this.parent.ui.hexContains(localP);
 }

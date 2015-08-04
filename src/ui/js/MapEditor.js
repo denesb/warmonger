@@ -12,9 +12,16 @@ var EditableMap = function(ui, canvas) {
 EditableMap.prototype = Object.create(MapBase.Map.prototype);
 EditableMap.prototype.constructor = EditableMap;
 
-EditableMap.prototype.onClick = function(mouse) {
-    console.log(mouse);
+EditableMap.prototype.onClicked = function(mouse) {
+    var point = Qt.point(mouse.x, mouse.y);
+
+    var mapNode = this.findMapNodeAt(point);
+    if (mapNode) console.log(mapNode.qobj.objectName);
 }
 
-EditableMap.prototype.onPositionChange = function(mouse) {
+EditableMap.prototype.onPositionChanged = function(mouse) {
+    var point = Qt.point(mouse.x, mouse.y);
+
+    var mapNode = this.findMapNodeAt(point);
+    if (mapNode) console.log(mapNode.qobj.objectName);
 }

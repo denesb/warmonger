@@ -49,7 +49,6 @@ Q_INVOKABLE bool UserInterface::hexContains(const QPoint &p) const
         return false;
 
     QRgb pixel = this->hexMask.pixel(x, y);
-    wDebug("ui.UserInterface") << p << ": " << pixel;
     if (pixel != 0xffffffff)
         return false;
 

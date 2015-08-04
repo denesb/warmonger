@@ -97,7 +97,7 @@ OTHER_FILES += \
 
 # js
 OTHER_FILES += \
-    src/ui/js/Map.js \
+    src/ui/js/MapBase.js \
     src/ui/js/MapEditor.js
 
 # deplyment

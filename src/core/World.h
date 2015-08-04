@@ -23,8 +23,8 @@ class World :
 {
     Q_OBJECT
     Q_PROPERTY(QString path READ getPath NOTIFY pathChanged);
-    Q_PROPERTY(QString description READ getDescription);
-    Q_PROPERTY(QSize tileSize READ getTileSize);
+    Q_PROPERTY(QString description READ getDescription NOTIFY descriptionChanged);
+    Q_PROPERTY(QSize tileSize READ getTileSize NOTIFY tileSizeChanged);
     Q_PROPERTY(QVariant terrainTypes READ readTerrainTypes NOTIFY terrainTypesChanged)
     Q_PROPERTY(QVariant unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
     Q_PROPERTY(QVariant settlementTypes READ readSettlementTypes NOTIFY settlementTypesChanged)
@@ -86,6 +86,7 @@ public:
 
 signals:
     void pathChanged();
+    void descriptionChanged();
     void tileSizeChanged();
     void terrainTypesChanged();
     void unitTypesChanged();

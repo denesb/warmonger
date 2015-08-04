@@ -5,8 +5,6 @@ import QtQuick.Layouts 1.1
 import "js/MapEditor.js" as MapEditor
 
 Rectangle {
-    Component.onCompleted: {
-    }
     Rectangle {
         id: mapEditorStatusBar
         anchors.left: parent.left
@@ -16,8 +14,9 @@ Rectangle {
         color: "green"
     }
 
-    Map {
-        id: mapEditorMap
+    Rectangle {
+        id: map
+
         anchors {
             left: parent.left
             top: mapEditorStatusBar.bottom
@@ -30,8 +29,25 @@ Rectangle {
             color: "black"
         }
 
-        onClicked: console.log(mouse)
-        onPositionChanged: console.log(mouse)
+        property var mapObject
+
+        Component.onCompleted: {
+            map.mapObject = new MapEditor.EditableMap(ui, mapCanvas)
+        }
+        Canvas {
+            id: mapCanvas
+            anchors.fill: parent
+            onPaint: map.mapObject.paint(region)
+            onImageLoaded: map.mapObject.onResourceLoaded()
+
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+
+                onClicked: map.mapObject.onClick(mouse)
+                onPositionChanged: map.mapObject.onPositionChange(mouse)
+            }
+        }
     }
 
     Rectangle {

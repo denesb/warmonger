@@ -53,7 +53,11 @@ QString World::getDescription() const
 
 void World::setDescription(const QString &description)
 {
-    this->description = description;
+    if (this->description != description)
+    {
+        this->description = description;
+        emit descriptionChanged();
+    }
 }
 
 QSize World::getTileSize() const

@@ -131,7 +131,7 @@ QJsonObject objectValueMapToJson(const QMap<const T *, int> &map)
 
 inline QSize sizeFromJson(const QJsonObject &obj)
 {
-    return QSize(obj["width"].toInt(), obj["heigh"].toInt());
+    return QSize(obj["width"].toInt(), obj["height"].toInt());
 }
 
 inline QJsonObject sizeToJson(const QSize &size)

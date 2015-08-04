@@ -1,18 +1,20 @@
-function createMapItem(obj, container) {
-    var component = Qt.createComponent("MapItem.qml");
-    var iconPath = warmonger.map.world.resources.getPath(obj.objectName + "_icon");
-    var mapItem = component.createObject(container, {"iconSource": iconPath});
+.pragma library
 
-    if (mapItem == null) {
-         console.log("Error creating object");
-    }
+.import 'MapBase.js' as MapBase
+
+/*
+ * EditableMap class
+ */
+var EditableMap = function(ui, canvas) {
+    MapBase.Map.call(this, ui, canvas);
 }
 
-function init() {
-    var terrainTypes = warmonger.map.world.terrainTypes;
-    var terrainType;
+EditableMap.prototype = Object.create(MapBase.Map.prototype);
+EditableMap.prototype.constructor = EditableMap;
+
+EditableMap.prototype.onClick = function(mouse) {
+    console.log(mouse);
 }
 
-function selectMapItem(objectName) {
-    console.log(objectName);
+EditableMap.prototype.onPositionChange = function(mouse) {
 }

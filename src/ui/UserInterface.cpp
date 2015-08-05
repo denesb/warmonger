@@ -45,7 +45,7 @@ Q_INVOKABLE bool UserInterface::hexContains(const QPoint &p) const
     int y = p.y();
     const QSize tileSize = world->getTileSize();
 
-    if (x < 0 || x > tileSize.width() || y < 0 || y > tileSize.height())
+    if (x < 0 || x >= tileSize.width() || y < 0 || y >= tileSize.height())
         return false;
 
     QRgb pixel = this->hexMask.pixel(x, y);

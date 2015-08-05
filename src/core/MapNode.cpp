@@ -101,6 +101,10 @@ QVariantMap MapNode::readNeighbours() const
             MapNode *neighbour = const_cast<MapNode *>(it.value());
             vmap.insert(MapNode::direction2str[it.key()], QVariant::fromValue<QObject *>(neighbour));
         }
+        else
+        {
+            vmap.insert(MapNode::direction2str[it.key()], QVariant());
+        }
     }
 
     return std::move(vmap);

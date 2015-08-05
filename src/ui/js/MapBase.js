@@ -3,10 +3,10 @@
 function displacement(dir, tileSize) {
     if (dir == 'West') return {x: -tileSize.width, y: 0};
     if (dir == 'NorthWest') return {x: -tileSize.width/2, y: -tileSize.height * 3/4};
-    if (dir == 'NorthEast') return {x: tileSize.width/2, y: tileSize.height * 3/4};
+    if (dir == 'NorthEast') return {x: tileSize.width/2, y: -tileSize.height * 3/4};
     if (dir == 'East') return {x: tileSize.width, y: 0};
     if (dir == 'SouthEast') return {x: tileSize.width/2, y: tileSize.height * 3/4};
-    if (dir == 'SouthWest') return {x: -tileSize.width/2, y: -tileSize.height * 3/4};
+    if (dir == 'SouthWest') return {x: -tileSize.width/2, y: tileSize.height * 3/4};
 
     err = "Unknown direction: " + dir;
     console.error(err);
@@ -25,20 +25,27 @@ var Map = function(ui, canvas) {
     this.loadQueue = [];
     this.ready = false;
 
+    this.dirtyMapNodes = [];
+
     this.loadResources();
-    this.createNode(this.qobj.mapNodes[0], 0, 0, {});
+
+    var canvasSize = this.canvas.canvasSize;
+    this.createNode(this.qobj.mapNodes[0], canvasSize.width / 2, canvasSize.height / 2, {});
+    this.canvas.requestPaint();
 }
 
 Map.prototype.createNode = function(mapNode, x, y, visitedNodes) {
     visitedNodes[mapNode] = true;
     var tileSize = this.qobj.world.tileSize;
 
-    this.mapNodes.push(new MapNode(mapNode, x, y, this));
+    var newMapNode = new MapNode(mapNode, x, y, this);
+    this.mapNodes.push(newMapNode);
+    this.dirtyMapNodes.push(newMapNode);
 
     for (var direction in mapNode.neighbours) {
         var neighbour = mapNode.neighbours[direction];
 
-        if (neighbour in visitedNodes) continue;
+        if (neighbour == undefined || neighbour in visitedNodes) continue;
 
         var d = displacement(direction, tileSize);
         this.createNode(neighbour, x + d.x, y + d.y, visitedNodes);
@@ -48,9 +55,11 @@ Map.prototype.createNode = function(mapNode, x, y, visitedNodes) {
 Map.prototype.paint = function(region) {
     var ctx = this.canvas.getContext("2d");
 
-    for (var i = 0; i < this.mapNodes.length; i++) {
-        this.mapNodes[i].paint(ctx);
+    for (var i = 0; i < this.dirtyMapNodes.length; i++) {
+        this.dirtyMapNodes[i].paint(ctx);
     }
+
+    this.dirtyMapNodes.splice(0, this.dirtyMapNodes.length - 1);
 }
 
 Map.prototype.loadResources = function() {
@@ -100,6 +109,12 @@ Map.prototype.findMapNodeAt = function(point) {
     return undefined;
 }
 
+Map.prototype.markDirty = function(mapNode) {
+    this.dirtyMapNodes.push(mapNode);
+
+    this.canvas.requestPaint();
+}
+
 /*
  * MapNode class.
  */
@@ -107,10 +122,10 @@ var MapNode = function(mapNode, x, y, parent) {
     this.parent = parent;
     this.qobj = mapNode;
     this.terrainImage = this.parent.qobj.world.getResourcePath(this.qobj.terrainType.objectName);
-    this.borderImage = this.parent.qobj.world.getResourcePath("border");
     this.x = x;
     this.y = y;
-    this.boundingRect = Qt.rect(x, y, this.parent.qobj.world.tileSize.width, this.parent.qobj.world.tileSize.height);
+    this.focused = false;
+    this.dirty = true;
 }
 
 MapNode.prototype.paint = function(ctx) {
@@ -119,7 +134,10 @@ MapNode.prototype.paint = function(ctx) {
     ctx.translate(this.x, this.y)
 
     ctx.drawImage(this.terrainImage, 0, 0);
-    ctx.drawImage(this.borderImage, 0, 0);
+    if (this.focused)
+        ctx.drawImage(this.parent.qobj.world.getResourcePath("border_highlighted"), 0, 0);
+    else
+        ctx.drawImage(this.parent.qobj.world.getResourcePath("border"), 0, 0);
 
     ctx.restore();
 }
@@ -132,4 +150,16 @@ MapNode.prototype.contains = function(point) {
     var localP = this.transform(point);
 
     return this.parent.ui.hexContains(localP);
+}
+
+MapNode.prototype.onMouseIn = function() {
+    this.focused = true;
+    this.dirty = true;
+    this.parent.markDirty(this);
+}
+
+MapNode.prototype.onMouseOut = function() {
+    this.focused = false;
+    this.dirty = true;
+    this.parent.markDirty(this);
 }

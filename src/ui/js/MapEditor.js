@@ -8,6 +8,8 @@
 var EditableMap = function(ui, canvas) {
     MapBase.Map.call(this, ui, canvas);
 
+    this.mapEditor = this.ui.mapEditor(this.qobj);
+
     this.phantomMapNodes = [];
     this.focusedNode = undefined;
 
@@ -70,6 +72,18 @@ EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) 
         this.phantomMapNodes[pos] = phantomMapNode;
         this.dirtyMapNodes.push(phantomMapNode);
     }
+}
+
+EditableMap.prototype.onSelectedTerrainType = function(objectName) {
+    console.log("selected terrainType: " + objectName);
+}
+
+EditableMap.prototype.onSelectedSettlementType = function(objectName) {
+    console.log("selected settlementType: " + objectName);
+}
+
+EditableMap.prototype.onSelectedUnitType = function(objectName) {
+    console.log("selected unitType: " + objectName);
 }
 
 /*

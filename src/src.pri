@@ -30,6 +30,7 @@ HEADERS += \
     src/core/JsonUtil.hpp \
     src/core/Loader.hpp \
     src/core/Map.h \
+    src/core/MapEditor.h \
     src/core/MapNode.h \
     src/core/Player.h \
     src/core/Settlement.h \
@@ -70,6 +71,7 @@ SOURCES += \
     src/core/Faction.cpp \
     src/core/GameObject.cpp \
     src/core/Map.cpp \
+    src/core/MapEditor.cpp \
     src/core/MapNode.cpp \
     src/core/Player.cpp \
     src/core/Settlement.cpp \

@@ -22,6 +22,7 @@ public:
     QVariant readMap() const;
 
     Q_INVOKABLE bool hexContains(const QPoint &p) const;
+    Q_INVOKABLE QVariant mapEditor(QObject *map);
 
 signals:
     void mapChanged();

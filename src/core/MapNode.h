@@ -1,5 +1,5 @@
-#ifndef CORE_MAP_TILE_H
-#define CORE_MAP_TILE_H
+#ifndef CORE_MAP_NODE_H
+#define CORE_MAP_NODE_H
 
 #include <QObject>
 #include <QJsonObject>
@@ -70,4 +70,4 @@ private:
 } // namespace core
 } // namespace warmonger
 
-#endif // CORE_MAP_TILE_H
+#endif // CORE_MAP_NODE_H

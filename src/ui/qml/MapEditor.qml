@@ -32,7 +32,9 @@ Rectangle {
         property var mapObject
 
         Component.onCompleted: {
-            map.mapObject = new MapEditor.EditableMap(ui, mapCanvas)
+            var editableMap = new MapEditor.EditableMap(ui, mapCanvas)
+            map.mapObject = editableMap
+            mapEditorControls.terrainTypeSelected.connect(editableMap.onSelectedTerrainType)
         }
         Canvas {
             id: mapCanvas
@@ -75,6 +77,9 @@ Rectangle {
 
         Rectangle {
             id: mapEditorControls
+
+            signal terrainTypeSelected(string objectName)
+
             anchors {
                 top: mapEditorMiniMap.bottom
                 right: parent.right
@@ -94,7 +99,7 @@ Rectangle {
 
                             model: ui.map.world.terrainTypes
                             delegate: MapItem {
-                                onClicked: MapEditor.selectMapItem(model.modelData.objectName)
+                                onClicked: mapEditorControls.terrainTypeSelected(model.modelData.objectName)
                             }
                         }
                     }
@@ -108,7 +113,6 @@ Rectangle {
 
                             model: ui.map.world.terrainTypes
                             delegate: MapItem {
-                                onClicked: MapEditor.selectMapItem(model.modelData.objectName)
                             }
                         }
                     }
@@ -122,7 +126,6 @@ Rectangle {
 
                             model: ui.map.world.terrainTypes
                             delegate: MapItem {
-                                onClicked: MapEditor.selectMapItem(model.modelData.objectName)
                             }
                         }
 

@@ -16,6 +16,7 @@ public:
         // 0x0000 -> 0x0100 General errors
         General = 0x0000,
         NullPointer,
+        WrongType,
         // 0x0100 -> 0x0200 IO errors
         IO = 0x0002,
         FileNotFound,

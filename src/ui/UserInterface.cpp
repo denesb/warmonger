@@ -1,9 +1,11 @@
 #include <QQmlContext>
 #include <QColor>
 
-#include "UserInterface.h"
-#include "core/Exception.h"
 #include "log/LogStream.h"
+#include "core/Exception.h"
+#include "core/MapEditor.h"
+#include "core/Map.h"
+#include "UserInterface.h"
 
 using namespace warmonger::ui;
 
@@ -53,6 +55,20 @@ Q_INVOKABLE bool UserInterface::hexContains(const QPoint &p) const
         return false;
 
     return true;
+}
+
+QVariant UserInterface::mapEditor(QObject *map)
+{
+    core::Map *m = qobject_cast<core::Map *>(map);
+    if (m == nullptr)
+    {
+        core::Exception e(core::Exception::NullPointer);
+        wError("ui.UserInterface") << e.getMessage() << " map is null or has wrong type";
+        throw e;
+    }
+
+    QObject *mapEditor = new core::MapEditor(m, this);
+    return QVariant::fromValue<QObject *>(mapEditor);
 }
 
 // FIXME: will need to get rid of this

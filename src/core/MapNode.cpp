@@ -81,15 +81,6 @@ void MapNode::setNeighbour(MapNode::Direction direction, const MapNode *neighbou
     }
 }
 
-void MapNode::setNeighbours(const QHash<MapNode::Direction, const MapNode *> &neighbours)
-{
-    if (this->neighbours != neighbours)
-    {
-        this->neighbours = neighbours;
-        emit neighboursChanged();
-    }
-}
-
 QVariantMap MapNode::readNeighbours() const
 {
     QVariantMap vmap;

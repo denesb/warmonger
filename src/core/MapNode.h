@@ -52,7 +52,6 @@ public:
     const MapNode * getNeighbour(Direction direction) const;
     const QHash<Direction, const MapNode *> getNeighbours() const;
     void setNeighbour(Direction direction, const MapNode *neighbour);
-    void setNeighbours(const QHash<Direction, const MapNode *> &neighbours);
     QVariantMap readNeighbours() const;
 
 signals:

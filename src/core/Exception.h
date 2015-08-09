@@ -13,17 +13,17 @@ class Exception
 public:
     enum ErrorCode
     {
-        // 0x0000 -> 0x0100 General errors
+        // 0x0000 -> 0x00ff General errors
         General = 0x0000,
         NullPointer,
         WrongType,
-        // 0x0100 -> 0x0200 IO errors
-        IO = 0x0002,
+        // 0x0100 -> 0x01ff IO errors
+        IO = 0x0100,
         FileNotFound,
         FileOpenFailed,
         FileReadFailed,
-        // 0x0200 -> 0x0300 Serialization (from and to JSON) related errors
-        Serialization = 0x0100,
+        // 0x0200 -> 0x02ff Serialization (from and to JSON) related errors
+        Serialization = 0x0200,
         JsonParse,
         UnresolvedReference,
         ResourceLoadFailed,

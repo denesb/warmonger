@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+#include "core/MapNode.h"
+
 namespace warmonger {
 namespace core {
 
@@ -17,7 +19,9 @@ public:
     MapEditor(Map *map, QObject *parent);
     ~MapEditor();
 
-    Q_INVOKABLE void createMapNode(QObject *terrainType, QVariantMap &neighbours);
+    void createMapNode(const TerrainType *terrainType, const QHash<MapNode::Direction, const MapNode *> &neighbours);
+    Q_INVOKABLE void createMapNode(QObject *terrainType, QVariant neighbours);
+
     Q_INVOKABLE void changeMapNodeTerrainType(QObject *mapNode, QObject *newTerrainType);
 
 private:

@@ -15,21 +15,46 @@ MapEditor::~MapEditor()
 {
 }
 
-void MapEditor::createMapNode(QObject *terrainType, QVariantMap &neighbours)
+void MapEditor::createMapNode(const TerrainType *terrainType, const QHash<MapNode::Direction, const MapNode *> &neighbours)
 {
-    MapNode *newMapNode = new MapNode(this->map);
+    if (neighbours.empty())
+    {
+        Exception e(Exception::InvalidValue, {"empty QMap", "neighbours"});
+        wError("core.MapEditor") << e.getMessage();
+        throw e;
+    }
 
+    MapNode *newMapNode = new MapNode(this->map);
+    newMapNode->setTerrainType(terrainType);
+
+    QHash<MapNode::Direction, const MapNode *>::ConstIterator it;
+    for (it = neighbours.constBegin(); it != neighbours.constEnd(); it++)
+    {
+        newMapNode->setNeighbour(it.key(), it.value());
+    }
+}
+
+void MapEditor::createMapNode(QObject *terrainType, QVariant neighbours)
+{
     TerrainType *tt = qobject_cast<TerrainType *>(terrainType);
     if (tt == nullptr)
     {
-        Exception e(Exception::NullPointer);
-        wError("core.MapEditor") << e.getMessage() << " terrainType is null or has wrong type";
+        Exception e(Exception::NullPointer, {"terrainType"});
+        wError("core.MapEditor") << e.getMessage();
         throw e;
     }
-    newMapNode->setTerrainType(tt);
+
+    if (!neighbours.canConvert(QMetaType::QVariantMap))
+    {
+        Exception e(Exception::WrongType, {"neighbours", "QVariantMap", "?"});
+        wError("core.MapEditor") << e.getMessage();
+        throw e;
+    }
+    QVariantMap neighboursMap = neighbours.toMap();
+    QHash<MapNode::Direction, const MapNode *> nm;
 
     QVariantMap::ConstIterator it;
-    for (it = neighbours.constBegin(); it != neighbours.constEnd(); it++)
+    for (it = neighboursMap.constBegin(); it != neighboursMap.constEnd(); it++)
     {
         QString directionName = it.key();
         if (!MapNode::str2direction.contains(directionName))
@@ -41,17 +66,18 @@ void MapEditor::createMapNode(QObject *terrainType, QVariantMap &neighbours)
         MapNode::Direction direction = MapNode::str2direction[directionName];
         
         QVariant v = it.value();
-
         if (!v.canConvert<MapNode *>())
         {
-            Exception e(Exception::WrongType);
+            Exception e(Exception::WrongType, {"mapNode", "MapNode *", "?"});
             wError("core.MapEditor") << e.getMessage();
             throw e;
         }
 
         MapNode *neighbour = v.value<MapNode *>();
-        newMapNode->setNeighbour(direction, neighbour);
+        nm.insert(direction, neighbour);
     }
+
+    this->createMapNode(tt, nm);
 }
 
 void MapEditor::changeMapNodeTerrainType(QObject *mapNode, QObject *newTerrainType)

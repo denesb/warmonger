@@ -4,8 +4,8 @@ using namespace warmonger::core;
 
 const QMap<Exception::ErrorCode, QString> Exception::messageDefinitions = {
     std::make_pair(Exception::General, QStringLiteral("General exception")),
-    std::make_pair(Exception::NullPointer, QStringLiteral("Null pointer exception")),
-    std::make_pair(Exception::WrongType, QStringLiteral("Object has wrong type")),
+    std::make_pair(Exception::NullPointer, QStringLiteral("%1 is null")),
+    std::make_pair(Exception::WrongType, QStringLiteral("Object %1 has wrong type, expected: %2, got: %3")),
     std::make_pair(Exception::IO, QStringLiteral("IO error")),
     std::make_pair(Exception::FileNotFound, QStringLiteral("File %1 not found")),
     std::make_pair(Exception::FileOpenFailed, QStringLiteral("Cannot open file %1")),
@@ -14,7 +14,7 @@ const QMap<Exception::ErrorCode, QString> Exception::messageDefinitions = {
     std::make_pair(Exception::JsonParse, QStringLiteral("Json parse error while parsing %1: %2")),
     std::make_pair(Exception::UnresolvedReference, QStringLiteral("Unable to resolve reference to <%1>%2")),
     std::make_pair(Exception::ResourceLoadFailed, QStringLiteral("Failed to load resource <%1>%2")),
-    std::make_pair(Exception::InvalidValue, QStringLiteral("Invalid value %1 for %2"))
+    std::make_pair(Exception::InvalidValue, QStringLiteral("Value %1 is invalid for %2"))
 };
 
 Exception::Exception(ErrorCode code, const QStringList &args) :

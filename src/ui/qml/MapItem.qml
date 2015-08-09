@@ -14,7 +14,7 @@ Rectangle {
         radius: 5
         border {
             width: 1
-            color: "black"
+            color: mapItem.ListView.isCurrentItem ? "orange" : "black"
         }
         anchors {
             verticalCenter: parent.verticalCenter
@@ -43,6 +43,7 @@ Rectangle {
                 leftMargin: 10
                 verticalCenter: parent.verticalCenter
             }
+            color: mapItem.ListView.isCurrentItem ? "orange" : "black"
             text: model.modelData.displayName
         }
 
@@ -50,7 +51,10 @@ Rectangle {
             id: mouseArea
             anchors.fill: parent
 
-            onClicked: mapItem.clicked(model.modelData.objectName)
+            onClicked: {
+                mapItem.ListView.view.currentIndex = index
+                mapItem.clicked(model.modelData.objectName)
+            }
         }
     }
 }

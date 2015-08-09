@@ -12,15 +12,15 @@
             },
             {
                 "objectName": "mapNode1",
-                "terrainType": "plains"
+                "terrainType": "forest"
             },
             {
                 "objectName": "mapNode2",
-                "terrainType": "plains"
+                "terrainType": "hills"
             },
             {
                 "objectName": "mapNode3",
-                "terrainType": "plains"
+                "terrainType": "mountains"
             }
         ],
     

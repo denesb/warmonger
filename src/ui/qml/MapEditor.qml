@@ -2,9 +2,20 @@ import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Layouts 1.1
 
+import "js/EditableMap.js" as EditableMap
 import "js/MapEditor.js" as MapEditor
 
 Rectangle {
+    id: mapEditor
+    property var jobj
+
+    Component.onCompleted: {
+        mapEditor.jobj = new MapEditor.MapEditor(ui, map, mapItemTypes);
+
+        mapEditorControls.terrainTypeSelected.connect(mapEditor.jobj.onSelectedTerrainType.bind(mapEditor.jobj));
+        map.mapNodeClicked.connect(mapEditor.jobj.onMapNodeClicked.bind(mapEditor.jobj));
+    }
+
     Rectangle {
         id: mapEditorStatusBar
         anchors.left: parent.left
@@ -16,6 +27,14 @@ Rectangle {
 
     Rectangle {
         id: map
+        property var jobj
+
+        signal mapNodeClicked(var mapNode)
+
+        Component.onCompleted: {
+            map.jobj = new EditableMap.EditableMap(ui, mapCanvas);
+            map.jobj.mapNodeClicked = map.mapNodeClicked;
+        }
 
         anchors {
             left: parent.left
@@ -29,25 +48,18 @@ Rectangle {
             color: "black"
         }
 
-        property var mapObject
-
-        Component.onCompleted: {
-            var editableMap = new MapEditor.EditableMap(ui, mapCanvas)
-            map.mapObject = editableMap
-            mapEditorControls.terrainTypeSelected.connect(editableMap.onSelectedTerrainType)
-        }
         Canvas {
             id: mapCanvas
             anchors.fill: parent
-            onPaint: map.mapObject.paint(region)
-            onImageLoaded: map.mapObject.onResourceLoaded()
+            onPaint: map.jobj.paint(region)
+            onImageLoaded: map.jobj.onResourceLoaded()
 
             MouseArea {
                 anchors.fill: parent
                 hoverEnabled: true
 
-                onClicked: map.mapObject.onClicked(mouse)
-                onPositionChanged: map.mapObject.onPositionChanged(mouse)
+                onClicked: map.jobj.onClicked(mouse)
+                onPositionChanged: map.jobj.onPositionChanged(mouse)
             }
         }
     }
@@ -88,6 +100,7 @@ Rectangle {
             }
 
             TabView {
+                id: mapItemTypes
                 anchors.fill: parent
 
                 Tab {

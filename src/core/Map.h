@@ -5,12 +5,12 @@
 #include <QString>
 
 #include "core/GameObject.h"
+#include "core/MapNode.h"
 
 namespace warmonger {
 namespace core {
 
 class World;
-class MapNode;
 class Player;
 class Unit;
 class Settlement;
@@ -29,6 +29,7 @@ class Map :
 
 public:
     static const QString DefinitionFile;
+    static const QString mapNodeNameTemplate;
 
     Map(QObject *parent);
     ~Map();
@@ -63,9 +64,16 @@ public:
     void setSettlements(const QList<Settlement *> &settlements);
     QVariant readSettlements() const;
 
+    void createMapNode(const TerrainType *terrainType, const QHash<MapNode::Direction, MapNode *> &neighbours);
+    Q_INVOKABLE void createMapNode(QObject *terrainType, QVariant neighbours);
+    Q_INVOKABLE void changeMapNodeTerrainType(QObject *mapNode, QObject *newTerrainType);
+
 signals:
     void worldChanged();
     void mapNodesChanged();
+    void mapNodeCreated(QObject *mapNode);
+    void mapNodeRemoved(QObject *mapNode);
+    void mapNodeChanged(QObject *mapNode);
 
 private:
     void dataFromJson(const QJsonObject &obj);
@@ -77,6 +85,7 @@ private:
     QString path;
     QString description;
     const World *world;
+    int mapNodeIndex;
     QList<MapNode *> mapNodes;
     QList<Player *> players;
     QList<Unit *> units;

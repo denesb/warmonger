@@ -3,6 +3,9 @@
 
 #include <QTextStream>
 #include <QPoint>
+#include <QJsonValue>
+#include <QJsonObject>
+#include <QJsonArray>
 
 #include "log/Logger.h"
 
@@ -40,7 +43,13 @@ public:
     LogStream& operator<<(const char * string);
     LogStream& operator<<(const void * ptr);
 
+    LogStream& operator<<(bool b);
+
     LogStream& operator<<(const QPoint &point);
+
+    LogStream& operator<<(const QJsonValue &value);
+    LogStream& operator<<(const QJsonObject &obj);
+    LogStream& operator<<(const QJsonArray &array);
 
 private:
     QTextStream textStream;

@@ -119,8 +119,84 @@ LogStream& LogStream::operator<<(const void * ptr)
     return *this;
 }
 
+LogStream& LogStream::operator<<(bool b)
+{
+    static const QString trueStr("true");
+    static const QString falseStr("false");
+    this->textStream << (b ? trueStr : falseStr);
+
+    return *this;
+}
+
 LogStream& LogStream::operator<<(const QPoint &point)
 {
     this->textStream << "(" << point.x() << "," << point.y() << ")";
+    return *this;
+}
+
+LogStream& LogStream::operator<<(const QJsonValue &value)
+{
+    switch(value.type())
+    {
+        case QJsonValue::Object:
+            *this << value.toObject();
+            break;
+        case QJsonValue::Array:
+            *this << value.toArray();
+            break;
+        case QJsonValue::String:
+            this->textStream << "\"" << value.toString() << "\"";
+            break;
+        case QJsonValue::Double:
+            this->textStream << value.toDouble();
+            break;
+        case QJsonValue::Bool:
+            *this << value.toBool();
+            break;
+        case QJsonValue::Null:
+        default:
+            break;
+    }
+
+    return *this;
+}
+
+LogStream& LogStream::operator<<(const QJsonObject &obj)
+{
+    this->textStream << "{";
+
+    QJsonObject::ConstIterator it;
+    for (it = obj.constBegin(); it != obj.constEnd(); it++)
+    {
+        this->textStream << "\"" << it.key() << "\":";
+        *this << it.value();
+
+        QJsonObject::ConstIterator next = it + 1;
+        if (next != obj.constEnd())
+        {
+            this->textStream << ",";
+        }
+    }
+
+    this->textStream << "}";
+
+    return *this;
+}
+
+LogStream& LogStream::operator<<(const QJsonArray &array)
+{
+    this->textStream << "[";
+    QJsonObject::ConstIterator it;
+    for (int i = 0; i < array.size(); i++)
+    {
+        *this << array[i];
+
+        if (i + 1 < array.size())
+        {
+            this->textStream << ",";
+        }
+    }
+    this->textStream << "]";
+
     return *this;
 }

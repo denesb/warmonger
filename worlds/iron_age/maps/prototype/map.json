@@ -3,6 +3,7 @@
     "displayName": "Prototype map",
     "description": "Experimental development map",
     "world": "iron_age",
+    "mapNodeIndex": 3,
 
     "mapNodes": {
         "nodes": [

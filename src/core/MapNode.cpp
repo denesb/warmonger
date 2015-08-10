@@ -24,6 +24,15 @@ const QHash<QString, MapNode::Direction> MapNode::str2direction{
     std::make_pair("SouthWest", MapNode::SouthWest)
 };
 
+const QHash<MapNode::Direction, MapNode::Direction> MapNode::oppositeDirections{
+    std::make_pair(MapNode::West, MapNode::East),
+    std::make_pair(MapNode::NorthWest, MapNode::SouthEast),
+    std::make_pair(MapNode::NorthEast, MapNode::SouthWest),
+    std::make_pair(MapNode::East, MapNode::West),
+    std::make_pair(MapNode::SouthEast, MapNode::NorthWest),
+    std::make_pair(MapNode::SouthWest, MapNode::NorthEast)
+};
+
 MapNode::MapNode(QObject *parent) :
     GameObject(parent),
     terrainType(nullptr),
@@ -99,6 +108,21 @@ QVariantMap MapNode::readNeighbours() const
     }
 
     return std::move(vmap);
+}
+
+QString MapNode::oppositeDirection(QString directionStr) const
+{
+    if (!MapNode::str2direction.contains(directionStr))
+    {
+        Exception e(Exception::InvalidValue, {directionStr, "MapNode::Direction"});
+        wError("core.MapNode") << e.getMessage();
+        throw e;
+    }
+
+    Direction direction = MapNode::str2direction[directionStr];
+    Direction oppositeDirection = MapNode::oppositeDirections[direction];
+
+    return MapNode::direction2str[oppositeDirection];
 }
 
 void MapNode::dataFromJson(const QJsonObject &obj)

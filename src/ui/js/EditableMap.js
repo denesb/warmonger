@@ -2,26 +2,12 @@
 
 .import 'MapBase.js' as MapBase
 
-function oppositeDirection(dir) {
-    if (dir == 'West') return 'East';
-    if (dir == 'NorthWest') return 'SouthEast';
-    if (dir == 'NorthEast') return 'SouthWest';
-    if (dir == 'East') return 'West';
-    if (dir == 'SouthEast') return 'NorthWest';
-    if (dir == 'SouthWest') return 'NorthEast';
-
-    err = "Unknown direction: " + dir;
-    console.error(err);
-    throw err;
-}
-
 /*
  * EditableMap class
  */
 var EditableMap = function(ui, canvas) {
     MapBase.Map.call(this, ui, canvas);
 
-    this.mapEditor = this.ui.mapEditor(this.qobj);
     this.phantomMapNodes = [];
     this.focusedNode = undefined;
     this.mapNodeClicked = undefined;
@@ -94,7 +80,8 @@ EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) 
         this.dirtyMapNodes.push(phantomMapNode);
     }
 
-    phantomMapNode.neighbours[oppositeDirection(direction)] = neighbourMapNode;
+    var oppositeDirection = neighbourMapNode.qobj.oppositeDirection(direction);
+    phantomMapNode.neighbours[oppositeDirection] = neighbourMapNode;
 }
 
 /*

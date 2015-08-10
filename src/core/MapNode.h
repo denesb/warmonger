@@ -41,6 +41,7 @@ public:
     };
     static const QHash<QString, Direction> str2direction;
     static const QHash<Direction, QString> direction2str;
+    static const QHash<Direction, Direction> oppositeDirections;
 
     MapNode(QObject *parent);
     ~MapNode();
@@ -53,6 +54,8 @@ public:
     const QHash<Direction, const MapNode *> getNeighbours() const;
     void setNeighbour(Direction direction, const MapNode *neighbour);
     QVariantMap readNeighbours() const;
+
+    Q_INVOKABLE QString oppositeDirection(QString directionStr) const;
 
 signals:
     void terrainTypeChanged();

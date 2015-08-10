@@ -5,11 +5,10 @@
 /*
  * MapEditor class
  */
-var MapEditor = function(ui, map, mapItemTypes) {
+var MapEditor = function(ui, mapElement, mapItemTypesElement) {
     this.ui = ui;
-    this.map = map;
-    this.mapItemTypes = mapItemTypes;
-    this.qobj = ui.mapEditor(ui.map);
+    this.mapElement = mapElement;
+    this.mapItemTypesElement = mapItemTypesElement;
     this.currentTerrainType = undefined;
     this.terrainTypeMap = {};
 
@@ -34,7 +33,7 @@ MapEditor.prototype.onSelectedUnitType = function(objectName) {
 }
 
 MapEditor.prototype.onMapNodeClicked = function(mapNode) {
-    console.log("clicked map node - yuppeee " + this.mapItemTypes.currentIndex);
+    console.log("clicked map node - yuppeee " + this.mapItemTypesElement.currentIndex);
     if (mapNode.isPhantom) {
 
         var neighbours = mapNode.neighbours;
@@ -46,7 +45,7 @@ MapEditor.prototype.onMapNodeClicked = function(mapNode) {
             }
         }
 
-        this.qobj.createMapNode(this.currentTerrainType, neighboursMap);
+        this.ui.map.createMapNode(this.currentTerrainType, neighboursMap);
     }
 }
 

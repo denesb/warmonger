@@ -19,21 +19,23 @@ var MapEditor = function(ui, mapElement, mapItemTypesElement) {
     }
 }
 
-MapEditor.prototype.onSelectedTerrainType = function(objectName) {
+MapEditor.prototype.onTerrainTypeSelected = function(objectName) {
     this.currentTerrainType = this.terrainTypeMap[objectName];
     console.log("selected terrainType: " + objectName);
 }
 
-MapEditor.prototype.onSelectedSettlementType = function(objectName) {
+MapEditor.prototype.onSettlementTypeSelected = function(objectName) {
     console.log("selected settlementType: " + objectName);
 }
 
-MapEditor.prototype.onSelectedUnitType = function(objectName) {
+MapEditor.prototype.onUnitTypeSelected = function(objectName) {
     console.log("selected unitType: " + objectName);
 }
 
 MapEditor.prototype.onMapNodeClicked = function(mapNode) {
     if (mapNode.isPhantom) {
+
+        if (this.currentTerrainType == undefined) return;
 
         var neighbours = mapNode.neighbours;
         var neighboursMap = {};

@@ -10,10 +10,10 @@ Rectangle {
     property var jobj
 
     Component.onCompleted: {
-        mapEditor.jobj = new MapEditor.MapEditor(ui, map, mapItemTypes);
+        jobj = new MapEditor.MapEditor(ui, map, mapItemTypes);
 
-        mapEditorControls.terrainTypeSelected.connect(mapEditor.jobj.onSelectedTerrainType.bind(mapEditor.jobj));
-        map.mapNodeClicked.connect(mapEditor.jobj.onMapNodeClicked.bind(mapEditor.jobj));
+        mapEditorControls.terrainTypeSelected.connect(jobj.onTerrainTypeSelected.bind(jobj));
+        map.mapNodeClicked.connect(jobj.onMapNodeClicked.bind(jobj));
     }
 
     Rectangle {
@@ -32,8 +32,8 @@ Rectangle {
         signal mapNodeClicked(var mapNode)
 
         Component.onCompleted: {
-            map.jobj = new EditableMap.EditableMap(ui, mapCanvas);
-            map.jobj.mapNodeClicked = map.mapNodeClicked;
+            jobj = new EditableMap.EditableMap(ui, mapCanvas);
+            jobj.mapNodeClicked = map.mapNodeClicked;
         }
 
         anchors {
@@ -104,42 +104,45 @@ Rectangle {
                 anchors.fill: parent
 
                 Tab {
+                    id: terrainTypeTab
                     title: "Terrain"
 
-                    Rectangle {
-                        ListView {
-                            anchors.fill: parent
+                    ListView {
+                        anchors.fill: parent
 
-                            model: ui.map.world.terrainTypes
-                            delegate: MapItem {
-                                onClicked: mapEditorControls.terrainTypeSelected(model.modelData.objectName)
-                            }
+                        currentIndex: -1
+
+                        model: ui.map.world.terrainTypes
+                        delegate: MapItem {
+                            onSelected: mapEditorControls.terrainTypeSelected(model.modelData.objectName)
                         }
                     }
                 }
                 Tab {
+                    id: settlementTab
                     title: "Settlements"
 
-                    Rectangle {
-                        ListView {
-                            anchors.fill: parent
+                    ListView {
+                        anchors.fill: parent
 
-                            model: ui.map.world.terrainTypes
-                            delegate: MapItem {
-                            }
+                        currentIndex: -1
+
+                        model: ui.map.world.terrainTypes
+                        delegate: MapItem {
                         }
                     }
                 }
                 Tab {
+                    id: unitTab
                     title: "Units"
 
-                    Rectangle {
-                        ListView {
-                            anchors.fill: parent
+                    ListView {
+                        anchors.fill: parent
 
-                            model: ui.map.world.terrainTypes
-                            delegate: MapItem {
-                            }
+                        currentIndex: -1
+
+                        model: ui.map.world.terrainTypes
+                        delegate: MapItem {
                         }
                     }
                 }

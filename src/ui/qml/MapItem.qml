@@ -6,7 +6,7 @@ Rectangle {
     width: 256
     height: 40
 
-    signal clicked(string mapItemName)
+    signal selected(string mapItemName)
 
     Rectangle {
         width: 248
@@ -53,7 +53,7 @@ Rectangle {
 
             onClicked: {
                 mapItem.ListView.view.currentIndex = index
-                mapItem.clicked(model.modelData.objectName)
+                mapItem.selected(model.modelData.objectName)
             }
         }
     }

@@ -115,6 +115,19 @@ Map.prototype.markDirty = function(mapNode) {
     this.canvas.requestPaint();
 }
 
+Map.prototype.findMapNodeJObj = function(mapNodeQObj) {
+    var mapNodeJObj = undefined;
+    for (var i = 0; i < this.mapNodes.length; i++) {
+        var mapNode = this.mapNodes[i];
+        if (mapNode.qobj == mapNodeQObj) {
+            mapNodeJObj = mapNode;
+            break;
+        }
+    }
+
+    return mapNodeJObj;
+}
+
 /*
  * MapNode class.
  */
@@ -125,7 +138,6 @@ var MapNode = function(mapNode, x, y, parent) {
     this.x = x;
     this.y = y;
     this.focused = false;
-    this.dirty = true;
 }
 
 MapNode.prototype.paint = function(ctx) {
@@ -154,12 +166,10 @@ MapNode.prototype.contains = function(point) {
 
 MapNode.prototype.onMouseIn = function() {
     this.focused = true;
-    this.dirty = true;
     this.parent.markDirty(this);
 }
 
 MapNode.prototype.onMouseOut = function() {
     this.focused = false;
-    this.dirty = true;
     this.parent.markDirty(this);
 }

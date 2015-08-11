@@ -228,11 +228,7 @@ void Map::createMapNode(QObject *terrainType, QVariant neighbours)
         nm.insert(direction, neighbour);
     }
 
-    wDebug("core.Map") << "Create new map node with terrainType: " << tt->objectName();
-
     this->createMapNode(tt, nm);
-
-    wDebug("core.Map") << this->objectName() << ": " << this->toJson();
 }
 
 void Map::changeMapNodeTerrainType(QObject *mapNode, QObject *newTerrainType)

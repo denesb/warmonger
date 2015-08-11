@@ -8,12 +8,14 @@
 var EditableMap = function(ui, canvas) {
     MapBase.Map.call(this, ui, canvas);
 
+    ui.map.mapNodeCreated.connect(this.onMapNodeCreated.bind(this));
+
     this.phantomMapNodes = [];
     this.focusedNode = undefined;
     this.mapNodeClicked = undefined;
     this.mapNodeFocused = undefined;
 
-    this.addPhantomMapNodes();
+    this.addPhantomMapNodes(this.mapNodes);
 }
 
 EditableMap.prototype = Object.create(MapBase.Map.prototype);
@@ -49,10 +51,42 @@ EditableMap.prototype.onPositionChanged = function(mouse) {
         this.mapNodeFocused(mapNode);
 }
 
-EditableMap.prototype.addPhantomMapNodes = function() {
-    for (var i = 0; i < this.mapNodes.length; i++) {
+EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
+    var direction;
+    var neighbourQObj;
+    for (direction in mapNodeQObj.neighbours) {
+        neighbourQObj = mapNodeQObj.neighbours[direction];
+        if (neighbourQObj != undefined) {
+            break;
+        }
+    }
 
-        var mapNode = this.mapNodes[i];
+    var neighbourJObj = this.findMapNodeJObj(neighbourQObj);
+
+    // find out the position of this node based on the neighbour's position
+    var oppositeDirection = mapNodeQObj.oppositeDirection(direction);
+    var d = MapBase.displacement(oppositeDirection, this.qobj.world.tileSize);
+    var x = neighbourJObj.x + d.x;
+    var y = neighbourJObj.y + d.y;
+
+    var mapNodeJObj = new MapBase.MapNode(mapNodeQObj, x, y, this);
+    this.mapNodes.push(mapNodeJObj);
+    this.dirtyMapNodes.push(mapNodeJObj);
+
+    var pos = Qt.point(x, y);
+    var phantomMapNode = this.phantomMapNodes[pos];
+    var i = this.mapNodes.indexOf(phantomMapNode);
+
+    this.mapNodes.splice(i, 1);
+    delete this.phantomMapNodes[pos];
+
+    this.addPhantomMapNodes([mapNodeJObj]);
+}
+
+EditableMap.prototype.addPhantomMapNodes = function(mapNodes) {
+    for (var i = 0; i < mapNodes.length; i++) {
+
+        var mapNode = mapNodes[i];
         if (mapNode instanceof PhantomMapNode) continue;
 
         for (var direction in mapNode.qobj.neighbours) {
@@ -92,7 +126,6 @@ var PhantomMapNode = function(x, y, parent) {
     this.x = x;
     this.y = y;
     this.focused = false;
-    this.dirty = true;
     this.neighbours = {};
     this.isPhantom = true;
 }

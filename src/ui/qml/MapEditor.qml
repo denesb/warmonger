@@ -141,7 +141,6 @@ Rectangle {
                             delegate: MapItem {
                             }
                         }
-
                     }
                 }
             }

@@ -33,7 +33,6 @@ MapEditor.prototype.onSelectedUnitType = function(objectName) {
 }
 
 MapEditor.prototype.onMapNodeClicked = function(mapNode) {
-    console.log("clicked map node - yuppeee " + this.mapItemTypesElement.currentIndex);
     if (mapNode.isPhantom) {
 
         var neighbours = mapNode.neighbours;
@@ -41,7 +40,6 @@ MapEditor.prototype.onMapNodeClicked = function(mapNode) {
         for (var direction in neighbours) {
             if (neighbours.hasOwnProperty(direction)) {
                 neighboursMap[direction] = neighbours[direction].qobj;
-                console.log("neighbour[" + direction + "]: " + neighboursMap[direction]);
             }
         }
 

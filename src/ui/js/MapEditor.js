@@ -4,6 +4,7 @@
 
 /*
  * MapEditor class
+ * @contructor
  */
 var MapEditor = function(ui, mapElement, mapItemTypesElement) {
     this.ui = ui;
@@ -17,20 +18,20 @@ var MapEditor = function(ui, mapElement, mapItemTypesElement) {
         var terrainType = world.terrainTypes[i];
         this.terrainTypeMap[terrainType.objectName] = terrainType;
     }
-}
+};
 
 MapEditor.prototype.onTerrainTypeSelected = function(objectName) {
     this.currentTerrainType = this.terrainTypeMap[objectName];
     console.log("selected terrainType: " + objectName);
-}
+};
 
 MapEditor.prototype.onSettlementTypeSelected = function(objectName) {
     console.log("selected settlementType: " + objectName);
-}
+};
 
 MapEditor.prototype.onUnitTypeSelected = function(objectName) {
     console.log("selected unitType: " + objectName);
-}
+};
 
 MapEditor.prototype.onMapNodeClicked = function(mapNode) {
     if (mapNode.isPhantom) {
@@ -47,7 +48,7 @@ MapEditor.prototype.onMapNodeClicked = function(mapNode) {
 
         this.ui.map.createMapNode(this.currentTerrainType, neighboursMap);
     }
-}
+};
 
 MapEditor.prototype.onMapNodeFocused = function(mapNode) {
-}
+};

@@ -22,7 +22,15 @@ Rectangle {
         anchors.top: parent.top
         anchors.right: mapEditorSideBar.left
         height: 40
-        color: "green"
+
+        RowLayout {
+            anchors.fill: parent
+
+            Button {
+                text: "Save"
+                Layout.alignment: Qt.AlignLeft
+            }
+        }
     }
 
     Rectangle {

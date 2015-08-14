@@ -4,6 +4,7 @@
 
 /*
  * EditableMap class
+ * @contructor
  */
 var EditableMap = function(ui, canvas) {
     MapBase.Map.call(this, ui, canvas);
@@ -15,8 +16,11 @@ var EditableMap = function(ui, canvas) {
     this.mapNodeClicked = undefined;
     this.mapNodeFocused = undefined;
 
+    // init
     this.addPhantomMapNodes(this.mapNodes);
-}
+
+    this.boundingRect = this.calculateBoundingRect();
+};
 
 EditableMap.prototype = Object.create(MapBase.Map.prototype);
 EditableMap.prototype.constructor = EditableMap;
@@ -28,7 +32,7 @@ EditableMap.prototype.onClicked = function(mouse) {
 
     if (this.mapNodeClicked != undefined)
         this.mapNodeClicked(mapNode);
-}
+};
 
 EditableMap.prototype.onPositionChanged = function(mouse) {
     var point = Qt.point(mouse.x, mouse.y);
@@ -49,7 +53,7 @@ EditableMap.prototype.onPositionChanged = function(mouse) {
 
     if (this.mapNodeFocused != undefined)
         this.mapNodeFocused(mapNode);
-}
+};
 
 EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
     var direction;
@@ -69,7 +73,7 @@ EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
     var x = neighbourJObj.x + d.x;
     var y = neighbourJObj.y + d.y;
 
-    var mapNodeJObj = new MapBase.MapNode(mapNodeQObj, x, y, this);
+    var mapNodeJObj = new MapBase.MapNode(x, y, mapNodeQObj, this);
     this.mapNodes.push(mapNodeJObj);
     this.dirtyMapNodes.push(mapNodeJObj);
 
@@ -81,7 +85,7 @@ EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
     delete this.phantomMapNodes[pos];
 
     this.addPhantomMapNodes([mapNodeJObj]);
-}
+};
 
 EditableMap.prototype.addPhantomMapNodes = function(mapNodes) {
     for (var i = 0; i < mapNodes.length; i++) {
@@ -99,7 +103,7 @@ EditableMap.prototype.addPhantomMapNodes = function(mapNodes) {
     }
 
     this.canvas.requestPaint();
-}
+};
 
 EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) {
     var tileSize = this.qobj.world.tileSize;
@@ -116,32 +120,42 @@ EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) 
 
     var oppositeDirection = neighbourMapNode.qobj.oppositeDirection(direction);
     phantomMapNode.neighbours[oppositeDirection] = neighbourMapNode;
-}
+};
 
 /*
  * PhantomMapNode class
+ * @contructor
  */
-var PhantomMapNode = function(x, y, parent) {
-    this.parent = parent;
-    this.x = x;
-    this.y = y;
-    this.focused = false;
+var PhantomMapNode = function(x, y, map) {
+    MapBase.MapItem.call(this, x, y, map);
+
     this.neighbours = {};
     this.isPhantom = true;
-}
+};
 
-PhantomMapNode.prototype = Object.create(MapBase.MapNode.prototype);
+PhantomMapNode.prototype = Object.create(MapBase.MapItem.prototype);
 PhantomMapNode.prototype.constructor = PhantomMapNode;
 
 PhantomMapNode.prototype.paint = function(ctx) {
+    var worldQObj = this.map.qobj.world;
     ctx.save();
 
     ctx.translate(this.x, this.y)
 
     if (this.focused)
-        ctx.drawImage(this.parent.qobj.world.getResourcePath("border_highlighted"), 0, 0);
+        ctx.drawImage(worldQObj.getResourcePath("border_highlighted"), 0, 0);
     else
-        ctx.drawImage(this.parent.qobj.world.getResourcePath("border"), 0, 0);
+        ctx.drawImage(worldQObj.getResourcePath("border"), 0, 0);
 
     ctx.restore();
-}
+};
+
+PhantomMapNode.prototype.onMouseIn = function() {
+    this.focused = true;
+    this.map.markDirty(this);
+};
+
+PhantomMapNode.prototype.onMouseOut = function() {
+    this.focused = false;
+    this.map.markDirty(this);
+};

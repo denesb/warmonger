@@ -1,13 +1,17 @@
 .pragma library
 
 function max(a, b) {
-    if (a > b)
-        return a;
-    return b;
+    var max;
+    if (a > b) max = a;
+    else max = b;
+
+    return max;
 }
 
 function min(a, b) {
-    if (a < b)
-        return a;
-    return b;
+    var min;
+    if (a < b) min = a;
+    else min = b;
+
+    return min;
 }

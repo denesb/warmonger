@@ -44,13 +44,13 @@ var Map = function(ui, canvas, mouseArea) {
     this.loadQueue = [];
     this.ready = false;
 
+    this.geometryChanged = true;
     this.boundingRect = Qt.rect(0, 0, 0, 0);
     this.size = Qt.size(0, 0);
 
     // init
     this.loadResources();
     this.createNode(this.qobj.mapNodes[0], Qt.point(0, 0), {});
-    this.updateGeometry();
     this.canvas.requestPaint();
 };
 
@@ -77,26 +77,20 @@ Map.prototype.createNode = function(mapNodeQObj, pos, visitedNodes) {
 
 Map.prototype.onPaint = function(region) {
     if (!this.ready) return;
+    if (this.geometryChanged) {
+        this.updateGeometry();
+        this.geometryChanged = false;
+    }
 
     var ctx = this.canvas.getContext("2d");
-    console.log(">>>>>>>>PAINT<<<<<<<<<<");
-    console.log(region);
 
-    var x = this.boundingRect.x;
-    if (this.size.width < this.canvas.canvasWindow.width) {
-        x -= (this.canvas.canvasWindow.width - this.size.width) / 2;
-    }
-
-    var y = this.boundingRect.y;
-    if (this.size.height < this.canvas.canvasWindow.height) {
-        y -= (this.canvas.canvasWindow.height - this.size.height) / 2;
-    }
-
-    console.log(this.boundingRect);
-    console.log(this.size);
-    console.log("canvasSize: " + this.canvas.canvasSize);
+    console.log(">>>>>PAINT<<<<");
+    console.log("region      : " + region);
+    console.log("boundingRect: " + this.boundingRect);
+    console.log("size        : " + this.size);
+    console.log("canvasSize  : " + this.canvas.canvasSize);
     console.log("canvasWindow: " + this.canvas.canvasWindow);
-    console.log("-------------------------");
+    console.log("--------------");
 
     ctx.clearRect(
         0,
@@ -247,22 +241,25 @@ Map.prototype.adjustMapCoordinates = function() {
 Map.prototype.updateGeometry = function() {
     this.boundingRect = this.calculateBoundingRect();
     this.size = Qt.size(
-        this.boundingRect.width - this.boundingRect.x,
-        this.boundingRect.height - this.boundingRect.y
+        this.boundingRect.width,
+        this.boundingRect.height
     );
 
+    console.log("canvasWindow: " + this.canvas.canvasWindow);
+    console.log("canvasSize before: " + this.canvas.canvasSize);
     this.canvas.canvasSize = Qt.size(
         Util.max(this.size.width, this.canvas.canvasWindow.width),
         Util.max(this.size.height, this.canvas.canvasWindow.height)
     );
+    console.log("canvasSize after: " + this.canvas.canvasSize);
 
     this.adjustMapCoordinates();
 }
 
 Map.prototype.translateToLocal = function(pos) {
     return Qt.point(
-        pos.x - this.canvas.canvasWindow.x,
-        pos.y - this.canvas.canvasWindow.y
+        pos.x + this.canvas.canvasWindow.x,
+        pos.y + this.canvas.canvasWindow.y
     );
 }
 

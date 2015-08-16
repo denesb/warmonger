@@ -18,7 +18,7 @@ var EditableMap = function(ui, canvas, mouseArea) {
 
     // init
     this.addPhantomMapNodes(this.mapNodes);
-    this.updateGeometry();
+    this.geometryChanged = true;
 };
 
 EditableMap.prototype = Object.create(MapBase.Map.prototype);
@@ -56,7 +56,7 @@ EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
 
     this.addPhantomMapNodes([mapNodeJObj]);
 
-    this.updateGeometry();
+    this.geometryChanged = true;
 };
 
 EditableMap.prototype.addPhantomMapNodes = function(mapNodes) {

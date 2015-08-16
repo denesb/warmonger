@@ -1,52 +1,65 @@
 .pragma library
 
+.import 'Util.js' as Util
+
 function displacement(dir, tileSize) {
-    if (dir == 'West') return {x: -tileSize.width, y: 0};
-    if (dir == 'NorthWest') return {x: -tileSize.width/2, y: -tileSize.height * 3/4};
-    if (dir == 'NorthEast') return {x: tileSize.width/2, y: -tileSize.height * 3/4};
-    if (dir == 'East') return {x: tileSize.width, y: 0};
-    if (dir == 'SouthEast') return {x: tileSize.width/2, y: tileSize.height * 3/4};
-    if (dir == 'SouthWest') return {x: -tileSize.width/2, y: tileSize.height * 3/4};
+    if (dir == 'West') return Qt.size(-tileSize.width, 0);
+    if (dir == 'NorthWest') return Qt.size(-tileSize.width/2, -tileSize.height * 3/4);
+    if (dir == 'NorthEast') return Qt.size(tileSize.width/2, -tileSize.height * 3/4);
+    if (dir == 'East') return Qt.size(tileSize.width, 0);
+    if (dir == 'SouthEast') return Qt.size(tileSize.width/2, tileSize.height * 3/4);
+    if (dir == 'SouthWest') return Qt.size(-tileSize.width/2, tileSize.height * 3/4);
 
     err = "Unknown direction: " + dir;
     console.error(err);
     throw err;
 };
 
+var MouseEvents = {
+    clicked: 'clicked',
+    pressed: 'pressed',
+    doubleClicked: 'doubleClicked',
+    entered: 'entered',
+    exited: 'exited',
+    positionChanged: 'positionChanged',
+    pressAndHold: 'pressAndHold',
+    pressed: 'pressed',
+    released: 'released',
+    wheel: 'wheel'
+};
+
 /*
  * Map class.
  * @contructor
  */
-var Map = function(ui, canvas) {
+var Map = function(ui, canvas, mouseArea) {
     this.ui = ui;
     this.qobj = ui.map;
     this.canvas = canvas;
+    this.mouseArea = mouseArea;
 
+    this.lastMouseEvent = undefined;
+    this.lastMousePos = undefined;
     this.mapNodes = [];
     this.loadQueue = [];
     this.ready = false;
 
-    this.dirtyMapNodes = [];
     this.boundingRect = Qt.rect(0, 0, 0, 0);
+    this.size = Qt.size(0, 0);
 
     // init
     this.loadResources();
-
-    var canvasSize = this.canvas.canvasSize;
-    this.createNode(this.qobj.mapNodes[0], canvasSize.width / 2, canvasSize.height / 2, {});
-
-    this.boundingRect = this.calculateBoundingRect();
-
+    this.createNode(this.qobj.mapNodes[0], Qt.point(0, 0), {});
+    this.updateGeometry();
     this.canvas.requestPaint();
 };
 
-Map.prototype.createNode = function(mapNodeQObj, x, y, visitedNodes) {
+Map.prototype.createNode = function(mapNodeQObj, pos, visitedNodes) {
     visitedNodes[mapNodeQObj] = true;
     var tileSize = this.qobj.world.tileSize;
 
-    var mapNode = new MapNode(x, y, mapNodeQObj, this);
+    var mapNode = new MapNode(pos, mapNodeQObj, this);
     this.mapNodes.push(mapNode);
-    this.dirtyMapNodes.push(mapNode);
 
     for (var direction in mapNodeQObj.neighbours) {
         var neighbour = mapNodeQObj.neighbours[direction];
@@ -54,18 +67,47 @@ Map.prototype.createNode = function(mapNodeQObj, x, y, visitedNodes) {
         if (neighbour == undefined || neighbour in visitedNodes) continue;
 
         var d = displacement(direction, tileSize);
-        this.createNode(neighbour, x + d.x, y + d.y, visitedNodes);
+        this.createNode(
+            neighbour,
+            Qt.point(pos.x + d.width, pos.y + d.height),
+            visitedNodes
+        );
     }
 };
 
-Map.prototype.paint = function(region) {
-    var ctx = this.canvas.getContext("2d");
+Map.prototype.onPaint = function(region) {
+    if (!this.ready) return;
 
-    for (var i = 0; i < this.dirtyMapNodes.length; i++) {
-        this.dirtyMapNodes[i].paint(ctx);
+    var ctx = this.canvas.getContext("2d");
+    console.log(">>>>>>>>PAINT<<<<<<<<<<");
+    console.log(region);
+
+    var x = this.boundingRect.x;
+    if (this.size.width < this.canvas.canvasWindow.width) {
+        x -= (this.canvas.canvasWindow.width - this.size.width) / 2;
     }
 
-    this.dirtyMapNodes.splice(0, this.dirtyMapNodes.length - 1);
+    var y = this.boundingRect.y;
+    if (this.size.height < this.canvas.canvasWindow.height) {
+        y -= (this.canvas.canvasWindow.height - this.size.height) / 2;
+    }
+
+    console.log(this.boundingRect);
+    console.log(this.size);
+    console.log("canvasSize: " + this.canvas.canvasSize);
+    console.log("canvasWindow: " + this.canvas.canvasWindow);
+    console.log("-------------------------");
+
+    ctx.clearRect(
+        0,
+        0,
+        this.canvas.canvasSize.width,
+        this.canvas.canvasSize.height
+    );
+
+    for (var i = 0; i < this.mapNodes.length; i++) {
+        this.mapNodes[i].onPaint(ctx);
+    }
 };
 
 Map.prototype.loadResources = function() {
@@ -74,25 +116,31 @@ Map.prototype.loadResources = function() {
 
     for (var resource in resourcePaths) {
         path = resourcePaths[resource];
-        this.loadQueue.push(path);
         this.canvas.loadImage(path);
+        this.loadQueue.push(path);
     }
 };
 
 Map.prototype.onResourceLoaded = function() {
     var image;
+    var loaded = [];
 
     for (var i = 0; i < this.loadQueue.length; i++) {
         image = this.loadQueue[i];
         if (this.canvas.isImageError(image)) {
             console.error("Error loading image " + image);
-            this.loadQueue.splice(i, 1);
+            loaded.push(image);
         }
 
         if (this.canvas.isImageLoaded(image)) {
             console.info("Successfully loaded image " + image);
-            this.loadQueue.splice(i, 1);
+            loaded.push(image);
         }
+    }
+
+    for (var i = 0; i < loaded.length; i++) {
+        var index = this.loadQueue.indexOf(loaded[i]);
+        this.loadQueue.splice(index, 1);
     }
 
     if (this.loadQueue.length == 0) {
@@ -116,9 +164,14 @@ Map.prototype.findMapNodeAt = function(point) {
 };
 
 Map.prototype.markDirty = function(mapNode) {
-    this.dirtyMapNodes.push(mapNode);
+    var tileSize = this.qobj.world.tileSize;
 
-    this.canvas.requestPaint();
+    this.canvas.markDirty(Qt.rect(
+        mapNode.pos.x,
+        mapNode.pos.y,
+        tileSize.width,
+        tileSize.height
+    ));
 };
 
 Map.prototype.findMapNodeJObj = function(mapNodeQObj) {
@@ -138,21 +191,25 @@ Map.prototype.calculateBoundingRect = function() {
     if (this.mapNodes.length == 0)
         return Qt.rect(0, 0, 0, 0);
 
-    var firstNode = this.mapNodes[0];
-    var topLeft = Qt.point(firstNode.x, firstNode.y);
-    var bottomRight = Qt.point(firstNode.x, firstNode.y);
+    var pos = this.mapNodes[0].pos;
+
+    var topLeft = Qt.point(pos.x, pos.y);
+    var bottomRight = Qt.point(pos.x, pos.y);
 
     for (var i = 0; i < this.mapNodes.length; i++) {
-        var currentNode = this.mapNodes[i];
-        if (currentNode.x < topLeft.x || currentNode.y < topLeft.y) {
-            topLeft.x = currentNode.x;
-            topLeft.y = currentNode.y;
-        }
-        else if (currentNode.x > bottomRight.x || currentNode.y > bottomRight.y) {
-            bottomRight.x = currentNode.x;
-            bottomRight.y = currentNode.y;
-        }
+        var pos = this.mapNodes[i].pos;
+
+        if (pos.x < topLeft.x) topLeft.x = pos.x;
+        else if (pos.x > bottomRight.x) bottomRight.x = pos.x;
+
+        if (pos.y < topLeft.y) topLeft.y = pos.y;
+        else if (pos.y > bottomRight.x) bottomRight.y = pos.y;
     }
+
+    // x,y is the top-left corner of the mapNode so we need to add the tile size
+    var tileSize = this.qobj.world.tileSize;
+    bottomRight.x += tileSize.width;
+    bottomRight.y += tileSize.height;
 
     return Qt.rect(
         topLeft.x,
@@ -162,22 +219,150 @@ Map.prototype.calculateBoundingRect = function() {
     );
 };
 
+Map.prototype.adjustMapCoordinates = function() {
+    if ((this.boundingRect.x > 0) && (this.boundingRect.y > 0))
+        return; // nothing to do here
+
+    var dx = this.boundingRect.x;
+    var dy = this.boundingRect.y;
+
+    this.boundingRect.x = 0;
+    this.boundingRect.y = 0;
+
+    for (var i = 0; i < this.mapNodes.length; i++) {
+        var mapNode = this.mapNodes[i];
+        mapNode.pos.x -= dx;
+        mapNode.pos.y -= dx;
+    }
+
+    var rect = this.canvas.canvasWindow;
+    this.canvasWindow = Qt.rect(
+        rect.x + dx,
+        rect.y + dy,
+        rect.width,
+        rect.height
+    );
+}
+
+Map.prototype.updateGeometry = function() {
+    this.boundingRect = this.calculateBoundingRect();
+    this.size = Qt.size(
+        this.boundingRect.width - this.boundingRect.x,
+        this.boundingRect.height - this.boundingRect.y
+    );
+
+    this.canvas.canvasSize = Qt.size(
+        Util.max(this.size.width, this.canvas.canvasWindow.width),
+        Util.max(this.size.height, this.canvas.canvasWindow.height)
+    );
+
+    this.adjustMapCoordinates();
+}
+
+Map.prototype.translateToLocal = function(pos) {
+    return Qt.point(
+        pos.x - this.canvas.canvasWindow.x,
+        pos.y - this.canvas.canvasWindow.y
+    );
+}
+
+Map.prototype.onPressed = function(mouse) {
+    this.lastMouseEvent = MouseEvents.pressed;
+};
+
+Map.prototype.onReleased = function(mouse) {
+    if (this.lastMouseEvent == MouseEvents.pressed) {
+        var pos = this.translateToLocal(Qt.point(mouse.x, mouse.y));
+
+        var mapNode = this.findMapNodeAt(pos);
+
+        if (this.mapNodeClicked != undefined)
+            this.mapNodeClicked(mapNode);
+    }
+    else {
+        this.mouseArea.cursorShape = Qt.ArrowCursor;
+    }
+};
+
+Map.prototype.onPositionChanged = function(mouse) {
+    this.lastMouseEvent = MouseEvents.positionChanged;
+
+    var pos = this.translateToLocal(Qt.point(mouse.x, mouse.y));
+
+    if (this.mouseArea.pressed) {
+        var posDiff = Qt.size(
+            this.lastMousePos.x - pos.x,
+            this.lastMousePos.y - pos.y
+        );
+        this.mouseArea.cursorShape = Qt.ClosedHandCursor;
+        this.onScroll(posDiff);
+    }
+    else {
+        this.onHover(pos);
+    }
+
+    this.lastMousePos = pos;
+}
+
+Map.prototype.onScroll = function(posDiff) {
+    var window = this.canvas.canvasWindow;
+    var x = window.x + posDiff.width;
+    var y = window.y + posDiff.height;
+
+    var size = this.canvas.canvasSize;
+    var isXInBounds = ((x > 0) && ((x + window.width) < size.width));
+    var isYInBounds = ((y > 0) && ((y + window.height) < size.height));
+
+    var newX, newY;
+
+    if (isXInBounds) newX = x;
+    else newX = window.x;
+
+    if (isYInBounds) newY = y;
+    else newY = window.y;
+
+    this.canvas.canvasWindow = Qt.rect(
+        newX,
+        newY,
+        window.width,
+        window.height
+    );
+}
+
+Map.prototype.onHover = function(pos) {
+    var mapNode = this.findMapNodeAt(pos);
+    if (this.focusedNode !== mapNode) {
+        if (mapNode) {
+            if (this.focusedNode) this.focusedNode.onMouseOut();
+
+            this.focusedNode = mapNode;
+            this.focusedNode.onMouseIn();
+        }
+        else if (this.focusedNode) {
+            this.focusedNode.onMouseOut();
+            this.focusedNode = undefined;
+        }
+    }
+
+    if (this.mapNodeFocused != undefined)
+        this.mapNodeFocused(mapNode);
+};
+
 /*
  * MapItem class.
  * @contructor
  */
-var MapItem = function(x, y, map) {
-    this.x = x;
-    this.y = y;
+var MapItem = function(pos, map) {
+    this.pos = pos;
     this.map = map;
     this.focused = false;
 };
 
-MapItem.prototype.paint = function(ctx) {
+MapItem.prototype.onPaint = function(ctx) {
 };
 
 MapItem.prototype.translate = function(point) {
-    return Qt.point(point.x - this.x, point.y - this.y);
+    return Qt.point(point.x - this.pos.x, point.y - this.pos.y);
 };
 
 MapItem.prototype.contains = function(point) {
@@ -198,22 +383,24 @@ MapItem.prototype.onMouseOut = function() {
  * MapNode class.
  * @contructor
  */
-var MapNode = function(x, y, mapNodeQObj, map) {
-    MapItem.call(this, x, y, map);
+var MapNode = function(pos, mapNodeQObj, map) {
+    MapItem.call(this, pos, map);
 
     this.qobj = mapNodeQObj;
-    this.terrainImage = this.map.qobj.world.getResourcePath(this.qobj.terrainType.objectName);
+    this.terrainImage = this.map.qobj.world.getResourcePath(
+        this.qobj.terrainType.objectName
+    );
 };
 
 MapNode.prototype = Object.create(MapItem.prototype);
 MapNode.prototype.constructor = MapNode;
 
-MapNode.prototype.paint = function(ctx) {
+MapNode.prototype.onPaint = function(ctx) {
     var worldQObj = this.map.qobj.world;
 
     ctx.save();
 
-    ctx.translate(this.x, this.y)
+    ctx.translate(this.pos.x, this.pos.y)
 
     ctx.drawImage(this.terrainImage, 0, 0);
     if (this.focused)

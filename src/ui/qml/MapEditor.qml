@@ -40,7 +40,7 @@ Rectangle {
         signal mapNodeClicked(var mapNode)
 
         Component.onCompleted: {
-            jobj = new EditableMap.EditableMap(ui, mapCanvas);
+            jobj = new EditableMap.EditableMap(ui, mapCanvas, mapMouseArea);
             jobj.mapNodeClicked = map.mapNodeClicked;
         }
 
@@ -59,14 +59,22 @@ Rectangle {
         Canvas {
             id: mapCanvas
             anchors.fill: parent
-            onPaint: map.jobj.paint(region)
+            onPaint: map.jobj.onPaint(region)
             onImageLoaded: map.jobj.onResourceLoaded()
+            tileSize {
+                width: 440
+                height: 512
+            }
 
             MouseArea {
+                id: mapMouseArea
+
                 anchors.fill: parent
                 hoverEnabled: true
+                acceptedButtons: Qt.LeftButton
 
-                onClicked: map.jobj.onClicked(mouse)
+                onPressed: map.jobj.onPressed(mouse)
+                onReleased: map.jobj.onReleased(mouse)
                 onPositionChanged: map.jobj.onPositionChanged(mouse)
             }
         }

@@ -6,8 +6,8 @@
  * EditableMap class
  * @contructor
  */
-var EditableMap = function(ui, canvas) {
-    MapBase.Map.call(this, ui, canvas);
+var EditableMap = function(ui, canvas, mouseArea) {
+    MapBase.Map.call(this, ui, canvas, mouseArea);
 
     ui.map.mapNodeCreated.connect(this.onMapNodeCreated.bind(this));
 
@@ -18,42 +18,11 @@ var EditableMap = function(ui, canvas) {
 
     // init
     this.addPhantomMapNodes(this.mapNodes);
-
-    this.boundingRect = this.calculateBoundingRect();
+    this.updateGeometry();
 };
 
 EditableMap.prototype = Object.create(MapBase.Map.prototype);
 EditableMap.prototype.constructor = EditableMap;
-
-EditableMap.prototype.onClicked = function(mouse) {
-    var point = Qt.point(mouse.x, mouse.y);
-
-    var mapNode = this.findMapNodeAt(point);
-
-    if (this.mapNodeClicked != undefined)
-        this.mapNodeClicked(mapNode);
-};
-
-EditableMap.prototype.onPositionChanged = function(mouse) {
-    var point = Qt.point(mouse.x, mouse.y);
-
-    var mapNode = this.findMapNodeAt(point);
-    if  (this.focusedNode !== mapNode) {
-        if (mapNode) {
-            if (this.focusedNode) this.focusedNode.onMouseOut();
-
-            this.focusedNode = mapNode;
-            this.focusedNode.onMouseIn();
-        }
-        else if (this.focusedNode) {
-            this.focusedNode.onMouseOut();
-            this.focusedNode = undefined;
-        }
-    }
-
-    if (this.mapNodeFocused != undefined)
-        this.mapNodeFocused(mapNode);
-};
 
 EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
     var direction;
@@ -70,21 +39,24 @@ EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
     // find out the position of this node based on the neighbour's position
     var oppositeDirection = mapNodeQObj.oppositeDirection(direction);
     var d = MapBase.displacement(oppositeDirection, this.qobj.world.tileSize);
-    var x = neighbourJObj.x + d.x;
-    var y = neighbourJObj.y + d.y;
+    var pos = Qt.point(
+        neighbourJObj.pos.x + d.width,
+        neighbourJObj.pos.y + d.height
+    );
 
-    var mapNodeJObj = new MapBase.MapNode(x, y, mapNodeQObj, this);
-    this.mapNodes.push(mapNodeJObj);
-    this.dirtyMapNodes.push(mapNodeJObj);
-
-    var pos = Qt.point(x, y);
     var phantomMapNode = this.phantomMapNodes[pos];
     var i = this.mapNodes.indexOf(phantomMapNode);
 
     this.mapNodes.splice(i, 1);
     delete this.phantomMapNodes[pos];
 
+    var mapNodeJObj = new MapBase.MapNode(pos, mapNodeQObj, this);
+    this.mapNodes.push(mapNodeJObj);
+    this.markDirty(mapNodeJObj);
+
     this.addPhantomMapNodes([mapNodeJObj]);
+
+    this.updateGeometry();
 };
 
 EditableMap.prototype.addPhantomMapNodes = function(mapNodes) {
@@ -101,21 +73,22 @@ EditableMap.prototype.addPhantomMapNodes = function(mapNodes) {
             this.createPhantomNode(mapNode, direction);
         }
     }
-
-    this.canvas.requestPaint();
 };
 
 EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) {
     var tileSize = this.qobj.world.tileSize;
     var d = MapBase.displacement(direction, tileSize);
-    var pos = Qt.point(neighbourMapNode.x + d.x, neighbourMapNode.y + d.y);
+    var pos = Qt.point(
+        neighbourMapNode.pos.x + d.width,
+        neighbourMapNode.pos.y + d.height
+    );
 
     var phantomMapNode = this.phantomMapNodes[pos];
     if (phantomMapNode == undefined) {
-        phantomMapNode = new PhantomMapNode(pos.x, pos.y, this);
+        phantomMapNode = new PhantomMapNode(pos, this);
         this.mapNodes.push(phantomMapNode);
         this.phantomMapNodes[pos] = phantomMapNode;
-        this.dirtyMapNodes.push(phantomMapNode);
+        this.markDirty(phantomMapNode);
     }
 
     var oppositeDirection = neighbourMapNode.qobj.oppositeDirection(direction);
@@ -126,8 +99,8 @@ EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) 
  * PhantomMapNode class
  * @contructor
  */
-var PhantomMapNode = function(x, y, map) {
-    MapBase.MapItem.call(this, x, y, map);
+var PhantomMapNode = function(pos, map) {
+    MapBase.MapItem.call(this, pos, map);
 
     this.neighbours = {};
     this.isPhantom = true;
@@ -136,11 +109,11 @@ var PhantomMapNode = function(x, y, map) {
 PhantomMapNode.prototype = Object.create(MapBase.MapItem.prototype);
 PhantomMapNode.prototype.constructor = PhantomMapNode;
 
-PhantomMapNode.prototype.paint = function(ctx) {
+PhantomMapNode.prototype.onPaint = function(ctx) {
     var worldQObj = this.map.qobj.world;
     ctx.save();
 
-    ctx.translate(this.x, this.y)
+    ctx.translate(this.pos.x, this.pos.y)
 
     if (this.focused)
         ctx.drawImage(worldQObj.getResourcePath("border_highlighted"), 0, 0);

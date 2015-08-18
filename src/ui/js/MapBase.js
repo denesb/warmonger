@@ -157,6 +157,16 @@ Map.prototype.findMapNodeAt = function(point) {
     return undefined;
 };
 
+Map.prototype.getMapNodeAt = function(pos) {
+    for (var i = 0; i < this.mapNodes.length; i++) {
+        var mapNode = this.mapNodes[i];
+        if (mapNode.pos.x == pos.x && mapNode.pos.y == pos.y)
+            return mapNode;
+    }
+
+    return undefined;
+};
+
 Map.prototype.markDirty = function(mapNode) {
     var tileSize = this.qobj.world.tileSize;
 

@@ -11,7 +11,6 @@ var EditableMap = function(ui, canvas, mouseArea) {
 
     ui.map.mapNodeCreated.connect(this.onMapNodeCreated.bind(this));
 
-    this.phantomMapNodes = [];
     this.focusedNode = undefined;
     this.mapNodeClicked = undefined;
     this.mapNodeFocused = undefined;
@@ -36,7 +35,7 @@ EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
 
     var neighbourJObj = this.findMapNodeJObj(neighbourQObj);
 
-    // find out the position of this node based on the neighbour's position
+    // calculate the position of this node based on the neighbour's position
     var oppositeDirection = mapNodeQObj.oppositeDirection(direction);
     var d = MapBase.displacement(oppositeDirection, this.qobj.world.tileSize);
     var pos = Qt.point(
@@ -44,11 +43,9 @@ EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
         neighbourJObj.pos.y + d.height
     );
 
-    var phantomMapNode = this.phantomMapNodes[pos];
+    var phantomMapNode = this.getMapNodeAt(pos);
     var i = this.mapNodes.indexOf(phantomMapNode);
-
     this.mapNodes.splice(i, 1);
-    delete this.phantomMapNodes[pos];
 
     var mapNodeJObj = new MapBase.MapNode(pos, mapNodeQObj, this);
     this.mapNodes.push(mapNodeJObj);
@@ -83,11 +80,10 @@ EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) 
         neighbourMapNode.pos.y + d.height
     );
 
-    var phantomMapNode = this.phantomMapNodes[pos];
+    var phantomMapNode = this.getMapNodeAt(pos);
     if (phantomMapNode == undefined) {
         phantomMapNode = new PhantomMapNode(pos, this);
         this.mapNodes.push(phantomMapNode);
-        this.phantomMapNodes[pos] = phantomMapNode;
         this.markDirty(phantomMapNode);
     }
 

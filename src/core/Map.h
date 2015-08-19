@@ -68,6 +68,9 @@ public:
     Q_INVOKABLE void createMapNode(QObject *terrainType, QVariant neighbours);
     Q_INVOKABLE void changeMapNodeTerrainType(QObject *mapNode, QObject *newTerrainType);
 
+    Q_INVOKABLE void fromStorage(const QString &path = QString());
+    Q_INVOKABLE void toStorage(const QString &path = QString());
+
 signals:
     void worldChanged();
     void mapNodesChanged();

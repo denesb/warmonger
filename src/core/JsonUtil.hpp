@@ -10,6 +10,7 @@
 #include <QJsonValue>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QJsonDocument>
 
 #include "core/Exception.h"
 #include "core/Util.h"
@@ -134,15 +135,10 @@ inline QSize sizeFromJson(const QJsonObject &obj)
     return QSize(obj["width"].toInt(), obj["height"].toInt());
 }
 
-inline QJsonObject sizeToJson(const QSize &size)
-{
-    QJsonObject obj;
+QJsonObject sizeToJson(const QSize &size);
 
-    obj["width"] = size.width();
-    obj["height"] = size.height();
-
-    return std::move(obj);
-}
+QJsonDocument loadJsonDocument(const QString &path);
+void saveJsonDocument(const QString &path, const QJsonDocument &doc);
 
 } // namespace core
 } // namespace warmonger

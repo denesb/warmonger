@@ -69,6 +69,7 @@ SOURCES += \
     src/core/Exception.cpp \
     src/core/Faction.cpp \
     src/core/GameObject.cpp \
+    src/core/JsonUtil.cpp \
     src/core/Map.cpp \
     src/core/MapNode.cpp \
     src/core/Player.cpp \

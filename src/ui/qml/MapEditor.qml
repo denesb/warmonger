@@ -29,6 +29,8 @@ Rectangle {
             Button {
                 text: "Save"
                 Layout.alignment: Qt.AlignLeft
+
+                onClicked: mapEditor.jobj.saveMap()
             }
         }
     }

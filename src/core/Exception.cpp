@@ -9,12 +9,14 @@ const QMap<Exception::ErrorCode, QString> Exception::messageDefinitions = {
     std::make_pair(Exception::IO, QStringLiteral("IO error")),
     std::make_pair(Exception::FileNotFound, QStringLiteral("File %1 not found")),
     std::make_pair(Exception::FileOpenFailed, QStringLiteral("Cannot open file %1")),
-    std::make_pair(Exception::FileReadFailed, QStringLiteral("Cannot read file %1")),
+    std::make_pair(Exception::FileReadFailed, QStringLiteral("Cannot read from file %1")),
+    std::make_pair(Exception::FileWriteFailed, QStringLiteral("Cannot write to file %1")),
     std::make_pair(Exception::Serialization, QStringLiteral("Serialization error")),
     std::make_pair(Exception::JsonParse, QStringLiteral("Json parse error while parsing %1: %2")),
     std::make_pair(Exception::UnresolvedReference, QStringLiteral("Unable to resolve reference to <%1>%2")),
     std::make_pair(Exception::ResourceLoadFailed, QStringLiteral("Failed to load resource <%1>%2")),
-    std::make_pair(Exception::InvalidValue, QStringLiteral("Value %1 is invalid for %2"))
+    std::make_pair(Exception::InvalidValue, QStringLiteral("Value %1 is invalid for %2")),
+    std::make_pair(Exception::UknownPath, QStringLiteral("No path specified for file operation"))
 };
 
 Exception::Exception(ErrorCode code, const QStringList &args) :

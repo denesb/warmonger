@@ -97,7 +97,6 @@ private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
-    QJsonObject loadFromJsonFile(const QString &path);
     QVariantMap toQVariantMap(const QMap<QString, QString> &qmap) const;
     QMap<QString, QString> mapFromJson(const QJsonObject &obj) const;
     QJsonObject mapToJson(const QMap<QString, QString> &map) const;

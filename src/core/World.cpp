@@ -258,7 +258,9 @@ void World::dataFromJson(const QJsonObject &obj)
     this->settlementTypes = newListFromJson<SettlementType>(obj["settlementTypes"].toArray(), this);
     this->factions = newListFromJson<Faction>(obj["factions"].toArray(), this);
 
-    this->resourcePaths = this->mapFromJson(this->loadFromJsonFile(this->path + "/resources/resources.json"));
+    //TODO: move this to it's own class
+    QJsonDocument doc = loadJsonDocument(this->path + "/surfaces/default/surface.json");
+    this->resourcePaths = this->mapFromJson(doc.object());
 }
 
 void World::dataToJson(QJsonObject &obj) const
@@ -275,35 +277,6 @@ void World::dataToJson(QJsonObject &obj) const
     obj["factions"] = listToJson<Faction>(this->factions);
 
     //TODO: write resources
-}
-
-QJsonObject World::loadFromJsonFile(const QString &path)
-{
-    QFile jsonFile(path);
-
-    if (!jsonFile.open(QIODevice::ReadOnly))
-    {
-        Exception e(Exception::FileOpenFailed, {path});
-        wError("core.World") << e.getMessage();
-        throw e;
-    }
-
-    QByteArray jsonData = jsonFile.readAll();
-    jsonFile.close();
-
-    QJsonParseError parseError;
-    QJsonDocument doc(QJsonDocument::fromJson(jsonData, &parseError));
-
-    if (parseError.error != QJsonParseError::NoError)
-    {
-        Exception e(Exception::JsonParse, {path, parseError.errorString()});
-        wError("core.World") << e.getMessage();
-        throw e;
-    }
-
-    wInfo("core.World") << "Loaded Json document from " << path;
-
-    return doc.object();
 }
 
 QVariantMap World::toQVariantMap(const QMap<QString, QString> &qmap) const

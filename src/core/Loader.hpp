@@ -7,8 +7,6 @@
 #include <QStringList>
 #include <QString>
 #include <QObject>
-#include <QFile>
-#include <QJsonDocument>
 
 #include "core/JsonUtil.hpp"
 
@@ -46,31 +44,10 @@ public:
     T * load(const QString &name) const
     {
         const QString path(this->pathMap[name] + "/" + T::DefinitionFile);
-        QFile jsonFile(path);
 
-        if (!jsonFile.open(QIODevice::ReadOnly))
-        {
-            wError("core.Loader") << "Failed to open file " << path;
-            throw Exception(Exception::FileOpenFailed, {path});
-        }
-
-        QByteArray jsonData = jsonFile.readAll();
-
-        jsonFile.close();
-
-        QJsonParseError parseError;
-
-        QJsonDocument doc(QJsonDocument::fromJson(jsonData, &parseError));
-
-        if (parseError.error != QJsonParseError::NoError)
-        {
-            Exception e(Exception::JsonParse, {path, parseError.errorString()});
-            wError("core.Loader") << e.getMessage();
-            throw e;
-        }
+        QJsonDocument doc = loadJsonDocument(path);
 
         QJsonObject obj = doc.object();
-        wInfo("core.Loader") << "Loaded Json document from " << path;
 
         T *instance = new T(this->owner);
         instance->setPath(this->pathMap[name]);

@@ -84,14 +84,6 @@ Map.prototype.onPaint = function(region) {
 
     var ctx = this.canvas.getContext("2d");
 
-    console.log(">>>>>PAINT<<<<");
-    console.log("region      : " + region);
-    console.log("boundingRect: " + this.boundingRect);
-    console.log("size        : " + this.size);
-    console.log("canvasSize  : " + this.canvas.canvasSize);
-    console.log("canvasWindow: " + this.canvas.canvasWindow);
-    console.log("--------------");
-
     ctx.clearRect(
         0,
         0,
@@ -255,13 +247,10 @@ Map.prototype.updateGeometry = function() {
         this.boundingRect.height
     );
 
-    console.log("canvasWindow: " + this.canvas.canvasWindow);
-    console.log("canvasSize before: " + this.canvas.canvasSize);
     this.canvas.canvasSize = Qt.size(
         Util.max(this.size.width, this.canvas.canvasWindow.width),
         Util.max(this.size.height, this.canvas.canvasWindow.height)
     );
-    console.log("canvasSize after: " + this.canvas.canvasSize);
 
     this.adjustMapCoordinates();
 }
@@ -302,7 +291,7 @@ Map.prototype.onPositionChanged = function(mouse) {
             this.lastMousePos.y - pos.y
         );
         this.mouseArea.cursorShape = Qt.ClosedHandCursor;
-        this.onScroll(posDiff);
+        this.onPan(posDiff);
     }
     else {
         this.onHover(pos);
@@ -311,7 +300,7 @@ Map.prototype.onPositionChanged = function(mouse) {
     this.lastMousePos = pos;
 }
 
-Map.prototype.onScroll = function(posDiff) {
+Map.prototype.onPan = function(posDiff) {
     var window = this.canvas.canvasWindow;
     var x = window.x + posDiff.width;
     var y = window.y + posDiff.height;

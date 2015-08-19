@@ -11,6 +11,8 @@
 #include "core/Util.h"
 #include "core/Exception.h"
 
+static const QString module("core.Map");
+
 using namespace warmonger::core;
 
 const QString Map::DefinitionFile{"map.json"};
@@ -162,7 +164,7 @@ void Map::createMapNode(const TerrainType *terrainType, const QHash<MapNode::Dir
     if (neighbours.empty())
     {
         Exception e(Exception::InvalidValue, {"empty QMap", "neighbours"});
-        wError("core.Map") << e.getMessage();
+        wError(module) << e.getMessage();
         throw e;
     }
 
@@ -191,14 +193,14 @@ void Map::createMapNode(QObject *terrainType, QVariant neighbours)
     if (tt == nullptr)
     {
         Exception e(Exception::NullPointer, {"terrainType"});
-        wError("core.Map") << e.getMessage();
+        wError(module) << e.getMessage();
         throw e;
     }
 
     if (!neighbours.canConvert(QMetaType::QVariantMap))
     {
         Exception e(Exception::WrongType, {"neighbours", "QVariantMap", "?"});
-        wError("core.Map") << e.getMessage();
+        wError(module) << e.getMessage();
         throw e;
     }
     QVariantMap neighboursMap = neighbours.toMap();
@@ -211,7 +213,7 @@ void Map::createMapNode(QObject *terrainType, QVariant neighbours)
         if (!MapNode::str2direction.contains(directionName))
         {
             Exception e(Exception::InvalidValue, {directionName, "MapNode::Direction"});
-            wError("core.Map") << e.getMessage();
+            wError(module) << e.getMessage();
             throw e;
         }
         MapNode::Direction direction = MapNode::str2direction[directionName];
@@ -220,7 +222,7 @@ void Map::createMapNode(QObject *terrainType, QVariant neighbours)
         if (!v.canConvert<MapNode *>())
         {
             Exception e(Exception::WrongType, {"mapNode", "MapNode *", "?"});
-            wError("core.Map") << e.getMessage();
+            wError(module) << e.getMessage();
             throw e;
         }
 
@@ -237,7 +239,7 @@ void Map::changeMapNodeTerrainType(QObject *mapNode, QObject *newTerrainType)
     if (mn == nullptr)
     {
         Exception e(Exception::NullPointer, {"mapNode"});
-        wError("core.Map") << e.getMessage();
+        wError(module) << e.getMessage();
         throw e;
     }
 
@@ -245,11 +247,45 @@ void Map::changeMapNodeTerrainType(QObject *mapNode, QObject *newTerrainType)
     if (tt == nullptr)
     {
         Exception e(Exception::NullPointer, {"terrainType"});
-        wError("core.Map") << e.getMessage();
+        wError(module) << e.getMessage();
         throw e;
     }
 
     mn->setTerrainType(tt);
+}
+
+void Map::fromStorage(const QString &path)
+{
+    QString docPath = path.isNull() ? this->path : path;
+
+    if (docPath.isNull())
+    {
+        Exception e(Exception::UknownPath);
+        wError(module) << e.getMessage();
+        throw e;
+    }
+
+    docPath += "/" + Map::DefinitionFile;
+
+    QJsonDocument doc = loadJsonDocument(docPath);
+    this->fromJson(doc.object());
+}
+
+void Map::toStorage(const QString &path)
+{
+    QString docPath = path.isNull() ? this->path : path;
+
+    if (docPath.isNull())
+    {
+        Exception e(Exception::UknownPath);
+        wError(module) << e.getMessage();
+        throw e;
+    }
+
+    docPath += "/" + Map::DefinitionFile;
+
+    QJsonDocument doc(this->toJson());
+    saveJsonDocument(docPath, doc);
 }
 
 void Map::dataFromJson(const QJsonObject &obj)
@@ -267,7 +303,7 @@ void Map::dataFromJson(const QJsonObject &obj)
     if (world == nullptr)
     {
         Exception e(Exception::ResourceLoadFailed, {"World", worldName});
-        wError("core.Map") << e.getMessage();
+        wError(module) << e.getMessage();
         throw e;
     }
 

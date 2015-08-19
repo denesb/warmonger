@@ -52,3 +52,7 @@ MapEditor.prototype.onMapNodeClicked = function(mapNode) {
 
 MapEditor.prototype.onMapNodeFocused = function(mapNode) {
 };
+
+MapEditor.prototype.saveMap = function() {
+    this.ui.map.toStorage();
+};

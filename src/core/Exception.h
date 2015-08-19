@@ -22,12 +22,14 @@ public:
         FileNotFound,
         FileOpenFailed,
         FileReadFailed,
+        FileWriteFailed,
         // 0x0200 -> 0x02ff Serialization (from and to JSON) related errors
         Serialization = 0x0200,
         JsonParse,
         UnresolvedReference,
         ResourceLoadFailed,
-        InvalidValue
+        InvalidValue,
+        UknownPath,
     };
 
     Exception(ErrorCode code, const QStringList &args = QStringList());

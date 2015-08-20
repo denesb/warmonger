@@ -1,6 +1,7 @@
 .pragma library
 
 .import 'Util.js' as Util
+.import 'MapItem.js' as MapItem
 
 function displacement(dir, tileSize) {
     if (dir == 'West') return Qt.size(-tileSize.width, 0);
@@ -58,7 +59,7 @@ Map.prototype.createNode = function(mapNodeQObj, pos, visitedNodes) {
     visitedNodes[mapNodeQObj] = true;
     var tileSize = this.qobj.world.tileSize;
 
-    var mapNode = new MapNode(pos, mapNodeQObj, this);
+    var mapNode = new MapItem.MapNode(pos, mapNodeQObj, this);
     this.mapNodes.push(mapNode);
 
     for (var direction in mapNodeQObj.neighbours) {
@@ -345,74 +346,90 @@ Map.prototype.onHover = function(pos) {
 };
 
 /*
- * MapItem class.
+ * EditableMap class
  * @contructor
  */
-var MapItem = function(pos, map) {
-    this.pos = pos;
-    this.map = map;
-    this.focused = false;
+var EditableMap = function(ui, canvas, mouseArea) {
+    Map.call(this, ui, canvas, mouseArea);
+
+    ui.map.mapNodeCreated.connect(this.onMapNodeCreated.bind(this));
+
+    this.focusedNode = undefined;
+    this.mapNodeClicked = undefined;
+    this.mapNodeFocused = undefined;
+
+    // init
+    this.addPhantomMapNodes(this.mapNodes);
+    this.geometryChanged = true;
 };
 
-MapItem.prototype.onPaint = function(ctx) {
-};
+EditableMap.prototype = Object.create(Map.prototype);
+EditableMap.prototype.constructor = EditableMap;
 
-MapItem.prototype.translate = function(point) {
-    return Qt.point(point.x - this.pos.x, point.y - this.pos.y);
-};
+EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
+    var direction;
+    var neighbourQObj;
+    for (direction in mapNodeQObj.neighbours) {
+        neighbourQObj = mapNodeQObj.neighbours[direction];
+        if (neighbourQObj != undefined) {
+            break;
+        }
+    }
 
-MapItem.prototype.contains = function(point) {
-    var localPoint = this.translate(point);
+    var neighbourJObj = this.findMapNodeJObj(neighbourQObj);
 
-    return this.map.ui.hexContains(localPoint);
-};
-
-MapItem.prototype.onMouseIn = function() {
-    this.focused = true;
-};
-
-MapItem.prototype.onMouseOut = function() {
-    this.focused = false;
-};
-
-/*
- * MapNode class.
- * @contructor
- */
-var MapNode = function(pos, mapNodeQObj, map) {
-    MapItem.call(this, pos, map);
-
-    this.qobj = mapNodeQObj;
-    this.terrainImage = this.map.qobj.world.getResourcePath(
-        this.qobj.terrainType.objectName
+    // calculate the position of this node based on the neighbour's position
+    var oppositeDirection = mapNodeQObj.oppositeDirection(direction);
+    var d = displacement(oppositeDirection, this.qobj.world.tileSize);
+    var pos = Qt.point(
+        neighbourJObj.pos.x + d.width,
+        neighbourJObj.pos.y + d.height
     );
+
+    var phantomMapNode = this.getMapNodeAt(pos);
+    var i = this.mapNodes.indexOf(phantomMapNode);
+    this.mapNodes.splice(i, 1);
+
+    var mapNodeJObj = new MapItem.MapNode(pos, mapNodeQObj, this);
+    this.mapNodes.push(mapNodeJObj);
+    this.markDirty(mapNodeJObj);
+
+    this.addPhantomMapNodes([mapNodeJObj]);
+
+    this.geometryChanged = true;
 };
 
-MapNode.prototype = Object.create(MapItem.prototype);
-MapNode.prototype.constructor = MapNode;
+EditableMap.prototype.addPhantomMapNodes = function(mapNodes) {
+    for (var i = 0; i < mapNodes.length; i++) {
 
-MapNode.prototype.onPaint = function(ctx) {
-    var worldQObj = this.map.qobj.world;
+        var mapNode = mapNodes[i];
+        if (mapNode instanceof PhantomMapNode) continue;
 
-    ctx.save();
+        for (var direction in mapNode.qobj.neighbours) {
+            var neighbour = mapNode.qobj.neighbours[direction];
 
-    ctx.translate(this.pos.x, this.pos.y)
-
-    ctx.drawImage(this.terrainImage, 0, 0);
-    if (this.focused)
-        ctx.drawImage(worldQObj.getResourcePath("border_highlighted"), 0, 0);
-    else
-        ctx.drawImage(worldQObj.getResourcePath("border"), 0, 0);
-
-    ctx.restore();
+            if (neighbour != undefined) continue;
+            
+            this.createPhantomNode(mapNode, direction);
+        }
+    }
 };
 
-MapNode.prototype.onMouseIn = function() {
-    this.focused = true;
-    this.map.markDirty(this);
-};
+EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) {
+    var tileSize = this.qobj.world.tileSize;
+    var d = displacement(direction, tileSize);
+    var pos = Qt.point(
+        neighbourMapNode.pos.x + d.width,
+        neighbourMapNode.pos.y + d.height
+    );
 
-MapNode.prototype.onMouseOut = function() {
-    this.focused = false;
-    this.map.markDirty(this);
+    var phantomMapNode = this.getMapNodeAt(pos);
+    if (phantomMapNode == undefined) {
+        phantomMapNode = new MapItem.PhantomMapNode(pos, this);
+        this.mapNodes.push(phantomMapNode);
+        this.markDirty(phantomMapNode);
+    }
+
+    var oppositeDirection = neighbourMapNode.qobj.oppositeDirection(direction);
+    phantomMapNode.neighbours[oppositeDirection] = neighbourMapNode;
 };

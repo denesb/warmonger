@@ -1,94 +1,129 @@
 {
-    "objectName": "prototype",
-    "displayName": "Prototype map",
     "description": "Experimental development map",
-    "world": "iron_age",
-    "mapNodeIndex": 3,
-
+    "displayName": "Prototype map",
+    "mapNodeIndex": "5",
     "mapNodes": {
+        "connections": [
+            {
+                "directionA": "East",
+                "directionB": "West",
+                "nodeA": "mapNode0",
+                "nodeB": "mapNode1"
+            },
+            {
+                "directionA": "SouthEast",
+                "directionB": "NorthWest",
+                "nodeA": "mapNode0",
+                "nodeB": "mapNode2"
+            },
+            {
+                "directionA": "East",
+                "directionB": "West",
+                "nodeA": "mapNode1",
+                "nodeB": "mapNode5"
+            },
+            {
+                "directionA": "SouthEast",
+                "directionB": "NorthWest",
+                "nodeA": "mapNode1",
+                "nodeB": "mapNode3"
+            },
+            {
+                "directionA": "SouthWest",
+                "directionB": "NorthEast",
+                "nodeA": "mapNode1",
+                "nodeB": "mapNode2"
+            },
+            {
+                "directionA": "East",
+                "directionB": "West",
+                "nodeA": "mapNode2",
+                "nodeB": "mapNode3"
+            },
+            {
+                "directionA": "East",
+                "directionB": "West",
+                "nodeA": "mapNode3",
+                "nodeB": "mapNode4"
+            },
+            {
+                "directionA": "NorthEast",
+                "directionB": "SouthWest",
+                "nodeA": "mapNode3",
+                "nodeB": "mapNode5"
+            },
+            {
+                "directionA": "NorthWest",
+                "directionB": "SouthEast",
+                "nodeA": "mapNode4",
+                "nodeB": "mapNode5"
+            }
+        ],
         "nodes": [
             {
+                "displayName": "",
                 "objectName": "mapNode0",
                 "terrainType": "plains"
             },
             {
+                "displayName": "",
                 "objectName": "mapNode1",
                 "terrainType": "forest"
             },
             {
+                "displayName": "",
                 "objectName": "mapNode2",
                 "terrainType": "hills"
             },
             {
+                "displayName": "",
                 "objectName": "mapNode3",
                 "terrainType": "mountains"
-            }
-        ],
-    
-        "connections": [
-            {
-                "nodeA": "mapNode0",
-                "nodeB": "mapNode1",
-                "directionA": "East",
-                "directionB": "West"
             },
             {
-                "nodeA": "mapNode0",
-                "nodeB": "mapNode2",
-                "directionA": "SouthEast",
-                "directionB": "NorthWest"
+                "displayName": "",
+                "objectName": "mapNode4",
+                "terrainType": "plains"
             },
             {
-                "nodeA": "mapNode1",
-                "nodeB": "mapNode3",
-                "directionA": "SouthEast",
-                "directionB": "NorthWest"
-            },
-            {
-                "nodeA": "mapNode1",
-                "nodeB": "mapNode2",
-                "directionA": "SouthWest",
-                "directionB": "NorthEast"
-            },
-            {
-                "nodeA": "mapNode2",
-                "nodeB": "mapNode3",
-                "directionA": "East",
-                "directionB": "West"
+                "displayName": "",
+                "objectName": "mapNode5",
+                "terrainType": "plains"
             }
         ]
     },
-
+    "objectName": "prototype",
     "players": [
         {
-            "objectName": "player1",
+            "color": "#00ff00",
             "displayName": "Player 1",
-            "color": "#00FF00",
+            "faction": "kingdom",
             "goldBalance": 0,
-            "faction": "kingdom"
+            "objectName": "player1"
         },
         {
-            "objectName": "player2",
+            "color": "#0000ff",
             "displayName": "Player 2",
-            "color": "#0000FF",
+            "faction": "kingdom",
             "goldBalance": 0,
-            "faction": "kingdom"
+            "objectName": "player2"
         }
     ],
-
-    "units": [
-    ],
-
     "settlements": [
         {
+            "displayName": "",
+            "mapNode": "mapNode0",
             "objectName": "castle0",
-            "settlementType": "castle",
-            "mapNode": "mapNode0"
+            "settlementType": "castle"
         },
         {
+            "displayName": "",
+            "mapNode": "mapNode3",
             "objectName": "castle1",
-            "settlementType": "castle",
-            "mapNode": "mapNode3"
+            "settlementType": "castle"
         }
-    ]
+    ],
+    "units": [
+    ],
+    "world": "iron_age"
 }

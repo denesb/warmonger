@@ -76,6 +76,52 @@ MapNode.prototype.onMouseOut = function() {
 };
 
 /*
+ * MiniMapNode class.
+ * @contructor
+ */
+var MiniMapNode = function(pos, mapNodeQObj, map) {
+    MapItem.call(this, pos, map);
+
+    this.qobj = mapNodeQObj;
+    this.terrainType = this.qobj.terrainType;
+};
+
+MiniMapNode.prototype = Object.create(MapItem.prototype);
+MiniMapNode.prototype.constructor = MiniMapNode;
+
+MiniMapNode.prototype.onPaint = function(ctx) {
+    var worldQObj = this.map.qobj.world;
+    var tileSize = worldQObj.tileSize;
+
+    console.log(this.qobj);
+    console.log(this.pos);
+
+    ctx.save();
+
+    ctx.translate(this.pos.x, this.pos.y);
+
+    var y0 = tileSize.height / 4;
+    var y1 = y0 + tileSize.height / 2;
+
+    var x = tileSize.width / 2;
+
+    ctx.beginPath();
+    ctx.moveTo(0, y0);
+    ctx.moveTo(x, 0);
+    ctx.moveTo(tileSize.width -1, y0);
+    ctx.moveTo(tileSize.width -1, y1);
+    ctx.moveTo(x, tileSize.height - 1);
+    ctx.moveTo(0, y1);
+    ctx.closePath();
+
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'black';
+    ctx.stroke();
+
+    ctx.restore();
+};
+
+/*
  * PhantomMapNode class
  * @contructor
  */

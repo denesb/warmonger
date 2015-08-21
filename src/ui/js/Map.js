@@ -41,8 +41,7 @@ var Map = function(ui, canvas, mouseArea) {
 
     this.lastMouseEvent = undefined;
     this.lastMousePos = undefined;
-    this.mapNodes = [];
-    this.loadQueue = [];
+    this.mapItems = [];
     this.ready = false;
 
     this.geometryChanged = true;
@@ -50,17 +49,14 @@ var Map = function(ui, canvas, mouseArea) {
     this.size = Qt.size(0, 0);
 
     // init
-    this.loadResources();
     this.createNode(this.qobj.mapNodes[0], Qt.point(0, 0), {});
-    this.canvas.requestPaint();
 };
 
 Map.prototype.createNode = function(mapNodeQObj, pos, visitedNodes) {
     visitedNodes[mapNodeQObj] = true;
     var tileSize = this.qobj.world.tileSize;
 
-    var mapNode = new MapItem.MapNode(pos, mapNodeQObj, this);
-    this.mapNodes.push(mapNode);
+    this.newMapNode(pos, mapNodeQObj);
 
     for (var direction in mapNodeQObj.neighbours) {
         var neighbour = mapNodeQObj.neighbours[direction];
@@ -92,80 +88,17 @@ Map.prototype.onPaint = function(region) {
         this.canvas.canvasSize.height
     );
 
-    for (var i = 0; i < this.mapNodes.length; i++) {
-        this.mapNodes[i].onPaint(ctx);
+    for (var i = 0; i < this.mapItems.length; i++) {
+        this.mapItems[i].onPaint(ctx);
     }
 };
 
-Map.prototype.loadResources = function() {
-    var resourcePaths = this.qobj.world.resourcePaths;
-    var path;
-
-    for (var resource in resourcePaths) {
-        path = resourcePaths[resource];
-        this.canvas.loadImage(path);
-        this.loadQueue.push(path);
-    }
-};
-
-Map.prototype.onResourceLoaded = function() {
-    var image;
-    var loaded = [];
-
-    for (var i = 0; i < this.loadQueue.length; i++) {
-        image = this.loadQueue[i];
-        if (this.canvas.isImageError(image)) {
-            console.error("Error loading image " + image);
-            loaded.push(image);
-        }
-
-        if (this.canvas.isImageLoaded(image)) {
-            console.info("Successfully loaded image " + image);
-            loaded.push(image);
-        }
-    }
-
-    for (var i = 0; i < loaded.length; i++) {
-        var index = this.loadQueue.indexOf(loaded[i]);
-        this.loadQueue.splice(index, 1);
-    }
-
-    if (this.loadQueue.length == 0) {
-        console.info("All resources loaded");
-        this.onResourcesLoaded();
-    }
-};
-
-Map.prototype.onResourcesLoaded = function() {
-    this.ready = true;
-    this.canvas.requestPaint();
-};
-
-Map.prototype.findMapNodeAt = function(point) {
-    for (var i = 0; i < this.mapNodes.length; i++) {
-        var mapNode = this.mapNodes[i];
-        if (mapNode.contains(point)) return mapNode;
-    }
-
-    return undefined;
-};
-
-Map.prototype.getMapNodeAt = function(pos) {
-    for (var i = 0; i < this.mapNodes.length; i++) {
-        var mapNode = this.mapNodes[i];
-        if (mapNode.pos.x == pos.x && mapNode.pos.y == pos.y)
-            return mapNode;
-    }
-
-    return undefined;
-};
-
-Map.prototype.markDirty = function(mapNode) {
+Map.prototype.markDirty = function(mapItem) {
     var tileSize = this.qobj.world.tileSize;
 
     this.canvas.markDirty(Qt.rect(
-        mapNode.pos.x,
-        mapNode.pos.y,
+        mapItem.pos.x,
+        mapItem.pos.y,
         tileSize.width,
         tileSize.height
     ));
@@ -173,10 +106,11 @@ Map.prototype.markDirty = function(mapNode) {
 
 Map.prototype.findMapNodeJObj = function(mapNodeQObj) {
     var mapNodeJObj = undefined;
-    for (var i = 0; i < this.mapNodes.length; i++) {
-        var mapNode = this.mapNodes[i];
-        if (mapNode.qobj == mapNodeQObj) {
-            mapNodeJObj = mapNode;
+    for (var i = 0; i < this.mapItems.length; i++) {
+        var mapItem = this.mapItems[i];
+        if (mapItem instanceof MapItem.MapNode &&
+            mapItem.qobj == mapNodeQObj) {
+            mapNodeJObj = mapItem;
             break;
         }
     }
@@ -185,16 +119,16 @@ Map.prototype.findMapNodeJObj = function(mapNodeQObj) {
 };
 
 Map.prototype.calculateBoundingRect = function() {
-    if (this.mapNodes.length == 0)
+    if (this.mapItems.length == 0)
         return Qt.rect(0, 0, 0, 0);
 
-    var pos = this.mapNodes[0].pos;
+    var pos = this.mapItems[0].pos;
 
     var topLeft = Qt.point(pos.x, pos.y);
     var bottomRight = Qt.point(pos.x, pos.y);
 
-    for (var i = 0; i < this.mapNodes.length; i++) {
-        var pos = this.mapNodes[i].pos;
+    for (var i = 0; i < this.mapItems.length; i++) {
+        var pos = this.mapItems[i].pos;
 
         if (pos.x < topLeft.x) topLeft.x = pos.x;
         else if (pos.x > bottomRight.x) bottomRight.x = pos.x;
@@ -226,10 +160,10 @@ Map.prototype.adjustMapCoordinates = function() {
     this.boundingRect.x = 0;
     this.boundingRect.y = 0;
 
-    for (var i = 0; i < this.mapNodes.length; i++) {
-        var mapNode = this.mapNodes[i];
-        mapNode.pos.x -= dx;
-        mapNode.pos.y -= dx;
+    for (var i = 0; i < this.mapItems.length; i++) {
+        var mapItem = this.mapItems[i];
+        mapItem.pos.x -= dx;
+        mapItem.pos.y -= dx;
     }
 
     var rect = this.canvas.canvasWindow;
@@ -270,11 +204,7 @@ Map.prototype.onPressed = function(mouse) {
 Map.prototype.onReleased = function(mouse) {
     if (this.lastMouseEvent == MouseEvents.pressed) {
         var pos = this.translateToLocal(Qt.point(mouse.x, mouse.y));
-
-        var mapNode = this.findMapNodeAt(pos);
-
-        if (this.mapNodeClicked != undefined)
-            this.mapNodeClicked(mapNode);
+        this.onClicked(pos);
     }
     else {
         this.mouseArea.cursorShape = Qt.ArrowCursor;
@@ -292,16 +222,97 @@ Map.prototype.onPositionChanged = function(mouse) {
             this.lastMousePos.y - pos.y
         );
         this.mouseArea.cursorShape = Qt.ClosedHandCursor;
-        this.onPan(posDiff);
+        this.onPanned(posDiff);
     }
     else {
-        this.onHover(pos);
+        this.onHovered(pos);
     }
 
     this.lastMousePos = pos;
 }
 
-Map.prototype.onPan = function(posDiff) {
+Map.prototype.onHovered = function(pos) {
+}
+
+Map.prototype.onPanned = function(pos) {
+}
+
+Map.prototype.onClicked = function(pos) {
+}
+
+
+/*
+ * GameMap class
+ * @contructor
+ */
+var GameMap = function(ui, canvas, mouseArea) {
+    Map.call(this, ui, canvas, mouseArea);
+
+    this.loadQueue = [];
+
+    // init
+    this.loadResources();
+    this.canvas.requestPaint();
+};
+
+GameMap.prototype = Object.create(Map.prototype);
+GameMap.prototype.constructor = EditableMap;
+
+GameMap.prototype.newMapNode = function(pos, mapNodeQObj) {
+    var mapNode = new MapItem.MapNode(pos, mapNodeQObj,this);
+    this.mapItems.push(mapNode);
+
+    return mapNode;
+}
+
+GameMap.prototype.findMapNodeAt = function(point) {
+    for (var i = 0; i < this.mapItems.length; i++) {
+        var mapNode = this.mapItems[i];
+        if (mapNode.contains(point)) return mapNode;
+    }
+
+    return undefined;
+};
+
+GameMap.prototype.getMapNodeAt = function(pos) {
+    for (var i = 0; i < this.mapItems.length; i++) {
+        var mapNode = this.mapItems[i];
+        if (mapNode.pos.x == pos.x && mapNode.pos.y == pos.y)
+            return mapNode;
+    }
+
+    return undefined;
+};
+
+GameMap.prototype.onClicked = function(pos) {
+    var mapNode = this.findMapNodeAt(pos);
+
+    if (this.mapNodeClicked != undefined)
+        this.mapNodeClicked(mapNode);
+};
+
+GameMap.prototype.onHovered = function(pos) {
+    var mapNode = this.findMapNodeAt(pos);
+    if (this.focusedNode !== mapNode) {
+        if (mapNode) {
+            if (this.focusedNode) this.focusedNode.onMouseOut();
+
+            this.focusedNode = mapNode;
+            this.focusedNode.onMouseIn();
+        }
+        else if (this.focusedNode) {
+            this.focusedNode.onMouseOut();
+            this.focusedNode = undefined;
+        }
+    }
+
+    if (this.mapNodeFocused != undefined)
+        this.mapNodeFocused(mapNode);
+};
+
+
+
+GameMap.prototype.onPanned = function(posDiff) {
     var window = this.canvas.canvasWindow;
     var x = window.x + posDiff.width;
     var y = window.y + posDiff.height;
@@ -326,31 +337,57 @@ Map.prototype.onPan = function(posDiff) {
     );
 }
 
-Map.prototype.onHover = function(pos) {
-    var mapNode = this.findMapNodeAt(pos);
-    if (this.focusedNode !== mapNode) {
-        if (mapNode) {
-            if (this.focusedNode) this.focusedNode.onMouseOut();
+GameMap.prototype.loadResources = function() {
+    var resourcePaths = this.qobj.world.resourcePaths;
+    var path;
 
-            this.focusedNode = mapNode;
-            this.focusedNode.onMouseIn();
+    for (var resource in resourcePaths) {
+        path = resourcePaths[resource];
+        this.canvas.loadImage(path);
+        this.loadQueue.push(path);
+    }
+};
+
+GameMap.prototype.onResourceLoaded = function() {
+    var image;
+    var loaded = [];
+
+    for (var i = 0; i < this.loadQueue.length; i++) {
+        image = this.loadQueue[i];
+        if (this.canvas.isImageError(image)) {
+            console.error("Error loading image " + image);
+            loaded.push(image);
         }
-        else if (this.focusedNode) {
-            this.focusedNode.onMouseOut();
-            this.focusedNode = undefined;
+
+        if (this.canvas.isImageLoaded(image)) {
+            console.info("Successfully loaded image " + image);
+            loaded.push(image);
         }
     }
 
-    if (this.mapNodeFocused != undefined)
-        this.mapNodeFocused(mapNode);
+    for (var i = 0; i < loaded.length; i++) {
+        var index = this.loadQueue.indexOf(loaded[i]);
+        this.loadQueue.splice(index, 1);
+    }
+
+    if (this.loadQueue.length == 0) {
+        console.info("All resources loaded");
+        this.onResourcesLoaded();
+    }
 };
+
+GameMap.prototype.onResourcesLoaded = function() {
+    this.ready = true;
+    this.canvas.requestPaint();
+};
+
 
 /*
  * EditableMap class
  * @contructor
  */
 var EditableMap = function(ui, canvas, mouseArea) {
-    Map.call(this, ui, canvas, mouseArea);
+    GameMap.call(this, ui, canvas, mouseArea);
 
     ui.map.mapNodeCreated.connect(this.onMapNodeCreated.bind(this));
 
@@ -359,11 +396,11 @@ var EditableMap = function(ui, canvas, mouseArea) {
     this.mapNodeFocused = undefined;
 
     // init
-    this.addPhantomMapNodes(this.mapNodes);
+    this.addPhantomMapNodes(this.mapItems);
     this.geometryChanged = true;
 };
 
-EditableMap.prototype = Object.create(Map.prototype);
+EditableMap.prototype = Object.create(GameMap.prototype);
 EditableMap.prototype.constructor = EditableMap;
 
 EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
@@ -387,11 +424,11 @@ EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
     );
 
     var phantomMapNode = this.getMapNodeAt(pos);
-    var i = this.mapNodes.indexOf(phantomMapNode);
-    this.mapNodes.splice(i, 1);
+    var i = this.mapItems.indexOf(phantomMapNode);
+    this.mapItems.splice(i, 1);
 
     var mapNodeJObj = new MapItem.MapNode(pos, mapNodeQObj, this);
-    this.mapNodes.push(mapNodeJObj);
+    this.mapItems.push(mapNodeJObj);
     this.markDirty(mapNodeJObj);
 
     this.addPhantomMapNodes([mapNodeJObj]);
@@ -403,7 +440,7 @@ EditableMap.prototype.addPhantomMapNodes = function(mapNodes) {
     for (var i = 0; i < mapNodes.length; i++) {
 
         var mapNode = mapNodes[i];
-        if (mapNode instanceof PhantomMapNode) continue;
+        if (mapNode instanceof MapItem.PhantomMapNode) continue;
 
         for (var direction in mapNode.qobj.neighbours) {
             var neighbour = mapNode.qobj.neighbours[direction];
@@ -426,10 +463,65 @@ EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) 
     var phantomMapNode = this.getMapNodeAt(pos);
     if (phantomMapNode == undefined) {
         phantomMapNode = new MapItem.PhantomMapNode(pos, this);
-        this.mapNodes.push(phantomMapNode);
+        this.mapItems.push(phantomMapNode);
         this.markDirty(phantomMapNode);
     }
 
     var oppositeDirection = neighbourMapNode.qobj.oppositeDirection(direction);
     phantomMapNode.neighbours[oppositeDirection] = neighbourMapNode;
+};
+
+
+/*
+ * MiniMap class
+ * @contructor
+ */
+var MiniMap = function(ui, canvas, mouseArea) {
+    Map.call(this, ui, canvas, mouseArea);
+
+    // init
+    this.ready = true;
+    this.canvas.requestPaint();
+};
+
+MiniMap.prototype = Object.create(Map.prototype);
+MiniMap.prototype.constructor = MiniMap;
+
+MiniMap.prototype.newMapNode = function(pos, mapNodeQObj) {
+    var mapNode = new MapItem.MiniMapNode(pos, mapNodeQObj, this);
+    this.mapItems.push(mapNode);
+
+    return mapNode;
+}
+
+MiniMap.prototype.onPaint = function(region) {
+    if (!this.ready) return;
+    if (this.geometryChanged) {
+        this.updateGeometry();
+        this.geometryChanged = false;
+    }
+
+    var ctx = this.canvas.getContext("2d");
+
+    ctx.clearRect(
+        0,
+        0,
+        this.canvas.canvasSize.width,
+        this.canvas.canvasSize.height
+    );
+
+    ctx.save();
+    ctx.scale(0.1, 0.1);
+
+    console.log(this.size);
+
+    for (var i = 0; i < this.mapItems.length; i++) {
+        this.mapItems[i].onPaint(ctx);
+    }
+
+    ctx.restore();
+};
+
+MiniMap.prototype.mapItemCreated = function(mapItem) {
+    console.log(mapItem)
 };

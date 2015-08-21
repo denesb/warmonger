@@ -68,5 +68,6 @@ void UserInterface::setupModels()
     const core::World *world = this->map->getWorld();
     const QString path = world->getPath();
 
-    this->hexMask.load(path + QStringLiteral("/resources/hexagon_mask.xpm"), "XPM");
+    //FIXME: hardcoded path
+    this->hexMask.load(path + QStringLiteral("/surfaces/default/hexagon_mask.xpm"), "XPM");
 }

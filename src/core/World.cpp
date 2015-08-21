@@ -242,7 +242,8 @@ QVariantMap World::readResourcePaths() const
 
 QString World::getResourcePath(const QString &resourceName) const
 {
-    return this->path + QStringLiteral("/resources/") + this->resourcePaths[resourceName];
+    //TODO: un-hardcode!!!
+    return this->path + QStringLiteral("/surfaces/default/") + this->resourcePaths[resourceName];
 }
 
 void World::dataFromJson(const QJsonObject &obj)
@@ -281,7 +282,7 @@ void World::dataToJson(QJsonObject &obj) const
 
 QVariantMap World::toQVariantMap(const QMap<QString, QString> &qmap) const
 {
-    const QString basePath = this->path + "/resources/";
+    const QString basePath = this->path + "/surfaces/default/";
     QVariantMap vmap;
     QMap<QString, QString>::ConstIterator it;
     for (it = qmap.constBegin(); it != qmap.constEnd(); it++)

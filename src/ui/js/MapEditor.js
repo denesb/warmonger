@@ -1,6 +1,6 @@
 .pragma library
 
-.import 'EditableMap.js' as EditableMap
+.import 'Map.js' as Map
 
 /*
  * MapEditor class

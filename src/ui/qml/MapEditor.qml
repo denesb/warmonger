@@ -2,7 +2,7 @@ import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Layouts 1.1
 
-import "js/EditableMap.js" as EditableMap
+import "js/Map.js" as Map
 import "js/MapEditor.js" as MapEditor
 
 Rectangle {
@@ -42,7 +42,7 @@ Rectangle {
         signal mapNodeClicked(var mapNode)
 
         Component.onCompleted: {
-            jobj = new EditableMap.EditableMap(ui, mapCanvas, mapMouseArea);
+            jobj = new Map.EditableMap(ui, mapCanvas, mapMouseArea);
             jobj.mapNodeClicked = map.mapNodeClicked;
         }
 
@@ -94,15 +94,45 @@ Rectangle {
         color: "blue"
 
         Rectangle {
-            id: mapEditorMiniMap
+            id: miniMap
+            property var jobj
             anchors {
                 left: parent.left
                 top: parent.top
                 right: parent.right
             }
-
             height: 288
-            color: "yellow"
+            border {
+                width: 1
+                color: "black"
+            }
+
+            Component.onCompleted: {
+                jobj = new Map.MiniMap(ui, miniMapCanvas, miniMapMouseArea);
+            }
+
+            Canvas {
+                id: miniMapCanvas
+                anchors.fill: parent
+                onPaint: miniMap.jobj.onPaint(region)
+                onImageLoaded: miniMap.jobj.onResourceLoaded()
+                tileSize {
+                    width: 440
+                    height: 512
+                }
+
+                MouseArea {
+                    id: miniMapMouseArea
+
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    acceptedButtons: Qt.LeftButton
+
+                    onPressed: miniMap.jobj.onPressed(mouse)
+                    onReleased: miniMap.jobj.onReleased(mouse)
+                    onPositionChanged: miniMap.jobj.onPositionChanged(mouse)
+                }
+            }
         }
 
         Rectangle {
@@ -111,7 +141,7 @@ Rectangle {
             signal terrainTypeSelected(string objectName)
 
             anchors {
-                top: mapEditorMiniMap.bottom
+                top: miniMap.bottom
                 right: parent.right
                 bottom: parent.bottom
                 left: parent.left

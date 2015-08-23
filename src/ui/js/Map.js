@@ -424,6 +424,7 @@ EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
     var oppositeDirection = mapNodeQObj.oppositeDirection(direction);
     var tileSize = this.qobj.world.tileSize;
     var pos = neighbourPos(oppositeDirection, tileSize, neighbourJObj.pos);
+
     var phantomMapNode = this.getMapNodeAt(pos);
     var i = this.mapItems.indexOf(phantomMapNode);
     this.mapItems.splice(i, 1);

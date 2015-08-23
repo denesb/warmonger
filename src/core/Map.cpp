@@ -319,7 +319,7 @@ void Map::dataToJson(QJsonObject &obj) const
 {
     obj["description"] = this->description;
     obj["world"] = this->world->objectName();
-    obj["mapNodeIndex"] = QString::number(this->mapNodeIndex);
+    obj["mapNodeIndex"] = this->mapNodeIndex;
     obj["mapNodes"] = this->mapNodesToJson(this->mapNodes);
     obj["players"] = listToJson<Player>(this->players);
     obj["units"] = listToJson<Unit>(this->units);

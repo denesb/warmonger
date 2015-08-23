@@ -100,6 +100,12 @@ var MiniMapNode = function(pos, mapNodeQObj, map) {
 
     this.qobj = mapNodeQObj;
     this.terrainType = this.qobj.terrainType;
+    this.terrainTypeColors = {
+        'plains': '#39661e',
+        'forest': '#173504',
+        'hills': '#cbce16',
+        'mountains': '#ce7516'
+    };
 };
 
 MiniMapNode.prototype = Object.create(MapItem.prototype);
@@ -113,23 +119,33 @@ MiniMapNode.prototype.onPaint = function(ctx) {
 
     ctx.translate(this.pos.x, this.pos.y);
 
-    var y0 = tileSize.height / 4;
-    var y1 = y0 + tileSize.height / 2;
+    var w = tileSize.width;
+    var h = tileSize.height;
 
-    var x = tileSize.width / 2;
+    var p0 = Qt.point(0, h/4 - 1);
+    var p1 = Qt.point(w/2 - 1, 0);
+    var p2 = Qt.point(w - 1, h/4 - 1);
+    var p3 = Qt.point(w - 1, 3 * h/4 - 1);
+    var p4 = Qt.point(w/2 - 1, h - 1);
+    var p5 = Qt.point(0, 3 * h/4 - 1);
 
     ctx.beginPath();
-    ctx.moveTo(0, y0);
-    ctx.lineTo(x, 0);
-    ctx.lineTo(tileSize.width -1, y0);
-    ctx.lineTo(tileSize.width -1, y1);
-    ctx.lineTo(x, tileSize.height - 1);
-    ctx.lineTo(0, y1);
+    ctx.moveTo(p0.x, p0.y);
+    ctx.lineTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.lineTo(p3.x, p3.y);
+    ctx.lineTo(p4.x, p4.y);
+    ctx.lineTo(p5.x, p5.y);
     ctx.closePath();
 
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = 'black';
+    var style = this.terrainTypeColors[this.terrainType.objectName];
+
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = style;
+    ctx.fillStyle = style;
+
     ctx.stroke();
+    ctx.fill();
 
     ctx.restore();
 };

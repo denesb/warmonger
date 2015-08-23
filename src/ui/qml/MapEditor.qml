@@ -14,6 +14,12 @@ Rectangle {
 
         mapEditorControls.terrainTypeSelected.connect(jobj.onTerrainTypeSelected.bind(jobj));
         map.mapNodeClicked.connect(jobj.onMapNodeClicked.bind(jobj));
+
+        mapCanvas.onCanvasWindowChanged.connect(mapCanvasWindowChanged);
+    }
+
+    function mapCanvasWindowChanged() {
+        miniMap.jobj.setWindow(mapCanvas.canvasWindow);
     }
 
     Rectangle {
@@ -116,10 +122,6 @@ Rectangle {
                 anchors.fill: parent
                 onPaint: miniMap.jobj.onPaint(region)
                 onImageLoaded: miniMap.jobj.onResourceLoaded()
-                tileSize {
-                    width: 440
-                    height: 512
-                }
 
                 MouseArea {
                     id: miniMapMouseArea

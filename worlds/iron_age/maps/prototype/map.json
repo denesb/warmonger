@@ -1,27 +1,9 @@
 {
     "description": "Experimental development map",
     "displayName": "Prototype map",
-    "mapNodeIndex": 40,
+    "mapNodeIndex": 54,
     "mapNodes": {
         "connections": [
-            {
-                "directionA": "SouthEast",
-                "directionB": "NorthWest",
-                "nodeA": "mapNode0",
-                "nodeB": "mapNode2"
-            },
-            {
-                "directionA": "SouthWest",
-                "directionB": "NorthEast",
-                "nodeA": "mapNode0",
-                "nodeB": "mapNode25"
-            },
-            {
-                "directionA": "NorthEast",
-                "directionB": "SouthWest",
-                "nodeA": "mapNode0",
-                "nodeB": "mapNode32"
-            },
             {
                 "directionA": "East",
                 "directionB": "West",
@@ -29,10 +11,10 @@
                 "nodeB": "mapNode1"
             },
             {
-                "directionA": "West",
-                "directionB": "East",
+                "directionA": "NorthEast",
+                "directionB": "SouthWest",
                 "nodeA": "mapNode0",
-                "nodeB": "mapNode26"
+                "nodeB": "mapNode32"
             },
             {
                 "directionA": "NorthWest",
@@ -41,28 +23,34 @@
                 "nodeB": "mapNode31"
             },
             {
-                "directionA": "SouthEast",
-                "directionB": "NorthWest",
-                "nodeA": "mapNode1",
-                "nodeB": "mapNode3"
+                "directionA": "West",
+                "directionB": "East",
+                "nodeA": "mapNode0",
+                "nodeB": "mapNode26"
             },
             {
                 "directionA": "SouthWest",
                 "directionB": "NorthEast",
-                "nodeA": "mapNode1",
-                "nodeB": "mapNode2"
+                "nodeA": "mapNode0",
+                "nodeB": "mapNode25"
             },
             {
-                "directionA": "NorthEast",
-                "directionB": "SouthWest",
-                "nodeA": "mapNode1",
-                "nodeB": "mapNode33"
+                "directionA": "SouthEast",
+                "directionB": "NorthWest",
+                "nodeA": "mapNode0",
+                "nodeB": "mapNode2"
             },
             {
                 "directionA": "East",
                 "directionB": "West",
                 "nodeA": "mapNode1",
                 "nodeB": "mapNode5"
+            },
+            {
+                "directionA": "NorthEast",
+                "directionB": "SouthWest",
+                "nodeA": "mapNode1",
+                "nodeB": "mapNode33"
             },
             {
                 "directionA": "NorthWest",
@@ -71,16 +59,16 @@
                 "nodeB": "mapNode32"
             },
             {
-                "directionA": "SouthEast",
-                "directionB": "NorthWest",
-                "nodeA": "mapNode2",
-                "nodeB": "mapNode10"
-            },
-            {
                 "directionA": "SouthWest",
                 "directionB": "NorthEast",
-                "nodeA": "mapNode2",
-                "nodeB": "mapNode16"
+                "nodeA": "mapNode1",
+                "nodeB": "mapNode2"
+            },
+            {
+                "directionA": "SouthEast",
+                "directionB": "NorthWest",
+                "nodeA": "mapNode1",
+                "nodeB": "mapNode3"
             },
             {
                 "directionA": "East",
@@ -95,22 +83,16 @@
                 "nodeB": "mapNode25"
             },
             {
-                "directionA": "SouthEast",
-                "directionB": "NorthWest",
-                "nodeA": "mapNode3",
-                "nodeB": "mapNode7"
-            },
-            {
                 "directionA": "SouthWest",
                 "directionB": "NorthEast",
-                "nodeA": "mapNode3",
-                "nodeB": "mapNode10"
+                "nodeA": "mapNode2",
+                "nodeB": "mapNode16"
             },
             {
-                "directionA": "NorthEast",
-                "directionB": "SouthWest",
-                "nodeA": "mapNode3",
-                "nodeB": "mapNode5"
+                "directionA": "SouthEast",
+                "directionB": "NorthWest",
+                "nodeA": "mapNode2",
+                "nodeB": "mapNode10"
             },
             {
                 "directionA": "East",
@@ -119,28 +101,34 @@
                 "nodeB": "mapNode4"
             },
             {
-                "directionA": "SouthEast",
-                "directionB": "NorthWest",
-                "nodeA": "mapNode4",
-                "nodeB": "mapNode6"
+                "directionA": "NorthEast",
+                "directionB": "SouthWest",
+                "nodeA": "mapNode3",
+                "nodeB": "mapNode5"
             },
             {
                 "directionA": "SouthWest",
                 "directionB": "NorthEast",
-                "nodeA": "mapNode4",
-                "nodeB": "mapNode7"
+                "nodeA": "mapNode3",
+                "nodeB": "mapNode10"
             },
             {
-                "directionA": "NorthEast",
-                "directionB": "SouthWest",
-                "nodeA": "mapNode4",
-                "nodeB": "mapNode9"
+                "directionA": "SouthEast",
+                "directionB": "NorthWest",
+                "nodeA": "mapNode3",
+                "nodeB": "mapNode7"
             },
             {
                 "directionA": "East",
                 "directionB": "West",
                 "nodeA": "mapNode4",
                 "nodeB": "mapNode8"
+            },
+            {
+                "directionA": "NorthEast",
+                "directionB": "SouthWest",
+                "nodeA": "mapNode4",
+                "nodeB": "mapNode9"
             },
             {
                 "directionA": "NorthWest",
@@ -149,16 +137,28 @@
                 "nodeB": "mapNode5"
             },
             {
-                "directionA": "NorthEast",
-                "directionB": "SouthWest",
-                "nodeA": "mapNode5",
-                "nodeB": "mapNode34"
+                "directionA": "SouthWest",
+                "directionB": "NorthEast",
+                "nodeA": "mapNode4",
+                "nodeB": "mapNode7"
+            },
+            {
+                "directionA": "SouthEast",
+                "directionB": "NorthWest",
+                "nodeA": "mapNode4",
+                "nodeB": "mapNode6"
             },
             {
                 "directionA": "East",
                 "directionB": "West",
                 "nodeA": "mapNode5",
                 "nodeB": "mapNode9"
+            },
+            {
+                "directionA": "NorthEast",
+                "directionB": "SouthWest",
+                "nodeA": "mapNode5",
+                "nodeB": "mapNode34"
             },
             {
                 "directionA": "NorthWest",
@@ -167,16 +167,10 @@
                 "nodeB": "mapNode33"
             },
             {
-                "directionA": "SouthEast",
-                "directionB": "NorthWest",
+                "directionA": "East",
+                "directionB": "West",
                 "nodeA": "mapNode6",
-                "nodeB": "mapNode39"
-            },
-            {
-                "directionA": "SouthWest",
-                "directionB": "NorthEast",
-                "nodeA": "mapNode6",
-                "nodeB": "mapNode11"
+                "nodeB": "mapNode40"
             },
             {
                 "directionA": "NorthEast",
@@ -185,28 +179,22 @@
                 "nodeB": "mapNode8"
             },
             {
-                "directionA": "East",
-                "directionB": "West",
-                "nodeA": "mapNode6",
-                "nodeB": "mapNode40"
-            },
-            {
                 "directionA": "West",
                 "directionB": "East",
                 "nodeA": "mapNode6",
                 "nodeB": "mapNode7"
             },
             {
-                "directionA": "SouthEast",
-                "directionB": "NorthWest",
-                "nodeA": "mapNode7",
+                "directionA": "SouthWest",
+                "directionB": "NorthEast",
+                "nodeA": "mapNode6",
                 "nodeB": "mapNode11"
             },
             {
-                "directionA": "SouthWest",
-                "directionB": "NorthEast",
-                "nodeA": "mapNode7",
-                "nodeB": "mapNode12"
+                "directionA": "SouthEast",
+                "directionB": "NorthWest",
+                "nodeA": "mapNode6",
+                "nodeB": "mapNode39"
             },
             {
                 "directionA": "West",
@@ -215,10 +203,16 @@
                 "nodeB": "mapNode10"
             },
             {
+                "directionA": "SouthWest",
+                "directionB": "NorthEast",
+                "nodeA": "mapNode7",
+                "nodeB": "mapNode12"
+            },
+            {
                 "directionA": "SouthEast",
                 "directionB": "NorthWest",
-                "nodeA": "mapNode8",
-                "nodeB": "mapNode40"
+                "nodeA": "mapNode7",
+                "nodeB": "mapNode11"
             },
             {
                 "directionA": "NorthWest",
@@ -227,22 +221,16 @@
                 "nodeB": "mapNode9"
             },
             {
+                "directionA": "SouthEast",
+                "directionB": "NorthWest",
+                "nodeA": "mapNode8",
+                "nodeB": "mapNode40"
+            },
+            {
                 "directionA": "NorthWest",
                 "directionB": "SouthEast",
                 "nodeA": "mapNode9",
                 "nodeB": "mapNode34"
-            },
-            {
-                "directionA": "SouthEast",
-                "directionB": "NorthWest",
-                "nodeA": "mapNode10",
-                "nodeB": "mapNode12"
-            },
-            {
-                "directionA": "SouthWest",
-                "directionB": "NorthEast",
-                "nodeA": "mapNode10",
-                "nodeB": "mapNode13"
             },
             {
                 "directionA": "West",
@@ -251,16 +239,16 @@
                 "nodeB": "mapNode16"
             },
             {
-                "directionA": "SouthEast",
-                "directionB": "NorthWest",
-                "nodeA": "mapNode11",
-                "nodeB": "mapNode38"
-            },
-            {
                 "directionA": "SouthWest",
                 "directionB": "NorthEast",
-                "nodeA": "mapNode11",
-                "nodeB": "mapNode15"
+                "nodeA": "mapNode10",
+                "nodeB": "mapNode13"
+            },
+            {
+                "directionA": "SouthEast",
+                "directionB": "NorthWest",
+                "nodeA": "mapNode10",
+                "nodeB": "mapNode12"
             },
             {
                 "directionA": "East",
@@ -275,16 +263,16 @@
                 "nodeB": "mapNode12"
             },
             {
-                "directionA": "SouthEast",
-                "directionB": "NorthWest",
-                "nodeA": "mapNode12",
+                "directionA": "SouthWest",
+                "directionB": "NorthEast",
+                "nodeA": "mapNode11",
                 "nodeB": "mapNode15"
             },
             {
-                "directionA": "SouthWest",
-                "directionB": "NorthEast",
-                "nodeA": "mapNode12",
-                "nodeB": "mapNode14"
+                "directionA": "SouthEast",
+                "directionB": "NorthWest",
+                "nodeA": "mapNode11",
+                "nodeB": "mapNode38"
             },
             {
                 "directionA": "West",
@@ -293,22 +281,16 @@
                 "nodeB": "mapNode13"
             },
             {
-                "directionA": "SouthEast",
-                "directionB": "NorthWest",
-                "nodeA": "mapNode13",
+                "directionA": "SouthWest",
+                "directionB": "NorthEast",
+                "nodeA": "mapNode12",
                 "nodeB": "mapNode14"
             },
             {
-                "directionA": "SouthWest",
-                "directionB": "NorthEast",
-                "nodeA": "mapNode13",
-                "nodeB": "mapNode18"
-            },
-            {
-                "directionA": "West",
-                "directionB": "East",
-                "nodeA": "mapNode13",
-                "nodeB": "mapNode17"
+                "directionA": "SouthEast",
+                "directionB": "NorthWest",
+                "nodeA": "mapNode12",
+                "nodeB": "mapNode15"
             },
             {
                 "directionA": "NorthWest",
@@ -317,16 +299,22 @@
                 "nodeB": "mapNode16"
             },
             {
-                "directionA": "SouthEast",
-                "directionB": "NorthWest",
-                "nodeA": "mapNode14",
-                "nodeB": "mapNode19"
+                "directionA": "West",
+                "directionB": "East",
+                "nodeA": "mapNode13",
+                "nodeB": "mapNode17"
             },
             {
                 "directionA": "SouthWest",
                 "directionB": "NorthEast",
-                "nodeA": "mapNode14",
-                "nodeB": "mapNode20"
+                "nodeA": "mapNode13",
+                "nodeB": "mapNode18"
+            },
+            {
+                "directionA": "SouthEast",
+                "directionB": "NorthWest",
+                "nodeA": "mapNode13",
+                "nodeB": "mapNode14"
             },
             {
                 "directionA": "East",
@@ -341,15 +329,15 @@
                 "nodeB": "mapNode18"
             },
             {
-                "directionA": "SouthEast",
-                "directionB": "NorthWest",
-                "nodeA": "mapNode15",
-                "nodeB": "mapNode37"
-            },
-            {
                 "directionA": "SouthWest",
                 "directionB": "NorthEast",
-                "nodeA": "mapNode15",
+                "nodeA": "mapNode14",
+                "nodeB": "mapNode20"
+            },
+            {
+                "directionA": "SouthEast",
+                "directionB": "NorthWest",
+                "nodeA": "mapNode14",
                 "nodeB": "mapNode19"
             },
             {
@@ -361,14 +349,14 @@
             {
                 "directionA": "SouthWest",
                 "directionB": "NorthEast",
-                "nodeA": "mapNode16",
-                "nodeB": "mapNode17"
+                "nodeA": "mapNode15",
+                "nodeB": "mapNode19"
             },
             {
-                "directionA": "West",
-                "directionB": "East",
-                "nodeA": "mapNode16",
-                "nodeB": "mapNode24"
+                "directionA": "SouthEast",
+                "directionB": "NorthWest",
+                "nodeA": "mapNode15",
+                "nodeB": "mapNode37"
             },
             {
                 "directionA": "NorthWest",
@@ -377,22 +365,16 @@
                 "nodeB": "mapNode25"
             },
             {
-                "directionA": "SouthEast",
-                "directionB": "NorthWest",
-                "nodeA": "mapNode17",
-                "nodeB": "mapNode18"
+                "directionA": "West",
+                "directionB": "East",
+                "nodeA": "mapNode16",
+                "nodeB": "mapNode24"
             },
             {
                 "directionA": "SouthWest",
                 "directionB": "NorthEast",
-                "nodeA": "mapNode17",
-                "nodeB": "mapNode22"
-            },
-            {
-                "directionA": "West",
-                "directionB": "East",
-                "nodeA": "mapNode17",
-                "nodeB": "mapNode23"
+                "nodeA": "mapNode16",
+                "nodeB": "mapNode17"
             },
             {
                 "directionA": "NorthWest",
@@ -401,10 +383,28 @@
                 "nodeB": "mapNode24"
             },
             {
+                "directionA": "West",
+                "directionB": "East",
+                "nodeA": "mapNode17",
+                "nodeB": "mapNode23"
+            },
+            {
+                "directionA": "SouthWest",
+                "directionB": "NorthEast",
+                "nodeA": "mapNode17",
+                "nodeB": "mapNode22"
+            },
+            {
                 "directionA": "SouthEast",
                 "directionB": "NorthWest",
+                "nodeA": "mapNode17",
+                "nodeB": "mapNode18"
+            },
+            {
+                "directionA": "West",
+                "directionB": "East",
                 "nodeA": "mapNode18",
-                "nodeB": "mapNode20"
+                "nodeB": "mapNode22"
             },
             {
                 "directionA": "SouthWest",
@@ -413,10 +413,10 @@
                 "nodeB": "mapNode21"
             },
             {
-                "directionA": "West",
-                "directionB": "East",
+                "directionA": "SouthEast",
+                "directionB": "NorthWest",
                 "nodeA": "mapNode18",
-                "nodeB": "mapNode22"
+                "nodeB": "mapNode20"
             },
             {
                 "directionA": "East",
@@ -437,28 +437,16 @@
                 "nodeB": "mapNode21"
             },
             {
-                "directionA": "West",
-                "directionB": "East",
-                "nodeA": "mapNode21",
-                "nodeB": "mapNode35"
-            },
-            {
                 "directionA": "NorthWest",
                 "directionB": "SouthEast",
                 "nodeA": "mapNode21",
                 "nodeB": "mapNode22"
             },
             {
-                "directionA": "SouthWest",
-                "directionB": "NorthEast",
-                "nodeA": "mapNode22",
-                "nodeB": "mapNode35"
-            },
-            {
                 "directionA": "West",
                 "directionB": "East",
-                "nodeA": "mapNode22",
-                "nodeB": "mapNode30"
+                "nodeA": "mapNode21",
+                "nodeB": "mapNode35"
             },
             {
                 "directionA": "NorthWest",
@@ -467,10 +455,16 @@
                 "nodeB": "mapNode23"
             },
             {
+                "directionA": "West",
+                "directionB": "East",
+                "nodeA": "mapNode22",
+                "nodeB": "mapNode30"
+            },
+            {
                 "directionA": "SouthWest",
                 "directionB": "NorthEast",
-                "nodeA": "mapNode23",
-                "nodeB": "mapNode30"
+                "nodeA": "mapNode22",
+                "nodeB": "mapNode35"
             },
             {
                 "directionA": "NorthEast",
@@ -479,16 +473,22 @@
                 "nodeB": "mapNode24"
             },
             {
+                "directionA": "NorthWest",
+                "directionB": "SouthEast",
+                "nodeA": "mapNode23",
+                "nodeB": "mapNode28"
+            },
+            {
                 "directionA": "West",
                 "directionB": "East",
                 "nodeA": "mapNode23",
                 "nodeB": "mapNode29"
             },
             {
-                "directionA": "NorthWest",
-                "directionB": "SouthEast",
+                "directionA": "SouthWest",
+                "directionB": "NorthEast",
                 "nodeA": "mapNode23",
-                "nodeB": "mapNode28"
+                "nodeB": "mapNode30"
             },
             {
                 "directionA": "NorthEast",
@@ -497,6 +497,12 @@
                 "nodeB": "mapNode25"
             },
             {
+                "directionA": "NorthWest",
+                "directionB": "SouthEast",
+                "nodeA": "mapNode24",
+                "nodeB": "mapNode27"
+            },
+            {
                 "directionA": "West",
                 "directionB": "East",
                 "nodeA": "mapNode24",
@@ -505,8 +511,8 @@
             {
                 "directionA": "NorthWest",
                 "directionB": "SouthEast",
-                "nodeA": "mapNode24",
-                "nodeB": "mapNode27"
+                "nodeA": "mapNode25",
+                "nodeB": "mapNode26"
             },
             {
                 "directionA": "West",
@@ -515,22 +521,16 @@
                 "nodeB": "mapNode27"
             },
             {
-                "directionA": "NorthWest",
-                "directionB": "SouthEast",
-                "nodeA": "mapNode25",
-                "nodeB": "mapNode26"
+                "directionA": "NorthEast",
+                "directionB": "SouthWest",
+                "nodeA": "mapNode26",
+                "nodeB": "mapNode31"
             },
             {
                 "directionA": "SouthWest",
                 "directionB": "NorthEast",
                 "nodeA": "mapNode26",
                 "nodeB": "mapNode27"
-            },
-            {
-                "directionA": "NorthEast",
-                "directionB": "SouthWest",
-                "nodeA": "mapNode26",
-                "nodeB": "mapNode31"
             },
             {
                 "directionA": "SouthWest",
@@ -551,16 +551,16 @@
                 "nodeB": "mapNode30"
             },
             {
-                "directionA": "SouthEast",
-                "directionB": "NorthWest",
-                "nodeA": "mapNode30",
-                "nodeB": "mapNode35"
-            },
-            {
                 "directionA": "SouthWest",
                 "directionB": "NorthEast",
                 "nodeA": "mapNode30",
                 "nodeB": "mapNode36"
+            },
+            {
+                "directionA": "SouthEast",
+                "directionB": "NorthWest",
+                "nodeA": "mapNode30",
+                "nodeB": "mapNode35"
             },
             {
                 "directionA": "East",
@@ -603,6 +603,90 @@
                 "directionB": "SouthWest",
                 "nodeA": "mapNode39",
                 "nodeB": "mapNode40"
+            },
+            {
+                "directionA": "East",
+                "directionB": "West",
+                "nodeA": "mapNode40",
+                "nodeB": "mapNode41"
+            },
+            {
+                "directionA": "East",
+                "directionB": "West",
+                "nodeA": "mapNode41",
+                "nodeB": "mapNode42"
+            },
+            {
+                "directionA": "East",
+                "directionB": "West",
+                "nodeA": "mapNode42",
+                "nodeB": "mapNode43"
+            },
+            {
+                "directionA": "East",
+                "directionB": "West",
+                "nodeA": "mapNode43",
+                "nodeB": "mapNode44"
+            },
+            {
+                "directionA": "East",
+                "directionB": "West",
+                "nodeA": "mapNode44",
+                "nodeB": "mapNode45"
+            },
+            {
+                "directionA": "East",
+                "directionB": "West",
+                "nodeA": "mapNode45",
+                "nodeB": "mapNode46"
+            },
+            {
+                "directionA": "East",
+                "directionB": "West",
+                "nodeA": "mapNode46",
+                "nodeB": "mapNode47"
+            },
+            {
+                "directionA": "East",
+                "directionB": "West",
+                "nodeA": "mapNode47",
+                "nodeB": "mapNode48"
+            },
+            {
+                "directionA": "East",
+                "directionB": "West",
+                "nodeA": "mapNode48",
+                "nodeB": "mapNode49"
+            },
+            {
+                "directionA": "East",
+                "directionB": "West",
+                "nodeA": "mapNode49",
+                "nodeB": "mapNode50"
+            },
+            {
+                "directionA": "East",
+                "directionB": "West",
+                "nodeA": "mapNode50",
+                "nodeB": "mapNode51"
+            },
+            {
+                "directionA": "East",
+                "directionB": "West",
+                "nodeA": "mapNode51",
+                "nodeB": "mapNode52"
+            },
+            {
+                "directionA": "East",
+                "directionB": "West",
+                "nodeA": "mapNode52",
+                "nodeB": "mapNode53"
+            },
+            {
+                "directionA": "East",
+                "directionB": "West",
+                "nodeA": "mapNode53",
+                "nodeB": "mapNode54"
             }
         ],
         "nodes": [
@@ -809,6 +893,76 @@
             {
                 "displayName": "",
                 "objectName": "mapNode40",
+                "terrainType": "plains"
+            },
+            {
+                "displayName": "",
+                "objectName": "mapNode41",
+                "terrainType": "plains"
+            },
+            {
+                "displayName": "",
+                "objectName": "mapNode42",
+                "terrainType": "plains"
+            },
+            {
+                "displayName": "",
+                "objectName": "mapNode43",
+                "terrainType": "plains"
+            },
+            {
+                "displayName": "",
+                "objectName": "mapNode44",
+                "terrainType": "plains"
+            },
+            {
+                "displayName": "",
+                "objectName": "mapNode45",
+                "terrainType": "plains"
+            },
+            {
+                "displayName": "",
+                "objectName": "mapNode46",
+                "terrainType": "plains"
+            },
+            {
+                "displayName": "",
+                "objectName": "mapNode47",
+                "terrainType": "plains"
+            },
+            {
+                "displayName": "",
+                "objectName": "mapNode48",
+                "terrainType": "plains"
+            },
+            {
+                "displayName": "",
+                "objectName": "mapNode49",
+                "terrainType": "plains"
+            },
+            {
+                "displayName": "",
+                "objectName": "mapNode50",
+                "terrainType": "plains"
+            },
+            {
+                "displayName": "",
+                "objectName": "mapNode51",
+                "terrainType": "plains"
+            },
+            {
+                "displayName": "",
+                "objectName": "mapNode52",
+                "terrainType": "plains"
+            },
+            {
+                "displayName": "",
+                "objectName": "mapNode53",
+                "terrainType": "plains"
+            },
+            {
+                "displayName": "",
+                "objectName": "mapNode54",
                 "terrainType": "plains"
             }
         ]

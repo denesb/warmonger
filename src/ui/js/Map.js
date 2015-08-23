@@ -149,19 +149,19 @@ Map.prototype.calculateBoundingRect = function() {
     if (this.mapItems.length == 0)
         return Qt.rect(0, 0, 0, 0);
 
-    var pos = this.mapItems[0].pos;
+    var initialPos = this.mapItems[0].pos;
 
-    var topLeft = Qt.point(pos.x, pos.y);
-    var bottomRight = Qt.point(pos.x, pos.y);
+    var topLeft = Qt.point(initialPos.x, initialPos.y);
+    var bottomRight = Qt.point(initialPos.x, initialPos.y);
 
     for (var i = 0; i < this.mapItems.length; i++) {
         var pos = this.mapItems[i].pos;
 
-        if (pos.x < topLeft.x) topLeft.x = pos.x;
-        else if (pos.x > bottomRight.x) bottomRight.x = pos.x;
+        topLeft.x = Math.min(pos.x, topLeft.x);
+        bottomRight.x = Math.max(pos.x, bottomRight.x);
 
-        if (pos.y < topLeft.y) topLeft.y = pos.y;
-        else if (pos.y > bottomRight.x) bottomRight.y = pos.y;
+        topLeft.y = Math.min(pos.y, topLeft.y);
+        bottomRight.y = Math.max(pos.y, bottomRight.y);
     }
 
     // x,y is the top-left corner of the mapNode so we need to add the tile size
@@ -200,7 +200,7 @@ Map.prototype.adjustMapCoordinates = function() {
         rect.width,
         rect.height
     );
-}
+};
 
 Map.prototype.updateGeometry = function() {
     this.boundingRect = this.calculateBoundingRect();
@@ -215,14 +215,14 @@ Map.prototype.updateGeometry = function() {
     );
 
     this.adjustMapCoordinates();
-}
+};
 
 Map.prototype.translateToLocal = function(pos) {
     return Qt.point(
         pos.x + this.canvas.canvasWindow.x,
         pos.y + this.canvas.canvasWindow.y
     );
-}
+};
 
 Map.prototype.onPressed = function(mouse) {
     this.lastMouseEvent = MouseEvents.pressed;
@@ -256,16 +256,16 @@ Map.prototype.onPositionChanged = function(mouse) {
     }
 
     this.lastMousePos = pos;
-}
+};
 
 Map.prototype.onHovered = function(pos) {
-}
+};
 
 Map.prototype.onPanned = function(pos) {
-}
+};
 
 Map.prototype.onClicked = function(pos) {
-}
+};
 
 
 /*
@@ -301,7 +301,7 @@ GameMap.prototype.findMapNodeAt = function(point) {
     return undefined;
 };
 
-GameMap.prototype.getMapNodeAt = function(pos) {
+GameMap.prototype.getMapItemAt = function(pos) {
     for (var i = 0; i < this.mapItems.length; i++) {
         var mapItem = this.mapItems[i];
         if (mapItem.pos.x == pos.x && mapItem.pos.y == pos.y)
@@ -342,25 +342,31 @@ GameMap.prototype.onPanned = function(posDiff) {
     var x = window.x + posDiff.width;
     var y = window.y + posDiff.height;
 
+    this.moveWindowTo(Qt.point(x, y));
+}
+
+GameMap.prototype.moveWindowTo = function(pos) {
+    var window = this.canvas.canvasWindow;
     var size = this.canvas.canvasSize;
-    var isXInBounds = ((x > 0) && ((x + window.width) < size.width));
-    var isYInBounds = ((y > 0) && ((y + window.height) < size.height));
 
-    var newX, newY;
+    var maxX = size.width - window.width;
+    var maxY = size.height - window.height;
 
-    if (isXInBounds) newX = x;
-    else newX = window.x;
+    var x = pos.x;
+    if (x < 0) x = 0;
+    if (x > maxX) x = maxX;
 
-    if (isYInBounds) newY = y;
-    else newY = window.y;
+    var y = pos.y;
+    if (y < 0) y = 0;
+    if (y > maxY) y = maxY;
 
     this.canvas.canvasWindow = Qt.rect(
-        newX,
-        newY,
+        x,
+        y,
         window.width,
         window.height
     );
-}
+};
 
 GameMap.prototype.loadResources = function() {
     var resourcePaths = this.qobj.world.resourcePaths;
@@ -430,7 +436,7 @@ EditableMap.prototype.constructor = EditableMap;
 
 EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
     var pos = this.calculatePosOfMapNodeQObj(mapNodeQObj);
-    var phantomMapNode = this.getMapNodeAt(pos);
+    var phantomMapNode = this.getMapItemAt(pos);
     var i = this.mapItems.indexOf(phantomMapNode);
     this.mapItems.splice(i, 1);
 
@@ -462,7 +468,7 @@ EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) 
     var tileSize = this.qobj.world.tileSize;
     var pos = neighbourPos(direction, tileSize, neighbourMapNode.pos);
 
-    var phantomMapNode = this.getMapNodeAt(pos);
+    var phantomMapNode = this.getMapItemAt(pos);
     if (phantomMapNode == undefined) {
         phantomMapNode = new MapItem.PhantomMapNode(pos, this);
         this.mapItems.push(phantomMapNode);
@@ -481,7 +487,10 @@ EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) 
 var MiniMap = function(ui, canvas, mouseArea) {
     Map.call(this, ui, canvas, mouseArea);
 
+    this.pos = Qt.point(0, 0);
+    this.window = Qt.rect(0, 0, 0, 0);
     this.scaleFactor = 1;
+    this.posChanged = undefined;
 
     // init
     ui.map.mapNodeCreated.connect(this.onMapNodeCreated.bind(this));
@@ -541,7 +550,21 @@ MiniMap.prototype.onPaint = function(region) {
         this.mapItems[i].onPaint(ctx);
     }
 
+    ctx.rect(
+        this.window.x,
+        this.window.y,
+        this.window.width,
+        this.window.height
+    );
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
     ctx.restore();
+};
+
+MiniMap.prototype.onClicked = function(pos) {
+    this.centerOn(pos);
 };
 
 MiniMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
@@ -551,5 +574,34 @@ MiniMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
     this.mapItems.push(mapNodeJObj);
 
     this.geometryChanged = true;
+    this.canvas.requestPaint();
+};
+
+MiniMap.prototype.setWindow = function(window) {
+    this.window = window;
+    this.canvas.requestPaint();
+};
+
+MiniMap.prototype.centerOn = function(pos) {
+    var reverseScaleFactor = 1/this.scaleFactor;
+    var mapPos = Qt.point(
+        pos.x * reverseScaleFactor,
+        pos.y * reverseScaleFactor
+    );
+    var x = mapPos.x - this.window.width/2;
+    var y = mapPos.y - this.window.height/2;
+
+    var maxX = this.size.width - this.window.width;
+    var maxY = this.size.height - this.window.height;
+
+    if (x < 0) x = 0;
+    else if (x > maxX) x = maxX;
+
+    if (y < 0) y = 0;
+    else if (y > maxY) y = maxY;
+
+    this.window = Qt.rect(x, y, this.window.width, this.window.height);
+    //if (this.posChanged) this.posChanged(this.pos);
+
     this.canvas.requestPaint();
 };

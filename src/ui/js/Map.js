@@ -3,17 +3,25 @@
 .import 'Util.js' as Util
 .import 'MapItem.js' as MapItem
 
-function displacement(dir, tileSize) {
-    if (dir == 'West') return Qt.size(-tileSize.width, 0);
-    if (dir == 'NorthWest') return Qt.size(-tileSize.width/2, -tileSize.height * 3/4);
-    if (dir == 'NorthEast') return Qt.size(tileSize.width/2, -tileSize.height * 3/4);
-    if (dir == 'East') return Qt.size(tileSize.width, 0);
-    if (dir == 'SouthEast') return Qt.size(tileSize.width/2, tileSize.height * 3/4);
-    if (dir == 'SouthWest') return Qt.size(-tileSize.width/2, tileSize.height * 3/4);
+function neighbourPos(dir, tileSize, pos) {
+    var d;
 
-    err = "Unknown direction: " + dir;
-    console.error(err);
-    throw err;
+    if (dir == 'West') d = Qt.size(-tileSize.width, 0);
+    else if (dir == 'NorthWest') d = Qt.size(-tileSize.width/2, -tileSize.height * 3/4);
+    else if (dir == 'NorthEast') d = Qt.size(tileSize.width/2, -tileSize.height * 3/4);
+    else if (dir == 'East') d = Qt.size(tileSize.width, 0);
+    else if (dir == 'SouthEast') d = Qt.size(tileSize.width/2, tileSize.height * 3/4);
+    else if (dir == 'SouthWest') d = Qt.size(-tileSize.width/2, tileSize.height * 3/4);
+    else {
+        var err = "Unknown direction: " + dir;
+        console.error(err);
+        throw err;
+    }
+
+    return Qt.point(
+        pos.x + d.width,
+        pos.y + d.height
+    );
 };
 
 var MouseEvents = {
@@ -63,10 +71,9 @@ Map.prototype.createNode = function(mapNodeQObj, pos, visitedNodes) {
 
         if (neighbour == undefined || neighbour in visitedNodes) continue;
 
-        var d = displacement(direction, tileSize);
         this.createNode(
             neighbour,
-            Qt.point(pos.x + d.width, pos.y + d.height),
+            neighbourPos(direction, tileSize, pos),
             visitedNodes
         );
     }
@@ -183,8 +190,8 @@ Map.prototype.updateGeometry = function() {
     );
 
     this.canvas.canvasSize = Qt.size(
-        Util.max(this.size.width, this.canvas.canvasWindow.width),
-        Util.max(this.size.height, this.canvas.canvasWindow.height)
+        Math.max(this.size.width, this.canvas.canvasWindow.width),
+        Math.max(this.size.height, this.canvas.canvasWindow.height)
     );
 
     this.adjustMapCoordinates();
@@ -276,9 +283,9 @@ GameMap.prototype.findMapNodeAt = function(point) {
 
 GameMap.prototype.getMapNodeAt = function(pos) {
     for (var i = 0; i < this.mapItems.length; i++) {
-        var mapNode = this.mapItems[i];
-        if (mapNode.pos.x == pos.x && mapNode.pos.y == pos.y)
-            return mapNode;
+        var mapItem = this.mapItems[i];
+        if (mapItem.pos.x == pos.x && mapItem.pos.y == pos.y)
+            return mapItem;
     }
 
     return undefined;
@@ -309,8 +316,6 @@ GameMap.prototype.onHovered = function(pos) {
     if (this.mapNodeFocused != undefined)
         this.mapNodeFocused(mapNode);
 };
-
-
 
 GameMap.prototype.onPanned = function(posDiff) {
     var window = this.canvas.canvasWindow;
@@ -417,12 +422,8 @@ EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
 
     // calculate the position of this node based on the neighbour's position
     var oppositeDirection = mapNodeQObj.oppositeDirection(direction);
-    var d = displacement(oppositeDirection, this.qobj.world.tileSize);
-    var pos = Qt.point(
-        neighbourJObj.pos.x + d.width,
-        neighbourJObj.pos.y + d.height
-    );
-
+    var tileSize = this.qobj.world.tileSize;
+    var pos = neighbourPos(oppositeDirection, tileSize, neighbourJObj.pos);
     var phantomMapNode = this.getMapNodeAt(pos);
     var i = this.mapItems.indexOf(phantomMapNode);
     this.mapItems.splice(i, 1);
@@ -445,20 +446,15 @@ EditableMap.prototype.addPhantomMapNodes = function(mapNodes) {
         for (var direction in mapNode.qobj.neighbours) {
             var neighbour = mapNode.qobj.neighbours[direction];
 
-            if (neighbour != undefined) continue;
-            
-            this.createPhantomNode(mapNode, direction);
+            if (neighbour == undefined)
+                this.createPhantomNode(mapNode, direction);
         }
     }
 };
 
 EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) {
     var tileSize = this.qobj.world.tileSize;
-    var d = displacement(direction, tileSize);
-    var pos = Qt.point(
-        neighbourMapNode.pos.x + d.width,
-        neighbourMapNode.pos.y + d.height
-    );
+    var pos = neighbourPos(direction, tileSize, neighbourMapNode.pos);
 
     var phantomMapNode = this.getMapNodeAt(pos);
     if (phantomMapNode == undefined) {
@@ -479,6 +475,8 @@ EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) 
 var MiniMap = function(ui, canvas, mouseArea) {
     Map.call(this, ui, canvas, mouseArea);
 
+    this.scaleFactor = 1;
+
     // init
     this.ready = true;
     this.canvas.requestPaint();
@@ -493,6 +491,24 @@ MiniMap.prototype.newMapNode = function(pos, mapNodeQObj) {
 
     return mapNode;
 }
+
+MiniMap.prototype.calculateScaleFactor = function() {
+    var normalSize = Math.max(this.size.width, this.size.height);
+    var canvSize = Math.min(this.canvas.canvasSize.width, this.canvas.canvasSize.height);
+
+    return canvSize/normalSize;
+};
+
+MiniMap.prototype.updateGeometry = function() {
+    this.boundingRect = this.calculateBoundingRect();
+    this.size = Qt.size(
+        this.boundingRect.width,
+        this.boundingRect.height
+    );
+    this.scaleFactor = this.calculateScaleFactor();
+
+    this.adjustMapCoordinates();
+};
 
 MiniMap.prototype.onPaint = function(region) {
     if (!this.ready) return;
@@ -511,9 +527,7 @@ MiniMap.prototype.onPaint = function(region) {
     );
 
     ctx.save();
-    ctx.scale(0.1, 0.1);
-
-    console.log(this.size);
+    ctx.scale(this.scaleFactor, this.scaleFactor);
 
     for (var i = 0; i < this.mapItems.length; i++) {
         this.mapItems[i].onPaint(ctx);

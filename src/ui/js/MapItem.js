@@ -33,6 +33,11 @@ MapItem.prototype.onMouseOut = function() {
     this.focused = false;
 };
 
+MapItem.prototype.toString = function() {
+    var str = "[MapItem(" + this.pos.x + "," + this.pos.y + ")]";
+    return str;
+};
+
 /*
  * MapNode class.
  * @contructor
@@ -62,6 +67,11 @@ MapNode.prototype.onPaint = function(ctx) {
     else
         ctx.drawImage(worldQObj.getResourcePath("border"), 0, 0);
 
+    var worldQObj = this.map.qobj.world;
+    var tileSize = worldQObj.tileSize;
+
+    ctx.strokeText(this.qobj.objectName, 10, tileSize.height/2);
+
     ctx.restore();
 };
 
@@ -73,6 +83,12 @@ MapNode.prototype.onMouseIn = function() {
 MapNode.prototype.onMouseOut = function() {
     this.focused = false;
     this.map.markDirty(this);
+};
+
+MapNode.prototype.toString = function() {
+    var str = "[MapNode(" + this.pos.x + "," + this.pos.y + "), qobj: "
+        + this.qobj + "]";
+    return str;
 };
 
 /*
@@ -93,9 +109,6 @@ MiniMapNode.prototype.onPaint = function(ctx) {
     var worldQObj = this.map.qobj.world;
     var tileSize = worldQObj.tileSize;
 
-    console.log(this.qobj);
-    console.log(this.pos);
-
     ctx.save();
 
     ctx.translate(this.pos.x, this.pos.y);
@@ -107,18 +120,24 @@ MiniMapNode.prototype.onPaint = function(ctx) {
 
     ctx.beginPath();
     ctx.moveTo(0, y0);
-    ctx.moveTo(x, 0);
-    ctx.moveTo(tileSize.width -1, y0);
-    ctx.moveTo(tileSize.width -1, y1);
-    ctx.moveTo(x, tileSize.height - 1);
-    ctx.moveTo(0, y1);
+    ctx.lineTo(x, 0);
+    ctx.lineTo(tileSize.width -1, y0);
+    ctx.lineTo(tileSize.width -1, y1);
+    ctx.lineTo(x, tileSize.height - 1);
+    ctx.lineTo(0, y1);
     ctx.closePath();
 
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 1;
     ctx.strokeStyle = 'black';
     ctx.stroke();
 
     ctx.restore();
+};
+
+MiniMapNode.prototype.toString = function() {
+    var str = "[MiniMapNode(" + this.pos.x + "," + this.pos.y + "), qobj: "
+        + this.qobj + "]";
+    return str;
 };
 
 /*
@@ -157,4 +176,9 @@ PhantomMapNode.prototype.onMouseIn = function() {
 PhantomMapNode.prototype.onMouseOut = function() {
     this.focused = false;
     this.map.markDirty(this);
+};
+
+PhantomMapNode.prototype.toString = function() {
+    var str = "[PhantomMapNode(" + this.pos.x + "," + this.pos.y + ")]";
+    return str;
 };

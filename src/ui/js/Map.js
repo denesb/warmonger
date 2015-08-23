@@ -111,18 +111,38 @@ Map.prototype.markDirty = function(mapItem) {
     ));
 };
 
-Map.prototype.findMapNodeJObj = function(mapNodeQObj) {
-    var mapNodeJObj = undefined;
+Map.prototype.findMapItemJObj = function(mapItemQObj) {
+    var mapItemJObj = undefined;
     for (var i = 0; i < this.mapItems.length; i++) {
         var mapItem = this.mapItems[i];
-        if (mapItem instanceof MapItem.MapNode &&
-            mapItem.qobj == mapNodeQObj) {
-            mapNodeJObj = mapItem;
+        if (mapItem instanceof MapItem.MapItem &&
+            mapItem.qobj == mapItemQObj) {
+            mapItemJObj = mapItem;
             break;
         }
     }
 
-    return mapNodeJObj;
+    return mapItemJObj;
+};
+
+Map.prototype.calculatePosOfMapNodeQObj = function(mapNodeQObj) {
+    var direction;
+    var neighbourQObj;
+    for (direction in mapNodeQObj.neighbours) {
+        neighbourQObj = mapNodeQObj.neighbours[direction];
+        if (neighbourQObj != undefined) {
+            break;
+        }
+    }
+
+    var neighbourJObj = this.findMapItemJObj(neighbourQObj);
+
+    // calculate the position of this node based on the neighbour's position
+    var oppositeDirection = mapNodeQObj.oppositeDirection(direction);
+    var tileSize = this.qobj.world.tileSize;
+    var pos = neighbourPos(oppositeDirection, tileSize, neighbourJObj.pos);
+
+    return pos;
 };
 
 Map.prototype.calculateBoundingRect = function() {
@@ -158,7 +178,7 @@ Map.prototype.calculateBoundingRect = function() {
 };
 
 Map.prototype.adjustMapCoordinates = function() {
-    if ((this.boundingRect.x > 0) && (this.boundingRect.y > 0))
+    if ((this.boundingRect.x == 0) && (this.boundingRect.y == 0))
         return; // nothing to do here
 
     var dx = this.boundingRect.x;
@@ -170,7 +190,7 @@ Map.prototype.adjustMapCoordinates = function() {
     for (var i = 0; i < this.mapItems.length; i++) {
         var mapItem = this.mapItems[i];
         mapItem.pos.x -= dx;
-        mapItem.pos.y -= dx;
+        mapItem.pos.y -= dy;
     }
 
     var rect = this.canvas.canvasWindow;
@@ -409,22 +429,7 @@ EditableMap.prototype = Object.create(GameMap.prototype);
 EditableMap.prototype.constructor = EditableMap;
 
 EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
-    var direction;
-    var neighbourQObj;
-    for (direction in mapNodeQObj.neighbours) {
-        neighbourQObj = mapNodeQObj.neighbours[direction];
-        if (neighbourQObj != undefined) {
-            break;
-        }
-    }
-
-    var neighbourJObj = this.findMapNodeJObj(neighbourQObj);
-
-    // calculate the position of this node based on the neighbour's position
-    var oppositeDirection = mapNodeQObj.oppositeDirection(direction);
-    var tileSize = this.qobj.world.tileSize;
-    var pos = neighbourPos(oppositeDirection, tileSize, neighbourJObj.pos);
-
+    var pos = this.calculatePosOfMapNodeQObj(mapNodeQObj);
     var phantomMapNode = this.getMapNodeAt(pos);
     var i = this.mapItems.indexOf(phantomMapNode);
     this.mapItems.splice(i, 1);
@@ -479,6 +484,8 @@ var MiniMap = function(ui, canvas, mouseArea) {
     this.scaleFactor = 1;
 
     // init
+    ui.map.mapNodeCreated.connect(this.onMapNodeCreated.bind(this));
+
     this.ready = true;
     this.canvas.requestPaint();
 };
@@ -537,6 +544,12 @@ MiniMap.prototype.onPaint = function(region) {
     ctx.restore();
 };
 
-MiniMap.prototype.mapItemCreated = function(mapItem) {
-    console.log(mapItem)
+MiniMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
+    var pos = this.calculatePosOfMapNodeQObj(mapNodeQObj);
+    var mapNodeJObj = new MapItem.MiniMapNode(pos, mapNodeQObj, this);
+
+    this.mapItems.push(mapNodeJObj);
+
+    this.geometryChanged = true;
+    this.canvas.requestPaint();
 };

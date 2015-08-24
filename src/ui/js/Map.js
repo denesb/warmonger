@@ -226,6 +226,7 @@ Map.prototype.translateToLocal = function(pos) {
 
 Map.prototype.onPressed = function(mouse) {
     this.lastMouseEvent = MouseEvents.pressed;
+    this.lastMousePos = Qt.point(mouse.x, mouse.y);
 };
 
 Map.prototype.onReleased = function(mouse) {
@@ -236,6 +237,9 @@ Map.prototype.onReleased = function(mouse) {
     else {
         this.mouseArea.cursorShape = Qt.ArrowCursor;
     }
+};
+
+Map.prototype.onClicked = function(pos) {
 };
 
 Map.prototype.onPositionChanged = function(mouse) {
@@ -249,7 +253,7 @@ Map.prototype.onPositionChanged = function(mouse) {
             this.lastMousePos.y - pos.y
         );
         this.mouseArea.cursorShape = Qt.ClosedHandCursor;
-        this.onPanned(posDiff);
+        this.onPanned(pos, posDiff);
     }
     else {
         this.onHovered(pos);
@@ -261,7 +265,7 @@ Map.prototype.onPositionChanged = function(mouse) {
 Map.prototype.onHovered = function(pos) {
 };
 
-Map.prototype.onPanned = function(pos) {
+Map.prototype.onPanned = function(pos, posDiff) {
 };
 
 Map.prototype.onClicked = function(pos) {
@@ -337,7 +341,7 @@ GameMap.prototype.onHovered = function(pos) {
         this.mapNodeFocused(mapNode);
 };
 
-GameMap.prototype.onPanned = function(posDiff) {
+GameMap.prototype.onPanned = function(pos, posDiff) {
     var window = this.canvas.canvasWindow;
     var x = window.x + posDiff.width;
     var y = window.y + posDiff.height;
@@ -449,6 +453,17 @@ EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
     this.geometryChanged = true;
 };
 
+EditableMap.prototype.onWindowPosChanged = function(windowPos) {
+    this.canvas.canvasWindow = Qt.rect(
+        windowPos.x,
+        windowPos.y,
+        this.canvas.canvasWindow.width,
+        this.canvas.canvasWindow.height
+    );
+
+    this.canvas.requestPaint();
+};
+
 EditableMap.prototype.addPhantomMapNodes = function(mapNodes) {
     for (var i = 0; i < mapNodes.length; i++) {
 
@@ -490,7 +505,7 @@ var MiniMap = function(ui, canvas, mouseArea) {
     this.pos = Qt.point(0, 0);
     this.window = Qt.rect(0, 0, 0, 0);
     this.scaleFactor = 1;
-    this.posChanged = undefined;
+    this.windowPosChanged = undefined;
 
     // init
     ui.map.mapNodeCreated.connect(this.onMapNodeCreated.bind(this));
@@ -550,6 +565,7 @@ MiniMap.prototype.onPaint = function(region) {
         this.mapItems[i].onPaint(ctx);
     }
 
+    ctx.beginPath();
     ctx.rect(
         this.window.x,
         this.window.y,
@@ -563,8 +579,21 @@ MiniMap.prototype.onPaint = function(region) {
     ctx.restore();
 };
 
-MiniMap.prototype.onClicked = function(pos) {
+MiniMap.prototype.onPressed = function(mouse) {
+    this.lastMouseEvent = MouseEvents.pressed;
+
+    var pos = this.translateToLocal(Qt.point(mouse.x, mouse.y));
     this.centerOn(pos);
+
+    var windowPos = Qt.point(this.window.x, this.window.y);
+    if (this.windowPosChanged) this.windowPosChanged(windowPos);
+};
+
+MiniMap.prototype.onPanned = function(pos, posDiff) {
+    this.centerOn(pos);
+
+    var windowPos = Qt.point(this.window.x, this.window.y);
+    if (this.windowPosChanged) this.windowPosChanged(windowPos);
 };
 
 MiniMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
@@ -601,7 +630,6 @@ MiniMap.prototype.centerOn = function(pos) {
     else if (y > maxY) y = maxY;
 
     this.window = Qt.rect(x, y, this.window.width, this.window.height);
-    //if (this.posChanged) this.posChanged(this.pos);
 
     this.canvas.requestPaint();
 };

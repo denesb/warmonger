@@ -122,12 +122,12 @@ MiniMapNode.prototype.onPaint = function(ctx) {
     var w = tileSize.width;
     var h = tileSize.height;
 
-    var p0 = Qt.point(0, h/4 - 1);
-    var p1 = Qt.point(w/2 - 1, 0);
-    var p2 = Qt.point(w - 1, h/4 - 1);
-    var p3 = Qt.point(w - 1, 3 * h/4 - 1);
+    var p0 = Qt.point(-1, h/4 - 1);
+    var p1 = Qt.point(w/2 - 1, -1);
+    var p2 = Qt.point(w, h/4 - 1);
+    var p3 = Qt.point(w, 3 * h/4 - 1);
     var p4 = Qt.point(w/2 - 1, h - 1);
-    var p5 = Qt.point(0, 3 * h/4 - 1);
+    var p5 = Qt.point(-1, 3 * h/4 - 1);
 
     ctx.beginPath();
     ctx.moveTo(p0.x, p0.y);
@@ -144,7 +144,7 @@ MiniMapNode.prototype.onPaint = function(ctx) {
     ctx.strokeStyle = style;
     ctx.fillStyle = style;
 
-    ctx.stroke();
+    //ctx.stroke();
     ctx.fill();
 
     ctx.restore();

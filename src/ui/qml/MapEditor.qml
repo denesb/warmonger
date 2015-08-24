@@ -43,14 +43,9 @@ Rectangle {
 
     Rectangle {
         id: map
+
         property var jobj
-
         signal mapNodeClicked(var mapNode)
-
-        Component.onCompleted: {
-            jobj = new Map.EditableMap(ui, mapCanvas, mapMouseArea);
-            jobj.mapNodeClicked = map.mapNodeClicked;
-        }
 
         anchors {
             left: parent.left
@@ -62,6 +57,13 @@ Rectangle {
         border {
             width: 1
             color: "black"
+        }
+
+        Component.onCompleted: {
+            jobj = new Map.EditableMap(ui, mapCanvas, mapMouseArea);
+            jobj.mapNodeClicked = map.mapNodeClicked;
+
+            miniMap.onWindowPosChanged.connect(jobj.onWindowPosChanged.bind(jobj));
         }
 
         Canvas {
@@ -101,7 +103,10 @@ Rectangle {
 
         Rectangle {
             id: miniMap
+
             property var jobj
+            signal windowPosChanged(var windowPos)
+
             anchors {
                 left: parent.left
                 top: parent.top
@@ -115,6 +120,7 @@ Rectangle {
 
             Component.onCompleted: {
                 jobj = new Map.MiniMap(ui, miniMapCanvas, miniMapMouseArea);
+                jobj.windowPosChanged = miniMap.windowPosChanged;
             }
 
             Canvas {

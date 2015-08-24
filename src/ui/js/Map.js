@@ -245,7 +245,8 @@ Map.prototype.onClicked = function(pos) {
 Map.prototype.onPositionChanged = function(mouse) {
     this.lastMouseEvent = MouseEvents.positionChanged;
 
-    var pos = this.translateToLocal(Qt.point(mouse.x, mouse.y));
+    var pos = Qt.point(mouse.x, mouse.y);
+    var localPos = this.translateToLocal(pos);
 
     if (this.mouseArea.pressed) {
         var posDiff = Qt.size(
@@ -253,10 +254,10 @@ Map.prototype.onPositionChanged = function(mouse) {
             this.lastMousePos.y - pos.y
         );
         this.mouseArea.cursorShape = Qt.ClosedHandCursor;
-        this.onPanned(pos, posDiff);
+        this.onPanned(localPos, posDiff);
     }
     else {
-        this.onHovered(pos);
+        this.onHovered(localPos);
     }
 
     this.lastMousePos = pos;
@@ -364,12 +365,7 @@ GameMap.prototype.moveWindowTo = function(pos) {
     if (y < 0) y = 0;
     if (y > maxY) y = maxY;
 
-    this.canvas.canvasWindow = Qt.rect(
-        x,
-        y,
-        window.width,
-        window.height
-    );
+    this.canvas.canvasWindow = Qt.rect(x, y, window.width, window.height);
 };
 
 GameMap.prototype.loadResources = function() {

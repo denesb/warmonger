@@ -51,6 +51,8 @@ public:
     LogStream& operator<<(const QJsonObject &obj);
     LogStream& operator<<(const QJsonArray &array);
 
+    LogStream& operator<<(const QStringList &list);
+
 private:
     QTextStream textStream;
     QString buffer;

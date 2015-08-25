@@ -68,8 +68,9 @@ void UserInterface::setupModels()
     this->map->load(this->map->specification("prototype"));
 
     const core::World *world = this->map->getWorld();
+    world->setSurface("default");
     const core::WorldSurface *surface = world->getSurface();
 
     const QString path = surface->getPath();
-    this->hexMask.load(path + QStringLiteral("hexagon_mask.xpm"), "XPM");
+    this->hexMask.load(path + QStringLiteral("/hexagon_mask.xpm"), "XPM");
 }

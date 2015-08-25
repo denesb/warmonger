@@ -12,8 +12,8 @@ class GameEntity :
     public GameObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString path READ getPath);
-    Q_PROPERTY(QString fileName READ getFileName);
+    Q_PROPERTY(QString path READ getPath NOTIFY pathChanged);
+    Q_PROPERTY(QString fileName READ getFileName NOTIFY fileNameChanged);
     Q_PROPERTY(QString description READ getDescription NOTIFY descriptionChanged);
 
 public:
@@ -34,6 +34,8 @@ public:
     virtual QString specification(const QString &objectName) const = 0;
 
 signals:
+    void pathChanged() const;
+    void fileNameChanged() const;
     void descriptionChanged() const;
     void loaded() const;
     void saved() const;

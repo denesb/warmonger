@@ -62,7 +62,7 @@ var Map = function(ui, canvas, mouseArea) {
 
 Map.prototype.createNode = function(mapNodeQObj, pos, visitedNodes) {
     visitedNodes[mapNodeQObj] = true;
-    var tileSize = this.qobj.world.tileSize;
+    var tileSize = this.qobj.world.surface.tileSize;
 
     this.newMapNode(pos, mapNodeQObj);
 
@@ -101,7 +101,7 @@ Map.prototype.onPaint = function(region) {
 };
 
 Map.prototype.markDirty = function(mapItem) {
-    var tileSize = this.qobj.world.tileSize;
+    var tileSize = this.qobj.world.surface.tileSize;
 
     this.canvas.markDirty(Qt.rect(
         mapItem.pos.x,
@@ -139,7 +139,7 @@ Map.prototype.calculatePosOfMapNodeQObj = function(mapNodeQObj) {
 
     // calculate the position of this node based on the neighbour's position
     var oppositeDirection = mapNodeQObj.oppositeDirection(direction);
-    var tileSize = this.qobj.world.tileSize;
+    var tileSize = this.qobj.world.surface.tileSize;
     var pos = neighbourPos(oppositeDirection, tileSize, neighbourJObj.pos);
 
     return pos;
@@ -165,7 +165,7 @@ Map.prototype.calculateBoundingRect = function() {
     }
 
     // x,y is the top-left corner of the mapNode so we need to add the tile size
-    var tileSize = this.qobj.world.tileSize;
+    var tileSize = this.qobj.world.surface.tileSize;
     bottomRight.x += tileSize.width;
     bottomRight.y += tileSize.height;
 
@@ -369,11 +369,13 @@ GameMap.prototype.moveWindowTo = function(pos) {
 };
 
 GameMap.prototype.loadResources = function() {
-    var resourcePaths = this.qobj.world.resourcePaths;
+    var surface = this.qobj.world.surface;
+    var pathRoot = surface.path + "/";
     var path;
 
-    for (var resource in resourcePaths) {
-        path = resourcePaths[resource];
+    for (var object in surface.gameMap) {
+        var objectPath = surface.gameMap[object];
+        path = pathRoot + objectPath;
         this.canvas.loadImage(path);
         this.loadQueue.push(path);
     }
@@ -476,7 +478,7 @@ EditableMap.prototype.addPhantomMapNodes = function(mapNodes) {
 };
 
 EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) {
-    var tileSize = this.qobj.world.tileSize;
+    var tileSize = this.qobj.world.surface.tileSize;
     var pos = neighbourPos(direction, tileSize, neighbourMapNode.pos);
 
     var phantomMapNode = this.getMapItemAt(pos);

@@ -186,12 +186,28 @@ LogStream& LogStream::operator<<(const QJsonObject &obj)
 LogStream& LogStream::operator<<(const QJsonArray &array)
 {
     this->textStream << "[";
-    QJsonObject::ConstIterator it;
     for (int i = 0; i < array.size(); i++)
     {
         *this << array[i];
 
         if (i + 1 < array.size())
+        {
+            this->textStream << ",";
+        }
+    }
+    this->textStream << "]";
+
+    return *this;
+}
+
+LogStream& LogStream::operator<<(const QStringList &list)
+{
+    this->textStream << "[";
+    for (int i = 0; i < list.size(); i++)
+    {
+        *this << list[i];
+
+        if (i + 1 < list.size())
         {
             this->textStream << ",";
         }

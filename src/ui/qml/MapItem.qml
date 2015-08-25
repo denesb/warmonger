@@ -32,7 +32,8 @@ Rectangle {
             }
 
             source: {
-                ui.map.world.getResourcePath(model.modelData.objectName)
+                var surface = ui.map.world.surface;
+                surface.path + "/" + surface.gameMap[model.modelData.objectName]
             }
         }
         Label {

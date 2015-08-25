@@ -33,8 +33,8 @@ public:
     virtual QString specification(const QString &objectName) const;
 
     const WorldSurface * getSurface() const;
-    void setSurface(const WorldSurface *surface);
-    void setSurface(const QString &surfaceName);
+    void setSurface(const WorldSurface *surface) const;
+    void setSurface(const QString &surfaceName) const;
     QVariant readSurface() const;
 
     QList<const TerrainType *> getTerrainTypes() const;
@@ -73,16 +73,16 @@ public:
     void setFactions(const QList<Faction *> &factions);
 
 signals:
-    void surfaceChanged();
-    void terrainTypesChanged();
-    void unitTypesChanged();
-    void settlementTypesChanged();
+    void surfaceChanged() const;
+    void terrainTypesChanged() const;
+    void unitTypesChanged() const;
+    void settlementTypesChanged() const;
 
 private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
-    const WorldSurface *surface;
+    mutable const WorldSurface *surface;
     QList<TerrainType *> terrainTypes;
     QList<UnitClass *> unitClasses;
     QList<DamageType *> damageTypes;

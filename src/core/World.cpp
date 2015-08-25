@@ -43,7 +43,7 @@ const WorldSurface * World::getSurface() const
     return this->surface;
 }
 
-void World::setSurface(const WorldSurface *surface)
+void World::setSurface(const WorldSurface *surface) const
 {
     if (this->surface != surface)
     {
@@ -52,19 +52,27 @@ void World::setSurface(const WorldSurface *surface)
     }
 }
 
-void World::setSurface(const QString &surfaceName)
+void World::setSurface(const QString &surfaceName) const
 {
-    if (this->surface == nullptr || this->surface->objectName() == surfaceName)
+    if (this->surface != nullptr && this->surface->objectName() == surfaceName)
         return;
 
     QDir worldDir(this->path + "/surfaces");
-    QStringList dirList = worldDir.entryList(
-        QStringList(),
-        QDir::NoDotAndDotDot & QDir::AllDirs
-    );
-    QDir::setSearchPaths("surfaces", dirList);
+    QStringList entryList = worldDir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
 
-    WorldSurface *surface = new WorldSurface(this);
+    const QString rootPath = worldDir.absolutePath() + "/";
+    QStringList searchPaths;
+    for (const QString dirEntry : entryList)
+    {
+        searchPaths << rootPath + dirEntry;
+    }
+
+    QDir::setSearchPaths("surfaces", searchPaths);
+
+    // Ugly, but necessary, it does not violate logical constness
+    World *parent = const_cast<World *>(this);
+    WorldSurface *surface = new WorldSurface(parent);
+
     surface->load(surface->specification(surfaceName));
 
     this->surface = surface;
@@ -231,10 +239,6 @@ void World::setFactions(const QList<Faction *> &factions)
 
 void World::dataFromJson(const QJsonObject &obj)
 {
-    //FIXME: This might not be the best place to load the default surface.
-    //Will need to think about this...
-    this->setSurface("default");
-
     GameEntity::dataFromJson(obj);
     this->terrainTypes = newListFromJson<TerrainType>(obj["terrainTypes"].toArray(), this);
     this->unitClasses = newListFromJson<UnitClass>(obj["unitClasses"].toArray(), this);

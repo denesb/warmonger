@@ -46,9 +46,17 @@ var MapNode = function(pos, mapNodeQObj, map) {
     MapItem.call(this, pos, map);
 
     this.qobj = mapNodeQObj;
-    this.terrainImage = this.map.qobj.world.getResourcePath(
-        this.qobj.terrainType.objectName
-    );
+
+    var surface = this.map.qobj.world.surface;
+    var rootPath = surface.path + "/";
+    var terrainType = this.qobj.terrainType.objectName
+
+    this.terrainImage = rootPath + surface.gameMap[terrainType];
+    //FIXME: draw theese with the canvas
+    this.focusedBorderImage = rootPath +
+        surface.gameMap["border_highlighted"];
+    this.blurredBorderImage = rootPath +
+        surface.gameMap["border"];
 };
 
 MapNode.prototype = Object.create(MapItem.prototype);
@@ -63,12 +71,12 @@ MapNode.prototype.onPaint = function(ctx) {
 
     ctx.drawImage(this.terrainImage, 0, 0);
     if (this.focused)
-        ctx.drawImage(worldQObj.getResourcePath("border_highlighted"), 0, 0);
+        ctx.drawImage(this.focusedBorderImage, 0, 0);
     else
-        ctx.drawImage(worldQObj.getResourcePath("border"), 0, 0);
+        ctx.drawImage(this.blurredBorderImage, 0, 0);
 
     var worldQObj = this.map.qobj.world;
-    var tileSize = worldQObj.tileSize;
+    var tileSize = worldQObj.surface.tileSize;
 
     ctx.strokeText(this.qobj.objectName, 10, tileSize.height/2);
 
@@ -100,6 +108,9 @@ var MiniMapNode = function(pos, mapNodeQObj, map) {
 
     this.qobj = mapNodeQObj;
     this.terrainType = this.qobj.terrainType;
+
+    var surface = this.map.qobj.world.surface;
+    this.style = surface.miniMap[this.terrainType.objectName];
 };
 
 MiniMapNode.prototype = Object.create(MapItem.prototype);
@@ -107,7 +118,7 @@ MiniMapNode.prototype.constructor = MiniMapNode;
 
 MiniMapNode.prototype.onPaint = function(ctx) {
     var worldQObj = this.map.qobj.world;
-    var tileSize = worldQObj.tileSize;
+    var tileSize = worldQObj.surface.tileSize;
 
     ctx.save();
 
@@ -132,7 +143,7 @@ MiniMapNode.prototype.onPaint = function(ctx) {
     ctx.lineTo(p5.x, p5.y);
     ctx.closePath();
 
-    var style = this.terrainTypeColors[this.terrainType.objectName];
+    var style = this.style;
 
     ctx.lineWidth = 4;
     ctx.strokeStyle = style;
@@ -159,6 +170,15 @@ var PhantomMapNode = function(pos, map) {
 
     this.neighbours = {};
     this.isPhantom = true;
+
+    var surface = this.map.qobj.world.surface;
+    var rootPath = surface.path + "/";
+
+    //FIXME: draw theese with the canvas
+    this.focusedBorderImage = rootPath +
+        surface.gameMap["border_highlighted"];
+    this.blurredBorderImage = rootPath +
+        surface.gameMap["border"];
 };
 
 PhantomMapNode.prototype = Object.create(MapItem.prototype);
@@ -171,9 +191,9 @@ PhantomMapNode.prototype.onPaint = function(ctx) {
     ctx.translate(this.pos.x, this.pos.y)
 
     if (this.focused)
-        ctx.drawImage(worldQObj.getResourcePath("border_highlighted"), 0, 0);
+        ctx.drawImage(this.focusedBorderImage, 0, 0);
     else
-        ctx.drawImage(worldQObj.getResourcePath("border"), 0, 0);
+        ctx.drawImage(this.blurredBorderImage, 0, 0);
 
     ctx.restore();
 };

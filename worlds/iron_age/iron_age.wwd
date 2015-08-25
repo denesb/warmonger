@@ -3,11 +3,6 @@
     "displayName": "Iron Age",
     "description": "Some detailed description about the world comes here....",
 
-    "tileSize": {
-        "width": 110,
-        "height": 128
-    },
-
     "terrainTypes": [
         {
             "objectName": "plains",

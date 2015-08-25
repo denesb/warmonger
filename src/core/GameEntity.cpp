@@ -46,6 +46,13 @@ void GameEntity::setDescription(const QString &description)
 void GameEntity::load(const QString &specification)
 {
     QFileInfo fileInfo(specification);
+    if (!fileInfo.exists())
+    {
+        Exception e(Exception::FileNotFound, {specification});
+        wDebug(module) << e.getMessage();
+        throw e;
+    }
+
     this->setPath(fileInfo.absolutePath());
     this->setFileName(fileInfo.fileName());
 
@@ -81,6 +88,8 @@ void GameEntity::setPath(const QString &path)
         throw e;
     }
     this->path = path;
+
+    emit this->pathChanged();
 }
 
 void GameEntity::setFileName(const QString &fileName)
@@ -92,6 +101,8 @@ void GameEntity::setFileName(const QString &fileName)
         throw e;
     }
     this->fileName = fileName;
+
+    emit this->fileNameChanged();
 }
 
 void GameEntity::loadFromFile(const QString &path)

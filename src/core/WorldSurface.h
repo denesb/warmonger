@@ -33,9 +33,9 @@ public:
     QVariantMap readMiniMap() const;
 
 signals:
-    void tileSizeChanged();
-    void gameMapChanged();
-    void miniMapChanged();
+    void tileSizeChanged() const;
+    void gameMapChanged() const;
+    void miniMapChanged() const;
 
 private:
     void dataFromJson(const QJsonObject &obj);

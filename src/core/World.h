@@ -2,13 +2,13 @@
 #define CORE_WORLD_H
 
 #include <QList>
-#include <QSize>
 
-#include "core/GameObject.h"
+#include "core/GameEntity.h"
 
 namespace warmonger {
 namespace core {
 
+class WorldSurface;
 class TerrainType;
 class UnitClass;
 class DamageType;
@@ -19,30 +19,23 @@ class SettlementType;
 class Faction;
 
 class World :
-    public GameObject
+    public GameEntity
 {
     Q_OBJECT
-    Q_PROPERTY(QString path READ getPath NOTIFY pathChanged);
-    Q_PROPERTY(QString description READ getDescription NOTIFY descriptionChanged);
-    Q_PROPERTY(QSize tileSize READ getTileSize NOTIFY tileSizeChanged);
+    Q_PROPERTY(QVariant surface READ readSurface NOTIFY surfaceChanged)
     Q_PROPERTY(QVariant terrainTypes READ readTerrainTypes NOTIFY terrainTypesChanged)
     Q_PROPERTY(QVariant unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
     Q_PROPERTY(QVariant settlementTypes READ readSettlementTypes NOTIFY settlementTypesChanged)
-    Q_PROPERTY(QVariantMap resourcePaths READ readResourcePaths NOTIFY resourcePathsChanged);
 
 public:
-    static const QString DefinitionFile;
-
     World(QObject *parent);
 
-    QString getPath() const;
-    void setPath(const QString &path);
- 
-    QString getDescription() const;
-    void setDescription(const QString &description);
+    virtual QString specification(const QString &objectName) const;
 
-    QSize getTileSize() const;
-    void setTileSize(const QSize &tileSize);
+    const WorldSurface * getSurface() const;
+    void setSurface(const WorldSurface *surface);
+    void setSurface(const QString &surfaceName);
+    QVariant readSurface() const;
 
     QList<const TerrainType *> getTerrainTypes() const;
     QList<TerrainType *> getTerrainTypes();
@@ -79,31 +72,17 @@ public:
     QList<Faction *> getFactions();
     void setFactions(const QList<Faction *> &factions);
 
-    QMap<QString, QString> getResourcePaths() const;
-    void setResourcePaths(const QMap<QString, QString> &resourcePaths);
-    QVariantMap readResourcePaths() const;
-    Q_INVOKABLE QString getResourcePath(const QString &resourceName) const;
-
 signals:
-    void pathChanged();
-    void descriptionChanged();
-    void tileSizeChanged();
+    void surfaceChanged();
     void terrainTypesChanged();
     void unitTypesChanged();
     void settlementTypesChanged();
-    void resourcePathsChanged();
 
 private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
-    QVariantMap toQVariantMap(const QMap<QString, QString> &qmap) const;
-    QMap<QString, QString> mapFromJson(const QJsonObject &obj) const;
-    QJsonObject mapToJson(const QMap<QString, QString> &map) const;
-
-    QString path;
-    QString description;
-    QSize tileSize;
+    const WorldSurface *surface;
     QList<TerrainType *> terrainTypes;
     QList<UnitClass *> unitClasses;
     QList<DamageType *> damageTypes;
@@ -112,8 +91,6 @@ private:
     QList<UnitType *> unitTypes;
     QList<SettlementType *> settlementTypes;
     QList<Faction *> factions;
-
-    QMap<QString, QString> resourcePaths;
 };
 
 } // namespace core

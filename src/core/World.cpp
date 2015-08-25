@@ -1,7 +1,9 @@
 #include <QFile>
+#include <QDir>
 #include <QJsonDocument>
 
 #include "core/World.h"
+#include "core/WorldSurface.h"
 #include "core/TerrainType.h"
 #include "core/SettlementType.h"
 #include "core/UnitClass.h"
@@ -16,12 +18,11 @@
 
 using namespace warmonger::core;
 
-const QString World::DefinitionFile = "world.json";
+static const QString module{"core.World"};
 
 World::World(QObject *parent) :
-    GameObject(parent),
-    path(),
-    description(""),
+    GameEntity(parent),
+    surface(nullptr),
     terrainTypes(),
     unitClasses(),
     damageTypes(),
@@ -32,46 +33,53 @@ World::World(QObject *parent) :
 {
 }
 
-QString World::getPath() const
+QString World::specification(const QString &objectName) const
 {
-    return this->path;
+    return "worlds:" + objectName + ".wwd";
 }
 
-void World::setPath(const QString &path)
+const WorldSurface * World::getSurface() const
 {
-    if (this->path != path)
+    return this->surface;
+}
+
+void World::setSurface(const WorldSurface *surface)
+{
+    if (this->surface != surface)
     {
-        this->path = path;
-        emit pathChanged();
+        this->surface = surface;
+        emit surfaceChanged();
     }
 }
 
-QString World::getDescription() const
+void World::setSurface(const QString &surfaceName)
 {
-    return this->description;
+    if (this->surface == nullptr || this->surface->objectName() == surfaceName)
+        return;
+
+    QDir worldDir(this->path + "/surfaces");
+    QStringList dirList = worldDir.entryList(
+        QStringList(),
+        QDir::NoDotAndDotDot & QDir::AllDirs
+    );
+    QDir::setSearchPaths("surfaces", dirList);
+
+    WorldSurface *surface = new WorldSurface(this);
+    surface->load(surface->specification(surfaceName));
+
+    this->surface = surface;
+
+    // Need to reset the search path, so that the next world can load it's own
+    // surfaces
+    QDir::setSearchPaths("surfaces", QStringList());
+
+    emit surfaceChanged();
 }
 
-void World::setDescription(const QString &description)
+QVariant World::readSurface() const
 {
-    if (this->description != description)
-    {
-        this->description = description;
-        emit descriptionChanged();
-    }
-}
-
-QSize World::getTileSize() const
-{
-    return this->tileSize;
-}
-
-void World::setTileSize(const QSize &tileSize)
-{
-    if (this->tileSize != tileSize)
-    {
-        this->tileSize = tileSize;
-        emit tileSizeChanged();
-    }
+    WorldSurface *o = const_cast<WorldSurface *>(this->surface);
+    return QVariant::fromValue<QObject *>(o);
 }
 
 QList<const TerrainType *> World::getTerrainTypes() const
@@ -221,36 +229,14 @@ void World::setFactions(const QList<Faction *> &factions)
     this->factions = factions;
 }
 
-QMap<QString, QString> World::getResourcePaths() const
-{
-    return this->resourcePaths;
-}
-
-void World::setResourcePaths(const QMap<QString, QString> &resourcePaths)
-{
-    if (this->resourcePaths != resourcePaths)
-    {
-        this->resourcePaths = resourcePaths;
-        emit resourcePathsChanged();
-    }
-}
-
-QVariantMap World::readResourcePaths() const
-{
-    return this->toQVariantMap(this->resourcePaths);
-}
-
-QString World::getResourcePath(const QString &resourceName) const
-{
-    //TODO: un-hardcode!!!
-    return this->path + QStringLiteral("/surfaces/default/") + this->resourcePaths[resourceName];
-}
-
 void World::dataFromJson(const QJsonObject &obj)
 {
-    this->description = obj["description"].toString();
+    //FIXME: This might not be the best place to load the default surface.
+    //Will need to think about this...
+    this->setSurface("default");
+
+    GameEntity::dataFromJson(obj);
     this->terrainTypes = newListFromJson<TerrainType>(obj["terrainTypes"].toArray(), this);
-    this->tileSize = sizeFromJson(obj["tileSize"].toObject());
     this->unitClasses = newListFromJson<UnitClass>(obj["unitClasses"].toArray(), this);
     this->damageTypes = newListFromJson<DamageType>(obj["damageTypes"].toArray(), this);
     this->weapons = newListFromJson<Weapon>(obj["weapons"].toArray(), this);
@@ -258,16 +244,11 @@ void World::dataFromJson(const QJsonObject &obj)
     this->unitTypes = newListFromJson<UnitType>(obj["unitTypes"].toArray(), this);
     this->settlementTypes = newListFromJson<SettlementType>(obj["settlementTypes"].toArray(), this);
     this->factions = newListFromJson<Faction>(obj["factions"].toArray(), this);
-
-    //TODO: move this to it's own class
-    QJsonDocument doc = loadJsonDocument(this->path + "/surfaces/default/surface.json");
-    this->resourcePaths = this->mapFromJson(doc.object());
 }
 
 void World::dataToJson(QJsonObject &obj) const
 {
-    obj["description"] = this->description;
-    obj["tileSize"] = sizeToJson(this->tileSize);
+    GameEntity::dataToJson(obj);
     obj["terrainTypes"] = listToJson<TerrainType>(this->terrainTypes);
     obj["unitClasses"] = listToJson<UnitClass>(this->unitClasses);
     obj["damageTypes"] = listToJson<DamageType>(this->damageTypes);
@@ -276,44 +257,4 @@ void World::dataToJson(QJsonObject &obj) const
     obj["unitTypes"] = listToJson<UnitType>(this->unitTypes);
     obj["settlementTypes"] = listToJson<SettlementType>(this->settlementTypes);
     obj["factions"] = listToJson<Faction>(this->factions);
-
-    //TODO: write resources
-}
-
-QVariantMap World::toQVariantMap(const QMap<QString, QString> &qmap) const
-{
-    const QString basePath = this->path + "/surfaces/default/";
-    QVariantMap vmap;
-    QMap<QString, QString>::ConstIterator it;
-    for (it = qmap.constBegin(); it != qmap.constEnd(); it++)
-    {
-        const QString path(basePath + it.value());
-        vmap.insert(it.key(), QVariant(path));
-    }
-
-    return std::move(vmap);
-}
-
-QMap<QString, QString> World::mapFromJson(const QJsonObject &obj) const
-{
-    QMap<QString, QString> map;
-    QJsonObject::ConstIterator it;
-    for (it = obj.constBegin(); it != obj.constEnd(); it++)
-    {
-        map.insert(it.key(), it.value().toString());
-    }
-
-    return std::move(map);
-}
-
-QJsonObject World::mapToJson(const QMap<QString, QString> &map) const
-{
-    QJsonObject obj;
-    QMap<QString, QString>::ConstIterator it;
-    for (it = map.constBegin(); it != map.constEnd(); it++)
-    {
-        obj[it.key()] = it.value();
-    }
-
-    return std::move(obj);
 }

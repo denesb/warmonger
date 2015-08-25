@@ -30,7 +30,7 @@ public:
 signals:
     void displayNameChanged();
 
-private:
+protected:
     virtual void dataFromJson(const QJsonObject &obj) = 0;
     virtual void dataToJson(QJsonObject &obj) const = 0;
 

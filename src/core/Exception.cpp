@@ -16,7 +16,8 @@ const QMap<Exception::ErrorCode, QString> Exception::messageDefinitions = {
     std::make_pair(Exception::UnresolvedReference, QStringLiteral("Unable to resolve reference to <%1>%2")),
     std::make_pair(Exception::ResourceLoadFailed, QStringLiteral("Failed to load resource <%1>%2")),
     std::make_pair(Exception::InvalidValue, QStringLiteral("Value %1 is invalid for %2")),
-    std::make_pair(Exception::UknownPath, QStringLiteral("No path specified for file operation"))
+    std::make_pair(Exception::UknownPath, QStringLiteral("No path specified for file operation")),
+    std::make_pair(Exception::EntityAlreadyLoaded, QStringLiteral("Entity {0} is already loaded"))
 };
 
 Exception::Exception(ErrorCode code, const QStringList &args) :

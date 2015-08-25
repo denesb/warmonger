@@ -4,7 +4,7 @@
 #include <QList>
 #include <QString>
 
-#include "core/GameObject.h"
+#include "core/GameEntity.h"
 #include "core/MapNode.h"
 
 namespace warmonger {
@@ -16,11 +16,9 @@ class Unit;
 class Settlement;
 
 class Map :
-    public GameObject
+    public GameEntity
 {
     Q_OBJECT
-    Q_PROPERTY(QString path READ getPath);
-    Q_PROPERTY(QString description READ getDescription)
     Q_PROPERTY(QVariant world READ readWorld NOTIFY worldChanged)
     Q_PROPERTY(QVariant mapNodes READ readMapNodes NOTIFY mapNodesChanged)
     Q_PROPERTY(QVariant players READ readPlayers)
@@ -28,17 +26,12 @@ class Map :
     Q_PROPERTY(QVariant settlements READ readSettlements)
 
 public:
-    static const QString DefinitionFile;
     static const QString mapNodeNameTemplate;
 
     Map(QObject *parent);
     ~Map();
 
-    QString getPath() const;
-    void setPath(const QString &path);
-
-    QString getDescription()const;
-    void setDescription(const QString &description);
+    virtual QString specification(const QString &objectName) const;
 
     const World * getWorld() const;
     void setWorld(const World *world);
@@ -68,9 +61,6 @@ public:
     Q_INVOKABLE void createMapNode(QObject *terrainType, QVariant neighbours);
     Q_INVOKABLE void changeMapNodeTerrainType(QObject *mapNode, QObject *newTerrainType);
 
-    Q_INVOKABLE void fromStorage(const QString &path = QString());
-    Q_INVOKABLE void toStorage(const QString &path = QString());
-
 signals:
     void worldChanged();
     void mapNodesChanged();
@@ -85,8 +75,6 @@ private:
     QList<MapNode *> mapNodesFromJson(const QJsonObject &obj);
     QJsonObject mapNodesToJson(const QList<MapNode *> &mapNodes) const;
 
-    QString path;
-    QString description;
     const World *world;
     int mapNodeIndex;
     QList<MapNode *> mapNodes;

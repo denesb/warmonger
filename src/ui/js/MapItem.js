@@ -100,12 +100,6 @@ var MiniMapNode = function(pos, mapNodeQObj, map) {
 
     this.qobj = mapNodeQObj;
     this.terrainType = this.qobj.terrainType;
-    this.terrainTypeColors = {
-        'plains': '#39661e',
-        'forest': '#173504',
-        'hills': '#cbce16',
-        'mountains': '#ce7516'
-    };
 };
 
 MiniMapNode.prototype = Object.create(MapItem.prototype);

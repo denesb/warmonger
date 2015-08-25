@@ -26,9 +26,9 @@ HEADERS += \
     src/core/DamageType.h \
     src/core/Exception.h \
     src/core/Faction.h \
+    src/core/GameEntity.h \
     src/core/GameObject.h \
     src/core/JsonUtil.hpp \
-    src/core/Loader.hpp \
     src/core/Map.h \
     src/core/MapNode.h \
     src/core/Player.h \
@@ -40,7 +40,8 @@ HEADERS += \
     src/core/UnitType.h \
     src/core/Util.h \
     src/core/Weapon.h \
-    src/core/World.h
+    src/core/World.h \
+    src/core/WorldSurface.h
 
 # ui
 HEADERS += \
@@ -68,6 +69,7 @@ SOURCES += \
     src/core/DamageType.cpp \
     src/core/Exception.cpp \
     src/core/Faction.cpp \
+    src/core/GameEntity.cpp \
     src/core/GameObject.cpp \
     src/core/JsonUtil.cpp \
     src/core/Map.cpp \
@@ -81,7 +83,8 @@ SOURCES += \
     src/core/UnitType.cpp \
     src/core/Util.cpp \
     src/core/Weapon.cpp \
-    src/core/World.cpp
+    src/core/World.cpp \
+    src/core/WorldSurface.cpp
 
 # ui
 SOURCES += \

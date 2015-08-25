@@ -30,6 +30,7 @@ public:
         ResourceLoadFailed,
         InvalidValue,
         UknownPath,
+        EntityAlreadyLoaded
     };
 
     Exception(ErrorCode code, const QStringList &args = QStringList());

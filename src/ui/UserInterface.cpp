@@ -1,8 +1,10 @@
 #include <QQmlContext>
 #include <QColor>
+#include <QDir>
 
 #include "log/LogStream.h"
 #include "core/Exception.h"
+#include "core/WorldSurface.h"
 #include "core/Map.h"
 #include "UserInterface.h"
 
@@ -11,7 +13,6 @@ using namespace warmonger::ui;
 UserInterface::UserInterface(QObject *parent) :
     QObject(parent),
     viewer(),
-    mapLoader(this),
     map(nullptr)
 {
     try
@@ -44,7 +45,7 @@ Q_INVOKABLE bool UserInterface::hexContains(const QPoint &p) const
 
     int x = p.x();
     int y = p.y();
-    const QSize tileSize = world->getTileSize();
+    const QSize tileSize = world->getSurface()->getTileSize();
 
     if (x < 0 || x >= tileSize.width() || y < 0 || y >= tileSize.height())
         return false;
@@ -59,15 +60,16 @@ Q_INVOKABLE bool UserInterface::hexContains(const QPoint &p) const
 // FIXME: will need to get rid of this
 void UserInterface::setupModels()
 {
-    QStringList mapSearchPath;
-    mapSearchPath << "worlds/iron_age/maps";
-    this->mapLoader.setSearchPath(mapSearchPath);
+    //FIXME: these search paths will need to come from some sort of settings
+    QDir::setSearchPaths("maps", QStringList("worlds/iron_age/maps/prototype"));
+    QDir::setSearchPaths("worlds", QStringList("worlds/iron_age"));
 
-    this->map = this->mapLoader.load("prototype");
+    this->map = new core::Map(this);
+    this->map->load(this->map->specification("prototype"));
 
     const core::World *world = this->map->getWorld();
-    const QString path = world->getPath();
+    const core::WorldSurface *surface = world->getSurface();
 
-    //FIXME: hardcoded path
-    this->hexMask.load(path + QStringLiteral("/surfaces/default/hexagon_mask.xpm"), "XPM");
+    const QString path = surface->getPath();
+    this->hexMask.load(path + QStringLiteral("hexagon_mask.xpm"), "XPM");
 }

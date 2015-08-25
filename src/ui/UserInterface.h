@@ -4,7 +4,6 @@
 #include "ui/qtquick2applicationviewer.h"
 #include "core/World.h"
 #include "core/Map.h"
-#include "core/Loader.hpp"
 
 namespace warmonger {
 namespace ui {
@@ -30,7 +29,6 @@ private:
     void setupModels();
 
     QtQuick2ApplicationViewer viewer;
-    core::Loader<core::Map> mapLoader;
     core::Map *map;
     QImage hexMask;
 };

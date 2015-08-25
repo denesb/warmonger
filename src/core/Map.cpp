@@ -7,21 +7,16 @@
 #include "core/TerrainType.h"
 #include "core/Unit.h"
 #include "core/JsonUtil.hpp"
-#include "core/Loader.hpp"
 #include "core/Util.h"
 #include "core/Exception.h"
 
-static const QString module("core.Map");
-
 using namespace warmonger::core;
 
-const QString Map::DefinitionFile{"map.json"};
+static const QString module{"core.Map"};
 const QString Map::mapNodeNameTemplate{"mapNode%1"};
 
 Map::Map(QObject *parent) :
-    GameObject(parent),
-    path(),
-    description(),
+    GameEntity(parent),
     world(nullptr),
     mapNodeIndex(0),
     mapNodes(),
@@ -35,24 +30,9 @@ Map::~Map()
 {
 }
 
-QString Map::getPath() const
+QString Map::specification(const QString &objectName) const
 {
-    return this->path;
-}
-
-void Map::setPath(const QString &path)
-{
-    this->path = path;
-}
-
-QString Map::getDescription()const
-{
-    return this->description;
-}
-
-void Map::setDescription(const QString &description)
-{
-    this->description = description;
+    return "maps:" + objectName + ".wmd";
 }
 
 const World * Map::getWorld() const
@@ -254,58 +234,11 @@ void Map::changeMapNodeTerrainType(QObject *mapNode, QObject *newTerrainType)
     mn->setTerrainType(tt);
 }
 
-void Map::fromStorage(const QString &path)
-{
-    QString docPath = path.isNull() ? this->path : path;
-
-    if (docPath.isNull())
-    {
-        Exception e(Exception::UknownPath);
-        wError(module) << e.getMessage();
-        throw e;
-    }
-
-    docPath += "/" + Map::DefinitionFile;
-
-    QJsonDocument doc = loadJsonDocument(docPath);
-    this->fromJson(doc.object());
-}
-
-void Map::toStorage(const QString &path)
-{
-    QString docPath = path.isNull() ? this->path : path;
-
-    if (docPath.isNull())
-    {
-        Exception e(Exception::UknownPath);
-        wError(module) << e.getMessage();
-        throw e;
-    }
-
-    docPath += "/" + Map::DefinitionFile;
-
-    QJsonDocument doc(this->toJson());
-    saveJsonDocument(docPath, doc);
-}
-
 void Map::dataFromJson(const QJsonObject &obj)
 {
-    this->description = obj["description"].toString();
-
     const QString worldName(obj["world"].toString());
-
-    Loader<World> worldLoader(this);
-    QStringList worldSearchPath;
-    worldSearchPath << "worlds";
-    worldLoader.setSearchPath(worldSearchPath);
-
-    World *world = worldLoader.load(worldName);
-    if (world == nullptr)
-    {
-        Exception e(Exception::ResourceLoadFailed, {"World", worldName});
-        wError(module) << e.getMessage();
-        throw e;
-    }
+    World *world = new World(this);
+    world->load(world->specification(worldName));
 
     this->world = world;
     this->mapNodeIndex = obj["mapNodeIndex"].toInt();
@@ -317,7 +250,6 @@ void Map::dataFromJson(const QJsonObject &obj)
 
 void Map::dataToJson(QJsonObject &obj) const
 {
-    obj["description"] = this->description;
     obj["world"] = this->world->objectName();
     obj["mapNodeIndex"] = this->mapNodeIndex;
     obj["mapNodes"] = this->mapNodesToJson(this->mapNodes);

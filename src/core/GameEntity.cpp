@@ -70,8 +70,8 @@ void GameEntity::loadAs(const QString &path)
 
 void GameEntity::save() const
 {
-    this->saveAs(this->path);
-    this->saveToFile(this->path);
+    const QString path(this->path + "/" + this->fileName);
+    this->saveToFile(path);
 }
 
 void GameEntity::saveAs(const QString &path) const

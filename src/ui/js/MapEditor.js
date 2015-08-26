@@ -2,16 +2,21 @@
 
 .import 'Map.js' as Map
 
+var EditModes = {
+    'Create': 0,
+    'EditMapNode': 1
+}
+
 /*
  * MapEditor class
  * @contructor
  */
-var MapEditor = function(ui, mapElement, mapItemTypesElement) {
+var MapEditor = function(ui, mapElement) {
     this.ui = ui;
     this.mapElement = mapElement;
-    this.mapItemTypesElement = mapItemTypesElement;
     this.currentTerrainType = undefined;
     this.terrainTypeMap = {};
+    this.editMode = 0;
 
     var world = this.ui.map.world;
     for (var i = 0; i < world.terrainTypes.length; i++) {
@@ -31,6 +36,11 @@ MapEditor.prototype.onSettlementTypeSelected = function(objectName) {
 
 MapEditor.prototype.onUnitTypeSelected = function(objectName) {
     console.log("selected unitType: " + objectName);
+};
+
+MapEditor.prototype.onEditModeChanged = function(editMode) {
+    this.editMode = editMode;
+    console.log("new editMode: " + editMode);
 };
 
 MapEditor.prototype.onMapNodeClicked = function(mapNode) {

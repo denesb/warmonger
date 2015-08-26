@@ -10,7 +10,7 @@ Rectangle {
     property var jobj
 
     Component.onCompleted: {
-        jobj = new MapEditor.MapEditor(ui, map, mapItemTypes);
+        jobj = new MapEditor.MapEditor(ui, map);
 
         mapEditorControls.terrainTypeSelected.connect(jobj.onTerrainTypeSelected.bind(jobj));
         map.mapNodeClicked.connect(jobj.onMapNodeClicked.bind(jobj));
@@ -35,8 +35,30 @@ Rectangle {
             Button {
                 text: "Save"
                 Layout.alignment: Qt.AlignLeft
+                Layout.preferredWidth: width
 
                 onClicked: mapEditor.jobj.saveMap()
+            }
+
+            Rectangle {
+                Layout.alignment: Qt.AlignLeft
+                Layout.fillWidth: true
+            }
+
+            Button {
+                text: "Create Map Items"
+                Layout.alignment: Qt.AlignRight
+                Layout.preferredWidth: width
+
+                onClicked: mapEditor.jobj.onEditModeChanged(MapEditor.EditModes.Create);
+            }
+
+            Button {
+                text: "Edit Map Nodes"
+                Layout.alignment: Qt.AlignRight
+                Layout.preferredWidth: width
+
+                onClicked: mapEditor.jobj.onEditModeChanged(MapEditor.EditModes.EditMapNode);
             }
         }
     }
@@ -156,39 +178,54 @@ Rectangle {
             }
 
             TabView {
-                id: mapItemTypes
+                id: editModes
                 anchors.fill: parent
 
                 Tab {
-                    id: terrainTypeTab
-                    title: "Terrain"
+                    id: createMapItem
+                    title: "Create Map Items"
 
-                    MapItemSelector {
+                    TabView {
+                        id: mapItemTypes
                         anchors.fill: parent
-                        model: ui.map.world.terrainTypes
-                        onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
+
+                        Tab {
+                            id: terrainTypeTab
+                            title: "Terrain"
+
+                            MapItemSelector {
+                                anchors.fill: parent
+                                model: ui.map.world.terrainTypes
+                                onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
+                            }
+                        }
+                        Tab {
+                            id: settlementTab
+                            title: "Settlements"
+
+                            MapItemSelector {
+                                anchors.fill: parent
+                                model: ui.map.world.terrainTypes
+                                onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
+                            }
+
+                        }
+                        Tab {
+                            id: unitTab
+                            title: "Units"
+
+                            MapItemSelector {
+                                anchors.fill: parent
+                                model: ui.map.world.terrainTypes
+                                onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
+                            }
+                        }
                     }
                 }
+
                 Tab {
-                    id: settlementTab
-                    title: "Settlements"
-
-                    MapItemSelector {
-                        anchors.fill: parent
-                        model: ui.map.world.terrainTypes
-                        onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
-                    }
-
-                }
-                Tab {
-                    id: unitTab
-                    title: "Units"
-
-                    MapItemSelector {
-                        anchors.fill: parent
-                        model: ui.map.world.terrainTypes
-                        onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
-                    }
+                    id: editMapItem
+                    title: "Edit MapItem"
                 }
             }
         }

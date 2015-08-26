@@ -93,11 +93,9 @@ SOURCES += \
 
 # qml
 OTHER_FILES += \
-    src/ui/qml/GamePlay.qml \
     src/ui/qml/Main.qml \
-    src/ui/qml/Map.qml \
     src/ui/qml/MapEditor.qml \
-    src/ui/qml/WorldList.qml
+    src/ui/qml/MapItemSelector.qml
 
 # js
 OTHER_FILES += \

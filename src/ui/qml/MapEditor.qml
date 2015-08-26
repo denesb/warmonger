@@ -163,43 +163,31 @@ Rectangle {
                     id: terrainTypeTab
                     title: "Terrain"
 
-                    ListView {
+                    MapItemSelector {
                         anchors.fill: parent
-
-                        currentIndex: -1
-
                         model: ui.map.world.terrainTypes
-                        delegate: MapItem {
-                            onSelected: mapEditorControls.terrainTypeSelected(model.modelData.objectName)
-                        }
+                        onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
                     }
                 }
                 Tab {
                     id: settlementTab
                     title: "Settlements"
 
-                    ListView {
+                    MapItemSelector {
                         anchors.fill: parent
-
-                        currentIndex: -1
-
                         model: ui.map.world.terrainTypes
-                        delegate: MapItem {
-                        }
+                        onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
                     }
+
                 }
                 Tab {
                     id: unitTab
                     title: "Units"
 
-                    ListView {
+                    MapItemSelector {
                         anchors.fill: parent
-
-                        currentIndex: -1
-
                         model: ui.map.world.terrainTypes
-                        delegate: MapItem {
-                        }
+                        onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
                     }
                 }
             }

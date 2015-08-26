@@ -41,9 +41,9 @@ var MouseEvents = {
  * Map class.
  * @contructor
  */
-var Map = function(ui, canvas, mouseArea) {
-    this.ui = ui;
-    this.qobj = ui.map;
+var Map = function(W, canvas, mouseArea) {
+    this.W = W;
+    this.qobj = W.map;
     this.canvas = canvas;
     this.mouseArea = mouseArea;
 
@@ -277,8 +277,8 @@ Map.prototype.onClicked = function(pos) {
  * GameMap class
  * @contructor
  */
-var GameMap = function(ui, canvas, mouseArea) {
-    Map.call(this, ui, canvas, mouseArea);
+var GameMap = function(W, canvas, mouseArea) {
+    Map.call(this, W, canvas, mouseArea);
 
     this.loadQueue = [];
 
@@ -419,10 +419,10 @@ GameMap.prototype.onResourcesLoaded = function() {
  * EditableMap class
  * @contructor
  */
-var EditableMap = function(ui, canvas, mouseArea) {
-    GameMap.call(this, ui, canvas, mouseArea);
+var EditableMap = function(W, canvas, mouseArea) {
+    GameMap.call(this, W, canvas, mouseArea);
 
-    ui.map.mapNodeCreated.connect(this.onMapNodeCreated.bind(this));
+    W.map.mapNodeCreated.connect(this.onMapNodeCreated.bind(this));
 
     this.focusedNode = undefined;
     this.mapNodeClicked = undefined;
@@ -497,8 +497,8 @@ EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) 
  * MiniMap class
  * @contructor
  */
-var MiniMap = function(ui, canvas, mouseArea) {
-    Map.call(this, ui, canvas, mouseArea);
+var MiniMap = function(W, canvas, mouseArea) {
+    Map.call(this, W, canvas, mouseArea);
 
     this.pos = Qt.point(0, 0);
     this.window = Qt.rect(0, 0, 0, 0);
@@ -506,7 +506,7 @@ var MiniMap = function(ui, canvas, mouseArea) {
     this.windowPosChanged = undefined;
 
     // init
-    ui.map.mapNodeCreated.connect(this.onMapNodeCreated.bind(this));
+    W.map.mapNodeCreated.connect(this.onMapNodeCreated.bind(this));
 
     this.ready = true;
     this.canvas.requestPaint();

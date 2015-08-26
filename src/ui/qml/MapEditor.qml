@@ -10,7 +10,7 @@ Rectangle {
     property var jobj
 
     Component.onCompleted: {
-        jobj = new MapEditor.MapEditor(ui, map);
+        jobj = new MapEditor.MapEditor(W, map);
 
         mapEditorControls.terrainTypeSelected.connect(jobj.onTerrainTypeSelected.bind(jobj));
         map.mapNodeClicked.connect(jobj.onMapNodeClicked.bind(jobj));
@@ -82,7 +82,7 @@ Rectangle {
         }
 
         Component.onCompleted: {
-            jobj = new Map.EditableMap(ui, mapCanvas, mapMouseArea);
+            jobj = new Map.EditableMap(W, mapCanvas, mapMouseArea);
             jobj.mapNodeClicked = map.mapNodeClicked;
 
             miniMap.onWindowPosChanged.connect(jobj.onWindowPosChanged.bind(jobj));
@@ -141,7 +141,7 @@ Rectangle {
             }
 
             Component.onCompleted: {
-                jobj = new Map.MiniMap(ui, miniMapCanvas, miniMapMouseArea);
+                jobj = new Map.MiniMap(W, miniMapCanvas, miniMapMouseArea);
                 jobj.windowPosChanged = miniMap.windowPosChanged;
             }
 
@@ -195,7 +195,7 @@ Rectangle {
 
                             MapItemSelector {
                                 anchors.fill: parent
-                                model: ui.map.world.terrainTypes
+                                model: W.map.world.terrainTypes
                                 onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
                             }
                         }
@@ -205,7 +205,7 @@ Rectangle {
 
                             MapItemSelector {
                                 anchors.fill: parent
-                                model: ui.map.world.terrainTypes
+                                model: W.map.world.terrainTypes
                                 onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
                             }
 
@@ -216,7 +216,7 @@ Rectangle {
 
                             MapItemSelector {
                                 anchors.fill: parent
-                                model: ui.map.world.terrainTypes
+                                model: W.map.world.terrainTypes
                                 onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
                             }
                         }

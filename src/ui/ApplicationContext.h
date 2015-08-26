@@ -1,34 +1,32 @@
-#ifndef UI_USER_INTERFACE_H
-#define UI_USER_INTERFACE_H
+#ifndef UI_APPLICATION_CONTEXT_H
+#define UI_APPLICATION_CONTEXT_H
 
-#include "ui/qtquick2applicationviewer.h"
-#include "core/World.h"
+#include <QImage>
+
 #include "core/Map.h"
 
 namespace warmonger {
 namespace ui {
 
-class UserInterface :
+class ApplicationContext :
     public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QVariant map READ readMap NOTIFY mapChanged)
 
 public:
-    UserInterface(QObject *parent);
-    ~UserInterface();
+    ApplicationContext(QObject *parent);
+    ~ApplicationContext();
 
     QVariant readMap() const;
 
+    Q_INVOKABLE void loadMap(const QString &mapName);
     Q_INVOKABLE bool hexContains(const QPoint &p) const;
 
 signals:
-    void mapChanged();
+    void mapChanged() const;
 
 private:
-    void setupModels();
-
-    QtQuick2ApplicationViewer viewer;
     core::Map *map;
     QImage hexMask;
 };
@@ -36,4 +34,4 @@ private:
 } // namespace ui
 } // namespace warmonger
 
-#endif // WAMNOGER_H
+#endif // UI_APPLICATION_CONTEXT_H

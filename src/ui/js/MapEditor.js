@@ -11,14 +11,14 @@ var EditModes = {
  * MapEditor class
  * @contructor
  */
-var MapEditor = function(ui, mapElement) {
-    this.ui = ui;
+var MapEditor = function(W, mapElement) {
+    this.W = W;
     this.mapElement = mapElement;
     this.currentTerrainType = undefined;
     this.terrainTypeMap = {};
     this.editMode = 0;
 
-    var world = this.ui.map.world;
+    var world = this.W.map.world;
     for (var i = 0; i < world.terrainTypes.length; i++) {
         var terrainType = world.terrainTypes[i];
         this.terrainTypeMap[terrainType.objectName] = terrainType;
@@ -56,7 +56,7 @@ MapEditor.prototype.onMapNodeClicked = function(mapNode) {
             }
         }
 
-        this.ui.map.createMapNode(this.currentTerrainType, neighboursMap);
+        this.W.map.createMapNode(this.currentTerrainType, neighboursMap);
     }
 };
 
@@ -64,5 +64,5 @@ MapEditor.prototype.onMapNodeFocused = function(mapNode) {
 };
 
 MapEditor.prototype.saveMap = function() {
-    this.ui.map.save();
+    this.W.map.save();
 };

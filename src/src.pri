@@ -46,7 +46,7 @@ HEADERS += \
 # ui
 HEADERS += \
     src/ui/qtquick2applicationviewer.h \
-    src/ui/UserInterface.h
+    src/ui/ApplicationContext.h
 
 # app
 SOURCES += \
@@ -89,7 +89,7 @@ SOURCES += \
 # ui
 SOURCES += \
     src/ui/qtquick2applicationviewer.cpp \
-    src/ui/UserInterface.cpp
+    src/ui/ApplicationContext.cpp
 
 # qml
 OTHER_FILES += \

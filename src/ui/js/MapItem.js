@@ -22,7 +22,7 @@ MapItem.prototype.translate = function(point) {
 MapItem.prototype.contains = function(point) {
     var localPoint = this.translate(point);
 
-    return this.map.ui.hexContains(localPoint);
+    return this.map.W.hexContains(localPoint);
 };
 
 MapItem.prototype.onMouseIn = function() {

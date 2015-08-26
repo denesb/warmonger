@@ -41,7 +41,7 @@ Rectangle {
                     }
 
                     source: {
-                        var surface = ui.map.world.surface;
+                        var surface = W.map.world.surface;
                         surface.path + "/" + surface.gameMap[model.modelData.objectName]
                     }
                 }

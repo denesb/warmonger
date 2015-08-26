@@ -3,7 +3,8 @@
 
 #include <QGuiApplication>
 
-#include "ui/UserInterface.h"
+#include "ui/qtquick2applicationviewer.h"
+#include "ui/ApplicationContext.h"
 
 namespace warmonger {
 
@@ -17,7 +18,12 @@ public:
     ~Warmonger();
 
 private:
-    ui::UserInterface *ui;
+    void readSettings();
+    void initLogger();
+    void initUi();
+
+    QtQuick2ApplicationViewer viewer;
+    ui::ApplicationContext *ctx;
 };
 
 } // namespace warmonger

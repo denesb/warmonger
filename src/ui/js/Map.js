@@ -422,7 +422,7 @@ GameMap.prototype.onResourcesLoaded = function() {
 var EditableMap = function(W, canvas, mouseArea) {
     GameMap.call(this, W, canvas, mouseArea);
 
-    W.map.mapNodeCreated.connect(this.onMapNodeCreated.bind(this));
+    W.map.mapNodeAdded.connect(this.onMapNodeCreated.bind(this));
 
     this.focusedNode = undefined;
     this.mapNodeClicked = undefined;
@@ -506,7 +506,7 @@ var MiniMap = function(W, canvas, mouseArea) {
     this.windowPosChanged = undefined;
 
     // init
-    W.map.mapNodeCreated.connect(this.onMapNodeCreated.bind(this));
+    W.map.mapNodeAdded.connect(this.onMapNodeCreated.bind(this));
 
     this.ready = true;
     this.canvas.requestPaint();

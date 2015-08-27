@@ -65,6 +65,22 @@ void Map::writeWorld(QVariant world)
     this->setWorld(w);
 }
 
+void Map::addMapNode(MapNode *mapNode)
+{
+    mapNode->setParent(this);
+    this->mapNodes << mapNode;
+
+    emit mapNodeAdded(mapNode);
+}
+
+void Map::removeMapNode(MapNode *mapNode)
+{
+    mapNode->setParent(nullptr);
+    this->mapNodes.removeOne(mapNode);
+
+    emit mapNodeRemoved(mapNode);
+}
+
 QList<MapNode *> Map::getMapNodes() const
 {
     return this->mapNodes;
@@ -140,82 +156,25 @@ void Map::createMapNode(TerrainType *terrainType, const QHash<MapNode::Direction
     MapNode *newMapNode = new MapNode(this);
     newMapNode->setObjectName(Map::mapNodeNameTemplate.arg(++this->mapNodeIndex));
     newMapNode->setTerrainType(terrainType);
+    newMapNode->setNeighbours(neighbours);
 
-    QHash<MapNode::Direction, MapNode *>::ConstIterator it;
-    for (it = neighbours.constBegin(); it != neighbours.constEnd(); it++)
-    {
-        MapNode *neighbour = it.value();
-        MapNode::Direction direction = it.key();
-
-        newMapNode->setNeighbour(direction, neighbour);
-        neighbour->setNeighbour(MapNode::oppositeDirections[direction], newMapNode);
-    }
-
-    this->mapNodes << newMapNode;
-
-    emit mapNodeCreated(newMapNode);
+    this->addMapNode(newMapNode);
 }
 
-void Map::createMapNode(QObject *terrainType, QVariant neighbours)
+void Map::createMapNode(QObject *terrainType, QVariantMap neighbours)
 {
-    TerrainType *tt = qobject_cast<TerrainType *>(terrainType);
-    if (tt == nullptr)
+    if (neighbours.empty())
     {
-        wError(category) << "terrainType is null or has wrong type";
-        throw Exception(Exception::NullPointer);
+        wError(category) << "neighbours is empty";
+        throw Exception(Exception::InvalidValue);
     }
 
-    if (!neighbours.canConvert(QMetaType::QVariantMap))
-    {
-        wError(category) << "neighbours has wrong type";
-        throw Exception(Exception::WrongType);
-    }
-    QVariantMap neighboursMap = neighbours.toMap();
-    QHash<MapNode::Direction, MapNode *> nm;
+    std::unique_ptr<MapNode> newMapNode(new MapNode(nullptr));
+    newMapNode->setObjectName(Map::mapNodeNameTemplate.arg(++this->mapNodeIndex));
+    newMapNode->writeTerrainType(terrainType);
+    newMapNode->writeNeighbours(neighbours);
 
-    QVariantMap::ConstIterator it;
-    for (it = neighboursMap.constBegin(); it != neighboursMap.constEnd(); it++)
-    {
-        QString directionName = it.key();
-        if (!MapNode::str2direction.contains(directionName))
-        {
-            wError(category) << "Uknown direction";
-            throw Exception(Exception::InvalidValue);
-        }
-        MapNode::Direction direction = MapNode::str2direction[directionName];
-        
-        QVariant v = it.value();
-        if (!v.canConvert<MapNode *>())
-        {
-            wError(category) << "mapNode has wrong type";
-            throw Exception(Exception::WrongType);
-
-        }
-
-        MapNode *neighbour = v.value<MapNode *>();
-        nm.insert(direction, neighbour);
-    }
-
-    this->createMapNode(tt, nm);
-}
-
-void Map::changeMapNodeTerrainType(QObject *mapNode, QObject *newTerrainType)
-{
-    MapNode *mn = qobject_cast<MapNode *>(mapNode);
-    if (mn == nullptr)
-    {
-        wError(category) << "mapNode is null";
-        throw Exception(Exception::NullPointer);
-    }
-
-    TerrainType *tt = qobject_cast<TerrainType *>(newTerrainType);
-    if (tt == nullptr)
-    {
-        wError(category) << "terrainType is null";
-        throw Exception(Exception::NullPointer);
-    }
-
-    mn->setTerrainType(tt);
+    this->addMapNode(newMapNode.release());
 }
 
 void Map::dataFromJson(const QJsonObject &obj)

@@ -38,6 +38,9 @@ public:
     QVariant readWorld() const;
     void writeWorld(QVariant world);
 
+    void addMapNode(MapNode *mapNode);
+    void removeMapNode(MapNode *mapNode);
+
     QList<MapNode *> getMapNodes() const;
     void setMapNodes(const QList<MapNode *> &mapNodes);
     QVariant readMapNodes() const;
@@ -55,13 +58,12 @@ public:
     QVariant readSettlements() const;
 
     void createMapNode(TerrainType *terrainType, const QHash<MapNode::Direction, MapNode *> &neighbours);
-    Q_INVOKABLE void createMapNode(QObject *terrainType, QVariant neighbours);
-    Q_INVOKABLE void changeMapNodeTerrainType(QObject *mapNode, QObject *newTerrainType);
+    Q_INVOKABLE void createMapNode(QObject *terrainType, QVariantMap neighbours);
 
 signals:
     void worldChanged();
     void mapNodesChanged();
-    void mapNodeCreated(QObject *mapNode);
+    void mapNodeAdded(QObject *mapNode);
     void mapNodeRemoved(QObject *mapNode);
     void mapNodeChanged(QObject *mapNode);
 

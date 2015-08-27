@@ -26,7 +26,7 @@ class MapNode :
     public GameObject
 {
     Q_OBJECT
-    Q_PROPERTY(QVariant terrainType READ readTerrainType WRITE writeTerrainType NOTIFY terrainTypeChanged)
+    Q_PROPERTY(QObject * terrainType READ readTerrainType WRITE writeTerrainType NOTIFY terrainTypeChanged)
     Q_PROPERTY(QVariantMap neighbours READ readNeighbours WRITE writeNeighbours NOTIFY neighboursChanged)
 
 public:
@@ -48,16 +48,16 @@ public:
 
     TerrainType * getTerrainType() const;
     void setTerrainType(TerrainType *terrainType);
-    QVariant readTerrainType() const;
-    void writeTerrainType(QVariant terrainType);
+    QObject * readTerrainType() const;
+    void writeTerrainType(QObject *terrainType);
 
     MapNode * getNeighbour(Direction direction) const;
     QHash<Direction, MapNode *> getNeighbours() const;
     void setNeighbour(Direction direction, MapNode *neighbour);
     void setNeighbours(const QHash<Direction, MapNode *> &neighbours);
-    QVariant readNeighbour(QString directionName) const;
+    Q_INVOKABLE QObject * getNeighbour(QString directionName) const;
+    Q_INVOKABLE void setNeighbour(QString directionName, QObject *neighbour);
     QVariantMap readNeighbours() const;
-    void writeNeighbour(QString directionName, QVariant neighbour);
     void writeNeighbours(QVariantMap neighbours);
 
     Q_INVOKABLE QString oppositeDirection(QString directionStr) const;

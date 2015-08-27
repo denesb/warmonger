@@ -66,19 +66,19 @@ void MapNode::setTerrainType(TerrainType *terrainType)
     }
 }
 
-QVariant MapNode::readTerrainType() const
+QObject * MapNode::readTerrainType() const
 {
-    return QVariant::fromValue<QObject *>(this->terrainType);
+    return this->terrainType;
 }
 
-void MapNode::writeTerrainType(QVariant terrainType)
+void MapNode::writeTerrainType(QObject *terrainType)
 {
-    if (!terrainType.canConvert<TerrainType *>())
+    TerrainType *tt = qobject_cast<TerrainType *>(terrainType);
+    if (tt == nullptr)
     {
-        wError("core") << "terrainType has wrong type";
-        throw Exception(Exception::WrongType);
+        wError(category) << "terrainType is null or has wrong type";
+        throw Exception(Exception::InvalidValue);
     }
-    TerrainType *tt = terrainType.value<TerrainType *>();
 
     this->setTerrainType(tt);
 }
@@ -98,6 +98,8 @@ void MapNode::setNeighbour(MapNode::Direction direction, MapNode *neighbour)
     if (this->neighbours[direction] != neighbour)
     {
         this->neighbours[direction] = neighbour;
+        neighbour->setNeighbour(MapNode::oppositeDirections[direction], this);
+
         emit neighboursChanged();
     }
 }
@@ -111,7 +113,7 @@ void MapNode::setNeighbours(const QHash<MapNode::Direction, MapNode *> &neighbou
     }
 }
 
-QVariant MapNode::readNeighbour(QString directionName) const
+QObject * MapNode::getNeighbour(QString directionName) const
 {
     if (!MapNode::str2direction.contains(directionName))
     {
@@ -120,8 +122,28 @@ QVariant MapNode::readNeighbour(QString directionName) const
     }
     MapNode::Direction direction = MapNode::str2direction[directionName];
 
-    return QVariant::fromValue<QObject *>(this->getNeighbour(direction));
+    return this->getNeighbour(direction);
 }
+
+void MapNode::setNeighbour(QString directionName, QObject * neighbour)
+{
+    if (!MapNode::str2direction.contains(directionName))
+    {
+        wError(category) << "invalid direction " << directionName;
+        throw Exception(Exception::InvalidValue);
+    }
+    MapNode::Direction direction = MapNode::str2direction[directionName];
+
+    MapNode *n = qobject_cast<MapNode *>(neighbour);
+    if (neighbour == nullptr)
+    {
+        wError(category) << "neighbour is null or has wrong type";
+        throw Exception(Exception::InvalidValue);
+    }
+
+    this->setNeighbour(direction, n);
+}
+
 
 QVariantMap MapNode::readNeighbours() const
 {
@@ -140,31 +162,20 @@ QVariantMap MapNode::readNeighbours() const
     return std::move(vmap);
 }
 
-void MapNode::writeNeighbour(QString directionName, QVariant neighbour)
-{
-    if (!MapNode::str2direction.contains(directionName))
-    {
-        wError("core") << "invalid direction " << directionName;
-        throw Exception(Exception::InvalidValue);
-    }
-    MapNode::Direction direction = MapNode::str2direction[directionName];
-
-    if (!neighbour.canConvert<MapNode *>())
-    {
-        wError("core") << "neighbour has wrong type";
-        throw Exception(Exception::WrongType);
-    }
-    MapNode *n = neighbour.value<MapNode *>();
-    
-    this->setNeighbour(direction, n);
-}
-
 void MapNode::writeNeighbours(QVariantMap neighbours)
 {
     QVariantMap::ConstIterator it;
     for (it = neighbours.constBegin(); it != neighbours.constEnd(); it++)
     {
-        this->writeNeighbour(it.key(), it.value());
+        QVariant neighbour = it.value();
+        if (!neighbour.canConvert<MapNode *>())
+        {
+            wError(category) << "neighbour has wrong type";
+            throw Exception(Exception::WrongType);
+        }
+        MapNode *n = neighbour.value<MapNode *>();
+
+        this->setNeighbour(it.key(), n);
     }
 }
 
@@ -172,7 +183,7 @@ QString MapNode::oppositeDirection(QString directionStr) const
 {
     if (!MapNode::str2direction.contains(directionStr))
     {
-        wError("core") << "Unknown direction " << directionStr;
+        wError(category) << "Unknown direction " << directionStr;
         throw Exception(Exception::InvalidValue);
     }
 
@@ -187,7 +198,7 @@ void MapNode::dataFromJson(const QJsonObject &obj)
     World *world = this->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
     if (world == nullptr)
     {
-        wError("core") << "World is null";
+        wError(category) << "World is null";
         throw Exception(Exception::NullPointer);
     }
 

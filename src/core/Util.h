@@ -52,14 +52,14 @@ QObjectList toQObjectList(const QList<T *> &list)
 }
 
 template<typename T>
-T* resolveReference(const QString &objectName, QObject *parent, const QString &moduleName)
+T* resolveReference(const QString &objectName, QObject *parent)
 {
     T *obj = parent->findChild<T *>(objectName);
     if (obj == nullptr)
     {
-        Exception e(Exception::UnresolvedReference, {"T", objectName});
-        wError(moduleName) << e.getMessage();
-        throw e;
+        wError("core") << "Unresolvable reference: " << objectName
+            << " with parent " << parent->objectName();
+        throw Exception(Exception::UnresolvedReference);
     }
     return obj;
 }

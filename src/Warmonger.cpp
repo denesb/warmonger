@@ -22,7 +22,7 @@ Warmonger::Warmonger(int argc, char *argv[]) :
     }
     catch (core::Exception &e)
     {
-        wCritical("ui") << "Caught exception: " << e.getMessage();
+        wCritical("ui") << "Caught exception: " << e.getMsg();
         throw;
     }
 }

@@ -3,6 +3,7 @@
 #include "core/Unit.h"
 #include "core/Settlement.h"
 #include "core/World.h"
+#include "core/Util.h"
 
 using namespace warmonger::core;
 
@@ -50,7 +51,11 @@ void Player::setFaction(const Faction *faction)
 
 void Player::dataFromJson(const QJsonObject &obj)
 {
-    World *world = this->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
+    World *world = this->parent()->findChild<World *>(
+        QString(),
+        Qt::FindDirectChildrenOnly
+    );
+
     if (world == nullptr)
     {
         wError("core.Player") << "world is null";
@@ -59,14 +64,9 @@ void Player::dataFromJson(const QJsonObject &obj)
 
     this->color = QColor(obj["color"].toString());
     this->goldBalance = obj["goldBalance"].toInt();
-
-    const QString factionName = obj["faction"].toString();
-    this->faction = world->findChild<Faction *>(factionName);
-    if (this->faction == nullptr)
-    {
-        wError("core.Player") << "Unable to resolve reference <Faction>" << factionName;
-        throw Exception(Exception::UnresolvedReference, {"Faction", factionName});
-    }
+    this->faction = resolveReference<Faction>(
+        obj["faction"].toString(), world
+    );
 }
 
 void Player::dataToJson(QJsonObject &obj) const

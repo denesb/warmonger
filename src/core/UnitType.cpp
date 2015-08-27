@@ -2,7 +2,7 @@
 #include "core/UnitClass.h"
 #include "core/Armor.h"
 #include "core/Weapon.h"
-#include "core/JsonUtil.hpp"
+#include "core/JsonUtil.h"
 
 using namespace warmonger::core;
 

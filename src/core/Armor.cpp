@@ -1,6 +1,6 @@
 #include "core/Armor.h"
 #include "core/DamageType.h"
-#include "core/JsonUtil.hpp"
+#include "core/JsonUtil.h"
 
 using namespace warmonger::core;
 

@@ -12,9 +12,7 @@
 #include "core/Armor.h"
 #include "core/UnitType.h"
 #include "core/Faction.h"
-#include "core/World.h"
-#include "core/JsonUtil.hpp"
-#include "core/Util.h"
+#include "core/JsonUtil.h"
 
 using namespace warmonger::core;
 

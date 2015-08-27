@@ -19,33 +19,30 @@ public:
         WrongType,
         // 0x0100 -> 0x01ff IO errors
         IO = 0x0100,
-        FileNotFound,
-        FileOpenFailed,
-        FileReadFailed,
-        FileWriteFailed,
+        FileIO,
         // 0x0200 -> 0x02ff Serialization (from and to JSON) related errors
         Serialization = 0x0200,
         JsonParse,
         UnresolvedReference,
         ResourceLoadFailed,
         InvalidValue,
-        UknownPath,
+        NullPath,
         EntityAlreadyLoaded
     };
 
-    Exception(ErrorCode code, const QStringList &args = QStringList());
+    Exception(ErrorCode code, const QString &details = QString());
     virtual ~Exception();
 
     ErrorCode getErrorCode() const;
-    QString getMessage() const;
-
-    static QString getMessage(ErrorCode code);
+    QString getMsg() const;
+    QString getDetails() const;
 
 protected:
     static const QMap<ErrorCode, QString> messageDefinitions;
 
     ErrorCode code;
-    QStringList args;
+    QString msg;
+    QString details;
 };
 
 } // core

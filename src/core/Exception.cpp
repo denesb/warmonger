@@ -3,26 +3,24 @@
 using namespace warmonger::core;
 
 const QMap<Exception::ErrorCode, QString> Exception::messageDefinitions = {
-    std::make_pair(Exception::General, QStringLiteral("General exception")),
-    std::make_pair(Exception::NullPointer, QStringLiteral("%1 is null")),
-    std::make_pair(Exception::WrongType, QStringLiteral("Object %1 has wrong type, expected: %2, got: %3")),
+    std::make_pair(Exception::General, QStringLiteral("Error")),
+    std::make_pair(Exception::NullPointer, QStringLiteral("Pointer is null")),
+    std::make_pair(Exception::WrongType, QStringLiteral("Failed to extract value from QVariant, enclosed value has wrong type")),
     std::make_pair(Exception::IO, QStringLiteral("IO error")),
-    std::make_pair(Exception::FileNotFound, QStringLiteral("File %1 not found")),
-    std::make_pair(Exception::FileOpenFailed, QStringLiteral("Cannot open file %1")),
-    std::make_pair(Exception::FileReadFailed, QStringLiteral("Cannot read from file %1")),
-    std::make_pair(Exception::FileWriteFailed, QStringLiteral("Cannot write to file %1")),
+    std::make_pair(Exception::FileIO, QStringLiteral("File IO error")),
     std::make_pair(Exception::Serialization, QStringLiteral("Serialization error")),
-    std::make_pair(Exception::JsonParse, QStringLiteral("Json parse error while parsing %1: %2")),
-    std::make_pair(Exception::UnresolvedReference, QStringLiteral("Unable to resolve reference to <%1>%2")),
-    std::make_pair(Exception::ResourceLoadFailed, QStringLiteral("Failed to load resource <%1>%2")),
-    std::make_pair(Exception::InvalidValue, QStringLiteral("Value %1 is invalid for %2")),
-    std::make_pair(Exception::UknownPath, QStringLiteral("No path specified for file operation")),
-    std::make_pair(Exception::EntityAlreadyLoaded, QStringLiteral("Entity {0} is already loaded"))
+    std::make_pair(Exception::JsonParse, QStringLiteral("Json parse error")),
+    std::make_pair(Exception::UnresolvedReference, QStringLiteral("Unable to resolve reference")),
+    std::make_pair(Exception::ResourceLoadFailed, QStringLiteral("Failed to load resource")),
+    std::make_pair(Exception::InvalidValue, QStringLiteral("Invalid value")),
+    std::make_pair(Exception::NullPath, QStringLiteral("No path specified for file operation")),
+    std::make_pair(Exception::EntityAlreadyLoaded, QStringLiteral("Entity is already loaded"))
 };
 
-Exception::Exception(ErrorCode code, const QStringList &args) :
+Exception::Exception(ErrorCode code, const QString &details) :
     code(code),
-    args(args)
+    msg(Exception::messageDefinitions[code]),
+    details(details)
 {
 }
 
@@ -35,18 +33,12 @@ Exception::ErrorCode Exception::getErrorCode() const
     return this->code;
 }
 
-QString Exception::getMessage() const
+QString Exception::getMsg() const
 {
-    QString msg = Exception::messageDefinitions[this->code];
-    for (const QString str : this->args)
-    {
-        msg = msg.arg(str);
-    }
-
-    return msg;
+    return this->msg;
 }
 
-QString Exception::getMessage(ErrorCode code)
+QString Exception::getDetails() const
 {
-    return Exception::messageDefinitions[code];
+    return this->details;
 }

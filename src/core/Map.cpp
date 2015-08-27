@@ -6,13 +6,11 @@
 #include "core/Settlement.h"
 #include "core/TerrainType.h"
 #include "core/Unit.h"
-#include "core/JsonUtil.hpp"
-#include "core/Util.h"
-#include "core/Exception.h"
+#include "core/JsonUtil.h"
 
 using namespace warmonger::core;
 
-static const QString module{"core.Map"};
+static const QString category{"core"};
 const QString Map::mapNodeNameTemplate{"mapNode%1"};
 
 Map::Map(QObject *parent) :
@@ -35,12 +33,12 @@ QString Map::specification(const QString &objectName) const
     return "maps:" + objectName + ".wmd";
 }
 
-const World * Map::getWorld() const
+World * Map::getWorld() const
 {
     return this->world;
 }
 
-void Map::setWorld(const World *world)
+void Map::setWorld(World *world)
 {
     if (this->world != world)
     {
@@ -55,12 +53,19 @@ QVariant Map::readWorld() const
     return QVariant::fromValue<QObject *>(o);
 }
 
-QList<const MapNode *> Map::getMapNodes() const
+void Map::writeWorld(QVariant world)
 {
-    return listConstClone(this->mapNodes);
+    if (!world.canConvert<World *>())
+    {
+        wError("core") << "world has wrong type";
+        throw Exception(Exception::WrongType);
+    }
+    World *w = world.value<World *>();
+
+    this->setWorld(w);
 }
 
-QList<MapNode *> Map::getMapNodes()
+QList<MapNode *> Map::getMapNodes() const
 {
     return this->mapNodes;
 }
@@ -79,12 +84,7 @@ QVariant Map::readMapNodes() const
     return QVariant::fromValue(toQObjectList<MapNode>(this->mapNodes));
 }
 
-QList<const Player *> Map::getPlayers() const
-{
-    return listConstClone(this->players);
-}
-
-QList<Player *> Map::getPlayers()
+QList<Player *> Map::getPlayers() const
 {
     return this->players;
 }
@@ -99,12 +99,7 @@ QVariant Map::readPlayers() const
     return QVariant::fromValue(toQObjectList<Player>(this->players));
 }
 
-QList<const Unit *> Map::getUnits() const
-{
-    return listConstClone(this->units);
-}
-
-QList<Unit *> Map::getUnits()
+QList<Unit *> Map::getUnits() const
 {
     return this->units;
 }
@@ -119,12 +114,7 @@ QVariant Map::readUnits() const
     return QVariant::fromValue(toQObjectList<Unit>(this->units));
 }
 
-QList<const Settlement *> Map::getSettlements() const
-{
-    return listConstClone(this->settlements);
-}
-
-QList<Settlement *> Map::getSettlements()
+QList<Settlement *> Map::getSettlements() const
 {
     return this->settlements;
 }
@@ -139,13 +129,12 @@ QVariant Map::readSettlements() const
     return QVariant::fromValue(toQObjectList<Settlement>(this->settlements));
 }
 
-void Map::createMapNode(const TerrainType *terrainType, const QHash<MapNode::Direction, MapNode *> &neighbours)
+void Map::createMapNode(TerrainType *terrainType, const QHash<MapNode::Direction, MapNode *> &neighbours)
 {
     if (neighbours.empty())
     {
-        Exception e(Exception::InvalidValue, {"empty QMap", "neighbours"});
-        wError(module) << e.getMessage();
-        throw e;
+        wError(category) << "neighbours is empty";
+        throw Exception(Exception::InvalidValue);
     }
 
     MapNode *newMapNode = new MapNode(this);
@@ -172,16 +161,14 @@ void Map::createMapNode(QObject *terrainType, QVariant neighbours)
     TerrainType *tt = qobject_cast<TerrainType *>(terrainType);
     if (tt == nullptr)
     {
-        Exception e(Exception::NullPointer, {"terrainType"});
-        wError(module) << e.getMessage();
-        throw e;
+        wError(category) << "terrainType is null or has wrong type";
+        throw Exception(Exception::NullPointer);
     }
 
     if (!neighbours.canConvert(QMetaType::QVariantMap))
     {
-        Exception e(Exception::WrongType, {"neighbours", "QVariantMap", "?"});
-        wError(module) << e.getMessage();
-        throw e;
+        wError(category) << "neighbours has wrong type";
+        throw Exception(Exception::WrongType);
     }
     QVariantMap neighboursMap = neighbours.toMap();
     QHash<MapNode::Direction, MapNode *> nm;
@@ -192,18 +179,17 @@ void Map::createMapNode(QObject *terrainType, QVariant neighbours)
         QString directionName = it.key();
         if (!MapNode::str2direction.contains(directionName))
         {
-            Exception e(Exception::InvalidValue, {directionName, "MapNode::Direction"});
-            wError(module) << e.getMessage();
-            throw e;
+            wError(category) << "Uknown direction";
+            throw Exception(Exception::InvalidValue);
         }
         MapNode::Direction direction = MapNode::str2direction[directionName];
         
         QVariant v = it.value();
         if (!v.canConvert<MapNode *>())
         {
-            Exception e(Exception::WrongType, {"mapNode", "MapNode *", "?"});
-            wError(module) << e.getMessage();
-            throw e;
+            wError(category) << "mapNode has wrong type";
+            throw Exception(Exception::WrongType);
+
         }
 
         MapNode *neighbour = v.value<MapNode *>();
@@ -218,17 +204,15 @@ void Map::changeMapNodeTerrainType(QObject *mapNode, QObject *newTerrainType)
     MapNode *mn = qobject_cast<MapNode *>(mapNode);
     if (mn == nullptr)
     {
-        Exception e(Exception::NullPointer, {"mapNode"});
-        wError(module) << e.getMessage();
-        throw e;
+        wError(category) << "mapNode is null";
+        throw Exception(Exception::NullPointer);
     }
 
     TerrainType *tt = qobject_cast<TerrainType *>(newTerrainType);
     if (tt == nullptr)
     {
-        Exception e(Exception::NullPointer, {"terrainType"});
-        wError(module) << e.getMessage();
-        throw e;
+        wError(category) << "terrainType is null";
+        throw Exception(Exception::NullPointer);
     }
 
     mn->setTerrainType(tt);
@@ -272,8 +256,8 @@ QList<MapNode *> Map::mapNodesFromJson(const QJsonObject &obj)
         const MapNode::Direction nodeDirectionA = MapNode::str2direction[connectionObj["directionA"].toString()];
         const MapNode::Direction nodeDirectionB = MapNode::str2direction[connectionObj["directionB"].toString()];
 
-        MapNode *nodeA = resolveReference<MapNode>(nodeNameA, this, "core.MapNode");
-        MapNode *nodeB = resolveReference<MapNode>(nodeNameB, this, "core.MapNode");
+        MapNode *nodeA = resolveReference<MapNode>(nodeNameA, this);
+        MapNode *nodeB = resolveReference<MapNode>(nodeNameB, this);
 
         nodeA->setNeighbour(nodeDirectionA, nodeB);
         nodeB->setNeighbour(nodeDirectionB, nodeA);
@@ -294,8 +278,8 @@ QJsonObject Map::mapNodesToJson(const QList<MapNode *> &mapNodes) const
 
     for (const MapNode *mapNodeA : mapNodes)
     {
-        QHash<MapNode::Direction, const MapNode *> neighbours = mapNodeA->getNeighbours();
-        QHash<MapNode::Direction, const MapNode *>::ConstIterator it;
+        QHash<MapNode::Direction, MapNode *> neighbours = mapNodeA->getNeighbours();
+        QHash<MapNode::Direction, MapNode *>::ConstIterator it;
         for (it = neighbours.constBegin(); it != neighbours.constEnd(); it++)
         {
             const MapNode *mapNodeB = it.value();

@@ -26,8 +26,8 @@ class MapNode :
     public GameObject
 {
     Q_OBJECT
-    Q_PROPERTY(QVariant terrainType READ readTerrainType NOTIFY terrainTypeChanged)
-    Q_PROPERTY(QVariantMap neighbours READ readNeighbours NOTIFY neighboursChanged);
+    Q_PROPERTY(QVariant terrainType READ readTerrainType WRITE writeTerrainType NOTIFY terrainTypeChanged)
+    Q_PROPERTY(QVariantMap neighbours READ readNeighbours WRITE writeNeighbours NOTIFY neighboursChanged)
 
 public:
     enum Direction
@@ -46,14 +46,19 @@ public:
     MapNode(QObject *parent);
     ~MapNode();
 
-    const TerrainType * getTerrainType() const;
-    void setTerrainType(const TerrainType *terrainType);
+    TerrainType * getTerrainType() const;
+    void setTerrainType(TerrainType *terrainType);
     QVariant readTerrainType() const;
+    void writeTerrainType(QVariant terrainType);
 
-    const MapNode * getNeighbour(Direction direction) const;
-    const QHash<Direction, const MapNode *> getNeighbours() const;
-    void setNeighbour(Direction direction, const MapNode *neighbour);
+    MapNode * getNeighbour(Direction direction) const;
+    QHash<Direction, MapNode *> getNeighbours() const;
+    void setNeighbour(Direction direction, MapNode *neighbour);
+    void setNeighbours(const QHash<Direction, MapNode *> &neighbours);
+    QVariant readNeighbour(QString directionName) const;
     QVariantMap readNeighbours() const;
+    void writeNeighbour(QString directionName, QVariant neighbour);
+    void writeNeighbours(QVariantMap neighbours);
 
     Q_INVOKABLE QString oppositeDirection(QString directionStr) const;
 
@@ -65,8 +70,8 @@ private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
-    const TerrainType *terrainType;
-    QHash<Direction, const MapNode *> neighbours;
+    TerrainType *terrainType;
+    QHash<Direction, MapNode *> neighbours;
 };
 
 } // namespace core

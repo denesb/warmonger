@@ -1,6 +1,6 @@
 #include "core/UnitClass.h"
 #include "core/TerrainType.h"
-#include "core/JsonUtil.hpp"
+#include "core/JsonUtil.h"
 
 using namespace warmonger::core;
 

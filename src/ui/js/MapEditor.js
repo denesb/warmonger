@@ -44,6 +44,16 @@ MapEditor.prototype.onEditModeChanged = function(editMode) {
 };
 
 MapEditor.prototype.onMapNodeClicked = function(mapNode) {
+    if (this.editMode == EditModes.Create) {
+        this.createMapNode(mapNode);
+    } else if (this.editMode == EditModes.EditMapNode) {
+        this.editMapNode(mapNode);
+    } else {
+        console.log("Uknown edit mode: " + this.editMode);
+    }
+};
+
+MapEditor.prototype.createMapNode = function(mapNode) {
     if (mapNode.isPhantom) {
 
         if (this.currentTerrainType == undefined) return;
@@ -58,6 +68,9 @@ MapEditor.prototype.onMapNodeClicked = function(mapNode) {
 
         this.W.map.createMapNode(this.currentTerrainType, neighboursMap);
     }
+};
+
+MapEditor.prototype.editMapNode = function(mapNode) {
 };
 
 MapEditor.prototype.onMapNodeFocused = function(mapNode) {

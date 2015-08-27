@@ -3,7 +3,6 @@
 #include "core/MapNode.h"
 #include "core/World.h"
 #include "core/Util.h"
-#include "core/Exception.h"
 
 using namespace warmonger::core;
 
@@ -47,23 +46,12 @@ void Settlement::dataFromJson(const QJsonObject &obj)
         throw Exception(Exception::NullPointer);
     }
 
-    const QString settlementTypeName = obj["settlementType"].toString();
-    this->settlementType = world->findChild<SettlementType *>(settlementTypeName);
-    if (this->settlementType == nullptr)
-    {
-        Exception e(Exception::UnresolvedReference, {"SettlementType", settlementTypeName});
-        wError("core.Settlement") << e.getMessage();
-        throw e;
-    }
-
-    const QString mapNodeName = obj["mapNode"].toString();
-    this->mapNode = this->parent()->findChild<MapNode *>(mapNodeName);
-    if (this->mapNode == nullptr)
-    {
-        Exception e(Exception::UnresolvedReference, {"MapNode", mapNodeName});
-        wError("core.Settlement") << e.getMessage();
-        throw e;
-    }
+    this->settlementType = resolveReference<SettlementType>(
+        obj["settlementType"].toString(), world
+    );
+    this->mapNode = resolveReference<MapNode>(
+        obj["mapNode"].toString(), this->parent()
+    );
 }
 
 void Settlement::dataToJson(QJsonObject &obj) const

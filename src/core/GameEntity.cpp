@@ -1,11 +1,11 @@
 #include <QFileInfo>
 
 #include "core/GameEntity.h"
-#include "core/JsonUtil.hpp"
+#include "core/JsonUtil.h"
 
 using namespace warmonger::core;
 
-static const QString module("core.GameEntity");
+static const QString category("core");
 
 GameEntity::GameEntity(QObject *parent) :
     GameObject(parent),
@@ -48,9 +48,8 @@ void GameEntity::load(const QString &specification)
     QFileInfo fileInfo(specification);
     if (!fileInfo.exists())
     {
-        Exception e(Exception::FileNotFound, {specification});
-        wDebug(module) << e.getMessage();
-        throw e;
+        wError(category) << "File " << specification << " not found";
+        throw Exception(Exception::FileIO, "File not found");
     }
 
     this->setPath(fileInfo.absolutePath());
@@ -83,9 +82,8 @@ void GameEntity::setPath(const QString &path)
 {
     if (!this->path.isNull())
     {
-        Exception e(Exception::EntityAlreadyLoaded, {this->objectName()});
-        wError(module) << e.getMessage();
-        throw e;
+        wError(category) << "Entity " << this->objectName() << " already loaded";
+        throw Exception(Exception::EntityAlreadyLoaded);
     }
     this->path = path;
 
@@ -96,9 +94,8 @@ void GameEntity::setFileName(const QString &fileName)
 {
     if (!this->fileName.isNull())
     {
-        Exception e(Exception::EntityAlreadyLoaded, {this->objectName()});
-        wError(module) << e.getMessage();
-        throw e;
+        wError(category) << "Entity " << this->objectName() << " already loaded";
+        throw Exception(Exception::EntityAlreadyLoaded);
     }
     this->fileName = fileName;
 

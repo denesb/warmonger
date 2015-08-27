@@ -19,7 +19,7 @@ class Map :
     public GameEntity
 {
     Q_OBJECT
-    Q_PROPERTY(QVariant world READ readWorld NOTIFY worldChanged)
+    Q_PROPERTY(QVariant world READ readWorld WRITE writeWorld NOTIFY worldChanged)
     Q_PROPERTY(QVariant mapNodes READ readMapNodes NOTIFY mapNodesChanged)
     Q_PROPERTY(QVariant players READ readPlayers)
     Q_PROPERTY(QVariant units READ readUnits)
@@ -33,31 +33,28 @@ public:
 
     virtual QString specification(const QString &objectName) const;
 
-    const World * getWorld() const;
-    void setWorld(const World *world);
+    World * getWorld() const;
+    void setWorld(World *world);
     QVariant readWorld() const;
+    void writeWorld(QVariant world);
 
-    QList<const MapNode *> getMapNodes() const;
-    QList<MapNode *> getMapNodes();
+    QList<MapNode *> getMapNodes() const;
     void setMapNodes(const QList<MapNode *> &mapNodes);
     QVariant readMapNodes() const;
 
-    QList<const Player *> getPlayers() const;
-    QList<Player *> getPlayers();
+    QList<Player *> getPlayers() const;
     void setPlayers(const QList<Player *> &units);
     QVariant readPlayers() const;
 
-    QList<const Unit *> getUnits() const;
-    QList<Unit *> getUnits();
+    QList<Unit *> getUnits() const;
     void setUnits(const QList<Unit *> &units);
     QVariant readUnits() const;
 
-    QList<const Settlement *> getSettlements() const;
-    QList<Settlement *> getSettlements();
+    QList<Settlement *> getSettlements() const;
     void setSettlements(const QList<Settlement *> &settlements);
     QVariant readSettlements() const;
 
-    void createMapNode(const TerrainType *terrainType, const QHash<MapNode::Direction, MapNode *> &neighbours);
+    void createMapNode(TerrainType *terrainType, const QHash<MapNode::Direction, MapNode *> &neighbours);
     Q_INVOKABLE void createMapNode(QObject *terrainType, QVariant neighbours);
     Q_INVOKABLE void changeMapNodeTerrainType(QObject *mapNode, QObject *newTerrainType);
 
@@ -75,7 +72,7 @@ private:
     QList<MapNode *> mapNodesFromJson(const QJsonObject &obj);
     QJsonObject mapNodesToJson(const QList<MapNode *> &mapNodes) const;
 
-    const World *world;
+    World *world;
     int mapNodeIndex;
     QList<MapNode *> mapNodes;
     QList<Player *> players;

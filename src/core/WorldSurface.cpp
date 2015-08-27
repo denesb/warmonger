@@ -2,12 +2,11 @@
 #include <QJsonDocument>
 
 #include "core/WorldSurface.h"
-#include "core/JsonUtil.hpp"
-#include "core/Util.h"
+#include "core/JsonUtil.h"
 
 using namespace warmonger::core;
 
-static const QString module{"core.WorldSurface"};
+static const QString category{"core"};
 
 WorldSurface::WorldSurface(QObject *parent) :
     GameEntity(parent),

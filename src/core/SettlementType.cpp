@@ -1,6 +1,6 @@
 #include "core/SettlementType.h"
 #include "core/UnitType.h"
-#include "core/JsonUtil.hpp"
+#include "core/JsonUtil.h"
 
 using namespace warmonger::core;
 

@@ -28,7 +28,7 @@ HEADERS += \
     src/core/Faction.h \
     src/core/GameEntity.h \
     src/core/GameObject.h \
-    src/core/JsonUtil.hpp \
+    src/core/JsonUtil.h \
     src/core/Map.h \
     src/core/MapNode.h \
     src/core/Player.h \

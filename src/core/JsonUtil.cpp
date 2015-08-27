@@ -1,8 +1,8 @@
 #include <QFile>
 
-#include "core/JsonUtil.hpp"
+#include "core/JsonUtil.h"
 
-static const QString module("core.JsonUtil");
+static const QString category("core.JsonUtil");
 
 using namespace warmonger;
 
@@ -22,9 +22,8 @@ QJsonDocument core::loadJsonDocument(const QString &path)
 
     if (!jsonFile.open(QIODevice::ReadOnly))
     {
-        Exception e(Exception::FileOpenFailed, {path});
-        wError(module) << e.getMessage();
-        throw e;
+        wError(category) << "Failed to open Json document from path " << path;
+        throw Exception(Exception::FileIO, "File open failed");
     }
 
     QByteArray jsonData = jsonFile.readAll();
@@ -37,9 +36,9 @@ QJsonDocument core::loadJsonDocument(const QString &path)
 
     if (parseError.error != QJsonParseError::NoError)
     {
-        Exception e(Exception::JsonParse, {path, parseError.errorString()});
-        wError(module) << e.getMessage();
-        throw e;
+        wError(category) << "Parse of Json document " << path << "failed: "
+            << parseError.errorString();
+        throw Exception(Exception::JsonParse);
     }
 
     wInfo("core.JsonUtil") << "Loaded Json document from " << path;
@@ -53,20 +52,18 @@ void core::saveJsonDocument(const QString &path, const QJsonDocument &doc)
 
     if (!jsonFile.open(QIODevice::WriteOnly))
     {
-        Exception e(Exception::FileOpenFailed, {path});
-        wError(module) << e.getMessage();
-        throw e;
+        wError(category) << "Failed to open Json document from path " << path;
+        throw Exception(Exception::FileIO, "File open failed");
     }
 
     QByteArray jsonData = doc.toJson(QJsonDocument::Indented);
 
     if (jsonFile.write(jsonData) == -1)
     {
-        Exception e(Exception::FileWriteFailed, {path});
-        wError(module) << e.getMessage();
-        throw e;
+        wError(category) << "Failed to write Json document " << path;
+        throw Exception(Exception::FileIO, "Failed to write file");
     }
     
-    wInfo("core.JsonUtil") << "Saved Json document to " << path;
+    wInfo(category) << "Saved Json document to " << path;
 }
 

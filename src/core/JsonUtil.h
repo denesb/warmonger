@@ -71,7 +71,7 @@ QList<const T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
         const T *instance{nullptr};
         if (!name.isEmpty())
         {
-            instance = resolveReference<T>(name, parent, "core.JsonUtil");
+            instance = resolveReference<T>(name, parent);
         }
 
         list.append(instance);
@@ -107,7 +107,7 @@ QMap<const T *, int> objectValueMapFromJson(const QJsonObject &obj, const QObjec
     QJsonObject::const_iterator it;
     for(it = obj.constBegin(); it != obj.constEnd(); it++)
     {
-        const T *instance = resolveReference<T>(it.key(), parent, "core.JsonUtil");
+        const T *instance = resolveReference<T>(it.key(), parent);
 
         map[instance] = it.value().toInt();
     }

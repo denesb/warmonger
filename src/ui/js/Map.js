@@ -1,6 +1,5 @@
 .pragma library
 
-.import 'Util.js' as Util
 .import 'MapItem.js' as MapItem
 
 function neighbourPos(dir, tileSize, pos) {
@@ -272,6 +271,11 @@ Map.prototype.onPanned = function(pos, posDiff) {
 Map.prototype.onClicked = function(pos) {
 };
 
+Map.prototype.toString = function() {
+    var str = "[Map<" + this.qobj + ">]";
+    return str;
+};
+
 
 /*
  * GameMap class
@@ -317,10 +321,6 @@ GameMap.prototype.getMapItemAt = function(pos) {
 };
 
 GameMap.prototype.onClicked = function(pos) {
-    var mapNode = this.findMapNodeAt(pos);
-
-    if (this.mapNodeClicked != undefined)
-        this.mapNodeClicked(mapNode);
 };
 
 GameMap.prototype.onHovered = function(pos) {
@@ -414,6 +414,10 @@ GameMap.prototype.onResourcesLoaded = function() {
     this.canvas.requestPaint();
 };
 
+GameMap.prototype.toString = function() {
+    var str = "[GameMap<" + this.qobj + ">]";
+    return str;
+};
 
 /*
  * EditableMap class
@@ -422,45 +426,35 @@ GameMap.prototype.onResourcesLoaded = function() {
 var EditableMap = function(W, canvas, mouseArea) {
     GameMap.call(this, W, canvas, mouseArea);
 
-    W.map.mapNodeAdded.connect(this.onMapNodeCreated.bind(this));
+    this.qobj.mapNodeAdded.connect(this.onMapNodeCreated.bind(this));
 
     this.focusedNode = undefined;
     this.mapNodeClicked = undefined;
     this.mapNodeFocused = undefined;
+    this.currentTerrainType = undefined;
+    this.terrainTypeMap = {};
+    this.editMode = EditableMap.SelectMode;
 
     // init
     this.addPhantomMapNodes(this.mapItems);
     this.geometryChanged = true;
+
+    for (var i = 0; i < this.qobj.world.terrainTypes.length; i++) {
+        var terrainType = this.qobj.world.terrainTypes[i];
+        this.terrainTypeMap[terrainType.objectName] = terrainType;
+    }
 };
 
 EditableMap.prototype = Object.create(GameMap.prototype);
 EditableMap.prototype.constructor = EditableMap;
 
-EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
-    var pos = this.calculatePosOfMapNodeQObj(mapNodeQObj);
-    var phantomMapNode = this.getMapItemAt(pos);
-    var i = this.mapItems.indexOf(phantomMapNode);
-    this.mapItems.splice(i, 1);
-
-    var mapNodeJObj = new MapItem.MapNode(pos, mapNodeQObj, this);
-    this.mapItems.push(mapNodeJObj);
-    this.markDirty(mapNodeJObj);
-
-    this.addPhantomMapNodes([mapNodeJObj]);
-
-    this.geometryChanged = true;
-};
-
-EditableMap.prototype.onWindowPosChanged = function(windowPos) {
-    this.canvas.canvasWindow = Qt.rect(
-        windowPos.x,
-        windowPos.y,
-        this.canvas.canvasWindow.width,
-        this.canvas.canvasWindow.height
-    );
-
-    this.canvas.requestPaint();
-};
+EditableMap.SelectMode = "SelectMode";
+EditableMap.CreateMapNodeMode = "CreateMapNodeMode";
+EditableMap.CreateSettlementMode = "CreateSettlementMode";
+EditableMap.CreateUnitMode = "CreateUnitMode";
+EditableMap.EditMapNodeMode = "EditMapNodeMode";
+EditableMap.EditSettlementMode = "EditSettlementMode";
+EditableMap.EditUnitMode = "EditUnitMode";
 
 EditableMap.prototype.addPhantomMapNodes = function(mapNodes) {
     for (var i = 0; i < mapNodes.length; i++) {
@@ -492,6 +486,74 @@ EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) 
     phantomMapNode.neighbours[oppositeDirection] = neighbourMapNode;
 };
 
+EditableMap.prototype.createMapNode = function(mapNode) {
+    if (!mapNode.isPhantom) return;
+    if (this.currentTerrainType == undefined) return;
+
+    var neighbours = mapNode.neighbours;
+    var neighboursMap = {};
+    for (var direction in neighbours) {
+        if (neighbours.hasOwnProperty(direction)) {
+            neighboursMap[direction] = neighbours[direction].qobj;
+        }
+    }
+
+    this.qobj.createMapNode(this.currentTerrainType, neighboursMap);
+};
+
+EditableMap.prototype.onClicked = function(pos) {
+    var mapNode = this.findMapNodeAt(pos);
+
+    if (this.editMode == EditableMap.SelectMode) {
+        console.log("Select mode, nothing to do...");
+    } else if (this.editMode == EditableMap.CreateMapNodeMode) {
+        this.createMapNode(mapNode);
+    } else if (this.editMode == EditableMap.EditMapNodeMode) {
+        this.editMapNode(mapNode);
+    } else {
+        console.error("Uknown edit mode: " + this.editMode);
+    }
+};
+
+EditableMap.prototype.onWindowPosChanged = function(windowPos) {
+    this.canvas.canvasWindow = Qt.rect(
+        windowPos.x,
+        windowPos.y,
+        this.canvas.canvasWindow.width,
+        this.canvas.canvasWindow.height
+    );
+
+    this.canvas.requestPaint();
+};
+
+EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
+    var pos = this.calculatePosOfMapNodeQObj(mapNodeQObj);
+    var phantomMapNode = this.getMapItemAt(pos);
+    var i = this.mapItems.indexOf(phantomMapNode);
+    this.mapItems.splice(i, 1);
+
+    var mapNodeJObj = new MapItem.MapNode(pos, mapNodeQObj, this);
+    this.mapItems.push(mapNodeJObj);
+    this.markDirty(mapNodeJObj);
+
+    this.addPhantomMapNodes([mapNodeJObj]);
+
+    this.geometryChanged = true;
+};
+
+EditableMap.prototype.setEditMode = function(editMode) {
+    this.editMode = editMode;
+};
+
+EditableMap.prototype.setTerrainType = function(terrainTypeName) {
+    this.currentTerrainType = this.terrainTypeMap[terrainTypeName];
+};
+
+EditableMap.prototype.toString = function() {
+    var str = "[EditableMap<" + this.qobj + ">]";
+    return str;
+};
+
 
 /*
  * MiniMap class
@@ -506,7 +568,7 @@ var MiniMap = function(W, canvas, mouseArea) {
     this.windowPosChanged = undefined;
 
     // init
-    W.map.mapNodeAdded.connect(this.onMapNodeCreated.bind(this));
+    this.qobj.mapNodeAdded.connect(this.onMapNodeCreated.bind(this));
 
     this.ready = true;
     this.canvas.requestPaint();
@@ -630,4 +692,9 @@ MiniMap.prototype.centerOn = function(pos) {
     this.window = Qt.rect(x, y, this.window.width, this.window.height);
 
     this.canvas.requestPaint();
+};
+
+MiniMap.prototype.toString = function() {
+    var str = "[MiniMap<" + this.qobj + ">]";
+    return str;
 };

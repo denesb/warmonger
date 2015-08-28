@@ -3,18 +3,13 @@ import QtQuick.Controls 1.1
 import QtQuick.Layouts 1.1
 
 import "js/Map.js" as Map
-import "js/MapEditor.js" as MapEditor
 
 Rectangle {
     id: mapEditor
-    property var jobj
+
+    signal editMapNode(variant mapNode)
 
     Component.onCompleted: {
-        jobj = new MapEditor.MapEditor(W, map);
-
-        mapEditorControls.terrainTypeSelected.connect(jobj.onTerrainTypeSelected.bind(jobj));
-        map.mapNodeClicked.connect(jobj.onMapNodeClicked.bind(jobj));
-
         mapCanvas.onCanvasWindowChanged.connect(mapCanvasWindowChanged);
     }
 
@@ -37,7 +32,7 @@ Rectangle {
                 Layout.alignment: Qt.AlignLeft
                 Layout.preferredWidth: width
 
-                onClicked: mapEditor.jobj.saveMap()
+                onClicked: W.map.save()
             }
 
             Rectangle {
@@ -46,11 +41,47 @@ Rectangle {
             }
 
             Button {
-                text: "Create Map Items"
+                text: "Select"
                 Layout.alignment: Qt.AlignRight
                 Layout.preferredWidth: width
 
-                onClicked: mapEditor.jobj.onEditModeChanged(MapEditor.EditModes.Create);
+                onClicked: {
+                    editModes.currentIndex = 0;
+                    map.jobj.setEditMode(Map.EditableMap.SelectMode);
+                }
+            }
+
+            Button {
+                text: "Create Map Nodes"
+                Layout.alignment: Qt.AlignRight
+                Layout.preferredWidth: width
+
+                onClicked: {
+                    editModes.currentIndex = 1;
+                    map.jobj.setEditMode(Map.EditableMap.CreateMapNodeMode);
+                }
+            }
+
+            Button {
+                text: "Create Settlements"
+                Layout.alignment: Qt.AlignRight
+                Layout.preferredWidth: width
+
+                onClicked: {
+                    editModes.currentIndex = 2;
+                    map.jobj.setEditMode(Map.EditableMap.CreateSettlementMode);
+                }
+            }
+
+            Button {
+                text: "Create Units"
+                Layout.alignment: Qt.AlignRight
+                Layout.preferredWidth: width
+
+                onClicked: {
+                    editModes.currentIndex = 3;
+                    map.jobj.setEditMode(Map.EditableMap.CreateUnitMode);
+                }
             }
 
             Button {
@@ -58,7 +89,10 @@ Rectangle {
                 Layout.alignment: Qt.AlignRight
                 Layout.preferredWidth: width
 
-                onClicked: mapEditor.jobj.onEditModeChanged(MapEditor.EditModes.EditMapNode);
+                onClicked: {
+                    editModes.currentIndex = 4;
+                    map.jobj.setEditMode(Map.EditableMap.EditMapNodeMode);
+                }
             }
         }
     }
@@ -83,7 +117,7 @@ Rectangle {
 
         Component.onCompleted: {
             jobj = new Map.EditableMap(W, mapCanvas, mapMouseArea);
-            jobj.mapNodeClicked = map.mapNodeClicked;
+            jobj.mapNodeClicked = onMapNodeClicked
 
             miniMap.onWindowPosChanged.connect(jobj.onWindowPosChanged.bind(jobj));
         }
@@ -170,6 +204,11 @@ Rectangle {
 
             signal terrainTypeSelected(string objectName)
 
+            onTerrainTypeSelected: map.jobj.setTerrainType(objectName)
+
+            function onEditMapNode(mapNode) {
+            }
+
             anchors {
                 top: miniMap.bottom
                 right: parent.right
@@ -180,52 +219,67 @@ Rectangle {
             TabView {
                 id: editModes
                 anchors.fill: parent
+                tabsVisible: true
 
                 Tab {
-                    id: createMapItem
-                    title: "Create Map Items"
+                    id: selectMapItem
+                    title: "Select"
 
-                    TabView {
-                        id: mapItemTypes
+                    Rectangle {
                         anchors.fill: parent
-
-                        Tab {
-                            id: terrainTypeTab
-                            title: "Terrain"
-
-                            MapItemSelector {
-                                anchors.fill: parent
-                                model: W.map.world.terrainTypes
-                                onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
-                            }
-                        }
-                        Tab {
-                            id: settlementTab
-                            title: "Settlements"
-
-                            MapItemSelector {
-                                anchors.fill: parent
-                                model: W.map.world.terrainTypes
-                                onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
-                            }
-
-                        }
-                        Tab {
-                            id: unitTab
-                            title: "Units"
-
-                            MapItemSelector {
-                                anchors.fill: parent
-                                model: W.map.world.terrainTypes
-                                onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
-                            }
-                        }
                     }
                 }
 
                 Tab {
-                    id: editMapItem
-                    title: "Edit MapItem"
+                    id: createMapNode
+                    title: "Create MapNode"
+
+                    MapItemSelector {
+                        anchors.fill: parent
+                        model: W.map.world.terrainTypes
+                        onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
+                    }
+                }
+
+                Tab {
+                    id: createSettlement
+                    title: "Create Settlement"
+
+                    MapItemSelector {
+                        anchors.fill: parent
+                        model: W.map.world.terrainTypes
+                        onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
+                    }
+
+                }
+                Tab {
+                    id: createUnit
+                    title: "Create Unit"
+
+                    MapItemSelector {
+                        anchors.fill: parent
+                        model: W.map.world.terrainTypes
+                        onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
+                    }
+                }
+
+                Tab {
+                    id: editMapNode
+                    title: "Edit MapNode"
+
+                    MapNodeEdit {
+                        id: mapNodeEdit
+                        anchors.fill: parent
+
+                        function onBeginEditMapNode(mapNode) {
+                            console.log(mapNode);
+                            mapNodeEdit.mapNode = mapNode;
+                        }
+
+                        Component.onCompleted: {
+                            mapEditor.editMapNode.connect(mapNodeEdit.onBeginEditMapNode);
+                        }
+                    }
                 }
             }
         }

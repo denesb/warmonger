@@ -1,7 +1,5 @@
 .pragma library
 
-.import 'Util.js' as Util
-
 /*
  * MapItem class.
  * @contructor

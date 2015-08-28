@@ -95,14 +95,13 @@ SOURCES += \
 OTHER_FILES += \
     src/ui/qml/Main.qml \
     src/ui/qml/MapEditor.qml \
-    src/ui/qml/MapItemSelector.qml
+    src/ui/qml/MapItemSelector.qml \
+    src/ui/qml/MapNodeEdit.qml
 
 # js
 OTHER_FILES += \
     src/ui/js/Map.js \
-    src/ui/js/MapEditor.js \
-    src/ui/js/MapItem.js \
-    src/ui/js/Util.js
+    src/ui/js/MapItem.js
 
 # deplyment
 qml.source = src/ui/qml

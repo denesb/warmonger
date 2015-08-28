@@ -97,8 +97,16 @@ void MapNode::setNeighbour(MapNode::Direction direction, MapNode *neighbour)
 {
     if (this->neighbours[direction] != neighbour)
     {
+        MapNode *formerNeighbour = this->neighbours[direction];
+        if (formerNeighbour != nullptr)
+        {
+            Direction neighbourDirection =
+                MapNode::oppositeDirections[direction];
+            formerNeighbour->removeNeighbour(neighbourDirection);
+        }
+
         this->neighbours[direction] = neighbour;
-        neighbour->setNeighbour(MapNode::oppositeDirections[direction], this);
+        neighbour->addNeighbour(MapNode::oppositeDirections[direction], this);
 
         emit neighboursChanged();
     }
@@ -195,7 +203,10 @@ QString MapNode::oppositeDirection(QString directionStr) const
 
 void MapNode::dataFromJson(const QJsonObject &obj)
 {
-    World *world = this->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
+    World *world = this->parent()->findChild<World *>(
+        QString(),
+        Qt::FindDirectChildrenOnly
+    );
     if (world == nullptr)
     {
         wError(category) << "World is null";
@@ -209,4 +220,23 @@ void MapNode::dataFromJson(const QJsonObject &obj)
 void MapNode::dataToJson(QJsonObject &obj) const
 {
     obj["terrainType"] = this->terrainType->objectName();
+}
+
+void MapNode::addNeighbour(MapNode::Direction direction, MapNode *neighbour)
+{
+    MapNode *formerNeighbour = this->neighbours[direction];
+    if (formerNeighbour != nullptr)
+    {
+        Direction neighbourDirection = MapNode::oppositeDirections[direction];
+        formerNeighbour->removeNeighbour(neighbourDirection);
+    }
+
+    this->neighbours[direction] = neighbour;
+    emit neighboursChanged();
+}
+
+void MapNode::removeNeighbour(MapNode::Direction direction)
+{
+    this->neighbours[direction] = nullptr;
+    emit neighboursChanged();
 }

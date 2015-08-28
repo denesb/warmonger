@@ -22,7 +22,7 @@ class World :
     public GameEntity
 {
     Q_OBJECT
-    Q_PROPERTY(QVariant surface READ readSurface NOTIFY surfaceChanged)
+    Q_PROPERTY(QObject * surface READ readSurface NOTIFY surfaceChanged)
     Q_PROPERTY(QVariant terrainTypes READ readTerrainTypes NOTIFY terrainTypesChanged)
     Q_PROPERTY(QVariant unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
     Q_PROPERTY(QVariant settlementTypes READ readSettlementTypes NOTIFY settlementTypesChanged)
@@ -32,57 +32,49 @@ public:
 
     virtual QString specification(const QString &objectName) const;
 
-    const WorldSurface * getSurface() const;
-    void setSurface(const WorldSurface *surface) const;
-    void setSurface(const QString &surfaceName) const;
-    QVariant readSurface() const;
+    WorldSurface * getSurface() const;
+    void setSurface(WorldSurface *surface);
+    void setSurface(const QString &surfaceName);
+    QObject * readSurface() const;
 
-    QList<const TerrainType *> getTerrainTypes() const;
-    QList<TerrainType *> getTerrainTypes();
+    QList<TerrainType *> getTerrainTypes() const;
     void setTerrainTypes(const QList<TerrainType *> &terrainTypes);
     QVariant readTerrainTypes() const;
 
-    QList<const UnitClass *> getUnitClasses() const;
-    QList<UnitClass *> getUnitClasses();
+    QList<UnitClass *> getUnitClasses() const;
     void setUnitClasses(const QList<UnitClass *> &unitClasses);
 
-    QList<const DamageType *> getDamageTypes() const;
-    QList<DamageType *> getDamageTypes();
+    QList<DamageType *> getDamageTypes() const;
     void setDamageTypes(const QList<DamageType *> &damageTypes);
 
-    QList<const Armor *> getArmors() const;
-    QList<Armor *> getArmors();
+    QList<Armor *> getArmors() const;
     void setArmors(const QList<Armor *> &armors);
 
-    QList<const Weapon *> getWeapons() const;
-    QList<Weapon *> getWeapons();
+    QList<Weapon *> getWeapons() const;
     void setWeapons(const QList<Weapon *> &weapons);
 
-    QList<const UnitType *> getUnitTypes() const;
-    QList<UnitType *> getUnitTypes();
+    QList<UnitType *> getUnitTypes() const;
     void setUnitTypes(const QList<UnitType *> &unitTypes);
     QVariant readUnitTypes() const;
 
-    QList<const SettlementType *> getSettlementTypes() const;
-    QList<SettlementType *> getSettlementTypes();
+    QList<SettlementType *> getSettlementTypes() const;
     void setSettlementTypes(const QList<SettlementType *> &settlementTypes);
     QVariant readSettlementTypes() const;
 
-    QList<const Faction *> getFactions() const;
-    QList<Faction *> getFactions();
+    QList<Faction *> getFactions() const;
     void setFactions(const QList<Faction *> &factions);
 
 signals:
-    void surfaceChanged() const;
-    void terrainTypesChanged() const;
-    void unitTypesChanged() const;
-    void settlementTypesChanged() const;
+    void surfaceChanged();
+    void terrainTypesChanged();
+    void unitTypesChanged();
+    void settlementTypesChanged();
 
 private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
-    mutable const WorldSurface *surface;
+    WorldSurface *surface;
     QList<TerrainType *> terrainTypes;
     QList<UnitClass *> unitClasses;
     QList<DamageType *> damageTypes;

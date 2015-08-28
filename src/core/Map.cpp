@@ -212,14 +212,13 @@ QList<MapNode *> Map::mapNodesFromJson(const QJsonObject &obj)
         const QJsonObject connectionObj = connection.toObject();
         const QString nodeNameA = connectionObj["nodeA"].toString();
         const QString nodeNameB = connectionObj["nodeB"].toString();
-        const MapNode::Direction nodeDirectionA = MapNode::str2direction[connectionObj["directionA"].toString()];
-        const MapNode::Direction nodeDirectionB = MapNode::str2direction[connectionObj["directionB"].toString()];
+        const MapNode::Direction nodeDirectionA =
+            MapNode::str2direction[connectionObj["directionA"].toString()];
 
         MapNode *nodeA = resolveReference<MapNode>(nodeNameA, this);
         MapNode *nodeB = resolveReference<MapNode>(nodeNameB, this);
 
         nodeA->setNeighbour(nodeDirectionA, nodeB);
-        nodeB->setNeighbour(nodeDirectionB, nodeA);
     }
 
     return std::move(mapNodes);

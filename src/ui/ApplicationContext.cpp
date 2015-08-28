@@ -31,9 +31,9 @@ void ApplicationContext::loadMap(const QString &mapName)
     this->map = new core::Map(this);
     this->map->load(this->map->specification(mapName));
 
-    const core::World *world = this->map->getWorld();
+    core::World *world = this->map->getWorld();
     world->setSurface("default");
-    const core::WorldSurface *surface = world->getSurface();
+    core::WorldSurface *surface = world->getSurface();
 
     const QString path = surface->getPath();
     this->hexMask.load(path + QStringLiteral("/hexagon_mask.xpm"), "XPM");

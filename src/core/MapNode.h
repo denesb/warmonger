@@ -70,6 +70,9 @@ private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
+    void addNeighbour(Direction direction, MapNode *neighbour);
+    void removeNeighbour(Direction direction);
+
     TerrainType *terrainType;
     QHash<Direction, MapNode *> neighbours;
 };

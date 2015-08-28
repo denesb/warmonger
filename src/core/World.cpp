@@ -16,7 +16,7 @@
 
 using namespace warmonger::core;
 
-static const QString module{"core.World"};
+static const QString category{"core"};
 
 World::World(QObject *parent) :
     GameEntity(parent),
@@ -36,12 +36,12 @@ QString World::specification(const QString &objectName) const
     return "worlds:" + objectName + ".wwd";
 }
 
-const WorldSurface * World::getSurface() const
+WorldSurface * World::getSurface() const
 {
     return this->surface;
 }
 
-void World::setSurface(const WorldSurface *surface) const
+void World::setSurface(WorldSurface *surface)
 {
     if (this->surface != surface)
     {
@@ -50,13 +50,15 @@ void World::setSurface(const WorldSurface *surface) const
     }
 }
 
-void World::setSurface(const QString &surfaceName) const
+void World::setSurface(const QString &surfaceName)
 {
     if (this->surface != nullptr && this->surface->objectName() == surfaceName)
         return;
 
     QDir worldDir(this->path + "/surfaces");
-    QStringList entryList = worldDir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
+    QStringList entryList = worldDir.entryList(
+        QDir::AllDirs | QDir::NoDotAndDotDot
+    );
 
     const QString rootPath = worldDir.absolutePath() + "/";
     QStringList searchPaths;
@@ -67,13 +69,8 @@ void World::setSurface(const QString &surfaceName) const
 
     QDir::setSearchPaths("surfaces", searchPaths);
 
-    // Ugly, but necessary, it does not violate logical constness
-    World *parent = const_cast<World *>(this);
-    WorldSurface *surface = new WorldSurface(parent);
-
-    surface->load(surface->specification(surfaceName));
-
-    this->surface = surface;
+    this->surface = new WorldSurface(this);
+    this->surface->load(surface->specification(surfaceName));
 
     // Need to reset the search path, so that the next world can load it's own
     // surfaces
@@ -82,18 +79,12 @@ void World::setSurface(const QString &surfaceName) const
     emit surfaceChanged();
 }
 
-QVariant World::readSurface() const
+QObject * World::readSurface() const
 {
-    WorldSurface *o = const_cast<WorldSurface *>(this->surface);
-    return QVariant::fromValue<QObject *>(o);
+    return this->surface;
 }
 
-QList<const TerrainType *> World::getTerrainTypes() const
-{
-    return listConstClone(this->terrainTypes);
-}
-
-QList<TerrainType *> World::getTerrainTypes()
+QList<TerrainType *> World::getTerrainTypes() const
 {
     return this->terrainTypes;
 }
@@ -112,12 +103,7 @@ QVariant World::readTerrainTypes() const
     return QVariant::fromValue(toQObjectList<TerrainType>(this->terrainTypes));
 }
 
-QList<const UnitClass *> World::getUnitClasses() const
-{
-    return listConstClone(this->unitClasses);
-}
-
-QList<UnitClass *> World::getUnitClasses()
+QList<UnitClass *> World::getUnitClasses() const
 {
     return this->unitClasses;
 }
@@ -127,12 +113,7 @@ void World::setUnitClasses(const QList<UnitClass *> &unitClasses)
     this->unitClasses = unitClasses;
 }
 
-QList<const DamageType *> World::getDamageTypes() const
-{
-    return listConstClone(this->damageTypes);
-}
-
-QList<DamageType *> World::getDamageTypes()
+QList<DamageType *> World::getDamageTypes() const
 {
     return this->damageTypes;
 }
@@ -142,12 +123,7 @@ void World::setDamageTypes(const QList<DamageType *> &damageTypes)
     this->damageTypes = damageTypes;
 }
 
-QList<const Armor *> World::getArmors() const
-{
-    return listConstClone(this->armors);
-}
-
-QList<Armor *> World::getArmors()
+QList<Armor *> World::getArmors() const
 {
     return this->armors;
 }
@@ -157,12 +133,7 @@ void World::setArmors(const QList<Armor *> &armors)
     this->armors = armors;
 }
 
-QList<const Weapon *> World::getWeapons() const
-{
-    return listConstClone(this->weapons);
-}
-
-QList<Weapon *> World::getWeapons()
+QList<Weapon *> World::getWeapons() const
 {
     return this->weapons;
 }
@@ -172,12 +143,7 @@ void World::setWeapons(const QList<Weapon *> &weapons)
     this->weapons = weapons;
 }
 
-QList<const UnitType *> World::getUnitTypes() const
-{
-    return listConstClone(this->unitTypes);
-}
-
-QList<UnitType *> World::getUnitTypes()
+QList<UnitType *> World::getUnitTypes() const
 {
     return this->unitTypes;
 }
@@ -196,12 +162,7 @@ QVariant World::readUnitTypes() const
     return QVariant::fromValue(toQObjectList<UnitType>(this->unitTypes));
 }
 
-QList<const SettlementType *> World::getSettlementTypes() const
-{
-    return listConstClone(this->settlementTypes);
-}
-
-QList<SettlementType *> World::getSettlementTypes()
+QList<SettlementType *> World::getSettlementTypes() const
 {
     return this->settlementTypes;
 }
@@ -220,12 +181,7 @@ QVariant World::readSettlementTypes() const
     return QVariant::fromValue(toQObjectList<SettlementType>(this->settlementTypes));
 }
 
-QList<const Faction *> World::getFactions() const
-{
-    return listConstClone(this->factions);
-}
-
-QList<Faction *> World::getFactions()
+QList<Faction *> World::getFactions() const
 {
     return this->factions;
 }

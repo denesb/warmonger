@@ -486,11 +486,11 @@ EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) 
     phantomMapNode.neighbours[oppositeDirection] = neighbourMapNode;
 };
 
-EditableMap.prototype.createMapNode = function(mapNode) {
-    if (!mapNode.isPhantom) return;
+EditableMap.prototype.createMapNode = function(mapNodeJObj) {
+    if (!mapNodeJObj.isPhantom) return;
     if (this.currentTerrainType == undefined) return;
 
-    var neighbours = mapNode.neighbours;
+    var neighbours = mapNodeJObj.neighbours;
     var neighboursMap = {};
     for (var direction in neighbours) {
         if (neighbours.hasOwnProperty(direction)) {
@@ -499,6 +499,14 @@ EditableMap.prototype.createMapNode = function(mapNode) {
     }
 
     this.qobj.createMapNode(this.currentTerrainType, neighboursMap);
+};
+
+EditableMap.prototype.editMapNode = function(mapNodeJObj) {
+    if (mapNodeJObj.isPhantom) return;
+
+    if (this.onEditMapNode) {
+        this.onEditMapNode(mapNodeJObj.qobj);
+    }
 };
 
 EditableMap.prototype.onClicked = function(pos) {

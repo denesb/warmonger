@@ -7,8 +7,6 @@ import "js/Map.js" as Map
 Rectangle {
     id: mapEditor
 
-    signal editMapNode(variant mapNode)
-
     Component.onCompleted: {
         mapCanvas.onCanvasWindowChanged.connect(mapCanvasWindowChanged);
     }
@@ -101,7 +99,7 @@ Rectangle {
         id: map
 
         property var jobj
-        signal mapNodeClicked(var mapNode)
+        signal editMapNode(var mapNode)
 
         anchors {
             left: parent.left
@@ -117,7 +115,7 @@ Rectangle {
 
         Component.onCompleted: {
             jobj = new Map.EditableMap(W, mapCanvas, mapMouseArea);
-            jobj.mapNodeClicked = onMapNodeClicked
+            jobj.onEditMapNode = map.editMapNode;
 
             miniMap.onWindowPosChanged.connect(jobj.onWindowPosChanged.bind(jobj));
         }
@@ -206,9 +204,6 @@ Rectangle {
 
             onTerrainTypeSelected: map.jobj.setTerrainType(objectName)
 
-            function onEditMapNode(mapNode) {
-            }
-
             anchors {
                 top: miniMap.bottom
                 right: parent.right
@@ -271,13 +266,12 @@ Rectangle {
                         id: mapNodeEdit
                         anchors.fill: parent
 
-                        function onBeginEditMapNode(mapNode) {
-                            console.log(mapNode);
+                        function onEditMapNode(mapNode) {
                             mapNodeEdit.mapNode = mapNode;
                         }
 
                         Component.onCompleted: {
-                            mapEditor.editMapNode.connect(mapNodeEdit.onBeginEditMapNode);
+                            map.editMapNode.connect(mapNodeEdit.onEditMapNode);
                         }
                     }
                 }

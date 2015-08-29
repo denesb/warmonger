@@ -3,15 +3,15 @@ import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.1
 
 Rectangle {
-    id: mapNodeEdit
-    property var mapNode
+    id: settlementEdit
+    property var settlement
 
-    onMapNodeChanged: {
+    onSettlementChanged: {
         var index = -1;
-        if (mapNodeEdit.mapNode) {
-            index = terrainTypeEdit.find(mapNodeEdit.mapNode.terrainType.displayName);
+        if (settlementEdit.settlement) {
+            index = settlementTypeEdit.find(settlementEdit.settlement.settlementType.displayName);
         }
-        terrainTypeEdit.currentIndex = index;
+        settlementTypeEdit.currentIndex = index;
     }
 
     Image {
@@ -25,12 +25,12 @@ Rectangle {
         }
     
         source: {
-            var surface = W.map.world.surface;
-            if (mapNodeEdit.mapNode) {
-                var terrainTypeName = mapNodeEdit.mapNode.terrainType.objectName;
-                surface.path + "/" + surface.gameMap[terrainTypeName];
+            if (settlementEdit.settlement) {
+                var surface = W.map.world.surface;
+                var settlementTypeName = settlementEdit.settlement.settlementType.objectName;
+                surface.path + "/" + surface.gameMap[settlementTypeName];
             } else {
-                surface.path + "/" + surface.gameMap["undefined"];
+                ''
             }
         }
     }
@@ -57,8 +57,8 @@ Rectangle {
             color: "black"
             text: {
                 var label = "Map Node ";
-                if (mapNodeEdit.mapNode) {
-                    label += mapNodeEdit.mapNode.objectName;
+                if (settlementEdit.settlement) {
+                    label += settlementEdit.settlement.objectName;
                 }
                 label;
             }
@@ -94,22 +94,22 @@ Rectangle {
             }
 
             text: {
-                if (mapNodeEdit.mapNode) {
-                    mapNodeEdit.mapNode.displayName
+                if (settlementEdit.settlement) {
+                    settlementEdit.settlement.displayName
                 } else {
                     ''
                 }
             }
 
             onEditingFinished: {
-                if (mapNodeEdit.mapNode) {
-                    mapNodeEdit.mapNode.displayName = displayNameEdit.text;
+                if (settlementEdit.settlement) {
+                    settlementEdit.settlement.displayName = displayNameEdit.text;
                 }
             }
         }
 
         Label {
-            id: terrainTypeLabel
+            id: settlementTypeLabel
             anchors {
                 top: displayNameEdit.bottom
                 left: parent.left
@@ -117,14 +117,14 @@ Rectangle {
                 topMargin: 10
             }
             color: "black"
-            text: "Terrain Type:"
+            text: "Settlement Type:"
         }
 
         ComboBox {
-            id: terrainTypeEdit
+            id: settlementTypeEdit
             height: 25
             anchors {
-                top: terrainTypeLabel.bottom
+                top: settlementTypeLabel.bottom
                 left: parent.left
                 right: parent.right
             }
@@ -136,15 +136,15 @@ Rectangle {
                 }
             }
 
-            model: W.map.world.terrainTypes
+            model: W.map.world.settlementTypes
             textRole: "displayName"
 
             onActivated: {
-                if (mapNodeEdit.mapNode) {
-                    var terrainTypes = W.map.world.terrainTypes;
-                    var terrainType = terrainTypes[index];
+                if (settlementEdit.settlement) {
+                    var settlementTypes = W.map.world.settlementTypes;
+                    var settlementType = settlementTypes[index];
 
-                    mapNodeEdit.mapNode.terrainType = terrainType;
+                    settlementEdit.settlement.settlementType = settlementType;
                 }
             }
         }

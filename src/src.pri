@@ -96,7 +96,8 @@ OTHER_FILES += \
     src/ui/qml/Main.qml \
     src/ui/qml/MapEditor.qml \
     src/ui/qml/MapItemSelector.qml \
-    src/ui/qml/MapNodeEdit.qml
+    src/ui/qml/MapNodeEdit.qml \
+    src/ui/qml/SettlementEdit.qml
 
 # js
 OTHER_FILES += \

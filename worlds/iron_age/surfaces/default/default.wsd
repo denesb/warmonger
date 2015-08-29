@@ -6,6 +6,7 @@
     "gameMap": {
         "border": "border.png",
         "border_highlighted": "border_highlighted.png",
+        "undefined": "undefined.png",
 
         "plains": "terrainTypes/plains.png",
         "hills": "terrainTypes/hills.png",

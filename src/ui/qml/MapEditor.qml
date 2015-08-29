@@ -92,6 +92,17 @@ Rectangle {
                     map.jobj.setEditMode(Map.EditableMap.EditMapNodeMode);
                 }
             }
+
+            Button {
+                text: "Edit Settlement"
+                Layout.alignment: Qt.AlignRight
+                Layout.preferredWidth: width
+
+                onClicked: {
+                    editModes.currentIndex = 5;
+                    map.jobj.setEditMode(Map.EditableMap.EditSettlementMode);
+                }
+            }
         }
     }
 
@@ -100,6 +111,7 @@ Rectangle {
 
         property var jobj
         signal editMapNode(var mapNode)
+        signal editSettlement(var settlement)
 
         anchors {
             left: parent.left
@@ -116,6 +128,7 @@ Rectangle {
         Component.onCompleted: {
             jobj = new Map.EditableMap(W, mapCanvas, mapMouseArea);
             jobj.onEditMapNode = map.editMapNode;
+            jobj.onEditSettlement = map.editSettlement;
 
             miniMap.onWindowPosChanged.connect(jobj.onWindowPosChanged.bind(jobj));
         }
@@ -218,7 +231,7 @@ Rectangle {
             TabView {
                 id: editModes
                 anchors.fill: parent
-                tabsVisible: true
+                tabsVisible: false
 
                 Tab {
                     id: selectMapItem
@@ -279,6 +292,25 @@ Rectangle {
                         }
                     }
                 }
+
+                Tab {
+                    id: editSettlement
+                    title: "Edit Settlement"
+
+                    SettlementEdit {
+                        id: settlementEdit
+                        anchors.fill: parent
+
+                        function onEditSettlement(settlement) {
+                            settlementEdit.settlement = settlement;
+                        }
+
+                        Component.onCompleted: {
+                            map.editSettlement.connect(settlementEdit.onEditSettlement);
+                        }
+                    }
+                }
+
             }
         }
     }

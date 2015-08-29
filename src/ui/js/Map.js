@@ -49,6 +49,7 @@ var Map = function(W, canvas, mouseArea) {
     this.lastMouseEvent = undefined;
     this.lastMousePos = undefined;
     this.mapItems = [];
+    this.settlements = [];
     this.ready = false;
 
     this.geometryChanged = true;
@@ -314,6 +315,7 @@ GameMap.prototype.newSettlement = function(settlementQObj) {
     var settlementJObj =
         new MapItem.Settlement(pos, settlementQObj, this);
     this.mapItems.push(settlementJObj);
+    this.settlements.push(settlementJObj);
 
     return settlementJObj;
 };
@@ -332,6 +334,17 @@ GameMap.prototype.getMapItemAt = function(pos) {
         var mapItem = this.mapItems[i];
         if (mapItem.pos.x == pos.x && mapItem.pos.y == pos.y)
             return mapItem;
+    }
+
+    return undefined;
+};
+
+GameMap.prototype.getSettlementOn = function(mapNodeJObj) {
+    for (var i = 0; i < this.settlements.length; i++) {
+        var settlement = this.settlements[i];
+        if (settlement.qobj.mapNode == mapNodeJObj.qobj) {
+            return settlement;
+        }
     }
 
     return undefined;
@@ -557,17 +570,28 @@ EditableMap.prototype.editMapNode = function(mapNodeJObj) {
     }
 };
 
+EditableMap.prototype.editSettlement = function(settlementJObj) {
+    if (settlementJObj == undefined) return;
+
+    if (this.onEditSettlement) {
+        this.onEditSettlement(settlementJObj.qobj);
+    }
+};
+
 EditableMap.prototype.onClicked = function(pos) {
     var mapNode = this.findMapNodeAt(pos);
+    var settlement = this.getSettlementOn(mapNode);
 
     if (this.editMode == EditableMap.SelectMode) {
-        console.log("Select mode, nothing to do...");
+        //FIXME: implement select
     } else if (this.editMode == EditableMap.CreateMapNodeMode) {
         this.createMapNode(mapNode);
     } else if (this.editMode == EditableMap.CreateSettlementMode) {
         this.createSettlement(mapNode);
     } else if (this.editMode == EditableMap.EditMapNodeMode) {
         this.editMapNode(mapNode);
+    } else if (this.editMode == EditableMap.EditSettlementMode) {
+        this.editSettlement(settlement);
     } else {
         console.error("Uknown edit mode: " + this.editMode);
     }
@@ -667,6 +691,7 @@ MiniMap.prototype.newSettlement = function(settlementQObj) {
     var settlementJObj =
         new MapItem.MiniSettlement(pos, settlementQObj, this);
     this.mapItems.push(settlementJObj);
+    this.settlements.push(settlementJObj);
 
     return settlementJObj;
 };

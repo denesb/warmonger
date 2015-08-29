@@ -98,6 +98,43 @@ MapNode.prototype.toString = function() {
 };
 
 /*
+ * EditableMapNode class.
+ * @contructor
+ */
+var EditableMapNode = function(pos, mapNodeQObj, map) {
+    MapNode.call(this, pos, mapNodeQObj, map);
+
+    this.qobj.displayNameChanged.connect(
+        this.onDisplayNameChanged.bind(this)
+    );
+    this.qobj.terrainTypeChanged.connect(
+        this.onTerrainTypeChanged.bind(this)
+    );
+};
+
+EditableMapNode.prototype = Object.create(MapNode.prototype);
+EditableMapNode.prototype.constructor = EditableMapNode;
+
+EditableMapNode.prototype.onDisplayNameChanged = function() {
+};
+
+EditableMapNode.prototype.onTerrainTypeChanged = function() {
+    var surface = this.map.qobj.world.surface;
+    var rootPath = surface.path + "/";
+    var terrainType = this.qobj.terrainType.objectName
+
+    this.terrainImage = rootPath + surface.gameMap[terrainType];
+
+    this.map.markDirty(this);
+};
+
+EditableMapNode.prototype.toString = function() {
+    var str = "[EditableMapNode(" + this.pos.x + "," + this.pos.y + "), qobj: "
+        + this.qobj + "]";
+    return str;
+};
+
+/*
  * MiniMapNode class.
  * @contructor
  */

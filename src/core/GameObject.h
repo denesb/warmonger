@@ -15,7 +15,7 @@ class GameObject :
     public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString displayName READ getDisplayName NOTIFY displayNameChanged)
+    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
 
 public:
     GameObject(QObject *parent);

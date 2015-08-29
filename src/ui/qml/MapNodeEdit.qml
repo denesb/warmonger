@@ -100,6 +100,12 @@ Rectangle {
                     ''
                 }
             }
+
+            onEditingFinished: {
+                if (mapNodeEdit.mapNode) {
+                    mapNodeEdit.mapNode.displayName = displayNameEdit.text;
+                }
+            }
         }
 
         Label {
@@ -132,6 +138,15 @@ Rectangle {
 
             model: W.map.world.terrainTypes
             textRole: "displayName"
+
+            onActivated: {
+                if (mapNodeEdit.mapNode) {
+                    var terrainTypes = W.map.world.terrainTypes;
+                    var terrainType = terrainTypes[index];
+
+                    mapNodeEdit.mapNode.terrainType = terrainType;
+                }
+            }
         }
     }
 }

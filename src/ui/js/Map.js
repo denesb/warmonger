@@ -299,7 +299,7 @@ GameMap.prototype.newMapNode = function(pos, mapNodeQObj) {
     this.mapItems.push(mapNode);
 
     return mapNode;
-}
+};
 
 GameMap.prototype.findMapNodeAt = function(point) {
     for (var i = 0; i < this.mapItems.length; i++) {
@@ -455,6 +455,13 @@ EditableMap.CreateUnitMode = "CreateUnitMode";
 EditableMap.EditMapNodeMode = "EditMapNodeMode";
 EditableMap.EditSettlementMode = "EditSettlementMode";
 EditableMap.EditUnitMode = "EditUnitMode";
+
+EditableMap.prototype.newMapNode = function(pos, mapNodeQObj) {
+    var mapNode = new MapItem.EditableMapNode(pos, mapNodeQObj, this);
+    this.mapItems.push(mapNode);
+
+    return mapNode;
+};
 
 EditableMap.prototype.addPhantomMapNodes = function(mapNodes) {
     for (var i = 0; i < mapNodes.length; i++) {

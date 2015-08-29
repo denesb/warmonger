@@ -12,6 +12,8 @@
 namespace warmonger {
 namespace core {
 
+static const QString category{"core"};
+
 template<typename T>
 QList<const T *> listConstClone(const QList<T *> &list)
 {
@@ -36,6 +38,24 @@ QVariantList toQVariantList(const QList<T *> &list)
     }
 
     return std::move(vlist);
+}
+
+template<typename T>
+QList<T *> fromQVariantList(QVariantList vlist)
+{
+    QList<T *> list;
+
+    for (QVariant v : vlist)
+    {
+        if (v.canConvert<T *>())
+        {
+            wError(category) << "QVariant has wrong type";
+            throw Exception(Exception::WrongType);
+        }
+        list << v.value<T *>();
+    }
+
+    return std::move(list);
 }
 
 template<typename T>

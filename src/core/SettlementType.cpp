@@ -25,14 +25,29 @@ void SettlementType::setGoldPerTurn(int goldPerTurn)
     this->goldPerTurn = goldPerTurn;
 }
 
-QList<const UnitType *> SettlementType::getRecruits() const
+QList<UnitType *> SettlementType::getRecruits() const
 {
     return this->recruits;
 }
 
-void SettlementType::setRecruits(const QList<const UnitType *> &recruits)
+void SettlementType::setRecruits(const QList<UnitType *> &recruits)
 {
-    this->recruits = recruits;
+    if (this->recruits != recruits)
+    {
+        this->recruits = recruits;
+        emit recruitsChanged();
+    }
+}
+
+QVariantList SettlementType::readRecruits() const
+{
+    return toQVariantList<UnitType>(this->recruits);
+}
+
+void SettlementType::writeRecruits(QVariantList recruits)
+{
+    QList<UnitType *> r = fromQVariantList<UnitType>(recruits);
+    this->setRecruits(r);
 }
 
 void SettlementType::dataFromJson(const QJsonObject &obj)

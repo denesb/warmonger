@@ -41,12 +41,12 @@ void UnitType::setUnitRank(UnitType::UnitRank rank)
     this->rank = rank;
 }
 
-const UnitClass *UnitType::getUnitClass() const
+UnitClass *UnitType::getUnitClass() const
 {
     return this->klass;
 }
 
-void UnitType::setUnitClass(const UnitClass *klass)
+void UnitType::setUnitClass(UnitClass *klass)
 {
     this->klass = klass;
 }
@@ -61,22 +61,22 @@ void UnitType::setLevel(int level)
     this->level = level;
 }
 
-const Armor * UnitType::getArmor() const
+Armor * UnitType::getArmor() const
 {
     return this->armor;
 }
 
-void UnitType::setArmor(const Armor *armor)
+void UnitType::setArmor(Armor *armor)
 {
     this->armor = armor;
 }
 
-QList<const Weapon *> UnitType::getWeapons() const
+QList<Weapon *> UnitType::getWeapons() const
 {
     return this->weapons;
 }
 
-void UnitType::setWeapons(const QList<const Weapon *> &weapons)
+void UnitType::setWeapons(const QList<Weapon *> &weapons)
 {
     this->weapons = weapons;
 }

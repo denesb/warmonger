@@ -32,17 +32,17 @@ public:
     UnitRank getUnitRank() const;
     void setUnitRank(UnitRank rank);
 
-    const UnitClass * getUnitClass() const;
-    void setUnitClass(const UnitClass *klass);
+    UnitClass * getUnitClass() const;
+    void setUnitClass(UnitClass *klass);
 
     int getLevel() const;
     void setLevel(int level);
 
-    const Armor * getArmor() const;
-    void setArmor(const Armor *armor);
+    Armor * getArmor() const;
+    void setArmor(Armor *armor);
 
-    QList<const Weapon *> getWeapons() const;
-    void setWeapons(const QList<const Weapon *> &weapons);
+    QList<Weapon *> getWeapons() const;
+    void setWeapons(const QList<Weapon *> &weapons);
 
 private:
     void dataFromJson(const QJsonObject &obj);
@@ -50,10 +50,10 @@ private:
 
     int hitPoints;
     UnitRank rank;
-    const UnitClass *klass;
+    UnitClass *klass;
     int level;
-    const Armor *armor;
-    QList<const Weapon *> weapons;
+    Armor *armor;
+    QList<Weapon *> weapons;
 };
 
 } // namespace core

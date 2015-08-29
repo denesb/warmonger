@@ -36,7 +36,7 @@ QJsonDocument core::loadJsonDocument(const QString &path)
 
     if (parseError.error != QJsonParseError::NoError)
     {
-        wError(category) << "Parse of Json document " << path << "failed: "
+        wError(category) << "Parse of Json document " << path << " failed: "
             << parseError.errorString();
         throw Exception(Exception::JsonParse);
     }

@@ -65,7 +65,7 @@ MapNode.prototype.onPaint = function(ctx) {
 
     ctx.save();
 
-    ctx.translate(this.pos.x, this.pos.y)
+    ctx.translate(this.pos.x, this.pos.y);
 
     ctx.drawImage(this.terrainImage, 0, 0);
     if (this.focused)
@@ -92,8 +92,8 @@ MapNode.prototype.onMouseOut = function() {
 };
 
 MapNode.prototype.toString = function() {
-    var str = "[MapNode(" + this.pos.x + "," + this.pos.y + "), qobj: "
-        + this.qobj + "]";
+    var str = "[MapNode(" + this.pos.x + "," + this.pos.y +
+        "), qobj<" + this.qobj + ">]";
     return str;
 };
 
@@ -129,10 +129,11 @@ EditableMapNode.prototype.onTerrainTypeChanged = function() {
 };
 
 EditableMapNode.prototype.toString = function() {
-    var str = "[EditableMapNode(" + this.pos.x + "," + this.pos.y + "), qobj: "
-        + this.qobj + "]";
+    var str = "[EditableMapNode(" + this.pos.x + "," + this.pos.y +
+        "), qobj<" + this.qobj + ">]";
     return str;
 };
+
 
 /*
  * MiniMapNode class.
@@ -191,8 +192,8 @@ MiniMapNode.prototype.onPaint = function(ctx) {
 };
 
 MiniMapNode.prototype.toString = function() {
-    var str = "[MiniMapNode(" + this.pos.x + "," + this.pos.y + "), qobj: "
-        + this.qobj + "]";
+    var str = "[MiniMapNode(" + this.pos.x + "," + this.pos.y + "), qobj<" +
+        this.qobj + ">]";
     return str;
 };
 
@@ -223,7 +224,7 @@ PhantomMapNode.prototype.onPaint = function(ctx) {
     var worldQObj = this.map.qobj.world;
     ctx.save();
 
-    ctx.translate(this.pos.x, this.pos.y)
+    ctx.translate(this.pos.x, this.pos.y);
 
     if (this.focused)
         ctx.drawImage(this.focusedBorderImage, 0, 0);
@@ -245,5 +246,90 @@ PhantomMapNode.prototype.onMouseOut = function() {
 
 PhantomMapNode.prototype.toString = function() {
     var str = "[PhantomMapNode(" + this.pos.x + "," + this.pos.y + ")]";
+    return str;
+};
+
+
+/*
+ * Settlement class.
+ * @contructor
+ */
+var Settlement = function(pos, settlementQObj, map) {
+    MapItem.call(this, pos, map);
+
+    this.qobj = settlementQObj;
+    this.settlementType = this.qobj.settlementType;
+
+    var surface = this.map.qobj.world.surface;
+    this.settlementImage = surface.path + "/" +
+        surface.gameMap[this.settlementType.objectName];
+};
+
+Settlement.prototype = Object.create(MapItem.prototype);
+Settlement.prototype.constructor = Settlement;
+
+Settlement.prototype.onPaint = function(ctx) {
+    var worldQObj = this.map.qobj.world;
+
+    ctx.save();
+
+    ctx.translate(this.pos.x, this.pos.y);
+
+    ctx.drawImage(this.settlementImage, 0, 0);
+
+    ctx.restore();
+};
+
+Settlement.prototype.toString = function() {
+    var str = "[Settlement(" + this.pos.x + "," + this.pos.y + "), qobj<" +
+        this.qobj + ">]";
+    return str;
+};
+
+
+/*
+ * MiniSettlement class.
+ * @contructor
+ */
+var MiniSettlement = function(pos, settlementQObj, map) {
+    MapItem.call(this, pos, map);
+
+    this.qobj = settlementQObj;
+    this.settlementType = this.qobj.settlementType;
+
+    var surface = this.map.qobj.world.surface;
+    //FIXME: this will need to be the player's color
+    this.style = "#000000";
+};
+
+MiniSettlement.prototype = Object.create(MapItem.prototype);
+MiniSettlement.prototype.constructor = MiniSettlement;
+
+MiniSettlement.prototype.onPaint = function(ctx) {
+    var worldQObj = this.map.qobj.world;
+    var tileSize = worldQObj.surface.tileSize;
+
+    ctx.save();
+
+    ctx.translate(this.pos.x, this.pos.y);
+
+    var w = tileSize.width;
+    var h = tileSize.height;
+
+    var size = w/2 - w/10;
+    var x = w/20;
+    var y = h/2 - size/2;
+
+    var style = this.style;
+    ctx.fillStyle = style;
+
+    ctx.fillRect(x, y, size, size);
+
+    ctx.restore();
+};
+
+MiniSettlement.prototype.toString = function() {
+    var str = "[MiniSettlement(" + this.pos.x + "," + this.pos.y +
+        "), qobj<" + this.qobj + ">]";
     return str;
 };

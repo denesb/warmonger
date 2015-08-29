@@ -55,9 +55,9 @@ QJsonArray listToJson(const QList<T *> &list)
 }
 
 template<typename T>
-QList<const T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
+QList<T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
 {
-    QList<const T *> list;
+    QList<T *> list;
     QObject *parent = owner->parent();
     if (parent == nullptr)
     {
@@ -68,7 +68,7 @@ QList<const T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
     for (const QJsonValue v : array)
     {
         const QString name = v.toString();
-        const T *instance{nullptr};
+        T *instance{nullptr};
         if (!name.isEmpty())
         {
             instance = resolveReference<T>(name, parent);
@@ -81,11 +81,11 @@ QList<const T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
 }
 
 template<typename T>
-QJsonArray referenceListToJson(const QList<const T *> &list)
+QJsonArray referenceListToJson(const QList<T *> &list)
 {
     QJsonArray array;
 
-    for (const T * instance : list)
+    for (T * instance : list)
     {
         array.append(instance->objectName());
     }

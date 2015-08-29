@@ -4,12 +4,17 @@
     "description": "Default surface for the Iron age world",
 
     "gameMap": {
+        "border": "border.png",
+        "border_highlighted": "border_highlighted.png",
+
         "plains": "terrainTypes/plains.png",
         "hills": "terrainTypes/hills.png",
         "forest": "terrainTypes/forest.png",
         "mountains": "terrainTypes/mountains.png",
-        "border": "border.png",
-        "border_highlighted": "border_highlighted.png"
+
+        "village": "settlementTypes/village.png",
+        "castle": "settlementTypes/castle.png",
+        "city": "settlementTypes/city.png"
     },
 
     "miniMap": {

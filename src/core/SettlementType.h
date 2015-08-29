@@ -12,6 +12,8 @@ class SettlementType :
     public GameObject
 {
     Q_OBJECT;
+    Q_PROPERTY(int goldPerTurn READ getGoldPerTurn WRITE setGoldPerTurn NOTIFY goldPerTurnChanged)
+    Q_PROPERTY(QVariantList recruits READ readRecruits WRITE writeRecruits NOTIFY recruitsChanged)
 
 public:
     SettlementType(QObject *parent);
@@ -20,15 +22,21 @@ public:
     int getGoldPerTurn() const;
     void setGoldPerTurn(int goldPerTurn);
 
-    QList<const UnitType *> getRecruits() const;
-    void setRecruits(const QList<const UnitType *> &recruits);
+    QList<UnitType *> getRecruits() const;
+    void setRecruits(const QList<UnitType *> &recruits);
+    QVariantList readRecruits() const;
+    void writeRecruits(QVariantList recruits);
+
+signals:
+    void goldPerTurnChanged();
+    void recruitsChanged();
 
 private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
     int goldPerTurn;
-    QList<const UnitType *> recruits;
+    QList<UnitType *> recruits;
 };
 
 } // namespace core

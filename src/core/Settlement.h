@@ -15,23 +15,33 @@ class Settlement :
     public GameObject
 {
     Q_OBJECT
+    Q_PROPERTY(QObject * settlementType READ readSettlementType WRITE writeSettlementType NOTIFY settlementTypeChanged)
+    Q_PROPERTY(QObject * mapNode READ readMapNode WRITE writeMapNode NOTIFY mapNodeChanged)
 
 public:
     Settlement(QObject *parent);
     ~Settlement();
 
-    const SettlementType * getSettlementType() const;
-    void setSettlementType(const SettlementType *settlementType);
+    SettlementType * getSettlementType() const;
+    void setSettlementType(SettlementType *settlementType);
+    QObject * readSettlementType() const;
+    void writeSettlementType(QObject *settlementType);
 
-    const MapNode * getMapNode() const;
-    void setMapNode(const MapNode *mapNode);
+    MapNode * getMapNode() const;
+    void setMapNode(MapNode *mapNode);
+    QObject * readMapNode() const;
+    void writeMapNode(QObject *mapNode);
+
+signals:
+    void settlementTypeChanged();
+    void mapNodeChanged();
 
 private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
-    const SettlementType *settlementType;
-    const MapNode *mapNode;
+    SettlementType *settlementType;
+    MapNode *mapNode;
 };
 
 } // namespace core

@@ -16,6 +16,8 @@ class Player :
     public GameObject
 {
     Q_OBJECT
+    Q_PROPERTY(QColor color READ getColor WRITE setColor NOTIFY colorChanged)
+    Q_PROPERTY(int goldBalance READ getGoldBalance WRITE setGoldBalance NOTIFY goldBalanceChanged)
 
 public:
     Player(QObject *parent);
@@ -29,6 +31,10 @@ public:
 
     const Faction * getFaction() const;
     void setFaction(const Faction *faction);
+
+signals:
+    void colorChanged();
+    void goldBalanceChanged();
 
 private:
     void dataFromJson(const QJsonObject &obj);

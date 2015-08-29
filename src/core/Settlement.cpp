@@ -6,6 +6,8 @@
 
 using namespace warmonger::core;
 
+static const QString category{"core"};
+
 Settlement::Settlement(QObject *parent) :
     GameObject(parent),
     settlementType(nullptr),
@@ -17,24 +19,66 @@ Settlement::~Settlement()
 {
 }
 
-const SettlementType * Settlement::getSettlementType() const
+SettlementType * Settlement::getSettlementType() const
 {
     return this->settlementType;
 }
 
-void Settlement::setSettlementType(const SettlementType *settlementType)
+void Settlement::setSettlementType(SettlementType *settlementType)
 {
-    this->settlementType = settlementType;
+    if (this->settlementType != settlementType)
+    {
+        this->settlementType = settlementType;
+        emit settlementTypeChanged();
+    }
 }
 
-const MapNode * Settlement::getMapNode() const
+QObject * Settlement::readSettlementType() const
+{
+    return this->settlementType;
+}
+
+void Settlement::writeSettlementType(QObject *settlementType)
+{
+    SettlementType *st = qobject_cast<SettlementType *>(settlementType);
+    if (st == nullptr)
+    {
+        wError(category) << "settlementType is null or has wrong type";
+        throw Exception(Exception::InvalidValue);
+    }
+
+    this->setSettlementType(st);
+}
+
+MapNode * Settlement::getMapNode() const
 {
     return this->mapNode;
 }
 
-void Settlement::setMapNode(const MapNode *mapNode)
+void Settlement::setMapNode(MapNode *mapNode)
 {
-    this->mapNode = mapNode;
+    if (this->mapNode != mapNode)
+    {
+        this->mapNode = mapNode;
+        emit mapNodeChanged();
+    }
+}
+
+QObject * Settlement::readMapNode() const
+{
+    return this->mapNode;
+}
+
+void Settlement::writeMapNode(QObject *mapNode)
+{
+    MapNode *n = qobject_cast<MapNode *>(mapNode);
+    if (n == nullptr)
+    {
+        wError(category) << "settlementType is null or has wrong type";
+        throw Exception(Exception::InvalidValue);
+    }
+
+    this->setMapNode(n);
 }
 
 void Settlement::dataFromJson(const QJsonObject &obj)

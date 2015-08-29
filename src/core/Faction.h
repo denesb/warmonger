@@ -17,14 +17,14 @@ public:
     Faction(QObject *parent);
     ~Faction();
 
-    QList<const UnitType *> getUnitTypes() const;
-    void setUnitTypes(const QList<const UnitType *> &unitTypes);
+    QList<UnitType *> getUnitTypes() const;
+    void setUnitTypes(const QList<UnitType *> &unitTypes);
 
 private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
-    QList<const UnitType *> unitTypes;
+    QList<UnitType *> unitTypes;
 };
 
 } // namespace core

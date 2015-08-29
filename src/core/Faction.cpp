@@ -13,12 +13,12 @@ Faction::~Faction()
 {
 }
 
-QList<const UnitType *> Faction::getUnitTypes() const
+QList<UnitType *> Faction::getUnitTypes() const
 {
     return this->unitTypes;
 }
 
-void Faction::setUnitTypes(const QList<const UnitType *> &unitTypes)
+void Faction::setUnitTypes(const QList<UnitType *> &unitTypes)
 {
     this->unitTypes = unitTypes;
 }

@@ -23,7 +23,7 @@ class Map :
     Q_PROPERTY(QVariant mapNodes READ readMapNodes NOTIFY mapNodesChanged)
     Q_PROPERTY(QVariant players READ readPlayers)
     Q_PROPERTY(QVariant units READ readUnits)
-    Q_PROPERTY(QVariant settlements READ readSettlements)
+    Q_PROPERTY(QVariant settlements READ readSettlements NOTIFY settlementsChanged)
 
 public:
     static const QString mapNodeNameTemplate;
@@ -65,7 +65,9 @@ signals:
     void mapNodesChanged();
     void mapNodeAdded(QObject *mapNode);
     void mapNodeRemoved(QObject *mapNode);
-    void mapNodeChanged(QObject *mapNode);
+    void settlementsChanged();
+    void settlementAdded(QObject *settlement);
+    void settlementRemoved(QObject *settlement);
 
 private:
     void dataFromJson(const QJsonObject &obj);

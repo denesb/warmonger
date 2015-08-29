@@ -57,6 +57,7 @@ var Map = function(W, canvas, mouseArea) {
 
     // init
     this.createNode(this.qobj.mapNodes[0], Qt.point(0, 0), {});
+    this.createSettlements();
 };
 
 Map.prototype.createNode = function(mapNodeQObj, pos, visitedNodes) {
@@ -75,6 +76,13 @@ Map.prototype.createNode = function(mapNodeQObj, pos, visitedNodes) {
             neighbourPos(direction, tileSize, pos),
             visitedNodes
         );
+    }
+};
+
+Map.prototype.createSettlements = function() {
+    var settlements = this.qobj.settlements;
+    for (var i = 0; i < settlements.length; i++) {
+        this.newSettlement(settlements[i]);
     }
 };
 
@@ -114,8 +122,7 @@ Map.prototype.findMapItemJObj = function(mapItemQObj) {
     var mapItemJObj = undefined;
     for (var i = 0; i < this.mapItems.length; i++) {
         var mapItem = this.mapItems[i];
-        if (mapItem instanceof MapItem.MapItem &&
-            mapItem.qobj == mapItemQObj) {
+        if (mapItem.qobj && mapItem.qobj == mapItemQObj) {
             mapItemJObj = mapItem;
             break;
         }
@@ -299,6 +306,14 @@ GameMap.prototype.newMapNode = function(pos, mapNodeQObj) {
     this.mapItems.push(mapNode);
 
     return mapNode;
+};
+
+GameMap.prototype.newSettlement = function(settlementQObj) {
+    var mapNode = this.findMapItemJObj(settlementQObj.mapNode);
+    var pos = Qt.point(mapNode.pos.x, mapNode.pos.y);
+    var settlementJObj =
+        new MapItem.Settlement(pos, settlementQObj, this);
+    this.mapItems.push(settlementJObj);
 };
 
 GameMap.prototype.findMapNodeAt = function(point) {
@@ -597,7 +612,15 @@ MiniMap.prototype.newMapNode = function(pos, mapNodeQObj) {
     this.mapItems.push(mapNode);
 
     return mapNode;
-}
+};
+
+MiniMap.prototype.newSettlement = function(settlementQObj) {
+    var mapNode = this.findMapItemJObj(settlementQObj.mapNode);
+    var pos = Qt.point(mapNode.pos.x, mapNode.pos.y);
+    var settlementJObj =
+        new MapItem.MiniSettlement(pos, settlementQObj, this);
+    this.mapItems.push(settlementJObj);
+};
 
 MiniMap.prototype.calculateScaleFactor = function() {
     var normalSize = Math.max(this.size.width, this.size.height);

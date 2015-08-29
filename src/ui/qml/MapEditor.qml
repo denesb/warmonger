@@ -201,8 +201,12 @@ Rectangle {
             id: mapEditorControls
 
             signal terrainTypeSelected(string objectName)
+            signal unitTypeSelected(string objectName)
+            signal settlementTypeSelected(string objectName)
 
             onTerrainTypeSelected: map.jobj.setTerrainType(objectName)
+            onSettlementTypeSelected: map.jobj.setSettlementType(objectName)
+            onUnitTypeSelected: map.jobj.setUnitType(objectName)
 
             anchors {
                 top: miniMap.bottom
@@ -242,8 +246,8 @@ Rectangle {
 
                     MapItemSelector {
                         anchors.fill: parent
-                        model: W.map.world.terrainTypes
-                        onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
+                        model: W.map.world.settlementTypes
+                        onMapItemSelected: mapEditorControls.settlementTypeSelected(objectName)
                     }
 
                 }
@@ -253,8 +257,8 @@ Rectangle {
 
                     MapItemSelector {
                         anchors.fill: parent
-                        model: W.map.world.terrainTypes
-                        onMapItemSelected: mapEditorControls.terrainTypeSelected(objectName)
+                        model: W.map.world.unitTypes
+                        onMapItemSelected: mapEditorControls.unitTypeSelected(objectName)
                     }
                 }
 

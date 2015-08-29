@@ -14,14 +14,33 @@
 
         "village": "settlementTypes/village.png",
         "castle": "settlementTypes/castle.png",
-        "city": "settlementTypes/city.png"
+        "city": "settlementTypes/city.png",
+
+        "peasant": "unitTypes/peasant.png",
+        "levy_spearman": "unitTypes/levy_spearman.png",
+        "trained_spearman": "unitTypes/trained_spearman.png",
+        "veteran_spearman": "unitTypes/veteran_spearman.png",
+        "militia_spearman": "unitTypes/militia_spearman.png",
+        "huntsman": "unitTypes/huntsman.png",
+        "levy_bowman": "unitTypes/levy_bowman.png",
+        "trained_bowman": "unitTypes/trained_bowman.png",
+        "veteran_bowman": "unitTypes/veteran_bowman.png",
+        "militia_crossbowman": "unitTypes/militia_crossbowman.png",
+        "trained_crossbowman": "unitTypes/trained_crossbowman.png",
+        "veteran_crossbowman": "unitTypes/veteran_crossbowman.png",
+        "young_knight": "unitTypes/young_knight.png",
+        "knight": "unitTypes/knight.png",
+        "lancer": "unitTypes/lancer.png",
+        "sergeant": "unitTypes/sergeant.png",
+        "king": "unitTypes/king.png"
     },
 
     "miniMap": {
         "plains": "#39661e",
         "forest": "#173504",
         "hills": "#cbce16",
-        "mountains": "#ce7516"
+        "mountains": "#ce7516",
+        "neutral": "#222222"
     },
 
     "tileSize": {

@@ -282,7 +282,7 @@ Settlement.prototype.onPaint = function(ctx) {
 
 Settlement.prototype.toString = function() {
     var str = "[Settlement(" + this.pos.x + "," + this.pos.y + "), qobj<" +
-        this.qobj + ">]";
+        this.qobj + "> on mapNode " + this.qobj.mapNode + "]";
     return str;
 };
 
@@ -298,8 +298,11 @@ var MiniSettlement = function(pos, settlementQObj, map) {
     this.settlementType = this.qobj.settlementType;
 
     var surface = this.map.qobj.world.surface;
-    //FIXME: this will need to be the player's color
-    this.style = "#000000";
+    if (this.qobj.owner) {
+        this.style = this.qobj.owner.color;
+    } else {
+        this.style = surface.miniMap["neutral"];
+    }
 };
 
 MiniSettlement.prototype = Object.create(MapItem.prototype);
@@ -329,7 +332,7 @@ MiniSettlement.prototype.onPaint = function(ctx) {
 };
 
 MiniSettlement.prototype.toString = function() {
-    var str = "[MiniSettlement(" + this.pos.x + "," + this.pos.y +
-        "), qobj<" + this.qobj + ">]";
+    var str = "[MiniSettlement(" + this.pos.x + "," + this.pos.y + "), qobj<" +
+        this.qobj + "> on mapNode " + this.qobj.mapNode + "]";
     return str;
 };

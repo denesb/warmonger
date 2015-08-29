@@ -10,6 +10,7 @@ namespace core {
 
 class SettlementType;
 class MapNode;
+class Player;
 
 class Settlement :
     public GameObject
@@ -17,6 +18,7 @@ class Settlement :
     Q_OBJECT
     Q_PROPERTY(QObject * settlementType READ readSettlementType WRITE writeSettlementType NOTIFY settlementTypeChanged)
     Q_PROPERTY(QObject * mapNode READ readMapNode WRITE writeMapNode NOTIFY mapNodeChanged)
+    Q_PROPERTY(QObject * owner READ readOwner WRITE writeOwner NOTIFY ownerChanged)
 
 public:
     Settlement(QObject *parent);
@@ -32,9 +34,15 @@ public:
     QObject * readMapNode() const;
     void writeMapNode(QObject *mapNode);
 
+    Player * getOwner() const;
+    void setOwner(Player *owner);
+    QObject * readOwner() const;
+    void writeOwner(QObject *owner);
+
 signals:
     void settlementTypeChanged();
     void mapNodeChanged();
+    void ownerChanged();
 
 private:
     void dataFromJson(const QJsonObject &obj);
@@ -42,6 +50,7 @@ private:
 
     SettlementType *settlementType;
     MapNode *mapNode;
+    Player *owner;
 };
 
 } // namespace core

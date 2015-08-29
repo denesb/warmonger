@@ -1,7 +1,8 @@
+#include "core/World.h"
 #include "core/Settlement.h"
 #include "core/SettlementType.h"
 #include "core/MapNode.h"
-#include "core/World.h"
+#include "core/Player.h"
 #include "core/Util.h"
 
 using namespace warmonger::core;
@@ -11,7 +12,8 @@ static const QString category{"core"};
 Settlement::Settlement(QObject *parent) :
     GameObject(parent),
     settlementType(nullptr),
-    mapNode(nullptr)
+    mapNode(nullptr),
+    owner(nullptr)
 {
 }
 
@@ -81,6 +83,36 @@ void Settlement::writeMapNode(QObject *mapNode)
     this->setMapNode(n);
 }
 
+Player * Settlement::getOwner() const
+{
+    return this->owner;
+}
+
+void Settlement::setOwner(Player *owner)
+{
+    if (this->owner != owner)
+    {
+        this->owner = owner;
+        emit ownerChanged();
+    }
+}
+
+QObject * Settlement::readOwner() const
+{
+    return this->owner;
+}
+
+void Settlement::writeOwner(QObject *owner)
+{
+    Player *o = qobject_cast<Player *>(owner);
+    if (o == nullptr)
+    {
+        wError(category) << "owner is null or has wrong type";
+        throw Exception(Exception::InvalidValue);
+    }
+    this->setOwner(o);
+}
+
 void Settlement::dataFromJson(const QJsonObject &obj)
 {
     World *world = this->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
@@ -96,10 +128,30 @@ void Settlement::dataFromJson(const QJsonObject &obj)
     this->mapNode = resolveReference<MapNode>(
         obj["mapNode"].toString(), this->parent()
     );
+
+    const QString ownerName = obj["owner"].toString();
+    if (!ownerName.isEmpty())
+    {
+        this->owner = resolveReference<Player>(
+            ownerName, this->parent()
+        );
+    }
+    else
+    {
+        this->owner = nullptr;
+    }
 }
 
 void Settlement::dataToJson(QJsonObject &obj) const
 {
     obj["settlementType"] = this->settlementType->objectName();
     obj["mapNode"] = this->mapNode->objectName();
+    if (this->owner != nullptr)
+    {
+        obj["owner"] = this->owner->objectName();
+    }
+    else
+    {
+        obj["owner"] = QString("");
+    }
 }

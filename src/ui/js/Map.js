@@ -314,6 +314,8 @@ GameMap.prototype.newSettlement = function(settlementQObj) {
     var settlementJObj =
         new MapItem.Settlement(pos, settlementQObj, this);
     this.mapItems.push(settlementJObj);
+
+    return settlementJObj;
 };
 
 GameMap.prototype.findMapNodeAt = function(point) {
@@ -408,7 +410,6 @@ GameMap.prototype.onResourceLoaded = function() {
         }
 
         if (this.canvas.isImageLoaded(image)) {
-            console.info("Successfully loaded image " + image);
             loaded.push(image);
         }
     }
@@ -442,22 +443,29 @@ var EditableMap = function(W, canvas, mouseArea) {
     GameMap.call(this, W, canvas, mouseArea);
 
     this.qobj.mapNodeAdded.connect(this.onMapNodeCreated.bind(this));
+    this.qobj.settlementAdded.connect(this.onSettlementCreated.bind(this));
+    //this.qobj.unitAdded.connect(this.onUnitCreated.bind(this));
 
     this.focusedNode = undefined;
     this.mapNodeClicked = undefined;
     this.mapNodeFocused = undefined;
+
+    this.editMode = EditableMap.SelectMode;
+
     this.currentTerrainType = undefined;
     this.terrainTypeMap = {};
-    this.editMode = EditableMap.SelectMode;
+    this.currentSettlementType = undefined;
+    this.settlementTypeMap = {};
+    this.currentUnitType = undefined;
+    this.unitTypeMap = {};
 
     // init
     this.addPhantomMapNodes(this.mapItems);
     this.geometryChanged = true;
 
-    for (var i = 0; i < this.qobj.world.terrainTypes.length; i++) {
-        var terrainType = this.qobj.world.terrainTypes[i];
-        this.terrainTypeMap[terrainType.objectName] = terrainType;
-    }
+    this.terrainTypeMap = this.buildTypeMap(this.qobj.world.terrainTypes);
+    this.settlementTypeMap = this.buildTypeMap(this.qobj.world.settlementTypes);
+    this.unitTypeMap = this.buildTypeMap(this.qobj.world.unitTypes);
 };
 
 EditableMap.prototype = Object.create(GameMap.prototype);
@@ -470,6 +478,17 @@ EditableMap.CreateUnitMode = "CreateUnitMode";
 EditableMap.EditMapNodeMode = "EditMapNodeMode";
 EditableMap.EditSettlementMode = "EditSettlementMode";
 EditableMap.EditUnitMode = "EditUnitMode";
+
+EditableMap.prototype.buildTypeMap = function(typeList) {
+    var typeMap = {};
+
+    for (var i = 0; i < typeList.length; i++) {
+        var type = typeList[i];
+        typeMap[type.objectName] = type;
+    }
+
+    return typeMap;
+};
 
 EditableMap.prototype.newMapNode = function(pos, mapNodeQObj) {
     var mapNode = new MapItem.EditableMapNode(pos, mapNodeQObj, this);
@@ -523,6 +542,13 @@ EditableMap.prototype.createMapNode = function(mapNodeJObj) {
     this.qobj.createMapNode(this.currentTerrainType, neighboursMap);
 };
 
+EditableMap.prototype.createSettlement = function(mapNodeJObj) {
+    if (mapNodeJObj.isPhantom) return;
+    if (this.currentSettlementType == undefined) return;
+
+    this.qobj.createSettlement(this.currentSettlementType, mapNodeJObj.qobj);
+};
+
 EditableMap.prototype.editMapNode = function(mapNodeJObj) {
     if (mapNodeJObj.isPhantom) return;
 
@@ -538,6 +564,8 @@ EditableMap.prototype.onClicked = function(pos) {
         console.log("Select mode, nothing to do...");
     } else if (this.editMode == EditableMap.CreateMapNodeMode) {
         this.createMapNode(mapNode);
+    } else if (this.editMode == EditableMap.CreateSettlementMode) {
+        this.createSettlement(mapNode);
     } else if (this.editMode == EditableMap.EditMapNodeMode) {
         this.editMapNode(mapNode);
     } else {
@@ -571,12 +599,30 @@ EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
     this.geometryChanged = true;
 };
 
+EditableMap.prototype.onSettlementCreated = function(settlementQObj) {
+    var settlementJObj = this.newSettlement(settlementQObj);
+
+    this.markDirty(settlementJObj);
+};
+
+EditableMap.prototype.onUnitCreated = function(mapNodeQObj) {
+};
+
 EditableMap.prototype.setEditMode = function(editMode) {
     this.editMode = editMode;
 };
 
 EditableMap.prototype.setTerrainType = function(terrainTypeName) {
     this.currentTerrainType = this.terrainTypeMap[terrainTypeName];
+};
+
+EditableMap.prototype.setSettlementType = function(settlementTypeName) {
+    this.currentSettlementType = this.settlementTypeMap[settlementTypeName];
+    console.log(this.currentSettlementType);
+};
+
+EditableMap.prototype.setUnitType = function(unitTypeName) {
+    this.currentUnitType = this.unitTypeMap[unitTypeName];
 };
 
 EditableMap.prototype.toString = function() {
@@ -599,6 +645,7 @@ var MiniMap = function(W, canvas, mouseArea) {
 
     // init
     this.qobj.mapNodeAdded.connect(this.onMapNodeCreated.bind(this));
+    this.qobj.settlementAdded.connect(this.onSettlementCreated.bind(this));
 
     this.ready = true;
     this.canvas.requestPaint();
@@ -620,6 +667,8 @@ MiniMap.prototype.newSettlement = function(settlementQObj) {
     var settlementJObj =
         new MapItem.MiniSettlement(pos, settlementQObj, this);
     this.mapItems.push(settlementJObj);
+
+    return settlementJObj;
 };
 
 MiniMap.prototype.calculateScaleFactor = function() {
@@ -702,6 +751,12 @@ MiniMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
 
     this.geometryChanged = true;
     this.canvas.requestPaint();
+};
+
+MiniMap.prototype.onSettlementCreated = function(settlementQObj) {
+    var settlementJObj = this.newSettlement(settlementQObj);
+
+    this.markDirty(settlementJObj);
 };
 
 MiniMap.prototype.setWindow = function(window) {

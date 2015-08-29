@@ -12,11 +12,15 @@ using namespace warmonger::core;
 
 static const QString category{"core"};
 const QString Map::mapNodeNameTemplate{"mapNode%1"};
+const QString Map::settlementNameTemplate{"settlement%1"};
+const QString Map::unitNameTemplate{"unit%1"};
 
 Map::Map(QObject *parent) :
     GameEntity(parent),
     world(nullptr),
     mapNodeIndex(0),
+    settlementIndex(0),
+    unitIndex(0),
     mapNodes(),
     players(),
     units(),
@@ -130,6 +134,23 @@ QVariant Map::readUnits() const
     return QVariant::fromValue(toQObjectList<Unit>(this->units));
 }
 
+
+void Map::addSettlement(Settlement *settlement)
+{
+    settlement->setParent(this);
+    this->settlements << settlement;
+
+    emit settlementAdded(settlement);
+}
+
+void Map::removeSettlement(Settlement *settlement)
+{
+    settlement->setParent(nullptr);
+    this->settlements.removeOne(settlement);
+
+    emit settlementRemoved(settlement);
+}
+
 QList<Settlement *> Map::getSettlements() const
 {
     return this->settlements;
@@ -170,11 +191,37 @@ void Map::createMapNode(QObject *terrainType, QVariantMap neighbours)
     }
 
     std::unique_ptr<MapNode> newMapNode(new MapNode(nullptr));
-    newMapNode->setObjectName(Map::mapNodeNameTemplate.arg(++this->mapNodeIndex));
+    newMapNode->setObjectName(
+        Map::mapNodeNameTemplate.arg(++this->mapNodeIndex)
+    );
     newMapNode->writeTerrainType(terrainType);
     newMapNode->writeNeighbours(neighbours);
 
     this->addMapNode(newMapNode.release());
+}
+
+void Map::createSettlement(SettlementType *settlementType, MapNode *mapNode)
+{
+    Settlement * newSettlement = new Settlement(this);
+    newSettlement->setObjectName(
+        Map::settlementNameTemplate.arg(++this->settlementIndex)
+    );
+    newSettlement->setSettlementType(settlementType);
+    newSettlement->setMapNode(mapNode);
+
+    this->addSettlement(newSettlement);
+}
+
+Q_INVOKABLE void Map::createSettlement(QObject *settlementType, QObject *mapNode)
+{
+    std::unique_ptr<Settlement> newSettlement(new Settlement(nullptr));
+    newSettlement->setObjectName(
+        Map::settlementNameTemplate.arg(++this->settlementIndex)
+    );
+    newSettlement->writeSettlementType(settlementType);
+    newSettlement->writeMapNode(mapNode);
+
+    this->addSettlement(newSettlement.release());
 }
 
 void Map::dataFromJson(const QJsonObject &obj)
@@ -185,6 +232,8 @@ void Map::dataFromJson(const QJsonObject &obj)
 
     this->world = world;
     this->mapNodeIndex = obj["mapNodeIndex"].toInt();
+    this->settlementIndex = obj["settlementIndex"].toInt();
+    this->unitIndex = obj["unitIndex"].toInt();
     this->mapNodes = this->mapNodesFromJson(obj["mapNodes"].toObject());
     this->players = newListFromJson<Player>(obj["players"].toArray(), this);
     this->units = newListFromJson<Unit>(obj["units"].toArray(), this);
@@ -195,6 +244,8 @@ void Map::dataToJson(QJsonObject &obj) const
 {
     obj["world"] = this->world->objectName();
     obj["mapNodeIndex"] = this->mapNodeIndex;
+    obj["settlementIndex"] = this->settlementIndex;
+    obj["unitIndex"] = this->unitIndex;
     obj["mapNodes"] = this->mapNodesToJson(this->mapNodes);
     obj["players"] = listToJson<Player>(this->players);
     obj["units"] = listToJson<Unit>(this->units);

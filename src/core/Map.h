@@ -13,6 +13,7 @@ namespace core {
 class World;
 class Player;
 class Unit;
+class SettlementType;
 class Settlement;
 
 class Map :
@@ -27,6 +28,8 @@ class Map :
 
 public:
     static const QString mapNodeNameTemplate;
+    static const QString settlementNameTemplate;
+    static const QString unitNameTemplate;
 
     Map(QObject *parent);
     ~Map();
@@ -53,12 +56,18 @@ public:
     void setUnits(const QList<Unit *> &units);
     QVariant readUnits() const;
 
+    void addSettlement(Settlement *settlement);
+    void removeSettlement(Settlement *settlement);
+
     QList<Settlement *> getSettlements() const;
     void setSettlements(const QList<Settlement *> &settlements);
     QVariant readSettlements() const;
 
     void createMapNode(TerrainType *terrainType, const QHash<MapNode::Direction, MapNode *> &neighbours);
     Q_INVOKABLE void createMapNode(QObject *terrainType, QVariantMap neighbours);
+
+    void createSettlement(SettlementType *settlementType, MapNode *mapNode);
+    Q_INVOKABLE void createSettlement(QObject *settlementType, QObject *mapNode);
 
 signals:
     void worldChanged();
@@ -78,6 +87,8 @@ private:
 
     World *world;
     int mapNodeIndex;
+    int settlementIndex;
+    int unitIndex;
     QList<MapNode *> mapNodes;
     QList<Player *> players;
     QList<Unit *> units;

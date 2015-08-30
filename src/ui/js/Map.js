@@ -50,6 +50,8 @@ var Map = function(W, canvas, mouseArea) {
     this.lastMousePos = undefined;
     this.mapItems = [];
     this.settlements = [];
+    this.units = [];
+
     this.ready = false;
 
     this.geometryChanged = true;
@@ -59,6 +61,7 @@ var Map = function(W, canvas, mouseArea) {
     // init
     this.createNode(this.qobj.mapNodes[0], Qt.point(0, 0), {});
     this.createSettlements();
+    this.createUnits();
 };
 
 Map.prototype.createNode = function(mapNodeQObj, pos, visitedNodes) {
@@ -84,6 +87,13 @@ Map.prototype.createSettlements = function() {
     var settlements = this.qobj.settlements;
     for (var i = 0; i < settlements.length; i++) {
         this.newSettlement(settlements[i]);
+    }
+};
+
+Map.prototype.createUnits = function() {
+    var units = this.qobj.units;
+    for (var i = 0; i < units.length; i++) {
+        this.newUnit(units[i]);
     }
 };
 
@@ -318,6 +328,16 @@ GameMap.prototype.newSettlement = function(settlementQObj) {
     this.settlements.push(settlementJObj);
 
     return settlementJObj;
+};
+
+GameMap.prototype.newUnit = function(unitQObj) {
+    var mapNode = this.findMapItemJObj(unitQObj.mapNode);
+    var pos = Qt.point(mapNode.pos.x, mapNode.pos.y);
+    var unitJObj = new MapItem.Unit(pos, unitQObj, this);
+    this.mapItems.push(unitJObj);
+    this.units.push(unitJObj);
+
+    return unitJObj;
 };
 
 GameMap.prototype.findMapNodeAt = function(point) {
@@ -715,6 +735,16 @@ MiniMap.prototype.newSettlement = function(settlementQObj) {
     this.settlements.push(settlementJObj);
 
     return settlementJObj;
+};
+
+MiniMap.prototype.newUnit = function(unitQObj) {
+    var mapNode = this.findMapItemJObj(unitQObj.mapNode);
+    var pos = Qt.point(mapNode.pos.x, mapNode.pos.y);
+    var unitJObj = new MapItem.MiniUnit(pos, unitQObj, this);
+    this.mapItems.push(unitJObj);
+    this.units.push(unitJObj);
+
+    return unitJObj;
 };
 
 MiniMap.prototype.calculateScaleFactor = function() {

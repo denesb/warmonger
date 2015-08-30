@@ -10,40 +10,65 @@ namespace core {
 
 class UnitType;
 class MapNode;
+class Player;
 
 class Unit :
     public GameObject
 {
     Q_OBJECT
+    Q_PROPERTY(QObject * unitType READ readUnitType WRITE writeUnitType NOTIFY unitTypeChanged)
+    Q_PROPERTY(QObject * mapNode READ readMapNode WRITE writeMapNode NOTIFY mapNodeChanged)
+    Q_PROPERTY(QObject * owner READ readOwner WRITE writeOwner NOTIFY ownerChanged)
+    Q_PROPERTY(int experiencePoints READ getExperiencePoints WRITE setExperiencePoints NOTIFY experiencePointsChanged)
+    Q_PROPERTY(int hitPoints READ getHitPoints WRITE setHitPoints NOTIFY hitPointsChanged)
+    Q_PROPERTY(int movementPoints READ getMovementPoints WRITE setMovementPoints NOTIFY movementPointsChanged)
 
 public:
     Unit(QObject *parent);
     ~Unit();
 
-    const UnitType * getUnitType() const;
-    void setUnitType(const UnitType *unitType);
+    UnitType * getUnitType() const;
+    void setUnitType(UnitType *unitType);
+    QObject * readUnitType() const;
+    void writeUnitType(QObject *settlementType);
 
-    const MapNode * getMapNode() const;
-    void setMapNode(const MapNode *mapNode);
+    MapNode * getMapNode() const;
+    QObject * readMapNode() const;
+    void writeMapNode(QObject *mapNode);
+    void setMapNode(MapNode *mapNode);
 
-    int getHitpoints() const;
-    void setHitpoints(int hitPoints);
+    Player * getOwner() const;
+    void setOwner(Player *owner);
+    QObject * readOwner() const;
+    void writeOwner(QObject *owner);
 
-    int getMovementpoints() const;
-    void setMovementpoints(int movementPoints);
+    int getExperiencePoints() const;
+    void setExperiencePoints(int experiencePoints);
 
-    int getExperience() const;
-    void setExperience(int experience);
+    int getHitPoints() const;
+    void setHitPoints(int hitPoints);
+
+    int getMovementPoints() const;
+    void setMovementPoints(int movementPoints);
+
+signals:
+    void unitTypeChanged();
+    void mapNodeChanged();
+    void ownerChanged();
+    void experiencePointsChanged();
+    void hitPointsChanged();
+    void movementPointsChanged();
 
 private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
-    const UnitType *unitType;
-    const MapNode * mapNode;
+    UnitType *unitType;
+    MapNode *mapNode;
+    Player *owner;
+    int experiencePoints;
     int hitPoints;
     int movementPoints;
-    int experience;
 };
 
 } // namespace core

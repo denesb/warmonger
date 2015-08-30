@@ -1024,8 +1024,18 @@
             "settlementType": "village"
         }
     ],
-    "unitIndex": 0,
+    "unitIndex": 1,
     "units": [
+        {
+            "displayName": "Pesta",
+            "experiencePoints": 0,
+            "hitPoints": 30,
+            "objectName": "unit0",
+            "owner": "player1",
+            "mapNode": "mapNode0",
+            "movementPoints": 8,
+            "unitType": "levy_spearman"
+        }
     ],
     "world": "iron_age"
 }

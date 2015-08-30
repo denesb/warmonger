@@ -76,7 +76,7 @@ void Settlement::writeMapNode(QObject *mapNode)
     MapNode *n = qobject_cast<MapNode *>(mapNode);
     if (n == nullptr)
     {
-        wError(category) << "settlementType is null or has wrong type";
+        wError(category) << "mapNode is null or has wrong type";
         throw Exception(Exception::InvalidValue);
     }
 

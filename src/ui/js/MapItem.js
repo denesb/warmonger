@@ -336,3 +336,91 @@ MiniSettlement.prototype.toString = function() {
         this.qobj + "> on mapNode " + this.qobj.mapNode + "]";
     return str;
 };
+
+
+/*
+ * Unit class.
+ * @contructor
+ */
+var Unit = function(pos, unitQObj, map) {
+    MapItem.call(this, pos, map);
+
+    this.qobj = unitQObj;
+    this.unitType = this.qobj.unitType;
+
+    var surface = this.map.qobj.world.surface;
+    this.unitImage = surface.path + "/" +
+        surface.gameMap[this.unitType.objectName];
+};
+
+Unit.prototype = Object.create(MapItem.prototype);
+Unit.prototype.constructor = Unit;
+
+Unit.prototype.onPaint = function(ctx) {
+    var worldQObj = this.map.qobj.world;
+
+    ctx.save();
+
+    ctx.translate(this.pos.x, this.pos.y);
+
+    ctx.drawImage(this.unitImage, 0, 0);
+
+    ctx.restore();
+};
+
+Unit.prototype.toString = function() {
+    var str = "[Unit(" + this.pos.x + "," + this.pos.y + "), qobj<" +
+        this.qobj + "> on mapNode " + this.qobj.mapNode + "]";
+    return str;
+};
+
+
+/*
+ * MiniUnit class.
+ * @contructor
+ */
+var MiniUnit = function(pos, unitQObj, map) {
+    MapItem.call(this, pos, map);
+
+    this.qobj = unitQObj;
+    this.unitType = this.qobj.unitType;
+
+    var surface = this.map.qobj.world.surface;
+    if (this.qobj.owner) {
+        this.style = this.qobj.owner.color;
+    } else {
+        this.style = surface.miniMap["neutral"];
+    }
+};
+
+MiniUnit.prototype = Object.create(MapItem.prototype);
+MiniUnit.prototype.constructor = MiniUnit;
+
+MiniUnit.prototype.onPaint = function(ctx) {
+    var worldQObj = this.map.qobj.world;
+    var tileSize = worldQObj.surface.tileSize;
+
+    ctx.save();
+
+    ctx.translate(this.pos.x, this.pos.y);
+
+    var w = tileSize.width;
+    var h = tileSize.height;
+
+    var size = w/4;
+    var x = w/2 + w/5;
+    var y = h/2 - size/2;
+
+    var style = this.style;
+    ctx.fillStyle = style;
+
+    ctx.fillRect(x, y, size, size);
+
+    ctx.restore();
+};
+
+MiniUnit.prototype.toString = function() {
+    var str = "[MiniUnit(" + this.pos.x + "," + this.pos.y + "), qobj<" +
+        this.qobj + "> on mapNode " + this.qobj.mapNode + "]";
+    return str;
+};

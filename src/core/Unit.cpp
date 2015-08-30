@@ -1,18 +1,22 @@
 #include "core/Unit.h"
+#include "core/World.h"
 #include "core/UnitType.h"
 #include "core/MapNode.h"
-#include "core/World.h"
+#include "core/Player.h"
 #include "core/JsonUtil.h"
 
 using namespace warmonger::core;
+
+static const QString category{"core"};
 
 Unit::Unit(QObject *parent) :
     GameObject(parent),
     unitType(nullptr),
     mapNode(nullptr),
+    owner(nullptr),
+    experiencePoints(0),
     hitPoints(0),
-    movementPoints(0),
-    experience(0)
+    movementPoints(0)
 {
 }
 
@@ -20,54 +24,137 @@ Unit::~Unit()
 {
 }
 
-const UnitType * Unit::getUnitType() const
+UnitType * Unit::getUnitType() const
 {
     return this->unitType;
 }
 
-void Unit::setUnitType(const UnitType *unitType)
+void Unit::setUnitType(UnitType *unitType)
 {
-    this->unitType = unitType;
+    if (this->unitType != unitType)
+    {
+        this->unitType = unitType;
+        emit unitTypeChanged();
+    }
 }
 
-const MapNode * Unit::getMapNode() const
+QObject * Unit::readUnitType() const
+{
+    return this->unitType;
+}
+
+void Unit::writeUnitType(QObject *unitType)
+{
+    UnitType *st = qobject_cast<UnitType *>(unitType);
+    if (st == nullptr)
+    {
+        wError(category) << "unitType is null or has wrong type";
+        throw Exception(Exception::InvalidValue);
+    }
+
+    this->setUnitType(st);
+}
+
+MapNode * Unit::getMapNode() const
 {
     return this->mapNode;
 }
 
-void Unit::setMapNode(const MapNode *mapNode)
+void Unit::setMapNode(MapNode *mapNode)
 {
-    this->mapNode = mapNode;
+    if (this->mapNode != mapNode)
+    {
+        this->mapNode = mapNode;
+        emit mapNodeChanged();
+    }
 }
 
-int Unit::getHitpoints() const
+QObject * Unit::readMapNode() const
+{
+    return this->mapNode;
+}
+
+void Unit::writeMapNode(QObject *mapNode)
+{
+    MapNode *n = qobject_cast<MapNode *>(mapNode);
+    if (n == nullptr)
+    {
+        wError(category) << "mapNode is null or has wrong type";
+        throw Exception(Exception::InvalidValue);
+    }
+
+    this->setMapNode(n);
+}
+
+Player * Unit::getOwner() const
+{
+    return this->owner;
+}
+
+void Unit::setOwner(Player *owner)
+{
+    if (this->owner != owner)
+    {
+        this->owner = owner;
+        emit ownerChanged();
+    }
+}
+
+QObject * Unit::readOwner() const
+{
+    return this->owner;
+}
+
+void Unit::writeOwner(QObject *owner)
+{
+    Player *o = qobject_cast<Player *>(owner);
+    if (o == nullptr)
+    {
+        wError(category) << "owner is null or has wrong type";
+        throw Exception(Exception::InvalidValue);
+    }
+    this->setOwner(o);
+}
+int Unit::getExperiencePoints() const
+{
+    return this->experiencePoints;
+}
+
+void Unit::setExperiencePoints(int experiencePoints)
+{
+    if (this->experiencePoints != experiencePoints)
+    {
+        this->experiencePoints = experiencePoints;
+        emit experiencePointsChanged();
+    }
+}
+
+int Unit::getHitPoints() const
 {
     return this->hitPoints;
 }
 
-void Unit::setHitpoints(int hitPoints)
+void Unit::setHitPoints(int hitPoints)
 {
-    this->hitPoints = hitPoints;
+    if (this->hitPoints != hitPoints)
+    {
+        this->hitPoints = hitPoints;
+        emit hitPointsChanged();
+    }
 }
 
-int Unit::getMovementpoints() const
+int Unit::getMovementPoints() const
 {
     return this->movementPoints;
 }
 
-void Unit::setMovementpoints(int movementPoints)
+void Unit::setMovementPoints(int movementPoints)
 {
-    this->movementPoints = movementPoints;
-}
-
-int Unit::getExperience() const
-{
-    return this->experience;
-}
-
-void Unit::setExperience(int experience)
-{
-    this->experience = experience;
+    if (this->movementPoints != movementPoints)
+    {
+        this->movementPoints = movementPoints;
+        emit movementPointsChanged();
+    }
 }
 
 void Unit::dataFromJson(const QJsonObject &obj)
@@ -83,20 +170,42 @@ void Unit::dataFromJson(const QJsonObject &obj)
         obj["unitType"].toString(),
         world
     );
+
     this->mapNode = resolveReference<MapNode>(
         obj["mapNode"].toString(),
         this->parent()
     );
+
+    const QString ownerName = obj["owner"].toString();
+    if (!ownerName.isEmpty())
+    {
+        this->owner = resolveReference<Player>(
+            ownerName, this->parent()
+        );
+    }
+    else
+    {
+        this->owner = nullptr;
+    }
+
     this->hitPoints = obj["hitPoints"].toInt();
     this->movementPoints = obj["movementPoints"].toInt();
-    this->experience = obj["experience"].toInt();
+    this->experiencePoints = obj["experiencePoints"].toInt();
 }
 
 void Unit::dataToJson(QJsonObject &obj) const
 {
     obj["unitType"] = this->unitType->objectName();
     obj["mapNode"] = this->mapNode->objectName();
+    if (this->owner != nullptr)
+    {
+        obj["owner"] = this->owner->objectName();
+    }
+    else
+    {
+        obj["owner"] = QString("");
+    }
+    obj["experiencePoints"] = this->experiencePoints;
     obj["hitPoints"] = this->hitPoints;
     obj["movementPoints"] = this->movementPoints;
-    obj["experience"] = this->experience;
 }

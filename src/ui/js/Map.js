@@ -472,6 +472,10 @@ var EditableMap = function(W, canvas, mouseArea) {
     this.currentUnitType = undefined;
     this.unitTypeMap = {};
 
+    this.onSelectMapItems = undefined;
+    this.onEditMapNode = undefined;
+    this.onEditSettlement = undefined;
+
     // init
     this.addPhantomMapNodes(this.mapItems);
     this.geometryChanged = true;
@@ -562,6 +566,23 @@ EditableMap.prototype.createSettlement = function(mapNodeJObj) {
     this.qobj.createSettlement(this.currentSettlementType, mapNodeJObj.qobj);
 };
 
+EditableMap.prototype.selectMapItems = function(mapNodeJObj, settlementJObj) {
+    var mapNodeQObj = undefined;
+    var settlementQObj = undefined;
+
+    if (mapNodeJObj) {
+        mapNodeQObj = mapNodeJObj.qobj;
+    }
+
+    if (settlementJObj) {
+        settlementQObj = settlementJObj.qobj;
+    }
+
+    if (this.onSelectMapItems) {
+        this.onSelectMapItems(mapNodeQObj, settlementQObj);
+    }
+};
+
 EditableMap.prototype.editMapNode = function(mapNodeJObj) {
     if (mapNodeJObj.isPhantom) return;
 
@@ -583,7 +604,7 @@ EditableMap.prototype.onClicked = function(pos) {
     var settlement = this.getSettlementOn(mapNode);
 
     if (this.editMode == EditableMap.SelectMode) {
-        //FIXME: implement select
+        this.selectMapItems(mapNode, settlement);
     } else if (this.editMode == EditableMap.CreateMapNodeMode) {
         this.createMapNode(mapNode);
     } else if (this.editMode == EditableMap.CreateSettlementMode) {

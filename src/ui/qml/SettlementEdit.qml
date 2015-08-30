@@ -17,7 +17,10 @@ Rectangle {
     Image {
         id: picture
         width: 64
-        height: 64
+        height: {
+            var tileSize = W.map.world.surface.tileSize;
+            64 * tileSize.height/tileSize.width;
+        }
         anchors {
             top: parent.top
             left: parent.left
@@ -25,12 +28,12 @@ Rectangle {
         }
     
         source: {
+            var surface = W.map.world.surface;
             if (settlementEdit.settlement) {
-                var surface = W.map.world.surface;
                 var settlementTypeName = settlementEdit.settlement.settlementType.objectName;
                 surface.path + "/" + surface.gameMap[settlementTypeName];
             } else {
-                ''
+                surface.path + "/" + surface.gameMap["undefined"];
             }
         }
     }
@@ -56,7 +59,7 @@ Rectangle {
             }
             color: "black"
             text: {
-                var label = "Map Node ";
+                var label = "Settlement ";
                 if (settlementEdit.settlement) {
                     label += settlementEdit.settlement.objectName;
                 }

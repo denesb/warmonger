@@ -110,6 +110,7 @@ Rectangle {
         id: map
 
         property var jobj
+        signal selectMapItems(var mapNode, var settlement)
         signal editMapNode(var mapNode)
         signal editSettlement(var settlement)
 
@@ -127,6 +128,7 @@ Rectangle {
 
         Component.onCompleted: {
             jobj = new Map.EditableMap(W, mapCanvas, mapMouseArea);
+            jobj.onSelectMapItems = map.selectMapItems;
             jobj.onEditMapNode = map.editMapNode;
             jobj.onEditSettlement = map.editSettlement;
 
@@ -237,8 +239,18 @@ Rectangle {
                     id: selectMapItem
                     title: "Select"
 
-                    Rectangle {
+                    MapItemsInfo {
+                        id: mapItemsInfo
                         anchors.fill: parent
+
+                        function onSelectMapItems(mapNode, settlement) {
+                            mapItemsInfo.mapNode = mapNode;
+                            mapItemsInfo.settlement = settlement;
+                        }
+
+                        Component.onCompleted: {
+                            map.selectMapItems.connect(mapItemsInfo.onSelectMapItems);
+                        }
                     }
                 }
 

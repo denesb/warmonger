@@ -17,7 +17,10 @@ Rectangle {
     Image {
         id: picture
         width: 64
-        height: 64
+        height: {
+            var tileSize = W.map.world.surface.tileSize;
+            64 * tileSize.height/tileSize.width;
+        }
         anchors {
             top: parent.top
             left: parent.left

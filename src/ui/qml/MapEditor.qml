@@ -103,6 +103,17 @@ Rectangle {
                     map.jobj.setEditMode(Map.EditableMap.EditSettlementMode);
                 }
             }
+
+            Button {
+                text: "Edit Unit"
+                Layout.alignment: Qt.AlignRight
+                Layout.preferredWidth: width
+
+                onClicked: {
+                    editModes.currentIndex = 6;
+                    map.jobj.setEditMode(Map.EditableMap.EditUnitMode);
+                }
+            }
         }
     }
 
@@ -113,6 +124,7 @@ Rectangle {
         signal selectMapItems(var mapNode, var settlement)
         signal editMapNode(var mapNode)
         signal editSettlement(var settlement)
+        signal editUnit(var unit)
 
         anchors {
             left: parent.left
@@ -131,6 +143,7 @@ Rectangle {
             jobj.onSelectMapItems = map.selectMapItems;
             jobj.onEditMapNode = map.editMapNode;
             jobj.onEditSettlement = map.editSettlement;
+            jobj.onEditUnit = map.editUnit;
 
             miniMap.onWindowPosChanged.connect(jobj.onWindowPosChanged.bind(jobj));
         }
@@ -323,6 +336,23 @@ Rectangle {
                     }
                 }
 
+                Tab {
+                    id: editUnit
+                    title: "Edit Unit"
+
+                    UnitEdit {
+                        id: unitEdit
+                        anchors.fill: parent
+
+                        function onEditUnit(unit) {
+                            unitEdit.unit = unit;
+                        }
+
+                        Component.onCompleted: {
+                            map.editUnit.connect(unitEdit.onEditUnit);
+                        }
+                    }
+                }
             }
         }
     }

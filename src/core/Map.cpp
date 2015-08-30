@@ -5,6 +5,8 @@
 #include "core/Player.h"
 #include "core/Settlement.h"
 #include "core/TerrainType.h"
+#include "core/UnitType.h"
+#include "core/UnitClass.h"
 #include "core/Unit.h"
 #include "core/JsonUtil.h"
 
@@ -22,9 +24,9 @@ Map::Map(QObject *parent) :
     settlementIndex(0),
     unitIndex(0),
     mapNodes(),
-    players(),
+    settlements(),
     units(),
-    settlements()
+    players()
 {
 }
 
@@ -51,20 +53,19 @@ void Map::setWorld(World *world)
     }
 }
 
-QVariant Map::readWorld() const
+QObject * Map::readWorld() const
 {
-    World *o = const_cast<World *>(this->world);
-    return QVariant::fromValue<QObject *>(o);
+    return this->world;
 }
 
-void Map::writeWorld(QVariant world)
+void Map::writeWorld(QObject *world)
 {
-    if (!world.canConvert<World *>())
+    World *w = qobject_cast<World *>(world);
+    if (w == nullptr)
     {
-        wError("core") << "world has wrong type";
-        throw Exception(Exception::WrongType);
+        wError("core") << "world is null or has wrong type";
+        throw Exception(Exception::InvalidValue);
     }
-    World *w = world.value<World *>();
 
     this->setWorld(w);
 }
@@ -99,41 +100,10 @@ void Map::setMapNodes(const QList<MapNode *> &mapNodes)
     }
 }
 
-QVariant Map::readMapNodes() const
+QVariantList Map::readMapNodes() const
 {
-    return QVariant::fromValue(toQObjectList<MapNode>(this->mapNodes));
+    return toQVariantList<MapNode>(this->mapNodes);
 }
-
-QList<Player *> Map::getPlayers() const
-{
-    return this->players;
-}
-
-void Map::setPlayers(const QList<Player *> &players)
-{
-    this->players = players;
-}
-
-QVariant Map::readPlayers() const
-{
-    return QVariant::fromValue(toQObjectList<Player>(this->players));
-}
-
-QList<Unit *> Map::getUnits() const
-{
-    return this->units;
-}
-
-void Map::setUnits(const QList<Unit *> &units)
-{
-    this->units = units;
-}
-
-QVariant Map::readUnits() const
-{
-    return QVariant::fromValue(toQObjectList<Unit>(this->units));
-}
-
 
 void Map::addSettlement(Settlement *settlement)
 {
@@ -158,12 +128,66 @@ QList<Settlement *> Map::getSettlements() const
 
 void Map::setSettlements(const QList<Settlement *> &settlements)
 {
-    this->settlements = settlements;
+    if (this->settlements != settlements)
+    {
+        this->settlements = settlements;
+        emit settlementsChanged();
+    }
 }
 
-QVariant Map::readSettlements() const
+QVariantList Map::readSettlements() const
 {
-    return QVariant::fromValue(toQObjectList<Settlement>(this->settlements));
+    return toQVariantList<Settlement>(this->settlements);
+}
+
+void Map::addUnit(Unit *unit)
+{
+    unit->setParent(this);
+    this->units << unit;
+
+    emit unitAdded(unit);
+}
+
+void Map::removeUnit(Unit *unit)
+{
+    unit->setParent(nullptr);
+    this->units.removeOne(unit);
+
+    emit unitRemoved(unit);
+}
+
+QList<Unit *> Map::getUnits() const
+{
+    return this->units;
+}
+
+void Map::setUnits(const QList<Unit *> &units)
+{
+    if (this->units != units)
+    {
+        this->units = units;
+        emit unitsChanged();
+    }
+}
+
+QVariantList Map::readUnits() const
+{
+    return toQVariantList<Unit>(this->units);
+}
+
+QList<Player *> Map::getPlayers() const
+{
+    return this->players;
+}
+
+void Map::setPlayers(const QList<Player *> &players)
+{
+    this->players = players;
+}
+
+QVariantList Map::readPlayers() const
+{
+    return toQVariantList<Player>(this->players);
 }
 
 void Map::createMapNode(TerrainType *terrainType, const QHash<MapNode::Direction, MapNode *> &neighbours)
@@ -222,6 +246,36 @@ Q_INVOKABLE void Map::createSettlement(QObject *settlementType, QObject *mapNode
     newSettlement->writeMapNode(mapNode);
 
     this->addSettlement(newSettlement.release());
+}
+
+void Map::createUnit(UnitType *unitType, MapNode *mapNode)
+{
+    Unit * newUnit = new Unit(this);
+    newUnit->setObjectName(
+        Map::unitNameTemplate.arg(++this->unitIndex)
+    );
+    newUnit->setUnitType(unitType);
+    newUnit->setMapNode(mapNode);
+    newUnit->setHitPoints(unitType->getHitPoints());
+    newUnit->setMovementPoints(unitType->getUnitClass()->getMovementPoints());
+
+    this->addUnit(newUnit);
+}
+
+Q_INVOKABLE void Map::createUnit(QObject *unitType, QObject *mapNode)
+{
+    std::unique_ptr<Unit> newUnit(new Unit(nullptr));
+    newUnit->setObjectName(
+        Map::unitNameTemplate.arg(++this->unitIndex)
+    );
+    newUnit->writeUnitType(unitType);
+    newUnit->writeMapNode(mapNode);
+    UnitType *ut = newUnit->getUnitType();
+    UnitClass *uc = ut->getUnitClass();
+    newUnit->setHitPoints(ut->getHitPoints());
+    newUnit->setMovementPoints(uc->getMovementPoints());
+
+    this->addUnit(newUnit.release());
 }
 
 void Map::dataFromJson(const QJsonObject &obj)

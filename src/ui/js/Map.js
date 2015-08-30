@@ -477,7 +477,7 @@ var EditableMap = function(W, canvas, mouseArea) {
 
     this.qobj.mapNodeAdded.connect(this.onMapNodeCreated.bind(this));
     this.qobj.settlementAdded.connect(this.onSettlementCreated.bind(this));
-    //this.qobj.unitAdded.connect(this.onUnitCreated.bind(this));
+    this.qobj.unitAdded.connect(this.onUnitCreated.bind(this));
 
     this.focusedNode = undefined;
     this.mapNodeClicked = undefined;
@@ -586,6 +586,13 @@ EditableMap.prototype.createSettlement = function(mapNodeJObj) {
     this.qobj.createSettlement(this.currentSettlementType, mapNodeJObj.qobj);
 };
 
+EditableMap.prototype.createUnit = function(mapNodeJObj) {
+    if (mapNodeJObj.isPhantom) return;
+    if (this.currentUnitType == undefined) return;
+
+    this.qobj.createUnit(this.currentUnitType, mapNodeJObj.qobj);
+};
+
 EditableMap.prototype.selectMapItems = function(mapNodeJObj, settlementJObj) {
     var mapNodeQObj = undefined;
     var settlementQObj = undefined;
@@ -629,6 +636,8 @@ EditableMap.prototype.onClicked = function(pos) {
         this.createMapNode(mapNode);
     } else if (this.editMode == EditableMap.CreateSettlementMode) {
         this.createSettlement(mapNode);
+    } else if (this.editMode == EditableMap.CreateUnitMode) {
+        this.createUnit(mapNode);
     } else if (this.editMode == EditableMap.EditMapNodeMode) {
         this.editMapNode(mapNode);
     } else if (this.editMode == EditableMap.EditSettlementMode) {
@@ -670,7 +679,10 @@ EditableMap.prototype.onSettlementCreated = function(settlementQObj) {
     this.markDirty(settlementJObj);
 };
 
-EditableMap.prototype.onUnitCreated = function(mapNodeQObj) {
+EditableMap.prototype.onUnitCreated = function(unitQObj) {
+    var unitJObj = this.newUnit(unitQObj);
+
+    this.markDirty(unitJObj);
 };
 
 EditableMap.prototype.setEditMode = function(editMode) {
@@ -683,7 +695,6 @@ EditableMap.prototype.setTerrainType = function(terrainTypeName) {
 
 EditableMap.prototype.setSettlementType = function(settlementTypeName) {
     this.currentSettlementType = this.settlementTypeMap[settlementTypeName];
-    console.log(this.currentSettlementType);
 };
 
 EditableMap.prototype.setUnitType = function(unitTypeName) {

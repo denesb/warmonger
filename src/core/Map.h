@@ -12,6 +12,7 @@ namespace core {
 
 class World;
 class Player;
+class UnitType;
 class Unit;
 class SettlementType;
 class Settlement;
@@ -20,11 +21,11 @@ class Map :
     public GameEntity
 {
     Q_OBJECT
-    Q_PROPERTY(QVariant world READ readWorld WRITE writeWorld NOTIFY worldChanged)
-    Q_PROPERTY(QVariant mapNodes READ readMapNodes NOTIFY mapNodesChanged)
-    Q_PROPERTY(QVariant players READ readPlayers)
-    Q_PROPERTY(QVariant units READ readUnits)
-    Q_PROPERTY(QVariant settlements READ readSettlements NOTIFY settlementsChanged)
+    Q_PROPERTY(QObject * world READ readWorld WRITE writeWorld NOTIFY worldChanged)
+    Q_PROPERTY(QVariantList mapNodes READ readMapNodes NOTIFY mapNodesChanged)
+    Q_PROPERTY(QVariantList players READ readPlayers)
+    Q_PROPERTY(QVariantList units READ readUnits)
+    Q_PROPERTY(QVariantList settlements READ readSettlements NOTIFY settlementsChanged)
 
 public:
     static const QString mapNodeNameTemplate;
@@ -38,36 +39,42 @@ public:
 
     World * getWorld() const;
     void setWorld(World *world);
-    QVariant readWorld() const;
-    void writeWorld(QVariant world);
+    QObject * readWorld() const;
+    void writeWorld(QObject *world);
 
     void addMapNode(MapNode *mapNode);
     void removeMapNode(MapNode *mapNode);
 
     QList<MapNode *> getMapNodes() const;
     void setMapNodes(const QList<MapNode *> &mapNodes);
-    QVariant readMapNodes() const;
+    QVariantList readMapNodes() const;
 
     QList<Player *> getPlayers() const;
     void setPlayers(const QList<Player *> &units);
-    QVariant readPlayers() const;
-
-    QList<Unit *> getUnits() const;
-    void setUnits(const QList<Unit *> &units);
-    QVariant readUnits() const;
+    QVariantList readPlayers() const;
 
     void addSettlement(Settlement *settlement);
     void removeSettlement(Settlement *settlement);
 
     QList<Settlement *> getSettlements() const;
     void setSettlements(const QList<Settlement *> &settlements);
-    QVariant readSettlements() const;
+    QVariantList readSettlements() const;
+
+    void addUnit(Unit *unit);
+    void removeUnit(Unit *unit);
+
+    QList<Unit *> getUnits() const;
+    void setUnits(const QList<Unit *> &units);
+    QVariantList readUnits() const;
 
     void createMapNode(TerrainType *terrainType, const QHash<MapNode::Direction, MapNode *> &neighbours);
     Q_INVOKABLE void createMapNode(QObject *terrainType, QVariantMap neighbours);
 
     void createSettlement(SettlementType *settlementType, MapNode *mapNode);
     Q_INVOKABLE void createSettlement(QObject *settlementType, QObject *mapNode);
+
+    void createUnit(UnitType *unitType, MapNode *mapNode);
+    Q_INVOKABLE void createUnit(QObject *unitType, QObject *mapNode);
 
 signals:
     void worldChanged();
@@ -77,6 +84,9 @@ signals:
     void settlementsChanged();
     void settlementAdded(QObject *settlement);
     void settlementRemoved(QObject *settlement);
+    void unitsChanged();
+    void unitAdded(QObject *unit);
+    void unitRemoved(QObject *unit);
 
 private:
     void dataFromJson(const QJsonObject &obj);
@@ -90,9 +100,9 @@ private:
     int settlementIndex;
     int unitIndex;
     QList<MapNode *> mapNodes;
-    QList<Player *> players;
-    QList<Unit *> units;
     QList<Settlement *> settlements;
+    QList<Unit *> units;
+    QList<Player *> players;
 };
 
 } // namespace core

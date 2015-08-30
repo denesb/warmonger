@@ -1,4 +1,5 @@
 #include <QColor>
+#include <QDir>
 
 #include "log/LogStream.h"
 #include "core/Exception.h"
@@ -34,6 +35,8 @@ void ApplicationContext::loadMap(const QString &mapName)
     core::World *world = this->map->getWorld();
     world->setSurface("default");
     core::WorldSurface *surface = world->getSurface();
+
+    QDir::setSearchPaths("images", QStringList(surface->getPath()));
 
     const QString path = surface->getPath();
     this->hexMask.load(path + QStringLiteral("/hexagon_mask.xpm"), "XPM");

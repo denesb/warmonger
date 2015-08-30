@@ -261,7 +261,7 @@ var Settlement = function(pos, settlementQObj, map) {
     this.settlementType = this.qobj.settlementType;
 
     var surface = this.map.qobj.world.surface;
-    this.settlementImage = "images: +" +
+    this.settlementImage = "images:" +
         surface.gameMap[this.settlementType.objectName];
 };
 

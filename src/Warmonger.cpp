@@ -36,9 +36,6 @@ void Warmonger::readSettings()
     //FIXME: these search paths will need to come from some sort of settings
     QDir::setSearchPaths("maps", QStringList("worlds/iron_age/maps/prototype"));
     QDir::setSearchPaths("worlds", QStringList("worlds/iron_age"));
-
-    //FIXME: set these to the path of the current world surface
-    QDir::setSearchPaths("images", QStringList("worlds/iron_age/surfaces/default"));
 }
 
 void Warmonger::initLogger()

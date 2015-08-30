@@ -7,11 +7,16 @@ Rectangle {
     property var unit
 
     onUnitChanged: {
-        var index = -1;
+        var unitTypeIndex = -1;
+        var ownerIndex = -1;
         if (unitEdit.unit) {
-            index = unitTypeEdit.find(unitEdit.unit.unitType.displayName);
+            unitTypeIndex = unitTypeEdit.find(unitEdit.unit.unitType.displayName);
+            if (unitEdit.unit.owner) {
+                ownerIndex = ownerEdit.find(unitEdit.unit.owner.displayName);
+            }
         }
-        unitTypeEdit.currentIndex = index;
+        unitTypeEdit.currentIndex = unitTypeIndex;
+        ownerEdit.currentIndex = ownerIndex + 1;
     }
 
     Image {
@@ -165,7 +170,7 @@ Rectangle {
         }
 
         ComboBox {
-            id: unitOwnerEdit
+            id: ownerEdit
             height: 25
             anchors {
                 top: unitOwnerLabel.bottom
@@ -180,13 +185,17 @@ Rectangle {
                 }
             }
 
-            model: W.map.players
+            model: W.map.allPlayers;
             textRole: "displayName"
 
             onActivated: {
                 if (unitEdit.unit) {
-                    var players = W.map.world.players;
-                    var owner = players[index];
+                    var players = W.map.players;
+                    if (index == 0) {
+                        var owner = W.map.neutralPlayer;
+                    } else {
+                        var owner = players[index - 1];
+                    }
 
                     unitEdit.unit.owner = owner;
                 }

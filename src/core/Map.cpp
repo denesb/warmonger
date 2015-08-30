@@ -26,8 +26,11 @@ Map::Map(QObject *parent) :
     mapNodes(),
     settlements(),
     units(),
-    players()
+    players(),
+    neutralPlayer(new Player(this))
 {
+    this->neutralPlayer->setObjectName("neutral");
+    this->neutralPlayer->setDisplayName("Neutral");
 }
 
 Map::~Map()
@@ -182,12 +185,29 @@ QList<Player *> Map::getPlayers() const
 
 void Map::setPlayers(const QList<Player *> &players)
 {
-    this->players = players;
+    if (this->players != players)
+    {
+        this->players = players;
+        emit playersChanged();
+    }
 }
 
 QVariantList Map::readPlayers() const
 {
     return toQVariantList<Player>(this->players);
+}
+
+QVariantList Map::readAllPlayers() const
+{
+    QList<Player *> allPlayers;
+    allPlayers << this->neutralPlayer;
+    allPlayers << this->players;
+    return toQVariantList<Player>(allPlayers);
+}
+
+QObject * Map::readNeutralPlayer() const
+{
+    return this->neutralPlayer;
 }
 
 void Map::createMapNode(TerrainType *terrainType, const QHash<MapNode::Direction, MapNode *> &neighbours)
@@ -258,6 +278,7 @@ void Map::createUnit(UnitType *unitType, MapNode *mapNode)
     newUnit->setMapNode(mapNode);
     newUnit->setHitPoints(unitType->getHitPoints());
     newUnit->setMovementPoints(unitType->getUnitClass()->getMovementPoints());
+    newUnit->setOwner(this->neutralPlayer);
 
     this->addUnit(newUnit);
 }
@@ -274,6 +295,7 @@ Q_INVOKABLE void Map::createUnit(QObject *unitType, QObject *mapNode)
     UnitClass *uc = ut->getUnitClass();
     newUnit->setHitPoints(ut->getHitPoints());
     newUnit->setMovementPoints(uc->getMovementPoints());
+    newUnit->setOwner(this->neutralPlayer);
 
     this->addUnit(newUnit.release());
 }

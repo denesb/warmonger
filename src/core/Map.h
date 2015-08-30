@@ -23,7 +23,9 @@ class Map :
     Q_OBJECT
     Q_PROPERTY(QObject * world READ readWorld WRITE writeWorld NOTIFY worldChanged)
     Q_PROPERTY(QVariantList mapNodes READ readMapNodes NOTIFY mapNodesChanged)
-    Q_PROPERTY(QVariantList players READ readPlayers)
+    Q_PROPERTY(QVariantList players READ readPlayers NOTIFY playersChanged)
+    Q_PROPERTY(QVariantList allPlayers READ readAllPlayers NOTIFY playersChanged)
+    Q_PROPERTY(QObject * neutralPlayer READ readNeutralPlayer NOTIFY neutralPlayerChanged)
     Q_PROPERTY(QVariantList units READ readUnits)
     Q_PROPERTY(QVariantList settlements READ readSettlements NOTIFY settlementsChanged)
 
@@ -52,6 +54,8 @@ public:
     QList<Player *> getPlayers() const;
     void setPlayers(const QList<Player *> &units);
     QVariantList readPlayers() const;
+    QVariantList readAllPlayers() const;
+    QObject * readNeutralPlayer() const;
 
     void addSettlement(Settlement *settlement);
     void removeSettlement(Settlement *settlement);
@@ -81,6 +85,8 @@ signals:
     void mapNodesChanged();
     void mapNodeAdded(QObject *mapNode);
     void mapNodeRemoved(QObject *mapNode);
+    void playersChanged();
+    void neutralPlayerChanged();
     void settlementsChanged();
     void settlementAdded(QObject *settlement);
     void settlementRemoved(QObject *settlement);
@@ -103,6 +109,7 @@ private:
     QList<Settlement *> settlements;
     QList<Unit *> units;
     QList<Player *> players;
+    Player *neutralPlayer;
 };
 
 } // namespace core

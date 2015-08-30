@@ -351,6 +351,9 @@ var Unit = function(pos, unitQObj, map) {
     var surface = this.map.qobj.world.surface;
     this.unitImage = "images:" +
         surface.gameMap[this.unitType.objectName];
+
+    // init
+    this.qobj.unitTypeChanged.connect(this.onUnitTypeChanged.bind(this));
 };
 
 Unit.prototype = Object.create(MapItem.prototype);
@@ -366,6 +369,15 @@ Unit.prototype.onPaint = function(ctx) {
     ctx.drawImage(this.unitImage, 0, 0);
 
     ctx.restore();
+};
+
+Unit.prototype.onUnitTypeChanged = function() {
+    this.unitType = this.qobj.unitType;
+
+    var surface = this.map.qobj.world.surface;
+    this.unitImage = "images:" + surface.gameMap[this.unitType.objectName];
+
+    this.map.markDirty(this);
 };
 
 Unit.prototype.toString = function() {
@@ -391,6 +403,8 @@ var MiniUnit = function(pos, unitQObj, map) {
     } else {
         this.style = surface.miniMap["neutral"];
     }
+
+    this.qobj.ownerChanged.connect(this.onOwnerChanged.bind(this));
 };
 
 MiniUnit.prototype = Object.create(MapItem.prototype);
@@ -417,6 +431,17 @@ MiniUnit.prototype.onPaint = function(ctx) {
     ctx.fillRect(x, y, size, size);
 
     ctx.restore();
+};
+
+MiniUnit.prototype.onOwnerChanged = function() {
+    var surface = this.map.qobj.world.surface;
+    if (this.qobj.owner) {
+        this.style = this.qobj.owner.color;
+    } else {
+        this.style = surface.miniMap["neutral"];
+    }
+
+    this.map.markDirty(this);
 };
 
 MiniUnit.prototype.toString = function() {

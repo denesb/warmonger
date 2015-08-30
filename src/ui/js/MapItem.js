@@ -46,14 +46,14 @@ var MapNode = function(pos, mapNodeQObj, map) {
     this.qobj = mapNodeQObj;
 
     var surface = this.map.qobj.world.surface;
-    var rootPath = surface.path + "/";
+    var prefix = "images:";
     var terrainType = this.qobj.terrainType.objectName
 
-    this.terrainImage = rootPath + surface.gameMap[terrainType];
+    this.terrainImage = prefix + surface.gameMap[terrainType];
     //FIXME: draw theese with the canvas
-    this.focusedBorderImage = rootPath +
+    this.focusedBorderImage = prefix +
         surface.gameMap["border_highlighted"];
-    this.blurredBorderImage = rootPath +
+    this.blurredBorderImage = prefix +
         surface.gameMap["border"];
 };
 
@@ -120,10 +120,10 @@ EditableMapNode.prototype.onDisplayNameChanged = function() {
 
 EditableMapNode.prototype.onTerrainTypeChanged = function() {
     var surface = this.map.qobj.world.surface;
-    var rootPath = surface.path + "/";
+    var prefix = "images:";
     var terrainType = this.qobj.terrainType.objectName
 
-    this.terrainImage = rootPath + surface.gameMap[terrainType];
+    this.terrainImage = prefix + surface.gameMap[terrainType];
 
     this.map.markDirty(this);
 };
@@ -208,12 +208,12 @@ var PhantomMapNode = function(pos, map) {
     this.isPhantom = true;
 
     var surface = this.map.qobj.world.surface;
-    var rootPath = surface.path + "/";
+    var prefix = "images:";
 
     //FIXME: draw theese with the canvas
-    this.focusedBorderImage = rootPath +
+    this.focusedBorderImage = prefix +
         surface.gameMap["border_highlighted"];
-    this.blurredBorderImage = rootPath +
+    this.blurredBorderImage = prefix +
         surface.gameMap["border"];
 };
 
@@ -261,7 +261,7 @@ var Settlement = function(pos, settlementQObj, map) {
     this.settlementType = this.qobj.settlementType;
 
     var surface = this.map.qobj.world.surface;
-    this.settlementImage = surface.path + "/" +
+    this.settlementImage = "images: +" +
         surface.gameMap[this.settlementType.objectName];
 };
 
@@ -349,7 +349,7 @@ var Unit = function(pos, unitQObj, map) {
     this.unitType = this.qobj.unitType;
 
     var surface = this.map.qobj.world.surface;
-    this.unitImage = surface.path + "/" +
+    this.unitImage = "images:" +
         surface.gameMap[this.unitType.objectName];
 };
 

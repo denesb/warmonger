@@ -431,7 +431,7 @@ GameMap.prototype.moveWindowTo = function(pos) {
 
 GameMap.prototype.loadResources = function() {
     var surface = this.qobj.world.surface;
-    var pathRoot = surface.path + "/";
+    var pathRoot = "images:";
     var path;
 
     for (var object in surface.gameMap) {

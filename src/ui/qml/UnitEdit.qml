@@ -31,9 +31,9 @@ Rectangle {
             var surface = W.map.world.surface;
             if (unitEdit.unit) {
                 var unitTypeName = unitEdit.unit.unitType.objectName;
-                surface.path + "/" + surface.gameMap[unitTypeName];
+                "images:" + surface.gameMap[unitTypeName];
             } else {
-                surface.path + "/" + surface.gameMap["undefined"];
+                "images:" + surface.gameMap["undefined"];
             }
         }
     }

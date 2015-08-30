@@ -34,9 +34,9 @@ Rectangle {
                 var surface = W.map.world.surface;
                 if (mapItemsInfo.mapNode) {
                     var terrainTypeName = mapItemsInfo.mapNode.terrainType.objectName;
-                    surface.path + "/" + surface.gameMap[terrainTypeName];
+                    "images:" + surface.gameMap[terrainTypeName];
                 } else {
-                    surface.path + "/" + surface.gameMap["undefined"];
+                    "images:" + surface.gameMap["undefined"];
                 }
             }
         }
@@ -133,9 +133,9 @@ Rectangle {
                 var surface = W.map.world.surface;
                 if (mapItemsInfo.settlement) {
                     var settlementTypeName = mapItemsInfo.settlement.settlementType.objectName;
-                    surface.path + "/" + surface.gameMap[settlementTypeName];
+                    "images:" + surface.gameMap[settlementTypeName];
                 } else {
-                    surface.path + "/" + surface.gameMap["undefined"];
+                    "images:" + surface.gameMap["undefined"];
                 }
             }
         }

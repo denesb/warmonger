@@ -31,9 +31,9 @@ Rectangle {
             var surface = W.map.world.surface;
             if (settlementEdit.settlement) {
                 var settlementTypeName = settlementEdit.settlement.settlementType.objectName;
-                surface.path + "/" + surface.gameMap[settlementTypeName];
+                "images:" + surface.gameMap[settlementTypeName];
             } else {
-                surface.path + "/" + surface.gameMap["undefined"];
+                "images:" + surface.gameMap["undefined"];
             }
         }
     }

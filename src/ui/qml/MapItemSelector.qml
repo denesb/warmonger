@@ -42,7 +42,7 @@ Rectangle {
 
                     source: {
                         var surface = W.map.world.surface;
-                        surface.path + "/" + surface.gameMap[model.modelData.objectName]
+                        "images:" + surface.gameMap[model.modelData.objectName]
                     }
                 }
                 Label {

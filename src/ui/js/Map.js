@@ -107,10 +107,10 @@ Map.prototype.onPaint = function(region) {
     var ctx = this.canvas.getContext("2d");
 
     ctx.clearRect(
-        0,
-        0,
-        this.canvas.canvasSize.width,
-        this.canvas.canvasSize.height
+        region.x,
+        region.y,
+        region.width,
+        region.height
     );
 
     for (var i = 0; i < this.mapItems.length; i++) {
@@ -296,10 +296,10 @@ Map.prototype.toString = function() {
 
 
 /*
- * GameMap class
+ * BigMap class
  * @contructor
  */
-var GameMap = function(W, canvas, mouseArea) {
+var BigMap = function(W, canvas, mouseArea) {
     Map.call(this, W, canvas, mouseArea);
 
     this.loadQueue = [];
@@ -309,17 +309,17 @@ var GameMap = function(W, canvas, mouseArea) {
     this.canvas.requestPaint();
 };
 
-GameMap.prototype = Object.create(Map.prototype);
-GameMap.prototype.constructor = EditableMap;
+BigMap.prototype = Object.create(Map.prototype);
+BigMap.prototype.constructor = EditableMap;
 
-GameMap.prototype.newMapNode = function(pos, mapNodeQObj) {
+BigMap.prototype.newMapNode = function(pos, mapNodeQObj) {
     var mapNode = new MapItem.MapNode(pos, mapNodeQObj,this);
     this.mapItems.push(mapNode);
 
     return mapNode;
 };
 
-GameMap.prototype.newSettlement = function(settlementQObj) {
+BigMap.prototype.newSettlement = function(settlementQObj) {
     var mapNode = this.findMapItemJObj(settlementQObj.mapNode);
     var pos = Qt.point(mapNode.pos.x, mapNode.pos.y);
     var settlementJObj =
@@ -330,7 +330,7 @@ GameMap.prototype.newSettlement = function(settlementQObj) {
     return settlementJObj;
 };
 
-GameMap.prototype.newUnit = function(unitQObj) {
+BigMap.prototype.newUnit = function(unitQObj) {
     var mapNode = this.findMapItemJObj(unitQObj.mapNode);
     var pos = Qt.point(mapNode.pos.x, mapNode.pos.y);
     var unitJObj = new MapItem.Unit(pos, unitQObj, this);
@@ -340,7 +340,7 @@ GameMap.prototype.newUnit = function(unitQObj) {
     return unitJObj;
 };
 
-GameMap.prototype.findMapNodeAt = function(point) {
+BigMap.prototype.findMapNodeAt = function(point) {
     for (var i = 0; i < this.mapItems.length; i++) {
         var mapNode = this.mapItems[i];
         if (mapNode.contains(point)) return mapNode;
@@ -349,7 +349,7 @@ GameMap.prototype.findMapNodeAt = function(point) {
     return undefined;
 };
 
-GameMap.prototype.getMapItemAt = function(pos) {
+BigMap.prototype.getMapItemAt = function(pos) {
     for (var i = 0; i < this.mapItems.length; i++) {
         var mapItem = this.mapItems[i];
         if (mapItem.pos.x == pos.x && mapItem.pos.y == pos.y)
@@ -359,7 +359,7 @@ GameMap.prototype.getMapItemAt = function(pos) {
     return undefined;
 };
 
-GameMap.prototype.getSettlementOn = function(mapNodeJObj) {
+BigMap.prototype.getSettlementOn = function(mapNodeJObj) {
     for (var i = 0; i < this.settlements.length; i++) {
         var settlement = this.settlements[i];
         if (settlement.qobj.mapNode == mapNodeJObj.qobj) {
@@ -370,7 +370,7 @@ GameMap.prototype.getSettlementOn = function(mapNodeJObj) {
     return undefined;
 };
 
-GameMap.prototype.getUnitOn = function(mapNodeJObj) {
+BigMap.prototype.getUnitOn = function(mapNodeJObj) {
     for (var i = 0; i < this.units.length; i++) {
         var unit = this.units[i];
         if (unit.qobj.mapNode == mapNodeJObj.qobj) {
@@ -381,10 +381,10 @@ GameMap.prototype.getUnitOn = function(mapNodeJObj) {
     return undefined;
 };
 
-GameMap.prototype.onClicked = function(pos) {
+BigMap.prototype.onClicked = function(pos) {
 };
 
-GameMap.prototype.onHovered = function(pos) {
+BigMap.prototype.onHovered = function(pos) {
     var mapNode = this.findMapNodeAt(pos);
     if (this.focusedNode !== mapNode) {
         if (mapNode) {
@@ -403,15 +403,19 @@ GameMap.prototype.onHovered = function(pos) {
         this.mapNodeFocused(mapNode);
 };
 
-GameMap.prototype.onPanned = function(pos, posDiff) {
+BigMap.prototype.onPanned = function(pos, posDiff) {
     var window = this.canvas.canvasWindow;
     var x = window.x + posDiff.width;
     var y = window.y + posDiff.height;
 
     this.moveWindowTo(Qt.point(x, y));
-}
+};
 
-GameMap.prototype.moveWindowTo = function(pos) {
+BigMap.prototype.onWindowPosChanged = function(windowPos) {
+    this.moveWindowTo(windowPos);
+};
+
+BigMap.prototype.moveWindowTo = function(pos) {
     var window = this.canvas.canvasWindow;
     var size = this.canvas.canvasSize;
 
@@ -427,22 +431,23 @@ GameMap.prototype.moveWindowTo = function(pos) {
     if (y > maxY) y = maxY;
 
     this.canvas.canvasWindow = Qt.rect(x, y, window.width, window.height);
+    this.canvas.markDirty(this.canvas.canvasWindow);
 };
 
-GameMap.prototype.loadResources = function() {
+BigMap.prototype.loadResources = function() {
     var surface = this.qobj.world.surface;
     var pathRoot = "images:";
     var path;
 
-    for (var object in surface.gameMap) {
-        var objectPath = surface.gameMap[object];
+    for (var object in surface.bigMap) {
+        var objectPath = surface.bigMap[object];
         path = pathRoot + objectPath;
         this.canvas.loadImage(path);
         this.loadQueue.push(path);
     }
 };
 
-GameMap.prototype.onResourceLoaded = function() {
+BigMap.prototype.onResourceLoaded = function() {
     var image;
     var loaded = [];
 
@@ -469,13 +474,13 @@ GameMap.prototype.onResourceLoaded = function() {
     }
 };
 
-GameMap.prototype.onResourcesLoaded = function() {
+BigMap.prototype.onResourcesLoaded = function() {
     this.ready = true;
     this.canvas.requestPaint();
 };
 
-GameMap.prototype.toString = function() {
-    var str = "[GameMap<" + this.qobj + ">]";
+BigMap.prototype.toString = function() {
+    var str = "[BigMap<" + this.qobj + ">]";
     return str;
 };
 
@@ -484,7 +489,7 @@ GameMap.prototype.toString = function() {
  * @contructor
  */
 var EditableMap = function(W, canvas, mouseArea) {
-    GameMap.call(this, W, canvas, mouseArea);
+    BigMap.call(this, W, canvas, mouseArea);
 
     this.focusedNode = undefined;
     this.mapNodeClicked = undefined;
@@ -516,7 +521,7 @@ var EditableMap = function(W, canvas, mouseArea) {
     this.geometryChanged = true;
 };
 
-EditableMap.prototype = Object.create(GameMap.prototype);
+EditableMap.prototype = Object.create(BigMap.prototype);
 EditableMap.prototype.constructor = EditableMap;
 
 EditableMap.SelectMode = "SelectMode";
@@ -667,17 +672,6 @@ EditableMap.prototype.onClicked = function(pos) {
     } else {
         console.error("Uknown edit mode: " + this.editMode);
     }
-};
-
-EditableMap.prototype.onWindowPosChanged = function(windowPos) {
-    this.canvas.canvasWindow = Qt.rect(
-        windowPos.x,
-        windowPos.y,
-        this.canvas.canvasWindow.width,
-        this.canvas.canvasWindow.height
-    );
-
-    this.canvas.requestPaint();
 };
 
 EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {

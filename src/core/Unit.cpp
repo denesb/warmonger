@@ -175,19 +175,10 @@ void Unit::dataFromJson(const QJsonObject &obj)
         obj["mapNode"].toString(),
         this->parent()
     );
-
-    const QString ownerName = obj["owner"].toString();
-    if (!ownerName.isEmpty())
-    {
-        this->owner = resolveReference<Player>(
-            ownerName, this->parent()
-        );
-    }
-    else
-    {
-        this->owner = nullptr;
-    }
-
+    this->owner = resolveReference<Player>(
+        obj["owner"].toString(),
+        this->parent()
+    );
     this->hitPoints = obj["hitPoints"].toInt();
     this->movementPoints = obj["movementPoints"].toInt();
     this->experiencePoints = obj["experiencePoints"].toInt();
@@ -197,14 +188,7 @@ void Unit::dataToJson(QJsonObject &obj) const
 {
     obj["unitType"] = this->unitType->objectName();
     obj["mapNode"] = this->mapNode->objectName();
-    if (this->owner != nullptr)
-    {
-        obj["owner"] = this->owner->objectName();
-    }
-    else
-    {
-        obj["owner"] = QString("");
-    }
+    obj["owner"] = this->owner->objectName();
     obj["experiencePoints"] = this->experiencePoints;
     obj["hitPoints"] = this->hitPoints;
     obj["movementPoints"] = this->movementPoints;

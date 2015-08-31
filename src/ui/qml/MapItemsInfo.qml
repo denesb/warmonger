@@ -36,7 +36,7 @@ Rectangle {
                     var terrainTypeName = mapItemsInfo.mapNode.terrainType.objectName;
                     "images:" + surface.gameMap[terrainTypeName];
                 } else {
-                    "images:" + surface.gameMap["undefined"];
+                    "";
                 }
             }
         }
@@ -135,7 +135,7 @@ Rectangle {
                     var settlementTypeName = mapItemsInfo.settlement.settlementType.objectName;
                     "images:" + surface.gameMap[settlementTypeName];
                 } else {
-                    "images:" + surface.gameMap["undefined"];
+                    "";
                 }
             }
         }

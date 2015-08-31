@@ -94,6 +94,9 @@ signals:
     void unitAdded(QObject *unit);
     void unitRemoved(QObject *unit);
 
+private slots:
+    void onSurfaceChanged();
+
 private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;

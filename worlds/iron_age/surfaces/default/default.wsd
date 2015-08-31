@@ -3,11 +3,7 @@
     "displayName": "Default",
     "description": "Default surface for the Iron age world",
 
-    "gameMap": {
-        "border": "border.png",
-        "border_highlighted": "border_highlighted.png",
-        "undefined": "undefined.png",
-
+    "bigMap": {
         "plains": "terrainTypes/plains.png",
         "hills": "terrainTypes/hills.png",
         "forest": "terrainTypes/forest.png",
@@ -36,12 +32,17 @@
         "king": "unitTypes/king.png"
     },
 
+    "style": {
+        "blurredBorder": "#000000",
+        "focusedBorder": "#d59037",
+        "neutral": "#222222"
+    },
+
     "miniMap": {
         "plains": "#39661e",
         "forest": "#173504",
         "hills": "#cbce16",
-        "mountains": "#ce7516",
-        "neutral": "#222222"
+        "mountains": "#ce7516"
     },
 
     "tileSize": {

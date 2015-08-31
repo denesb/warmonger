@@ -13,8 +13,9 @@ class WorldSurface :
 {
     Q_OBJECT
     Q_PROPERTY(QSize tileSize READ getTileSize NOTIFY tileSizeChanged);
-    Q_PROPERTY(QVariantMap gameMap READ readGameMap NOTIFY gameMapChanged);
+    Q_PROPERTY(QVariantMap bigMap READ readBigMap NOTIFY bigMapChanged);
     Q_PROPERTY(QVariantMap miniMap READ readMiniMap NOTIFY miniMapChanged);
+    Q_PROPERTY(QVariantMap style READ readStyle NOTIFY styleChanged);
 
 public:
     WorldSurface(QObject *parent);
@@ -24,18 +25,23 @@ public:
     QSize getTileSize() const;
     void setTileSize(const QSize &tileSize);
 
-    QMap<QString, QString> getGameMap() const;
-    void setGameMap(const QMap<QString, QString> &gameMap);
-    QVariantMap readGameMap() const;
+    QMap<QString, QString> getBigMap() const;
+    void setBigMap(const QMap<QString, QString> &bigMap);
+    QVariantMap readBigMap() const;
 
     QMap<QString, QString> getMiniMap() const;
     void setMiniMap(const QMap<QString, QString> &miniMap);
     QVariantMap readMiniMap() const;
 
+    QMap<QString, QString> getStyle() const;
+    void setStyle(const QMap<QString, QString> &style);
+    QVariantMap readStyle() const;
+
 signals:
-    void tileSizeChanged() const;
-    void gameMapChanged() const;
-    void miniMapChanged() const;
+    void tileSizeChanged();
+    void bigMapChanged();
+    void miniMapChanged();
+    void styleChanged();
 
 private:
     void dataFromJson(const QJsonObject &obj);
@@ -46,8 +52,9 @@ private:
     QJsonObject mapToJson(const QMap<QString, QString> &map) const;
 
     QSize tileSize;
-    QMap<QString, QString> gameMap;
+    QMap<QString, QString> bigMap;
     QMap<QString, QString> miniMap;
+    QMap<QString, QString> style;
 };
 
 } // namespace core

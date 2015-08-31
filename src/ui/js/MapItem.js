@@ -36,6 +36,31 @@ MapItem.prototype.toString = function() {
     return str;
 };
 
+function drawBorder(ctx, tileSize, color) {
+    var w = tileSize.width;
+    var h = tileSize.height;
+
+    var p0 = Qt.point(0, h/4);
+    var p1 = Qt.point(w/2, 0);
+    var p2 = Qt.point(w, h/4);
+    var p3 = Qt.point(w, 3 * h/4);
+    var p4 = Qt.point(w/2, h - 1);
+    var p5 = Qt.point(0, 3 * h/4);
+
+    ctx.beginPath();
+    ctx.moveTo(p0.x, p0.y);
+    ctx.lineTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.lineTo(p3.x, p3.y);
+    ctx.lineTo(p4.x, p4.y);
+    ctx.lineTo(p5.x, p5.y);
+    ctx.closePath();
+
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = color;
+    ctx.stroke();
+};
+
 /*
  * MapNode class.
  * @contructor
@@ -49,12 +74,9 @@ var MapNode = function(pos, mapNodeQObj, map) {
     var prefix = "images:";
     var terrainType = this.qobj.terrainType.objectName
 
-    this.terrainImage = prefix + surface.gameMap[terrainType];
-    //FIXME: draw theese with the canvas
-    this.focusedBorderImage = prefix +
-        surface.gameMap["border_highlighted"];
-    this.blurredBorderImage = prefix +
-        surface.gameMap["border"];
+    this.terrainImage = prefix + surface.bigMap[terrainType];
+    this.blurredBorderColor = surface.bigMap["blurredBorder"];
+    this.focusedBorderColor = surface.bigMap["focusedBorder"];
 };
 
 MapNode.prototype = Object.create(MapItem.prototype);
@@ -62,6 +84,7 @@ MapNode.prototype.constructor = MapNode;
 
 MapNode.prototype.onPaint = function(ctx) {
     var worldQObj = this.map.qobj.world;
+    var tileSize = worldQObj.surface.tileSize;
 
     ctx.save();
 
@@ -69,14 +92,7 @@ MapNode.prototype.onPaint = function(ctx) {
 
     ctx.drawImage(this.terrainImage, 0, 0);
     if (this.focused)
-        ctx.drawImage(this.focusedBorderImage, 0, 0);
-    else
-        ctx.drawImage(this.blurredBorderImage, 0, 0);
-
-    var worldQObj = this.map.qobj.world;
-    var tileSize = worldQObj.surface.tileSize;
-
-    ctx.strokeText(this.qobj.objectName, 10, tileSize.height/2);
+        drawBorder(ctx, tileSize, this.focusedBorderColor);
 
     ctx.restore();
 };
@@ -123,7 +139,7 @@ EditableMapNode.prototype.onTerrainTypeChanged = function() {
     var prefix = "images:";
     var terrainType = this.qobj.terrainType.objectName
 
-    this.terrainImage = prefix + surface.gameMap[terrainType];
+    this.terrainImage = prefix + surface.bigMap[terrainType];
 
     this.map.markDirty(this);
 };
@@ -210,11 +226,8 @@ var PhantomMapNode = function(pos, map) {
     var surface = this.map.qobj.world.surface;
     var prefix = "images:";
 
-    //FIXME: draw theese with the canvas
-    this.focusedBorderImage = prefix +
-        surface.gameMap["border_highlighted"];
-    this.blurredBorderImage = prefix +
-        surface.gameMap["border"];
+    this.blurredBorderColor = surface.bigMap["blurredBorder"];
+    this.focusedBorderColor = surface.bigMap["focusedBorder"];
 };
 
 PhantomMapNode.prototype = Object.create(MapItem.prototype);
@@ -222,14 +235,13 @@ PhantomMapNode.prototype.constructor = PhantomMapNode;
 
 PhantomMapNode.prototype.onPaint = function(ctx) {
     var worldQObj = this.map.qobj.world;
+    var tileSize = worldQObj.surface.tileSize;
     ctx.save();
 
     ctx.translate(this.pos.x, this.pos.y);
 
     if (this.focused)
-        ctx.drawImage(this.focusedBorderImage, 0, 0);
-    else
-        ctx.drawImage(this.blurredBorderImage, 0, 0);
+        drawBorder(ctx, tileSize, this.focusedBorderColor);
 
     ctx.restore();
 };
@@ -262,7 +274,7 @@ var Settlement = function(pos, settlementQObj, map) {
 
     var surface = this.map.qobj.world.surface;
     this.settlementImage = "images:" +
-        surface.gameMap[this.settlementType.objectName];
+        surface.bigMap[this.settlementType.objectName];
 };
 
 Settlement.prototype = Object.create(MapItem.prototype);
@@ -295,18 +307,17 @@ var MiniSettlement = function(pos, settlementQObj, map) {
     MapItem.call(this, pos, map);
 
     this.qobj = settlementQObj;
-    this.settlementType = this.qobj.settlementType;
 
-    var surface = this.map.qobj.world.surface;
-    if (this.qobj.owner) {
-        this.style = this.qobj.owner.color;
-    } else {
-        this.style = surface.miniMap["neutral"];
-    }
+    // init
+    this.qobj.ownerChanged.connect(this.onOwnerChanged.bind(this));
 };
 
 MiniSettlement.prototype = Object.create(MapItem.prototype);
 MiniSettlement.prototype.constructor = MiniSettlement;
+
+MiniSettlement.prototype.onOwnerChanged = function() {
+    this.map.markDirty(this);
+};
 
 MiniSettlement.prototype.onPaint = function(ctx) {
     var worldQObj = this.map.qobj.world;
@@ -323,8 +334,7 @@ MiniSettlement.prototype.onPaint = function(ctx) {
     var x = w/20;
     var y = h/2 - size/2;
 
-    var style = this.style;
-    ctx.fillStyle = style;
+    ctx.fillStyle = this.qobj.owner.color;
 
     ctx.fillRect(x, y, size, size);
 
@@ -349,8 +359,7 @@ var Unit = function(pos, unitQObj, map) {
     this.unitType = this.qobj.unitType;
 
     var surface = this.map.qobj.world.surface;
-    this.unitImage = "images:" +
-        surface.gameMap[this.unitType.objectName];
+    this.unitImage = "images:" + surface.bigMap[this.unitType.objectName];
 
     // init
     this.qobj.unitTypeChanged.connect(this.onUnitTypeChanged.bind(this));
@@ -375,7 +384,7 @@ Unit.prototype.onUnitTypeChanged = function() {
     this.unitType = this.qobj.unitType;
 
     var surface = this.map.qobj.world.surface;
-    this.unitImage = "images:" + surface.gameMap[this.unitType.objectName];
+    this.unitImage = "images:" + surface.bigMap[this.unitType.objectName];
 
     this.map.markDirty(this);
 };
@@ -395,15 +404,8 @@ var MiniUnit = function(pos, unitQObj, map) {
     MapItem.call(this, pos, map);
 
     this.qobj = unitQObj;
-    this.unitType = this.qobj.unitType;
 
-    var surface = this.map.qobj.world.surface;
-    if (this.qobj.owner) {
-        this.style = this.qobj.owner.color;
-    } else {
-        this.style = surface.miniMap["neutral"];
-    }
-
+    // init
     this.qobj.ownerChanged.connect(this.onOwnerChanged.bind(this));
 };
 
@@ -425,8 +427,7 @@ MiniUnit.prototype.onPaint = function(ctx) {
     var x = w/2 + w/5;
     var y = h/2 - size/2;
 
-    var style = this.style;
-    ctx.fillStyle = style;
+    ctx.fillStyle = this.qobj.owner.color;
 
     ctx.fillRect(x, y, size, size);
 
@@ -434,13 +435,6 @@ MiniUnit.prototype.onPaint = function(ctx) {
 };
 
 MiniUnit.prototype.onOwnerChanged = function() {
-    var surface = this.map.qobj.world.surface;
-    if (this.qobj.owner) {
-        this.style = this.qobj.owner.color;
-    } else {
-        this.style = surface.miniMap["neutral"];
-    }
-
     this.map.markDirty(this);
 };
 

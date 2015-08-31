@@ -11,7 +11,7 @@ static const QString category{"core"};
 WorldSurface::WorldSurface(QObject *parent) :
     GameEntity(parent),
     tileSize(),
-    gameMap(),
+    bigMap(),
     miniMap()
 {
 }
@@ -35,23 +35,23 @@ void WorldSurface::setTileSize(const QSize &tileSize)
     }
 }
 
-QMap<QString, QString> WorldSurface::getGameMap() const
+QMap<QString, QString> WorldSurface::getBigMap() const
 {
-    return this->gameMap;
+    return this->bigMap;
 }
 
-void WorldSurface::setGameMap(const QMap<QString, QString> &gameMap)
+void WorldSurface::setBigMap(const QMap<QString, QString> &bigMap)
 {
-    if (this->gameMap != gameMap)
+    if (this->bigMap != bigMap)
     {
-        this->gameMap = gameMap;
-        emit gameMapChanged();
+        this->bigMap = bigMap;
+        emit bigMapChanged();
     }
 }
 
-QVariantMap WorldSurface::readGameMap() const
+QVariantMap WorldSurface::readBigMap() const
 {
-    return this->toQVariantMap(this->gameMap);
+    return this->toQVariantMap(this->bigMap);
 }
 
 QMap<QString, QString> WorldSurface::getMiniMap() const
@@ -73,20 +73,41 @@ QVariantMap WorldSurface::readMiniMap() const
     return this->toQVariantMap(this->miniMap);
 }
 
+QMap<QString, QString> WorldSurface::getStyle() const
+{
+    return this->style;
+}
+
+void WorldSurface::setStyle(const QMap<QString, QString> &style)
+{
+    if (this->style != style)
+    {
+        this->style = style;
+        emit styleChanged();
+    }
+}
+
+QVariantMap WorldSurface::readStyle() const
+{
+    return this->toQVariantMap(this->style);
+}
+
 void WorldSurface::dataFromJson(const QJsonObject &obj)
 {
     GameEntity::dataFromJson(obj);
     this->tileSize = sizeFromJson(obj["tileSize"].toObject());
-    this->gameMap = this->mapFromJson(obj["gameMap"].toObject());
+    this->bigMap = this->mapFromJson(obj["bigMap"].toObject());
     this->miniMap = this->mapFromJson(obj["miniMap"].toObject());
+    this->style = this->mapFromJson(obj["style"].toObject());
 }
 
 void WorldSurface::dataToJson(QJsonObject &obj) const
 {
     GameEntity::dataToJson(obj);
     obj["tileSize"] = sizeToJson(this->tileSize);
-    obj["gameMap"] = this->mapToJson(this->gameMap);
+    obj["bigMap"] = this->mapToJson(this->bigMap);
     obj["miniMap"] = this->mapToJson(this->miniMap);
+    obj["style"] = this->mapToJson(this->style);
 }
 
 QVariantMap WorldSurface::toQVariantMap(const QMap<QString, QString> &qmap) const

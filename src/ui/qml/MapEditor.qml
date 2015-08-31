@@ -153,10 +153,6 @@ Rectangle {
             anchors.fill: parent
             onPaint: map.jobj.onPaint(region)
             onImageLoaded: map.jobj.onResourceLoaded()
-            tileSize {
-                width: 440
-                height: 512
-            }
 
             MouseArea {
                 id: mapMouseArea

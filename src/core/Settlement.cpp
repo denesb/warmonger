@@ -123,35 +123,22 @@ void Settlement::dataFromJson(const QJsonObject &obj)
     }
 
     this->settlementType = resolveReference<SettlementType>(
-        obj["settlementType"].toString(), world
+        obj["settlementType"].toString(),
+        world
     );
     this->mapNode = resolveReference<MapNode>(
-        obj["mapNode"].toString(), this->parent()
+        obj["mapNode"].toString(),
+        this->parent()
     );
-
-    const QString ownerName = obj["owner"].toString();
-    if (!ownerName.isEmpty())
-    {
-        this->owner = resolveReference<Player>(
-            ownerName, this->parent()
-        );
-    }
-    else
-    {
-        this->owner = nullptr;
-    }
+    this->owner = resolveReference<Player>(
+        obj["owner"].toString(),
+        this->parent()
+    );
 }
 
 void Settlement::dataToJson(QJsonObject &obj) const
 {
     obj["settlementType"] = this->settlementType->objectName();
     obj["mapNode"] = this->mapNode->objectName();
-    if (this->owner != nullptr)
-    {
-        obj["owner"] = this->owner->objectName();
-    }
-    else
-    {
-        obj["owner"] = QString("");
-    }
+    obj["owner"] = this->owner->objectName();
 }

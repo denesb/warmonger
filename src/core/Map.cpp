@@ -2,6 +2,7 @@
 
 #include "core/Map.h"
 #include "core/World.h"
+#include "core/WorldSurface.h"
 #include "core/Player.h"
 #include "core/Settlement.h"
 #include "core/TerrainType.h"
@@ -300,11 +301,23 @@ Q_INVOKABLE void Map::createUnit(QObject *unitType, QObject *mapNode)
     this->addUnit(newUnit.release());
 }
 
+void Map::onSurfaceChanged()
+{
+    QColor c(this->world->getSurface()->getStyle()["neutral"]);
+    this->neutralPlayer->setColor(c);
+}
+
 void Map::dataFromJson(const QJsonObject &obj)
 {
     const QString worldName(obj["world"].toString());
     World *world = new World(this);
     world->load(world->specification(worldName));
+    QObject::connect(
+        world,
+        &World::surfaceChanged,
+        this,
+        &Map::onSurfaceChanged
+    );
 
     this->world = world;
     this->mapNodeIndex = obj["mapNodeIndex"].toInt();

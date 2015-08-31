@@ -5,13 +5,19 @@
 function neighbourPos(dir, tileSize, pos) {
     var d;
 
-    if (dir == 'West') d = Qt.size(-tileSize.width, 0);
-    else if (dir == 'NorthWest') d = Qt.size(-tileSize.width/2, -tileSize.height * 3/4);
-    else if (dir == 'NorthEast') d = Qt.size(tileSize.width/2, -tileSize.height * 3/4);
-    else if (dir == 'East') d = Qt.size(tileSize.width, 0);
-    else if (dir == 'SouthEast') d = Qt.size(tileSize.width/2, tileSize.height * 3/4);
-    else if (dir == 'SouthWest') d = Qt.size(-tileSize.width/2, tileSize.height * 3/4);
-    else {
+    if (dir === 'West') {
+        d = Qt.size(-tileSize.width, 0);
+    } else if (dir === 'NorthWest') {
+        d = Qt.size(-tileSize.width/2, -tileSize.height * 3/4);
+    } else if (dir === 'NorthEast') {
+        d = Qt.size(tileSize.width/2, -tileSize.height * 3/4);
+    } else if (dir === 'East') {
+        d = Qt.size(tileSize.width, 0);
+    } else if (dir === 'SouthEast') {
+        d = Qt.size(tileSize.width/2, tileSize.height * 3/4);
+    } else if (dir === 'SouthWest') {
+        d = Qt.size(-tileSize.width/2, tileSize.height * 3/4);
+    } else {
         var err = "Unknown direction: " + dir;
         console.error(err);
         throw err;
@@ -48,34 +54,38 @@ var Map = function(W, canvas, mouseArea) {
 
     this.lastMouseEvent = undefined;
     this.lastMousePos = undefined;
-    this.mapItems = [];
+
+    this.mapNodes = [];
     this.settlements = [];
     this.units = [];
 
     this.ready = false;
-
     this.geometryChanged = true;
+
     this.boundingRect = Qt.rect(0, 0, 0, 0);
     this.size = Qt.size(0, 0);
 
     // init
-    this.createNode(this.qobj.mapNodes[0], Qt.point(0, 0), {});
+    this.qobj.settlementAdded.connect(this.onSettlementCreated.bind(this));
+    this.qobj.unitAdded.connect(this.onUnitCreated.bind(this));
+
+    this.createNodes(this.qobj.mapNodes[0], Qt.point(0, 0), {});
     this.createSettlements();
     this.createUnits();
 };
 
-Map.prototype.createNode = function(mapNodeQObj, pos, visitedNodes) {
+Map.prototype.createNodes = function(mapNodeQObj, pos, visitedNodes) {
+    this.createMapNode(mapNodeQObj, pos);
+
     visitedNodes[mapNodeQObj] = true;
     var tileSize = this.qobj.world.surface.tileSize;
-
-    this.newMapNode(pos, mapNodeQObj);
-
-    for (var direction in mapNodeQObj.neighbours) {
-        var neighbour = mapNodeQObj.neighbours[direction];
+    var neighbours = mapNodeQObj.neighbours;
+    for (var direction in neighbours) {
+        var neighbour = neighbours[direction];
 
         if (neighbour == undefined || neighbour in visitedNodes) continue;
 
-        this.createNode(
+        this.createNodes(
             neighbour,
             neighbourPos(direction, tileSize, pos),
             visitedNodes
@@ -83,63 +93,106 @@ Map.prototype.createNode = function(mapNodeQObj, pos, visitedNodes) {
     }
 };
 
+Map.prototype.createMapNode = function(mapNodeQObj, pos) {
+    var mapNodeJObj = this.newMapNode(mapNodeQObj, pos);
+    this.addMapNode(mapNodeJObj);
+
+    return mapNodeJObj;
+};
+
 Map.prototype.createSettlements = function() {
     var settlements = this.qobj.settlements;
     for (var i = 0; i < settlements.length; i++) {
-        this.newSettlement(settlements[i]);
+        this.createSettlement(settlements[i]);
     }
+};
+
+Map.prototype.createSettlement = function(settlementQObj) {
+    var mapNodeJObj = this.getMapNodeByQObj(settlementQObj.mapNode);
+
+    var settlementJObj = this.newSettlement(settlementQObj, mapNodeJObj);
+    this.addSettlement(settlementJObj);
+
+    return settlementJObj;
 };
 
 Map.prototype.createUnits = function() {
     var units = this.qobj.units;
     for (var i = 0; i < units.length; i++) {
-        this.newUnit(units[i]);
+        this.createUnit(units[i]);
     }
 };
 
-Map.prototype.onPaint = function(region) {
-    if (!this.ready) return;
-    if (this.geometryChanged) {
-        this.updateGeometry();
-        this.geometryChanged = false;
-    }
+Map.prototype.createUnit = function(unitQObj) {
+    var mapNodeJObj = this.getMapNodeByQObj(unitQObj.mapNode);
 
-    var ctx = this.canvas.getContext("2d");
+    var unitJObj = this.newUnit(unitQObj, mapNodeJObj);
+    this.addUnit(unitJObj);
 
-    ctx.clearRect(
-        region.x,
-        region.y,
-        region.width,
-        region.height
-    );
-
-    for (var i = 0; i < this.mapItems.length; i++) {
-        this.mapItems[i].onPaint(ctx);
-    }
+    return unitJObj;
 };
 
-Map.prototype.markDirty = function(mapItem) {
+Map.prototype.addMapNode = function(mapNode) {
+    this.mapNodes.push(mapNode);
+};
+
+Map.prototype.addSettlement = function(settlement) {
+    this.settlements.push(settlement);
+};
+
+Map.prototype.addUnit = function(unit) {
+    this.units.push(unit);
+};
+
+Map.prototype.markDirty = function(mapNode) {
     var tileSize = this.qobj.world.surface.tileSize;
 
     this.canvas.markDirty(Qt.rect(
-        mapItem.pos.x,
-        mapItem.pos.y,
+        mapNode.pos.x,
+        mapNode.pos.y,
         tileSize.width,
         tileSize.height
     ));
 };
 
-Map.prototype.findMapItemJObj = function(mapItemQObj) {
-    var mapItemJObj = undefined;
-    for (var i = 0; i < this.mapItems.length; i++) {
-        var mapItem = this.mapItems[i];
-        if (mapItem.qobj && mapItem.qobj == mapItemQObj) {
-            mapItemJObj = mapItem;
-            break;
+Map.prototype.onSettlementCreated = function(settlementQObj) {
+    var settlementJObj = this.createSettlement(settlementQObj);
+    this.markDirty(settlementJObj);
+};
+
+Map.prototype.onUnitCreated = function(unitQObj) {
+    var unitJObj = this.createUnit(unitQObj);
+    this.markDirty(unitJObj);
+};
+
+Map.prototype.getMapNodeByQObj = function(mapNodeQObj) {
+    for (var i = 0; i < this.mapNodes.length; i++) {
+        var mapNode = this.mapNodes[i];
+        if (mapNode.qobj && mapNode.qobj == mapNodeQObj) {
+            return mapNode;
         }
     }
 
-    return mapItemJObj;
+    return undefined;
+};
+
+Map.prototype.getMapNodeByPos = function(pos) {
+    for (var i = 0; i < this.mapNodes.length; i++) {
+        var mapNode = this.mapNodes[i];
+        if (mapNode.pos.x == pos.x && mapNode.pos.y == pos.y)
+            return mapNode;
+    }
+
+    return undefined;
+};
+
+Map.prototype.findMapNodeAt = function(pos) {
+    for (var i = 0; i < this.mapNodes.length; i++) {
+        var mapNode = this.mapNodes[i];
+        if (mapNode.contains(pos)) return mapNode;
+    }
+
+    return undefined;
 };
 
 Map.prototype.calculatePosOfMapNodeQObj = function(mapNodeQObj) {
@@ -152,7 +205,7 @@ Map.prototype.calculatePosOfMapNodeQObj = function(mapNodeQObj) {
         }
     }
 
-    var neighbourJObj = this.findMapItemJObj(neighbourQObj);
+    var neighbourJObj = this.getMapNodeByQObj(neighbourQObj);
 
     // calculate the position of this node based on the neighbour's position
     var oppositeDirection = mapNodeQObj.oppositeDirection(direction);
@@ -163,16 +216,16 @@ Map.prototype.calculatePosOfMapNodeQObj = function(mapNodeQObj) {
 };
 
 Map.prototype.calculateBoundingRect = function() {
-    if (this.mapItems.length == 0)
+    if (this.mapNodes.length == 0)
         return Qt.rect(0, 0, 0, 0);
 
-    var initialPos = this.mapItems[0].pos;
+    var initialPos = this.mapNodes[0].pos;
 
     var topLeft = Qt.point(initialPos.x, initialPos.y);
     var bottomRight = Qt.point(initialPos.x, initialPos.y);
 
-    for (var i = 0; i < this.mapItems.length; i++) {
-        var pos = this.mapItems[i].pos;
+    for (var i = 0; i < this.mapNodes.length; i++) {
+        var pos = this.mapNodes[i].pos;
 
         topLeft.x = Math.min(pos.x, topLeft.x);
         bottomRight.x = Math.max(pos.x, bottomRight.x);
@@ -204,10 +257,10 @@ Map.prototype.adjustMapCoordinates = function() {
     this.boundingRect.x = 0;
     this.boundingRect.y = 0;
 
-    for (var i = 0; i < this.mapItems.length; i++) {
-        var mapItem = this.mapItems[i];
-        mapItem.pos.x -= dx;
-        mapItem.pos.y -= dy;
+    for (var i = 0; i < this.mapNodes.length; i++) {
+        var mapNode = this.mapNodes[i];
+        mapNode.pos.x -= dx;
+        mapNode.pos.y -= dy;
     }
 
     var rect = this.canvas.canvasWindow;
@@ -256,9 +309,6 @@ Map.prototype.onReleased = function(mouse) {
     }
 };
 
-Map.prototype.onClicked = function(pos) {
-};
-
 Map.prototype.onPositionChanged = function(mouse) {
     this.lastMouseEvent = MouseEvents.positionChanged;
 
@@ -274,19 +324,22 @@ Map.prototype.onPositionChanged = function(mouse) {
         this.onPanned(localPos, posDiff);
     }
     else {
-        this.onHovered(localPos);
+        if (this.onHovered) this.onHovered(localPos);
     }
 
     this.lastMousePos = pos;
 };
 
-Map.prototype.onHovered = function(pos) {
-};
+Map.prototype.onPaint = function(region) {
+    if (!this.ready) return;
+    if (this.geometryChanged) {
+        this.updateGeometry();
+        this.geometryChanged = false;
+    }
 
-Map.prototype.onPanned = function(pos, posDiff) {
-};
+    var ctx = this.canvas.getContext("2d");
 
-Map.prototype.onClicked = function(pos) {
+    this.draw(ctx, region);
 };
 
 Map.prototype.toString = function() {
@@ -313,75 +366,15 @@ BigMap.prototype = Object.create(Map.prototype);
 BigMap.prototype.constructor = EditableMap;
 
 BigMap.prototype.newMapNode = function(pos, mapNodeQObj) {
-    var mapNode = new MapItem.MapNode(pos, mapNodeQObj,this);
-    this.mapItems.push(mapNode);
-
-    return mapNode;
+    return new MapItem.MapNode(pos, mapNodeQObj,this);
 };
 
-BigMap.prototype.newSettlement = function(settlementQObj) {
-    var mapNode = this.findMapItemJObj(settlementQObj.mapNode);
-    var pos = Qt.point(mapNode.pos.x, mapNode.pos.y);
-    var settlementJObj =
-        new MapItem.Settlement(pos, settlementQObj, this);
-    this.mapItems.push(settlementJObj);
-    this.settlements.push(settlementJObj);
-
-    return settlementJObj;
+BigMap.prototype.newSettlement = function(settlementQObj, mapNodeJObj) {
+    return new MapItem.Settlement(settlementQObj, mapNodeJObj, this);
 };
 
-BigMap.prototype.newUnit = function(unitQObj) {
-    var mapNode = this.findMapItemJObj(unitQObj.mapNode);
-    var pos = Qt.point(mapNode.pos.x, mapNode.pos.y);
-    var unitJObj = new MapItem.Unit(pos, unitQObj, this);
-    this.mapItems.push(unitJObj);
-    this.units.push(unitJObj);
-
-    return unitJObj;
-};
-
-BigMap.prototype.findMapNodeAt = function(point) {
-    for (var i = 0; i < this.mapItems.length; i++) {
-        var mapNode = this.mapItems[i];
-        if (mapNode.contains(point)) return mapNode;
-    }
-
-    return undefined;
-};
-
-BigMap.prototype.getMapItemAt = function(pos) {
-    for (var i = 0; i < this.mapItems.length; i++) {
-        var mapItem = this.mapItems[i];
-        if (mapItem.pos.x == pos.x && mapItem.pos.y == pos.y)
-            return mapItem;
-    }
-
-    return undefined;
-};
-
-BigMap.prototype.getSettlementOn = function(mapNodeJObj) {
-    for (var i = 0; i < this.settlements.length; i++) {
-        var settlement = this.settlements[i];
-        if (settlement.qobj.mapNode == mapNodeJObj.qobj) {
-            return settlement;
-        }
-    }
-
-    return undefined;
-};
-
-BigMap.prototype.getUnitOn = function(mapNodeJObj) {
-    for (var i = 0; i < this.units.length; i++) {
-        var unit = this.units[i];
-        if (unit.qobj.mapNode == mapNodeJObj.qobj) {
-            return unit;
-        }
-    }
-
-    return undefined;
-};
-
-BigMap.prototype.onClicked = function(pos) {
+BigMap.prototype.newUnit = function(unitQObj, mapNodeJObj) {
+    return new MapItem.Unit(unitQObj, mapNodeJObj, this);
 };
 
 BigMap.prototype.onHovered = function(pos) {
@@ -413,6 +406,41 @@ BigMap.prototype.onPanned = function(pos, posDiff) {
 
 BigMap.prototype.onWindowPosChanged = function(windowPos) {
     this.moveWindowTo(windowPos);
+};
+
+BigMap.prototype.draw = function(ctx, region) {
+    ctx.clearRect(
+        region.x,
+        region.y,
+        region.width,
+        region.height
+    );
+
+    var mapNodes = this.mapNodes;
+    this.drawMapNodes(ctx, mapNodes);
+    this.drawOverlay(ctx, mapNodes);
+    this.drawContent(ctx, mapNodes);
+};
+
+BigMap.prototype.drawMapNodes = function(ctx, mapNodes) {
+    for (var i = 0; i < mapNodes.length; i++) {
+        var mapNode = mapNodes[i];
+        mapNode.drawTerrain(ctx);
+    }
+};
+
+BigMap.prototype.drawOverlay = function(ctx, mapNodes) {
+    for (var i = 0; i < mapNodes.length; i++) {
+        var mapNode = mapNodes[i];
+        mapNode.drawOverlay(ctx);
+    }
+};
+
+BigMap.prototype.drawContent = function(ctx, mapNodes) {
+    for (var i = 0; i < mapNodes.length; i++) {
+        var mapNode = mapNodes[i];
+        mapNode.drawContent(ctx);
+    }
 };
 
 BigMap.prototype.moveWindowTo = function(pos) {
@@ -510,14 +538,12 @@ var EditableMap = function(W, canvas, mouseArea) {
 
     // init
     this.qobj.mapNodeAdded.connect(this.onMapNodeCreated.bind(this));
-    this.qobj.settlementAdded.connect(this.onSettlementCreated.bind(this));
-    this.qobj.unitAdded.connect(this.onUnitCreated.bind(this));
 
     this.terrainTypeMap = this.buildTypeMap(this.qobj.world.terrainTypes);
     this.settlementTypeMap = this.buildTypeMap(this.qobj.world.settlementTypes);
     this.unitTypeMap = this.buildTypeMap(this.qobj.world.unitTypes);
 
-    this.addPhantomMapNodes(this.mapItems);
+    //this.addPhantomMapNodes(this.mapItems);
     this.geometryChanged = true;
 };
 
@@ -543,13 +569,6 @@ EditableMap.prototype.buildTypeMap = function(typeList) {
     return typeMap;
 };
 
-EditableMap.prototype.newMapNode = function(pos, mapNodeQObj) {
-    var mapNode = new MapItem.EditableMapNode(pos, mapNodeQObj, this);
-    this.mapItems.push(mapNode);
-
-    return mapNode;
-};
-
 EditableMap.prototype.addPhantomMapNodes = function(mapNodes) {
     for (var i = 0; i < mapNodes.length; i++) {
 
@@ -569,7 +588,7 @@ EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) 
     var tileSize = this.qobj.world.surface.tileSize;
     var pos = neighbourPos(direction, tileSize, neighbourMapNode.pos);
 
-    var phantomMapNode = this.getMapItemAt(pos);
+    var phantomMapNode = this.getMapNodeByPos(pos);
     if (phantomMapNode == undefined) {
         phantomMapNode = new MapItem.PhantomMapNode(pos, this);
         this.mapItems.push(phantomMapNode);
@@ -580,11 +599,11 @@ EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) 
     phantomMapNode.neighbours[oppositeDirection] = neighbourMapNode;
 };
 
-EditableMap.prototype.createMapNode = function(mapNodeJObj) {
+EditableMap.prototype.createNewMapNode = function(mapNodeJObj) {
     if (!mapNodeJObj.isPhantom) return;
     if (this.currentTerrainType == undefined) return;
 
-    var neighbours = mapNodeJObj.neighbours;
+    var neighbours = mapNodeJObj.qobj.neighbours;
     var neighboursMap = {};
     for (var direction in neighbours) {
         if (neighbours.hasOwnProperty(direction)) {
@@ -595,14 +614,14 @@ EditableMap.prototype.createMapNode = function(mapNodeJObj) {
     this.qobj.createMapNode(this.currentTerrainType, neighboursMap);
 };
 
-EditableMap.prototype.createSettlement = function(mapNodeJObj) {
+EditableMap.prototype.createNewSettlement = function(mapNodeJObj) {
     if (mapNodeJObj.isPhantom) return;
     if (this.currentSettlementType == undefined) return;
 
     this.qobj.createSettlement(this.currentSettlementType, mapNodeJObj.qobj);
 };
 
-EditableMap.prototype.createUnit = function(mapNodeJObj) {
+EditableMap.prototype.createNewUnit = function(mapNodeJObj) {
     if (mapNodeJObj.isPhantom) return;
     if (this.currentUnitType == undefined) return;
 
@@ -652,17 +671,17 @@ EditableMap.prototype.editUnit = function(unitJObj) {
 
 EditableMap.prototype.onClicked = function(pos) {
     var mapNode = this.findMapNodeAt(pos);
-    var settlement = this.getSettlementOn(mapNode);
-    var unit = this.getUnitOn(mapNode);
+    var settlement = mapNode.settlement;
+    var unit = mapNode.unit;
 
     if (this.editMode == EditableMap.SelectMode) {
         this.selectMapItems(mapNode, settlement, unit);
     } else if (this.editMode == EditableMap.CreateMapNodeMode) {
-        this.createMapNode(mapNode);
+        this.createNewMapNode(mapNode);
     } else if (this.editMode == EditableMap.CreateSettlementMode) {
-        this.createSettlement(mapNode);
+        this.createNewSettlement(mapNode);
     } else if (this.editMode == EditableMap.CreateUnitMode) {
-        this.createUnit(mapNode);
+        this.createNewUnit(mapNode);
     } else if (this.editMode == EditableMap.EditMapNodeMode) {
         this.editMapNode(mapNode);
     } else if (this.editMode == EditableMap.EditSettlementMode) {
@@ -676,29 +695,16 @@ EditableMap.prototype.onClicked = function(pos) {
 
 EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
     var pos = this.calculatePosOfMapNodeQObj(mapNodeQObj);
-    var phantomMapNode = this.getMapItemAt(pos);
-    var i = this.mapItems.indexOf(phantomMapNode);
-    this.mapItems.splice(i, 1);
 
-    var mapNodeJObj = new MapItem.MapNode(pos, mapNodeQObj, this);
-    this.mapItems.push(mapNodeJObj);
-    this.markDirty(mapNodeJObj);
+    // remove placeholder phantom mapNode
+    var phantomMapNode = this.getMapNodeByPos(pos);
+    this.removeMapNode(phantomMapNode);
 
-    this.addPhantomMapNodes([mapNodeJObj]);
+    this.createMapNode(mapNodeQObj, pos);
+    //this.addPhantomMapNodes([mapNodeJObj]);
 
     this.geometryChanged = true;
-};
-
-EditableMap.prototype.onSettlementCreated = function(settlementQObj) {
-    var settlementJObj = this.newSettlement(settlementQObj);
-
-    this.markDirty(settlementJObj);
-};
-
-EditableMap.prototype.onUnitCreated = function(unitQObj) {
-    var unitJObj = this.newUnit(unitQObj);
-
-    this.markDirty(unitJObj);
+    this.markDirty(mapNodeJObj);
 };
 
 EditableMap.prototype.setEditMode = function(editMode) {
@@ -737,8 +743,6 @@ var MiniMap = function(W, canvas, mouseArea) {
 
     // init
     this.qobj.mapNodeAdded.connect(this.onMapNodeCreated.bind(this));
-    this.qobj.settlementAdded.connect(this.onSettlementCreated.bind(this));
-    this.qobj.unitAdded.connect(this.onUnitCreated.bind(this));
 
     this.ready = true;
     this.canvas.requestPaint();
@@ -747,37 +751,24 @@ var MiniMap = function(W, canvas, mouseArea) {
 MiniMap.prototype = Object.create(Map.prototype);
 MiniMap.prototype.constructor = MiniMap;
 
-MiniMap.prototype.newMapNode = function(pos, mapNodeQObj) {
-    var mapNode = new MapItem.MiniMapNode(pos, mapNodeQObj, this);
-    this.mapItems.push(mapNode);
-
-    return mapNode;
+MiniMap.prototype.newMapNode = function(mapNodeQObj, pos) {
+    return new MapItem.MiniMapNode(mapNodeQObj, pos, this);
 };
 
-MiniMap.prototype.newSettlement = function(settlementQObj) {
-    var mapNode = this.findMapItemJObj(settlementQObj.mapNode);
-    var pos = Qt.point(mapNode.pos.x, mapNode.pos.y);
-    var settlementJObj =
-        new MapItem.MiniSettlement(pos, settlementQObj, this);
-    this.mapItems.push(settlementJObj);
-    this.settlements.push(settlementJObj);
-
-    return settlementJObj;
+MiniMap.prototype.newSettlement = function(settlementQObj, mapNodeJObj) {
+    return new MapItem.MiniSettlement(settlementQObj, mapNodeJObj, this);
 };
 
-MiniMap.prototype.newUnit = function(unitQObj) {
-    var mapNode = this.findMapItemJObj(unitQObj.mapNode);
-    var pos = Qt.point(mapNode.pos.x, mapNode.pos.y);
-    var unitJObj = new MapItem.MiniUnit(pos, unitQObj, this);
-    this.mapItems.push(unitJObj);
-    this.units.push(unitJObj);
-
-    return unitJObj;
+MiniMap.prototype.newUnit = function(unitQObj, mapNodeJObj) {
+    return new MapItem.MiniUnit(unitQObj, mapNodeJObj, this);
 };
 
 MiniMap.prototype.calculateScaleFactor = function() {
     var normalSize = Math.max(this.size.width, this.size.height);
-    var canvSize = Math.min(this.canvas.canvasSize.width, this.canvas.canvasSize.height);
+    var canvSize = Math.min(
+        this.canvas.canvasSize.width,
+        this.canvas.canvasSize.height
+    );
 
     return canvSize/normalSize;
 };
@@ -793,15 +784,7 @@ MiniMap.prototype.updateGeometry = function() {
     this.adjustMapCoordinates();
 };
 
-MiniMap.prototype.onPaint = function(region) {
-    if (!this.ready) return;
-    if (this.geometryChanged) {
-        this.updateGeometry();
-        this.geometryChanged = false;
-    }
-
-    var ctx = this.canvas.getContext("2d");
-
+MiniMap.prototype.draw = function(ctx, region) {
     ctx.clearRect(
         0,
         0,
@@ -812,8 +795,8 @@ MiniMap.prototype.onPaint = function(region) {
     ctx.save();
     ctx.scale(this.scaleFactor, this.scaleFactor);
 
-    for (var i = 0; i < this.mapItems.length; i++) {
-        this.mapItems[i].onPaint(ctx);
+    for (var i = 0; i < this.mapNodes.length; i++) {
+        this.mapNodes[i].draw(ctx);
     }
 
     ctx.beginPath();
@@ -832,6 +815,7 @@ MiniMap.prototype.onPaint = function(region) {
 
 MiniMap.prototype.onPressed = function(mouse) {
     this.lastMouseEvent = MouseEvents.pressed;
+    this.lastMousePos = Qt.point(mouse.x, mouse.y);
 
     var pos = this.translateToLocal(Qt.point(mouse.x, mouse.y));
     this.centerOn(pos);
@@ -849,24 +833,10 @@ MiniMap.prototype.onPanned = function(pos, posDiff) {
 
 MiniMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
     var pos = this.calculatePosOfMapNodeQObj(mapNodeQObj);
-    var mapNodeJObj = new MapItem.MiniMapNode(pos, mapNodeQObj, this);
-
-    this.mapItems.push(mapNodeJObj);
+    var mapNodeJObj = this.createMapNode(mapNodeQObj, pos, this);
 
     this.geometryChanged = true;
     this.canvas.requestPaint();
-};
-
-MiniMap.prototype.onSettlementCreated = function(settlementQObj) {
-    var settlementJObj = this.newSettlement(settlementQObj);
-
-    this.markDirty(settlementJObj);
-};
-
-MiniMap.prototype.onUnitCreated = function(unitQObj) {
-    var unitJObj = this.newUnit(unitQObj);
-
-    this.markDirty(unitJObj);
 };
 
 MiniMap.prototype.setWindow = function(window) {

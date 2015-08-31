@@ -1,41 +1,5 @@
 .pragma library
 
-/*
- * MapItem class.
- * @contructor
- */
-var MapItem = function(pos, map) {
-    this.pos = pos;
-    this.map = map;
-    this.focused = false;
-};
-
-MapItem.prototype.onPaint = function(ctx) {
-};
-
-MapItem.prototype.translate = function(point) {
-    return Qt.point(point.x - this.pos.x, point.y - this.pos.y);
-};
-
-MapItem.prototype.contains = function(point) {
-    var localPoint = this.translate(point);
-
-    return this.map.W.hexContains(localPoint);
-};
-
-MapItem.prototype.onMouseIn = function() {
-    this.focused = true;
-};
-
-MapItem.prototype.onMouseOut = function() {
-    this.focused = false;
-};
-
-MapItem.prototype.toString = function() {
-    var str = "[MapItem(" + this.pos.x + "," + this.pos.y + ")]";
-    return str;
-};
-
 function drawBorder(ctx, tileSize, color) {
     var w = tileSize.width;
     var h = tileSize.height;
@@ -65,10 +29,14 @@ function drawBorder(ctx, tileSize, color) {
  * MapNode class.
  * @contructor
  */
-var MapNode = function(pos, mapNodeQObj, map) {
-    MapItem.call(this, pos, map);
-
+var MapNode = function(mapNodeQObj, pos, map) {
+    this.pos = pos;
+    this.map = map;
     this.qobj = mapNodeQObj;
+    this.settlement = undefined;
+    this.unit = undefined;
+
+    this.focused = false;
 
     var surface = this.map.qobj.world.surface;
     var prefix = "images:";
@@ -77,24 +45,63 @@ var MapNode = function(pos, mapNodeQObj, map) {
     this.terrainImage = prefix + surface.bigMap[terrainType];
     this.blurredBorderColor = surface.bigMap["blurredBorder"];
     this.focusedBorderColor = surface.bigMap["focusedBorder"];
+
+    // init
+    this.qobj.terrainTypeChanged.connect(
+        this.onTerrainTypeChanged.bind(this)
+    );
 };
 
-MapNode.prototype = Object.create(MapItem.prototype);
-MapNode.prototype.constructor = MapNode;
+MapNode.prototype.setSettlement = function(settlement) {
+    this.settlement = settlement;
+    this.map.markDirty(this);
+}
 
-MapNode.prototype.onPaint = function(ctx) {
-    var worldQObj = this.map.qobj.world;
-    var tileSize = worldQObj.surface.tileSize;
+MapNode.prototype.translate = function(point) {
+    return Qt.point(point.x - this.pos.x, point.y - this.pos.y);
+};
 
+MapNode.prototype.beginPaint = function(ctx) {
     ctx.save();
-
     ctx.translate(this.pos.x, this.pos.y);
+};
 
+MapNode.prototype.endPaint = function(ctx) {
+    ctx.restore();
+};
+
+MapNode.prototype.drawTerrain = function(ctx) {
+    this.beginPaint(ctx);
     ctx.drawImage(this.terrainImage, 0, 0);
+    this.endPaint(ctx);
+};
+
+MapNode.prototype.drawOverlay = function(ctx) {
+    this.beginPaint(ctx);
+    var tileSize = this.map.qobj.world.surface.tileSize;
     if (this.focused)
         drawBorder(ctx, tileSize, this.focusedBorderColor);
+    else
+        drawBorder(ctx, tileSize, this.blurredBorderColor);
+    this.endPaint(ctx);
+};
 
-    ctx.restore();
+MapNode.prototype.drawContent = function(ctx) {
+    this.beginPaint(ctx);
+
+    if (this.settlement)
+        this.settlement.draw(ctx);
+
+    if (this.unit)
+        this.unit.draw(ctx);
+
+    this.endPaint(ctx);
+};
+
+MapNode.prototype.contains = function(point) {
+    var localPoint = this.translate(point);
+
+    return this.map.W.hexContains(localPoint);
 };
 
 MapNode.prototype.onMouseIn = function() {
@@ -107,34 +114,10 @@ MapNode.prototype.onMouseOut = function() {
     this.map.markDirty(this);
 };
 
-MapNode.prototype.toString = function() {
-    var str = "[MapNode(" + this.pos.x + "," + this.pos.y +
-        "), qobj<" + this.qobj + ">]";
-    return str;
+MapNode.prototype.onDisplayNameChanged = function() {
 };
 
-/*
- * EditableMapNode class.
- * @contructor
- */
-var EditableMapNode = function(pos, mapNodeQObj, map) {
-    MapNode.call(this, pos, mapNodeQObj, map);
-
-    this.qobj.displayNameChanged.connect(
-        this.onDisplayNameChanged.bind(this)
-    );
-    this.qobj.terrainTypeChanged.connect(
-        this.onTerrainTypeChanged.bind(this)
-    );
-};
-
-EditableMapNode.prototype = Object.create(MapNode.prototype);
-EditableMapNode.prototype.constructor = EditableMapNode;
-
-EditableMapNode.prototype.onDisplayNameChanged = function() {
-};
-
-EditableMapNode.prototype.onTerrainTypeChanged = function() {
+MapNode.prototype.onTerrainTypeChanged = function() {
     var surface = this.map.qobj.world.surface;
     var prefix = "images:";
     var terrainType = this.qobj.terrainType.objectName
@@ -144,8 +127,8 @@ EditableMapNode.prototype.onTerrainTypeChanged = function() {
     this.map.markDirty(this);
 };
 
-EditableMapNode.prototype.toString = function() {
-    var str = "[EditableMapNode(" + this.pos.x + "," + this.pos.y +
+MapNode.prototype.toString = function() {
+    var str = "[MapNode(" + this.pos.x + "," + this.pos.y +
         "), qobj<" + this.qobj + ">]";
     return str;
 };
@@ -155,26 +138,33 @@ EditableMapNode.prototype.toString = function() {
  * MiniMapNode class.
  * @contructor
  */
-var MiniMapNode = function(pos, mapNodeQObj, map) {
-    MapItem.call(this, pos, map);
-
+var MiniMapNode = function(mapNodeQObj, pos, map) {
+    this.pos = pos;
+    this.map = map;
     this.qobj = mapNodeQObj;
-    this.terrainType = this.qobj.terrainType;
+    this.settlement = undefined;
+    this.unit = undefined;
 
     var surface = this.map.qobj.world.surface;
-    this.style = surface.miniMap[this.terrainType.objectName];
+    this.style = surface.miniMap[this.qobj.terrainType.objectName];
+
+    // init
+    this.qobj.terrainTypeChanged.connect(
+        this.onTerrainTypeChanged.bind(this)
+    );
+
 };
 
-MiniMapNode.prototype = Object.create(MapItem.prototype);
-MiniMapNode.prototype.constructor = MiniMapNode;
+MiniMapNode.prototype.setSettlement = function(settlement) {
+    this.settlement = settlement;
+    this.map.markDirty(this);
+}
 
-MiniMapNode.prototype.onPaint = function(ctx) {
-    var worldQObj = this.map.qobj.world;
-    var tileSize = worldQObj.surface.tileSize;
-
+MiniMapNode.prototype.draw = function(ctx) {
     ctx.save();
-
     ctx.translate(this.pos.x, this.pos.y);
+
+    var tileSize = this.map.qobj.world.surface.tileSize;
 
     var w = tileSize.width;
     var h = tileSize.height;
@@ -201,10 +191,24 @@ MiniMapNode.prototype.onPaint = function(ctx) {
     ctx.strokeStyle = style;
     ctx.fillStyle = style;
 
-    //ctx.stroke();
     ctx.fill();
 
+    if (this.settlement) {
+        this.settlement.draw(ctx);
+    }
+
+    if (this.unit) {
+        this.unit.draw(ctx);
+    }
+
     ctx.restore();
+};
+
+MiniMapNode.prototype.onTerrainTypeChanged = function() {
+    var surface = this.map.qobj.world.surface;
+    this.style = surface.miniMap[this.qobj.terrainType.objectName];
+
+    this.map.markDirty(this);
 };
 
 MiniMapNode.prototype.toString = function() {
@@ -218,7 +222,6 @@ MiniMapNode.prototype.toString = function() {
  * @contructor
  */
 var PhantomMapNode = function(pos, map) {
-    MapItem.call(this, pos, map);
 
     this.neighbours = {};
     this.isPhantom = true;
@@ -230,20 +233,11 @@ var PhantomMapNode = function(pos, map) {
     this.focusedBorderColor = surface.bigMap["focusedBorder"];
 };
 
-PhantomMapNode.prototype = Object.create(MapItem.prototype);
-PhantomMapNode.prototype.constructor = PhantomMapNode;
-
-PhantomMapNode.prototype.onPaint = function(ctx) {
-    var worldQObj = this.map.qobj.world;
-    var tileSize = worldQObj.surface.tileSize;
-    ctx.save();
-
-    ctx.translate(this.pos.x, this.pos.y);
+PhantomMapNode.prototype.draw = function(ctx) {
+    var tileSize = this.map.qobj.world.surface.tileSize;
 
     if (this.focused)
         drawBorder(ctx, tileSize, this.focusedBorderColor);
-
-    ctx.restore();
 };
 
 PhantomMapNode.prototype.onMouseIn = function() {
@@ -266,35 +260,43 @@ PhantomMapNode.prototype.toString = function() {
  * Settlement class.
  * @contructor
  */
-var Settlement = function(pos, settlementQObj, map) {
-    MapItem.call(this, pos, map);
-
+var Settlement = function(settlementQObj, mapNodeJObj, map) {
     this.qobj = settlementQObj;
-    this.settlementType = this.qobj.settlementType;
+    this.mapNode = mapNodeJObj;
+    this.map = map;
 
     var surface = this.map.qobj.world.surface;
     this.settlementImage = "images:" +
-        surface.bigMap[this.settlementType.objectName];
+        surface.bigMap[this.qobj.settlementType.objectName];
+
+    // init
+    this.mapNode.setSettlement(this);
+
+    this.qobj.settlementTypeChanged.connect(
+        this.onSettlementTypeChanged.bind(this)
+    );
+    this.qobj.ownerChanged.connect(this.onOwnerChanged.bind(this));
 };
 
-Settlement.prototype = Object.create(MapItem.prototype);
-Settlement.prototype.constructor = Settlement;
-
-Settlement.prototype.onPaint = function(ctx) {
-    var worldQObj = this.map.qobj.world;
-
-    ctx.save();
-
-    ctx.translate(this.pos.x, this.pos.y);
-
+Settlement.prototype.draw = function(ctx) {
     ctx.drawImage(this.settlementImage, 0, 0);
+};
 
-    ctx.restore();
+Settlement.prototype.onSettlementTypeChanged = function() {
+    var surface = this.map.qobj.world.surface;
+    this.settlementImage = "images:" +
+        surface.bigMap[this.qobj.settlementType.objectName];
+
+    this.map.markDirty(this);
+};
+
+Settlement.prototype.onOwnerChanged = function() {
+    this.map.markDirty(this);
 };
 
 Settlement.prototype.toString = function() {
-    var str = "[Settlement(" + this.pos.x + "," + this.pos.y + "), qobj<" +
-        this.qobj + "> on mapNode " + this.qobj.mapNode + "]";
+    var str = "[Settlement<" + this.qobj + "> on " +
+        this.mapNode.toString() + " ]";
     return str;
 };
 
@@ -303,29 +305,23 @@ Settlement.prototype.toString = function() {
  * MiniSettlement class.
  * @contructor
  */
-var MiniSettlement = function(pos, settlementQObj, map) {
-    MapItem.call(this, pos, map);
-
+var MiniSettlement = function(settlementQObj, mapNodeJObj, map) {
     this.qobj = settlementQObj;
+    this.mapNode = mapNodeJObj;
+    this.map = map;
 
     // init
+    this.mapNode.setSettlement(this);
+
     this.qobj.ownerChanged.connect(this.onOwnerChanged.bind(this));
 };
-
-MiniSettlement.prototype = Object.create(MapItem.prototype);
-MiniSettlement.prototype.constructor = MiniSettlement;
 
 MiniSettlement.prototype.onOwnerChanged = function() {
     this.map.markDirty(this);
 };
 
-MiniSettlement.prototype.onPaint = function(ctx) {
-    var worldQObj = this.map.qobj.world;
-    var tileSize = worldQObj.surface.tileSize;
-
-    ctx.save();
-
-    ctx.translate(this.pos.x, this.pos.y);
+MiniSettlement.prototype.draw = function(ctx) {
+    var tileSize = this.map.qobj.world.surface.tileSize;
 
     var w = tileSize.width;
     var h = tileSize.height;
@@ -337,13 +333,11 @@ MiniSettlement.prototype.onPaint = function(ctx) {
     ctx.fillStyle = this.qobj.owner.color;
 
     ctx.fillRect(x, y, size, size);
-
-    ctx.restore();
 };
 
 MiniSettlement.prototype.toString = function() {
-    var str = "[MiniSettlement(" + this.pos.x + "," + this.pos.y + "), qobj<" +
-        this.qobj + "> on mapNode " + this.qobj.mapNode + "]";
+    var str = "[MiniSettlement<" + this.qobj + "> on " +
+        this.mapNode.toString() + " ]";
     return str;
 };
 
@@ -352,46 +346,39 @@ MiniSettlement.prototype.toString = function() {
  * Unit class.
  * @contructor
  */
-var Unit = function(pos, unitQObj, map) {
-    MapItem.call(this, pos, map);
-
+var Unit = function(unitQObj, mapNodeJObj, map) {
     this.qobj = unitQObj;
-    this.unitType = this.qobj.unitType;
+    this.mapNodeJObj = mapNodeJObj;
+    this.map = map;
 
     var surface = this.map.qobj.world.surface;
-    this.unitImage = "images:" + surface.bigMap[this.unitType.objectName];
+    this.unitImage = "images:" +
+        surface.bigMap[this.qobj.unitType.objectName];
 
     // init
     this.qobj.unitTypeChanged.connect(this.onUnitTypeChanged.bind(this));
+    this.qobj.ownerChanged.connect(this.onOwnerChanged.bind(this));
 };
 
-Unit.prototype = Object.create(MapItem.prototype);
-Unit.prototype.constructor = Unit;
-
-Unit.prototype.onPaint = function(ctx) {
-    var worldQObj = this.map.qobj.world;
-
-    ctx.save();
-
-    ctx.translate(this.pos.x, this.pos.y);
-
+Unit.prototype.draw = function(ctx) {
     ctx.drawImage(this.unitImage, 0, 0);
-
-    ctx.restore();
 };
 
 Unit.prototype.onUnitTypeChanged = function() {
-    this.unitType = this.qobj.unitType;
-
     var surface = this.map.qobj.world.surface;
-    this.unitImage = "images:" + surface.bigMap[this.unitType.objectName];
+    this.unitImage = "images:" +
+        surface.bigMap[this.qobj.unitType.objectName];
 
     this.map.markDirty(this);
 };
 
+Unit.prototype.onOwnerChanged = function() {
+    this.map.markDirty(this);
+};
+
 Unit.prototype.toString = function() {
-    var str = "[Unit(" + this.pos.x + "," + this.pos.y + "), qobj<" +
-        this.qobj + "> on mapNode " + this.qobj.mapNode + "]";
+    var str = "[Unit<" + this.qobj + "> on " +
+        this.mapNode.toString() + " ]";
     return str;
 };
 
@@ -400,25 +387,17 @@ Unit.prototype.toString = function() {
  * MiniUnit class.
  * @contructor
  */
-var MiniUnit = function(pos, unitQObj, map) {
-    MapItem.call(this, pos, map);
-
+var MiniUnit = function(unitQObj, mapNodeJObj, map) {
     this.qobj = unitQObj;
+    this.mapNode = mapNodeJObj;
+    this.map = map;
 
     // init
     this.qobj.ownerChanged.connect(this.onOwnerChanged.bind(this));
 };
 
-MiniUnit.prototype = Object.create(MapItem.prototype);
-MiniUnit.prototype.constructor = MiniUnit;
-
-MiniUnit.prototype.onPaint = function(ctx) {
-    var worldQObj = this.map.qobj.world;
-    var tileSize = worldQObj.surface.tileSize;
-
-    ctx.save();
-
-    ctx.translate(this.pos.x, this.pos.y);
+MiniUnit.prototype.draw = function(ctx) {
+    var tileSize = this.map.qobj.world.surface.tileSize;
 
     var w = tileSize.width;
     var h = tileSize.height;
@@ -428,10 +407,7 @@ MiniUnit.prototype.onPaint = function(ctx) {
     var y = h/2 - size/2;
 
     ctx.fillStyle = this.qobj.owner.color;
-
     ctx.fillRect(x, y, size, size);
-
-    ctx.restore();
 };
 
 MiniUnit.prototype.onOwnerChanged = function() {
@@ -439,7 +415,7 @@ MiniUnit.prototype.onOwnerChanged = function() {
 };
 
 MiniUnit.prototype.toString = function() {
-    var str = "[MiniUnit(" + this.pos.x + "," + this.pos.y + "), qobj<" +
-        this.qobj + "> on mapNode " + this.qobj.mapNode + "]";
+    var str = "[MiniUnit<" + this.qobj + "> on " +
+        this.mapNode.toString() + " ]";
     return str;
 };

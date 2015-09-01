@@ -29,6 +29,15 @@ function neighbourPos(dir, tileSize, pos) {
     );
 };
 
+var directions = [
+    'West',
+    'NorthWest',
+    'NorthEast',
+    'SouthEast',
+    'East',
+    'SouthWest'
+];
+
 var MouseEvents = {
     clicked: 'clicked',
     pressed: 'pressed',
@@ -145,11 +154,15 @@ Map.prototype.addUnit = function(unit) {
 };
 
 Map.prototype.markDirty = function(mapNode) {
+    this.markTileDirty(mapNode.pos);
+};
+
+Map.prototype.markTileDirty = function(pos) {
     var tileSize = this.qobj.world.surface.tileSize;
 
     this.canvas.markDirty(Qt.rect(
-        mapNode.pos.x,
-        mapNode.pos.y,
+        pos.x,
+        pos.y,
         tileSize.width,
         tileSize.height
     ));
@@ -174,6 +187,22 @@ Map.prototype.getMapNodeByQObj = function(mapNodeQObj) {
     }
 
     return undefined;
+};
+
+Map.prototype.getTileNeighbours = function(tilePos) {
+    var tileSize = this.qobj.world.surface.tileSize;
+    var neighbours = {}
+    for (var i = 0; i < directions.length; i++) {
+        var direction = directions[i];
+        var pos = neighbourPos(direction, tileSize, tilePos);
+        var neighbour = this.getMapNodeByPos(pos);
+
+        if (neighbour != undefined) {
+            neighbours[direction] = neighbour;
+        }
+    }
+
+    return neighbours;
 };
 
 Map.prototype.getMapNodeByPos = function(pos) {
@@ -238,6 +267,12 @@ Map.prototype.calculateBoundingRect = function() {
     var tileSize = this.qobj.world.surface.tileSize;
     bottomRight.x += tileSize.width;
     bottomRight.y += tileSize.height;
+
+    // leave a half-tile padding
+    topLeft.x -= tileSize.width/2;
+    topLeft.y -= tileSize.height/2;
+    bottomRight.x += tileSize.width/2;
+    bottomRight.y += tileSize.height/2;
 
     return Qt.rect(
         topLeft.x,
@@ -377,8 +412,7 @@ BigMap.prototype.newUnit = function(unitQObj, mapNodeJObj) {
     return new MapItem.Unit(unitQObj, mapNodeJObj, this);
 };
 
-BigMap.prototype.onHovered = function(pos) {
-    var mapNode = this.findMapNodeAt(pos);
+BigMap.prototype.moveFocus = function(mapNode) {
     if (this.focusedNode !== mapNode) {
         if (mapNode) {
             if (this.focusedNode) this.focusedNode.onMouseOut();
@@ -394,6 +428,11 @@ BigMap.prototype.onHovered = function(pos) {
 
     if (this.mapNodeFocused != undefined)
         this.mapNodeFocused(mapNode);
+};
+
+BigMap.prototype.onHovered = function(pos) {
+   var mapNode = this.findMapNodeAt(pos);
+   this.moveFocus(mapNode);
 };
 
 BigMap.prototype.onPanned = function(pos, posDiff) {
@@ -578,16 +617,43 @@ EditableMap.prototype.buildTypeMap = function(typeList) {
     return typeMap;
 };
 
-//FIXME: needs rewrite
-EditableMap.prototype.createNewMapNode = function(mapNodeJObj) {
+EditableMap.prototype.getTilePos = function(pos) {
+    var tileSize = this.qobj.world.surface.tileSize;
+    
+    // see if there any mapNodes nearby, and if yes, calculate the position
+    // of the upperLeft corner of this tile
+    var neighbour = undefined;
+    var neighbourDirection = undefined;
+    for (var i = 0; i < directions.length; i++) {
+        var direction = directions[i];
+        var npos = neighbourPos(direction, tileSize, pos);
+
+        var mapNode = this.findMapNodeAt(npos);
+
+        if (mapNode !== undefined) {
+            neighbour = mapNode;
+            neighbourDirection = direction;
+            break;
+        }
+    }
+
+    if (neighbour === undefined) return undefined;
+
+    var direction = neighbour.qobj.oppositeDirection(neighbourDirection);
+    return neighbourPos(direction, tileSize, neighbour.pos);
+};
+
+EditableMap.prototype.createNewMapNode = function(pos) {
     if (this.currentTerrainType == undefined) return;
 
-    var neighbours = mapNodeJObj.qobj.neighbours;
+    var tilePos = this.getTilePos(pos);
+    if (tilePos == undefined) return;
+
+    var neighbours = this.getTileNeighbours(tilePos);
+
     var neighboursMap = {};
     for (var direction in neighbours) {
-        if (neighbours.hasOwnProperty(direction)) {
-            neighboursMap[direction] = neighbours[direction].qobj;
-        }
+        neighboursMap[direction] = neighbours[direction].qobj;
     }
 
     this.qobj.createMapNode(this.currentTerrainType, neighboursMap);
@@ -644,15 +710,38 @@ EditableMap.prototype.editUnit = function(unitJObj) {
     }
 };
 
+EditableMap.prototype.onHovered = function(pos) {
+    var mapNode = this.findMapNodeAt(pos);
+    this.moveFocus(mapNode);
+
+    var tileSize = this.qobj.world.surface.tileSize;
+
+    if (this.ghostHexagon != undefined)
+        this.markTileDirty(this.ghostHexagon);
+
+    if (mapNode == undefined) {
+        this.ghostHexagon = this.getTilePos(pos);
+    } else {
+        this.ghostHexagon = undefined;
+    }
+
+    if (this.ghostHexagon != undefined)
+        this.markTileDirty(this.ghostHexagon);
+};
+
 EditableMap.prototype.onClicked = function(pos) {
     var mapNode = this.findMapNodeAt(pos);
-    var settlement = mapNode.settlement;
-    var unit = mapNode.unit;
+    var settlement = undefined;
+    var unit = undefined;
+    if (mapNode) {
+        settlement = mapNode.settlement;
+        unit = mapNode.unit;
+    }
 
     if (this.editMode == EditableMap.SelectMode) {
         this.selectMapItems(mapNode, settlement, unit);
     } else if (this.editMode == EditableMap.CreateMapNodeMode) {
-        this.createNewMapNode(mapNode);
+        this.createNewMapNode(pos);
     } else if (this.editMode == EditableMap.CreateSettlementMode) {
         this.createNewSettlement(mapNode);
     } else if (this.editMode == EditableMap.CreateUnitMode) {
@@ -671,10 +760,32 @@ EditableMap.prototype.onClicked = function(pos) {
 EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
     var pos = this.calculatePosOfMapNodeQObj(mapNodeQObj);
 
-    this.createMapNode(mapNodeQObj, pos);
+    var mapNodeJObj = this.createMapNode(mapNodeQObj, pos);
 
+    this.ghostHexagon = undefined;
     this.geometryChanged = true;
-    this.markDirty(mapNodeJObj);
+    this.canvas.requestPaint();
+};
+
+EditableMap.prototype.draw = function(ctx, region) {
+    BigMap.prototype.draw.call(this, ctx, region);
+
+    if (this.ghostHexagon == undefined) return;
+
+    ctx.save();
+    ctx.translate(this.ghostHexagon.x, this.ghostHexagon.y);
+
+    var surface = this.qobj.world.surface;
+    var tileSize = surface.tileSize;
+    var focusedColor = surface.style["focusedBorder"];
+
+    MapItem.drawHexagon(ctx, tileSize);
+
+    ctx.fillStyle = focusedColor;
+
+    ctx.fill();
+
+    ctx.restore();
 };
 
 EditableMap.prototype.setEditMode = function(editMode) {

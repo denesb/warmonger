@@ -1,6 +1,6 @@
 .pragma library
 
-function drawBorder(ctx, tileSize, color, lineWidth) {
+function drawHexagon(ctx, tileSize) {
     var w = tileSize.width;
     var h = tileSize.height;
 
@@ -19,10 +19,6 @@ function drawBorder(ctx, tileSize, color, lineWidth) {
     ctx.lineTo(p4.x, p4.y);
     ctx.lineTo(p5.x, p5.y);
     ctx.closePath();
-
-    ctx.lineWidth = lineWidth;
-    ctx.strokeStyle = color;
-    ctx.stroke();
 };
 
 /*
@@ -83,8 +79,15 @@ MapNode.prototype.drawTerrain = function(ctx) {
 
 MapNode.prototype.drawGrid = function(ctx) {
     this.beginPaint(ctx);
+
     var tileSize = this.map.qobj.world.surface.tileSize;
-    drawBorder(ctx, tileSize, this.blurredBorderColor, 1);
+
+    drawHexagon(ctx, tileSize);
+
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = this.blurredBorderColor;
+    ctx.stroke();
+
     this.endPaint(ctx);
 };
 
@@ -92,8 +95,15 @@ MapNode.prototype.drawOverlay = function(ctx) {
     if (!this.focused) return;
 
     this.beginPaint(ctx);
+
     var tileSize = this.map.qobj.world.surface.tileSize;
-    drawBorder(ctx, tileSize, this.focusedBorderColor, 2);
+
+    drawHexagon(ctx, tileSize);
+
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = this.focusedBorderColor;
+    ctx.stroke();
+
     this.endPaint(ctx);
 };
 
@@ -157,7 +167,7 @@ var MiniMapNode = function(mapNodeQObj, pos, map) {
     this.unit = undefined;
 
     var surface = this.map.qobj.world.surface;
-    this.style = surface.miniMap[this.qobj.terrainType.objectName];
+    this.color = surface.miniMap[this.qobj.terrainType.objectName];
 
     // init
     this.qobj.terrainTypeChanged.connect(
@@ -182,31 +192,14 @@ MiniMapNode.prototype.draw = function(ctx) {
 
     var tileSize = this.map.qobj.world.surface.tileSize;
 
-    var w = tileSize.width;
-    var h = tileSize.height;
+    drawHexagon(ctx, tileSize);
 
-    var p0 = Qt.point(-1, h/4 - 1);
-    var p1 = Qt.point(w/2 - 1, -1);
-    var p2 = Qt.point(w, h/4 - 1);
-    var p3 = Qt.point(w, 3 * h/4 - 1);
-    var p4 = Qt.point(w/2 - 1, h - 1);
-    var p5 = Qt.point(-1, 3 * h/4 - 1);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = this.color;
+    ctx.fillStyle = this.color;
 
-    ctx.beginPath();
-    ctx.moveTo(p0.x, p0.y);
-    ctx.lineTo(p1.x, p1.y);
-    ctx.lineTo(p2.x, p2.y);
-    ctx.lineTo(p3.x, p3.y);
-    ctx.lineTo(p4.x, p4.y);
-    ctx.lineTo(p5.x, p5.y);
-    ctx.closePath();
-
-    var style = this.style;
-
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = style;
-    ctx.fillStyle = style;
-
+    //FIXME: figure out, why are there gaps between the hexagons
+    ctx.stroke();
     ctx.fill();
 
     if (this.settlement) {

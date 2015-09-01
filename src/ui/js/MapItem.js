@@ -1,6 +1,6 @@
 .pragma library
 
-function drawBorder(ctx, tileSize, color) {
+function drawBorder(ctx, tileSize, color, lineWidth) {
     var w = tileSize.width;
     var h = tileSize.height;
 
@@ -20,7 +20,7 @@ function drawBorder(ctx, tileSize, color) {
     ctx.lineTo(p5.x, p5.y);
     ctx.closePath();
 
-    ctx.lineWidth = 1;
+    ctx.lineWidth = lineWidth;
     ctx.strokeStyle = color;
     ctx.stroke();
 };
@@ -43,8 +43,8 @@ var MapNode = function(mapNodeQObj, pos, map) {
     var terrainType = this.qobj.terrainType.objectName
 
     this.terrainImage = prefix + surface.bigMap[terrainType];
-    this.blurredBorderColor = surface.bigMap["blurredBorder"];
-    this.focusedBorderColor = surface.bigMap["focusedBorder"];
+    this.blurredBorderColor = surface.style["blurredBorder"];
+    this.focusedBorderColor = surface.style["focusedBorder"];
 
     // init
     this.qobj.terrainTypeChanged.connect(
@@ -81,13 +81,19 @@ MapNode.prototype.drawTerrain = function(ctx) {
     this.endPaint(ctx);
 };
 
-MapNode.prototype.drawOverlay = function(ctx) {
+MapNode.prototype.drawGrid = function(ctx) {
     this.beginPaint(ctx);
     var tileSize = this.map.qobj.world.surface.tileSize;
-    if (this.focused)
-        drawBorder(ctx, tileSize, this.focusedBorderColor);
-    else
-        drawBorder(ctx, tileSize, this.blurredBorderColor);
+    drawBorder(ctx, tileSize, this.blurredBorderColor, 1);
+    this.endPaint(ctx);
+};
+
+MapNode.prototype.drawOverlay = function(ctx) {
+    if (!this.focused) return;
+
+    this.beginPaint(ctx);
+    var tileSize = this.map.qobj.world.surface.tileSize;
+    drawBorder(ctx, tileSize, this.focusedBorderColor, 2);
     this.endPaint(ctx);
 };
 

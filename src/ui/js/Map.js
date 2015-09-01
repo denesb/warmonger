@@ -416,8 +416,11 @@ BigMap.prototype.draw = function(ctx, region) {
         region.height
     );
 
+    //FIXME: only draw those mapNodes overlapping/contained in region
     var mapNodes = this.mapNodes;
+
     this.drawMapNodes(ctx, mapNodes);
+    this.drawGrid(ctx, mapNodes);
     this.drawOverlay(ctx, mapNodes);
     this.drawContent(ctx, mapNodes);
 };
@@ -426,6 +429,13 @@ BigMap.prototype.drawMapNodes = function(ctx, mapNodes) {
     for (var i = 0; i < mapNodes.length; i++) {
         var mapNode = mapNodes[i];
         mapNode.drawTerrain(ctx);
+    }
+};
+
+BigMap.prototype.drawGrid = function(ctx, mapNodes) {
+    for (var i = 0; i < mapNodes.length; i++) {
+        var mapNode = mapNodes[i];
+        mapNode.drawGrid(ctx);
     }
 };
 

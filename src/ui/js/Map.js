@@ -543,7 +543,6 @@ var EditableMap = function(W, canvas, mouseArea) {
     this.settlementTypeMap = this.buildTypeMap(this.qobj.world.settlementTypes);
     this.unitTypeMap = this.buildTypeMap(this.qobj.world.unitTypes);
 
-    //this.addPhantomMapNodes(this.mapItems);
     this.geometryChanged = true;
 };
 
@@ -569,38 +568,8 @@ EditableMap.prototype.buildTypeMap = function(typeList) {
     return typeMap;
 };
 
-EditableMap.prototype.addPhantomMapNodes = function(mapNodes) {
-    for (var i = 0; i < mapNodes.length; i++) {
-
-        var mapNode = mapNodes[i];
-        if (mapNode instanceof MapItem.PhantomMapNode) continue;
-
-        for (var direction in mapNode.qobj.neighbours) {
-            var neighbour = mapNode.qobj.neighbours[direction];
-
-            if (neighbour == undefined)
-                this.createPhantomNode(mapNode, direction);
-        }
-    }
-};
-
-EditableMap.prototype.createPhantomNode = function(neighbourMapNode, direction) {
-    var tileSize = this.qobj.world.surface.tileSize;
-    var pos = neighbourPos(direction, tileSize, neighbourMapNode.pos);
-
-    var phantomMapNode = this.getMapNodeByPos(pos);
-    if (phantomMapNode == undefined) {
-        phantomMapNode = new MapItem.PhantomMapNode(pos, this);
-        this.mapItems.push(phantomMapNode);
-        this.markDirty(phantomMapNode);
-    }
-
-    var oppositeDirection = neighbourMapNode.qobj.oppositeDirection(direction);
-    phantomMapNode.neighbours[oppositeDirection] = neighbourMapNode;
-};
-
+//FIXME: needs rewrite
 EditableMap.prototype.createNewMapNode = function(mapNodeJObj) {
-    if (!mapNodeJObj.isPhantom) return;
     if (this.currentTerrainType == undefined) return;
 
     var neighbours = mapNodeJObj.qobj.neighbours;
@@ -615,14 +584,12 @@ EditableMap.prototype.createNewMapNode = function(mapNodeJObj) {
 };
 
 EditableMap.prototype.createNewSettlement = function(mapNodeJObj) {
-    if (mapNodeJObj.isPhantom) return;
     if (this.currentSettlementType == undefined) return;
 
     this.qobj.createSettlement(this.currentSettlementType, mapNodeJObj.qobj);
 };
 
 EditableMap.prototype.createNewUnit = function(mapNodeJObj) {
-    if (mapNodeJObj.isPhantom) return;
     if (this.currentUnitType == undefined) return;
 
     this.qobj.createUnit(this.currentUnitType, mapNodeJObj.qobj);
@@ -646,8 +613,6 @@ EditableMap.prototype.selectMapItems = function(mapNodeJObj, settlementJObj) {
 };
 
 EditableMap.prototype.editMapNode = function(mapNodeJObj) {
-    if (mapNodeJObj.isPhantom) return;
-
     if (this.onEditMapNode) {
         this.onEditMapNode(mapNodeJObj.qobj);
     }
@@ -696,12 +661,7 @@ EditableMap.prototype.onClicked = function(pos) {
 EditableMap.prototype.onMapNodeCreated = function(mapNodeQObj) {
     var pos = this.calculatePosOfMapNodeQObj(mapNodeQObj);
 
-    // remove placeholder phantom mapNode
-    var phantomMapNode = this.getMapNodeByPos(pos);
-    this.removeMapNode(phantomMapNode);
-
     this.createMapNode(mapNodeQObj, pos);
-    //this.addPhantomMapNodes([mapNodeJObj]);
 
     this.geometryChanged = true;
     this.markDirty(mapNodeJObj);

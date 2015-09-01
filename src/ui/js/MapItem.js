@@ -55,7 +55,12 @@ var MapNode = function(mapNodeQObj, pos, map) {
 MapNode.prototype.setSettlement = function(settlement) {
     this.settlement = settlement;
     this.map.markDirty(this);
-}
+};
+
+MapNode.prototype.setUnit = function(unit) {
+    this.unit = unit;
+    this.map.markDirty(this);
+};
 
 MapNode.prototype.translate = function(point) {
     return Qt.point(point.x - this.pos.x, point.y - this.pos.y);
@@ -158,7 +163,12 @@ var MiniMapNode = function(mapNodeQObj, pos, map) {
 MiniMapNode.prototype.setSettlement = function(settlement) {
     this.settlement = settlement;
     this.map.markDirty(this);
-}
+};
+
+MiniMapNode.prototype.setUnit = function(unit) {
+    this.unit = unit;
+    this.map.markDirty(this);
+};
 
 MiniMapNode.prototype.draw = function(ctx) {
     ctx.save();
@@ -214,44 +224,6 @@ MiniMapNode.prototype.onTerrainTypeChanged = function() {
 MiniMapNode.prototype.toString = function() {
     var str = "[MiniMapNode(" + this.pos.x + "," + this.pos.y + "), qobj<" +
         this.qobj + ">]";
-    return str;
-};
-
-/*
- * PhantomMapNode class
- * @contructor
- */
-var PhantomMapNode = function(pos, map) {
-
-    this.neighbours = {};
-    this.isPhantom = true;
-
-    var surface = this.map.qobj.world.surface;
-    var prefix = "images:";
-
-    this.blurredBorderColor = surface.bigMap["blurredBorder"];
-    this.focusedBorderColor = surface.bigMap["focusedBorder"];
-};
-
-PhantomMapNode.prototype.draw = function(ctx) {
-    var tileSize = this.map.qobj.world.surface.tileSize;
-
-    if (this.focused)
-        drawBorder(ctx, tileSize, this.focusedBorderColor);
-};
-
-PhantomMapNode.prototype.onMouseIn = function() {
-    this.focused = true;
-    this.map.markDirty(this);
-};
-
-PhantomMapNode.prototype.onMouseOut = function() {
-    this.focused = false;
-    this.map.markDirty(this);
-};
-
-PhantomMapNode.prototype.toString = function() {
-    var str = "[PhantomMapNode(" + this.pos.x + "," + this.pos.y + ")]";
     return str;
 };
 
@@ -348,7 +320,7 @@ MiniSettlement.prototype.toString = function() {
  */
 var Unit = function(unitQObj, mapNodeJObj, map) {
     this.qobj = unitQObj;
-    this.mapNodeJObj = mapNodeJObj;
+    this.mapNode = mapNodeJObj;
     this.map = map;
 
     var surface = this.map.qobj.world.surface;
@@ -356,6 +328,8 @@ var Unit = function(unitQObj, mapNodeJObj, map) {
         surface.bigMap[this.qobj.unitType.objectName];
 
     // init
+    this.mapNode.setUnit(this);
+
     this.qobj.unitTypeChanged.connect(this.onUnitTypeChanged.bind(this));
     this.qobj.ownerChanged.connect(this.onOwnerChanged.bind(this));
 };
@@ -393,6 +367,8 @@ var MiniUnit = function(unitQObj, mapNodeJObj, map) {
     this.map = map;
 
     // init
+    this.mapNode.setUnit(this);
+
     this.qobj.ownerChanged.connect(this.onOwnerChanged.bind(this));
 };
 

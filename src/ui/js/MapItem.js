@@ -258,11 +258,11 @@ Settlement.prototype.onSettlementTypeChanged = function() {
     this.settlementImage = "images:" +
         surface.bigMap[this.qobj.settlementType.objectName];
 
-    this.map.markDirty(this);
+    this.map.markDirty(this.mapNode);
 };
 
 Settlement.prototype.onOwnerChanged = function() {
-    this.map.markDirty(this);
+    this.map.markDirty(this.mapNode);
 };
 
 Settlement.prototype.toString = function() {
@@ -288,7 +288,7 @@ var MiniSettlement = function(settlementQObj, mapNodeJObj, map) {
 };
 
 MiniSettlement.prototype.onOwnerChanged = function() {
-    this.map.markDirty(this);
+    this.map.markDirty(this.mapNode);
 };
 
 MiniSettlement.prototype.draw = function(ctx) {
@@ -342,11 +342,11 @@ Unit.prototype.onUnitTypeChanged = function() {
     this.unitImage = "images:" +
         surface.bigMap[this.qobj.unitType.objectName];
 
-    this.map.markDirty(this);
+    this.map.markDirty(this.mapNode);
 };
 
 Unit.prototype.onOwnerChanged = function() {
-    this.map.markDirty(this);
+    this.map.markDirty(this.mapNode);
 };
 
 Unit.prototype.toString = function() {
@@ -386,7 +386,7 @@ MiniUnit.prototype.draw = function(ctx) {
 };
 
 MiniUnit.prototype.onOwnerChanged = function() {
-    this.map.markDirty(this);
+    this.map.markDirty(this.mapNode);
 };
 
 MiniUnit.prototype.toString = function() {

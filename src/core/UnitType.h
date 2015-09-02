@@ -14,6 +14,8 @@ class UnitType :
     public GameObject
 {
     Q_OBJECT;
+    Q_PROPERTY(int hitPoints READ getHitPoints WRITE setHitPoints NOTIFY hitPointsChanged)
+    Q_PROPERTY(QObject * unitClass READ readUnitClass WRITE writeUnitClass NOTIFY unitClassChanged)
 
 public:
     enum UnitRank
@@ -30,10 +32,12 @@ public:
     void setHitPoints(int hitPoints);
 
     UnitRank getUnitRank() const;
-    void setUnitRank(UnitRank rank);
+    void setUnitRank(UnitRank unitRank);
 
     UnitClass * getUnitClass() const;
-    void setUnitClass(UnitClass *klass);
+    void setUnitClass(UnitClass *unitClass);
+    QObject * readUnitClass() const;
+    void writeUnitClass(QObject *unitClass);
 
     int getLevel() const;
     void setLevel(int level);
@@ -44,13 +48,17 @@ public:
     QList<Weapon *> getWeapons() const;
     void setWeapons(const QList<Weapon *> &weapons);
 
+signals:
+    void hitPointsChanged();
+    void unitClassChanged();
+
 private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
     int hitPoints;
-    UnitRank rank;
-    UnitClass *klass;
+    UnitRank unitRank;
+    UnitClass *unitClass;
     int level;
     Armor *armor;
     QList<Weapon *> weapons;

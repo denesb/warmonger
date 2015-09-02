@@ -34,7 +34,7 @@ Rectangle {
                 var surface = W.map.world.surface;
                 if (mapItemsInfo.mapNode) {
                     var terrainTypeName = mapItemsInfo.mapNode.terrainType.objectName;
-                    "images:" + surface.gameMap[terrainTypeName];
+                    "images:" + surface.bigMap[terrainTypeName];
                 } else {
                     "";
                 }
@@ -133,7 +133,7 @@ Rectangle {
                 var surface = W.map.world.surface;
                 if (mapItemsInfo.settlement) {
                     var settlementTypeName = mapItemsInfo.settlement.settlementType.objectName;
-                    "images:" + surface.gameMap[settlementTypeName];
+                    "images:" + surface.bigMap[settlementTypeName];
                 } else {
                     "";
                 }

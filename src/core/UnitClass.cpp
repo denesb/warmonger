@@ -24,7 +24,11 @@ int UnitClass::getMovementPoints() const
 
 void UnitClass::setMovementPoints(int movementPoints)
 {
-    this->movementPoints = movementPoints;
+    if (this->movementPoints != movementPoints)
+    {
+        this->movementPoints = movementPoints;
+        emit movementPointsChanged();
+    }
 }
 
 QMap<const TerrainType *, int> UnitClass::getMovements() const

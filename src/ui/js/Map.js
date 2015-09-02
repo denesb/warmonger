@@ -905,6 +905,9 @@ MiniMap.prototype.onPressed = function(mouse) {
     if (this.windowPosChanged) this.windowPosChanged(windowPos);
 };
 
+MiniMap.prototype.onClicked = function(pos) {
+};
+
 MiniMap.prototype.onPanned = function(pos, posDiff) {
     this.centerOn(pos);
 

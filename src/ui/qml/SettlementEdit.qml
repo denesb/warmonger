@@ -8,10 +8,13 @@ Rectangle {
 
     onSettlementChanged: {
         var index = -1;
+        var ownerIndex = -1;
         if (settlementEdit.settlement) {
             index = settlementTypeEdit.find(settlementEdit.settlement.settlementType.displayName);
+            ownerIndex = ownerEdit.find(settlementEdit.settlement.owner.displayName);
         }
         settlementTypeEdit.currentIndex = index;
+        ownerEdit.currentIndex = ownerIndex;
     }
 
     Image {
@@ -31,9 +34,9 @@ Rectangle {
             var surface = W.map.world.surface;
             if (settlementEdit.settlement) {
                 var settlementTypeName = settlementEdit.settlement.settlementType.objectName;
-                "images:" + surface.gameMap[settlementTypeName];
+                "images:" + surface.bigMap[settlementTypeName];
             } else {
-                "images:" + surface.gameMap["undefined"];
+                "";
             }
         }
     }
@@ -148,6 +151,51 @@ Rectangle {
                     var settlementType = settlementTypes[index];
 
                     settlementEdit.settlement.settlementType = settlementType;
+                }
+            }
+        }
+
+        Label {
+            id: settlementOwnerLabel
+            anchors {
+                top: settlementTypeEdit.bottom
+                left: parent.left
+                right: parent.right
+                topMargin: 10
+            }
+            color: "black"
+            text: "Settlement Owner:"
+        }
+
+        ComboBox {
+            id: ownerEdit
+            height: 25
+            anchors {
+                top: settlementOwnerLabel.bottom
+                left: parent.left
+                right: parent.right
+            }
+            style: ComboBoxStyle {
+                background: Rectangle {
+                    radius: 5
+                    border.color: "#333"
+                    border.width: 1
+                }
+            }
+
+            model: W.map.allPlayers;
+            textRole: "displayName"
+
+            onActivated: {
+                if (settlementEdit.settlement) {
+                    var players = W.map.players;
+                    if (index == 0) {
+                        var owner = W.map.neutralPlayer;
+                    } else {
+                        var owner = players[index - 1];
+                    }
+
+                    settlementEdit.settlement.owner = owner;
                 }
             }
         }

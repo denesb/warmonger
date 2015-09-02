@@ -31,6 +31,7 @@ UnitType * Unit::getUnitType() const
 
 void Unit::setUnitType(UnitType *unitType)
 {
+    //FIXME: update hp, xp, mp on unitType change
     if (this->unitType != unitType)
     {
         this->unitType = unitType;
@@ -45,14 +46,14 @@ QObject * Unit::readUnitType() const
 
 void Unit::writeUnitType(QObject *unitType)
 {
-    UnitType *st = qobject_cast<UnitType *>(unitType);
-    if (st == nullptr)
+    UnitType *ut = qobject_cast<UnitType *>(unitType);
+    if (ut == nullptr)
     {
         wError(category) << "unitType is null or has wrong type";
         throw Exception(Exception::InvalidValue);
     }
 
-    this->setUnitType(st);
+    this->setUnitType(ut);
 }
 
 MapNode * Unit::getMapNode() const

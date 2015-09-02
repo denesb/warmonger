@@ -8,15 +8,10 @@ Rectangle {
 
     onUnitChanged: {
         var unitTypeIndex = -1;
-        var ownerIndex = -1;
         if (unitEdit.unit) {
             unitTypeIndex = unitTypeEdit.find(unitEdit.unit.unitType.displayName);
-            if (unitEdit.unit.owner) {
-                ownerIndex = ownerEdit.find(unitEdit.unit.owner.displayName);
-            }
         }
         unitTypeEdit.currentIndex = unitTypeIndex;
-        ownerEdit.currentIndex = ownerIndex + 1;
     }
 
     Image {
@@ -36,9 +31,9 @@ Rectangle {
             var surface = W.map.world.surface;
             if (unitEdit.unit) {
                 var unitTypeName = unitEdit.unit.unitType.objectName;
-                "images:" + surface.gameMap[unitTypeName];
+                "images:" + surface.bigMap[unitTypeName];
             } else {
-                "images:" + surface.gameMap["undefined"];
+                "";
             }
         }
     }
@@ -157,47 +152,97 @@ Rectangle {
             }
         }
 
-        Label {
-            id: unitOwnerLabel
+        OwnerEdit {
+            id: ownerEdit
             anchors {
                 top: unitTypeEdit.bottom
                 left: parent.left
                 right: parent.right
                 topMargin: 10
             }
-            color: "black"
-            text: "Unit Owner:"
-        }
 
-        ComboBox {
-            id: ownerEdit
-            height: 25
-            anchors {
-                top: unitOwnerLabel.bottom
-                left: parent.left
-                right: parent.right
-            }
-            style: ComboBoxStyle {
-                background: Rectangle {
-                    radius: 5
-                    border.color: "#333"
-                    border.width: 1
+            entityName: "Unit"
+            ownersModel: W.map.allPlayers
+
+            ownerIndex: {
+                if (unitEdit.unit) {
+                    ownerEdit.find(unitEdit.unit.owner.displayName);
+                } else {
+                    0;
                 }
             }
 
-            model: W.map.allPlayers;
-            textRole: "displayName"
-
-            onActivated: {
+            onOwnerEdited: {
                 if (unitEdit.unit) {
-                    var players = W.map.players;
-                    if (index == 0) {
-                        var owner = W.map.neutralPlayer;
-                    } else {
-                        var owner = players[index - 1];
-                    }
+                    unitEdit.unit.owner = W.map.allPlayers[index];
+                }
+            }
+        }
 
-                    unitEdit.unit.owner = owner;
+        PointsEdit {
+            id: hpEdit
+            anchors {
+                top: ownerEdit.bottom
+                left: parent.left
+                right: parent.right
+                topMargin: 10
+            }
+
+            pointsName: "HP"
+            maxPoints: {
+                if (unitEdit.unit) {
+                    unitEdit.unit.unitType.hitPoints;
+                } else {
+                    0;
+                }
+            }
+            points: {
+                if (unitEdit.unit) {
+                    unitEdit.unit.hitPoints;
+                } else {
+                    0;
+                }
+            }
+
+            onPointsEdited: {
+                if (unitEdit.unit) {
+                    unitEdit.unit.hitPoints = val
+                } else {
+                    0;
+                }
+            }
+        }
+
+        PointsEdit {
+            id: mpEdit
+            anchors {
+                top: hpEdit.bottom
+                left: parent.left
+                right: parent.right
+                topMargin: 10
+            }
+
+            pointsName: "MP"
+            maxPoints: {
+                if (unitEdit.unit) {
+                    unitEdit.unit.unitType.unitClass.movementPoints;
+                } else {
+                    0;
+                }
+            }
+            points: {
+                if (unitEdit.unit) {
+                    unitEdit.unit.movementPoints;
+                } else {
+                    0;
+                }
+            }
+
+            onPointsEdited: {
+                if (unitEdit.unit) {
+                    unitEdit.unit.movemenetPoints = val
+                } else {
+                    0;
                 }
             }
         }

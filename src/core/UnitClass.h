@@ -14,6 +14,7 @@ class UnitClass :
     public GameObject
 {
     Q_OBJECT
+    Q_PROPERTY(int movementPoints READ getMovementPoints WRITE setMovementPoints NOTIFY movementPointsChanged)
 
 public:
     UnitClass(QObject *parent);
@@ -39,6 +40,9 @@ public:
 
     int getDefense(const TerrainType *terrainType) const;
     void setDefense(const TerrainType *terrainType, int defense);
+
+signals:
+    void movementPointsChanged();
 
 private:
     void dataFromJson(const QJsonObject &obj);

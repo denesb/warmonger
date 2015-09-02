@@ -9,8 +9,8 @@ using namespace warmonger::core;
 UnitType::UnitType(QObject *parent) :
     GameObject(parent),
     hitPoints(0),
-    rank(UnitType::Soldier),
-    klass(nullptr),
+    unitRank(UnitType::Soldier),
+    unitClass(nullptr),
     level(0),
     armor(nullptr),
     weapons()
@@ -28,27 +28,52 @@ int UnitType::getHitPoints() const
 
 void UnitType::setHitPoints(int hitPoints)
 {
-    this->hitPoints = hitPoints;
+    if (this->hitPoints != hitPoints)
+    {
+        this->hitPoints = hitPoints;
+        emit hitPointsChanged();
+    }
 }
 
 UnitType::UnitRank UnitType::getUnitRank() const
 {
-    return this->rank;
+    return this->unitRank;
 }
 
-void UnitType::setUnitRank(UnitType::UnitRank rank)
+void UnitType::setUnitRank(UnitType::UnitRank unitRank)
 {
-    this->rank = rank;
+    this->unitRank = unitRank;
 }
 
 UnitClass *UnitType::getUnitClass() const
 {
-    return this->klass;
+    return this->unitClass;
 }
 
-void UnitType::setUnitClass(UnitClass *klass)
+void UnitType::setUnitClass(UnitClass *unitClass)
 {
-    this->klass = klass;
+    if (this->unitClass != unitClass)
+    {
+        this->unitClass = unitClass;
+        emit unitClassChanged();
+    }
+}
+
+QObject * UnitType::readUnitClass() const
+{
+    return this->unitClass;
+}
+
+void UnitType::writeUnitClass(QObject *unitClass)
+{
+    UnitClass *uc = qobject_cast<UnitClass *>(unitClass);
+    if (uc == nullptr)
+    {
+        wError(category) << "unitClass is null or has wrong type";
+        throw Exception(Exception::InvalidValue);
+    }
+
+    this->setUnitClass(uc);
 }
 
 int UnitType::getLevel() const
@@ -84,25 +109,25 @@ void UnitType::setWeapons(const QList<Weapon *> &weapons)
 void UnitType::dataFromJson(const QJsonObject &obj)
 {
     this->hitPoints = obj["hitPoints"].toInt();
-    const QString rankStr = obj["rank"].toString();
-    if (rankStr == "Soldier")
+    const QString unitRankStr = obj["rank"].toString();
+    if (unitRankStr == "Soldier")
     {
-        this->rank = UnitType::Soldier;
+        this->unitRank = UnitType::Soldier;
     }
-    else if (rankStr == "Officer")
+    else if (unitRankStr == "Officer")
     {
-        this->rank = UnitType::Officer;
+        this->unitRank = UnitType::Officer;
     }
-    else if (rankStr == "Leader")
+    else if (unitRankStr == "Leader")
     {
-        this->rank = UnitType::Leader;
+        this->unitRank = UnitType::Leader;
     }
     else
     {
-        wError("core.UnitType") << "Invalid unit rank: " << rankStr;
-        throw Exception(Exception::InvalidValue, {rankStr});
+        wError("core.UnitType") << "Invalid unit rank: " << unitRankStr;
+        throw Exception(Exception::InvalidValue, {unitRankStr});
     }
-    this->klass = this->parent()->findChild<UnitClass *>(obj["class"].toString());
+    this->unitClass = this->parent()->findChild<UnitClass *>(obj["class"].toString());
     this->level = obj["level"].toInt();
     this->armor = this->parent()->findChild<Armor *>(obj["armor"].toString());
     this->weapons = referenceListFromJson<Weapon>(obj["weapons"].toArray(), this);
@@ -111,8 +136,8 @@ void UnitType::dataFromJson(const QJsonObject &obj)
 void UnitType::dataToJson(QJsonObject &obj) const
 {
     obj["hitPoints"] = this->hitPoints;
-    obj["rank"] = this->rank;
-    obj["class"] = this->klass->objectName();
+    obj["rank"] = this->unitRank;
+    obj["class"] = this->unitClass->objectName();
     obj["level"] = this->level;
     obj["armor"] = this->armor->objectName();
     obj["weapons"] = referenceListToJson<Weapon>(this->weapons);

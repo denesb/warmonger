@@ -121,7 +121,7 @@ Rectangle {
         id: map
 
         property var jobj
-        signal selectMapItems(var mapNode, var settlement)
+        signal selectMapItems(var mapNode, var settlement, var unit)
         signal editMapNode(var mapNode)
         signal editSettlement(var settlement)
         signal editUnit(var unit)
@@ -252,9 +252,10 @@ Rectangle {
                         id: mapItemsInfo
                         anchors.fill: parent
 
-                        function onSelectMapItems(mapNode, settlement) {
+                        function onSelectMapItems(mapNode, settlement, unit) {
                             mapItemsInfo.mapNode = mapNode;
                             mapItemsInfo.settlement = settlement;
+                            mapItemsInfo.unit = unit;
                         }
 
                         Component.onCompleted: {

@@ -671,9 +671,10 @@ EditableMap.prototype.createNewUnit = function(mapNodeJObj) {
     this.qobj.createUnit(this.currentUnitType, mapNodeJObj.qobj);
 };
 
-EditableMap.prototype.selectMapItems = function(mapNodeJObj, settlementJObj) {
+EditableMap.prototype.selectMapItems = function(mapNodeJObj, settlementJObj, unitJObj) {
     var mapNodeQObj = undefined;
     var settlementQObj = undefined;
+    var unitQObj = undefined;
 
     if (mapNodeJObj) {
         mapNodeQObj = mapNodeJObj.qobj;
@@ -683,8 +684,12 @@ EditableMap.prototype.selectMapItems = function(mapNodeJObj, settlementJObj) {
         settlementQObj = settlementJObj.qobj;
     }
 
+    if (unitJObj) {
+        unitQObj = unitJObj.qobj;
+    }
+
     if (this.onSelectMapItems) {
-        this.onSelectMapItems(mapNodeQObj, settlementQObj);
+        this.onSelectMapItems(mapNodeQObj, settlementQObj, unitQObj);
     }
 };
 

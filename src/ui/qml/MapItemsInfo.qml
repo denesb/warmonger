@@ -6,16 +6,16 @@ Rectangle {
     id: mapItemsInfo
     property var mapNode
     property var settlement
+    property var unit
 
     Rectangle {
         id: mapNodeInfo
+        height: 90
         anchors {
             top: parent.top
             left: parent.left
             right: parent.right
         }
-
-        height: 94
 
         Image {
             id: mapNodeImage
@@ -71,7 +71,7 @@ Rectangle {
             }
 
             Label {
-                id: mapNodeTerrainType
+                id: mapNodeDisplayName
                 anchors {
                     top: mapNodeObjectName.bottom
                     left: parent.left
@@ -80,29 +80,29 @@ Rectangle {
                 }
                 color: "black"
                 text: {
+                    var label = "Name: ";
                     if (mapItemsInfo.mapNode) {
-                        mapItemsInfo.mapNode.terrainType.displayName;
-                    } else {
-                        "";
+                        label += mapItemsInfo.mapNode.displayName;
                     }
+                    label;
                 }
             }
 
             Label {
-                id: mapNodeDisplayName
+                id: mapNodeTerrainType
                 anchors {
-                    top: mapNodeTerrainType.bottom
+                    top: mapNodeDisplayName.bottom
                     left: parent.left
                     right: parent.right
                     topMargin: 10
                 }
                 color: "black"
                 text: {
+                    var label = "Terrain Type: ";
                     if (mapItemsInfo.mapNode) {
-                        mapItemsInfo.mapNode.displayName;
-                    } else {
-                        "";
+                        label += mapItemsInfo.mapNode.terrainType.displayName;
                     }
+                    label;
                 }
             }
         }
@@ -110,6 +110,7 @@ Rectangle {
 
     Rectangle {
         id: settlementInfo
+        height: 110
         anchors {
             top: mapNodeInfo.bottom
             left: parent.left
@@ -170,7 +171,7 @@ Rectangle {
             }
 
             Label {
-                id: settlementSettlementType
+                id: settlementDisplayName
                 anchors {
                     top: settlementObjectName.bottom
                     left: parent.left
@@ -179,16 +180,34 @@ Rectangle {
                 }
                 color: "black"
                 text: {
+                    var label = "Name: ";
                     if (mapItemsInfo.settlement) {
-                        mapItemsInfo.settlement.settlementType.displayName;
-                    } else {
-                        "";
+                        label += mapItemsInfo.settlement.displayName;
                     }
+                    label;
                 }
             }
 
             Label {
-                id: settlementDisplayName
+                id: settlementSettlementType
+                anchors {
+                    top: settlementDisplayName.bottom
+                    left: parent.left
+                    right: parent.right
+                    topMargin: 10
+                }
+                color: "black"
+                text: {
+                    var label = "Settlement Type: ";
+                    if (mapItemsInfo.settlement) {
+                        label += mapItemsInfo.settlement.settlementType.displayName;
+                    }
+                    label;
+                }
+            }
+
+            Label {
+                id: settlementOwner
                 anchors {
                     top: settlementSettlementType.bottom
                     left: parent.left
@@ -197,14 +216,189 @@ Rectangle {
                 }
                 color: "black"
                 text: {
+                    var label = "Owner: ";
                     if (mapItemsInfo.settlement) {
-                        mapItemsInfo.settlement.displayName;
-                    } else {
-                        "";
+                        label += mapItemsInfo.settlement.owner.displayName;
                     }
+                    label;
                 }
             }
         }
     }
 
+    Rectangle {
+        id: unitInfo
+        height: 128
+        anchors {
+            top: settlementInfo.bottom
+            left: parent.left
+            right: parent.right
+        }
+
+        Image {
+            id: unitImage
+            width: 64
+            height: {
+                var tileSize = W.map.world.surface.tileSize;
+                64 * tileSize.height/tileSize.width;
+            }
+            anchors {
+                top: parent.top
+                left: parent.left
+                margins: 2
+            }
+
+            source: {
+                var surface = W.map.world.surface;
+                if (mapItemsInfo.unit) {
+                    var unitTypeName = mapItemsInfo.unit.unitType.objectName;
+                    "images:" + surface.bigMap[unitTypeName];
+                } else {
+                    "";
+                }
+            }
+        }
+
+        Rectangle {
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                left: unitImage.right
+                right: parent.right
+
+                leftMargin: 5
+                rightMargin: 5
+            }
+
+            Label {
+                id: unitObjectName
+                anchors {
+                    top: parent.top
+                    left: parent.left
+                    right: parent.right
+                    topMargin: 10
+                }
+                color: "black"
+                text: {
+                    var label = "Unit ";
+                    if (mapItemsInfo.unit) {
+                        label += mapItemsInfo.unit.objectName;
+                    }
+                    label;
+                }
+            }
+
+            Label {
+                id: unitDisplayName
+                anchors {
+                    top: unitObjectName.bottom
+                    left: parent.left
+                    right: parent.right
+                    topMargin: 10
+                }
+                color: "black"
+                text: {
+                    var label = "Name: ";
+                    if (mapItemsInfo.unit) {
+                        label += mapItemsInfo.unit.displayName;
+                    }
+                    label;
+                }
+            }
+
+            Label {
+                id: unitUnitType
+                anchors {
+                    top: unitDisplayName.bottom
+                    left: parent.left
+                    right: parent.right
+                    topMargin: 10
+                }
+                color: "black"
+                text: {
+                    var label = "Unit Type: ";
+                    if (mapItemsInfo.unit) {
+                        label += mapItemsInfo.unit.unitType.displayName;
+                    }
+                    label;
+                }
+            }
+
+            Label {
+                id: unitOwner
+                anchors {
+                    top: unitUnitType.bottom
+                    left: parent.left
+                    right: parent.right
+                    topMargin: 10
+                }
+                color: "black"
+                text: {
+                    var label = "Owner: ";
+                    if (mapItemsInfo.unit) {
+                        label += mapItemsInfo.unit.owner.displayName;
+                    }
+                    label;
+                }
+            }
+
+            Label {
+                id: unitHP
+                anchors {
+                    top: unitOwner.bottom
+                    left: parent.left
+                    right: parent.right
+                    topMargin: 10
+                }
+                color: "black"
+                text: {
+                    var label = "HP: ";
+                    if (mapItemsInfo.unit) {
+                        label += mapItemsInfo.unit.hitPoints;
+                        label += "/";
+                        label += mapItemsInfo.unit.unitType.hitPoints;
+                    }
+                    label;
+                }
+            }
+
+            Label {
+                id: unitMP
+                anchors {
+                    top: unitHP.bottom
+                    left: parent.left
+                    right: parent.right
+                    topMargin: 10
+                }
+                color: "black"
+                text: {
+                    var label = "MP: ";
+                    if (mapItemsInfo.unit) {
+                        label += mapItemsInfo.unit.movementPoints;
+                        label += "/";
+                        label += mapItemsInfo.unit.unitType.unitClass.movementPoints;
+                    }
+                    label;
+                }
+            }
+
+            Label {
+                id: unitXP
+                anchors {
+                    top: unitMP.bottom
+                    left: parent.left
+                    right: parent.right
+                    topMargin: 10
+                }
+                color: "black"
+                text: {
+                    var label = "XP: ";
+                    if (mapItemsInfo.unit) {
+                        label += mapItemsInfo.unit.experiencePoints;
+                    }
+                    label;
+                }
+            }
+        }
+    }
 }

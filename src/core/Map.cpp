@@ -253,6 +253,7 @@ void Map::createSettlement(SettlementType *settlementType, MapNode *mapNode)
     );
     newSettlement->setSettlementType(settlementType);
     newSettlement->setMapNode(mapNode);
+    newSettlement->setOwner(this->neutralPlayer);
 
     this->addSettlement(newSettlement);
 }
@@ -265,6 +266,7 @@ Q_INVOKABLE void Map::createSettlement(QObject *settlementType, QObject *mapNode
     );
     newSettlement->writeSettlementType(settlementType);
     newSettlement->writeMapNode(mapNode);
+    newSettlement->setOwner(this->neutralPlayer);
 
     this->addSettlement(newSettlement.release());
 }

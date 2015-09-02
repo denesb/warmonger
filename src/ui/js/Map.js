@@ -170,12 +170,12 @@ Map.prototype.markTileDirty = function(pos) {
 
 Map.prototype.onSettlementCreated = function(settlementQObj) {
     var settlementJObj = this.createSettlement(settlementQObj);
-    this.markDirty(settlementJObj);
+    this.markDirty(settlementJObj.mapNode);
 };
 
 Map.prototype.onUnitCreated = function(unitQObj) {
     var unitJObj = this.createUnit(unitQObj);
-    this.markDirty(unitJObj);
+    this.markDirty(unitJObj.mapNode);
 };
 
 Map.prototype.getMapNodeByQObj = function(mapNodeQObj) {

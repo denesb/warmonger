@@ -6,14 +6,6 @@ Rectangle {
     id: unitEdit
     property var unit
 
-    onUnitChanged: {
-        var unitTypeIndex = -1;
-        if (unitEdit.unit) {
-            unitTypeIndex = unitTypeEdit.find(unitEdit.unit.unitType.displayName);
-        }
-        unitTypeEdit.currentIndex = unitTypeIndex;
-    }
-
     Image {
         id: picture
         width: 64
@@ -51,6 +43,7 @@ Rectangle {
 
         Label {
             id: objectNameLabel
+            height: 15
             anchors {
                 top: parent.top
                 left: parent.left
@@ -67,92 +60,59 @@ Rectangle {
             }
         }
 
-        Label {
-            id: displayNameLabel
+        TextEditGroup {
+            id: displayNameEdit
             anchors {
                 top: objectNameLabel.bottom
                 left: parent.left
                 right: parent.right
                 topMargin: 10
             }
-            color: "black"
-            text: "Display Name:"
-        }
 
-        TextField {
-            id: displayNameEdit
-            height: 25
-            anchors {
-                top: displayNameLabel.bottom
-                left: parent.left
-                right: parent.right
-            }
-            style: TextFieldStyle {
-                textColor: "black"
-                background: Rectangle {
-                    radius: 5
-                    border.color: "#333"
-                    border.width: 1
-                }
-            }
-
-            text: {
+            label: "Name"
+            value: {
                 if (unitEdit.unit) {
-                    unitEdit.unit.displayName
+                    unitEdit.unit.displayName;
                 } else {
-                    ''
+                    "";
                 }
             }
 
-            onEditingFinished: {
+            onValueEdited: {
                 if (unitEdit.unit) {
-                    unitEdit.unit.displayName = displayNameEdit.text;
+                    unitEdit.unit.displayName = val;
                 }
             }
         }
 
-        Label {
-            id: unitTypeLabel
+        ListEditGroup {
+            id: unitTypeEdit
             anchors {
                 top: displayNameEdit.bottom
                 left: parent.left
                 right: parent.right
                 topMargin: 10
             }
-            color: "black"
-            text: "Unit Type:"
-        }
 
-        ComboBox {
-            id: unitTypeEdit
-            height: 25
-            anchors {
-                top: unitTypeLabel.bottom
-                left: parent.left
-                right: parent.right
-            }
-            style: ComboBoxStyle {
-                background: Rectangle {
-                    radius: 5
-                    border.color: "#333"
-                    border.width: 1
-                }
-            }
-
+            label: "Unit Type"
             model: W.map.world.unitTypes
-            textRole: "displayName"
-
-            onActivated: {
+            currentIndex: {
                 if (unitEdit.unit) {
-                    var unitTypes = W.map.world.unitTypes;
-                    var unitType = unitTypes[index];
+                    unitTypeEdit.find(unitEdit.unit.unitType.displayName);
+                } else {
+                    0;
+                }
+            }
 
-                    unitEdit.unit.unitType = unitType;
+            onCurrentItemChanged: {
+                if (unitEdit.unit) {
+                    console.log(index);
+                    unitEdit.unit.unitType = W.map.world.unitTypes[index];
                 }
             }
         }
 
-        OwnerEdit {
+        ListEditGroup {
             id: ownerEdit
             anchors {
                 top: unitTypeEdit.bottom
@@ -161,10 +121,9 @@ Rectangle {
                 topMargin: 10
             }
 
-            entityName: "Unit"
-            ownersModel: W.map.allPlayers
-
-            ownerIndex: {
+            label: "Owner"
+            model: W.map.allPlayers
+            currentIndex: {
                 if (unitEdit.unit) {
                     ownerEdit.find(unitEdit.unit.owner.displayName);
                 } else {
@@ -172,14 +131,14 @@ Rectangle {
                 }
             }
 
-            onOwnerEdited: {
+            onCurrentItemChanged: {
                 if (unitEdit.unit) {
                     unitEdit.unit.owner = W.map.allPlayers[index];
                 }
             }
         }
 
-        PointsEdit {
+        TextEditGroup {
             id: hpEdit
             anchors {
                 top: ownerEdit.bottom
@@ -188,15 +147,14 @@ Rectangle {
                 topMargin: 10
             }
 
-            pointsName: "HP"
-            maxPoints: {
+            label: {
+                var maxPoints = 0
                 if (unitEdit.unit) {
-                    unitEdit.unit.unitType.hitPoints;
-                } else {
-                    0;
+                    maxPoints = unitEdit.unit.unitType.hitPoints;
                 }
+                "HP (/" + maxPoints + ")";
             }
-            points: {
+            value: {
                 if (unitEdit.unit) {
                     unitEdit.unit.hitPoints;
                 } else {
@@ -204,16 +162,14 @@ Rectangle {
                 }
             }
 
-            onPointsEdited: {
+            onValueEdited: {
                 if (unitEdit.unit) {
-                    unitEdit.unit.hitPoints = val
-                } else {
-                    0;
+                    unitEdit.unit.hitPoints = val;
                 }
             }
         }
 
-        PointsEdit {
+        TextEditGroup {
             id: mpEdit
             anchors {
                 top: hpEdit.bottom
@@ -222,15 +178,14 @@ Rectangle {
                 topMargin: 10
             }
 
-            pointsName: "MP"
-            maxPoints: {
+            label: {
+                var maxPoints = 0
                 if (unitEdit.unit) {
-                    unitEdit.unit.unitType.unitClass.movementPoints;
-                } else {
-                    0;
+                    maxPoints = unitEdit.unit.unitType.unitClass.movementPoints;
                 }
+                "MP (/" + maxPoints + ")";
             }
-            points: {
+            value: {
                 if (unitEdit.unit) {
                     unitEdit.unit.movementPoints;
                 } else {
@@ -238,11 +193,34 @@ Rectangle {
                 }
             }
 
-            onPointsEdited: {
+            onValueEdited: {
                 if (unitEdit.unit) {
-                    unitEdit.unit.movemenetPoints = val
+                    unitEdit.unit.movemenetPoints = val;
+                }
+            }
+        }
+
+        TextEditGroup {
+            id: xpEdit
+            anchors {
+                top: mpEdit.bottom
+                left: parent.left
+                right: parent.right
+                topMargin: 10
+            }
+
+            label: "XP"
+            value: {
+                if (unitEdit.unit) {
+                    unitEdit.unit.experiencePoints;
                 } else {
                     0;
+                }
+            }
+
+            onValueEdited: {
+                if (unitEdit.unit) {
+                    unitEdit.unit.experiencePoints = val;
                 }
             }
         }

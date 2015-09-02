@@ -3,32 +3,32 @@ import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.1
 
 Rectangle {
-    id: pointsEdit
+    id: textEditGroup
 
     height: 40
 
-    property string pointsName
-    property string maxPoints
-    property string points
+    property string label
+    property string value
 
-    signal pointsEdited(string val)
+    signal valueEdited(string val)
 
     Label {
-        id: pointsNameLabel
+        id: labelField
+        height: 15
         anchors {
             top: parent.top
             left: parent.left
             right: parent.right
         }
         color: "black"
-        text: pointsName + "(/" + maxPoints + "): "
+        text: textEditGroup.label
     }
 
     TextField {
-        id: pointsEditField
+        id: editField
         height: 25
         anchors {
-            top: pointsNameLabel.bottom
+            top: labelField.bottom
             left: parent.left
             right: parent.right
         }
@@ -41,9 +41,9 @@ Rectangle {
             }
         }
 
-        text: points
+        text: textEditGroup.value
 
-        onEditingFinished: pointsEdit.pointsChanged(pointsEditField.text)
+        onEditingFinished: textEditGroup.valueEdited(editField.text)
     }
 }
 

@@ -6,17 +6,6 @@ Rectangle {
     id: settlementEdit
     property var settlement
 
-    onSettlementChanged: {
-        var index = -1;
-        var ownerIndex = -1;
-        if (settlementEdit.settlement) {
-            index = settlementTypeEdit.find(settlementEdit.settlement.settlementType.displayName);
-            ownerIndex = ownerEdit.find(settlementEdit.settlement.owner.displayName);
-        }
-        settlementTypeEdit.currentIndex = index;
-        ownerEdit.currentIndex = ownerIndex;
-    }
-
     Image {
         id: picture
         width: 64
@@ -70,132 +59,80 @@ Rectangle {
             }
         }
 
-        Label {
-            id: displayNameLabel
+        TextEditGroup {
+            id: displayNameEdit
             anchors {
                 top: objectNameLabel.bottom
                 left: parent.left
                 right: parent.right
                 topMargin: 10
             }
-            color: "black"
-            text: "Display Name:"
-        }
 
-        TextField {
-            id: displayNameEdit
-            height: 25
-            anchors {
-                top: displayNameLabel.bottom
-                left: parent.left
-                right: parent.right
-            }
-            style: TextFieldStyle {
-                textColor: "black"
-                background: Rectangle {
-                    radius: 5
-                    border.color: "#333"
-                    border.width: 1
-                }
-            }
-
-            text: {
+            label: "Name"
+            value: {
                 if (settlementEdit.settlement) {
-                    settlementEdit.settlement.displayName
+                    settlementEdit.settlement.displayName;
                 } else {
-                    ''
+                    "";
                 }
             }
 
-            onEditingFinished: {
+            onValueEdited: {
                 if (settlementEdit.settlement) {
-                    settlementEdit.settlement.displayName = displayNameEdit.text;
+                    settlementEdit.settlement.displayName = val;
                 }
             }
         }
 
-        Label {
-            id: settlementTypeLabel
+        ListEditGroup {
+            id: settlementTypeEdit
             anchors {
                 top: displayNameEdit.bottom
                 left: parent.left
                 right: parent.right
                 topMargin: 10
             }
-            color: "black"
-            text: "Settlement Type:"
-        }
 
-        ComboBox {
-            id: settlementTypeEdit
-            height: 25
-            anchors {
-                top: settlementTypeLabel.bottom
-                left: parent.left
-                right: parent.right
-            }
-            style: ComboBoxStyle {
-                background: Rectangle {
-                    radius: 5
-                    border.color: "#333"
-                    border.width: 1
-                }
-            }
-
+            label: "Settlement Type"
             model: W.map.world.settlementTypes
-            textRole: "displayName"
-
-            onActivated: {
+            currentIndex: {
                 if (settlementEdit.settlement) {
-                    var settlementTypes = W.map.world.settlementTypes;
-                    var settlementType = settlementTypes[index];
+                    settlementTypeEdit.find(settlementEdit.settlement.settlementType.displayName);
+                } else {
+                    0;
+                }
+            }
 
-                    settlementEdit.settlement.settlementType = settlementType;
+            onCurrentItemChanged: {
+                if (settlementEdit.settlement) {
+                    console.log(index);
+                    settlementEdit.settlement.settlementType = W.map.world.settlementTypes[index];
                 }
             }
         }
 
-        Label {
-            id: settlementOwnerLabel
+        ListEditGroup {
+            id: ownerEdit
             anchors {
                 top: settlementTypeEdit.bottom
                 left: parent.left
                 right: parent.right
                 topMargin: 10
             }
-            color: "black"
-            text: "Settlement Owner:"
-        }
 
-        ComboBox {
-            id: ownerEdit
-            height: 25
-            anchors {
-                top: settlementOwnerLabel.bottom
-                left: parent.left
-                right: parent.right
-            }
-            style: ComboBoxStyle {
-                background: Rectangle {
-                    radius: 5
-                    border.color: "#333"
-                    border.width: 1
+            label: "Owner"
+            model: W.map.allPlayers
+            currentIndex: {
+                if (settlementEdit.settlement) {
+                    ownerEdit.find(settlementEdit.settlement.owner.displayName);
+                } else {
+                    0;
                 }
             }
 
-            model: W.map.allPlayers;
-            textRole: "displayName"
-
-            onActivated: {
+            onCurrentItemChanged: {
                 if (settlementEdit.settlement) {
-                    var players = W.map.players;
-                    if (index == 0) {
-                        var owner = W.map.neutralPlayer;
-                    } else {
-                        var owner = players[index - 1];
-                    }
-
-                    settlementEdit.settlement.owner = owner;
+                    settlementEdit.settlement.owner = W.map.allPlayers[index];
                 }
             }
         }

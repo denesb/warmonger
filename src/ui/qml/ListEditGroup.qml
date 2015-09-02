@@ -3,36 +3,37 @@ import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.1
 
 Rectangle {
-    id: ownerEdit
+    id: listEditGroup
 
     height: 40
 
-    property string entityName
-    property var ownersModel
-    property int ownerIndex
+    property string label
+    property var model
+    property int currentIndex
 
-    signal ownerEdited(int index)
+    signal currentItemChanged(int index)
 
     function find(val) {
-        return ownerEditField.find(val);
+        return editField.find(val);
     }
 
     Label {
-        id: ownerLabel
+        id: labelField
+        height: 15
         anchors {
             top: parent.top
             left: parent.left
             right: parent.right
         }
         color: "black"
-        text: entityName + " Owner:"
+        text: listEditGroup.label
     }
 
     ComboBox {
-        id: ownerEditField
+        id: editField
         height: 25
         anchors {
-            top: ownerLabel.bottom
+            top: labelField.bottom
             left: parent.left
             right: parent.right
         }
@@ -44,11 +45,11 @@ Rectangle {
             }
         }
 
-        model: ownersModel;
+        model: listEditGroup.model;
         textRole: "displayName"
 
-        currentIndex: ownerIndex
+        currentIndex: listEditGroup.currentIndex
 
-        onActivated: ownerEdited(ownerEditField.currentIndex)
+        onActivated: currentItemChanged(index)
     }
 }

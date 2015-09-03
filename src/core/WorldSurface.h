@@ -1,6 +1,7 @@
 #ifndef CORE_WORLD_SURFACE_H
 #define CORE_WORLD_SURFACE_H
 
+#include <QImage>
 #include <QSize>
 
 #include "core/GameEntity.h"
@@ -37,6 +38,8 @@ public:
     void setStyle(const QMap<QString, QString> &style);
     QVariantMap readStyle() const;
 
+    Q_INVOKABLE bool hexContains(const QPoint &p) const;
+
 signals:
     void tileSizeChanged();
     void bigMapChanged();
@@ -55,6 +58,8 @@ private:
     QMap<QString, QString> bigMap;
     QMap<QString, QString> miniMap;
     QMap<QString, QString> style;
+
+    QImage hexMask;
 };
 
 } // namespace core

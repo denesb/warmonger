@@ -1,7 +1,7 @@
 #ifndef UI_APPLICATION_CONTEXT_H
 #define UI_APPLICATION_CONTEXT_H
 
-#include <QImage>
+#include <QVariant>
 
 #include "core/Map.h"
 
@@ -12,23 +12,17 @@ class ApplicationContext :
     public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QVariant map READ readMap NOTIFY mapChanged)
 
 public:
     ApplicationContext(QObject *parent);
     ~ApplicationContext();
 
-    QVariant readMap() const;
+    Q_INVOKABLE QVariantList mapList();
 
-    Q_INVOKABLE void loadMap(const QString &mapName);
-    Q_INVOKABLE bool hexContains(const QPoint &p) const;
-
-signals:
-    void mapChanged() const;
+    Q_INVOKABLE QObject * openMap(QString mapName);
+    Q_INVOKABLE void closeMap(QObject *map);
 
 private:
-    core::Map *map;
-    QImage hexMask;
 };
 
 } // namespace ui

@@ -92,9 +92,27 @@ QVariantMap WorldSurface::readStyle() const
     return this->toQVariantMap(this->style);
 }
 
+bool WorldSurface::hexContains(const QPoint &p) const
+{
+    int x = p.x();
+    int y = p.y();
+
+    if (x < 0 || x >= this->tileSize.width() || y < 0 || y >= this->tileSize.height())
+        return false;
+
+    QRgb pixel = this->hexMask.pixel(x, y);
+    if (pixel != 0xffffffff)
+        return false;
+
+    return true;
+}
+
 void WorldSurface::dataFromJson(const QJsonObject &obj)
 {
     GameEntity::dataFromJson(obj);
+
+    this->hexMask.load(this->path + QStringLiteral("/hexagon_mask.xpm"), "XPM");
+
     this->tileSize = sizeFromJson(obj["tileSize"].toObject());
     this->bigMap = this->mapFromJson(obj["bigMap"].toObject());
     this->miniMap = this->mapFromJson(obj["miniMap"].toObject());

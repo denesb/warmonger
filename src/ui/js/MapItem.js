@@ -122,7 +122,7 @@ MapNode.prototype.drawContent = function(ctx) {
 MapNode.prototype.contains = function(point) {
     var localPoint = this.translate(point);
 
-    return this.map.W.hexContains(localPoint);
+    return this.map.qobj.world.surface.hexContains(localPoint);
 };
 
 MapNode.prototype.onMouseIn = function() {

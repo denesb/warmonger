@@ -55,9 +55,8 @@ var MouseEvents = {
  * Map class.
  * @contructor
  */
-var Map = function(W, canvas, mouseArea) {
-    this.W = W;
-    this.qobj = W.map;
+var Map = function(map, canvas, mouseArea) {
+    this.qobj = map;
     this.canvas = canvas;
     this.mouseArea = mouseArea;
 
@@ -819,8 +818,8 @@ EditableMap.prototype.toString = function() {
  * MiniMap class
  * @contructor
  */
-var MiniMap = function(W, canvas, mouseArea) {
-    Map.call(this, W, canvas, mouseArea);
+var MiniMap = function(map, canvas, mouseArea) {
+    Map.call(this, map, canvas, mouseArea);
 
     this.pos = Qt.point(0, 0);
     this.window = Qt.rect(0, 0, 0, 0);

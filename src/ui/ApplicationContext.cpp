@@ -1,5 +1,6 @@
 #include <QColor>
 #include <QDir>
+#include <QStringList>
 
 #include "log/LogStream.h"
 #include "core/Exception.h"
@@ -11,51 +12,49 @@
 using namespace warmonger::ui;
 
 ApplicationContext::ApplicationContext(QObject *parent) :
-    QObject(parent),
-    map(nullptr)
+    QObject(parent)
 {
-    //FIXME: will need to do this from js
-    this->loadMap("prototype");
 }
 
 ApplicationContext::~ApplicationContext()
 {
 }
 
-QVariant ApplicationContext::readMap() const
+QVariantList ApplicationContext::mapList()
 {
-    return QVariant::fromValue<QObject *>(this->map);
+    QVariantList vl;
+
+    QStringList nameFilters;
+    nameFilters << "*.wmd";
+
+    QFlags<QDir::Filter> filters = QDir::Files | QDir::Readable;
+
+    for (QString path : QDir::searchPaths("maps"))
+    {
+        QDir mapsDir(path);
+
+        for (QString mapFile : mapsDir.entryList(nameFilters, filters))
+        {
+            core::Map *map = new core::Map(this);
+            map->loadAs(mapsDir.absoluteFilePath(mapFile));
+            map->getWorld()->setSurface("default");
+            vl << QVariant::fromValue<QObject *>(map);
+        }
+    }
+
+    return vl;
 }
 
-void ApplicationContext::loadMap(const QString &mapName)
+QObject * ApplicationContext::openMap(QString mapName)
 {
-    this->map = new core::Map(this);
-    this->map->load(this->map->specification(mapName));
+    core::Map *map = new core::Map(this);
+    map->load(map->specification(mapName));
+    map->getWorld()->setSurface("default");
 
-    core::World *world = this->map->getWorld();
-    world->setSurface("default");
-    core::WorldSurface *surface = world->getSurface();
-
-    QDir::setSearchPaths("images", QStringList(surface->getPath()));
-
-    const QString path = surface->getPath();
-    this->hexMask.load(path + QStringLiteral("/hexagon_mask.xpm"), "XPM");
+    return map;
 }
 
-bool ApplicationContext::hexContains(const QPoint &p) const
+void ApplicationContext::closeMap(QObject *map)
 {
-    const core::World *world = this->map->getWorld();
-
-    int x = p.x();
-    int y = p.y();
-    const QSize tileSize = world->getSurface()->getTileSize();
-
-    if (x < 0 || x >= tileSize.width() || y < 0 || y >= tileSize.height())
-        return false;
-
-    QRgb pixel = this->hexMask.pixel(x, y);
-    if (pixel != 0xffffffff)
-        return false;
-
-    return true;
+    delete map;
 }

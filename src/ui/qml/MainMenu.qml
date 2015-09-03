@@ -4,7 +4,6 @@ import QtQuick.Layouts 1.1
 
 Rectangle {
     id: mainMenu
-    anchors.fill: parent
 
     property var stack
 
@@ -16,6 +15,7 @@ Rectangle {
         Button {
             width: 128
             text: "New Game"
+            onClicked: mainMenu.stack.push({item: Qt.createComponent("NewGame.qml")})
         }
 
         Button {

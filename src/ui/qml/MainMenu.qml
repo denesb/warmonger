@@ -1,0 +1,40 @@
+import QtQuick 2.2
+import QtQuick.Controls 1.1
+import QtQuick.Layouts 1.1
+
+Rectangle {
+    id: mainMenu
+    anchors.fill: parent
+
+    property var stack
+
+    Column {
+        anchors.centerIn: parent
+
+        spacing: 4
+
+        Button {
+            width: 128
+            text: "New Game"
+        }
+
+        Button {
+            width: 128
+            text: "Saved Game"
+        }
+
+        Button {
+            width: 128
+            text: "Map Editor"
+
+            onClicked: mainMenu.stack.push({item: Qt.createComponent("MapEditor.qml")})
+        }
+
+        Button {
+            width: 128
+            text: "Exit"
+
+            onClicked: Qt.quit()
+        }
+    }
+}

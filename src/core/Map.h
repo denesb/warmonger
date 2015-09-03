@@ -104,6 +104,9 @@ private:
     QList<MapNode *> mapNodesFromJson(const QJsonObject &obj);
     QJsonObject mapNodesToJson(const QList<MapNode *> &mapNodes) const;
 
+    Settlement * getSettlementOn(MapNode *mapNode) const;
+    Unit * getUnitOn(MapNode *mapNode) const;
+
     World *world;
     int mapNodeIndex;
     int settlementIndex;

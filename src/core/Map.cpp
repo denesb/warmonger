@@ -420,3 +420,21 @@ QJsonObject Map::mapNodesToJson(const QList<MapNode *> &mapNodes) const
 
     return std::move(obj);
 }
+
+Settlement * Map::getSettlementOn(MapNode *mapNode) const
+{
+    for (Settlement *settlement : this->settlements)
+    {
+        if (settlement->getMapNode() == mapNode) return settlement;
+    }
+    return nullptr;
+}
+
+Unit * Map::getUnitOn(MapNode *mapNode) const
+{
+    for (Unit *unit : this->units)
+    {
+        if (unit->getMapNode() == mapNode) return unit;
+    }
+    return nullptr;
+}

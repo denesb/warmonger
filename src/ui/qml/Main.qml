@@ -5,9 +5,17 @@ import QtQuick.Layouts 1.1
 Rectangle {
     width: 360
     height: 360
-    color: "yellow"
 
-    MapEditor {
+    StackView {
+        id: mainStack
         anchors.fill: parent
+        initialItem: mainMenu
+
+        Component {
+            id: mainMenu
+            MainMenu {
+                stack: mainStack
+            }
+        }
     }
 }

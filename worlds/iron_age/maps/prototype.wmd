@@ -1,5 +1,6 @@
 {
     "displayName": "Prototype map",
+    "description": "A prototype map, serving as an experiment for the game development.",
     "mapNodeIndex": 150,
     "mapNodes": {
         "connections": [

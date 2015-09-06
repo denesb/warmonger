@@ -15,19 +15,6 @@ namespace core {
 static const QString category{"core"};
 
 template<typename T>
-QList<const T *> listConstClone(const QList<T *> &list)
-{
-    QList<const T *> constList;
-
-    for (const T *i : list)
-    {
-        constList << i;
-    }
-
-    return std::move(constList);
-}
-
-template<typename T>
 QVariantList toQVariantList(const QList<T *> &list)
 {
     QVariantList vlist;

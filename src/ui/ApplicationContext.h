@@ -12,17 +12,21 @@ class ApplicationContext :
     public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QVariantList maps READ readMaps NOTIFY mapsChanged)
 
 public:
     ApplicationContext(QObject *parent);
     ~ApplicationContext();
 
-    Q_INVOKABLE QVariantList mapList();
+    void loadMaps();
 
-    Q_INVOKABLE QObject * openMap(QString mapName);
-    Q_INVOKABLE void closeMap(QObject *map);
+    QVariantList readMaps() const;
+
+signals:
+    void mapsChanged();
 
 private:
+    QList<core::Map *> maps;
 };
 
 } // namespace ui

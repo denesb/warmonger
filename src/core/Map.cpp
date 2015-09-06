@@ -311,6 +311,8 @@ void Map::onSurfaceChanged()
 
 void Map::dataFromJson(const QJsonObject &obj)
 {
+    GameEntity::dataFromJson(obj);
+
     const QString worldName(obj["world"].toString());
     World *world = new World(this);
     world->load(world->specification(worldName));
@@ -333,6 +335,8 @@ void Map::dataFromJson(const QJsonObject &obj)
 
 void Map::dataToJson(QJsonObject &obj) const
 {
+    GameEntity::dataToJson(obj);
+
     obj["world"] = this->world->objectName();
     obj["mapNodeIndex"] = this->mapNodeIndex;
     obj["settlementIndex"] = this->settlementIndex;

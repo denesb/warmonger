@@ -3,27 +3,28 @@
 #include <QStringList>
 
 #include "log/LogStream.h"
-#include "core/Exception.h"
+#include "core/Util.h"
 #include "core/WorldSurface.h"
 #include "core/Map.h"
 #include "core/World.h"
 #include "ApplicationContext.h"
 
+using namespace warmonger;
 using namespace warmonger::ui;
 
 ApplicationContext::ApplicationContext(QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    maps()
 {
+    this->loadMaps();
 }
 
 ApplicationContext::~ApplicationContext()
 {
 }
 
-QVariantList ApplicationContext::mapList()
+void ApplicationContext::loadMaps()
 {
-    QVariantList vl;
-
     QStringList nameFilters;
     nameFilters << "*.wmd";
 
@@ -38,23 +39,14 @@ QVariantList ApplicationContext::mapList()
             core::Map *map = new core::Map(this);
             map->loadAs(mapsDir.absoluteFilePath(mapFile));
             map->getWorld()->setSurface("default");
-            vl << QVariant::fromValue<QObject *>(map);
+            this->maps << map;
         }
     }
 
-    return vl;
+    emit mapsChanged();
 }
 
-QObject * ApplicationContext::openMap(QString mapName)
+QVariantList ApplicationContext::readMaps() const
 {
-    core::Map *map = new core::Map(this);
-    map->load(map->specification(mapName));
-    map->getWorld()->setSurface("default");
-
-    return map;
-}
-
-void ApplicationContext::closeMap(QObject *map)
-{
-    delete map;
+    return core::toQVariantList<core::Map>(this->maps);
 }

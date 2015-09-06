@@ -15,7 +15,12 @@ Rectangle {
         Button {
             width: 128
             text: "New Game"
-            onClicked: mainMenu.stack.push({item: Qt.createComponent("NewGame.qml")})
+            onClicked: {
+                mainMenu.stack.push({
+                    item: Qt.createComponent("NewGame.qml"),
+                    properties: {stack: stack}
+                });
+            }
         }
 
         Button {

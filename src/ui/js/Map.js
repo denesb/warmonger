@@ -55,13 +55,9 @@ var MouseEvents = {
  * Map class.
  * @contructor
  */
-var Map = function(map, canvas, mouseArea) {
+var Map = function(map, canvas) {
     this.qobj = map;
     this.canvas = canvas;
-    this.mouseArea = mouseArea;
-
-    this.lastMouseEvent = undefined;
-    this.lastMousePos = undefined;
 
     this.mapNodes = [];
     this.settlements = [];
@@ -321,49 +317,6 @@ Map.prototype.updateGeometry = function() {
     this.adjustMapCoordinates();
 };
 
-Map.prototype.translateToLocal = function(pos) {
-    return Qt.point(
-        pos.x + this.canvas.canvasWindow.x,
-        pos.y + this.canvas.canvasWindow.y
-    );
-};
-
-Map.prototype.onPressed = function(mouse) {
-    this.lastMouseEvent = MouseEvents.pressed;
-    this.lastMousePos = Qt.point(mouse.x, mouse.y);
-};
-
-Map.prototype.onReleased = function(mouse) {
-    if (this.lastMouseEvent == MouseEvents.pressed) {
-        var pos = this.translateToLocal(Qt.point(mouse.x, mouse.y));
-        this.onClicked(pos);
-    }
-    else {
-        this.mouseArea.cursorShape = Qt.ArrowCursor;
-    }
-};
-
-Map.prototype.onPositionChanged = function(mouse) {
-    this.lastMouseEvent = MouseEvents.positionChanged;
-
-    var pos = Qt.point(mouse.x, mouse.y);
-    var localPos = this.translateToLocal(pos);
-
-    if (this.mouseArea.pressed) {
-        var posDiff = Qt.size(
-            this.lastMousePos.x - pos.x,
-            this.lastMousePos.y - pos.y
-        );
-        this.mouseArea.cursorShape = Qt.ClosedHandCursor;
-        this.onPanned(localPos, posDiff);
-    }
-    else {
-        if (this.onHovered) this.onHovered(localPos);
-    }
-
-    this.lastMousePos = pos;
-};
-
 Map.prototype.onPaint = function(region) {
     if (!this.ready) return;
     if (this.geometryChanged) {
@@ -387,7 +340,12 @@ Map.prototype.toString = function() {
  * @contructor
  */
 var BigMap = function(W, canvas, mouseArea) {
-    Map.call(this, W, canvas, mouseArea);
+    Map.call(this, W, canvas);
+
+    this.mouseArea = mouseArea;
+
+    this.lastMouseEvent = undefined;
+    this.lastMousePos = undefined;
 
     this.loadQueue = [];
 
@@ -397,7 +355,7 @@ var BigMap = function(W, canvas, mouseArea) {
 };
 
 BigMap.prototype = Object.create(Map.prototype);
-BigMap.prototype.constructor = EditableMap;
+BigMap.prototype.constructor = BigMap;
 
 BigMap.prototype.newMapNode = function(pos, mapNodeQObj) {
     return new MapItem.MapNode(pos, mapNodeQObj,this);
@@ -427,6 +385,48 @@ BigMap.prototype.moveFocus = function(mapNode) {
 
     if (this.mapNodeFocused != undefined)
         this.mapNodeFocused(mapNode);
+};
+
+BigMap.prototype.translateToLocal = function(pos) {
+    return Qt.point(
+        pos.x + this.canvas.canvasWindow.x,
+        pos.y + this.canvas.canvasWindow.y
+    );
+};
+
+BigMap.prototype.onPressed = function(mouse) {
+    this.lastMouseEvent = MouseEvents.pressed;
+    this.lastMousePos = Qt.point(mouse.x, mouse.y);
+};
+
+BigMap.prototype.onReleased = function(mouse) {
+    if (this.lastMouseEvent == MouseEvents.pressed) {
+        var pos = this.translateToLocal(Qt.point(mouse.x, mouse.y));
+        this.onClicked(pos);
+    }
+    this.lastMouseEvent = MouseEvents.released;
+    this.mouseArea.cursorShape = Qt.ArrowCursor;
+};
+
+BigMap.prototype.onPositionChanged = function(mouse) {
+    this.lastMouseEvent = MouseEvents.positionChanged;
+
+    var pos = Qt.point(mouse.x, mouse.y);
+    var localPos = this.translateToLocal(pos);
+
+    if (this.mouseArea.pressed) {
+        var posDiff = Qt.size(
+            this.lastMousePos.x - pos.x,
+            this.lastMousePos.y - pos.y
+        );
+        this.mouseArea.cursorShape = Qt.ClosedHandCursor;
+        this.onPanned(localPos, posDiff);
+    }
+    else {
+        if (this.onHovered) this.onHovered(localPos);
+    }
+
+    this.lastMousePos = pos;
 };
 
 BigMap.prototype.onHovered = function(pos) {
@@ -819,7 +819,12 @@ EditableMap.prototype.toString = function() {
  * @contructor
  */
 var MiniMap = function(map, canvas, mouseArea) {
-    Map.call(this, map, canvas, mouseArea);
+    Map.call(this, map, canvas);
+
+    this.mouseArea = mouseArea;
+
+    this.lastMouseEvent = undefined;
+    this.lastMousePos = undefined;
 
     this.pos = Qt.point(0, 0);
     this.window = Qt.rect(0, 0, 0, 0);
@@ -901,15 +906,34 @@ MiniMap.prototype.draw = function(ctx, region) {
 MiniMap.prototype.onPressed = function(mouse) {
     this.lastMouseEvent = MouseEvents.pressed;
     this.lastMousePos = Qt.point(mouse.x, mouse.y);
+    this.mouseArea.cursorShape = Qt.ClosedHandCursor;
 
-    var pos = this.translateToLocal(Qt.point(mouse.x, mouse.y));
-    this.centerOn(pos);
+    this.centerOn(Qt.point(mouse.x, mouse.y));
 
     var windowPos = Qt.point(this.window.x, this.window.y);
     if (this.windowPosChanged) this.windowPosChanged(windowPos);
 };
 
-MiniMap.prototype.onClicked = function(pos) {
+MiniMap.prototype.onReleased = function(mouse) {
+    this.lastMouseEvent == MouseEvents.released;
+    this.lastMousePos = Qt.point(mouse.x, mouse.y);
+    this.mouseArea.cursorShape = Qt.ArrowCursor;
+};
+
+Map.prototype.onPositionChanged = function(mouse) {
+    this.lastMouseEvent = MouseEvents.positionChanged;
+
+    var pos = Qt.point(mouse.x, mouse.y);
+
+    if (this.mouseArea.pressed) {
+        var posDiff = Qt.size(
+            this.lastMousePos.x - pos.x,
+            this.lastMousePos.y - pos.y
+        );
+        this.onPanned(pos, posDiff);
+    }
+
+    this.lastMousePos = pos;
 };
 
 MiniMap.prototype.onPanned = function(pos, posDiff) {
@@ -957,5 +981,78 @@ MiniMap.prototype.centerOn = function(pos) {
 
 MiniMap.prototype.toString = function() {
     var str = "[MiniMap<" + this.qobj + ">]";
+    return str;
+};
+
+/*
+ * MapPreview class
+ * @contructor
+ */
+var MapPreview = function(map, canvas) {
+    Map.call(this, map, canvas);
+
+    this.scaleFactor = 1;
+
+    // init
+    this.ready = true;
+    this.canvas.requestPaint();
+};
+
+MapPreview.prototype = Object.create(Map.prototype);
+MapPreview.prototype.constructor = MapPreview;
+
+MapPreview.prototype.newMapNode = function(mapNodeQObj, pos) {
+    return new MapItem.MiniMapNode(mapNodeQObj, pos, this);
+};
+
+MapPreview.prototype.newSettlement = function(settlementQObj, mapNodeJObj) {
+    return new MapItem.MiniSettlement(settlementQObj, mapNodeJObj, this);
+};
+
+MapPreview.prototype.newUnit = function(unitQObj, mapNodeJObj) {
+    return new MapItem.MiniUnit(unitQObj, mapNodeJObj, this);
+};
+
+MapPreview.prototype.calculateScaleFactor = function() {
+    var normalSize = Math.max(this.size.width, this.size.height);
+    var canvSize = Math.min(
+        this.canvas.canvasSize.width,
+        this.canvas.canvasSize.height
+    );
+
+    return canvSize/normalSize;
+};
+
+MapPreview.prototype.updateGeometry = function() {
+    this.boundingRect = this.calculateBoundingRect();
+    this.size = Qt.size(
+        this.boundingRect.width,
+        this.boundingRect.height
+    );
+    this.scaleFactor = this.calculateScaleFactor();
+
+    this.adjustMapCoordinates();
+};
+
+MapPreview.prototype.draw = function(ctx, region) {
+    ctx.clearRect(
+        0,
+        0,
+        this.canvas.canvasSize.width,
+        this.canvas.canvasSize.height
+    );
+
+    ctx.save();
+    ctx.scale(this.scaleFactor, this.scaleFactor);
+
+    for (var i = 0; i < this.mapNodes.length; i++) {
+        this.mapNodes[i].draw(ctx);
+    }
+
+    ctx.restore();
+};
+
+MapPreview.prototype.toString = function() {
+    var str = "[MapPreview<" + this.qobj + ">]";
     return str;
 };

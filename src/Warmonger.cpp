@@ -33,7 +33,6 @@ Warmonger::~Warmonger()
 
 void Warmonger::readSettings()
 {
-    //FIXME: these search paths will need to come from some sort of settings
     QDir::setSearchPaths("maps", QStringList("worlds/iron_age/maps"));
     QDir::setSearchPaths("worlds", QStringList("worlds/iron_age"));
 }

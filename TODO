@@ -1,0 +1,49 @@
+Things to do until the first "usable" release.
+
+General
+-------
+* Rethink the GamEntity setPath business. Currently, once loaded it cannot be
+modified, but this might not be what we want.
+* It might be a good idea to share already loaded worlds.
+* Rethink GameEntity loading by specifications.
+
+Core
+----
+* Unit: update hp, mp, xp, when unit type changes.
+
+Map Editor
+----------
+* When loading a map setup the search paths for the world surface.
+* Make it possible to create new maps (the first node has to be created
+automatically).
+* Batch terrain editing and creation.
+* Make it possible to move, or remove objects (settlements, units).
+
+Map
+---
+* Center map on the canvas (if smaller than canvas).
+* Repaint only those nodes overlapping or contained in the damage region.
+
+MiniMap
+-------
+* Why are those gaps between the hexagons?
+
+Gameplay (both core and ui)
+---------------------------
+* Base infrastructure (Game class, Game.qml).
+* Recruit units.
+* Unit movement.
+* Battle.
+
+UI
+--
+* Setup new game.
+* Load saved game.
+* Open maps for editing.
+* Make the UI as whole look less awful.
+* Add about menu.
+
+Settings
+--------
+* Store preferred world surface.
+* Store map and world search paths.

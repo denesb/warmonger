@@ -31,7 +31,6 @@ UnitType * Unit::getUnitType() const
 
 void Unit::setUnitType(UnitType *unitType)
 {
-    //FIXME: update hp, xp, mp on unitType change
     if (this->unitType != unitType)
     {
         this->unitType = unitType;

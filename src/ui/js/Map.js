@@ -454,7 +454,6 @@ BigMap.prototype.draw = function(ctx, region) {
         region.height
     );
 
-    //FIXME: only draw those mapNodes overlapping/contained in region
     var mapNodes = this.mapNodes;
 
     this.drawMapNodes(ctx, mapNodes);

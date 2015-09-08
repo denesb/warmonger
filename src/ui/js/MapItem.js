@@ -198,7 +198,6 @@ MiniMapNode.prototype.draw = function(ctx) {
     ctx.strokeStyle = this.color;
     ctx.fillStyle = this.color;
 
-    //FIXME: figure out, why are there gaps between the hexagons
     ctx.stroke();
     ctx.fill();
 

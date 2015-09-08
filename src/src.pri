@@ -26,6 +26,7 @@ HEADERS += \
     src/core/DamageType.h \
     src/core/Exception.h \
     src/core/Faction.h \
+    src/core/Game.h \
     src/core/GameEntity.h \
     src/core/GameObject.h \
     src/core/JsonUtil.h \
@@ -69,6 +70,7 @@ SOURCES += \
     src/core/DamageType.cpp \
     src/core/Exception.cpp \
     src/core/Faction.cpp \
+    src/core/Game.cpp \
     src/core/GameEntity.cpp \
     src/core/GameObject.cpp \
     src/core/JsonUtil.cpp \
@@ -93,6 +95,7 @@ SOURCES += \
 
 # qml
 OTHER_FILES += \
+    src/ui/qml/GameSetup.qml \
     src/ui/qml/ListEditGroup.qml \
     src/ui/qml/Main.qml \
     src/ui/qml/MapDetails.qml \

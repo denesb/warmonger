@@ -97,7 +97,7 @@ signals:
 private slots:
     void onSurfaceChanged();
 
-private:
+protected:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 

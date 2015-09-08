@@ -79,6 +79,16 @@ Rectangle {
 
             Button {
                 text: "Setup Game"
+                onClicked: {
+                    var game = W.newGame(mapDetails.map);
+                    newGame.stack.push({
+                        item: Qt.createComponent("GameSetup.qml"),
+                        properties: {
+                            game: game,
+                            stack: newGame.stack
+                        }
+                    });
+                }
             }
         }
     }

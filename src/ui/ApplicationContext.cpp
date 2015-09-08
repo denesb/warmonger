@@ -12,6 +12,8 @@
 using namespace warmonger;
 using namespace warmonger::ui;
 
+static const QString category{"ui"};
+
 ApplicationContext::ApplicationContext(QObject *parent) :
     QObject(parent),
     maps()
@@ -49,4 +51,19 @@ void ApplicationContext::loadMaps()
 QVariantList ApplicationContext::readMaps() const
 {
     return core::toQVariantList<core::Map>(this->maps);
+}
+
+QObject * ApplicationContext::newGame(QObject *map)
+{
+    core::Map *m = qobject_cast<core::Map *>(map);
+    if (m == nullptr)
+    {
+        wError(category) << "map is null or has wrong type";
+        throw core::Exception(core::Exception::InvalidValue);
+    }
+
+    core::Game *game = new core::Game(this);
+    game->fromMapJson(m->toJson());
+
+    return game;
 }

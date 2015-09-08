@@ -3,7 +3,7 @@
 
 #include <QVariant>
 
-#include "core/Map.h"
+#include "core/Game.h"
 
 namespace warmonger {
 namespace ui {
@@ -21,6 +21,8 @@ public:
     void loadMaps();
 
     QVariantList readMaps() const;
+
+    Q_INVOKABLE QObject * newGame(QObject *map);
 
 signals:
     void mapsChanged();

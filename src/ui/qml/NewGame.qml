@@ -31,40 +31,19 @@ Rectangle {
         }
     }
 
-    Rectangle {
+    MapList {
         id: mapList
-        width: 512
         anchors {
             top: mapListControls.bottom
             bottom: parent.bottom
             left: parent.left
             margins: 2
         }
-        border {
-            width: 2
-            color: "black"
-        }
 
-        ListView {
-            anchors {
-                fill: parent
-                topMargin: 10
-                bottomMargin: 10
-            }
+        maps: W.maps
 
-            currentIndex: -1
-            model: W.maps
-            delegate: MapListMapMeta {
-                id: mapMeta
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        mapMeta.ListView.view.currentIndex = index;
-                        mapDetails.map = model.modelData;
-                    }
-                }
-            }
+        onMapSelected: {
+            mapDetails.map = map;
         }
     }
 
@@ -76,7 +55,7 @@ Rectangle {
             right: parent.right
         }
 
-        MapListMapDetails {
+        MapDetails {
             id: mapDetails
 
             anchors {

@@ -95,11 +95,11 @@ SOURCES += \
 OTHER_FILES += \
     src/ui/qml/ListEditGroup.qml \
     src/ui/qml/Main.qml \
+    src/ui/qml/MapDetails.qml \
     src/ui/qml/MapEditor.qml \
     src/ui/qml/MapItemInfo.qml \
     src/ui/qml/MapItemSelector.qml \
-    src/ui/qml/MapListMapMeta.qml \
-    src/ui/qml/MapListMapDetails.qml \
+    src/ui/qml/MapList.qml \
     src/ui/qml/MapNodeEdit.qml \
     src/ui/qml/NewGame.qml \
     src/ui/qml/SettlementEdit.qml \

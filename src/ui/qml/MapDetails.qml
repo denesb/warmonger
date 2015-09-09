@@ -9,33 +9,31 @@ Rectangle {
 
     property var map
 
-    onMapChanged: {
-        if (mapDetails.map)
-            mapPreview.jobj = new Map.MapPreview(mapDetails.map, mapPreview);
-        else
-            mapPreview.jobj = undefined;
-    }
-
+    height: 258
     anchors {
-        top: parent.top
-        bottom: parent.bottom
-        left: mapList.right
-        right: parent.right
         margins: 2
     }
     border {
-        width: 2
+        width: 1
         color: "black"
     }
 
+    onMapChanged: {
+        if (mapDetails.map)
+            mapCanvas.jobj = new Map.MapPreview(mapDetails.map, mapCanvas);
+        else
+            mapCanvas.jobj = undefined;
+    }
+
     Rectangle {
-        id: mapPreviewWrapper
+        id: mapPreview
         anchors {
             top: parent.top
-            left: parent.left
+            bottom: parent.bottom
             right: parent.right
+            margins: 2
         }
-        height: 400
+        width: height
 
         border {
             width: 1
@@ -43,29 +41,28 @@ Rectangle {
         }
 
         Canvas {
-            id: mapPreview
+            id: mapCanvas
             anchors {
-                verticalCenter: parent.verticalCenter
-                horizontalCenter: parent.horizontalCenter
+                fill: parent
+                margins: 2
             }
-            width: 384
-            height: 384
 
             property var jobj
 
             onPaint: {
-                if (mapPreview.jobj)
-                    mapPreview.jobj.onPaint(region);
+                if (mapCanvas.jobj)
+                    mapCanvas.jobj.onPaint(region);
             }
         }
     }
 
     Rectangle {
         anchors {
-            top: mapPreviewWrapper.bottom
+            top: parent.top
             bottom: parent.bottom
             left: parent.left
-            right: parent.right
+            right: mapPreview.left
+            margins: 2
         }
 
         ColumnLayout {
@@ -77,7 +74,7 @@ Rectangle {
 
                 text: {
                     if (mapDetails.map)
-                        mapDetails.map.displayName;
+                        "<b>" + mapDetails.map.displayName + "</b>";
                     else
                         "";
                 }
@@ -89,7 +86,7 @@ Rectangle {
 
                 text: {
                     if (mapDetails.map)
-                        "World: " + mapDetails.map.world.displayName;
+                        "<i>" + mapDetails.map.world.displayName + "</i>";
                     else
                         "";
                 }
@@ -119,15 +116,25 @@ Rectangle {
                 }
             }
 
-            Text {
+            Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                border {
+                    width: 1
+                    color: "black"
+                }
 
-                text: {
-                    if (mapDetails.map)
-                        mapDetails.map.description;
-                    else
-                        "";
+                Text {
+                    anchors.fill: parent
+                    anchors.margins: 2
+                    wrapMode: Text.WordWrap
+
+                    text: {
+                        if (mapDetails.map)
+                            mapDetails.map.description;
+                        else
+                            "";
+                    }
                 }
             }
         }

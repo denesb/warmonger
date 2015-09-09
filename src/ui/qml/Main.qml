@@ -3,8 +3,8 @@ import QtQuick.Controls 1.1
 import QtQuick.Layouts 1.1
 
 Rectangle {
-    width: 360
-    height: 360
+    width: 1024
+    height: 700
 
     StackView {
         id: mainStack

@@ -60,7 +60,6 @@ Rectangle {
 
             anchors {
                 top: parent.top
-                bottom: controls.top
                 left: parent.left
                 right: parent.right
             }
@@ -78,9 +77,10 @@ Rectangle {
             layoutDirection: Qt.RightToLeft
 
             Button {
-                text: "Setup Game"
+                text: "Start Game"
                 onClicked: {
                     var game = W.newGame(mapDetails.map);
+                    /*
                     newGame.stack.push({
                         item: Qt.createComponent("GameSetup.qml"),
                         properties: {
@@ -88,6 +88,7 @@ Rectangle {
                             stack: newGame.stack
                         }
                     });
+                    */
                 }
             }
         }

@@ -98,9 +98,9 @@ void World::setTerrainTypes(const QList<TerrainType *> &terrainTypes)
     }
 }
 
-QVariant World::readTerrainTypes() const
+QVariantList World::readTerrainTypes() const
 {
-    return QVariant::fromValue(toQObjectList<TerrainType>(this->terrainTypes));
+    return toQVariantList<TerrainType>(this->terrainTypes);
 }
 
 QList<UnitClass *> World::getUnitClasses() const
@@ -157,9 +157,9 @@ void World::setUnitTypes(const QList<UnitType *> &unitTypes)
     }
 }
 
-QVariant World::readUnitTypes() const
+QVariantList World::readUnitTypes() const
 {
-    return QVariant::fromValue(toQObjectList<UnitType>(this->unitTypes));
+    return toQVariantList<UnitType>(this->unitTypes);
 }
 
 QList<SettlementType *> World::getSettlementTypes() const
@@ -176,9 +176,9 @@ void World::setSettlementTypes(const QList<SettlementType *> &settlementTypes)
     }
 }
 
-QVariant World::readSettlementTypes() const
+QVariantList World::readSettlementTypes() const
 {
-    return QVariant::fromValue(toQObjectList<SettlementType>(this->settlementTypes));
+    return toQVariantList<SettlementType>(this->settlementTypes);
 }
 
 QList<Faction *> World::getFactions() const
@@ -189,6 +189,11 @@ QList<Faction *> World::getFactions() const
 void World::setFactions(const QList<Faction *> &factions)
 {
     this->factions = factions;
+}
+
+QVariantList World::readFactions() const
+{
+    return toQVariantList<Faction>(this->factions);
 }
 
 void World::dataFromJson(const QJsonObject &obj)

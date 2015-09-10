@@ -7,6 +7,8 @@
 
 using namespace warmonger::core;
 
+static const QString category{"core"};
+
 Player::Player(QObject *parent) :
     GameObject(parent),
     color(),
@@ -26,7 +28,11 @@ QColor Player::getColor() const
 
 void Player::setColor(const QColor &color)
 {
-    this->color = color;
+    if (this->color != color)
+    {
+        this->color = color;
+        emit colorChanged();
+    }
 }
 
 int Player::getGoldBalance() const
@@ -36,17 +42,41 @@ int Player::getGoldBalance() const
 
 void Player::setGoldBalance(int goldBalance)
 {
-    this->goldBalance = goldBalance;
+    if (this->goldBalance != goldBalance)
+    {
+        this->goldBalance = goldBalance;
+        emit goldBalanceChanged();
+    }
 }
 
-const Faction * Player::getFaction() const
+Faction * Player::getFaction() const
 {
     return this->faction;
 }
 
-void Player::setFaction(const Faction *faction)
+void Player::setFaction(Faction *faction)
 {
-    this->faction = faction;
+    if (this->faction != faction)
+    {
+        this->faction = faction;
+        emit factionChanged();
+    }
+}
+
+QObject * Player::readFaction() const
+{
+    return this->faction;
+}
+
+void Player::writeFaction(QObject *faction)
+{
+    Faction *f = qobject_cast<Faction *>(faction);
+    if (f == nullptr)
+    {
+        wError(category) << "faction is null or has wrong type";
+        throw Exception(Exception::InvalidValue);
+    }
+    this->setFaction(f);
 }
 
 void Player::dataFromJson(const QJsonObject &obj)

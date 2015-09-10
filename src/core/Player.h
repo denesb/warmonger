@@ -18,6 +18,7 @@ class Player :
     Q_OBJECT
     Q_PROPERTY(QColor color READ getColor WRITE setColor NOTIFY colorChanged)
     Q_PROPERTY(int goldBalance READ getGoldBalance WRITE setGoldBalance NOTIFY goldBalanceChanged)
+    Q_PROPERTY(QObject * faction READ readFaction WRITE writeFaction NOTIFY factionChanged)
 
 public:
     Player(QObject *parent);
@@ -29,12 +30,15 @@ public:
     int getGoldBalance() const;
     void setGoldBalance(int goldBalance);
 
-    const Faction * getFaction() const;
-    void setFaction(const Faction *faction);
+    Faction * getFaction() const;
+    void setFaction(Faction *faction);
+    QObject * readFaction() const;
+    void writeFaction(QObject *faction);
 
 signals:
     void colorChanged();
     void goldBalanceChanged();
+    void factionChanged();
 
 private:
     void dataFromJson(const QJsonObject &obj);
@@ -42,7 +46,7 @@ private:
 
     QColor color;
     int goldBalance;
-    const Faction *faction;
+    Faction *faction;
 };
 
 } // namespace core

@@ -95,6 +95,7 @@ SOURCES += \
 
 # qml
 OTHER_FILES += \
+    src/ui/qml/GameSetup.qml \
     src/ui/qml/ListEditGroup.qml \
     src/ui/qml/Main.qml \
     src/ui/qml/MapDetails.qml \

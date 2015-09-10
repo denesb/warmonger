@@ -23,9 +23,10 @@ class World :
 {
     Q_OBJECT
     Q_PROPERTY(QObject * surface READ readSurface NOTIFY surfaceChanged)
-    Q_PROPERTY(QVariant terrainTypes READ readTerrainTypes NOTIFY terrainTypesChanged)
-    Q_PROPERTY(QVariant unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
-    Q_PROPERTY(QVariant settlementTypes READ readSettlementTypes NOTIFY settlementTypesChanged)
+    Q_PROPERTY(QVariantList terrainTypes READ readTerrainTypes NOTIFY terrainTypesChanged)
+    Q_PROPERTY(QVariantList unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
+    Q_PROPERTY(QVariantList settlementTypes READ readSettlementTypes NOTIFY settlementTypesChanged)
+    Q_PROPERTY(QVariantList factions READ readFactions NOTIFY factionsChanged)
 
 public:
     World(QObject *parent);
@@ -39,7 +40,7 @@ public:
 
     QList<TerrainType *> getTerrainTypes() const;
     void setTerrainTypes(const QList<TerrainType *> &terrainTypes);
-    QVariant readTerrainTypes() const;
+    QVariantList readTerrainTypes() const;
 
     QList<UnitClass *> getUnitClasses() const;
     void setUnitClasses(const QList<UnitClass *> &unitClasses);
@@ -55,20 +56,22 @@ public:
 
     QList<UnitType *> getUnitTypes() const;
     void setUnitTypes(const QList<UnitType *> &unitTypes);
-    QVariant readUnitTypes() const;
+    QVariantList readUnitTypes() const;
 
     QList<SettlementType *> getSettlementTypes() const;
     void setSettlementTypes(const QList<SettlementType *> &settlementTypes);
-    QVariant readSettlementTypes() const;
+    QVariantList readSettlementTypes() const;
 
     QList<Faction *> getFactions() const;
     void setFactions(const QList<Faction *> &factions);
+    QVariantList readFactions() const;
 
 signals:
     void surfaceChanged();
     void terrainTypesChanged();
     void unitTypesChanged();
     void settlementTypesChanged();
+    void factionsChanged();
 
 private:
     void dataFromJson(const QJsonObject &obj);

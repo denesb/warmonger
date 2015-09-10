@@ -44,6 +44,7 @@ Rectangle {
 
         onMapSelected: {
             mapDetails.map = map;
+            gameSetup.game = W.newGame(mapDetails.map);
         }
     }
 
@@ -65,31 +66,14 @@ Rectangle {
             }
         }
 
-        Row {
-            id: controls
+        GameSetup {
+            id: gameSetup
+
             anchors {
+                top: mapDetails.bottom
                 bottom: parent.bottom
                 left: parent.left
                 right: parent.right
-            }
-            height: 36
-
-            layoutDirection: Qt.RightToLeft
-
-            Button {
-                text: "Start Game"
-                onClicked: {
-                    var game = W.newGame(mapDetails.map);
-                    /*
-                    newGame.stack.push({
-                        item: Qt.createComponent("GameSetup.qml"),
-                        properties: {
-                            game: game,
-                            stack: newGame.stack
-                        }
-                    });
-                    */
-                }
             }
         }
     }

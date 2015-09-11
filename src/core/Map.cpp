@@ -38,9 +38,9 @@ Map::~Map()
 {
 }
 
-QString Map::specification(const QString &objectName) const
+QString Map::getFileExtension() const
 {
-    return "maps:" + objectName + ".wmd";
+    return QString("wmd");
 }
 
 World * Map::getWorld() const
@@ -314,8 +314,8 @@ void Map::dataFromJson(const QJsonObject &obj)
     GameEntity::dataFromJson(obj);
 
     const QString worldName(obj["world"].toString());
-    World *world = new World(this);
-    world->load(world->specification(worldName));
+    GameEntity *entity = GameEntity::get(worldName, &World::staticMetaObject);
+    World *world = qobject_cast<World *>(entity);
     QObject::connect(
         world,
         &World::surfaceChanged,

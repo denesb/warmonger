@@ -19,9 +19,9 @@ class WorldSurface :
     Q_PROPERTY(QVariantMap style READ readStyle NOTIFY styleChanged);
 
 public:
-    WorldSurface(QObject *parent);
+    Q_INVOKABLE WorldSurface(QObject *parent);
 
-    virtual QString specification(const QString &objectName) const;
+    Q_INVOKABLE virtual QString getFileExtension() const;
 
     QSize getTileSize() const;
     void setTileSize(const QSize &tileSize);

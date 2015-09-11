@@ -29,9 +29,9 @@ class World :
     Q_PROPERTY(QVariantList factions READ readFactions NOTIFY factionsChanged)
 
 public:
-    World(QObject *parent);
+    Q_INVOKABLE World(QObject *parent);
 
-    virtual QString specification(const QString &objectName) const;
+    Q_INVOKABLE virtual QString getFileExtension() const;
 
     WorldSurface * getSurface() const;
     void setSurface(WorldSurface *surface);

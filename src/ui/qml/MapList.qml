@@ -3,7 +3,7 @@ import QtQuick.Controls 1.1
 import QtQuick.Layouts 1.1
 
 Rectangle {
-    id: mapList
+    id: root
 
     width: 512
 
@@ -215,7 +215,7 @@ Rectangle {
         }
 
         currentIndex: -1
-        model: mapList.maps
+        model: root.maps
         delegate: listItemComponent
     }
 }

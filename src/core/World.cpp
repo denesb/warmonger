@@ -31,9 +31,9 @@ World::World(QObject *parent) :
 {
 }
 
-QString World::specification(const QString &objectName) const
+QString World::getFileExtension() const
 {
-    return "worlds:" + objectName + ".wwd";
+    return QString("wwd");
 }
 
 WorldSurface * World::getSurface() const
@@ -55,7 +55,7 @@ void World::setSurface(const QString &surfaceName)
     if (this->surface != nullptr && this->surface->objectName() == surfaceName)
         return;
 
-    QDir worldDir(this->path + "/surfaces");
+    QDir worldDir(this->getPath() + "/surfaces");
     QStringList entryList = worldDir.entryList(
         QDir::AllDirs | QDir::NoDotAndDotDot
     );
@@ -70,7 +70,8 @@ void World::setSurface(const QString &surfaceName)
     QDir::setSearchPaths("surfaces", searchPaths);
 
     this->surface = new WorldSurface(this);
-    this->surface->load(surface->specification(surfaceName));
+    this->surface->setObjectName(surfaceName);
+    this->surface->load();
 
     // Need to reset the search path, so that the next world can load it's own
     // surfaces

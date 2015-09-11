@@ -27,6 +27,9 @@ public:
 signals:
     void mapsChanged();
 
+public slots:
+    void setCurrentMap(QObject *map);
+
 private:
     QList<core::Map *> maps;
 };

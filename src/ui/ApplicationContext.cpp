@@ -64,6 +64,13 @@ QObject * ApplicationContext::newGame(QObject *map)
 
     core::Game *game = new core::Game(this);
     game->fromMapJson(m->toJson());
+    game->getWorld()->setSurface("default");
+
+
 
     return game;
+}
+
+void ApplicationContext::setCurrentMap(QObject *map)
+{
 }

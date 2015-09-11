@@ -34,10 +34,10 @@ public:
     static const QString settlementNameTemplate;
     static const QString unitNameTemplate;
 
-    Map(QObject *parent);
+    Q_INVOKABLE Map(QObject *parent);
     ~Map();
 
-    virtual QString specification(const QString &objectName) const;
+    Q_INVOKABLE virtual QString getFileExtension() const;
 
     World * getWorld() const;
     void setWorld(World *world);

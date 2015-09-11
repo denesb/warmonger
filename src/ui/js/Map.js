@@ -339,8 +339,8 @@ Map.prototype.toString = function() {
  * BigMap class
  * @contructor
  */
-var BigMap = function(W, canvas, mouseArea) {
-    Map.call(this, W, canvas);
+var BigMap = function(map, canvas, mouseArea) {
+    Map.call(this, map, canvas);
 
     this.mouseArea = mouseArea;
 
@@ -559,12 +559,28 @@ BigMap.prototype.toString = function() {
     return str;
 };
 
+
+/*
+ * GameMap class
+ * @contructor
+ */
+var GameMap = function(game, canvas, mouseArea) {
+    BigMap.call(this, game, canvas, mouseArea);
+
+    // init
+    this.geometryChanged = true;
+};
+
+GameMap.prototype = Object.create(BigMap.prototype);
+GameMap.prototype.constructor = GameMap;
+
+
 /*
  * EditableMap class
  * @contructor
  */
-var EditableMap = function(W, canvas, mouseArea) {
-    BigMap.call(this, W, canvas, mouseArea);
+var EditableMap = function(map, canvas, mouseArea) {
+    BigMap.call(this, map, canvas, mouseArea);
 
     this.focusedNode = undefined;
     this.mapNodeClicked = undefined;

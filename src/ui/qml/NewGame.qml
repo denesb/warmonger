@@ -3,7 +3,7 @@ import QtQuick.Controls 1.1
 import QtQuick.Layouts 1.1
 
 Rectangle {
-    id: newGame
+    id: root
 
     property var stack
 
@@ -45,6 +45,7 @@ Rectangle {
         onMapSelected: {
             mapDetails.map = map;
             gameSetup.game = W.newGame(mapDetails.map);
+            W.setCurrentMap(map);
         }
     }
 
@@ -59,6 +60,8 @@ Rectangle {
         MapDetails {
             id: mapDetails
 
+            z: 1
+
             anchors {
                 top: parent.top
                 left: parent.left
@@ -71,9 +74,36 @@ Rectangle {
 
             anchors {
                 top: mapDetails.bottom
+                bottom: controls.top
+                left: parent.left
+                right: parent.right
+            }
+        }
+
+        Row {
+            id: controls
+            anchors {
                 bottom: parent.bottom
                 left: parent.left
                 right: parent.right
+                leftMargin: 5
+                rightMargin: 5
+            }
+            height: 30
+
+            layoutDirection: Qt.RightToLeft
+
+            Button {
+                text: "Start Game"
+                onClicked: {
+                    root.stack.push({
+                        item: Qt.createComponent("Game.qml"),
+                        properties: {
+                            game: gameSetup.game,
+                            stack: root.stack
+                        }
+                    });
+                }
             }
         }
     }

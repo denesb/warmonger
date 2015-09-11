@@ -15,16 +15,7 @@ Warmonger::Warmonger(int argc, char *argv[]) :
 {
     this->readSettings();
     this->initLogger();
-
-    try
-    {
-        this->initUi();
-    }
-    catch (core::Exception &e)
-    {
-        wCritical("ui") << "Caught exception: " << e.getMsg();
-        throw;
-    }
+    this->initUi();
 }
 
 Warmonger::~Warmonger()
@@ -33,8 +24,8 @@ Warmonger::~Warmonger()
 
 void Warmonger::readSettings()
 {
-    QDir::setSearchPaths("maps", QStringList("worlds/iron_age/maps"));
-    QDir::setSearchPaths("worlds", QStringList("worlds/iron_age"));
+    QDir::setSearchPaths("Map", QStringList("worlds/iron_age/maps"));
+    QDir::setSearchPaths("World", QStringList("worlds/iron_age"));
 }
 
 void Warmonger::initLogger()

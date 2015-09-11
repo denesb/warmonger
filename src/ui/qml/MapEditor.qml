@@ -5,7 +5,7 @@ import QtQuick.Layouts 1.1
 import "js/Map.js" as Map
 
 Rectangle {
-    id: mapEditor
+    id: root
 
     Component.onCompleted: {
         mapCanvas.onCanvasWindowChanged.connect(mapCanvasWindowChanged);
@@ -16,10 +16,12 @@ Rectangle {
     }
 
     Rectangle {
-        id: mapEditorStatusBar
-        anchors.left: parent.left
-        anchors.top: parent.top
-        anchors.right: mapEditorSideBar.left
+        id: statusBar
+        anchors {
+            top: parent.top
+            left: parent.left
+            right: sideBar.left
+        }
         height: 40
 
         RowLayout {
@@ -128,8 +130,8 @@ Rectangle {
 
         anchors {
             left: parent.left
-            top: mapEditorStatusBar.bottom
-            right: mapEditorSideBar.left
+            top: statusBar.bottom
+            right: sideBar.left
             bottom: parent.bottom
         }
 
@@ -169,7 +171,7 @@ Rectangle {
     }
 
     Rectangle {
-        id: mapEditorSideBar
+        id: sideBar
         anchors {
             top: parent.top
             right: parent.right

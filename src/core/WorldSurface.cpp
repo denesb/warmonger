@@ -16,9 +16,9 @@ WorldSurface::WorldSurface(QObject *parent) :
 {
 }
 
-QString WorldSurface::specification(const QString &objectName) const
+QString WorldSurface::getFileExtension() const
 {
-    return "surfaces:" + objectName + ".wsd";
+    return QString("wsd");
 }
 
 QSize WorldSurface::getTileSize() const
@@ -111,7 +111,7 @@ void WorldSurface::dataFromJson(const QJsonObject &obj)
 {
     GameEntity::dataFromJson(obj);
 
-    this->hexMask.load(this->path + QStringLiteral("/hexagon_mask.xpm"), "XPM");
+    this->hexMask.load(this->getPath() + QStringLiteral("/hexagon_mask.xpm"), "XPM");
 
     this->tileSize = sizeFromJson(obj["tileSize"].toObject());
     this->bigMap = this->mapFromJson(obj["bigMap"].toObject());

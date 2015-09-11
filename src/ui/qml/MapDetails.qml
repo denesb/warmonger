@@ -1,11 +1,10 @@
 import QtQuick 2.2
-import QtQuick.Controls 1.1
 import QtQuick.Layouts 1.1
 
 import "js/Map.js" as Map
 
 Rectangle {
-    id: mapDetails
+    id: root
 
     property var map
 
@@ -19,8 +18,8 @@ Rectangle {
     }
 
     onMapChanged: {
-        if (mapDetails.map)
-            mapCanvas.jobj = new Map.MapPreview(mapDetails.map, mapCanvas);
+        if (root.map)
+            mapCanvas.jobj = new Map.MapPreview(root.map, mapCanvas);
         else
             mapCanvas.jobj = undefined;
     }
@@ -73,8 +72,8 @@ Rectangle {
                 Layout.preferredHeight: 15
 
                 text: {
-                    if (mapDetails.map)
-                        "<b>" + mapDetails.map.displayName + "</b>";
+                    if (root.map)
+                        "<b>" + root.map.displayName + "</b>";
                     else
                         "";
                 }
@@ -85,8 +84,8 @@ Rectangle {
                 Layout.preferredHeight: 15
 
                 text: {
-                    if (mapDetails.map)
-                        "<i>" + mapDetails.map.world.displayName + "</i>";
+                    if (root.map)
+                        "<i>" + root.map.world.displayName + "</i>";
                     else
                         "";
                 }
@@ -97,8 +96,8 @@ Rectangle {
                 Layout.preferredHeight: 15
 
                 text: {
-                    if (mapDetails.map)
-                        mapDetails.map.mapNodes.length + " nodes";
+                    if (root.map)
+                        root.map.mapNodes.length + " nodes";
                     else
                         "";
                 }
@@ -109,8 +108,8 @@ Rectangle {
                 Layout.preferredHeight: 15
 
                 text: {
-                    if (mapDetails.map)
-                        mapDetails.map.players.length + " players";
+                    if (root.map)
+                        root.map.players.length + " players";
                     else
                         "";
                 }
@@ -130,8 +129,8 @@ Rectangle {
                     wrapMode: Text.WordWrap
 
                     text: {
-                        if (mapDetails.map)
-                            mapDetails.map.description;
+                        if (root.map)
+                            root.map.description;
                         else
                             "";
                     }

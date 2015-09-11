@@ -23,15 +23,28 @@ public:
     QString getPath() const;
     QString getFileName() const;
 
+    Q_INVOKABLE virtual QString getFileExtension() const = 0;
+
     QString getDescription() const;
     void setDescription(const QString &description);
 
-    Q_INVOKABLE virtual void load(const QString &specification);
+    static QObject * getOwner();
+    static void setOwner(QObject *owner);
+
+    Q_INVOKABLE static GameEntity * get(
+        const QString &objectName,
+        const QMetaObject *metaObject
+    );
+
+    Q_INVOKABLE static GameEntity * load(
+        const QString &objectName,
+        const QMetaObject *metaObject
+    );
+
+    Q_INVOKABLE virtual void load();
     Q_INVOKABLE virtual void loadAs(const QString &path);
     Q_INVOKABLE virtual void save() const;
     Q_INVOKABLE virtual void saveAs(const QString &path) const;
-
-    virtual QString specification(const QString &objectName) const = 0;
 
 signals:
     void pathChanged() const;
@@ -44,15 +57,32 @@ protected:
     void setPath(const QString &path);
     void setFileName(const QString &fileName);
 
+    QString getPrefixedFileName() const;
+
     virtual void loadFromFile(const QString &path);
     virtual void saveToFile(const QString &path) const;
 
     virtual void dataFromJson(const QJsonObject &obj);
     virtual void dataToJson(QJsonObject &obj) const;
 
+    static QString entityKey(
+        const QString& objectName,
+        const QMetaObject *metaObject
+    );
+
+    QString entityKey() const;
+
+private slots:
+    void onObjectNameChanged();
+
+private:
     QString path;
     QString fileName;
     QString description;
+
+    static QObject *owner;
+    static QMap<QString, GameEntity *> knownEntities;
+    static QList<GameEntity *> anonymusEntities;
 };
 
 } // namespace warmonger

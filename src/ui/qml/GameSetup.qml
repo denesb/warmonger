@@ -31,6 +31,9 @@ Rectangle {
             TextField {
                 anchors.verticalCenter: parent.verticalCenter
                 text: model.modelData.displayName
+                onTextChanged: {
+                    model.modelData.displayName = text;
+                }
             }
 
             Rectangle {
@@ -87,12 +90,7 @@ Rectangle {
     }
 
     ListView {
-        anchors {
-            top: parent.top
-            bottom: controls.top
-            left: parent.left
-            right: parent.right
-        }
+        anchors.fill: parent
 
         model: {
             if (root.game)
@@ -101,32 +99,5 @@ Rectangle {
                 [];
         }
         delegate: playerSetup
-    }
-
-    Row {
-        id: controls
-        anchors {
-            bottom: parent.bottom
-            left: parent.left
-            right: parent.right
-        }
-        height: 36
-
-        layoutDirection: Qt.RightToLeft
-
-        Button {
-            text: "Start Game"
-            onClicked: {
-                /*
-                newGame.stack.push({
-                    item: Qt.createComponent("Game.qml"),
-                    properties: {
-                        game: game,
-                        stack: newGame.stack
-                    }
-                });
-                */
-            }
-        }
     }
 }

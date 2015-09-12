@@ -81,21 +81,11 @@ void Player::writeFaction(QObject *faction)
 
 void Player::dataFromJson(const QJsonObject &obj)
 {
-    World *world = this->parent()->findChild<World *>(
-        QString(),
-        Qt::FindDirectChildrenOnly
-    );
-
-    if (world == nullptr)
-    {
-        wError("core.Player") << "world is null";
-        throw Exception(Exception::NullPointer);
-    }
-
     this->color = QColor(obj["color"].toString());
     this->goldBalance = obj["goldBalance"].toInt();
     this->faction = resolveReference<Faction>(
-        obj["faction"].toString(), world
+        obj["faction"].toString(),
+        this->parent()
     );
 }
 

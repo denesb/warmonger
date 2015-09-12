@@ -1,5 +1,4 @@
 #include "core/Unit.h"
-#include "core/World.h"
 #include "core/UnitType.h"
 #include "core/MapNode.h"
 #include "core/Player.h"
@@ -159,18 +158,10 @@ void Unit::setMovementPoints(int movementPoints)
 
 void Unit::dataFromJson(const QJsonObject &obj)
 {
-    World *world = this->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
-    if (world == nullptr)
-    {
-        wError("core.Unit") << "world is null";
-        throw Exception(Exception::NullPointer);
-    }
-
     this->unitType = resolveReference<UnitType>(
         obj["unitType"].toString(),
-        world
+        this->parent()
     );
-
     this->mapNode = resolveReference<MapNode>(
         obj["mapNode"].toString(),
         this->parent()

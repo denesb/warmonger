@@ -8,6 +8,8 @@
 namespace warmonger {
 namespace core {
 
+class GameObject;
+
 class GameEntity :
     public QObject
 {
@@ -52,6 +54,8 @@ public:
         const QString &objectName,
         const QMetaObject *metaObject
     );
+
+    virtual GameObject *resolveReference(const QString &objectName) const;
 
 signals:
     void pathChanged();

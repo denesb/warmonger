@@ -5,12 +5,13 @@
 #include <QString>
 
 #include "core/GameEntity.h"
+#include "core/World.h"
 #include "core/MapNode.h"
 
 namespace warmonger {
 namespace core {
 
-class World;
+class GameObject;
 class Player;
 class UnitType;
 class Unit;
@@ -79,6 +80,8 @@ public:
 
     void createUnit(UnitType *unitType, MapNode *mapNode);
     Q_INVOKABLE void createUnit(QObject *unitType, QObject *mapNode);
+
+    virtual GameObject *resolveReference(const QString &objectName) const;
 
 signals:
     void worldChanged();

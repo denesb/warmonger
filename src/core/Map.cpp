@@ -303,6 +303,24 @@ Q_INVOKABLE void Map::createUnit(QObject *unitType, QObject *mapNode)
     this->addUnit(newUnit.release());
 }
 
+GameObject * Map::resolveReference(const QString &objectName) const
+{
+    GameObject *gobject = this->findChild<GameObject *>(objectName);
+
+    if (gobject == nullptr)
+    {
+        gobject = this->world->findChild<GameObject *>(objectName);
+    }
+
+    if (gobject == nullptr)
+    {
+        wError(category) << "Unable to resolve reference to " << objectName;
+        throw Exception(Exception::UnresolvedReference);
+    }
+
+    return gobject;
+}
+
 void Map::onSurfaceChanged()
 {
     QColor c(this->world->getSurface()->getStyle()["neutral"]);
@@ -348,6 +366,12 @@ QList<MapNode *> Map::mapNodesFromJson(const QJsonObject &obj)
     QList<MapNode *> mapNodes;
     mapNodes = newListFromJson<MapNode>(obj["nodes"].toArray(), this);
 
+    QHash<QString, MapNode *> mapNodeLookup;
+    for (MapNode *mapNode : mapNodes)
+    {
+        mapNodeLookup.insert(mapNode->objectName(), mapNode);
+    }
+
     QJsonArray connections = obj["connections"].toArray();
     for (const QJsonValue connection : connections)
     {
@@ -357,8 +381,20 @@ QList<MapNode *> Map::mapNodesFromJson(const QJsonObject &obj)
         const MapNode::Direction nodeDirectionA =
             MapNode::str2direction[connectionObj["directionA"].toString()];
 
-        MapNode *nodeA = resolveReference<MapNode>(nodeNameA, this);
-        MapNode *nodeB = resolveReference<MapNode>(nodeNameB, this);
+        if (!mapNodeLookup.contains(nodeNameA))
+        {
+            wError(category) << "Node " << nodeNameA << " does not exists";
+            throw Exception(Exception::UnresolvedReference);
+        }
+
+        if (!mapNodeLookup.contains(nodeNameB))
+        {
+            wError(category) << "Node " << nodeNameB << " does not exists";
+            throw Exception(Exception::UnresolvedReference);
+        }
+
+        MapNode *nodeA = mapNodeLookup[nodeNameA];
+        MapNode *nodeB = mapNodeLookup[nodeNameB];
 
         nodeA->setNeighbour(nodeDirectionA, nodeB);
     }

@@ -1,5 +1,4 @@
 #include "core/MapNode.h"
-#include "core/World.h"
 #include "core/TerrainType.h"
 #include "core/JsonUtil.h"
 
@@ -203,18 +202,10 @@ QString MapNode::oppositeDirection(QString directionStr) const
 
 void MapNode::dataFromJson(const QJsonObject &obj)
 {
-    World *world = this->parent()->findChild<World *>(
-        QString(),
-        Qt::FindDirectChildrenOnly
+    this->terrainType = resolveReference<TerrainType>(
+        obj["terrainType"].toString(),
+       this->parent()
     );
-    if (world == nullptr)
-    {
-        wError(category) << "World is null";
-        throw Exception(Exception::NullPointer);
-    }
-
-    const QString terrainTypeName = obj["terrainType"].toString();
-    this->terrainType = resolveReference<TerrainType>(terrainTypeName, world);
 }
 
 void MapNode::dataToJson(QJsonObject &obj) const

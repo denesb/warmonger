@@ -1,6 +1,7 @@
 #include <QFileInfo>
 
 #include "core/GameEntity.h"
+#include "core/GameObject.h"
 #include "core/JsonUtil.h"
 
 using namespace warmonger::core;
@@ -111,6 +112,7 @@ void GameEntity::fromJson(const QJsonObject &obj)
 {
     this->setObjectName(obj["objectName"].toString());
     this->displayName = obj["displayName"].toString();
+    this->description = obj["description"].toString();
 
     this->dataFromJson(obj);
 }
@@ -120,6 +122,7 @@ QJsonObject GameEntity::toJson() const
 	QJsonObject obj;
 	obj["objectName"] = this->objectName();
 	obj["displayName"] = this->displayName;
+	obj["description"] = this->description;
 
     this->dataToJson(obj);
 
@@ -178,6 +181,19 @@ GameEntity * GameEntity::load(
     entity->setObjectName(objectName);
     entity->load();
     return entity;
+}
+
+GameObject *GameEntity::resolveReference(const QString &objectName) const
+{
+    GameObject *gobject = this->findChild<GameObject *>(objectName);
+
+    if (gobject == nullptr)
+    {
+        wError(category) << "Unable to resolve reference to " << objectName;
+        throw Exception(Exception::UnresolvedReference);
+    }
+
+    return gobject;
 }
 
 void GameEntity::setPath(const QString &path)

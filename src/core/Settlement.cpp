@@ -1,4 +1,3 @@
-#include "core/World.h"
 #include "core/Settlement.h"
 #include "core/SettlementType.h"
 #include "core/MapNode.h"
@@ -115,16 +114,9 @@ void Settlement::writeOwner(QObject *owner)
 
 void Settlement::dataFromJson(const QJsonObject &obj)
 {
-    World *world = this->parent()->findChild<World *>(QString(), Qt::FindDirectChildrenOnly);
-    if (world == nullptr)
-    {
-        wError("core.Settlement") << "world is null";
-        throw Exception(Exception::NullPointer);
-    }
-
     this->settlementType = resolveReference<SettlementType>(
         obj["settlementType"].toString(),
-        world
+        this->parent()
     );
     this->mapNode = resolveReference<MapNode>(
         obj["mapNode"].toString(),

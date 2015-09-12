@@ -29,7 +29,7 @@ class World :
     Q_PROPERTY(QVariantList factions READ readFactions NOTIFY factionsChanged)
 
 public:
-    Q_INVOKABLE World(QObject *parent);
+    Q_INVOKABLE World();
 
     Q_INVOKABLE virtual QString getFileExtension() const;
 

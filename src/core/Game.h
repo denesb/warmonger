@@ -13,7 +13,7 @@ class Game :
 
 public:
 
-    Game(QObject *parent);
+    Game();
     ~Game();
 
     virtual QString specification(const QString &objectName) const;

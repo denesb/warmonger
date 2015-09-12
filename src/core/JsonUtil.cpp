@@ -2,7 +2,7 @@
 
 #include "core/JsonUtil.h"
 
-static const QString category("core.JsonUtil");
+static const QString category("core");
 
 using namespace warmonger;
 
@@ -41,7 +41,7 @@ QJsonDocument core::loadJsonDocument(const QString &path)
         throw Exception(Exception::JsonParse);
     }
 
-    wInfo("core.JsonUtil") << "Loaded Json document from " << path;
+    wInfo(category) << "Loaded Json document from " << path;
 
     return std::move(doc);
 }

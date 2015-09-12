@@ -61,7 +61,7 @@ QList<T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
     QObject *parent = owner->parent();
     if (parent == nullptr)
     {
-        wError("core.JsonUtil") << "Parent of owner " << owner->objectName() << " is null";
+        wError("core") << "Parent of owner " << owner->objectName() << " is null";
         throw Exception(Exception::NullPointer);
     }
 
@@ -100,7 +100,7 @@ QMap<const T *, int> objectValueMapFromJson(const QJsonObject &obj, const QObjec
     QObject *parent = owner->parent();
     if (parent == nullptr)
     {
-        wError("core.JsonUtil") << "Parent of owner " << owner->objectName() << " is null";
+        wError("core") << "Parent of owner " << owner->objectName() << " is null";
         throw Exception(Exception::NullPointer);
     }
 

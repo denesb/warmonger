@@ -4,13 +4,13 @@
 #include <QImage>
 #include <QSize>
 
-#include "core/GameEntity.h"
+#include "core/GameEntityPart.h"
 
 namespace warmonger {
 namespace core {
 
 class WorldSurface :
-    public GameEntity
+    public GameEntityPart
 {
     Q_OBJECT
     Q_PROPERTY(QSize tileSize READ getTileSize NOTIFY tileSizeChanged);

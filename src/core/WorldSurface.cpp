@@ -9,7 +9,7 @@ using namespace warmonger::core;
 static const QString category{"core"};
 
 WorldSurface::WorldSurface(QObject *parent) :
-    GameEntity(parent),
+    GameEntityPart(parent),
     tileSize(),
     bigMap(),
     miniMap()
@@ -109,8 +109,6 @@ bool WorldSurface::hexContains(const QPoint &p) const
 
 void WorldSurface::dataFromJson(const QJsonObject &obj)
 {
-    GameEntity::dataFromJson(obj);
-
     this->hexMask.load(this->getPath() + QStringLiteral("/hexagon_mask.xpm"), "XPM");
 
     this->tileSize = sizeFromJson(obj["tileSize"].toObject());
@@ -121,7 +119,6 @@ void WorldSurface::dataFromJson(const QJsonObject &obj)
 
 void WorldSurface::dataToJson(QJsonObject &obj) const
 {
-    GameEntity::dataToJson(obj);
     obj["tileSize"] = sizeToJson(this->tileSize);
     obj["bigMap"] = this->mapToJson(this->bigMap);
     obj["miniMap"] = this->mapToJson(this->miniMap);

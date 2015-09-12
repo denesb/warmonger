@@ -32,13 +32,13 @@ void ApplicationContext::loadMaps()
 
     QFlags<QDir::Filter> filters = QDir::Files | QDir::Readable;
 
-    for (QString path : QDir::searchPaths("maps"))
+    for (QString path : QDir::searchPaths("Map"))
     {
         QDir mapsDir(path);
 
         for (QString mapFile : mapsDir.entryList(nameFilters, filters))
         {
-            core::Map *map = new core::Map(this);
+            core::Map *map = new core::Map();
             map->loadAs(mapsDir.absoluteFilePath(mapFile));
             map->getWorld()->setSurface("default");
             this->maps << map;
@@ -62,7 +62,7 @@ QObject * ApplicationContext::newGame(QObject *map)
         throw core::Exception(core::Exception::InvalidValue);
     }
 
-    core::Game *game = new core::Game(this);
+    core::Game *game = new core::Game();
     game->fromMapJson(m->toJson());
     game->getWorld()->setSurface("default");
 

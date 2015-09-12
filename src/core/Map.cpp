@@ -18,8 +18,8 @@ const QString Map::mapNodeNameTemplate{"mapNode%1"};
 const QString Map::settlementNameTemplate{"settlement%1"};
 const QString Map::unitNameTemplate{"unit%1"};
 
-Map::Map(QObject *parent) :
-    GameEntity(parent),
+Map::Map() :
+    GameEntity(),
     world(nullptr),
     mapNodeIndex(0),
     settlementIndex(0),
@@ -311,8 +311,6 @@ void Map::onSurfaceChanged()
 
 void Map::dataFromJson(const QJsonObject &obj)
 {
-    GameEntity::dataFromJson(obj);
-
     const QString worldName(obj["world"].toString());
     GameEntity *entity = GameEntity::get(worldName, &World::staticMetaObject);
     World *world = qobject_cast<World *>(entity);
@@ -335,8 +333,6 @@ void Map::dataFromJson(const QJsonObject &obj)
 
 void Map::dataToJson(QJsonObject &obj) const
 {
-    GameEntity::dataToJson(obj);
-
     obj["world"] = this->world->objectName();
     obj["mapNodeIndex"] = this->mapNodeIndex;
     obj["settlementIndex"] = this->settlementIndex;

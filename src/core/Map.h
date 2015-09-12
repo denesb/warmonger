@@ -34,7 +34,7 @@ public:
     static const QString settlementNameTemplate;
     static const QString unitNameTemplate;
 
-    Q_INVOKABLE Map(QObject *parent);
+    Q_INVOKABLE Map();
     ~Map();
 
     Q_INVOKABLE virtual QString getFileExtension() const;

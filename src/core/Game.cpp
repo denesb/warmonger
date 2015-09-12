@@ -2,8 +2,8 @@
 
 using namespace warmonger::core;
 
-Game::Game(QObject *parent) :
-    Map(parent),
+Game::Game() :
+    Map(),
     turnNumber(0),
     playerIndex(0)
 {

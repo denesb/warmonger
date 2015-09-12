@@ -71,6 +71,8 @@ T* resolveReference(const QString &objectName, QObject *parent)
     return obj;
 }
 
+QString getClassName(const QString &fullClassName);
+
 } // namespace core
 } // namespace warmonger
 

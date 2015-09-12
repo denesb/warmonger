@@ -7,16 +7,15 @@ using namespace warmonger::core;
 
 static const QString category("core");
 
-QString getClassName(const QMetaObject *metaObject);
-
 QObject *GameEntity::owner{nullptr};
 QMap<QString, GameEntity *> GameEntity::knownEntities{};
 QList<GameEntity *> GameEntity::anonymusEntities{};
 
-GameEntity::GameEntity(QObject *parent) :
-    GameObject(parent),
+GameEntity::GameEntity() :
+    QObject(GameEntity::owner),
     path(),
     fileName(),
+    displayName(""),
     description("")
 {
     GameEntity::anonymusEntities << this;
@@ -56,6 +55,75 @@ void GameEntity::setDescription(const QString &description)
         this->description = description;
         emit descriptionChanged();
     }
+}
+
+QString GameEntity::getDisplayName() const
+{
+    return this->displayName;
+}
+
+void GameEntity::setDisplayName(const QString &displayName)
+{
+    if (this->displayName != displayName)
+    {
+        this->displayName = displayName;
+        emit displayNameChanged();
+    }
+}
+
+void GameEntity::load()
+{
+    QString prefixedFileName = this->getPrefixedFileName();
+    QFileInfo fileInfo(prefixedFileName);
+    if (!fileInfo.exists())
+    {
+        wError(category) << "File " << fileName << " not found";
+        throw Exception(Exception::FileIO, "File not found");
+    }
+
+    this->setPath(fileInfo.absolutePath());
+    this->setFileName(fileInfo.fileName());
+
+    this->loadFromFile(fileInfo.absoluteFilePath());
+}
+
+void GameEntity::loadAs(const QString &path)
+{
+    QFileInfo fileInfo(path);
+    this->setPath(fileInfo.absolutePath());
+    this->setFileName(fileInfo.fileName());
+
+    this->loadFromFile(fileInfo.absoluteFilePath());
+}
+
+void GameEntity::save() const
+{
+    const QString path(this->path + "/" + this->fileName);
+    this->saveToFile(path);
+}
+
+void GameEntity::saveAs(const QString &path) const
+{
+    this->saveToFile(path);
+}
+
+void GameEntity::fromJson(const QJsonObject &obj)
+{
+    this->setObjectName(obj["objectName"].toString());
+    this->displayName = obj["displayName"].toString();
+
+    this->dataFromJson(obj);
+}
+
+QJsonObject GameEntity::toJson() const
+{
+	QJsonObject obj;
+	obj["objectName"] = this->objectName();
+	obj["displayName"] = this->displayName;
+
+    this->dataToJson(obj);
+
+	return std::move(obj);
 }
 
 QObject * GameEntity::getOwner()
@@ -103,51 +171,13 @@ GameEntity * GameEntity::load(
     const QMetaObject *metaObject
 )
 {
-    QObject *object = metaObject->newInstance(
-        Q_ARG(QObject *, nullptr)
-    );
+    QObject *object = metaObject->newInstance();
 
     GameEntity *entity = qobject_cast<GameEntity *>(object);
 
     entity->setObjectName(objectName);
     entity->load();
     return entity;
-}
-
-void GameEntity::load()
-{
-    QString prefixedFileName = this->getPrefixedFileName();
-    QFileInfo fileInfo(prefixedFileName);
-    if (!fileInfo.exists())
-    {
-        wError(category) << "File " << fileName << " not found";
-        throw Exception(Exception::FileIO, "File not found");
-    }
-
-    this->setPath(fileInfo.absolutePath());
-    this->setFileName(fileInfo.fileName());
-
-    this->loadFromFile(fileInfo.absoluteFilePath());
-}
-
-void GameEntity::loadAs(const QString &path)
-{
-    QFileInfo fileInfo(path);
-    this->setPath(fileInfo.absolutePath());
-    this->setFileName(fileInfo.fileName());
-
-    this->loadFromFile(fileInfo.absoluteFilePath());
-}
-
-void GameEntity::save() const
-{
-    const QString path(this->path + "/" + this->fileName);
-    this->saveToFile(path);
-}
-
-void GameEntity::saveAs(const QString &path) const
-{
-    this->saveToFile(path);
 }
 
 void GameEntity::setPath(const QString &path)
@@ -179,7 +209,7 @@ QString GameEntity::getPrefixedFileName() const
     static const QString pfnTemplate{"%1:%2.%3"};
 
     const QMetaObject *metaObject = this->metaObject();
-    QString className = getClassName(metaObject);
+    QString className = getClassName(metaObject->className());
 
     return pfnTemplate.arg(
         className,
@@ -204,22 +234,12 @@ void GameEntity::saveToFile(const QString &path) const
     emit this->saved();
 }
 
-void GameEntity::dataFromJson(const QJsonObject &obj)
-{
-    this->description = obj["description"].toString();
-}
-
-void GameEntity::dataToJson(QJsonObject &obj) const
-{
-    obj["description"] = this->description;
-}
-
 QString GameEntity::entityKey(
     const QString& objectName,
     const QMetaObject *metaObject
 )
 {
-    return objectName + "_" + getClassName(metaObject);
+    return objectName + "_" + getClassName(metaObject->className());
 }
 
 QString GameEntity::entityKey() const
@@ -239,12 +259,4 @@ void GameEntity::onObjectNameChanged()
         GameEntity::knownEntities.remove(oldKey);
     }
     GameEntity::knownEntities.insert(this->entityKey(), this);
-}
-
-QString getClassName(const QMetaObject *metaObject)
-{
-    QString fullClassName = metaObject->className();
-
-    QStringList classNameParts = fullClassName.split("::");
-    return classNameParts.takeLast();
 }

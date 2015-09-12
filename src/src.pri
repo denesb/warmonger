@@ -28,6 +28,7 @@ HEADERS += \
     src/core/Faction.h \
     src/core/Game.h \
     src/core/GameEntity.h \
+    src/core/GameEntityPart.h \
     src/core/GameObject.h \
     src/core/JsonUtil.h \
     src/core/Map.h \
@@ -72,6 +73,7 @@ SOURCES += \
     src/core/Faction.cpp \
     src/core/Game.cpp \
     src/core/GameEntity.cpp \
+    src/core/GameEntityPart.cpp \
     src/core/GameObject.cpp \
     src/core/JsonUtil.cpp \
     src/core/Map.cpp \

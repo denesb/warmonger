@@ -18,8 +18,8 @@ using namespace warmonger::core;
 
 static const QString category{"core"};
 
-World::World(QObject *parent) :
-    GameEntity(parent),
+World::World() :
+    GameEntity(),
     surface(nullptr),
     terrainTypes(),
     unitClasses(),
@@ -67,7 +67,7 @@ void World::setSurface(const QString &surfaceName)
         searchPaths << rootPath + dirEntry;
     }
 
-    QDir::setSearchPaths("surfaces", searchPaths);
+    QDir::setSearchPaths("WorldSurface", searchPaths);
 
     this->surface = new WorldSurface(this);
     this->surface->setObjectName(surfaceName);
@@ -75,7 +75,7 @@ void World::setSurface(const QString &surfaceName)
 
     // Need to reset the search path, so that the next world can load it's own
     // surfaces
-    QDir::setSearchPaths("surfaces", QStringList());
+    QDir::setSearchPaths("WorldSurface", QStringList());
 
     emit surfaceChanged();
 }
@@ -199,7 +199,6 @@ QVariantList World::readFactions() const
 
 void World::dataFromJson(const QJsonObject &obj)
 {
-    GameEntity::dataFromJson(obj);
     this->terrainTypes = newListFromJson<TerrainType>(obj["terrainTypes"].toArray(), this);
     this->unitClasses = newListFromJson<UnitClass>(obj["unitClasses"].toArray(), this);
     this->damageTypes = newListFromJson<DamageType>(obj["damageTypes"].toArray(), this);
@@ -212,7 +211,6 @@ void World::dataFromJson(const QJsonObject &obj)
 
 void World::dataToJson(QJsonObject &obj) const
 {
-    GameEntity::dataToJson(obj);
     obj["terrainTypes"] = listToJson<TerrainType>(this->terrainTypes);
     obj["unitClasses"] = listToJson<UnitClass>(this->unitClasses);
     obj["damageTypes"] = listToJson<DamageType>(this->damageTypes);

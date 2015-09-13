@@ -97,6 +97,7 @@ SOURCES += \
 
 # qml
 OTHER_FILES += \
+    src/ui/qml/EditableMap.qml \
     src/ui/qml/Game.qml \
     src/ui/qml/GameSetup.qml \
     src/ui/qml/ListEditGroup.qml \
@@ -108,6 +109,7 @@ OTHER_FILES += \
     src/ui/qml/MapList.qml \
     src/ui/qml/MapNodeEdit.qml \
     src/ui/qml/NewGame.qml \
+    src/ui/qml/MiniMap.qml \
     src/ui/qml/SettlementEdit.qml \
     src/ui/qml/TextEditGroup.qml \
     src/ui/qml/UnitEdit.qml

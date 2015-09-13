@@ -21,6 +21,11 @@ QString WorldSurface::getFileExtension() const
     return QString("wsd");
 }
 
+QString WorldSurface::getPrefix() const
+{
+    return "Surface:";
+}
+
 QSize WorldSurface::getTileSize() const
 {
     return this->tileSize;

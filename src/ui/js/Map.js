@@ -511,12 +511,12 @@ BigMap.prototype.moveWindowTo = function(pos) {
 
 BigMap.prototype.loadResources = function() {
     var surface = this.qobj.world.surface;
-    var pathRoot = "images:";
+    var prefix = surface.prefix;
     var path;
 
     for (var object in surface.bigMap) {
         var objectPath = surface.bigMap[object];
-        path = pathRoot + objectPath;
+        path = prefix + objectPath;
         this.canvas.loadImage(path);
         this.loadQueue.push(path);
     }
@@ -844,7 +844,6 @@ var MiniMap = function(map, canvas, mouseArea) {
     this.pos = Qt.point(0, 0);
     this.window = Qt.rect(0, 0, 0, 0);
     this.scaleFactor = 1;
-    this.windowPosChanged = undefined;
 
     // init
     this.qobj.mapNodeAdded.connect(this.onMapNodeCreated.bind(this));
@@ -926,7 +925,7 @@ MiniMap.prototype.onPressed = function(mouse) {
     this.centerOn(Qt.point(mouse.x, mouse.y));
 
     var windowPos = Qt.point(this.window.x, this.window.y);
-    if (this.windowPosChanged) this.windowPosChanged(windowPos);
+    this.canvas.windowPos = windowPos;
 };
 
 MiniMap.prototype.onReleased = function(mouse) {
@@ -955,7 +954,7 @@ MiniMap.prototype.onPanned = function(pos, posDiff) {
     this.centerOn(pos);
 
     var windowPos = Qt.point(this.window.x, this.window.y);
-    if (this.windowPosChanged) this.windowPosChanged(windowPos);
+    this.canvas.windowPos = windowPos;
 };
 
 MiniMap.prototype.onMapNodeCreated = function(mapNodeQObj) {

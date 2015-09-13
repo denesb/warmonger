@@ -2,6 +2,7 @@
 #define UI_APPLICATION_CONTEXT_H
 
 #include <QVariant>
+#include <QUrl>
 
 #include "core/Game.h"
 
@@ -30,12 +31,14 @@ public slots:
 
     void newMap();
     void loadMap(QString objectName);
-    void loadMapFrom(QString path);
+    void loadMapFromPath(QString path);
+    void loadMapFromUrl(QUrl url);
     void closeMap();
 
     void newGame(QObject *map);
     void loadGame(QString objectName);
-    void loadGameFrom(QString path);
+    void loadGameFromPath(QString path);
+    void loadGameFromUrl(QUrl url);
     void closeGame();
 
 signals:

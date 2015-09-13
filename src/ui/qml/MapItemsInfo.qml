@@ -3,7 +3,7 @@ import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.1
 
 Rectangle {
-    id: mapItemsInfo
+    id: root
     property var mapNode
     property var settlement
     property var unit
@@ -21,8 +21,12 @@ Rectangle {
             id: mapNodeImage
             width: 64
             height: {
-                var tileSize = W.map.world.surface.tileSize;
-                64 * tileSize.height/tileSize.width;
+                if (W.map !== null) {
+                    var tileSize = W.map.world.surface.tileSize;
+                    64 * tileSize.height/tileSize.width;
+                } else {
+                    64;
+                }
             }
             anchors {
                 top: parent.top
@@ -31,10 +35,10 @@ Rectangle {
             }
         
             source: {
-                var surface = W.map.world.surface;
-                if (mapItemsInfo.mapNode) {
-                    var terrainTypeName = mapItemsInfo.mapNode.terrainType.objectName;
-                    "images:" + surface.bigMap[terrainTypeName];
+                if (W.map !== undefined && root.mapNode !== undefined) {
+                    var surface = W.map.world.surface;
+                    var terrainTypeName = root.mapNode.terrainType.objectName;
+                    surface.prefix + surface.bigMap[terrainTypeName];
                 } else {
                     "";
                 }
@@ -63,8 +67,8 @@ Rectangle {
                 color: "black"
                 text: {
                     var label = "Map Node ";
-                    if (mapItemsInfo.mapNode) {
-                        label += mapItemsInfo.mapNode.objectName;
+                    if (root.mapNode) {
+                        label += root.mapNode.objectName;
                     }
                     label;
                 }
@@ -81,8 +85,8 @@ Rectangle {
                 color: "black"
                 text: {
                     var label = "Name: ";
-                    if (mapItemsInfo.mapNode) {
-                        label += mapItemsInfo.mapNode.displayName;
+                    if (root.mapNode) {
+                        label += root.mapNode.displayName;
                     }
                     label;
                 }
@@ -99,8 +103,8 @@ Rectangle {
                 color: "black"
                 text: {
                     var label = "Terrain Type: ";
-                    if (mapItemsInfo.mapNode) {
-                        label += mapItemsInfo.mapNode.terrainType.displayName;
+                    if (root.mapNode) {
+                        label += root.mapNode.terrainType.displayName;
                     }
                     label;
                 }
@@ -121,8 +125,12 @@ Rectangle {
             id: settlementImage
             width: 64
             height: {
-                var tileSize = W.map.world.surface.tileSize;
-                64 * tileSize.height/tileSize.width;
+                if (W.map) {
+                    var tileSize = W.map.world.surface.tileSize;
+                    64 * tileSize.height/tileSize.width;
+                } else {
+                    64;
+                }
             }
             anchors {
                 top: parent.top
@@ -131,10 +139,10 @@ Rectangle {
             }
         
             source: {
-                var surface = W.map.world.surface;
-                if (mapItemsInfo.settlement) {
-                    var settlementTypeName = mapItemsInfo.settlement.settlementType.objectName;
-                    "images:" + surface.bigMap[settlementTypeName];
+                if (W.map && root.settlement) {
+                    var surface = W.map.world.surface;
+                    var settlementTypeName = root.settlement.settlementType.objectName;
+                    surface.prefix + surface.bigMap[settlementTypeName];
                 } else {
                     "";
                 }
@@ -163,8 +171,8 @@ Rectangle {
                 color: "black"
                 text: {
                     var label = "Settlement ";
-                    if (mapItemsInfo.settlement) {
-                        label += mapItemsInfo.settlement.objectName;
+                    if (root.settlement) {
+                        label += root.settlement.objectName;
                     }
                     label;
                 }
@@ -181,8 +189,8 @@ Rectangle {
                 color: "black"
                 text: {
                     var label = "Name: ";
-                    if (mapItemsInfo.settlement) {
-                        label += mapItemsInfo.settlement.displayName;
+                    if (root.settlement) {
+                        label += root.settlement.displayName;
                     }
                     label;
                 }
@@ -199,8 +207,8 @@ Rectangle {
                 color: "black"
                 text: {
                     var label = "Settlement Type: ";
-                    if (mapItemsInfo.settlement) {
-                        label += mapItemsInfo.settlement.settlementType.displayName;
+                    if (root.settlement) {
+                        label += root.settlement.settlementType.displayName;
                     }
                     label;
                 }
@@ -217,8 +225,8 @@ Rectangle {
                 color: "black"
                 text: {
                     var label = "Owner: ";
-                    if (mapItemsInfo.settlement) {
-                        label += mapItemsInfo.settlement.owner.displayName;
+                    if (root.settlement) {
+                        label += root.settlement.owner.displayName;
                     }
                     label;
                 }
@@ -239,8 +247,12 @@ Rectangle {
             id: unitImage
             width: 64
             height: {
-                var tileSize = W.map.world.surface.tileSize;
-                64 * tileSize.height/tileSize.width;
+                if (W.map) {
+                    var tileSize = W.map.world.surface.tileSize;
+                    64 * tileSize.height/tileSize.width;
+                } else {
+                    64;
+                }
             }
             anchors {
                 top: parent.top
@@ -249,10 +261,10 @@ Rectangle {
             }
 
             source: {
-                var surface = W.map.world.surface;
-                if (mapItemsInfo.unit) {
-                    var unitTypeName = mapItemsInfo.unit.unitType.objectName;
-                    "images:" + surface.bigMap[unitTypeName];
+                if (W.map && root.unit) {
+                    var surface = W.map.world.surface;
+                    var unitTypeName = root.unit.unitType.objectName;
+                    surface.prefix + surface.bigMap[unitTypeName];
                 } else {
                     "";
                 }
@@ -281,8 +293,8 @@ Rectangle {
                 color: "black"
                 text: {
                     var label = "Unit ";
-                    if (mapItemsInfo.unit) {
-                        label += mapItemsInfo.unit.objectName;
+                    if (root.unit) {
+                        label += root.unit.objectName;
                     }
                     label;
                 }
@@ -299,8 +311,8 @@ Rectangle {
                 color: "black"
                 text: {
                     var label = "Name: ";
-                    if (mapItemsInfo.unit) {
-                        label += mapItemsInfo.unit.displayName;
+                    if (root.unit) {
+                        label += root.unit.displayName;
                     }
                     label;
                 }
@@ -317,8 +329,8 @@ Rectangle {
                 color: "black"
                 text: {
                     var label = "Unit Type: ";
-                    if (mapItemsInfo.unit) {
-                        label += mapItemsInfo.unit.unitType.displayName;
+                    if (root.unit) {
+                        label += root.unit.unitType.displayName;
                     }
                     label;
                 }
@@ -335,8 +347,8 @@ Rectangle {
                 color: "black"
                 text: {
                     var label = "Owner: ";
-                    if (mapItemsInfo.unit) {
-                        label += mapItemsInfo.unit.owner.displayName;
+                    if (root.unit) {
+                        label += root.unit.owner.displayName;
                     }
                     label;
                 }
@@ -353,10 +365,10 @@ Rectangle {
                 color: "black"
                 text: {
                     var label = "HP: ";
-                    if (mapItemsInfo.unit) {
-                        label += mapItemsInfo.unit.hitPoints;
+                    if (root.unit) {
+                        label += root.unit.hitPoints;
                         label += "/";
-                        label += mapItemsInfo.unit.unitType.hitPoints;
+                        label += root.unit.unitType.hitPoints;
                     }
                     label;
                 }
@@ -373,10 +385,10 @@ Rectangle {
                 color: "black"
                 text: {
                     var label = "MP: ";
-                    if (mapItemsInfo.unit) {
-                        label += mapItemsInfo.unit.movementPoints;
+                    if (root.unit) {
+                        label += root.unit.movementPoints;
                         label += "/";
-                        label += mapItemsInfo.unit.unitType.unitClass.movementPoints;
+                        label += root.unit.unitType.unitClass.movementPoints;
                     }
                     label;
                 }
@@ -393,8 +405,8 @@ Rectangle {
                 color: "black"
                 text: {
                     var label = "XP: ";
-                    if (mapItemsInfo.unit) {
-                        label += mapItemsInfo.unit.experiencePoints;
+                    if (root.unit) {
+                        label += root.unit.experiencePoints;
                     }
                     label;
                 }

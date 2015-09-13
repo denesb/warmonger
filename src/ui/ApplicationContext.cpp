@@ -108,7 +108,7 @@ void ApplicationContext::loadMap(QString objectName)
     emit mapChanged();
 }
 
-void ApplicationContext::loadMapFrom(QString path)
+void ApplicationContext::loadMapFromPath(QString path)
 {
     if (this->map != nullptr)
     {
@@ -122,6 +122,11 @@ void ApplicationContext::loadMapFrom(QString path)
     this->setWorld(this->map->getWorld());
 
     emit mapChanged();
+}
+
+void ApplicationContext::loadMapFromUrl(QUrl url)
+{
+    this->loadMapFromPath(url.toLocalFile());
 }
 
 void ApplicationContext::closeMap()
@@ -176,7 +181,7 @@ void ApplicationContext::loadGame(QString objectName)
     emit gameChanged();
 }
 
-void ApplicationContext::loadGameFrom(QString path)
+void ApplicationContext::loadGameFromPath(QString path)
 {
     if (this->game != nullptr)
     {
@@ -190,6 +195,11 @@ void ApplicationContext::loadGameFrom(QString path)
     this->setWorld(this->game->getWorld());
 
     emit gameChanged();
+}
+
+void ApplicationContext::loadGameFromUrl(QUrl url)
+{
+    this->loadGameFromPath(url.toLocalFile());
 }
 
 void ApplicationContext::closeGame()
@@ -215,6 +225,11 @@ void ApplicationContext::setWorld(core::World *world)
         &ApplicationContext::onWorldSurfaceChanged
     );
 
+    if (this->world->getSurface() == nullptr)
+    {
+        this->world->setSurface("default");
+    }
+
     this->onWorldSurfaceChanged();
 }
 
@@ -227,5 +242,5 @@ void ApplicationContext::onWorldSurfaceChanged()
         searchPath << this->world->getSurface()->getPath();
     }
 
-    QDir::setSearchPaths("WorldSurface", searchPath);
+    QDir::setSearchPaths("surface", searchPath);
 }

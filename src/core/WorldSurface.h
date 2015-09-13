@@ -13,6 +13,7 @@ class WorldSurface :
     public GameEntityPart
 {
     Q_OBJECT
+    Q_PROPERTY(QString prefix READ getPrefix NOTIFY prefixChanged);
     Q_PROPERTY(QSize tileSize READ getTileSize NOTIFY tileSizeChanged);
     Q_PROPERTY(QVariantMap bigMap READ readBigMap NOTIFY bigMapChanged);
     Q_PROPERTY(QVariantMap miniMap READ readMiniMap NOTIFY miniMapChanged);
@@ -22,6 +23,8 @@ public:
     Q_INVOKABLE WorldSurface(QObject *parent);
 
     Q_INVOKABLE virtual QString getFileExtension() const;
+
+    QString getPrefix() const;
 
     QSize getTileSize() const;
     void setTileSize(const QSize &tileSize);
@@ -41,6 +44,7 @@ public:
     Q_INVOKABLE bool hexContains(const QPoint &p) const;
 
 signals:
+    void prefixChanged();
     void tileSizeChanged();
     void bigMapChanged();
     void miniMapChanged();

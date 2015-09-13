@@ -5,7 +5,6 @@ import "js/Map.js" as Map
 Rectangle {
     id: root
 
-    property var game
     property var stack
 
     Rectangle {
@@ -29,6 +28,54 @@ Rectangle {
         }
 
         width: 256
+
+        Rectangle {
+            id: miniMap
+
+            anchors {
+                left: parent.left
+                top: parent.top
+                right: parent.right
+            }
+            height: 288
+            border {
+                width: 1
+                color: "black"
+            }
+
+            Canvas {
+                id: miniMapCanvas
+
+                property var jobj
+                property var windowPos
+
+                anchors.fill: parent
+
+                onPaint: jobj.onPaint(region)
+                onImageLoaded: jobj.onResourceLoaded()
+                Component.onCompleted: {
+                    jobj = new Map.MiniMap(W.game, miniMapCanvas, miniMapMouseArea);
+                    mapCanvas.onCanvasWindowChanged.connect(onMapCanvasWindowChanged);
+                }
+
+                function onMapCanvasWindowChanged() {
+                    if (jobj != undefined)
+                        jobj.setWindow(mapCanvas.canvasWindow)
+                }
+
+                MouseArea {
+                    id: miniMapMouseArea
+
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    acceptedButtons: Qt.LeftButton
+
+                    onPressed: miniMapCanvas.jobj.onPressed(mouse)
+                    onReleased: miniMapCanvas.jobj.onReleased(mouse)
+                    onPositionChanged: miniMapCanvas.jobj.onPositionChanged(mouse)
+                }
+            }
+        }
     }
 
     Rectangle {
@@ -55,11 +102,17 @@ Rectangle {
 
             onPaint: jobj.onPaint(region)
             onImageLoaded: jobj.onResourceLoaded()
-
             Component.onCompleted: {
-                jobj = new Map.GameMap(root.game, mapCanvas, mapMouseArea);
+                jobj = new Map.GameMap(W.game, mapCanvas, mapMouseArea);
 
-                //miniMap.onWindowPosChanged.connect(jobj.onWindowPosChanged.bind(jobj));
+                miniMapCanvas.onWindowPosChanged.connect(
+                    onMiniMapCanvasWindowPosChanged
+                );
+            }
+
+            function onMiniMapCanvasWindowPosChanged() {
+                if (jobj != undefined)
+                    jobj.onWindowPosChanged(miniMapCanvas.windowPos);
             }
 
             MouseArea {

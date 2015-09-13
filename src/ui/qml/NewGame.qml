@@ -95,11 +95,12 @@ Rectangle {
 
             Button {
                 text: "Start Game"
+                visible: (W.game != undefined)
                 onClicked: {
+                    W.closeMaps();
                     root.stack.push({
                         item: Qt.createComponent("Game.qml"),
                         properties: {
-                            game: gameSetup.game,
                             stack: root.stack
                         }
                     });

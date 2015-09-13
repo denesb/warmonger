@@ -35,7 +35,7 @@ var MapNode = function(mapNodeQObj, pos, map) {
     this.focused = false;
 
     var surface = this.map.qobj.world.surface;
-    var prefix = "images:";
+    var prefix = surface.prefix;
     var terrainType = this.qobj.terrainType.objectName
 
     this.terrainImage = prefix + surface.bigMap[terrainType];
@@ -140,7 +140,7 @@ MapNode.prototype.onDisplayNameChanged = function() {
 
 MapNode.prototype.onTerrainTypeChanged = function() {
     var surface = this.map.qobj.world.surface;
-    var prefix = "images:";
+    var prefix = surface.prefix;
     var terrainType = this.qobj.terrainType.objectName
 
     this.terrainImage = prefix + surface.bigMap[terrainType];
@@ -236,7 +236,7 @@ var Settlement = function(settlementQObj, mapNodeJObj, map) {
     this.map = map;
 
     var surface = this.map.qobj.world.surface;
-    this.settlementImage = "images:" +
+    this.settlementImage = surface.prefix +
         surface.bigMap[this.qobj.settlementType.objectName];
 
     // init
@@ -254,7 +254,7 @@ Settlement.prototype.draw = function(ctx) {
 
 Settlement.prototype.onSettlementTypeChanged = function() {
     var surface = this.map.qobj.world.surface;
-    this.settlementImage = "images:" +
+    this.settlementImage = surface.prefix +
         surface.bigMap[this.qobj.settlementType.objectName];
 
     this.map.markDirty(this.mapNode);
@@ -322,7 +322,7 @@ var Unit = function(unitQObj, mapNodeJObj, map) {
     this.map = map;
 
     var surface = this.map.qobj.world.surface;
-    this.unitImage = "images:" +
+    this.unitImage = surface.prefix +
         surface.bigMap[this.qobj.unitType.objectName];
 
     // init
@@ -338,7 +338,7 @@ Unit.prototype.draw = function(ctx) {
 
 Unit.prototype.onUnitTypeChanged = function() {
     var surface = this.map.qobj.world.surface;
-    this.unitImage = "images:" +
+    this.unitImage = surface.prefix +
         surface.bigMap[this.qobj.unitType.objectName];
 
     this.map.markDirty(this.mapNode);

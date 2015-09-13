@@ -1,18 +1,30 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Layouts 1.1
+import QtQuick.Dialogs 1.0
 
 import "js/Map.js" as Map
 
 Rectangle {
     id: root
 
-    Component.onCompleted: {
-        mapCanvas.onCanvasWindowChanged.connect(mapCanvasWindowChanged);
-    }
+    FileDialog {
+        id: fileDialog
+        visible: false
 
-    function mapCanvasWindowChanged() {
-        miniMap.jobj.setWindow(mapCanvas.canvasWindow);
+        title: "Select Map"
+
+        nameFilters: ["Warmonger Map Definition files (*.wmd)", "All files (*)"]
+        selectExisting: true
+        selectFolder: false
+        selectMultiple: false
+
+        onAccepted: {
+            W.loadMapFromUrl(fileDialog.fileUrl);
+        }
+        onRejected: {
+            console.log("Canceled")
+        }
     }
 
     Rectangle {
@@ -27,6 +39,15 @@ Rectangle {
         RowLayout {
             anchors.fill: parent
 
+            Button {
+                text: "Open"
+                Layout.alignment: Qt.AlignLeft
+                Layout.preferredWidth: width
+
+                onClicked: {
+                    fileDialog.visible = true;
+                }
+            }
             Button {
                 text: "Save"
                 Layout.alignment: Qt.AlignLeft
@@ -47,7 +68,7 @@ Rectangle {
 
                 onClicked: {
                     editModes.currentIndex = 0;
-                    map.jobj.setEditMode(Map.EditableMap.SelectMode);
+                    map.setEditMode(Map.EditableMap.SelectMode);
                 }
             }
 
@@ -58,7 +79,7 @@ Rectangle {
 
                 onClicked: {
                     editModes.currentIndex = 1;
-                    map.jobj.setEditMode(Map.EditableMap.CreateMapNodeMode);
+                    map.setEditMode(Map.EditableMap.CreateMapNodeMode);
                 }
             }
 
@@ -69,7 +90,7 @@ Rectangle {
 
                 onClicked: {
                     editModes.currentIndex = 2;
-                    map.jobj.setEditMode(Map.EditableMap.CreateSettlementMode);
+                    map.setEditMode(Map.EditableMap.CreateSettlementMode);
                 }
             }
 
@@ -80,7 +101,7 @@ Rectangle {
 
                 onClicked: {
                     editModes.currentIndex = 3;
-                    map.jobj.setEditMode(Map.EditableMap.CreateUnitMode);
+                    map.setEditMode(Map.EditableMap.CreateUnitMode);
                 }
             }
 
@@ -91,7 +112,7 @@ Rectangle {
 
                 onClicked: {
                     editModes.currentIndex = 4;
-                    map.jobj.setEditMode(Map.EditableMap.EditMapNodeMode);
+                    map.setEditMode(Map.EditableMap.EditMapNodeMode);
                 }
             }
 
@@ -102,7 +123,7 @@ Rectangle {
 
                 onClicked: {
                     editModes.currentIndex = 5;
-                    map.jobj.setEditMode(Map.EditableMap.EditSettlementMode);
+                    map.setEditMode(Map.EditableMap.EditSettlementMode);
                 }
             }
 
@@ -113,59 +134,8 @@ Rectangle {
 
                 onClicked: {
                     editModes.currentIndex = 6;
-                    map.jobj.setEditMode(Map.EditableMap.EditUnitMode);
+                    map.setEditMode(Map.EditableMap.EditUnitMode);
                 }
-            }
-        }
-    }
-
-    Rectangle {
-        id: map
-
-        property var jobj
-        signal selectMapItems(var mapNode, var settlement, var unit)
-        signal editMapNode(var mapNode)
-        signal editSettlement(var settlement)
-        signal editUnit(var unit)
-
-        anchors {
-            left: parent.left
-            top: statusBar.bottom
-            right: sideBar.left
-            bottom: parent.bottom
-        }
-
-        border {
-            width: 1
-            color: "black"
-        }
-
-        Component.onCompleted: {
-            jobj = new Map.EditableMap(W, mapCanvas, mapMouseArea);
-            jobj.onSelectMapItems = map.selectMapItems;
-            jobj.onEditMapNode = map.editMapNode;
-            jobj.onEditSettlement = map.editSettlement;
-            jobj.onEditUnit = map.editUnit;
-
-            miniMap.onWindowPosChanged.connect(jobj.onWindowPosChanged.bind(jobj));
-        }
-
-        Canvas {
-            id: mapCanvas
-            anchors.fill: parent
-            onPaint: map.jobj.onPaint(region)
-            onImageLoaded: map.jobj.onResourceLoaded()
-
-            MouseArea {
-                id: mapMouseArea
-
-                anchors.fill: parent
-                hoverEnabled: true
-                acceptedButtons: Qt.LeftButton
-
-                onPressed: map.jobj.onPressed(mouse)
-                onReleased: map.jobj.onReleased(mouse)
-                onPositionChanged: map.jobj.onPositionChanged(mouse)
             }
         }
     }
@@ -179,13 +149,17 @@ Rectangle {
         }
 
         width: 256
-        color: "blue"
 
-        Rectangle {
+        MiniMap {
             id: miniMap
 
-            property var jobj
-            signal windowPosChanged(var windowPos)
+            Component.onCompleted: {
+                map.windowChanged.connect(miniMap.onMapWindowChanged);
+            }
+
+            function onMapWindowChanged(mapWindow) {
+                miniMap.window = mapWindow;
+            }
 
             anchors {
                 left: parent.left
@@ -193,34 +167,6 @@ Rectangle {
                 right: parent.right
             }
             height: 288
-            border {
-                width: 1
-                color: "black"
-            }
-
-            Component.onCompleted: {
-                jobj = new Map.MiniMap(W, miniMapCanvas, miniMapMouseArea);
-                jobj.windowPosChanged = miniMap.windowPosChanged;
-            }
-
-            Canvas {
-                id: miniMapCanvas
-                anchors.fill: parent
-                onPaint: miniMap.jobj.onPaint(region)
-                onImageLoaded: miniMap.jobj.onResourceLoaded()
-
-                MouseArea {
-                    id: miniMapMouseArea
-
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    acceptedButtons: Qt.LeftButton
-
-                    onPressed: miniMap.jobj.onPressed(mouse)
-                    onReleased: miniMap.jobj.onReleased(mouse)
-                    onPositionChanged: miniMap.jobj.onPositionChanged(mouse)
-                }
-            }
         }
 
         Rectangle {
@@ -230,9 +176,9 @@ Rectangle {
             signal unitTypeSelected(string objectName)
             signal settlementTypeSelected(string objectName)
 
-            onTerrainTypeSelected: map.jobj.setTerrainType(objectName)
-            onSettlementTypeSelected: map.jobj.setSettlementType(objectName)
-            onUnitTypeSelected: map.jobj.setUnitType(objectName)
+            onTerrainTypeSelected: map.setTerrainType(objectName)
+            onSettlementTypeSelected: map.setSettlementType(objectName)
+            onUnitTypeSelected: map.setUnitType(objectName)
 
             anchors {
                 top: miniMap.bottom
@@ -354,5 +300,25 @@ Rectangle {
                 }
             }
         }
+    }
+
+    EditableMap {
+        id: map
+
+        anchors {
+            left: parent.left
+            top: statusBar.bottom
+            right: sideBar.left
+            bottom: parent.bottom
+        }
+
+        Component.onCompleted: {
+            miniMap.windowPosChanged.connect(map.onMiniMapWindowPosChanged);
+        }
+
+        function onMiniMapWindowPosChanged(miniMapWindowPos) {
+            map.windowPos = miniMapWindowPos;
+        }
+
     }
 }

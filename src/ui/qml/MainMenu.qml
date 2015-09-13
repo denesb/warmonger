@@ -16,6 +16,7 @@ Rectangle {
             width: 128
             text: "New Game"
             onClicked: {
+                W.loadMaps();
                 mainMenu.stack.push({
                     item: Qt.createComponent("NewGame.qml"),
                     properties: {stack: stack}

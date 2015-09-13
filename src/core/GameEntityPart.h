@@ -32,7 +32,6 @@ public:
     QString getDisplayName() const;
     void setDisplayName(const QString &displayName);
 
-    Q_INVOKABLE virtual void load();
     Q_INVOKABLE virtual void loadAs(const QString &path);
     Q_INVOKABLE virtual void save() const;
     Q_INVOKABLE virtual void saveAs(const QString &path) const;
@@ -51,8 +50,6 @@ signals:
 protected:
     void setPath(const QString &path);
     void setFileName(const QString &fileName);
-
-    QString getPrefixedFileName() const;
 
     virtual void loadFromFile(const QString &path);
     virtual void saveToFile(const QString &path) const;

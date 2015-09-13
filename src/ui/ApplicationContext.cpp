@@ -2,11 +2,10 @@
 #include <QDir>
 #include <QStringList>
 
-#include "log/LogStream.h"
-#include "core/Util.h"
-#include "core/WorldSurface.h"
 #include "core/Map.h"
 #include "core/World.h"
+#include "core/WorldSurface.h"
+#include "core/Util.h"
 #include "ApplicationContext.h"
 
 using namespace warmonger;
@@ -16,13 +15,31 @@ static const QString category{"ui"};
 
 ApplicationContext::ApplicationContext(QObject *parent) :
     QObject(parent),
-    maps()
+    maps(),
+    map(nullptr),
+    game(nullptr),
+    world(nullptr)
 {
-    this->loadMaps();
+    core::GameEntity::setOwner(this);
 }
 
 ApplicationContext::~ApplicationContext()
 {
+}
+
+QVariantList ApplicationContext::readMaps() const
+{
+    return core::toQVariantList<core::Map>(this->maps);
+}
+
+QObject * ApplicationContext::readMap() const
+{
+    return this->map;
+}
+
+QObject * ApplicationContext::readGame() const
+{
+    return this->game;
 }
 
 void ApplicationContext::loadMaps()
@@ -48,12 +65,76 @@ void ApplicationContext::loadMaps()
     emit mapsChanged();
 }
 
-QVariantList ApplicationContext::readMaps() const
+void ApplicationContext::closeMaps()
 {
-    return core::toQVariantList<core::Map>(this->maps);
+    for (core::Map *map : this->maps)
+    {
+        delete map;
+    }
+    this->maps.clear();
+
+    emit mapsChanged();
 }
 
-QObject * ApplicationContext::newGame(QObject *map)
+void ApplicationContext::newMap()
+{
+    if (this->map != nullptr)
+    {
+        delete this->map;
+    }
+    this->closeGame();
+
+    this->map = new core::Map();
+
+    emit this->mapChanged();
+}
+
+void ApplicationContext::loadMap(QString objectName)
+{
+    if (this->map != nullptr)
+    {
+        delete this->map;
+    }
+    this->closeGame();
+
+    core::GameEntity *entity = core::GameEntity::get(
+        objectName,
+        &core::Map::staticMetaObject
+    );
+    this->map = qobject_cast<core::Map *>(entity);
+
+    this->setWorld(this->map->getWorld());
+
+    emit mapChanged();
+}
+
+void ApplicationContext::loadMapFrom(QString path)
+{
+    if (this->map != nullptr)
+    {
+        delete this->map;
+    }
+    this->closeGame();
+
+    this->map = new core::Map();
+    this->map->loadAs(path);
+
+    this->setWorld(this->map->getWorld());
+
+    emit mapChanged();
+}
+
+void ApplicationContext::closeMap()
+{
+    if (this->map == nullptr) return;
+
+    delete this->map;
+    this->map = nullptr;
+
+    emit mapChanged();
+}
+
+void ApplicationContext::newGame(QObject *map)
 {
     core::Map *m = qobject_cast<core::Map *>(map);
     if (m == nullptr)
@@ -62,15 +143,89 @@ QObject * ApplicationContext::newGame(QObject *map)
         throw core::Exception(core::Exception::InvalidValue);
     }
 
-    core::Game *game = new core::Game();
-    game->fromMapJson(m->toJson());
-    game->getWorld()->setSurface("default");
+    if (this->game != nullptr)
+    {
+        delete this->game;
+    }
+    this->closeMap();
 
+    this->game = new core::Game();
+    this->game->fromMapJson(m->toJson());
 
+    this->setWorld(this->game->getWorld());
 
-    return game;
+    emit gameChanged();
 }
 
-void ApplicationContext::setCurrentMap(QObject *map)
+void ApplicationContext::loadGame(QString objectName)
 {
+    if (this->game != nullptr)
+    {
+        delete this->game;
+    }
+    this->closeMap();
+
+    core::GameEntity *entity = core::GameEntity::get(
+        objectName,
+        &core::Game::staticMetaObject
+    );
+    this->game = qobject_cast<core::Game *>(entity);
+
+    this->setWorld(this->game->getWorld());
+
+    emit gameChanged();
+}
+
+void ApplicationContext::loadGameFrom(QString path)
+{
+    if (this->game != nullptr)
+    {
+        delete this->game;
+    }
+    this->closeMap();
+
+    this->game = new core::Game();
+    this->game->loadAs(path);
+
+    this->setWorld(this->game->getWorld());
+
+    emit gameChanged();
+}
+
+void ApplicationContext::closeGame()
+{
+    if (this->game == nullptr) return;
+
+    delete this->game;
+    this->game = nullptr;
+
+    emit gameChanged();
+}
+
+void ApplicationContext::setWorld(core::World *world)
+{
+    if (this->world == world) return;
+
+    this->world = world;
+
+    QObject::connect(
+        this->world,
+        &core::World::surfaceChanged,
+        this,
+        &ApplicationContext::onWorldSurfaceChanged
+    );
+
+    this->onWorldSurfaceChanged();
+}
+
+void ApplicationContext::onWorldSurfaceChanged()
+{
+    QStringList searchPath;
+
+    if (this->world != nullptr)
+    {
+        searchPath << this->world->getSurface()->getPath();
+    }
+
+    QDir::setSearchPaths("WorldSurface", searchPath);
 }

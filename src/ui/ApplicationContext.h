@@ -13,25 +13,47 @@ class ApplicationContext :
 {
     Q_OBJECT
     Q_PROPERTY(QVariantList maps READ readMaps NOTIFY mapsChanged)
+    Q_PROPERTY(QObject * map READ readMap NOTIFY mapChanged)
+    Q_PROPERTY(QObject * game READ readGame NOTIFY gameChanged)
 
 public:
     ApplicationContext(QObject *parent);
     ~ApplicationContext();
 
-    void loadMaps();
-
     QVariantList readMaps() const;
+    QObject * readMap() const;
+    QObject * readGame() const;
 
-    Q_INVOKABLE QObject * newGame(QObject *map);
+public slots:
+    void loadMaps();
+    void closeMaps();
+
+    void newMap();
+    void loadMap(QString objectName);
+    void loadMapFrom(QString path);
+    void closeMap();
+
+    void newGame(QObject *map);
+    void loadGame(QString objectName);
+    void loadGameFrom(QString path);
+    void closeGame();
 
 signals:
     void mapsChanged();
+    void mapChanged();
+    void gameChanged();
 
-public slots:
-    void setCurrentMap(QObject *map);
+private:
+    void setWorld(core::World *world);
+
+private slots:
+    void onWorldSurfaceChanged();
 
 private:
     QList<core::Map *> maps;
+    core::Map *map;
+    core::Game *game;
+    core::World *world;
 };
 
 } // namespace ui

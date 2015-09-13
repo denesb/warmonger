@@ -2,6 +2,8 @@
 
 using namespace warmonger::core;
 
+static const QString category{"core"};
+
 Game::Game() :
     Map(),
     turnNumber(0),
@@ -20,7 +22,9 @@ QString Game::specification(const QString &objectName) const
 
 void Game::fromMapJson(const QJsonObject &obj)
 {
-    Map::dataFromJson(obj);
+    Map::fromJson(obj);
+    this->turnNumber = 0;
+    this->playerIndex = 0;
 }
 
 void Game::dataFromJson(const QJsonObject &obj)

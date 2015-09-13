@@ -58,22 +58,6 @@ void GameEntityPart::setDisplayName(const QString &displayName)
     }
 }
 
-void GameEntityPart::load()
-{
-    QString prefixedFileName = this->getPrefixedFileName();
-    QFileInfo fileInfo(prefixedFileName);
-    if (!fileInfo.exists())
-    {
-        wError(category) << "File " << fileName << " not found";
-        throw Exception(Exception::FileIO, "File not found");
-    }
-
-    this->setPath(fileInfo.absolutePath());
-    this->setFileName(fileInfo.fileName());
-
-    this->loadFromFile(fileInfo.absoluteFilePath());
-}
-
 void GameEntityPart::loadAs(const QString &path)
 {
     QFileInfo fileInfo(path);
@@ -135,20 +119,6 @@ void GameEntityPart::setFileName(const QString &fileName)
     this->fileName = fileName;
 
     emit this->fileNameChanged();
-}
-
-QString GameEntityPart::getPrefixedFileName() const
-{
-    static const QString pfnTemplate{"%1:%2.%3"};
-
-    const QMetaObject *metaObject = this->metaObject();
-    QString className = getClassName(metaObject->className());
-
-    return pfnTemplate.arg(
-        className,
-        this->objectName(),
-        this->getFileExtension()
-    );
 }
 
 void GameEntityPart::loadFromFile(const QString &path)

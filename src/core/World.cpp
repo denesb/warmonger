@@ -55,27 +55,12 @@ void World::setSurface(const QString &surfaceName)
     if (this->surface != nullptr && this->surface->objectName() == surfaceName)
         return;
 
-    QDir worldDir(this->getPath() + "/surfaces");
-    QStringList entryList = worldDir.entryList(
-        QDir::AllDirs | QDir::NoDotAndDotDot
-    );
-
-    const QString rootPath = worldDir.absolutePath() + "/";
-    QStringList searchPaths;
-    for (const QString dirEntry : entryList)
-    {
-        searchPaths << rootPath + dirEntry;
-    }
-
-    QDir::setSearchPaths("WorldSurface", searchPaths);
-
     this->surface = new WorldSurface(this);
-    this->surface->setObjectName(surfaceName);
-    this->surface->load();
 
-    // Need to reset the search path, so that the next world can load it's own
-    // surfaces
-    QDir::setSearchPaths("WorldSurface", QStringList());
+    QString path = this->getPath() + "/surfaces/" + surfaceName + "/"
+        + surfaceName + "." + this->surface->getFileExtension();
+
+    this->surface->loadAs(path);
 
     emit surfaceChanged();
 }

@@ -4,10 +4,6 @@ General
 -------
 * Rethink the GamEntity setPath business. Currently, once loaded it cannot be
 modified, but this might not be what we want.
-* It might be a good idea to share already loaded worlds.
-* Rethink GameEntity loading by specifications.
-* Find a way to sanely manage maps and games, the current way is suboptimal
-to say the least
 
 Core
 ----

@@ -42,11 +42,7 @@ Rectangle {
 
         maps: W.maps
 
-        onMapSelected: {
-            mapDetails.map = map;
-            gameSetup.game = W.newGame(mapDetails.map);
-            W.setCurrentMap(map);
-        }
+        onMapSelected: W.newGame(map)
     }
 
     Rectangle {
@@ -60,6 +56,8 @@ Rectangle {
         MapDetails {
             id: mapDetails
 
+            map: W.game
+
             z: 1
 
             anchors {
@@ -71,6 +69,8 @@ Rectangle {
 
         GameSetup {
             id: gameSetup
+
+            game: W.game
 
             anchors {
                 top: mapDetails.bottom

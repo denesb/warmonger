@@ -173,7 +173,6 @@ var MiniMapNode = function(mapNodeQObj, pos, map) {
     this.qobj.terrainTypeChanged.connect(
         this.onTerrainTypeChanged.bind(this)
     );
-
 };
 
 MiniMapNode.prototype.setSettlement = function(settlement) {
@@ -214,7 +213,7 @@ MiniMapNode.prototype.draw = function(ctx) {
 
 MiniMapNode.prototype.onTerrainTypeChanged = function() {
     var surface = this.map.qobj.world.surface;
-    this.style = surface.miniMap[this.qobj.terrainType.objectName];
+    this.color = surface.miniMap[this.qobj.terrainType.objectName];
 
     this.map.markDirty(this);
 };

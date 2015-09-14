@@ -5,6 +5,7 @@ import "js/Map.js" as Map
 Rectangle {
     id: root
 
+    property var map;
     property var windowPos;
 
     signal windowChanged(var window)
@@ -67,13 +68,13 @@ Rectangle {
             }
         }
         Component.onCompleted: {
-            W.mapChanged.connect(onMapChanged);
+            root.mapChanged.connect(onMapChanged);
             onMapChanged();
         }
 
         function onMapChanged() {
-            if (W.map) {
-                jobj = new Map.EditableMap(W.map, canvas, mouseArea);
+            if (root.map) {
+                jobj = new Map.EditableMap(root.map, canvas, mouseArea);
                 jobj.onSelectMapItems = root.selectMapItems;
                 jobj.onEditMapNode = root.editMapNode;
                 jobj.onEditSettlement = root.editSettlement;

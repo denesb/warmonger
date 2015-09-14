@@ -33,7 +33,12 @@ Rectangle {
             width: 128
             text: "Map Editor"
 
-            onClicked: mainMenu.stack.push({item: Qt.createComponent("MapEditor.qml")})
+            onClicked: {
+                mainMenu.stack.push({
+                    item: Qt.createComponent("MapEditor.qml"),
+                    properties: {stack: stack}
+                });
+            }
         }
 
         Button {

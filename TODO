@@ -17,6 +17,7 @@ automatically).
 * Batch terrain editing and creation.
 * Make it possible to move, or remove objects (settlements, units).
 * Do not allow more than one settlement and unit per tile
+* Handle switching between maps.
 
 Map
 ---

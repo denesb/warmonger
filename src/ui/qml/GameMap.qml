@@ -5,13 +5,20 @@ import "js/Map.js" as Map
 Rectangle {
     id: root
 
-    property var map
-    property var window
-    signal windowPosChanged(var windowPos)
+    property var game
+    property var windowPos;
 
-    onWindowChanged: {
+    signal windowChanged(var window)
+
+    function onMiniMapWindowPosChanged(windowPos) {
+        if (jobj !== undefined) {
+            jobj.onWindowPosChanged(windowPos);
+        }
+    }
+
+    onWindowPosChanged: {
         if (canvas.jobj) {
-            canvas.jobj.setWindow(window)
+            canvas.jobj.onWindowPosChanged(windowPos);
         }
     }
 
@@ -24,14 +31,12 @@ Rectangle {
         id: canvas
 
         property var jobj
-        property var windowPos
-
-        onWindowPosChanged: {
-            root.windowPosChanged(windowPos);
-        }
 
         anchors.fill: parent
 
+        onCanvasWindowChanged: {
+            root.windowChanged(canvasWindow);
+        }
         onPaint: {
             if (jobj) {
                 jobj.onPaint(region);
@@ -43,13 +48,13 @@ Rectangle {
             }
         }
         Component.onCompleted: {
-            root.mapChanged.connect(onMapChanged);
-            onMapChanged();
+            root.gameChanged.connect(onGameChanged);
+            onGameChanged();
         }
 
-        function onMapChanged() {
-            if (root.map) {
-                jobj = new Map.MiniMap(root.map, canvas, mouseArea);
+        function onGameChanged() {
+            if (root.game) {
+                jobj = new Map.GameMap(root.game, canvas, mouseArea);
             } else {
                 jobj = undefined;
             }

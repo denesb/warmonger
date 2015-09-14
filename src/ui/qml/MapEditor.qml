@@ -8,6 +8,8 @@ import "js/Map.js" as Map
 Rectangle {
     id: root
 
+    property var stack
+
     FileDialog {
         id: fileDialog
         visible: false
@@ -40,12 +42,22 @@ Rectangle {
             anchors.fill: parent
 
             Button {
+                text: "Quit"
+                Layout.alignment: Qt.AlignLeft
+                Layout.preferredWidth: width
+
+                onClicked: {
+                    W.closeMap();
+                    root.stack.pop();
+                }
+            }
+            Button {
                 text: "Open"
                 Layout.alignment: Qt.AlignLeft
                 Layout.preferredWidth: width
 
                 onClicked: {
-                    fileDialog.visible = true;
+                    fileDialog.open();
                 }
             }
             Button {
@@ -153,13 +165,7 @@ Rectangle {
         MiniMap {
             id: miniMap
 
-            Component.onCompleted: {
-                map.windowChanged.connect(miniMap.onMapWindowChanged);
-            }
-
-            function onMapWindowChanged(mapWindow) {
-                miniMap.window = mapWindow;
-            }
+            map: W.map
 
             anchors {
                 left: parent.left
@@ -167,6 +173,14 @@ Rectangle {
                 right: parent.right
             }
             height: 288
+
+            Component.onCompleted: {
+                map.windowChanged.connect(miniMap.onMapWindowChanged);
+            }
+
+            function onMapWindowChanged(mapWindow) {
+                miniMap.window = mapWindow;
+            }
         }
 
         Rectangle {
@@ -305,6 +319,8 @@ Rectangle {
     EditableMap {
         id: map
 
+        map: W.map
+
         anchors {
             left: parent.left
             top: statusBar.bottom
@@ -319,6 +335,5 @@ Rectangle {
         function onMiniMapWindowPosChanged(miniMapWindowPos) {
             map.windowPos = miniMapWindowPos;
         }
-
     }
 }

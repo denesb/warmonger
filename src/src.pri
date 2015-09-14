@@ -99,6 +99,7 @@ SOURCES += \
 OTHER_FILES += \
     src/ui/qml/EditableMap.qml \
     src/ui/qml/Game.qml \
+    src/ui/qml/GameMap.qml \
     src/ui/qml/GameSetup.qml \
     src/ui/qml/ListEditGroup.qml \
     src/ui/qml/Main.qml \

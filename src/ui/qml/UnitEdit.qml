@@ -23,7 +23,7 @@ Rectangle {
             var surface = W.map.world.surface;
             if (unitEdit.unit) {
                 var unitTypeName = unitEdit.unit.unitType.objectName;
-                "images:" + surface.bigMap[unitTypeName];
+                surface.prefix + surface.bigMap[unitTypeName];
             } else {
                 "";
             }

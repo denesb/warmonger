@@ -272,7 +272,7 @@ Map.prototype.calculateBoundingRect = function() {
     return Qt.rect(
         topLeft.x,
         topLeft.y,
-        bottomRight.x - topLeft.x, 
+        bottomRight.x - topLeft.x,
         bottomRight.y - topLeft.y
     );
 };
@@ -633,7 +633,7 @@ EditableMap.prototype.buildTypeMap = function(typeList) {
 
 EditableMap.prototype.getTilePos = function(pos) {
     var tileSize = this.qobj.world.surface.tileSize;
-    
+
     // see if there any mapNodes nearby, and if yes, calculate the position
     // of the upperLeft corner of this tile
     var neighbour = undefined;

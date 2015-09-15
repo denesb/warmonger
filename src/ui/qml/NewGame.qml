@@ -26,7 +26,10 @@ Rectangle {
 
             Button {
                 text: "Back"
-                onClicked: stack.pop()
+                onClicked: {
+                    W.closeMaps();
+                    stack.pop()
+                }
             }
         }
     }

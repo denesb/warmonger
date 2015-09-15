@@ -18,21 +18,11 @@ class UnitType :
     Q_PROPERTY(QObject * unitClass READ readUnitClass WRITE writeUnitClass NOTIFY unitClassChanged)
 
 public:
-    enum UnitRank
-    {
-        Soldier = 0,
-        Officer = 1,
-        Leader = 2
-    };
-
     UnitType(QObject *parent);
     ~UnitType();
 
     int getHitPoints() const;
     void setHitPoints(int hitPoints);
-
-    UnitRank getUnitRank() const;
-    void setUnitRank(UnitRank unitRank);
 
     UnitClass * getUnitClass() const;
     void setUnitClass(UnitClass *unitClass);
@@ -57,7 +47,6 @@ private:
     void dataToJson(QJsonObject &obj) const;
 
     int hitPoints;
-    UnitRank unitRank;
     UnitClass *unitClass;
     int level;
     Armor *armor;

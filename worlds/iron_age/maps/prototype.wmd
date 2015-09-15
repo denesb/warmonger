@@ -3190,6 +3190,7 @@
             "movementPoints": 8,
             "objectName": "unit0",
             "owner": "player1",
+            "rank": "soldier",
             "unitType": "levy_spearman"
         },
         {
@@ -3200,7 +3201,8 @@
             "movementPoints": 8,
             "objectName": "unit1",
             "owner": "neutral",
-            "unitType": "peasant"
+            "rank": "soldier",
+            "unitType": "spearman2"
         },
         {
             "displayName": "",
@@ -3210,7 +3212,8 @@
             "movementPoints": 8,
             "objectName": "unit2",
             "owner": "neutral",
-            "unitType": "trained_spearman"
+            "rank": "soldier",
+            "unitType": "spearman1"
         }
     ],
     "world": "iron_age"

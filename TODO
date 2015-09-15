@@ -37,7 +37,6 @@ Gameplay (both core and ui)
 
 UI
 --
-* Setup new game.
 * Load saved game.
 * Open maps for editing.
 * Make the UI as whole look less awful.

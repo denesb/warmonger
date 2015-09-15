@@ -24,8 +24,21 @@ class Unit :
     Q_PROPERTY(int movementPoints READ getMovementPoints WRITE setMovementPoints NOTIFY movementPointsChanged)
 
 public:
+    enum UnitRank
+    {
+        Soldier = 0,
+        Officer = 1,
+        Leader = 2
+    };
+
+    static const QMap<UnitRank, QString> unitRank2str;
+    static const QMap<QString, UnitRank> str2unitRank;
+
     Unit(QObject *parent);
     ~Unit();
+
+    UnitRank getUnitRank() const;
+    void setUnitRank(UnitRank unitRank);
 
     UnitType * getUnitType() const;
     void setUnitType(UnitType *unitType);
@@ -63,6 +76,7 @@ private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
+    UnitRank unitRank;
     UnitType *unitType;
     MapNode *mapNode;
     Player *owner;

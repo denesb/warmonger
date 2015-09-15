@@ -63,7 +63,6 @@ var Map = function(map, canvas) {
     this.settlements = [];
     this.units = [];
 
-    this.ready = false;
     this.geometryChanged = true;
 
     this.boundingRect = Qt.rect(0, 0, 0, 0);
@@ -318,7 +317,6 @@ Map.prototype.updateGeometry = function() {
 };
 
 Map.prototype.onPaint = function(region) {
-    if (!this.ready) return;
     if (this.geometryChanged) {
         this.updateGeometry();
         this.geometryChanged = false;
@@ -350,7 +348,6 @@ var BigMap = function(map, canvas, mouseArea) {
     this.loadQueue = [];
 
     // init
-    this.loadResources();
     this.canvas.requestPaint();
 };
 
@@ -550,7 +547,6 @@ BigMap.prototype.onResourceLoaded = function() {
 };
 
 BigMap.prototype.onResourcesLoaded = function() {
-    this.ready = true;
     this.canvas.requestPaint();
 };
 
@@ -573,6 +569,11 @@ var GameMap = function(game, canvas, mouseArea) {
 
 GameMap.prototype = Object.create(BigMap.prototype);
 GameMap.prototype.constructor = GameMap;
+
+GameMap.prototype.toString = function() {
+    var str = "[GameMap<" + this.qobj + ">]";
+    return str;
+};
 
 
 /*
@@ -848,7 +849,6 @@ var MiniMap = function(map, canvas, mouseArea) {
     // init
     this.qobj.mapNodeAdded.connect(this.onMapNodeCreated.bind(this));
 
-    this.ready = true;
     this.canvas.requestPaint();
 };
 
@@ -1008,7 +1008,6 @@ var MapPreview = function(map, canvas) {
     this.scaleFactor = 1;
 
     // init
-    this.ready = true;
     this.canvas.requestPaint();
 };
 

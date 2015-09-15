@@ -8,8 +8,20 @@ using namespace warmonger::core;
 
 static const QString category{"core"};
 
+const QMap<Unit::UnitRank, QString> Unit::unitRank2str{
+    std::make_pair(Unit::Soldier, "soldier"),
+    std::make_pair(Unit::Officer, "officer"),
+    std::make_pair(Unit::Leader, "leader")
+};
+const QMap<QString, Unit::UnitRank> Unit::str2unitRank{
+    std::make_pair("soldier", Unit::Soldier),
+    std::make_pair("officer", Unit::Officer),
+    std::make_pair("leader", Unit::Leader)
+};
+
 Unit::Unit(QObject *parent) :
     GameObject(parent),
+    unitRank(Unit::Soldier),
     unitType(nullptr),
     mapNode(nullptr),
     owner(nullptr),
@@ -21,6 +33,16 @@ Unit::Unit(QObject *parent) :
 
 Unit::~Unit()
 {
+}
+
+Unit::UnitRank Unit::getUnitRank() const
+{
+    return this->unitRank;
+}
+
+void Unit::setUnitRank(Unit::UnitRank unitRank)
+{
+    this->unitRank = unitRank;
 }
 
 UnitType * Unit::getUnitType() const
@@ -158,6 +180,16 @@ void Unit::setMovementPoints(int movementPoints)
 
 void Unit::dataFromJson(const QJsonObject &obj)
 {
+    const QString unitRankStr = obj["rank"].toString();
+    if (Unit::str2unitRank.contains(unitRankStr))
+    {
+        this->unitRank = Unit::str2unitRank[unitRankStr];
+    }
+    else
+    {
+        wError(category) << "Invalid unit rank: " << unitRankStr;
+        throw Exception(Exception::InvalidValue);
+    }
     this->unitType = resolveReference<UnitType>(
         obj["unitType"].toString(),
         this->parent()
@@ -177,6 +209,7 @@ void Unit::dataFromJson(const QJsonObject &obj)
 
 void Unit::dataToJson(QJsonObject &obj) const
 {
+    obj["rank"] = Unit::unitRank2str[this->unitRank];
     obj["unitType"] = this->unitType->objectName();
     obj["mapNode"] = this->mapNode->objectName();
     obj["owner"] = this->owner->objectName();

@@ -11622,7 +11622,8 @@
             "movementPoints": 14,
             "objectName": "unit1",
             "owner": "player2",
-            "unitType": "king"
+            "rank": "leader",
+            "unitType": "knight1"
         },
         {
             "displayName": "",
@@ -11632,7 +11633,8 @@
             "movementPoints": 14,
             "objectName": "unit2",
             "owner": "player2",
-            "unitType": "lancer"
+            "rank": "officer",
+            "unitType": "knight1"
         },
         {
             "displayName": "",
@@ -11642,7 +11644,8 @@
             "movementPoints": 14,
             "objectName": "unit3",
             "owner": "player2",
-            "unitType": "lancer"
+            "rank": "officer",
+            "unitType": "knight1"
         },
         {
             "displayName": "",
@@ -11652,7 +11655,8 @@
             "movementPoints": 8,
             "objectName": "unit4",
             "owner": "player2",
-            "unitType": "trained_spearman"
+            "rank": "soldier",
+            "unitType": "spearman1"
         },
         {
             "displayName": "",
@@ -11662,7 +11666,8 @@
             "movementPoints": 8,
             "objectName": "unit5",
             "owner": "player1",
-            "unitType": "trained_spearman"
+            "rank": "soldier",
+            "unitType": "spearman1"
         },
         {
             "displayName": "",
@@ -11672,7 +11677,8 @@
             "movementPoints": 14,
             "objectName": "unit6",
             "owner": "player1",
-            "unitType": "king"
+            "rank": "leader",
+            "unitType": "knight1"
         },
         {
             "displayName": "",
@@ -11682,7 +11688,8 @@
             "movementPoints": 14,
             "objectName": "unit7",
             "owner": "player1",
-            "unitType": "lancer"
+            "rank": "officer",
+            "unitType": "knight1"
         },
         {
             "displayName": "",
@@ -11692,7 +11699,8 @@
             "movementPoints": 14,
             "objectName": "unit8",
             "owner": "player1",
-            "unitType": "lancer"
+            "rank": "officer",
+            "unitType": "knight1"
         }
     ],
     "world": "iron_age"

@@ -62,11 +62,6 @@ Rectangle {
                 jobj.onPaint(region);
             }
         }
-        onImageLoaded: {
-            if (jobj) {
-                jobj.onResourceLoaded();
-            }
-        }
         Component.onCompleted: {
             root.mapChanged.connect(onMapChanged);
             onMapChanged();

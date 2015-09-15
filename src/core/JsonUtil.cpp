@@ -37,7 +37,7 @@ QJsonDocument core::loadJsonDocument(const QString &path)
     if (parseError.error != QJsonParseError::NoError)
     {
         wError(category) << "Parse of Json document " << path << " failed: "
-            << parseError.errorString();
+            << parseError.errorString() << " at offset " << parseError.offset;
         throw Exception(Exception::JsonParse);
     }
 
@@ -63,7 +63,7 @@ void core::saveJsonDocument(const QString &path, const QJsonDocument &doc)
         wError(category) << "Failed to write Json document " << path;
         throw Exception(Exception::FileIO, "Failed to write file");
     }
-    
+
     wInfo(category) << "Saved Json document to " << path;
 }
 

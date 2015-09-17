@@ -1,10 +1,15 @@
 #ifndef CORE_GAME_H
 #define CORE_GAME_H
 
+#include <QSet>
+
 #include "core/Map.h"
 
 namespace warmonger {
 namespace core {
+
+class MapNode;
+class Unit;
 
 class Game :
     public Map
@@ -16,7 +21,16 @@ public:
     Game();
     ~Game();
 
-    virtual QString specification(const QString &objectName) const;
+    Q_INVOKABLE virtual QString fileExtension() const;
+
+    Q_INVOKABLE QVariantList reachableMapNodes(QObject *unit) const;
+    QList<MapNode *> reachableMapNodes(Unit *unit) const;
+    void reachableMapNodes(
+        QSet<MapNode *> &reachedNodes,
+        MapNode *node,
+        Unit *unit,
+        double mp
+    ) const;
 
     void fromMapJson(const QJsonObject &obj);
 

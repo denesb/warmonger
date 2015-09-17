@@ -7,7 +7,7 @@ using namespace warmonger::core;
 UnitClass::UnitClass(QObject *parent) :
     GameObject(parent),
     movementPoints(0),
-    movements(),
+    movementCosts(),
     attacks(),
     defenses()
 {
@@ -31,24 +31,24 @@ void UnitClass::setMovementPoints(int movementPoints)
     }
 }
 
-QMap<const TerrainType *, int> UnitClass::getMovements() const
+QMap<const TerrainType *, int> UnitClass::getMovementCosts() const
 {
-    return this->movements;
+    return this->movementCosts;
 }
 
-void UnitClass::setMovements(const QMap<const TerrainType *, int> &movements)
+void UnitClass::setMovementCosts(const QMap<const TerrainType *, int> &movementCosts)
 {
-    this->movements = movements;
+    this->movementCosts = movementCosts;
 }
 
-int UnitClass::getMovement(const TerrainType *terrainType) const
+int UnitClass::getMovementCost(const TerrainType *terrainType) const
 {
-    return this->movements[terrainType];
+    return this->movementCosts[terrainType];
 }
 
-void UnitClass::setMovement(const TerrainType *terrainType, int movement)
+void UnitClass::setMovementCost(const TerrainType *terrainType, int movement)
 {
-    this->movements[terrainType] = movement;
+    this->movementCosts[terrainType] = movement;
 }
 
 QMap<const TerrainType *, int> UnitClass::getAttacks() const
@@ -94,15 +94,24 @@ void UnitClass::setDefense(const TerrainType *terrainType, int defense)
 void UnitClass::dataFromJson(const QJsonObject &obj)
 {
     this->movementPoints = obj["movementPoints"].toInt();
-    this->movements = objectValueMapFromJson<const TerrainType>(obj["terrainMovements"].toObject(), this);
-    this->attacks = objectValueMapFromJson<const TerrainType>(obj["terrainAttacks"].toObject(), this);
-    this->defenses = objectValueMapFromJson<const TerrainType>(obj["terrainDefenses"].toObject(), this);
+    this->movementCosts = objectValueMapFromJson<const TerrainType>(
+        obj["terrainMovementCosts"].toObject(),
+        this
+    );
+    this->attacks = objectValueMapFromJson<const TerrainType>(
+        obj["terrainAttacks"].toObject(),
+        this
+    );
+    this->defenses = objectValueMapFromJson<const TerrainType>(
+        obj["terrainDefenses"].toObject(),
+        this
+    );
 }
 
 void UnitClass::dataToJson(QJsonObject &obj) const
 {
     obj["movementPoints"] = this->movementPoints;
-    obj["terrainMovements"] = objectValueMapToJson(this->movements);
+    obj["terrainMovementCosts"] = objectValueMapToJson(this->movementCosts);
     obj["terrainAttacks"] = objectValueMapToJson(this->attacks);
     obj["terrainDefenses"] = objectValueMapToJson(this->defenses);
 }

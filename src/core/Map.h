@@ -38,7 +38,7 @@ public:
     Q_INVOKABLE Map();
     ~Map();
 
-    Q_INVOKABLE virtual QString getFileExtension() const;
+    Q_INVOKABLE virtual QString fileExtension() const;
 
     World * getWorld() const;
     void setWorld(World *world);

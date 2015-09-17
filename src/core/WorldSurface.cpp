@@ -16,7 +16,7 @@ WorldSurface::WorldSurface(QObject *parent) :
 {
 }
 
-QString WorldSurface::getFileExtension() const
+QString WorldSurface::fileExtension() const
 {
     return QString("wsd");
 }

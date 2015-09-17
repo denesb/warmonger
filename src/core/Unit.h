@@ -55,14 +55,14 @@ public:
     QObject * readOwner() const;
     void writeOwner(QObject *owner);
 
-    int getExperiencePoints() const;
-    void setExperiencePoints(int experiencePoints);
+    double getExperiencePoints() const;
+    void setExperiencePoints(double experiencePoints);
 
-    int getHitPoints() const;
-    void setHitPoints(int hitPoints);
+    double getHitPoints() const;
+    void setHitPoints(double hitPoints);
 
-    int getMovementPoints() const;
-    void setMovementPoints(int movementPoints);
+    double getMovementPoints() const;
+    void setMovementPoints(double movementPoints);
 
 signals:
     void unitTypeChanged();
@@ -80,9 +80,9 @@ private:
     UnitType *unitType;
     MapNode *mapNode;
     Player *owner;
-    int experiencePoints;
-    int hitPoints;
-    int movementPoints;
+    double experiencePoints;
+    double hitPoints;
+    double movementPoints;
 };
 
 } // namespace core

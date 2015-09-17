@@ -26,7 +26,7 @@ public:
     QString getPath() const;
     QString getFileName() const;
 
-    Q_INVOKABLE virtual QString getFileExtension() const = 0;
+    Q_INVOKABLE virtual QString fileExtension() const = 0;
 
     QString getDescription() const;
     void setDescription(const QString &description);

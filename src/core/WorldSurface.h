@@ -22,7 +22,7 @@ class WorldSurface :
 public:
     Q_INVOKABLE WorldSurface(QObject *parent);
 
-    Q_INVOKABLE virtual QString getFileExtension() const;
+    Q_INVOKABLE virtual QString fileExtension() const;
 
     QString getPrefix() const;
 

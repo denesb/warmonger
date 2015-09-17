@@ -25,9 +25,9 @@ Unit::Unit(QObject *parent) :
     unitType(nullptr),
     mapNode(nullptr),
     owner(nullptr),
-    experiencePoints(0),
-    hitPoints(0),
-    movementPoints(0)
+    experiencePoints(0.0),
+    hitPoints(0.0),
+    movementPoints(0.0)
 {
 }
 
@@ -136,12 +136,12 @@ void Unit::writeOwner(QObject *owner)
     }
     this->setOwner(o);
 }
-int Unit::getExperiencePoints() const
+double Unit::getExperiencePoints() const
 {
     return this->experiencePoints;
 }
 
-void Unit::setExperiencePoints(int experiencePoints)
+void Unit::setExperiencePoints(double experiencePoints)
 {
     if (this->experiencePoints != experiencePoints)
     {
@@ -150,12 +150,12 @@ void Unit::setExperiencePoints(int experiencePoints)
     }
 }
 
-int Unit::getHitPoints() const
+double Unit::getHitPoints() const
 {
     return this->hitPoints;
 }
 
-void Unit::setHitPoints(int hitPoints)
+void Unit::setHitPoints(double hitPoints)
 {
     if (this->hitPoints != hitPoints)
     {
@@ -164,12 +164,12 @@ void Unit::setHitPoints(int hitPoints)
     }
 }
 
-int Unit::getMovementPoints() const
+double Unit::getMovementPoints() const
 {
     return this->movementPoints;
 }
 
-void Unit::setMovementPoints(int movementPoints)
+void Unit::setMovementPoints(double movementPoints)
 {
     if (this->movementPoints != movementPoints)
     {
@@ -202,9 +202,9 @@ void Unit::dataFromJson(const QJsonObject &obj)
         obj["owner"].toString(),
         this->parent()
     );
-    this->hitPoints = obj["hitPoints"].toInt();
-    this->movementPoints = obj["movementPoints"].toInt();
-    this->experiencePoints = obj["experiencePoints"].toInt();
+    this->hitPoints = obj["hitPoints"].toDouble();
+    this->movementPoints = obj["movementPoints"].toDouble();
+    this->experiencePoints = obj["experiencePoints"].toDouble();
 }
 
 void Unit::dataToJson(QJsonObject &obj) const

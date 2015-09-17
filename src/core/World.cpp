@@ -31,7 +31,7 @@ World::World() :
 {
 }
 
-QString World::getFileExtension() const
+QString World::fileExtension() const
 {
     return QString("wwd");
 }
@@ -58,7 +58,7 @@ void World::setSurface(const QString &surfaceName)
     this->surface = new WorldSurface(this);
 
     QString path = this->getPath() + "/surfaces/" + surfaceName + "/"
-        + surfaceName + "." + this->surface->getFileExtension();
+        + surfaceName + "." + this->surface->fileExtension();
 
     this->surface->loadAs(path);
 

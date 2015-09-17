@@ -1,4 +1,9 @@
 #include "core/Game.h"
+#include "core/MapNode.h"
+#include "core/UnitClass.h"
+#include "core/UnitType.h"
+#include "core/Unit.h"
+#include "core/Util.h"
 
 using namespace warmonger::core;
 
@@ -15,9 +20,73 @@ Game::~Game()
 {
 }
 
-QString Game::specification(const QString &objectName) const
+QString Game::fileExtension() const
 {
-    return "games:" + objectName + ".wgd";
+    return "wgd";
+}
+
+QVariantList Game::reachableMapNodes(QObject *unit) const
+{
+    Unit *u = qobject_cast<Unit *>(unit);
+    if (u == nullptr)
+    {
+        wError(category) << "unit is null or has wrong type";
+        throw Exception(Exception::InvalidValue);
+    }
+    QList<MapNode *> reachableNodes = this->reachableMapNodes(u);
+
+    return toQVariantList<MapNode>(reachableNodes);
+}
+
+QList<MapNode *> Game::reachableMapNodes(Unit *unit) const
+{
+    QSet<MapNode *> reachableNodes;
+    this->reachableMapNodes(
+        reachableNodes,
+        unit->getMapNode(),
+        unit,
+        unit->getMovementPoints()
+    );
+
+    return std::move(reachableNodes.toList());
+}
+
+void Game::reachableMapNodes(
+    QSet<MapNode *> &reachedNodes,
+    MapNode *node,
+    Unit *unit,
+    double mp
+) const
+{
+    UnitClass *klass = unit->getUnitType()->getUnitClass();
+    int cost1i = klass->getMovementCost(node->getTerrainType());
+    double cost1 = static_cast<double>(cost1i);
+
+    QHash<MapNode::Direction, MapNode *> neighbours = node->getNeighbours();
+    QHash<MapNode::Direction, MapNode *>::ConstIterator it;
+    for (it = neighbours.constBegin(); it != neighbours.constEnd(); it++)
+    {
+        MapNode *neighbour = it.value();
+        if (neighbour == nullptr)
+            continue;
+
+        int cost2i = klass->getMovementCost(neighbour->getTerrainType());
+        if (cost2i == -1)
+            continue; // -1 means unwalkable terrain for unit
+
+        double cost2 = static_cast<double>(cost2i);
+        double cost = (cost1 + cost2)/2.0;
+        if (mp >= cost)
+        {
+            reachedNodes << neighbour;
+            this->reachableMapNodes(
+                reachedNodes,
+                neighbour,
+                unit,
+                mp - cost
+            );
+        }
+    }
 }
 
 void Game::fromMapJson(const QJsonObject &obj)

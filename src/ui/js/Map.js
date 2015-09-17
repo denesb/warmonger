@@ -570,6 +570,21 @@ var GameMap = function(game, canvas, mouseArea) {
 GameMap.prototype = Object.create(BigMap.prototype);
 GameMap.prototype.constructor = GameMap;
 
+GameMap.prototype.onClicked = function(pos) {
+    var mapNode = this.findMapNodeAt(pos);
+    var settlement = undefined;
+    var unit = undefined;
+    if (mapNode) {
+        settlement = mapNode.settlement;
+        unit = mapNode.unit;
+    }
+
+    if (unit) {
+        var reachableNodes = this.qobj.reachableMapNodes(unit.qobj);
+        console.log(reachableNodes.length);
+    }
+};
+
 GameMap.prototype.toString = function() {
     var str = "[GameMap<" + this.qobj + ">]";
     return str;

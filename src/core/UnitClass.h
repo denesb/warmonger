@@ -23,11 +23,11 @@ public:
     int getMovementPoints() const;
     void setMovementPoints(int movementPoints);
 
-    QMap<const TerrainType *, int> getMovements() const;
-    void setMovements(const QMap<const TerrainType *, int> &movements);
+    QMap<const TerrainType *, int> getMovementCosts() const;
+    void setMovementCosts(const QMap<const TerrainType *, int> &movementCosts);
 
-    int getMovement(const TerrainType *terrainType) const;
-    void setMovement(const TerrainType *terrainType, int movement);
+    int getMovementCost(const TerrainType *terrainType) const;
+    void setMovementCost(const TerrainType *terrainType, int movementCost);
 
     QMap<const TerrainType *, int> getAttacks() const;
     void setAttacks(const QMap<const TerrainType *, int> &attacks);
@@ -49,7 +49,7 @@ private:
     void dataToJson(QJsonObject &obj) const;
 
     int movementPoints;
-    QMap<const TerrainType *, int> movements;
+    QMap<const TerrainType *, int> movementCosts;
     QMap<const TerrainType *, int> attacks;
     QMap<const TerrainType *, int> defenses;
 };

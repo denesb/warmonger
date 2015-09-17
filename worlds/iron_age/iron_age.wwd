@@ -26,12 +26,12 @@
         {
             "objectName": "infantry",
             "displayName": "Infantry",
-            "movementPoints": 8,
-            "terrainMovements": {
-                "plains": 2,
-                "hills": 3,
+            "movementPoints": 50,
+            "terrainMovementCosts": {
+                "plains": 13,
+                "hills": 16,
                 "mountains": -1,
-                "forest": 3
+                "forest": 20
             },
             "terrainAttacks": {},
             "terrainDefenses": {
@@ -42,12 +42,12 @@
         {
             "objectName": "missile",
             "displayName": "Missile",
-            "movementPoints": 8,
-            "terrainMovements": {
-                "plains": 2,
-                "hills": 3,
+            "movementPoints": 50,
+            "terrainMovementCosts": {
+                "plains": 13,
+                "hills": 16,
                 "mountains": -1,
-                "forest": 3
+                "forest": 20
             },
             "terrainAttacks": {
                 "hills": 20
@@ -59,12 +59,12 @@
         {
             "objectName": "cavalry",
             "displayName": "Cavalry",
-            "movementPoints": 14,
-            "terrainMovements": {
-                "plains": 2,
-                "hills": 3,
+            "movementPoints": 80,
+            "terrainMovementCosts": {
+                "plains": 13,
+                "hills": 16,
                 "mountains": -1,
-                "forest": 4
+                "forest": 20
             },
             "terrainAttacks": {
                 "forest": -20

@@ -230,7 +230,7 @@ QString GameEntity::getPrefixedFileName() const
     return pfnTemplate.arg(
         className,
         this->objectName(),
-        this->getFileExtension()
+        this->fileExtension()
     );
 }
 

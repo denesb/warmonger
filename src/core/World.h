@@ -31,7 +31,7 @@ class World :
 public:
     Q_INVOKABLE World();
 
-    Q_INVOKABLE virtual QString getFileExtension() const;
+    Q_INVOKABLE virtual QString fileExtension() const;
 
     WorldSurface * getSurface() const;
     void setSurface(WorldSurface *surface);

@@ -38,7 +38,7 @@ Map::~Map()
 {
 }
 
-QString Map::getFileExtension() const
+QString Map::fileExtension() const
 {
     return QString("wmd");
 }

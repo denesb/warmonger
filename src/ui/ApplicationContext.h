@@ -3,6 +3,7 @@
 
 #include <QVariant>
 #include <QUrl>
+#include <QRect>
 
 #include "core/Game.h"
 
@@ -24,6 +25,8 @@ public:
     QVariantList readMaps() const;
     QObject * readMap() const;
     QObject * readGame() const;
+
+    Q_INVOKABLE bool intersects(QRect rect1, QRect rect2) const;
 
 public slots:
     void loadMaps();

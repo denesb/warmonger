@@ -11,7 +11,6 @@ Core
 
 Map Editor
 ----------
-* When loading a map setup the search paths for the world surface.
 * Make it possible to create new maps (the first node has to be created
 automatically).
 * Batch terrain editing and creation.
@@ -22,7 +21,6 @@ automatically).
 Map
 ---
 * Center map on the canvas (if smaller than canvas).
-* Repaint only those nodes overlapping or contained in the damage region.
 
 MiniMap
 -------
@@ -30,7 +28,6 @@ MiniMap
 
 Gameplay (both core and ui)
 ---------------------------
-* Base infrastructure (Game class, Game.qml).
 * Recruit units.
 * Unit movement.
 * Battle.
@@ -38,7 +35,6 @@ Gameplay (both core and ui)
 UI
 --
 * Load saved game.
-* Open maps for editing.
 * Make the UI as whole look less awful.
 * Add about menu.
 

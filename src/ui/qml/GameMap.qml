@@ -37,12 +37,18 @@ Rectangle {
         onCanvasWindowChanged: {
             root.windowChanged(canvasWindow);
         }
+        onImageLoaded: {
+            if (jobj) {
+                jobj.onImageLoaded();
+            }
+        }
         onPaint: {
             if (jobj) {
                 jobj.onPaint(region);
             }
         }
         Component.onCompleted: {
+            Map.W = W;
             root.gameChanged.connect(onGameChanged);
             onGameChanged();
         }

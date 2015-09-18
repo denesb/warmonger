@@ -35,9 +35,11 @@ var MapNode = function(mapNodeQObj, pos, map) {
     this.focused = false;
 
     var surface = this.map.qobj.world.surface;
+    var tileSize = surface.tileSize;
     var prefix = surface.prefix;
     var terrainType = this.qobj.terrainType.objectName
 
+    this.rect = Qt.rect(pos.x, pos.y, tileSize.width, tileSize.height);
     this.terrainImage = prefix + surface.bigMap[terrainType];
     this.blurredBorderColor = surface.style["blurredBorder"];
     this.focusedBorderColor = surface.style["focusedBorder"];
@@ -60,6 +62,13 @@ MapNode.prototype.setUnit = function(unit) {
 
 MapNode.prototype.translate = function(point) {
     return Qt.point(point.x - this.pos.x, point.y - this.pos.y);
+};
+
+MapNode.prototype.moveBy = function(dx, dy) {
+    this.pos.x += dx;
+    this.pos.y += dy;
+    this.rect.x += dx;
+    this.rect.y += dy;
 };
 
 MapNode.prototype.beginPaint = function(ctx) {
@@ -183,6 +192,11 @@ MiniMapNode.prototype.setSettlement = function(settlement) {
 MiniMapNode.prototype.setUnit = function(unit) {
     this.unit = unit;
     this.map.markDirty(this);
+};
+
+MiniMapNode.prototype.moveBy = function(dx, dy) {
+    this.pos.x += dx;
+    this.pos.y += dy;
 };
 
 MiniMapNode.prototype.draw = function(ctx) {

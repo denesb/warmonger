@@ -71,8 +71,8 @@ void Game::reachableMapNodes(
             continue;
 
         int cost2i = klass->getMovementCost(neighbour->getTerrainType());
-        if (cost2i == -1)
-            continue; // -1 means unwalkable terrain for unit
+        if (cost2i <= 0)
+            continue; // 0 or less means impassable terrain for the unit
 
         double cost2 = static_cast<double>(cost2i);
         double cost = (cost1 + cost2)/2.0;

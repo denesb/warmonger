@@ -2,6 +2,8 @@
 
 .import 'MapItem.js' as MapItem
 
+var W;
+
 function neighbourPos(dir, tileSize, pos) {
     var d;
 
@@ -62,6 +64,7 @@ var Map = function(map, canvas) {
     this.mapNodes = [];
     this.settlements = [];
     this.units = [];
+    this.lookup = {};
 
     this.geometryChanged = true;
 
@@ -111,7 +114,7 @@ Map.prototype.createSettlements = function() {
 };
 
 Map.prototype.createSettlement = function(settlementQObj) {
-    var mapNodeJObj = this.getMapNodeByQObj(settlementQObj.mapNode);
+    var mapNodeJObj = this.lookup[settlementQObj.mapNode.objectName];
 
     var settlementJObj = this.newSettlement(settlementQObj, mapNodeJObj);
     this.addSettlement(settlementJObj);
@@ -127,7 +130,7 @@ Map.prototype.createUnits = function() {
 };
 
 Map.prototype.createUnit = function(unitQObj) {
-    var mapNodeJObj = this.getMapNodeByQObj(unitQObj.mapNode);
+    var mapNodeJObj = this.lookup[unitQObj.mapNode.objectName];
 
     var unitJObj = this.newUnit(unitQObj, mapNodeJObj);
     this.addUnit(unitJObj);
@@ -137,14 +140,17 @@ Map.prototype.createUnit = function(unitQObj) {
 
 Map.prototype.addMapNode = function(mapNode) {
     this.mapNodes.push(mapNode);
+    this.lookup[mapNode.qobj.objectName] = mapNode;
 };
 
 Map.prototype.addSettlement = function(settlement) {
     this.settlements.push(settlement);
+    this.lookup[settlement.qobj.objectName] = settlement;
 };
 
 Map.prototype.addUnit = function(unit) {
     this.units.push(unit);
+    this.lookup[unit.qobj.objectName] = unit;
 };
 
 Map.prototype.markDirty = function(mapNode) {
@@ -170,17 +176,6 @@ Map.prototype.onSettlementCreated = function(settlementQObj) {
 Map.prototype.onUnitCreated = function(unitQObj) {
     var unitJObj = this.createUnit(unitQObj);
     this.markDirty(unitJObj.mapNode);
-};
-
-Map.prototype.getMapNodeByQObj = function(mapNodeQObj) {
-    for (var i = 0; i < this.mapNodes.length; i++) {
-        var mapNode = this.mapNodes[i];
-        if (mapNode.qobj && mapNode.qobj == mapNodeQObj) {
-            return mapNode;
-        }
-    }
-
-    return undefined;
 };
 
 Map.prototype.getTileNeighbours = function(tilePos) {
@@ -228,7 +223,7 @@ Map.prototype.calculatePosOfMapNodeQObj = function(mapNodeQObj) {
         }
     }
 
-    var neighbourJObj = this.getMapNodeByQObj(neighbourQObj);
+    var neighbourJObj = this.lookup[neighbourQObj.objectName];
 
     // calculate the position of this node based on the neighbour's position
     var oppositeDirection = mapNodeQObj.oppositeDirection(direction);
@@ -280,16 +275,15 @@ Map.prototype.adjustMapCoordinates = function() {
     if ((this.boundingRect.x == 0) && (this.boundingRect.y == 0))
         return; // nothing to do here
 
-    var dx = this.boundingRect.x;
-    var dy = this.boundingRect.y;
+    var dx = -this.boundingRect.x;
+    var dy = -this.boundingRect.y;
 
     this.boundingRect.x = 0;
     this.boundingRect.y = 0;
 
     for (var i = 0; i < this.mapNodes.length; i++) {
         var mapNode = this.mapNodes[i];
-        mapNode.pos.x -= dx;
-        mapNode.pos.y -= dy;
+        mapNode.moveBy(dx, dy);
     }
 
     var rect = this.canvas.canvasWindow;
@@ -325,6 +319,11 @@ Map.prototype.onPaint = function(region) {
     var ctx = this.canvas.getContext("2d");
 
     this.draw(ctx, region);
+};
+
+Map.prototype.onImageLoaded = function() {
+    var w = this.canvas.canvasWindow;
+    this.canvas.requestPaint();
 };
 
 Map.prototype.toString = function() {
@@ -452,11 +451,18 @@ BigMap.prototype.draw = function(ctx, region) {
     );
 
     var mapNodes = this.mapNodes;
+    var dirtyNodes = [];
+    for (var i = 0; i < this.mapNodes.length; i++) {
+        var node = this.mapNodes[i];
+        if (W.intersects(region, node.rect)) {
+            dirtyNodes.push(node);
+        }
+    }
 
-    this.drawMapNodes(ctx, mapNodes);
-    this.drawGrid(ctx, mapNodes);
-    this.drawOverlay(ctx, mapNodes);
-    this.drawContent(ctx, mapNodes);
+    this.drawMapNodes(ctx, dirtyNodes);
+    this.drawGrid(ctx, dirtyNodes);
+    this.drawOverlay(ctx, dirtyNodes);
+    this.drawContent(ctx, dirtyNodes);
 };
 
 BigMap.prototype.drawMapNodes = function(ctx, mapNodes) {
@@ -506,50 +512,6 @@ BigMap.prototype.moveWindowTo = function(pos) {
     this.canvas.markDirty(this.canvas.canvasWindow);
 };
 
-BigMap.prototype.loadResources = function() {
-    var surface = this.qobj.world.surface;
-    var prefix = surface.prefix;
-    var path;
-
-    for (var object in surface.bigMap) {
-        var objectPath = surface.bigMap[object];
-        path = prefix + objectPath;
-        this.canvas.loadImage(path);
-        this.loadQueue.push(path);
-    }
-};
-
-BigMap.prototype.onResourceLoaded = function() {
-    var image;
-    var loaded = [];
-
-    for (var i = 0; i < this.loadQueue.length; i++) {
-        image = this.loadQueue[i];
-        if (this.canvas.isImageError(image)) {
-            console.error("Error loading image " + image);
-            loaded.push(image);
-        }
-
-        if (this.canvas.isImageLoaded(image)) {
-            loaded.push(image);
-        }
-    }
-
-    for (var i = 0; i < loaded.length; i++) {
-        var index = this.loadQueue.indexOf(loaded[i]);
-        this.loadQueue.splice(index, 1);
-    }
-
-    if (this.loadQueue.length == 0) {
-        console.info("All resources loaded");
-        this.onResourcesLoaded();
-    }
-};
-
-BigMap.prototype.onResourcesLoaded = function() {
-    this.canvas.requestPaint();
-};
-
 BigMap.prototype.toString = function() {
     var str = "[BigMap<" + this.qobj + ">]";
     return str;
@@ -582,6 +544,16 @@ GameMap.prototype.onClicked = function(pos) {
     if (unit) {
         var reachableNodes = this.qobj.reachableMapNodes(unit.qobj);
         console.log(reachableNodes.length);
+
+        for (var i = 0; i < this.mapNodes.length; i++) {
+            this.mapNodes[i].reachable = false;
+        }
+
+        for (var i = 0; i < reachableNodes.length; i++) {
+            var mapNodeQObj = reachableNodes[i];
+            var mapNodeJObj = this.lookup[mapNodeQObj.objectName];
+            mapNodeJObj.reachable = true;
+        }
     }
 };
 

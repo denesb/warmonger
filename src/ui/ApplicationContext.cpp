@@ -42,6 +42,12 @@ QObject * ApplicationContext::readGame() const
     return this->game;
 }
 
+
+bool ApplicationContext::intersects(QRect rect1, QRect rect2) const
+{
+    return rect1.intersects(rect2);
+}
+
 void ApplicationContext::loadMaps()
 {
     QStringList nameFilters;

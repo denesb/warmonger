@@ -10,36 +10,46 @@ Rectangle {
     Rectangle {
         id: statusBar
 
+        height: 24
         anchors {
             top: parent.top
             left: parent.left
             right: sideBar.left
         }
-        height: 40
     }
 
     Rectangle {
         id: sideBar
 
+        width: 256
         anchors {
             top: parent.top
             bottom: parent.bottom
             right: parent.right
         }
 
-        width: 256
+        Rectangle {
+            id: controls
+
+            height: 24
+            anchors {
+                top: parent.top
+                left: parent.left
+                right: parent.right
+            }
+        }
 
         MiniMap {
             id: miniMap
 
             map: W.game
 
+            height: 288
             anchors {
-                top: parent.top
+                top: controls.bottom
                 left: parent.left
                 right: parent.right
             }
-            height: 288
             border {
                 width: 1
                 color: "black"
@@ -79,10 +89,6 @@ Rectangle {
             bottom: infoBar.top
             left: parent.left
             right: sideBar.left
-        }
-        border {
-            width: 1
-            color: "black"
         }
 
         Component.onCompleted: {

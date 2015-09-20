@@ -368,19 +368,18 @@ BigMap.prototype.newUnit = function(unitQObj, mapNodeJObj) {
 BigMap.prototype.moveFocus = function(mapNode) {
     if (this.focusedNode !== mapNode) {
         if (mapNode) {
-            if (this.focusedNode) this.focusedNode.onMouseOut();
+            if (this.focusedNode) this.focusedNode.onBlurred();
 
             this.focusedNode = mapNode;
-            this.focusedNode.onMouseIn();
+            this.focusedNode.onFocused();
         }
         else if (this.focusedNode) {
-            this.focusedNode.onMouseOut();
+            this.focusedNode.onBlurred();
             this.focusedNode = undefined;
         }
     }
 
-    if (this.mapNodeFocused != undefined)
-        this.mapNodeFocused(mapNode);
+    this.canvas.focusedMapNode = this.focusedNode;
 };
 
 BigMap.prototype.translateToLocal = function(pos) {
@@ -402,6 +401,11 @@ BigMap.prototype.onReleased = function(mouse) {
     }
     this.lastMouseEvent = MouseEvents.released;
     this.mouseArea.cursorShape = Qt.ArrowCursor;
+};
+
+BigMap.prototype.onClicked = function(pos) {
+   var mapNode = this.findMapNodeAt(pos);
+   this.moveFocus(mapNode);
 };
 
 BigMap.prototype.onPositionChanged = function(mouse) {
@@ -427,7 +431,7 @@ BigMap.prototype.onPositionChanged = function(mouse) {
 
 BigMap.prototype.onHovered = function(pos) {
    var mapNode = this.findMapNodeAt(pos);
-   this.moveFocus(mapNode);
+   this.canvas.currentMapNode = mapNode;
 };
 
 BigMap.prototype.onPanned = function(pos, posDiff) {
@@ -549,11 +553,10 @@ GameMap.prototype.onClicked = function(pos) {
         settlement = mapNode.settlement;
         unit = mapNode.unit;
     }
-    this.canvas.focusedMapNode = mapNode;
+    this.moveFocus(mapNode);
 
     if (unit) {
         var reachableNodes = this.qobj.reachableMapNodes(unit.qobj);
-        console.log(reachableNodes.length);
 
         for (var i = 0; i < this.mapNodes.length; i++) {
             this.mapNodes[i].reachable = false;

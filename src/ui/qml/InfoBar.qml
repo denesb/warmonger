@@ -7,7 +7,14 @@ Rectangle {
     property var mapNode
 
     Row {
-        anchors.fill: parent
+        anchors {
+            top: parent.top
+            bottom: parent.bottom
+            left: parent.left
+            leftMargin: 4
+            right: parent.right
+            rightMargin: 4
+        }
         spacing: 2
 
         Image {

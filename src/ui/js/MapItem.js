@@ -134,12 +134,12 @@ MapNode.prototype.contains = function(point) {
     return this.map.qobj.world.surface.hexContains(localPoint);
 };
 
-MapNode.prototype.onMouseIn = function() {
+MapNode.prototype.onFocused = function() {
     this.focused = true;
     this.map.markDirty(this);
 };
 
-MapNode.prototype.onMouseOut = function() {
+MapNode.prototype.onBlurred = function() {
     this.focused = false;
     this.map.markDirty(this);
 };

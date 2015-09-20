@@ -35,8 +35,8 @@ Rectangle {
             map: W.game
 
             anchors {
-                left: parent.left
                 top: parent.top
+                left: parent.left
                 right: parent.right
             }
             height: 288
@@ -54,6 +54,19 @@ Rectangle {
             }
         }
 
+        GameItemInfo {
+            id: gameItemInfo
+
+            world: W.world
+            mapNode: map.focusedMapNode
+
+            anchors {
+                top: miniMap.bottom
+                bottom: parent.bottom
+                left: parent.left
+                right: parent.right
+            }
+        }
     }
 
     GameMap {
@@ -63,7 +76,7 @@ Rectangle {
 
         anchors {
             top: statusBar.bottom
-            bottom: parent.bottom
+            bottom: infoBar.top
             left: parent.left
             right: sideBar.left
         }
@@ -79,5 +92,19 @@ Rectangle {
         function onMiniMapWindowPosChanged(miniMapWindowPos) {
             map.windowPos = miniMapWindowPos;
         }
+    }
+
+    InfoBar {
+        id: infoBar
+
+        world: W.world
+        mapNode: map.currentMapNode
+
+        anchors {
+            bottom: parent.bottom
+            left: parent.left
+            right: sideBar.left
+        }
+        height: 24
     }
 }

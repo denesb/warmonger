@@ -6,7 +6,12 @@ Rectangle {
     id: root
 
     property var game
-    property var windowPos;
+    property var windowPos
+    property var currentMapNode
+    property var focusedMapNode
+
+    currentMapNode: canvas.currentMapNode
+    focusedMapNode: canvas.focusedMapNode
 
     signal windowChanged(var window)
 
@@ -31,9 +36,16 @@ Rectangle {
         id: canvas
 
         property var jobj
+        property var currentMapNode
+        property var focusedMapNode
 
         anchors.fill: parent
 
+        Component.onCompleted: {
+            Map.W = W;
+            root.gameChanged.connect(onGameChanged);
+            onGameChanged();
+        }
         onCanvasWindowChanged: {
             root.windowChanged(canvasWindow);
         }
@@ -46,11 +58,6 @@ Rectangle {
             if (jobj) {
                 jobj.onPaint(region);
             }
-        }
-        Component.onCompleted: {
-            Map.W = W;
-            root.gameChanged.connect(onGameChanged);
-            onGameChanged();
         }
 
         function onGameChanged() {

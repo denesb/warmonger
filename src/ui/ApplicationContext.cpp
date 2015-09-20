@@ -42,6 +42,10 @@ QObject * ApplicationContext::readGame() const
     return this->game;
 }
 
+QObject * ApplicationContext::readWorld() const
+{
+    return this->world;
+}
 
 bool ApplicationContext::intersects(QRect rect1, QRect rect2) const
 {
@@ -237,6 +241,7 @@ void ApplicationContext::setWorld(core::World *world)
     }
 
     this->onWorldSurfaceChanged();
+    emit worldChanged();
 }
 
 void ApplicationContext::onWorldSurfaceChanged()

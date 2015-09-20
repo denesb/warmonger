@@ -443,6 +443,9 @@ BigMap.prototype.onWindowPosChanged = function(windowPos) {
 };
 
 BigMap.prototype.draw = function(ctx, region) {
+    // repaint the whole window for now
+    region = this.canvas.canvasWindow;
+
     ctx.clearRect(
         region.x,
         region.y,
@@ -525,12 +528,18 @@ BigMap.prototype.toString = function() {
 var GameMap = function(game, canvas, mouseArea) {
     BigMap.call(this, game, canvas, mouseArea);
 
+    this.focusedUnit = undefined;
+
     // init
-    this.geometryChanged = true;
 };
 
 GameMap.prototype = Object.create(BigMap.prototype);
 GameMap.prototype.constructor = GameMap;
+
+GameMap.prototype.onHovered = function(pos) {
+    var mapNode = this.findMapNodeAt(pos);
+    this.canvas.currentMapNode = mapNode;
+};
 
 GameMap.prototype.onClicked = function(pos) {
     var mapNode = this.findMapNodeAt(pos);
@@ -540,6 +549,7 @@ GameMap.prototype.onClicked = function(pos) {
         settlement = mapNode.settlement;
         unit = mapNode.unit;
     }
+    this.canvas.focusedMapNode = mapNode;
 
     if (unit) {
         var reachableNodes = this.qobj.reachableMapNodes(unit.qobj);

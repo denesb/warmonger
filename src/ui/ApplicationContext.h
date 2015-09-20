@@ -17,6 +17,7 @@ class ApplicationContext :
     Q_PROPERTY(QVariantList maps READ readMaps NOTIFY mapsChanged)
     Q_PROPERTY(QObject * map READ readMap NOTIFY mapChanged)
     Q_PROPERTY(QObject * game READ readGame NOTIFY gameChanged)
+    Q_PROPERTY(QObject * world READ readWorld NOTIFY worldChanged)
 
 public:
     ApplicationContext(QObject *parent);
@@ -25,6 +26,7 @@ public:
     QVariantList readMaps() const;
     QObject * readMap() const;
     QObject * readGame() const;
+    QObject * readWorld() const;
 
     Q_INVOKABLE bool intersects(QRect rect1, QRect rect2) const;
 
@@ -48,6 +50,7 @@ signals:
     void mapsChanged();
     void mapChanged();
     void gameChanged();
+    void worldChanged();
 
 private:
     void setWorld(core::World *world);

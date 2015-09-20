@@ -63,6 +63,7 @@ Rectangle {
             }
         }
         Component.onCompleted: {
+            Map.W = W;
             root.mapChanged.connect(onMapChanged);
             onMapChanged();
         }

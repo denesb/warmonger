@@ -5,9 +5,10 @@ import "js/Map.js" as Map
 Rectangle {
     id: root
 
+    readonly property var windowPos: canvas.windowPos
+
     property var map
     property var window
-    signal windowPosChanged(var windowPos)
 
     onWindowChanged: {
         if (canvas.jobj) {
@@ -25,10 +26,6 @@ Rectangle {
 
         property var jobj
         property var windowPos
-
-        onWindowPosChanged: {
-            root.windowPosChanged(windowPos);
-        }
 
         anchors.fill: parent
 

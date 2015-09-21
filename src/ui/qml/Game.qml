@@ -1,4 +1,5 @@
 import QtQuick 2.2
+import QtQuick.Controls 1.1
 
 import "js/Map.js" as Map
 
@@ -37,12 +38,23 @@ Rectangle {
                 left: parent.left
                 right: parent.right
             }
+
+            Button {
+                text: "Quit"
+
+                onClicked: {
+                    W.closeGame();
+                    root.stack.pop();
+                    root.stack.pop();
+                }
+            }
         }
 
         MiniMap {
             id: miniMap
 
             map: W.game
+            window: map.window
 
             height: 288
             anchors {
@@ -53,14 +65,6 @@ Rectangle {
             border {
                 width: 1
                 color: "black"
-            }
-
-            Component.onCompleted: {
-                map.windowChanged.connect(miniMap.onMapWindowChanged);
-            }
-
-            function onMapWindowChanged(mapWindow) {
-                miniMap.window = mapWindow;
             }
         }
 
@@ -83,20 +87,13 @@ Rectangle {
         id: map
 
         game: W.game
+        windowPos: miniMap.windowPos
 
         anchors {
             top: statusBar.bottom
             bottom: infoBar.top
             left: parent.left
             right: sideBar.left
-        }
-
-        Component.onCompleted: {
-            miniMap.windowPosChanged.connect(map.onMiniMapWindowPosChanged);
-        }
-
-        function onMiniMapWindowPosChanged(miniMapWindowPos) {
-            map.windowPos = miniMapWindowPos;
         }
     }
 

@@ -5,6 +5,8 @@ import "js/Map.js" as Map
 Rectangle {
     id: root
 
+    readonly property var window: canvas.canvasWindow
+
     property var game
     property var windowPos
     property var currentMapNode
@@ -12,8 +14,6 @@ Rectangle {
 
     currentMapNode: canvas.currentMapNode
     focusedMapNode: canvas.focusedMapNode
-
-    signal windowChanged(var window)
 
     function onMiniMapWindowPosChanged(windowPos) {
         if (jobj !== undefined) {
@@ -45,9 +45,6 @@ Rectangle {
             Map.W = W;
             root.gameChanged.connect(onGameChanged);
             onGameChanged();
-        }
-        onCanvasWindowChanged: {
-            root.windowChanged(canvasWindow);
         }
         onImageLoaded: {
             if (jobj) {

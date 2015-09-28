@@ -42,10 +42,13 @@ Rectangle {
 
             text: {
                 if (root.mapNode) {
-                    var n = root.mapNode;
-                    var text = n.qobj.displayName + " ";
-                    text += "(" + n.pos.x + "," + n.pos.y + ") ";
-                    text += n.qobj.terrainType.displayName;
+                    var n = root.mapNode.qobj;
+                    var p = root.mapNode.pos;
+                    var text = "";
+                    if (n.displayName != "")
+                        text += n.displayName + " ";
+                    text += "(" + p.x + "," + p.y + ") ";
+                    text += n.terrainType.displayName;
                     text;
                 } else {
                     "";
@@ -97,8 +100,11 @@ Rectangle {
             text: {
                 var n = root.mapNode;
                 if (n && n.settlement) {
-                    var text = n.settlement.qobj.displayName + " ";
-                    text += n.settlement.qobj.settlementType.displayName;
+                    var s = n.settlement.qobj;
+                    var text = "";
+                    if (s.displayName != "")
+                        text += s.displayName + " ";
+                    text += s.settlementType.displayName;
                     text;
                 } else {
                     "";
@@ -150,7 +156,11 @@ Rectangle {
             text: {
                 var n = root.mapNode;
                 if (n && n.unit) {
-                    var text = n.unit.qobj.displayName + " ";
+                    var u = n.unit.qobj;
+                    var text = "";
+
+                    if (u.displayName != "")
+                        text += u.displayName + " ";
                     text += n.unit.qobj.unitType.displayName;
                     text;
                 } else {

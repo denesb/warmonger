@@ -111,8 +111,9 @@ OTHER_FILES += \
     src/ui/qml/MapItemSelector.qml \
     src/ui/qml/MapList.qml \
     src/ui/qml/MapNodeEdit.qml \
-    src/ui/qml/NewGame.qml \
     src/ui/qml/MiniMap.qml \
+    src/ui/qml/NewGame.qml \
+    src/ui/qml/PointBar.qml \
     src/ui/qml/SettlementEdit.qml \
     src/ui/qml/TextEditGroup.qml \
     src/ui/qml/UnitEdit.qml

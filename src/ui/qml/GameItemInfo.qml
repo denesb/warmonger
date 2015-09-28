@@ -125,6 +125,10 @@ Rectangle {
 
     Rectangle {
         id: unitInfo
+        visible: {
+            if (root.mapNode && root.mapNode.unit) true;
+            else false;
+        }
 
         anchors {
             top: settlementInfo.bottom

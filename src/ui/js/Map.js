@@ -344,7 +344,9 @@ var BigMap = function(map, canvas, mouseArea) {
     this.lastMouseEvent = undefined;
     this.lastMousePos = undefined;
 
-    this.loadQueue = [];
+    this.focusedNode = undefined;
+    this.focusedUnit = undefined;
+    this.focusedSettlement = undefined;
 
     // init
     this.canvas.requestPaint();
@@ -366,20 +368,28 @@ BigMap.prototype.newUnit = function(unitQObj, mapNodeJObj) {
 };
 
 BigMap.prototype.moveFocus = function(mapNode) {
-    if (this.focusedNode !== mapNode) {
-        if (mapNode) {
-            if (this.focusedNode) this.focusedNode.onBlurred();
+    if (this.focusedNode == mapNode)
+        return;
 
-            this.focusedNode = mapNode;
-            this.focusedNode.onFocused();
-        }
-        else if (this.focusedNode) {
-            this.focusedNode.onBlurred();
-            this.focusedNode = undefined;
-        }
+    this.focusedNode = mapNode;
+    this.canvas.focusedMapNode = mapNode;
+
+    if (mapNode) {
+        if (mapNode.unit)
+            this.focusedUnit = mapNode.unit;
+        else
+            this.focusedUnit = undefined;
+
+        if (mapNode.settlement)
+            this.focusedSettlement = mapNode.settlement;
+        else
+            this.focusedSettlement = undefined;
+    } else {
+        this.focusedUnit = undefined;
+        this.focusedSettlement = undefined;
     }
 
-    this.canvas.focusedMapNode = this.focusedNode;
+    this.markDirty(this.focusedNode);
 };
 
 BigMap.prototype.translateToLocal = function(pos) {
@@ -468,6 +478,8 @@ BigMap.prototype.draw = function(ctx, region) {
 
     this.drawMapNodes(ctx, dirtyNodes);
     this.drawGrid(ctx, dirtyNodes);
+    if (this.focusedNode)
+        this.focusedNode.drawFocusMark(ctx);
     this.drawOverlay(ctx, dirtyNodes);
     this.drawContent(ctx, dirtyNodes);
 };
@@ -487,10 +499,6 @@ BigMap.prototype.drawGrid = function(ctx, mapNodes) {
 };
 
 BigMap.prototype.drawOverlay = function(ctx, mapNodes) {
-    for (var i = 0; i < mapNodes.length; i++) {
-        var mapNode = mapNodes[i];
-        mapNode.drawOverlay(ctx);
-    }
 };
 
 BigMap.prototype.drawContent = function(ctx, mapNodes) {
@@ -515,7 +523,8 @@ BigMap.prototype.moveWindowTo = function(pos) {
     if (y < 0) y = 0;
     if (y > maxY) y = maxY;
 
-    this.canvas.canvasWindow = Qt.rect(x, y, window.width, window.height);
+    this.canvas.canvasWindow.x = x;
+    this.canvas.canvasWindow.y = y;
     this.canvas.markDirty(this.canvas.canvasWindow);
 };
 
@@ -532,7 +541,7 @@ BigMap.prototype.toString = function() {
 var GameMap = function(game, canvas, mouseArea) {
     BigMap.call(this, game, canvas, mouseArea);
 
-    this.focusedUnit = undefined;
+    this.reachableMapNodes = {};
 
     // init
 };
@@ -546,27 +555,30 @@ GameMap.prototype.onHovered = function(pos) {
 };
 
 GameMap.prototype.onClicked = function(pos) {
-    var mapNode = this.findMapNodeAt(pos);
-    var settlement = undefined;
-    var unit = undefined;
-    if (mapNode) {
-        settlement = mapNode.settlement;
-        unit = mapNode.unit;
-    }
-    this.moveFocus(mapNode);
+    this.moveFocus(this.findMapNodeAt(pos));
+    this.reachableMapNodes = {};
 
+    var unit = this.focusedUnit;
     if (unit) {
-        var reachableNodes = this.qobj.reachableMapNodes(unit.qobj);
+        var reachableMapNodes = this.qobj.reachableMapNodes(unit.qobj);
 
-        for (var i = 0; i < this.mapNodes.length; i++) {
-            this.mapNodes[i].reachable = false;
+        for (var i = 0; i < reachableMapNodes.length; i++) {
+            var n = reachableMapNodes[i];
+            this.reachableMapNodes[n.objectName] = true;
         }
+    }
 
-        for (var i = 0; i < reachableNodes.length; i++) {
-            var mapNodeQObj = reachableNodes[i];
-            var mapNodeJObj = this.lookup[mapNodeQObj.objectName];
-            mapNodeJObj.reachable = true;
-        }
+    this.canvas.markDirty(this.canvas.canvasWindow);
+};
+
+GameMap.prototype.drawOverlay = function(ctx, mapNodes) {
+    if (!this.focusedUnit)
+        return;
+
+    for (var i = 0; i < mapNodes.length; i++) {
+        var mapNode = mapNodes[i];
+        if (!this.reachableMapNodes.hasOwnProperty(mapNode.qobj.objectName))
+            mapNode.drawOverlay(ctx);
     }
 };
 
@@ -583,7 +595,6 @@ GameMap.prototype.toString = function() {
 var EditableMap = function(map, canvas, mouseArea) {
     BigMap.call(this, map, canvas, mouseArea);
 
-    this.focusedNode = undefined;
     this.mapNodeClicked = undefined;
     this.mapNodeFocused = undefined;
 

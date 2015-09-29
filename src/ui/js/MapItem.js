@@ -32,8 +32,6 @@ var MapNode = function(mapNodeQObj, pos, map) {
     this.settlement = undefined;
     this.unit = undefined;
 
-    this.focused = false;
-
     var surface = this.map.qobj.world.surface;
     var tileSize = surface.tileSize;
     var prefix = surface.prefix;
@@ -100,9 +98,7 @@ MapNode.prototype.drawGrid = function(ctx) {
     this.endPaint(ctx);
 };
 
-MapNode.prototype.drawOverlay = function(ctx) {
-    if (!this.focused) return;
-
+MapNode.prototype.drawFocusMark = function(ctx) {
     this.beginPaint(ctx);
 
     var tileSize = this.map.qobj.world.surface.tileSize;
@@ -112,6 +108,21 @@ MapNode.prototype.drawOverlay = function(ctx) {
     ctx.lineWidth = 2;
     ctx.strokeStyle = this.focusedBorderColor;
     ctx.stroke();
+
+    this.endPaint(ctx);
+};
+
+MapNode.prototype.drawOverlay = function(ctx) {
+    this.beginPaint(ctx);
+
+    var tileSize = this.map.qobj.world.surface.tileSize;
+
+    drawHexagon(ctx, tileSize);
+
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = "black";
+    ctx.fill();
+    ctx.globalAlpha = 1;
 
     this.endPaint(ctx);
 };
@@ -132,16 +143,6 @@ MapNode.prototype.contains = function(point) {
     var localPoint = this.translate(point);
 
     return this.map.qobj.world.surface.hexContains(localPoint);
-};
-
-MapNode.prototype.onFocused = function() {
-    this.focused = true;
-    this.map.markDirty(this);
-};
-
-MapNode.prototype.onBlurred = function() {
-    this.focused = false;
-    this.map.markDirty(this);
 };
 
 MapNode.prototype.onDisplayNameChanged = function() {

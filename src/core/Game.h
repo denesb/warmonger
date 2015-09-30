@@ -32,6 +32,17 @@ public:
         double mp
     ) const;
 
+    Q_INVOKABLE QVariantList shortestPath(
+        QObject *unit,
+        QObject *node1,
+        QObject *node2
+    ) const;
+    QList<MapNode *> shortestPath(
+        Unit *unit,
+        MapNode *node1,
+        MapNode *node2
+    ) const;
+
     void fromMapJson(const QJsonObject &obj);
 
 signals:

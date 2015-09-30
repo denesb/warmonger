@@ -112,6 +112,21 @@ MapNode.prototype.drawFocusMark = function(ctx) {
     this.endPaint(ctx);
 };
 
+MapNode.prototype.drawPathMark = function(ctx) {
+    this.beginPaint(ctx);
+
+    var tileSize = this.map.qobj.world.surface.tileSize;
+
+    drawHexagon(ctx, tileSize);
+
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = "green";
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    this.endPaint(ctx);
+};
+
 MapNode.prototype.drawOverlay = function(ctx) {
     this.beginPaint(ctx);
 

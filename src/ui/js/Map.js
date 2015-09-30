@@ -31,6 +31,18 @@ function neighbourPos(dir, tileSize, pos) {
     );
 };
 
+function equivalentArrays(a1, a2) {
+    if (a1.length != a2.length)
+        return false;
+
+    for (var i = 0; i < a1.length; i++) {
+        if (a1[i] != a2[i])
+            return false;
+    }
+
+    return true;
+};
+
 var directions = [
     'West',
     'NorthWest',
@@ -344,7 +356,7 @@ var BigMap = function(map, canvas, mouseArea) {
     this.lastMouseEvent = undefined;
     this.lastMousePos = undefined;
 
-    this.focusedNode = undefined;
+    this.focusedMapNode = undefined;
     this.focusedUnit = undefined;
     this.focusedSettlement = undefined;
 
@@ -368,10 +380,10 @@ BigMap.prototype.newUnit = function(unitQObj, mapNodeJObj) {
 };
 
 BigMap.prototype.moveFocus = function(mapNode) {
-    if (this.focusedNode == mapNode)
+    if (this.focusedMapNode == mapNode)
         return;
 
-    this.focusedNode = mapNode;
+    this.focusedMapNode = mapNode;
     this.canvas.focusedMapNode = mapNode;
 
     if (mapNode) {
@@ -389,7 +401,7 @@ BigMap.prototype.moveFocus = function(mapNode) {
         this.focusedSettlement = undefined;
     }
 
-    this.markDirty(this.focusedNode);
+    this.markDirty(this.focusedMapNode);
 };
 
 BigMap.prototype.translateToLocal = function(pos) {
@@ -478,10 +490,11 @@ BigMap.prototype.draw = function(ctx, region) {
 
     this.drawMapNodes(ctx, dirtyNodes);
     this.drawGrid(ctx, dirtyNodes);
-    if (this.focusedNode)
-        this.focusedNode.drawFocusMark(ctx);
+    if (this.focusedMapNode)
+        this.focusedMapNode.drawFocusMark(ctx);
     this.drawOverlay(ctx, dirtyNodes);
     this.drawContent(ctx, dirtyNodes);
+    this.drawMarks(ctx, dirtyNodes);
 };
 
 BigMap.prototype.drawMapNodes = function(ctx, mapNodes) {
@@ -506,6 +519,9 @@ BigMap.prototype.drawContent = function(ctx, mapNodes) {
         var mapNode = mapNodes[i];
         mapNode.drawContent(ctx);
     }
+};
+
+BigMap.prototype.drawMarks = function(ctx, mapNodes) {
 };
 
 BigMap.prototype.moveWindowTo = function(pos) {
@@ -542,6 +558,7 @@ var GameMap = function(game, canvas, mouseArea) {
     BigMap.call(this, game, canvas, mouseArea);
 
     this.reachableMapNodes = {};
+    this.unitPath = [];
 
     // init
 };
@@ -552,6 +569,25 @@ GameMap.prototype.constructor = GameMap;
 GameMap.prototype.onHovered = function(pos) {
     var mapNode = this.findMapNodeAt(pos);
     this.canvas.currentMapNode = mapNode;
+
+    var path = [];
+    if (this.focusedMapNode && this.focusedUnit) {
+        var nodes = this.qobj.shortestPath(
+            this.focusedUnit.qobj,
+            this.focusedMapNode.qobj,
+            mapNode.qobj
+        );
+
+        for (var i = 0; i < nodes.length; i++) {
+            var mapNodeName = nodes[i].objectName;
+            path.push(this.lookup[mapNodeName]);
+        }
+    }
+
+    if (!equivalentArrays(this.unitPath, path)) {
+        this.unitPath = path;
+        this.canvas.markDirty(this.canvas.canvasWindow);
+    }
 };
 
 GameMap.prototype.onClicked = function(pos) {
@@ -579,6 +615,16 @@ GameMap.prototype.drawOverlay = function(ctx, mapNodes) {
         var mapNode = mapNodes[i];
         if (!this.reachableMapNodes.hasOwnProperty(mapNode.qobj.objectName))
             mapNode.drawOverlay(ctx);
+    }
+};
+
+GameMap.prototype.drawMarks = function(ctx, mapNodes) {
+    if (!this.focusedUnit)
+        return;
+
+    for (var i = 0; i < this.unitPath.length; i++) {
+        var mapNode = this.unitPath[i];
+        mapNode.drawPathMark(ctx);
     }
 };
 

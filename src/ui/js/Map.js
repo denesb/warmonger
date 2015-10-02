@@ -571,7 +571,7 @@ GameMap.prototype.onHovered = function(pos) {
     this.canvas.currentMapNode = mapNode;
 
     var path = [];
-    if (this.focusedMapNode && this.focusedUnit) {
+    if (mapNode && this.focusedMapNode && this.focusedUnit) {
         var nodes = this.qobj.shortestPath(
             this.focusedUnit.qobj,
             this.focusedMapNode.qobj,

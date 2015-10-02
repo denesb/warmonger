@@ -2,6 +2,7 @@
 #include <QQmlContext>
 
 #include "Warmonger.h"
+#include "ui/GameMap.h"
 #include "log/LogStream.h"
 #include "log/ConsoleHandler.h"
 #include "log/Formatter.h"
@@ -46,6 +47,8 @@ void Warmonger::initLogger()
 void Warmonger::initUi()
 {
     this->ctx = new ui::ApplicationContext(this);
+
+    qmlRegisterType<ui::GameMap>("Warmonger", 1, 0, "GameMap");
 
     this->viewer.rootContext()->setContextProperty("W", this->ctx);
 

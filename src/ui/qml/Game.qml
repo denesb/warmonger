@@ -87,7 +87,7 @@ Rectangle {
         id: map
 
         game: W.game
-        windowPos: miniMap.windowPos
+        //windowPos: miniMap.windowPos
 
         anchors {
             top: statusBar.bottom

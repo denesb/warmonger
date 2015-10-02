@@ -1,92 +1,15 @@
 import QtQuick 2.2
-
-import "js/Map.js" as Map
+import Warmonger 1.0
 
 Rectangle {
     id: root
 
-    readonly property var window: canvas.canvasWindow
-
     property var game
-    property var windowPos
-    property var currentMapNode
-    property var focusedMapNode
 
-    currentMapNode: canvas.currentMapNode
-    focusedMapNode: canvas.focusedMapNode
-
-    function onMiniMapWindowPosChanged(windowPos) {
-        if (jobj !== undefined) {
-            jobj.onWindowPosChanged(windowPos);
-        }
-    }
-
-    onWindowPosChanged: {
-        if (canvas.jobj) {
-            canvas.jobj.onWindowPosChanged(windowPos);
-        }
-    }
-
-    border {
-        width: 1
-        color: "black"
-    }
-
-    Canvas {
-        id: canvas
-
-        property var jobj
-        property var currentMapNode
-        property var focusedMapNode
-
+    GameMap {
+        id: map
         anchors.fill: parent
 
-        Component.onCompleted: {
-            Map.W = W;
-            root.gameChanged.connect(onGameChanged);
-            onGameChanged();
-        }
-        onImageLoaded: {
-            if (jobj) {
-                jobj.onImageLoaded();
-            }
-        }
-        onPaint: {
-            if (jobj) {
-                jobj.onPaint(region);
-            }
-        }
-
-        function onGameChanged() {
-            if (root.game) {
-                jobj = new Map.GameMap(root.game, canvas, mouseArea);
-            } else {
-                jobj = undefined;
-            }
-        }
-
-        MouseArea {
-            id: mouseArea
-
-            anchors.fill: parent
-            hoverEnabled: true
-            acceptedButtons: Qt.LeftButton
-
-            onPressed: {
-                if (canvas.jobj) {
-                    canvas.jobj.onPressed(mouse);
-                }
-            }
-            onReleased: {
-                if (canvas.jobj) {
-                    canvas.jobj.onReleased(mouse);
-                }
-            }
-            onPositionChanged: {
-                if (canvas.jobj) {
-                    canvas.jobj.onPositionChanged(mouse);
-                }
-            }
-        }
+        game: root.game
     }
 }

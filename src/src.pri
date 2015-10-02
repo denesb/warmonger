@@ -48,7 +48,9 @@ HEADERS += \
 # ui
 HEADERS += \
     src/ui/qtquick2applicationviewer.h \
-    src/ui/ApplicationContext.h
+    src/ui/ApplicationContext.h \
+    src/ui/GameMap.h \
+    src/ui/MapUtil.h
 
 # app
 SOURCES += \
@@ -93,14 +95,15 @@ SOURCES += \
 # ui
 SOURCES += \
     src/ui/qtquick2applicationviewer.cpp \
-    src/ui/ApplicationContext.cpp
+    src/ui/ApplicationContext.cpp \
+    src/ui/GameMap.cpp \
+    src/ui/MapUtil.cpp
 
 # qml
 OTHER_FILES += \
     src/ui/qml/EditableMap.qml \
     src/ui/qml/Game.qml \
     src/ui/qml/GameItemInfo.qml \
-    src/ui/qml/GameMap.qml \
     src/ui/qml/GameSetup.qml \
     src/ui/qml/InfoBar.qml \
     src/ui/qml/ListEditGroup.qml \

@@ -35,7 +35,7 @@ QHash<const core::MapNode *, QPoint> positionNodes(
 
 QRect calculateBoundingRect(
     const QList<core::MapNode *> &nodes,
-    QHash<const core::MapNode *, QPoint> nodePos,
+    const QHash<const core::MapNode *, QPoint> &nodePos,
     const QSize &tileSize
 );
 

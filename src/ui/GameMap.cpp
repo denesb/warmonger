@@ -5,7 +5,6 @@
 #include <QBrush>
 #include <QColor>
 #include <QPainter>
-#include <QRectF>
 
 #include "core/Game.h"
 #include "core/TerrainType.h"
@@ -21,14 +20,18 @@ using namespace warmonger::ui;
 
 GameMap::GameMap(QQuickItem *parent) :
     QQuickPaintedItem(parent),
-    game(nullptr),
-    nodePos(),
-    boundingRect(),
     nodes(),
     world(nullptr),
     surface(nullptr),
-    tileSize()
+    tileSize(),
+    game(nullptr),
+    nodePos(),
+    boundingRect(),
+    hexagonPainterPath(),
+    focusedNode(nullptr)
 {
+    this->setAcceptHoverEvents(true);
+    this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
 }
 
 GameMap::~GameMap()
@@ -68,6 +71,8 @@ void GameMap::writeGame(QObject *game)
 
 void GameMap::paint(QPainter *painter)
 {
+    painter->setRenderHint(QPainter::Antialiasing, true);
+
     const QRect window = painter->window();
     std::function<bool(const core::MapNode *)> filterFunc = std::bind(
         &GameMap::rectContainsNode,
@@ -88,22 +93,40 @@ void GameMap::paint(QPainter *painter)
 
     auto cbegin = dirtyNodes.constBegin();
     auto cend = dirtyNodes.constEnd();
-
     std::function<void(const core::MapNode *)> drawNodeFunc = std::bind(
         &GameMap::drawNode,
         this,
         painter,
         std::placeholders::_1
     );
-    std::for_each(cbegin, cend, drawNodeFunc);
-
     std::function<void(const core::MapNode *)> drawGridFunc = std::bind(
         &GameMap::drawGrid,
         this,
         painter,
         std::placeholders::_1
     );
+
+    std::for_each(cbegin, cend, drawNodeFunc);
     std::for_each(cbegin, cend, drawGridFunc);
+    if (this->focusedNode != nullptr)
+        this->drawFocusMark(painter, this->focusedNode);
+}
+
+void GameMap::mousePressEvent(QMouseEvent *event)
+{
+    const QPoint point = QPoint(event->x(), event->y());
+
+    auto cbegin = this->nodes.constBegin();
+    auto cend = this->nodes.constEnd();
+    auto it = std::find_if(cbegin, cend, [&](const core::MapNode *node) {
+        return this->surface->hexContains(point - this->nodePos[node]);
+    });
+
+    core::MapNode *focusedNode = it == cend ? nullptr : *it;
+    if (this->focusedNode != focusedNode) {
+        this->focusedNode = focusedNode;
+        this->update();
+    }
 }
 
 void GameMap::setupMap()
@@ -113,6 +136,8 @@ void GameMap::setupMap()
     this->world = this->game->getWorld();
     this->surface = this->world->getSurface();
     this->tileSize = this->surface->getTileSize();
+
+    this->hexagonPainterPath = hexagonPath(this->tileSize);
 
     QSet<const core::MapNode *> visitedNodes;
     this->nodePos = positionNodes(
@@ -154,16 +179,30 @@ void GameMap::drawNode(QPainter *painter, const core::MapNode *node)
 
 void GameMap::drawGrid(QPainter *painter, const core::MapNode *node)
 {
-    QPainterPath path = hexagonPath(this->tileSize);
     const QPoint pos = this->nodePos[node];
     const QColor color = this->surface->getColor("grid");
+    QPen pen(color);
+    pen.setWidth(1);
+
+    painter->save();
+    painter->translate(pos);
+
+    painter->strokePath(this->hexagonPainterPath, pen);
+
+    painter->restore();
+}
+
+void GameMap::drawFocusMark(QPainter *painter, const core::MapNode *node)
+{
+    const QPoint pos = this->nodePos[node];
+    const QColor color = this->surface->getColor("focusOutline");
     QPen pen(color);
     pen.setWidth(2);
 
     painter->save();
     painter->translate(pos);
 
-    painter->strokePath(path, pen);
+    painter->strokePath(this->hexagonPainterPath, pen);
 
     painter->restore();
 }

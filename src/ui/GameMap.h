@@ -2,6 +2,7 @@
 #define UI_GAME_MAP_H
 
 #include <QHash>
+#include <QPainterPath>
 #include <QRect>
 #include <QtQuick/QQuickPaintedItem>
 
@@ -36,6 +37,9 @@ public:
 signals:
     void gameChanged();
 
+protected:
+    void mousePressEvent(QMouseEvent *event);
+
 private:
     void setupMap();
     void updateGeometry();
@@ -43,15 +47,18 @@ private:
 
     void drawNode(QPainter *painter, const core::MapNode *node);
     void drawGrid(QPainter *painter, const core::MapNode *node);
-
-    core::Game *game;
-    QHash<const core::MapNode *, QPoint> nodePos;
-    QRect boundingRect;
+    void drawFocusMark(QPainter *painter, const core::MapNode *node);
 
     QList<core::MapNode *> nodes;
     core::World *world;
     core::WorldSurface *surface;
     QSize tileSize;
+
+    core::Game *game;
+    QHash<const core::MapNode *, QPoint> nodePos;
+    QRect boundingRect;
+    QPainterPath hexagonPainterPath;
+    core::MapNode *focusedNode;
 };
 
 } // namespace ui

@@ -2,6 +2,7 @@
 #define UI_MAP_UTIL_H
 
 #include <QHash>
+#include <QPainterPath>
 #include <QPoint>
 #include <QRect>
 #include <QSet>
@@ -37,6 +38,8 @@ QRect calculateBoundingRect(
     QHash<const core::MapNode *, QPoint> nodePos,
     const QSize &tileSize
 );
+
+QPainterPath hexagonPath(const QSize &tileSize);
 
 } // namespace ui
 } // namespace warmonger

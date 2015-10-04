@@ -9,7 +9,7 @@
         "hills": "#cbce16",
         "mountains": "#ce7516",
 
-        "blurredBorder": "#000000",
+        "grid": "#000000",
         "focusedBorder": "#d59037",
         "neutral": "#222222"
     },

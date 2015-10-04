@@ -40,7 +40,9 @@ private:
     void setupMap();
     void updateGeometry();
     bool rectContainsNode(const QRect &rect, const core::MapNode *node);
-    void drawNodes(QPainter *painter, const QList<core::MapNode *> &nodes);
+
+    void drawNode(QPainter *painter, const core::MapNode *node);
+    void drawGrid(QPainter *painter, const core::MapNode *node);
 
     core::Game *game;
     QHash<const core::MapNode *, QPoint> nodePos;

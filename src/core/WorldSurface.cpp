@@ -161,7 +161,6 @@ QHash<QString, QImage> loadImages(
     {
         const QString path = basePath + "/" + it.value();
         QImage image(path);
-        wDebug(category) << path;
         images.insert(it.key(), image);
     }
 

@@ -130,5 +130,29 @@ QRect calculateBoundingRect(
     return QRect(topLeft, bottomRight);
 }
 
+QPainterPath hexagonPath(const QSize &tileSize)
+{
+    const int w = tileSize.width();
+    const int h = tileSize.height();
+
+    const QPoint p0(0, h/4);
+    const QPoint p1(w/2, 0);
+    const QPoint p2(w, h/4);
+    const QPoint p3(w, 3 * h/4);
+    const QPoint p4(w/2, h - 1);
+    const QPoint p5(0, 3 * h/4);
+
+    QPainterPath path;
+
+    path.moveTo(p0);
+    path.lineTo(p1);
+    path.lineTo(p2);
+    path.lineTo(p3);
+    path.lineTo(p4);
+    path.lineTo(p5);
+
+    return path;
+}
+
 } // namespace ui
 } // namespace warmonger

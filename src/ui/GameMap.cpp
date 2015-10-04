@@ -86,7 +86,24 @@ void GameMap::paint(QPainter *painter)
     wDebug(category) << window;
     wDebug(category) << dirtyNodes.size();
 
-    this->drawNodes(painter, dirtyNodes);
+    auto cbegin = dirtyNodes.constBegin();
+    auto cend = dirtyNodes.constEnd();
+
+    std::function<void(const core::MapNode *)> drawNodeFunc = std::bind(
+        &GameMap::drawNode,
+        this,
+        painter,
+        std::placeholders::_1
+    );
+    std::for_each(cbegin, cend, drawNodeFunc);
+
+    std::function<void(const core::MapNode *)> drawGridFunc = std::bind(
+        &GameMap::drawGrid,
+        this,
+        painter,
+        std::placeholders::_1
+    );
+    std::for_each(cbegin, cend, drawGridFunc);
 }
 
 void GameMap::setupMap()
@@ -127,13 +144,26 @@ bool GameMap::rectContainsNode(const QRect &rect, const core::MapNode *node)
     return rect.intersects(nodeRect);
 }
 
-void GameMap::drawNodes(QPainter *painter, const QList<core::MapNode *> &nodes)
+void GameMap::drawNode(QPainter *painter, const core::MapNode *node)
 {
-    for (const core::MapNode *node : nodes)
-    {
-        const QString terrainTypeName = node->getTerrainType()->objectName();
-        QImage image = this->surface->getImage(terrainTypeName);
-        QPoint pos = this->nodePos[node];
-        painter->drawImage(pos, image);
-    }
+    const QString terrainTypeName = node->getTerrainType()->objectName();
+    QImage image = this->surface->getImage(terrainTypeName);
+    QPoint pos = this->nodePos[node];
+    painter->drawImage(pos, image);
+}
+
+void GameMap::drawGrid(QPainter *painter, const core::MapNode *node)
+{
+    QPainterPath path = hexagonPath(this->tileSize);
+    const QPoint pos = this->nodePos[node];
+    const QColor color = this->surface->getColor("grid");
+    QPen pen(color);
+    pen.setWidth(2);
+
+    painter->save();
+    painter->translate(pos);
+
+    painter->strokePath(path, pen);
+
+    painter->restore();
 }

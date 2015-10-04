@@ -10,6 +10,8 @@ namespace warmonger {
 namespace core {
     class Game;
     class MapNode;
+    class World;
+    class WorldSurface;
 }
 
 namespace ui {
@@ -37,10 +39,17 @@ signals:
 private:
     void setupMap();
     void updateGeometry();
+    bool rectContainsNode(const QRect &rect, const core::MapNode *node);
+    void drawNodes(QPainter *painter, const QList<core::MapNode *> &nodes);
 
     core::Game *game;
     QHash<const core::MapNode *, QPoint> nodePos;
     QRect boundingRect;
+
+    QList<core::MapNode *> nodes;
+    core::World *world;
+    core::WorldSurface *surface;
+    QSize tileSize;
 };
 
 } // namespace ui

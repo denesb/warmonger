@@ -130,7 +130,34 @@ LogStream& LogStream::operator<<(bool b)
 
 LogStream& LogStream::operator<<(const QPoint &point)
 {
-    this->textStream << "(" << point.x() << "," << point.y() << ")";
+    this->textStream << "<QPoint (" << point.x() << "," << point.y() << ")";
+    return *this;
+}
+
+LogStream& LogStream::operator<<(const QPointF &point)
+{
+    this->textStream << "<QPointF (" << point.x() << "," << point.y() << ")";
+    return *this;
+}
+
+LogStream& LogStream::operator<<(const QRect &rect)
+{
+    this->textStream << "<QRect (" << rect.x() << "," << rect.y() << ") "
+        << rect.width() << "x" << rect.height() << ">";
+    return *this;
+}
+
+LogStream& LogStream::operator<<(const QRectF &rect)
+{
+    this->textStream << "<QRectF (" << rect.x() << "," << rect.y() << ") "
+        << rect.width() << "x" << rect.height() << ">";
+    return *this;
+}
+
+LogStream& LogStream::operator<<(const QSize &size)
+{
+    this->textStream << "<QSize " << size.width() << "x"
+        << size.height() << ">";
     return *this;
 }
 

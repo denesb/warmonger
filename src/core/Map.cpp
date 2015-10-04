@@ -323,7 +323,7 @@ GameObject * Map::resolveReference(const QString &objectName) const
 
 void Map::onSurfaceChanged()
 {
-    QColor c(this->world->getSurface()->getStyle()["neutral"]);
+    QColor c(this->world->getSurface()->getColor("neutral"));
     this->neutralPlayer->setColor(c);
 }
 

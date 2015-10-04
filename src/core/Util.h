@@ -13,7 +13,7 @@
 namespace warmonger {
 namespace core {
 
-static const QString category{"core"};
+static const QString _category{"core"};
 
 template<typename T>
 QVariantList toQVariantList(const QList<T *> &list)
@@ -37,7 +37,7 @@ QList<T *> fromQVariantList(QVariantList vlist)
     {
         if (v.canConvert<T *>())
         {
-            wError(category) << "QVariant has wrong type";
+            wError(_category) << "QVariant has wrong type";
             throw Exception(Exception::WrongType);
         }
         list << v.value<T *>();
@@ -65,7 +65,7 @@ T* resolveReference(const QString &objectName, QObject *parent)
     GameEntity *entity = qobject_cast<GameEntity *>(parent);
     if (entity == nullptr)
     {
-        wError(category) << "Parent " << parent->objectName()
+        wError(_category) << "Parent " << parent->objectName()
             << " seems not to be a GameEntity";
         throw Exception(Exception::WrongType);
     }
@@ -74,7 +74,7 @@ T* resolveReference(const QString &objectName, QObject *parent)
     T *obj = qobject_cast<T *>(gobject);
     if (obj == nullptr)
     {
-        wError(category) << "Referred object " << objectName
+        wError(_category) << "Referred object " << objectName
             << " has unexpected type";
         throw Exception(Exception::WrongType);
     }

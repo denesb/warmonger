@@ -1,9 +1,14 @@
+#include <algorithm>
+#include <functional>
+#include <iterator>
+
 #include <QBrush>
 #include <QColor>
 #include <QPainter>
 #include <QRectF>
 
 #include "core/Game.h"
+#include "core/TerrainType.h"
 #include "core/Util.h"
 #include "core/WorldSurface.h"
 #include "ui/GameMap.h"
@@ -16,7 +21,13 @@ using namespace warmonger::ui;
 
 GameMap::GameMap(QQuickItem *parent) :
     QQuickPaintedItem(parent),
-    game(nullptr)
+    game(nullptr),
+    nodePos(),
+    boundingRect(),
+    nodes(),
+    world(nullptr),
+    surface(nullptr),
+    tileSize()
 {
 }
 
@@ -57,25 +68,40 @@ void GameMap::writeGame(QObject *game)
 
 void GameMap::paint(QPainter *painter)
 {
-    QBrush brush(QColor("black"));
-    painter->fillRect(50, 50, 50, 50, brush);
-    QRectF r(0, 0, 50, 50);
-    QString text;
-    if (this->game != nullptr)
-        text = game->getDisplayName();
-    painter->drawText(r, text);
+    const QRect window = painter->window();
+    std::function<bool(const core::MapNode *)> filterFunc = std::bind(
+        &GameMap::rectContainsNode,
+        this,
+        window,
+        std::placeholders::_1
+    );
+    QList<core::MapNode *> dirtyNodes;
+    std::copy_if(
+        this->nodes.constBegin(),
+        this->nodes.constEnd(),
+        std::back_inserter(dirtyNodes),
+        filterFunc
+    );
+
+    wDebug(category) << window;
+    wDebug(category) << dirtyNodes.size();
+
+    this->drawNodes(painter, dirtyNodes);
 }
 
 void GameMap::setupMap()
 {
-    QList<core::MapNode *> nodes = game->getMapNodes();
-    core::WorldSurface *surface = game->getWorld()->getSurface();
+    // these are used a lot
+    this->nodes = this->game->getMapNodes();
+    this->world = this->game->getWorld();
+    this->surface = this->world->getSurface();
+    this->tileSize = this->surface->getTileSize();
 
     QSet<const core::MapNode *> visitedNodes;
     this->nodePos = positionNodes(
-        nodes.first(),
+        this->nodes[0],
         QPoint(0, 0),
-        surface->getTileSize(),
+        this->tileSize,
         visitedNodes
     );
 
@@ -84,12 +110,30 @@ void GameMap::setupMap()
 
 void GameMap::updateGeometry()
 {
-    QList<core::MapNode *> nodes = game->getMapNodes();
-    core::WorldSurface *surface = game->getWorld()->getSurface();
-
     this->boundingRect = calculateBoundingRect(
-        this->game->getMapNodes(),
+        this->nodes,
         this->nodePos,
-        surface->getTileSize()
+        this->tileSize
     );
+}
+
+bool GameMap::rectContainsNode(const QRect &rect, const core::MapNode *node)
+{
+    const QPoint pos = this->nodePos[node];
+    if (!rect.contains(pos))
+        return false;
+
+    const QRect nodeRect = QRect(pos, this->tileSize);
+    return rect.intersects(nodeRect);
+}
+
+void GameMap::drawNodes(QPainter *painter, const QList<core::MapNode *> &nodes)
+{
+    for (const core::MapNode *node : nodes)
+    {
+        const QString terrainTypeName = node->getTerrainType()->objectName();
+        QImage image = this->surface->getImage(terrainTypeName);
+        QPoint pos = this->nodePos[node];
+        painter->drawImage(pos, image);
+    }
 }

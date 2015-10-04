@@ -3,7 +3,18 @@
     "displayName": "Default",
     "description": "Default surface for the Iron age world",
 
-    "bigMap": {
+    "colors": {
+        "plains": "#39661e",
+        "forest": "#173504",
+        "hills": "#cbce16",
+        "mountains": "#ce7516",
+
+        "blurredBorder": "#000000",
+        "focusedBorder": "#d59037",
+        "neutral": "#222222"
+    },
+
+    "images": {
         "plains": "terrainTypes/plains.png",
         "hills": "terrainTypes/hills.png",
         "forest": "terrainTypes/forest.png",
@@ -30,19 +41,6 @@
         "knight1": "unitTypes/knight1.png",
         "knight2": "unitTypes/knight2.png",
         "knight3": "unitTypes/knight3.png"
-    },
-
-    "style": {
-        "blurredBorder": "#000000",
-        "focusedBorder": "#d59037",
-        "neutral": "#222222"
-    },
-
-    "miniMap": {
-        "plains": "#39661e",
-        "forest": "#173504",
-        "hills": "#cbce16",
-        "mountains": "#ce7516"
     },
 
     "tileSize": {

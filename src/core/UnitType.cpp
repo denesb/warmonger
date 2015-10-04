@@ -6,6 +6,8 @@
 
 using namespace warmonger::core;
 
+static const QString category{"core"};
+
 UnitType::UnitType(QObject *parent) :
     GameObject(parent),
     hitPoints(0),

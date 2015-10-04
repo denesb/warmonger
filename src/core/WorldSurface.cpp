@@ -6,13 +6,19 @@
 
 using namespace warmonger::core;
 
+static QHash<QString, QImage> loadImages(
+    const QString &basePath,
+    const QMap<QString, QString> &imagePaths
+);
+
 static const QString category{"core"};
 
 WorldSurface::WorldSurface(QObject *parent) :
     GameEntityPart(parent),
     tileSize(),
-    bigMap(),
-    miniMap()
+    images(),
+    imagePaths(),
+    colors()
 {
 }
 
@@ -40,61 +46,39 @@ void WorldSurface::setTileSize(const QSize &tileSize)
     }
 }
 
-QMap<QString, QString> WorldSurface::getBigMap() const
+QMap<QString, QString> WorldSurface::getImagePaths() const
 {
-    return this->bigMap;
+    return this->imagePaths;
 }
 
-void WorldSurface::setBigMap(const QMap<QString, QString> &bigMap)
+QString WorldSurface::getImagePath(const QString &name) const
 {
-    if (this->bigMap != bigMap)
-    {
-        this->bigMap = bigMap;
-        emit bigMapChanged();
-    }
+    return this->imagePaths[name];
 }
 
-QVariantMap WorldSurface::readBigMap() const
+QVariantMap WorldSurface::readImagePaths() const
 {
-    return this->toQVariantMap(this->bigMap);
+    return this->toQVariantMap(this->imagePaths);
 }
 
-QMap<QString, QString> WorldSurface::getMiniMap() const
+QImage WorldSurface::getImage(const QString &name) const
 {
-    return this->miniMap;
+    return this->images[name];
 }
 
-void WorldSurface::setMiniMap(const QMap<QString, QString> &miniMap)
+QMap<QString, QString> WorldSurface::getColors() const
 {
-    if (this->miniMap != miniMap)
-    {
-        this->miniMap = miniMap;
-        emit miniMapChanged();
-    }
+    return this->colors;
 }
 
-QVariantMap WorldSurface::readMiniMap() const
+QString WorldSurface::getColor(const QString &name) const
 {
-    return this->toQVariantMap(this->miniMap);
+    return this->colors[name];
 }
 
-QMap<QString, QString> WorldSurface::getStyle() const
+QVariantMap WorldSurface::readColors() const
 {
-    return this->style;
-}
-
-void WorldSurface::setStyle(const QMap<QString, QString> &style)
-{
-    if (this->style != style)
-    {
-        this->style = style;
-        emit styleChanged();
-    }
-}
-
-QVariantMap WorldSurface::readStyle() const
-{
-    return this->toQVariantMap(this->style);
+    return this->toQVariantMap(this->colors);
 }
 
 bool WorldSurface::hexContains(const QPoint &p) const
@@ -117,17 +101,17 @@ void WorldSurface::dataFromJson(const QJsonObject &obj)
     this->hexMask.load(this->getPath() + QStringLiteral("/hexagon_mask.xpm"), "XPM");
 
     this->tileSize = sizeFromJson(obj["tileSize"].toObject());
-    this->bigMap = this->mapFromJson(obj["bigMap"].toObject());
-    this->miniMap = this->mapFromJson(obj["miniMap"].toObject());
-    this->style = this->mapFromJson(obj["style"].toObject());
+    this->imagePaths = this->mapFromJson(obj["images"].toObject());
+    this->colors = this->mapFromJson(obj["colors"].toObject());
+
+    this->images = loadImages(this->getPath(), this->imagePaths);
 }
 
 void WorldSurface::dataToJson(QJsonObject &obj) const
 {
     obj["tileSize"] = sizeToJson(this->tileSize);
-    obj["bigMap"] = this->mapToJson(this->bigMap);
-    obj["miniMap"] = this->mapToJson(this->miniMap);
-    obj["style"] = this->mapToJson(this->style);
+    obj["images"] = this->mapToJson(this->imagePaths);
+    obj["colors"] = this->mapToJson(this->colors);
 }
 
 QVariantMap WorldSurface::toQVariantMap(const QMap<QString, QString> &qmap) const
@@ -164,4 +148,22 @@ QJsonObject WorldSurface::mapToJson(const QMap<QString, QString> &map) const
     }
 
     return std::move(obj);
+}
+
+QHash<QString, QImage> loadImages(
+    const QString &basePath,
+    const QMap<QString, QString> &imagePaths
+)
+{
+    QHash<QString, QImage> images;
+    QMap<QString, QString>::ConstIterator it;
+    for (it = imagePaths.constBegin(); it != imagePaths.constEnd(); it++)
+    {
+        const QString path = basePath + "/" + it.value();
+        QImage image(path);
+        wDebug(category) << path;
+        images.insert(it.key(), image);
+    }
+
+    return std::move(images);
 }

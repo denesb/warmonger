@@ -1,11 +1,15 @@
 #ifndef LOG_LOG_STREAM_H
 #define LOG_LOG_STREAM_H
 
-#include <QTextStream>
-#include <QPoint>
 #include <QJsonValue>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QPoint>
+#include <QPointF>
+#include <QRect>
+#include <QRectF>
+#include <QSize>
+#include <QTextStream>
 
 #include "log/Logger.h"
 
@@ -46,6 +50,10 @@ public:
     LogStream& operator<<(bool b);
 
     LogStream& operator<<(const QPoint &point);
+    LogStream& operator<<(const QPointF &point);
+    LogStream& operator<<(const QRect &rect);
+    LogStream& operator<<(const QRectF &rect);
+    LogStream& operator<<(const QSize &size);
 
     LogStream& operator<<(const QJsonValue &value);
     LogStream& operator<<(const QJsonObject &obj);

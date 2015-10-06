@@ -40,6 +40,7 @@ public:
     QVariantMap readColors() const;
 
     Q_INVOKABLE bool hexContains(const QPoint &p) const;
+    bool hexContains(const QPointF &p) const;
 
 signals:
     void prefixChanged();

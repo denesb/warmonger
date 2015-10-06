@@ -83,17 +83,38 @@ QVariantMap WorldSurface::readColors() const
 
 bool WorldSurface::hexContains(const QPoint &p) const
 {
-    int x = p.x();
-    int y = p.y();
+    const int x = p.x();
+    const int y = p.y();
+    const int w = this->tileSize.width();
+    const int h = this->tileSize.height();
 
-    if (x < 0 || x >= this->tileSize.width() || y < 0 || y >= this->tileSize.height())
+    if (x < 0 || x >= w || y < 0 || y >= h)
         return false;
 
     QRgb pixel = this->hexMask.pixel(x, y);
-    if (pixel != 0xffffffff)
+
+    return (pixel == 0xffffffff);
+}
+
+bool WorldSurface::hexContains(const QPointF &p) const
+{
+    const qreal x = p.x();
+    const qreal y = p.y();
+    const qreal w = static_cast<qreal>(this->tileSize.width());
+    const qreal h = static_cast<qreal>(this->tileSize.height());
+
+    if (x < 0.0 || x >= w || y < 0.0 || y >= h)
         return false;
 
-    return true;
+    const int xc = static_cast<int>(ceil(x));
+    const int yc = static_cast<int>(ceil(y));
+    const int xf = static_cast<int>(floor(x));
+    const int yf = static_cast<int>(floor(y));
+
+    QRgb pixelc = this->hexMask.pixel(xc, yc);
+    QRgb pixelf = this->hexMask.pixel(xf, yf);
+
+    return (pixelc == 0xffffffff || pixelf == 0xffffffff);
 }
 
 void WorldSurface::dataFromJson(const QJsonObject &obj)

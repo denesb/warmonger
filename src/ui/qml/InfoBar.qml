@@ -5,6 +5,9 @@ Rectangle {
 
     property var world
     property var mapNode
+    property var pos
+    property var settlement
+    property var unit
 
     Row {
         anchors {
@@ -29,8 +32,8 @@ Rectangle {
             source: {
                 if (root.mapNode) {
                     var surface = root.world.surface;
-                    var terrainTypeName = root.mapNode.qobj.terrainType.objectName;
-                    surface.prefix + surface.bigMap[terrainTypeName];
+                    var terrainTypeName = root.mapNode.terrainType.objectName;
+                    surface.prefix + surface.imagePaths[terrainTypeName];
                 } else {
                     "";
                 }
@@ -42,8 +45,8 @@ Rectangle {
 
             text: {
                 if (root.mapNode) {
-                    var n = root.mapNode.qobj;
-                    var p = root.mapNode.pos;
+                    var n = root.mapNode;
+                    var p = root.pos;
                     var text = "";
                     if (n.displayName != "")
                         text += n.displayName + " ";
@@ -58,7 +61,7 @@ Rectangle {
 
         Rectangle {
             width: {
-                if (root.mapNode && root.mapNode.settlement)
+                if (root.settlement)
                     1;
                 else
                     0;
@@ -73,7 +76,7 @@ Rectangle {
             id: settlementImage
             height: 20
             width: {
-                if (root.mapNode && root.mapNode.settlement) {
+                if (root.settlement) {
                     var tileSize = root.world.surface.tileSize;
                     height * tileSize.width/tileSize.height;
                 } else {
@@ -83,11 +86,10 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
 
             source: {
-                var n = root.mapNode;
-                if (n && n.settlement) {
+                if (root.settlement) {
                     var surface = root.world.surface;
-                    var settlementTypeName = n.settlement.qobj.settlementType.objectName;
-                    surface.prefix + surface.bigMap[settlementTypeName];
+                    var settlementTypeName = root.settlement.settlementType.objectName;
+                    surface.prefix + surface.imagePaths[settlementTypeName];
                 } else {
                     "";
                 }
@@ -98,13 +100,11 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
 
             text: {
-                var n = root.mapNode;
-                if (n && n.settlement) {
-                    var s = n.settlement.qobj;
+                if (root.settlement) {
                     var text = "";
-                    if (s.displayName != "")
-                        text += s.displayName + " ";
-                    text += s.settlementType.displayName;
+                    if (root.settlement.displayName != "")
+                        text += root.settlement.displayName + " ";
+                    text += root.settlement.settlementType.displayName;
                     text;
                 } else {
                     "";
@@ -114,7 +114,7 @@ Rectangle {
 
         Rectangle {
             width: {
-                if (root.mapNode && root.mapNode.unit)
+                if (root.unit)
                     1;
                 else
                     0;
@@ -129,7 +129,7 @@ Rectangle {
             id: unitImage
             height: 20
             width: {
-                if (root.mapNode && root.mapNode.unit) {
+                if (root.unit) {
                     var tileSize = root.world.surface.tileSize;
                     height * tileSize.width/tileSize.height;
                 } else {
@@ -139,11 +139,10 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
 
             source: {
-                var n = root.mapNode;
-                if (n && n.unit) {
+                if (root.unit) {
                     var surface = root.world.surface;
-                    var unitTypeName = n.unit.qobj.unitType.objectName;
-                    surface.prefix + surface.bigMap[unitTypeName];
+                    var unitTypeName = root.unit.unitType.objectName;
+                    surface.prefix + surface.imagePaths[unitTypeName];
                 } else {
                     "";
                 }
@@ -154,14 +153,12 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
 
             text: {
-                var n = root.mapNode;
-                if (n && n.unit) {
-                    var u = n.unit.qobj;
+                if (root.unit) {
                     var text = "";
 
                     if (u.displayName != "")
-                        text += u.displayName + " ";
-                    text += n.unit.qobj.unitType.displayName;
+                        text += root.unit.displayName + " ";
+                    text += root.unit.unitType.displayName;
                     text;
                 } else {
                     "";

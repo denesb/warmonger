@@ -1,22 +1,9 @@
 #include <QSize>
 
-#include "core/MapNode.h"
 #include "ui/MapUtil.h"
 
 namespace warmonger {
 namespace ui {
-
-void update(
-    QHash<const core::MapNode *, QPoint> &hash1,
-    const QHash<const core::MapNode *, QPoint> &hash2
-)
-{
-    QHash<const core::MapNode *, QPoint>::ConstIterator it;
-    for (it = hash2.constBegin(); it != hash2.constEnd(); it++)
-    {
-        hash1.insert(it.key(), it.value());
-    }
-}
 
 QPoint neighbourPos(
     const QPoint &pos,
@@ -58,58 +45,47 @@ QPoint neighbourPos(
     );
 }
 
-QHash<const core::MapNode *, QPoint> positionNodes(
-    const core::MapNode *node,
-    const QPoint &pos,
-    const QSize &tileSize,
-    QSet<const core::MapNode *> &visitedNodes
+void positionNodes(
+    core::MapNode *node,
+    QHash<const core::MapNode *, NodeInfo *> &nodesInfo,
+    const QSize &tileSize
 )
 {
-    QHash<const core::MapNode *, QPoint> positions;
-    positions[node] = pos;
-    visitedNodes << node;
-
+    QPoint pos = nodesInfo[node]->pos;
     QHash<core::MapNode::Direction, core::MapNode *> neighbours =
         node->getNeighbours();
-    QHash<core::MapNode::Direction, core::MapNode *>::ConstIterator it;
-    for (it = neighbours.constBegin(); it != neighbours.constEnd(); it++)
+    for (auto it = neighbours.constBegin(); it != neighbours.constEnd(); it++)
     {
         core::MapNode *neighbour = it.value();
         core::MapNode::Direction dir = it.key();
 
-        if (neighbour == nullptr || visitedNodes.contains(neighbour))
+        if (neighbour == nullptr || nodesInfo.contains(neighbour))
             continue;
 
-        QPoint nPos = neighbourPos(pos, dir, tileSize);
-        QHash<const core::MapNode *, QPoint> neighbourPositions = positionNodes(
-            neighbour,
-            nPos,
-            tileSize,
-            visitedNodes
-        );
-        update(positions, neighbourPositions);
-    }
+        NodeInfo *nodeInfo = new NodeInfo(neighbour);
+        nodeInfo->pos = neighbourPos(pos, dir, tileSize);
+        nodesInfo.insert(neighbour, nodeInfo);
 
-    return positions;
+        positionNodes(neighbour, nodesInfo, tileSize);
+    }
 }
 
 QRect calculateBoundingRect(
-    const QList<core::MapNode *> &nodes,
-    const QHash<const core::MapNode *, QPoint> &nodePos,
+    QHash<const core::MapNode *, NodeInfo *> &nodesInfo,
     const QSize &tileSize
 )
 {
-    if (nodes.size() == 0)
+    if (nodesInfo.size() == 0)
         return QRect(0, 0, 0, 0);
 
-    QPoint pos = nodePos[nodes[0]];
+    NodeInfo *nodeInfo = *(nodesInfo.begin());
 
-    QPoint topLeft = QPoint(pos);
-    QPoint bottomRight = QPoint(pos);
+    QPoint topLeft = QPoint(nodeInfo->pos);
+    QPoint bottomRight = QPoint(nodeInfo->pos);
 
-    for (const core::MapNode *node : nodes)
+    for (auto it = nodesInfo.constBegin(); it != nodesInfo.constEnd(); it++)
     {
-        pos = nodePos[node];
+        const QPoint pos = (*it)->pos;
 
         topLeft.setX(std::min(pos.x(), topLeft.x()));
         bottomRight.setX(std::max(pos.x(), bottomRight.x()));

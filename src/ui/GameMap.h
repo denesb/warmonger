@@ -6,6 +6,8 @@
 #include <QRect>
 #include <QtQuick/QQuickPaintedItem>
 
+#include "ui/MapUtil.h"
+
 namespace warmonger {
 
 namespace core {
@@ -23,6 +25,10 @@ class GameMap :
     Q_OBJECT
 
     Q_PROPERTY(QObject *game READ readGame WRITE writeGame NOTIFY gameChanged)
+    Q_PROPERTY(QObject *currentMapNode READ readCurrentMapNode NOTIFY currentMapNodeChanged)
+    Q_PROPERTY(QPoint currentPos READ getCurrentPos NOTIFY currentPosChanged)
+    Q_PROPERTY(QObject *currentSettlement READ readCurrentSettlement NOTIFY currentSettlementChanged)
+    Q_PROPERTY(QObject *currentUnit READ readCurrentUnit NOTIFY currentUnitChanged)
 public:
     GameMap(QQuickItem *parent = nullptr);
     ~GameMap();
@@ -32,13 +38,32 @@ public:
     QObject *readGame() const;
     void writeGame(QObject *game);
 
+    core::MapNode * getCurrentMapNode() const;
+    QObject * readCurrentMapNode() const;
+
+    core::Settlement * getCurrentSettlement() const;
+    QObject * readCurrentSettlement() const;
+
+    core::Unit * getCurrentUnit() const;
+    QObject * readCurrentUnit() const;
+
+    QPoint getCurrentPos() const;
+
     void paint(QPainter *painter);
 
 signals:
     void gameChanged();
+    void currentMapNodeInfoChanged();
+    void currentMapNodeChanged();
+    void currentPosChanged();
+    void currentSettlementChanged();
+    void currentUnitChanged();
 
 protected:
     void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void hoverMoveEvent(QHoverEvent *event);
 
 private:
     void setupMap();
@@ -55,10 +80,11 @@ private:
     QSize tileSize;
 
     core::Game *game;
-    QHash<const core::MapNode *, QPoint> nodePos;
+    QHash<const core::MapNode *, NodeInfo *> nodesInfo;
     QRect boundingRect;
     QPainterPath hexagonPainterPath;
     core::MapNode *focusedNode;
+    NodeInfo *currentNodeInfo;
 };
 
 } // namespace ui

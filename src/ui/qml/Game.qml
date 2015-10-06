@@ -1,5 +1,6 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.1
+import Warmonger 1.0
 
 import "js/Map.js" as Map
 
@@ -53,7 +54,7 @@ Rectangle {
         MiniMap {
             id: miniMap
 
-            map: W.game
+            /*map: W.game*/
             window: map.window
 
             height: 288
@@ -83,17 +84,26 @@ Rectangle {
         }
     }
 
-    GameMap {
-        id: map
-
-        game: W.game
-        //windowPos: miniMap.windowPos
+    Rectangle {
+        id: mapWrapper
 
         anchors {
             top: statusBar.bottom
             bottom: infoBar.top
             left: parent.left
             right: sideBar.left
+        }
+
+        GameMap {
+            id: map
+
+            game: W.game
+            //windowPos: miniMap.windowPos
+
+            anchors {
+                fill: parent
+                margins: 1
+            }
         }
     }
 
@@ -102,6 +112,9 @@ Rectangle {
 
         world: W.world
         mapNode: map.currentMapNode
+        pos: map.currentPos
+        settlement: map.currentSettlement
+        unit: map.currentUnit
 
         anchors {
             bottom: parent.bottom

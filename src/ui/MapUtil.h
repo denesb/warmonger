@@ -7,18 +7,31 @@
 #include <QRect>
 #include <QSet>
 
+#include "core/MapNode.h"
+
 namespace warmonger {
 
 namespace core {
-    class MapNode;
+    class Settlement;
+    class Unit;
 }
 
 namespace ui {
 
-void update(
-    QHash<const core::MapNode *, QPoint> &hash1,
-    const QHash<const core::MapNode *, QPoint> &hash2
-);
+struct NodeInfo
+{
+    NodeInfo(core::MapNode *node) :
+        pos(),
+        node(node),
+        settlement(nullptr),
+        unit(nullptr)
+    {}
+
+    QPoint pos;
+    core::MapNode *node;
+    core::Settlement *settlement;
+    core::Unit *unit;
+};
 
 QPoint neighbourPos(
     const QPoint &pos,
@@ -26,16 +39,14 @@ QPoint neighbourPos(
     const QSize &tileSize
 );
 
-QHash<const core::MapNode *, QPoint> positionNodes(
-    const core::MapNode *node,
-    const QPoint &pos,
-    const QSize &tileSize,
-    QSet<const core::MapNode *> &visitedNodes
+void positionNodes(
+    core::MapNode *node,
+    QHash<const core::MapNode *, NodeInfo *> &nodesInfo,
+    const QSize &tileSize
 );
 
 QRect calculateBoundingRect(
-    const QList<core::MapNode *> &nodes,
-    const QHash<const core::MapNode *, QPoint> &nodePos,
+    QHash<const core::MapNode *, NodeInfo *> &nodesInfo,
     const QSize &tileSize
 );
 

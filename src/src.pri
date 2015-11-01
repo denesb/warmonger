@@ -50,6 +50,7 @@ HEADERS += \
     src/ui/qtquick2applicationviewer.h \
     src/ui/ApplicationContext.h \
     src/ui/GameMap.h \
+    src/ui/MiniMap.h \
     src/ui/MapUtil.h
 
 # app
@@ -97,6 +98,7 @@ SOURCES += \
     src/ui/qtquick2applicationviewer.cpp \
     src/ui/ApplicationContext.cpp \
     src/ui/GameMap.cpp \
+    src/ui/MiniMap.cpp \
     src/ui/MapUtil.cpp
 
 # qml
@@ -114,7 +116,6 @@ OTHER_FILES += \
     src/ui/qml/MapItemSelector.qml \
     src/ui/qml/MapList.qml \
     src/ui/qml/MapNodeEdit.qml \
-    src/ui/qml/MiniMap.qml \
     src/ui/qml/NewGame.qml \
     src/ui/qml/PointBar.qml \
     src/ui/qml/SettlementEdit.qml \

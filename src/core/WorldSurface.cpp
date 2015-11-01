@@ -11,6 +11,10 @@ static QHash<QString, QImage> loadImages(
     const QMap<QString, QString> &imagePaths
 );
 
+static QHash<QString, QColor> createColors(
+    const QMap<QString, QString> &colorNames
+);
+
 static const QString category{"core"};
 
 WorldSurface::WorldSurface(QObject *parent) :
@@ -18,7 +22,8 @@ WorldSurface::WorldSurface(QObject *parent) :
     tileSize(),
     images(),
     imagePaths(),
-    colors()
+    colors(),
+    colorNames()
 {
 }
 
@@ -51,9 +56,9 @@ QMap<QString, QString> WorldSurface::getImagePaths() const
     return this->imagePaths;
 }
 
-QString WorldSurface::getImagePath(const QString &name) const
+QString WorldSurface::getImagePath(const QString &key) const
 {
-    return this->imagePaths[name];
+    return this->imagePaths[key];
 }
 
 QVariantMap WorldSurface::readImagePaths() const
@@ -61,24 +66,29 @@ QVariantMap WorldSurface::readImagePaths() const
     return this->toQVariantMap(this->imagePaths);
 }
 
-QImage WorldSurface::getImage(const QString &name) const
+QImage WorldSurface::getImage(const QString &key) const
 {
-    return this->images[name];
+    return this->images[key];
 }
 
-QMap<QString, QString> WorldSurface::getColors() const
+QMap<QString, QString> WorldSurface::getColorNames() const
 {
-    return this->colors;
+    return this->colorNames;
 }
 
-QString WorldSurface::getColor(const QString &name) const
+QString WorldSurface::getColorName(const QString &key) const
 {
-    return this->colors[name];
+    return this->colorNames[key];
 }
 
-QVariantMap WorldSurface::readColors() const
+QVariantMap WorldSurface::readColorNames() const
 {
-    return this->toQVariantMap(this->colors);
+    return this->toQVariantMap(this->colorNames);
+}
+
+QColor WorldSurface::getColor(const QString &key) const
+{
+    return this->colors[key];
 }
 
 bool WorldSurface::hexContains(const QPoint &p) const
@@ -121,10 +131,11 @@ void WorldSurface::dataFromJson(const QJsonObject &obj)
 {
     this->hexMask.load(this->getPath() + QStringLiteral("/hexagon_mask.xpm"), "XPM");
 
-    this->tileSize = sizeFromJson(obj["tileSize"].toObject());
+    this->colorNames = this->mapFromJson(obj["colors"].toObject());
     this->imagePaths = this->mapFromJson(obj["images"].toObject());
-    this->colors = this->mapFromJson(obj["colors"].toObject());
+    this->tileSize = sizeFromJson(obj["tileSize"].toObject());
 
+    this->colors = createColors(this->colorNames);
     this->images = loadImages(this->getPath(), this->imagePaths);
 }
 
@@ -132,7 +143,7 @@ void WorldSurface::dataToJson(QJsonObject &obj) const
 {
     obj["tileSize"] = sizeToJson(this->tileSize);
     obj["images"] = this->mapToJson(this->imagePaths);
-    obj["colors"] = this->mapToJson(this->colors);
+    obj["colors"] = this->mapToJson(this->colorNames);
 }
 
 QVariantMap WorldSurface::toQVariantMap(const QMap<QString, QString> &qmap) const
@@ -169,6 +180,20 @@ QJsonObject WorldSurface::mapToJson(const QMap<QString, QString> &map) const
     }
 
     return std::move(obj);
+}
+
+QHash<QString, QColor> createColors(
+    const QMap<QString, QString> &colorNames
+)
+{
+    QHash<QString, QColor> colors;
+    QMap<QString, QString>::ConstIterator it;
+    for (it = colorNames.constBegin(); it != colorNames.constEnd(); it++)
+    {
+        colors.insert(it.key(), QColor(it.value()));
+    }
+
+    return std::move(colors);
 }
 
 QHash<QString, QImage> loadImages(

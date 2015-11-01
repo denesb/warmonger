@@ -51,11 +51,8 @@ Rectangle {
             }
         }
 
-        MiniMap {
-            id: miniMap
-
-            /*map: W.game*/
-            window: map.window
+        Rectangle {
+            id: miniMapWrapper
 
             height: 288
             anchors {
@@ -67,6 +64,19 @@ Rectangle {
                 width: 1
                 color: "black"
             }
+
+            MiniMap {
+                id: miniMap
+
+                map: W.game
+                /*windowPos: map.windowPos*/
+                windowSize: map.windowSize
+
+                anchors {
+                    fill: parent
+                    margins: 1
+                }
+            }
         }
 
         GameItemInfo {
@@ -76,7 +86,7 @@ Rectangle {
             mapNode: map.focusedMapNode
 
             anchors {
-                top: miniMap.bottom
+                top: miniMapWrapper.bottom
                 bottom: parent.bottom
                 left: parent.left
                 right: parent.right
@@ -98,7 +108,7 @@ Rectangle {
             id: map
 
             game: W.game
-            //windowPos: miniMap.windowPos
+            /*windowPos: miniMap.windowPos*/
 
             anchors {
                 fill: parent

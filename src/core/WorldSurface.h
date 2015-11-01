@@ -1,6 +1,7 @@
 #ifndef CORE_WORLD_SURFACE_H
 #define CORE_WORLD_SURFACE_H
 
+#include <QColor>
 #include <QHash>
 #include <QImage>
 #include <QSize>
@@ -17,7 +18,7 @@ class WorldSurface :
     Q_PROPERTY(QString prefix READ getPrefix NOTIFY prefixChanged);
     Q_PROPERTY(QSize tileSize READ getTileSize NOTIFY tileSizeChanged);
     Q_PROPERTY(QVariantMap imagePaths READ readImagePaths NOTIFY imagePathsChanged);
-    Q_PROPERTY(QVariantMap colors READ readColors NOTIFY colorsChanged);
+    Q_PROPERTY(QVariantMap colorNames READ readColorNames NOTIFY colorNamesChanged);
 
 public:
     Q_INVOKABLE WorldSurface(QObject *parent);
@@ -30,14 +31,16 @@ public:
     void setTileSize(const QSize &tileSize);
 
     QMap<QString, QString> getImagePaths() const;
-    QString getImagePath(const QString &name) const;
+    QString getImagePath(const QString &key) const;
     QVariantMap readImagePaths() const;
 
-    QImage getImage(const QString &name) const;
+    QImage getImage(const QString &key) const;
 
-    QMap<QString, QString> getColors() const;
-    QString getColor(const QString &name) const;
-    QVariantMap readColors() const;
+    QMap<QString, QString> getColorNames() const;
+    QString getColorName(const QString &key) const;
+    QVariantMap readColorNames() const;
+
+    QColor getColor(const QString &key) const;
 
     Q_INVOKABLE bool hexContains(const QPoint &p) const;
     bool hexContains(const QPointF &p) const;
@@ -46,7 +49,7 @@ signals:
     void prefixChanged();
     void tileSizeChanged();
     void imagePathsChanged();
-    void colorsChanged();
+    void colorNamesChanged();
 
 private:
     void dataFromJson(const QJsonObject &obj);
@@ -59,7 +62,8 @@ private:
     QSize tileSize;
     QHash<QString, QImage> images;
     QMap<QString, QString> imagePaths;
-    QMap<QString, QString> colors;
+    QHash<QString, QColor> colors;
+    QMap<QString, QString> colorNames;
 
     QImage hexMask;
 };

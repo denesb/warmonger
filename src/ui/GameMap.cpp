@@ -32,7 +32,8 @@ GameMap::GameMap(QQuickItem *parent) :
     boundingRect(),
     hexagonPainterPath(),
     focusedNode(nullptr),
-    currentNodeInfo(nullptr)
+    currentNodeInfo(nullptr),
+    windowPos(0, 0)
 {
     this->setAcceptHoverEvents(true);
     this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
@@ -129,11 +130,29 @@ QObject * GameMap::readCurrentUnit() const
     return this->currentNodeInfo->unit;
 }
 
+QPoint GameMap::getWindowPos() const
+{
+    return this->windowPos;
+}
+
+void GameMap::setWindowPos(const QPoint& windowPos)
+{
+    if (this->windowPos != windowPos)
+    {
+        this->windowPos = windowPos;
+        emit windowPosChanged();
+    }
+}
+
 void GameMap::paint(QPainter *painter)
 {
     painter->setRenderHint(QPainter::Antialiasing, true);
 
-    const QRect window = painter->window();
+    const QSize windowSize(this->width(), this->height());
+    const QRect window = QRect(this->windowPos, windowSize);
+
+    painter->setWindow(window);
+
     std::function<bool(const core::MapNode *)> filterFunc = std::bind(
         &GameMap::rectContainsNode,
         this,
@@ -274,6 +293,7 @@ void GameMap::updateGeometry()
         this->nodesInfo,
         this->tileSize
     );
+    this->setWindowPos(this->boundingRect.topLeft());
 }
 
 bool GameMap::rectContainsNode(const QRect &rect, const core::MapNode *node)
@@ -328,12 +348,7 @@ void GameMap::drawContent(QPainter *painter, const core::MapNode *node)
 {
     const NodeInfo *nodeInfo = this->nodesInfo[node];
     const QPoint pos = nodeInfo->pos;
-    const QRect frame(
-        pos.x(),
-        pos.y(),
-        this->tileSize.width(),
-        this->tileSize.height()
-    );
+    const QRect frame(pos, this->tileSize);
     const core::Settlement *settlement = nodeInfo->settlement;
     const core::Unit *unit = nodeInfo->unit;
 

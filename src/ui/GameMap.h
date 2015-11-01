@@ -29,6 +29,7 @@ class GameMap :
     Q_PROPERTY(QPoint currentPos READ getCurrentPos NOTIFY currentPosChanged)
     Q_PROPERTY(QObject *currentSettlement READ readCurrentSettlement NOTIFY currentSettlementChanged)
     Q_PROPERTY(QObject *currentUnit READ readCurrentUnit NOTIFY currentUnitChanged)
+    Q_PROPERTY(QPoint windowPos READ getWindowPos WRITE setWindowPos NOTIFY windowPosChanged)
 public:
     GameMap(QQuickItem *parent = nullptr);
     ~GameMap();
@@ -41,13 +42,16 @@ public:
     core::MapNode * getCurrentMapNode() const;
     QObject * readCurrentMapNode() const;
 
+    QPoint getCurrentPos() const;
+
     core::Settlement * getCurrentSettlement() const;
     QObject * readCurrentSettlement() const;
 
     core::Unit * getCurrentUnit() const;
     QObject * readCurrentUnit() const;
 
-    QPoint getCurrentPos() const;
+    QPoint getWindowPos() const;
+    void setWindowPos(const QPoint& windowPos);
 
     void paint(QPainter *painter);
 
@@ -58,6 +62,7 @@ signals:
     void currentPosChanged();
     void currentSettlementChanged();
     void currentUnitChanged();
+    void windowPosChanged();
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -86,6 +91,7 @@ private:
     QPainterPath hexagonPainterPath;
     core::MapNode *focusedNode;
     NodeInfo *currentNodeInfo;
+    QPoint windowPos;
 };
 
 } // namespace ui

@@ -126,6 +126,7 @@ QPainterPath hexagonPath(const QSize &tileSize)
     path.lineTo(p3);
     path.lineTo(p4);
     path.lineTo(p5);
+    path.lineTo(p0);
 
     return path;
 }

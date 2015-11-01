@@ -8,8 +8,10 @@
 
 #include "core/Game.h"
 #include "core/Settlement.h"
+#include "core/SettlementType.h"
 #include "core/TerrainType.h"
 #include "core/Unit.h"
+#include "core/UnitType.h"
 #include "core/Util.h"
 #include "core/WorldSurface.h"
 #include "ui/GameMap.h"
@@ -161,10 +163,18 @@ void GameMap::paint(QPainter *painter)
         std::placeholders::_1
     );
 
+    std::function<void(const core::MapNode *)> drawContentFunc = std::bind(
+        &GameMap::drawContent,
+        this,
+        painter,
+        std::placeholders::_1
+    );
+
     std::for_each(cbegin, cend, drawNodeFunc);
     std::for_each(cbegin, cend, drawGridFunc);
     if (this->focusedNode != nullptr)
         this->drawFocusMark(painter, this->focusedNode);
+    std::for_each(cbegin, cend, drawContentFunc);
 }
 
 void GameMap::mousePressEvent(QMouseEvent *event)
@@ -312,4 +322,32 @@ void GameMap::drawFocusMark(QPainter *painter, const core::MapNode *node)
     painter->strokePath(this->hexagonPainterPath, pen);
 
     painter->restore();
+}
+
+void GameMap::drawContent(QPainter *painter, const core::MapNode *node)
+{
+    const NodeInfo *nodeInfo = this->nodesInfo[node];
+    const QPoint pos = nodeInfo->pos;
+    const QRect frame(
+        pos.x(),
+        pos.y(),
+        this->tileSize.width(),
+        this->tileSize.height()
+    );
+    const core::Settlement *settlement = nodeInfo->settlement;
+    const core::Unit *unit = nodeInfo->unit;
+
+    if (settlement != nullptr)
+    {
+        const core::SettlementType *st = settlement->getSettlementType();
+        const QImage image = this->surface->getImage(st->objectName());
+        painter->drawImage(frame, image);
+    }
+
+    if (unit != nullptr)
+    {
+        const core::UnitType *ut = unit->getUnitType();
+        const QImage image = this->surface->getImage(ut->objectName());
+        painter->drawImage(frame, image);
+    }
 }

@@ -73,6 +73,7 @@ private:
     void drawNode(QPainter *painter, const core::MapNode *node);
     void drawGrid(QPainter *painter, const core::MapNode *node);
     void drawFocusMark(QPainter *painter, const core::MapNode *node);
+    void drawContent(QPainter *painter, const core::MapNode *node);
 
     QList<core::MapNode *> nodes;
     core::World *world;

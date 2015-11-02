@@ -77,6 +77,7 @@ protected:
 private:
     void setupMap();
     void updateGeometry();
+    void updateWindowPosRect();
     bool rectContainsNode(const QRect &rect, const core::MapNode *node);
 
     void onWidthChanged();
@@ -98,6 +99,7 @@ private:
     QPainterPath hexagonPainterPath;
     core::MapNode *focusedNode;
     NodeInfo *currentNodeInfo;
+    QRect windowPosRect;
     QPoint windowPos;
     QSize windowSize;
 };

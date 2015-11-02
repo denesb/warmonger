@@ -97,9 +97,12 @@ QPoint MiniMap::getWindowPos() const
 
 void MiniMap::setWindowPos(const QPoint& windowPos)
 {
-    if (this->windowPos != windowPos)
+    QPoint wp(project(windowPos, this->windowPosRect));
+
+    if (this->windowPos != wp)
     {
-        this->windowPos = windowPos;
+        this->windowPos = wp;
+        this->update();
         emit windowPosChanged();
     }
 }
@@ -114,6 +117,8 @@ void MiniMap::setWindowSize(const QSize& windowSize)
     if (this->windowSize != windowSize)
     {
         this->windowSize = windowSize;
+        this->updateWindowPosRect();
+
         emit windowSizeChanged();
     }
 }
@@ -159,25 +164,23 @@ void MiniMap::paint(QPainter *painter)
 
 void MiniMap::mousePressEvent(QMouseEvent *event)
 {
-    const QPoint point = QPoint(event->x(), event->y());
-    wDebug(category) << "press " << point;
-}
+    const qreal rscale = 1 / this->scale;
+    const qreal x = (event->x() * rscale) - this->translate.x();
+    const qreal y = (event->y() * rscale) - this->translate.y();
+    QPoint p(
+        static_cast<int>(x),
+        static_cast<int>(y)
+    );
 
-void MiniMap::mouseReleaseEvent(QMouseEvent *event)
-{
-    const QPointF point = event->localPos();
-    wDebug(category) << "release " << point;
+    this->setWindowPos(p);
 }
 
 void MiniMap::mouseMoveEvent(QMouseEvent *event)
 {
-    const QPointF point = event->localPos();
-    wDebug(category) << "move " << point;
 }
 
 void MiniMap::hoverMoveEvent(QHoverEvent *event)
 {
-    const QPointF point = event->pos();
 }
 
 void MiniMap::setupMap()
@@ -225,7 +228,19 @@ void MiniMap::updateGeometry()
         this->nodesInfo,
         this->tileSize
     );
+
+    this->updateWindowPosRect();
     this->setWindowPos(this->boundingRect.topLeft());
+}
+
+void MiniMap::updateWindowPosRect()
+{
+    this->windowPosRect = QRect(
+        this->boundingRect.x(),
+        this->boundingRect.y(),
+        this->boundingRect.width() - this->windowSize.width(),
+        this->boundingRect.height() - this->windowSize.height()
+    );
 }
 
 void MiniMap::updateTransform()

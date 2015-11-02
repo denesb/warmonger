@@ -52,6 +52,8 @@ QRect calculateBoundingRect(
 
 QPainterPath hexagonPath(const QSize &tileSize);
 
+QPoint project(const QPoint &p, const QRect &r);
+
 } // namespace ui
 } // namespace warmonger
 

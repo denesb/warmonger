@@ -33,6 +33,7 @@ GameMap::GameMap(QQuickItem *parent) :
     hexagonPainterPath(),
     focusedNode(nullptr),
     currentNodeInfo(nullptr),
+    windowPosRect(),
     windowPos(0, 0),
     windowSize(0, 0)
 {
@@ -152,9 +153,13 @@ QPoint GameMap::getWindowPos() const
 
 void GameMap::setWindowPos(const QPoint& windowPos)
 {
+    QPoint wp(project(windowPos, this->windowPosRect));
+
     if (this->windowPos != windowPos)
     {
         this->windowPos = windowPos;
+        this->update();
+
         emit windowPosChanged();
     }
 }
@@ -233,14 +238,10 @@ void GameMap::mousePressEvent(QMouseEvent *event)
 
 void GameMap::mouseReleaseEvent(QMouseEvent *event)
 {
-    const QPointF point = event->localPos();
-    wDebug(category) << "release " << point;
 }
 
 void GameMap::mouseMoveEvent(QMouseEvent *event)
 {
-    const QPointF point = event->localPos();
-    wDebug(category) << "move " << point;
 }
 
 void GameMap::hoverMoveEvent(QHoverEvent *event)
@@ -310,18 +311,34 @@ void GameMap::updateGeometry()
         this->nodesInfo,
         this->tileSize
     );
+
+    this->updateWindowPosRect();
     this->setWindowPos(this->boundingRect.topLeft());
+}
+
+void GameMap::updateWindowPosRect()
+{
+    this->windowPosRect = QRect(
+        this->boundingRect.x(),
+        this->boundingRect.y(),
+        this->boundingRect.width() - this->windowSize.width(),
+        this->boundingRect.height() - this->windowSize.height()
+    );
 }
 
 void GameMap::onWidthChanged()
 {
     this->windowSize.setWidth(this->width());
+    this->updateWindowPosRect();
+
     emit windowSizeChanged();
 }
 
 void GameMap::onHeightChanged()
 {
     this->windowSize.setHeight(this->height());
+    this->updateWindowPosRect();
+
     emit windowSizeChanged();
 }
 

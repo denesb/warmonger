@@ -52,13 +52,13 @@ signals:
 
 protected:
     void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void hoverMoveEvent(QHoverEvent *event);
 
 private:
     void setupMap();
     void updateGeometry();
+    void updateWindowPosRect();
 
     void updateTransform();
 
@@ -74,6 +74,7 @@ private:
     QHash<const core::MapNode *, NodeInfo *> nodesInfo;
     QRect boundingRect;
     QPainterPath hexagonPainterPath;
+    QRect windowPosRect;
     QPoint windowPos;
     QSize windowSize;
 

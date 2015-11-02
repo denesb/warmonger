@@ -131,5 +131,17 @@ QPainterPath hexagonPath(const QSize &tileSize)
     return path;
 }
 
+QPoint project(const QPoint &p, const QRect &r)
+{
+    QPoint pp(p);
+    if (!r.contains(pp))
+    {
+        pp.setX(std::min(std::max(r.left(), pp.x()), r.right()));
+        pp.setY(std::min(std::max(r.top(), pp.y()), r.bottom()));
+    }
+
+    return pp;
+}
+
 } // namespace ui
 } // namespace warmonger

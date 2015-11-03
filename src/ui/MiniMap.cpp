@@ -95,7 +95,7 @@ QPoint MiniMap::getWindowPos() const
     return this->windowPos;
 }
 
-void MiniMap::setWindowPos(const QPoint& windowPos)
+void MiniMap::setWindowPos(const QPoint &windowPos)
 {
     QPoint wp(project(windowPos, this->windowPosRect));
 
@@ -107,12 +107,19 @@ void MiniMap::setWindowPos(const QPoint& windowPos)
     }
 }
 
+void MiniMap::centerWindow(const QPoint &pos)
+{
+    QPointF p = this->mapToMap(QPointF(pos));
+    p -= QPointF(this->windowSize.width(), this->windowSize.height()) / 2.0;
+    this->setWindowPos(p.toPoint());
+}
+
 QSize MiniMap::getWindowSize() const
 {
     return this->windowSize;
 }
 
-void MiniMap::setWindowSize(const QSize& windowSize)
+void MiniMap::setWindowSize(const QSize &windowSize)
 {
     if (this->windowSize != windowSize)
     {
@@ -164,22 +171,15 @@ void MiniMap::paint(QPainter *painter)
 
 void MiniMap::mousePressEvent(QMouseEvent *event)
 {
-    const qreal rscale = 1 / this->scale;
-    QPointF p(event->x(), event->y());
-
-    p *= rscale;
-    p -= this->translate;
-    p -= QPointF(this->windowSize.width(), this->windowSize.height()) / 2.0;
-
-    this->setWindowPos(p.toPoint());
+    this->centerWindow(event->pos());
 }
 
 void MiniMap::mouseMoveEvent(QMouseEvent *event)
 {
-}
-
-void MiniMap::hoverMoveEvent(QHoverEvent *event)
-{
+    if (event->buttons() & Qt::LeftButton)
+    {
+        this->centerWindow(event->pos());
+    }
 }
 
 void MiniMap::setupMap()
@@ -256,6 +256,13 @@ void MiniMap::updateTransform()
 
     this->translate = QPointF(-this->boundingRect.topLeft());
     this->translate += (QPointF(dx, dy) * (1 / this->scale));
+}
+
+
+QPointF MiniMap::mapToMap(const QPointF &p)
+{
+    const qreal rscale = 1 / this->scale;
+    return p * rscale - this->translate;
 }
 
 void MiniMap::drawNode(QPainter *painter, const core::MapNode *node)

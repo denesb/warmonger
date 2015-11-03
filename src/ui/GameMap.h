@@ -52,7 +52,7 @@ public:
     QObject * readCurrentUnit() const;
 
     QPoint getWindowPos() const;
-    void setWindowPos(const QPoint& windowPos);
+    void setWindowPos(const QPoint &windowPos);
 
     QSize getWindowSize() const;
 

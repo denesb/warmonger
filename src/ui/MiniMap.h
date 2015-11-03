@@ -38,7 +38,8 @@ public:
     void writeMap(QObject *map);
 
     QPoint getWindowPos() const;
-    void setWindowPos(const QPoint& windowPos);
+    void setWindowPos(const QPoint &windowPos);
+    void centerWindow(const QPoint &pos);
 
     QSize getWindowSize() const;
     void setWindowSize(const QSize& windowSize);
@@ -53,14 +54,14 @@ signals:
 protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
-    void hoverMoveEvent(QHoverEvent *event);
 
 private:
     void setupMap();
     void updateGeometry();
     void updateWindowPosRect();
-
     void updateTransform();
+
+    QPointF mapToMap(const QPointF &p);
 
     void drawNode(QPainter *painter, const core::MapNode *node);
     void drawContent(QPainter *painter, const core::MapNode *node);

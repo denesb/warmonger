@@ -345,8 +345,8 @@ void GameMap::onHeightChanged()
 bool GameMap::rectContainsNode(const QRect &rect, const core::MapNode *node)
 {
     const QPoint pos = this->nodesInfo[node]->pos;
-    if (!rect.contains(pos))
-        return false;
+    if (rect.contains(pos))
+        return true;
 
     const QRect nodeRect = QRect(pos, this->tileSize);
     return rect.intersects(nodeRect);

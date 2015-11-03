@@ -165,14 +165,13 @@ void MiniMap::paint(QPainter *painter)
 void MiniMap::mousePressEvent(QMouseEvent *event)
 {
     const qreal rscale = 1 / this->scale;
-    const qreal x = (event->x() * rscale) - this->translate.x();
-    const qreal y = (event->y() * rscale) - this->translate.y();
-    QPoint p(
-        static_cast<int>(x),
-        static_cast<int>(y)
-    );
+    QPointF p(event->x(), event->y());
 
-    this->setWindowPos(p);
+    p *= rscale;
+    p -= this->translate;
+    p -= QPointF(this->windowSize.width(), this->windowSize.height()) / 2.0;
+
+    this->setWindowPos(p.toPoint());
 }
 
 void MiniMap::mouseMoveEvent(QMouseEvent *event)

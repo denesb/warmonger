@@ -1,7 +1,6 @@
 import QtQuick 2.2
 import QtQuick.Layouts 1.1
-
-import "js/Map.js" as Map
+import Warmonger 1.0
 
 Rectangle {
     id: root
@@ -17,15 +16,8 @@ Rectangle {
         color: "black"
     }
 
-    onMapChanged: {
-        if (root.map)
-            mapCanvas.jobj = new Map.MapPreview(root.map, mapCanvas);
-        else
-            mapCanvas.jobj = undefined;
-    }
-
     Rectangle {
-        id: mapPreview
+        id: mapPreviewWrapper
         anchors {
             top: parent.top
             bottom: parent.bottom
@@ -39,19 +31,14 @@ Rectangle {
             color: "gold"
         }
 
-        Canvas {
-            id: mapCanvas
+        MapPreview {
+            id: mapPreview
             anchors {
                 fill: parent
                 margins: 2
             }
 
-            property var jobj
-
-            onPaint: {
-                if (mapCanvas.jobj)
-                    mapCanvas.jobj.onPaint(region);
-            }
+            map: root.map
         }
     }
 
@@ -60,7 +47,7 @@ Rectangle {
             top: parent.top
             bottom: parent.bottom
             left: parent.left
-            right: mapPreview.left
+            right: mapPreviewWrapper.left
             margins: 2
         }
 

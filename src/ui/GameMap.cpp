@@ -184,6 +184,8 @@ QSize GameMap::getWindowSize() const
 
 void GameMap::paint(QPainter *painter)
 {
+    painter->save();
+
     painter->setRenderHint(QPainter::Antialiasing, true);
 
     const QRect window = QRect(this->windowPos, this->windowSize);
@@ -229,6 +231,8 @@ void GameMap::paint(QPainter *painter)
     if (this->focusedNode != nullptr)
         this->drawFocusMark(painter, this->focusedNode);
     std::for_each(cbegin, cend, drawContentFunc);
+
+    painter->restore();
 }
 
 void GameMap::mousePressEvent(QMouseEvent *event)

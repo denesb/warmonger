@@ -51,6 +51,7 @@ HEADERS += \
     src/ui/ApplicationContext.h \
     src/ui/GameMap.h \
     src/ui/MiniMap.h \
+    src/ui/MapPreview.h \
     src/ui/MapUtil.h
 
 # app
@@ -99,6 +100,7 @@ SOURCES += \
     src/ui/ApplicationContext.cpp \
     src/ui/GameMap.cpp \
     src/ui/MiniMap.cpp \
+    src/ui/MapPreview.cpp \
     src/ui/MapUtil.cpp
 
 # qml
@@ -122,19 +124,11 @@ OTHER_FILES += \
     src/ui/qml/TextEditGroup.qml \
     src/ui/qml/UnitEdit.qml
 
-# js
-OTHER_FILES += \
-    src/ui/js/Map.js \
-    src/ui/js/MapItem.js
-
 # deplyment
 qml.source = src/ui/qml
 qml.target =
 
-js.source = src/ui/js
-js.target = qml
-
 worlds.source = worlds
 worlds.target =
 
-DEPLOYMENTFOLDERS = qml js worlds
+DEPLOYMENTFOLDERS = qml worlds

@@ -13,7 +13,7 @@
 #include "core/Unit.h"
 #include "core/Util.h"
 #include "core/WorldSurface.h"
-#include "ui/MiniMap.h"
+#include "ui/MapPreview.h"
 
 static const QString category{"ui"};
 
@@ -22,7 +22,7 @@ static qreal calculateScaleFactor(const QSizeF &source, const QSizeF &target);
 using namespace warmonger;
 using namespace warmonger::ui;
 
-MiniMap::MiniMap(QQuickItem *parent) :
+MapPreview::MapPreview(QQuickItem *parent) :
     QQuickPaintedItem(parent),
     nodes(),
     world(nullptr),
@@ -32,38 +32,34 @@ MiniMap::MiniMap(QQuickItem *parent) :
     nodesInfo(),
     boundingRect(),
     hexagonPainterPath(),
-    windowPos(0, 0),
-    windowSize(0, 0),
     scale(1.0),
     translate(0.0, 0.0)
 {
-    this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
-
     QObject::connect(
         this,
-        &MiniMap::widthChanged,
+        &MapPreview::widthChanged,
         this,
-        &MiniMap::updateTransform
+        &MapPreview::updateTransform
     );
 
     QObject::connect(
         this,
-        &MiniMap::heightChanged,
+        &MapPreview::heightChanged,
         this,
-        &MiniMap::updateTransform
+        &MapPreview::updateTransform
     );
 }
 
-MiniMap::~MiniMap()
+MapPreview::~MapPreview()
 {
 }
 
-core::Map * MiniMap::getMap() const
+core::Map * MapPreview::getMap() const
 {
     return this->map;
 }
 
-void MiniMap::setMap(core::Map *map)
+void MapPreview::setMap(core::Map *map)
 {
     if (this->map != map)
     {
@@ -73,75 +69,43 @@ void MiniMap::setMap(core::Map *map)
     }
 }
 
-QObject * MiniMap::readMap() const
+QObject * MapPreview::readMap() const
 {
     return this->map;
 }
 
-void MiniMap::writeMap(QObject *map)
+void MapPreview::writeMap(QObject *map)
 {
+    if (map == nullptr)
+    {
+        this->setMap(nullptr);
+        return;
+    }
+
     core::Map *m = qobject_cast<core::Map *>(map);
     if (m == nullptr)
     {
-        wError(category) << "map is null or has wrong type";
+        wError(category) << "map has wrong type";
         throw core::Exception(core::Exception::InvalidValue);
     }
     this->setMap(m);
 }
 
-QPoint MiniMap::getWindowPos() const
+void MapPreview::paint(QPainter *painter)
 {
-    return this->windowPos;
-}
+    if (this->map == nullptr)
+        return;
 
-void MiniMap::setWindowPos(const QPoint &windowPos)
-{
-    QPoint wp(project(windowPos, this->windowPosRect));
-
-    if (this->windowPos != wp)
-    {
-        this->windowPos = wp;
-        this->update();
-        emit windowPosChanged();
-    }
-}
-
-void MiniMap::centerWindow(const QPoint &pos)
-{
-    QPointF p(pos);
-    p -= QPointF(this->windowSize.width(), this->windowSize.height()) / 2.0;
-    this->setWindowPos(p.toPoint());
-}
-
-QSize MiniMap::getWindowSize() const
-{
-    return this->windowSize;
-}
-
-void MiniMap::setWindowSize(const QSize &windowSize)
-{
-    if (this->windowSize != windowSize)
-    {
-        this->windowSize = windowSize;
-        this->updateWindowPosRect();
-
-        emit windowSizeChanged();
-    }
-}
-
-void MiniMap::paint(QPainter *painter)
-{
     painter->save();
 
     painter->setRenderHint(QPainter::Antialiasing, true);
-
     painter->scale(this->scale, this->scale);
     painter->translate(this->translate);
 
     auto cbegin = this->nodes.constBegin();
     auto cend = this->nodes.constEnd();
     std::function<void(const core::MapNode *)> drawNodeFunc = std::bind(
-        &MiniMap::drawNode,
+        &MapPreview::drawNode,
         this,
         painter,
         std::placeholders::_1
@@ -149,35 +113,25 @@ void MiniMap::paint(QPainter *painter)
 
     std::for_each(cbegin, cend, drawNodeFunc);
 
-    const QColor windowColor("black");
-    QPen pen(windowColor);
-    pen.setWidthF(1 / this->scale);
-
-    const QRect window(this->windowPos, this->windowSize);
-
-    painter->setPen(pen);
-    painter->drawRect(window);
-
     painter->restore();
 }
 
-void MiniMap::mousePressEvent(QMouseEvent *event)
+void MapPreview::setupMap()
 {
-    QPointF pos(this->mapToMap(event->pos()));
-    this->centerWindow(pos.toPoint());
-}
-
-void MiniMap::mouseMoveEvent(QMouseEvent *event)
-{
-    if (event->buttons() & Qt::LeftButton)
+    if (this->map == nullptr)
     {
-        QPointF pos(this->mapToMap(event->pos()));
-        this->centerWindow(pos.toPoint());
-    }
-}
+        this->nodes = QList<core::MapNode *>();
+        this->world = nullptr;
+        this->surface = nullptr;
+        this->tileSize = QSize();
+        this->hexagonPainterPath = QPainterPath();
+        this->nodesInfo.clear();
+        this->boundingRect = QRect();
 
-void MiniMap::setupMap()
-{
+        this->update();
+        return;
+    }
+
     // these are used a lot
     this->nodes = this->map->getMapNodes();
     this->world = this->map->getWorld();
@@ -213,30 +167,19 @@ void MiniMap::setupMap()
     );
 
     this->updateGeometry();
+    this->update();
 }
 
-void MiniMap::updateGeometry()
+void MapPreview::updateGeometry()
 {
     this->boundingRect = calculateBoundingRect(
         this->nodesInfo,
         this->tileSize
     );
-
-    this->updateWindowPosRect();
-    this->setWindowPos(this->boundingRect.topLeft());
+    this->updateTransform();
 }
 
-void MiniMap::updateWindowPosRect()
-{
-    this->windowPosRect = QRect(
-        this->boundingRect.x(),
-        this->boundingRect.y(),
-        this->boundingRect.width() - this->windowSize.width(),
-        this->boundingRect.height() - this->windowSize.height()
-    );
-}
-
-void MiniMap::updateTransform()
+void MapPreview::updateTransform()
 {
     this->scale = calculateScaleFactor(
         QSizeF(this->boundingRect.size()),
@@ -252,14 +195,7 @@ void MiniMap::updateTransform()
     this->translate += (QPointF(dx, dy) * (1 / this->scale));
 }
 
-
-QPointF MiniMap::mapToMap(const QPointF &p)
-{
-    const qreal rscale = 1 / this->scale;
-    return p * rscale - this->translate;
-}
-
-void MiniMap::drawNode(QPainter *painter, const core::MapNode *node)
+void MapPreview::drawNode(QPainter *painter, const core::MapNode *node)
 {
     const NodeInfo *nodeInfo = this->nodesInfo[node];
     const QString terrainTypeName = node->getTerrainType()->objectName();
@@ -267,7 +203,7 @@ void MiniMap::drawNode(QPainter *painter, const core::MapNode *node)
     const core::Unit *unit = nodeInfo->unit;
 
     painter->save();
-    painter->translate(this->nodesInfo[node]->pos);
+    painter->translate(nodeInfo->pos);
 
     const QColor color = this->surface->getColor(terrainTypeName);
     painter->fillPath(this->hexagonPainterPath, color);

@@ -4,6 +4,7 @@
 #include "Warmonger.h"
 #include "ui/GameMap.h"
 #include "ui/MiniMap.h"
+#include "ui/MapPreview.h"
 #include "log/LogStream.h"
 #include "log/ConsoleHandler.h"
 #include "log/Formatter.h"
@@ -51,6 +52,7 @@ void Warmonger::initUi()
 
     qmlRegisterType<ui::GameMap>("Warmonger", 1, 0, "GameMap");
     qmlRegisterType<ui::MiniMap>("Warmonger", 1, 0, "MiniMap");
+    qmlRegisterType<ui::MapPreview>("Warmonger", 1, 0, "MapPreview");
 
     this->viewer.rootContext()->setContextProperty("W", this->ctx);
 

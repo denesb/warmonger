@@ -37,7 +37,6 @@ MiniMap::MiniMap(QQuickItem *parent) :
     scale(1.0),
     translate(0.0, 0.0)
 {
-    this->setAcceptHoverEvents(true);
     this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
 
     QObject::connect(
@@ -109,7 +108,7 @@ void MiniMap::setWindowPos(const QPoint &windowPos)
 
 void MiniMap::centerWindow(const QPoint &pos)
 {
-    QPointF p = this->mapToMap(QPointF(pos));
+    QPointF p(pos);
     p -= QPointF(this->windowSize.width(), this->windowSize.height()) / 2.0;
     this->setWindowPos(p.toPoint());
 }
@@ -171,14 +170,16 @@ void MiniMap::paint(QPainter *painter)
 
 void MiniMap::mousePressEvent(QMouseEvent *event)
 {
-    this->centerWindow(event->pos());
+    QPointF pos(this->mapToMap(event->pos()));
+    this->centerWindow(pos.toPoint());
 }
 
 void MiniMap::mouseMoveEvent(QMouseEvent *event)
 {
     if (event->buttons() & Qt::LeftButton)
     {
-        this->centerWindow(event->pos());
+        QPointF pos(this->mapToMap(event->pos()));
+        this->centerWindow(pos.toPoint());
     }
 }
 

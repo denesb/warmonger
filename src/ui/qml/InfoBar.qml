@@ -156,7 +156,7 @@ Rectangle {
                 if (root.unit) {
                     var text = "";
 
-                    if (u.displayName != "")
+                    if (root.unit.displayName != "")
                         text += root.unit.displayName + " ";
                     text += root.unit.unitType.displayName;
                     text;

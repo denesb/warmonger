@@ -53,6 +53,8 @@ public:
 
     QPoint getWindowPos() const;
     void setWindowPos(const QPoint &windowPos);
+    void centerWindow(const QPoint &pos);
+    void moveWindowBy(const QPoint &diff);
 
     QSize getWindowSize() const;
 
@@ -70,7 +72,6 @@ signals:
 
 protected:
     void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void hoverMoveEvent(QHoverEvent *event);
 
@@ -79,6 +80,7 @@ private:
     void updateGeometry();
     void updateWindowPosRect();
     bool rectContainsNode(const QRect &rect, const core::MapNode *node);
+    QPoint mapToMap(const QPoint &p);
 
     void onWidthChanged();
     void onHeightChanged();
@@ -102,6 +104,7 @@ private:
     QRect windowPosRect;
     QPoint windowPos;
     QSize windowSize;
+    QPoint lastPos;
 };
 
 } // namespace ui

@@ -35,7 +35,8 @@ GameMap::GameMap(QQuickItem *parent) :
     currentNodeInfo(nullptr),
     windowPosRect(),
     windowPos(0, 0),
-    windowSize(0, 0)
+    windowSize(0, 0),
+    lastPos(0, 0)
 {
     this->setAcceptHoverEvents(true);
     this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
@@ -155,13 +156,25 @@ void GameMap::setWindowPos(const QPoint& windowPos)
 {
     QPoint wp(project(windowPos, this->windowPosRect));
 
-    if (this->windowPos != windowPos)
+    if (this->windowPos != wp)
     {
-        this->windowPos = windowPos;
+        this->windowPos = wp;
         this->update();
 
         emit windowPosChanged();
     }
+}
+
+void GameMap::centerWindow(const QPoint &pos)
+{
+    QPoint ws(this->windowSize.width(), this->windowSize.height());
+    this->setWindowPos(pos - ws / 2);
+}
+
+void GameMap::moveWindowBy(const QPoint &diff)
+{
+    const QPoint newPos(this->windowPos + diff);
+    this->setWindowPos(newPos);
 }
 
 QSize GameMap::getWindowSize() const
@@ -220,13 +233,13 @@ void GameMap::paint(QPainter *painter)
 
 void GameMap::mousePressEvent(QMouseEvent *event)
 {
-    const QPoint point = QPoint(event->x(), event->y());
-    wDebug(category) << "press " << point;
+    this->lastPos = event->pos();
+    const QPoint pos(this->mapToMap(event->pos()));
 
     auto cbegin = this->nodes.constBegin();
     auto cend = this->nodes.constEnd();
     auto it = std::find_if(cbegin, cend, [&](const core::MapNode *node) {
-        return this->surface->hexContains(point - this->nodesInfo[node]->pos);
+        return this->surface->hexContains(pos - this->nodesInfo[node]->pos);
     });
 
     core::MapNode *focusedNode = it == cend ? nullptr : *it;
@@ -236,23 +249,21 @@ void GameMap::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void GameMap::mouseReleaseEvent(QMouseEvent *event)
-{
-}
-
 void GameMap::mouseMoveEvent(QMouseEvent *event)
 {
+    this->moveWindowBy(lastPos - event->pos());
+
+    this->lastPos = event->pos();
 }
 
 void GameMap::hoverMoveEvent(QHoverEvent *event)
 {
-    const QPointF point = event->pos();
+    const QPoint pos(this->mapToMap(event->pos()));
 
     auto cbegin = this->nodes.constBegin();
     auto cend = this->nodes.constEnd();
     auto it = std::find_if(cbegin, cend, [&](const core::MapNode *node) {
-        const QPointF pos = point - QPointF(this->nodesInfo[node]->pos);
-        return this->surface->hexContains(pos);
+        return this->surface->hexContains(pos - this->nodesInfo[node]->pos);
     });
 
     NodeInfo *nodeInfo = it == cend ? nullptr : this->nodesInfo[*it];
@@ -324,6 +335,11 @@ void GameMap::updateWindowPosRect()
         this->boundingRect.width() - this->windowSize.width(),
         this->boundingRect.height() - this->windowSize.height()
     );
+}
+
+QPoint GameMap::mapToMap(const QPoint &p)
+{
+    return p + this->windowPos;
 }
 
 void GameMap::onWidthChanged()

@@ -69,7 +69,7 @@ Rectangle {
                 id: miniMap
 
                 map: W.game
-                /*windowPos: map.windowPos*/
+                windowPos: map.windowPos
                 windowSize: map.windowSize
 
                 anchors {

@@ -2,8 +2,6 @@ import QtQuick 2.2
 import QtQuick.Controls 1.1
 import Warmonger 1.0
 
-import "js/Map.js" as Map
-
 Rectangle {
     id: root
 

@@ -23,20 +23,8 @@ public:
 
     Q_INVOKABLE virtual QString fileExtension() const;
 
-    Q_INVOKABLE QVariantList reachableMapNodes(QObject *unit) const;
-    QList<MapNode *> reachableMapNodes(Unit *unit) const;
-    void reachableMapNodes(
-        QSet<MapNode *> &reachedNodes,
-        MapNode *node,
-        Unit *unit,
-        double mp
-    ) const;
+    QSet<MapNode *> reachableMapNodes(Unit *unit) const;
 
-    Q_INVOKABLE QVariantList shortestPath(
-        QObject *unit,
-        QObject *node1,
-        QObject *node2
-    ) const;
     QList<MapNode *> shortestPath(
         Unit *unit,
         MapNode *node1,
@@ -48,6 +36,13 @@ public:
 signals:
 
 private:
+    void reachableMapNodes(
+        QSet<MapNode *> &reachedNodes,
+        MapNode *node,
+        Unit *unit,
+        double mp
+    ) const;
+
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 

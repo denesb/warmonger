@@ -89,6 +89,7 @@ private:
     void drawGrid(QPainter *painter, const core::MapNode *node);
     void drawFocusMark(QPainter *painter, const core::MapNode *node);
     void drawContent(QPainter *painter, const core::MapNode *node);
+    void drawOverlay(QPainter *painter, core::MapNode *node);
 
     QList<core::MapNode *> nodes;
     core::World *world;
@@ -99,12 +100,14 @@ private:
     QHash<const core::MapNode *, NodeInfo *> nodesInfo;
     QRect boundingRect;
     QPainterPath hexagonPainterPath;
-    core::MapNode *focusedNode;
+    NodeInfo *focusedNodeInfo;
     NodeInfo *currentNodeInfo;
     QRect windowPosRect;
     QPoint windowPos;
     QSize windowSize;
     QPoint lastPos;
+    QSet<core::MapNode *> reachableNodes;
+    QSet<core::MapNode *> pathNodes;
 };
 
 } // namespace ui

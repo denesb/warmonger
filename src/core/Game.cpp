@@ -43,20 +43,7 @@ QString Game::fileExtension() const
     return "wgd";
 }
 
-QVariantList Game::reachableMapNodes(QObject *unit) const
-{
-    Unit *u = qobject_cast<Unit *>(unit);
-    if (u == nullptr)
-    {
-        wError(category) << "unit is null or has wrong type";
-        throw Exception(Exception::InvalidValue);
-    }
-    QList<MapNode *> reachableNodes = this->reachableMapNodes(u);
-
-    return toQVariantList<MapNode>(reachableNodes);
-}
-
-QList<MapNode *> Game::reachableMapNodes(Unit *unit) const
+QSet<MapNode *> Game::reachableMapNodes(Unit *unit) const
 {
     QSet<MapNode *> reachableNodes;
     this->reachableMapNodes(
@@ -66,66 +53,7 @@ QList<MapNode *> Game::reachableMapNodes(Unit *unit) const
         unit->getMovementPoints()
     );
 
-    return std::move(reachableNodes.toList());
-}
-
-void Game::reachableMapNodes(
-    QSet<MapNode *> &reachedNodes,
-    MapNode *node,
-    Unit *unit,
-    double mp
-) const
-{
-    UnitClass *klass = unit->getUnitType()->getUnitClass();
-
-    QHash<MapNode::Direction, MapNode *> neighbours = node->getNeighbours();
-    for (MapNode *neighbour : neighbours)
-    {
-        if (neighbour == nullptr)
-            continue;
-
-        double cost = movementCost(klass, node, neighbour);
-        if (mp >= cost)
-        {
-            reachedNodes << neighbour;
-            this->reachableMapNodes(
-                reachedNodes,
-                neighbour,
-                unit,
-                mp - cost
-            );
-        }
-    }
-}
-
-QVariantList Game::shortestPath(
-    QObject *unit,
-    QObject *node1,
-    QObject *node2
-) const
-{
-    Unit *u = qobject_cast<Unit *>(unit);
-    if (u == nullptr)
-    {
-        wError(category) << "unit is null or has wrong type";
-        throw Exception(Exception::InvalidValue);
-    }
-    MapNode *n1 = qobject_cast<MapNode *>(node1);
-    if (n1 == nullptr)
-    {
-        wError(category) << "node1 is null or has wrong type";
-        throw Exception(Exception::InvalidValue);
-    }
-    MapNode *n2 = qobject_cast<MapNode *>(node2);
-    if (n2 == nullptr)
-    {
-        wError(category) << "node2 is null or has wrong type";
-        throw Exception(Exception::InvalidValue);
-    }
-
-    QList<MapNode *> path = this->shortestPath(u, n1, n2);
-
-    return toQVariantList<MapNode>(path);
+    return std::move(reachableNodes);
 }
 
 QList<MapNode *> Game::shortestPath(
@@ -158,6 +86,35 @@ QList<MapNode *> Game::shortestPath(
         path.clear(); // the path is no good
 
     return path;
+}
+
+void Game::reachableMapNodes(
+    QSet<MapNode *> &reachedNodes,
+    MapNode *node,
+    Unit *unit,
+    double mp
+) const
+{
+    UnitClass *klass = unit->getUnitType()->getUnitClass();
+
+    QHash<MapNode::Direction, MapNode *> neighbours = node->getNeighbours();
+    for (MapNode *neighbour : neighbours)
+    {
+        if (neighbour == nullptr)
+            continue;
+
+        double cost = movementCost(klass, node, neighbour);
+        if (mp >= cost)
+        {
+            reachedNodes << neighbour;
+            this->reachableMapNodes(
+                reachedNodes,
+                neighbour,
+                unit,
+                mp - cost
+            );
+        }
+    }
 }
 
 void Game::fromMapJson(const QJsonObject &obj)

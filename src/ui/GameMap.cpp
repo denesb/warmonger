@@ -31,12 +31,14 @@ GameMap::GameMap(QQuickItem *parent) :
     nodesInfo(),
     boundingRect(),
     hexagonPainterPath(),
-    focusedNode(nullptr),
+    focusedNodeInfo(nullptr),
     currentNodeInfo(nullptr),
     windowPosRect(),
     windowPos(0, 0),
     windowSize(0, 0),
-    lastPos(0, 0)
+    lastPos(0, 0),
+    reachableNodes(),
+    pathNodes()
 {
     this->setAcceptHoverEvents(true);
     this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
@@ -225,12 +227,19 @@ void GameMap::paint(QPainter *painter)
         painter,
         std::placeholders::_1
     );
+    std::function<void(core::MapNode *)> drawOverlayFunc = std::bind(
+        &GameMap::drawOverlay,
+        this,
+        painter,
+        std::placeholders::_1
+    );
 
     std::for_each(cbegin, cend, drawNodeFunc);
     std::for_each(cbegin, cend, drawGridFunc);
-    if (this->focusedNode != nullptr)
-        this->drawFocusMark(painter, this->focusedNode);
+    if (this->focusedNodeInfo != nullptr)
+        this->drawFocusMark(painter, this->focusedNodeInfo->node);
     std::for_each(cbegin, cend, drawContentFunc);
+    std::for_each(cbegin, cend, drawOverlayFunc);
 
     painter->restore();
 }
@@ -247,10 +256,27 @@ void GameMap::mousePressEvent(QMouseEvent *event)
     });
 
     core::MapNode *focusedNode = it == cend ? nullptr : *it;
-    if (this->focusedNode != focusedNode) {
-        this->focusedNode = focusedNode;
-        this->update();
+    if (focusedNode != nullptr)
+    {
+        NodeInfo *focusedNodeInfo = this->nodesInfo[focusedNode];
+        if (this->focusedNodeInfo != focusedNodeInfo) {
+            this->focusedNodeInfo = focusedNodeInfo;
+        }
     }
+
+    if (this->focusedNodeInfo != nullptr &&
+        this->focusedNodeInfo->unit != nullptr)
+    {
+        this->reachableNodes = this->game->reachableMapNodes(
+            this->focusedNodeInfo->unit
+        );
+    }
+    else
+    {
+        this->reachableNodes.clear();
+    }
+
+    this->update();
 }
 
 void GameMap::mouseMoveEvent(QMouseEvent *event)
@@ -279,6 +305,24 @@ void GameMap::hoverMoveEvent(QHoverEvent *event)
         emit currentSettlementChanged();
         emit currentUnitChanged();
     }
+
+    if (this->focusedNodeInfo != nullptr &&
+        this->focusedNodeInfo->unit != nullptr &&
+        this->currentNodeInfo != nullptr)
+    {
+        QList<core::MapNode *> path = this->game->shortestPath(
+            this->focusedNodeInfo->unit,
+            this->focusedNodeInfo->node,
+            this->currentNodeInfo->node
+        );
+        this->pathNodes = QSet<core::MapNode *>::fromList(path);
+    }
+    else
+    {
+        this->pathNodes.clear();
+    }
+
+    this->update();
 }
 
 void GameMap::setupMap()
@@ -430,5 +474,41 @@ void GameMap::drawContent(QPainter *painter, const core::MapNode *node)
         const core::UnitType *ut = unit->getUnitType();
         const QImage image = this->surface->getImage(ut->objectName());
         painter->drawImage(frame, image);
+    }
+}
+
+void GameMap::drawOverlay(QPainter *painter, core::MapNode *node)
+{
+    if (this->focusedNodeInfo == nullptr ||
+        this->focusedNodeInfo->unit == nullptr)
+        return;
+
+    bool hasOverlay = false;
+    QColor color;
+    if (this->reachableNodes.contains(node))
+    {
+        if (this->pathNodes.contains(node))
+        {
+            hasOverlay = true;
+            color.setNamedColor("green");
+        }
+    }
+    else
+    {
+        hasOverlay = true;
+        color.setNamedColor("black");
+    }
+
+    if (hasOverlay)
+    {
+        color.setAlphaF(0.5);
+        const QBrush brush(color);
+
+        painter->save();
+        painter->translate(this->nodesInfo[node]->pos);
+
+        painter->fillPath(this->hexagonPainterPath, brush);
+
+        painter->restore();
     }
 }

@@ -23,12 +23,14 @@ struct NodeInfo
 {
     NodeInfo(core::MapNode *node) :
         pos(),
+        center(),
         node(node),
         settlement(nullptr),
         unit(nullptr)
     {}
 
     QPoint pos;
+    QPointF center;
     core::MapNode *node;
     core::Settlement *settlement;
     core::Unit *unit;

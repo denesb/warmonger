@@ -65,6 +65,10 @@ void positionNodes(
 
         NodeInfo *nodeInfo = new NodeInfo(neighbour);
         nodeInfo->pos = neighbourPos(pos, dir, tileSize);
+        nodeInfo->center = QPointF(
+            nodeInfo->pos.x() - tileSize.width() / 2.0,
+            nodeInfo->pos.y() - tileSize.height() / 2.0
+        );
         nodesInfo.insert(neighbour, nodeInfo);
 
         positionNodes(neighbour, nodesInfo, tileSize);

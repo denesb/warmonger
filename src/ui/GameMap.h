@@ -2,6 +2,7 @@
 #define UI_GAME_MAP_H
 
 #include <QHash>
+#include <QLineF>
 #include <QPainterPath>
 #include <QRect>
 #include <QtQuick/QQuickPaintedItem>
@@ -13,6 +14,7 @@ namespace warmonger {
 namespace core {
     class Game;
     class MapNode;
+    class Unit;
     class World;
     class WorldSurface;
 }
@@ -96,28 +98,41 @@ private:
     void drawGrid(QPainter *painter, const core::MapNode *node);
     void drawFocusMark(QPainter *painter, const core::MapNode *node);
     void drawContent(QPainter *painter, const core::MapNode *node);
+    void drawMovingUnit(QPainter *painter);
     void drawOverlay(QPainter *painter, core::MapNode *node);
 
     void updateFocus(const QPoint &p);
     void moveUnit(const QPoint &p);
+    void advanceUnit();
+    qreal stepUnitTorwards(NodeInfo *n);
 
-    QList<core::MapNode *> nodes;
+    static const qreal unitStep;
+
+    core::Game *game;
     core::World *world;
     core::WorldSurface *surface;
     QSize tileSize;
 
-    core::Game *game;
+    QList<core::MapNode *> nodes;
     QHash<const core::MapNode *, NodeInfo *> nodesInfo;
-    QRect boundingRect;
-    QPainterPath hexagonPainterPath;
+    QSet<core::MapNode *> reachableNodes;
+    QSet<core::MapNode *> pathNodes;
+
     NodeInfo *focusedNodeInfo;
     NodeInfo *currentNodeInfo;
+
+    core::Unit *movingUnit;
+    QList<core::MapNode *> unitPath;
+    int nextNodeIndex;
+    QPointF unitPos;
+    QTimer *unitMoveTimer;
+
+    QRect boundingRect;
+    QPainterPath hexagonPainterPath;
     QRect windowPosRect;
     QPoint windowPos;
     QSize windowSize;
     QPoint lastPos;
-    QSet<core::MapNode *> reachableNodes;
-    QSet<core::MapNode *> pathNodes;
 };
 
 } // namespace ui

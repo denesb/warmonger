@@ -246,37 +246,14 @@ void GameMap::paint(QPainter *painter)
 
 void GameMap::mousePressEvent(QMouseEvent *event)
 {
-    this->lastPos = event->pos();
-    const QPoint pos(this->mapToMap(event->pos()));
-
-    auto cbegin = this->nodes.constBegin();
-    auto cend = this->nodes.constEnd();
-    auto it = std::find_if(cbegin, cend, [&](const core::MapNode *node) {
-        return this->surface->hexContains(pos - this->nodesInfo[node]->pos);
-    });
-
-    core::MapNode *focusedNode = it == cend ? nullptr : *it;
-    if (focusedNode != nullptr)
+    if (event->buttons() == Qt::LeftButton)
     {
-        NodeInfo *focusedNodeInfo = this->nodesInfo[focusedNode];
-        if (this->focusedNodeInfo != focusedNodeInfo) {
-            this->focusedNodeInfo = focusedNodeInfo;
-        }
+        this->updateFocus(event->pos());
     }
-
-    if (this->focusedNodeInfo != nullptr &&
-        this->focusedNodeInfo->unit != nullptr)
+    else if (event->buttons() == Qt::RightButton)
     {
-        this->reachableNodes = this->game->reachableMapNodes(
-            this->focusedNodeInfo->unit
-        );
+        this->moveUnit(event->pos());
     }
-    else
-    {
-        this->reachableNodes.clear();
-    }
-
-    this->update();
 }
 
 void GameMap::mouseMoveEvent(QMouseEvent *event)
@@ -289,40 +266,12 @@ void GameMap::mouseMoveEvent(QMouseEvent *event)
 void GameMap::hoverMoveEvent(QHoverEvent *event)
 {
     const QPoint pos(this->mapToMap(event->pos()));
+    NodeInfo *nodeInfo = findNodeInfo(this->surface, this->nodesInfo, pos);
 
-    auto cbegin = this->nodes.constBegin();
-    auto cend = this->nodes.constEnd();
-    auto it = std::find_if(cbegin, cend, [&](const core::MapNode *node) {
-        return this->surface->hexContains(pos - this->nodesInfo[node]->pos);
-    });
-
-    NodeInfo *nodeInfo = it == cend ? nullptr : this->nodesInfo[*it];
     if (this->currentNodeInfo != nodeInfo) {
         this->currentNodeInfo = nodeInfo;
-        emit currentMapNodeInfoChanged();
-        emit currentMapNodeChanged();
-        emit currentPosChanged();
-        emit currentSettlementChanged();
-        emit currentUnitChanged();
+        this->onCurrentNodeInfoChanged();
     }
-
-    if (this->focusedNodeInfo != nullptr &&
-        this->focusedNodeInfo->unit != nullptr &&
-        this->currentNodeInfo != nullptr)
-    {
-        QList<core::MapNode *> path = this->game->shortestPath(
-            this->focusedNodeInfo->unit,
-            this->focusedNodeInfo->node,
-            this->currentNodeInfo->node
-        );
-        this->pathNodes = QSet<core::MapNode *>::fromList(path);
-    }
-    else
-    {
-        this->pathNodes.clear();
-    }
-
-    this->update();
 }
 
 void GameMap::setupMap()
@@ -404,6 +353,56 @@ void GameMap::onHeightChanged()
     this->updateWindowPosRect();
 
     emit windowSizeChanged();
+}
+
+void GameMap::onFocusedNodeInfoChanged()
+{
+    if (this->focusedNodeInfo != nullptr &&
+        this->focusedNodeInfo->unit != nullptr)
+    {
+        this->reachableNodes = this->game->reachableMapNodes(
+            this->focusedNodeInfo->unit
+        );
+    }
+    else
+    {
+        this->reachableNodes.clear();
+    }
+
+    emit focusedMapNodeInfoChanged();
+    emit focusedMapNodeChanged();
+    emit focusedPosChanged();
+    emit focusedSettlementChanged();
+    emit focusedUnitChanged();
+
+    this->update();
+}
+
+void GameMap::onCurrentNodeInfoChanged()
+{
+    if (this->focusedNodeInfo != nullptr &&
+        this->focusedNodeInfo->unit != nullptr &&
+        this->currentNodeInfo != nullptr)
+    {
+        QList<core::MapNode *> path = this->game->shortestPath(
+            this->focusedNodeInfo->unit,
+            this->focusedNodeInfo->node,
+            this->currentNodeInfo->node
+        );
+        this->pathNodes = QSet<core::MapNode *>::fromList(path);
+    }
+    else
+    {
+        this->pathNodes.clear();
+    }
+
+    emit currentMapNodeInfoChanged();
+    emit currentMapNodeChanged();
+    emit currentPosChanged();
+    emit currentSettlementChanged();
+    emit currentUnitChanged();
+
+    this->update();
 }
 
 bool GameMap::rectContainsNode(const QRect &rect, const core::MapNode *node)
@@ -511,4 +510,42 @@ void GameMap::drawOverlay(QPainter *painter, core::MapNode *node)
 
         painter->restore();
     }
+}
+
+void GameMap::updateFocus(const QPoint &p)
+{
+    this->lastPos = p;
+    const QPoint pos(this->mapToMap(p));
+    NodeInfo *focusedNodeInfo = findNodeInfo(
+        this->surface,
+        this->nodesInfo,
+        pos
+    );
+
+    if (this->focusedNodeInfo != focusedNodeInfo) {
+        this->focusedNodeInfo = focusedNodeInfo;
+        this->onFocusedNodeInfoChanged();
+    }
+}
+
+void GameMap::moveUnit(const QPoint &p)
+{
+    if (this->focusedNodeInfo == nullptr ||
+        this->focusedNodeInfo->unit == nullptr)
+        return;
+
+    NodeInfo *destinationNodeInfo = findNodeInfo(
+        this->surface,
+        this->nodesInfo,
+        pos
+    );
+
+    if (destinationNodeInfo == nullptr)
+        return;
+
+    QList<core::MapNode *> path = this->game->shortestPath(
+        this->focusedNodeInfo->unit,
+        this->focusedNodeInfo->node,
+        destinationNodeInfo->node
+    );
 }

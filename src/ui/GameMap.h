@@ -62,6 +62,11 @@ public:
 
 signals:
     void gameChanged();
+    void focusedMapNodeInfoChanged();
+    void focusedMapNodeChanged();
+    void focusedPosChanged();
+    void focusedSettlementChanged();
+    void focusedUnitChanged();
     void currentMapNodeInfoChanged();
     void currentMapNodeChanged();
     void currentPosChanged();
@@ -84,12 +89,17 @@ private:
 
     void onWidthChanged();
     void onHeightChanged();
+    void onFocusedNodeInfoChanged();
+    void onCurrentNodeInfoChanged();
 
     void drawNode(QPainter *painter, const core::MapNode *node);
     void drawGrid(QPainter *painter, const core::MapNode *node);
     void drawFocusMark(QPainter *painter, const core::MapNode *node);
     void drawContent(QPainter *painter, const core::MapNode *node);
     void drawOverlay(QPainter *painter, core::MapNode *node);
+
+    void updateFocus(const QPoint &p);
+    void moveUnit(const QPoint &p);
 
     QList<core::MapNode *> nodes;
     core::World *world;

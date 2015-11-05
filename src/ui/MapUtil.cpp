@@ -1,6 +1,7 @@
 #include <QSize>
 
 #include "ui/MapUtil.h"
+#include "core/WorldSurface.h"
 
 namespace warmonger {
 namespace ui {
@@ -141,6 +142,22 @@ QPoint project(const QPoint &p, const QRect &r)
     }
 
     return pp;
+}
+
+NodeInfo * findNodeInfo(
+    const core::WorldSurface *surface,
+    const QHash<const core::MapNode *, NodeInfo *> &nodesInfo,
+    const QPoint &pos
+)
+{
+    auto cbegin = nodesInfo.constBegin();
+    auto cend = nodesInfo.constEnd();
+
+    auto it = std::find_if(cbegin, cend, [&](const NodeInfo *nodeInfo) {
+        return surface->hexContains(pos - nodeInfo->pos);
+    });
+
+    return it == cend ? nullptr : it.value();
 }
 
 } // namespace ui

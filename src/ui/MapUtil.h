@@ -14,6 +14,7 @@ namespace warmonger {
 namespace core {
     class Settlement;
     class Unit;
+    class WorldSurface;
 }
 
 namespace ui {
@@ -53,6 +54,12 @@ QRect calculateBoundingRect(
 QPainterPath hexagonPath(const QSize &tileSize);
 
 QPoint project(const QPoint &p, const QRect &r);
+
+NodeInfo * findNodeInfo(
+    const core::WorldSurface *surface,
+    const QHash<const core::MapNode *, NodeInfo *> &nodesInfo,
+    const QPoint &pos
+);
 
 } // namespace ui
 } // namespace warmonger

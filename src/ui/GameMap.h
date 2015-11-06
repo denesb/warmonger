@@ -21,6 +21,8 @@ namespace core {
 
 namespace ui {
 
+struct MovingUnit;
+
 class GameMap :
     public QQuickPaintedItem
 {
@@ -98,15 +100,13 @@ private:
     void drawGrid(QPainter *painter, const core::MapNode *node);
     void drawFocusMark(QPainter *painter, const core::MapNode *node);
     void drawContent(QPainter *painter, const core::MapNode *node);
-    void drawMovingUnit(QPainter *painter);
+    void drawMovingUnit(QPainter *painter, const MovingUnit *movingUnit);
     void drawOverlay(QPainter *painter, core::MapNode *node);
 
     void updateFocus(const QPoint &p);
     void moveUnit(const QPoint &p);
-    void advanceUnit();
-    qreal stepUnitTorwards(NodeInfo *n);
-
-    static const qreal unitStep;
+    void advanceUnits();
+    qreal stepUnitTorwards(MovingUnit *u, NodeInfo *n);
 
     core::Game *game;
     core::World *world;
@@ -121,11 +121,8 @@ private:
     NodeInfo *focusedNodeInfo;
     NodeInfo *currentNodeInfo;
 
-    core::Unit *movingUnit;
-    QList<core::MapNode *> unitPath;
-    int nextNodeIndex;
-    QPointF unitPos;
     QTimer *unitMoveTimer;
+    QList<MovingUnit *> movingUnits;
 
     QRect boundingRect;
     QPainterPath hexagonPainterPath;

@@ -19,10 +19,51 @@
 
 static const QString category{"ui"};
 
+namespace warmonger {
+namespace ui {
+
+struct MovingUnit
+{
+    MovingUnit(
+        core::Unit *unit,
+        const QList<core::MapNode *> &path,
+        const QPointF &pos
+    ) :
+        unit(unit),
+        path(path),
+        pos(pos),
+        index(1)
+    {
+        MovingUnit::movingUnits.insert(unit);
+    }
+
+    ~MovingUnit()
+    {
+        MovingUnit::movingUnits.remove(unit);
+    }
+
+    core::MapNode * nextNode() const
+    {
+        return this->path[this->index];
+    }
+
+    static const qreal unitStep;
+    static QSet<const core::Unit *> movingUnits;
+
+    core::Unit *unit;
+    QList<core::MapNode *> path;
+    QPointF pos;
+    int index;
+};
+
+QSet<const core::Unit *> MovingUnit::movingUnits{};
+const qreal MovingUnit::unitStep{1.0};
+
+} // namespace ui
+} // namespace warmonger
+
 using namespace warmonger;
 using namespace warmonger::ui;
-
-const qreal GameMap::unitStep{1.0};
 
 GameMap::GameMap(QQuickItem *parent) :
     QQuickPaintedItem(parent),
@@ -36,11 +77,8 @@ GameMap::GameMap(QQuickItem *parent) :
     pathNodes(),
     focusedNodeInfo(nullptr),
     currentNodeInfo(nullptr),
-    movingUnit(nullptr),
-    unitPath(),
-    nextNodeIndex(0),
-    unitPos(),
     unitMoveTimer(new QTimer()),
+    movingUnits(),
     boundingRect(),
     hexagonPainterPath(),
     windowPosRect(),
@@ -69,8 +107,10 @@ GameMap::GameMap(QQuickItem *parent) :
         this->unitMoveTimer,
         &QTimer::timeout,
         this,
-        &GameMap::advanceUnit
+        &GameMap::advanceUnits
     );
+
+    this->unitMoveTimer->start(1000/20);
 }
 
 GameMap::~GameMap()
@@ -249,6 +289,13 @@ void GameMap::paint(QPainter *painter)
         std::placeholders::_1
     );
 
+    std::function<void(MovingUnit *)> drawMovingUnitFunc = std::bind(
+        &GameMap::drawMovingUnit,
+        this,
+        painter,
+        std::placeholders::_1
+    );
+
     std::for_each(cbegin, cend, drawNodeFunc);
     std::for_each(cbegin, cend, drawGridFunc);
     if (this->focusedNodeInfo != nullptr)
@@ -256,10 +303,11 @@ void GameMap::paint(QPainter *painter)
     std::for_each(cbegin, cend, drawContentFunc);
     std::for_each(cbegin, cend, drawOverlayFunc);
 
-    if (this->movingUnit != nullptr)
-    {
-        this->drawMovingUnit(painter);
-    }
+    std::for_each(
+        this->movingUnits.constBegin(),
+        this->movingUnits.constEnd(),
+        drawMovingUnitFunc
+    );
 
     painter->restore();
 }
@@ -488,7 +536,7 @@ void GameMap::drawContent(QPainter *painter, const core::MapNode *node)
         painter->drawImage(frame, image);
     }
 
-    if (unit != nullptr && unit != this->movingUnit)
+    if (unit != nullptr && !MovingUnit::movingUnits.contains(unit))
     {
         const core::UnitType *ut = unit->getUnitType();
         const QImage image = this->surface->getImage(ut->objectName());
@@ -496,11 +544,11 @@ void GameMap::drawContent(QPainter *painter, const core::MapNode *node)
     }
 }
 
-void GameMap::drawMovingUnit(QPainter *painter)
+void GameMap::drawMovingUnit(QPainter *painter, const MovingUnit *movingUnit)
 {
-    const QPoint pos(this->unitPos.toPoint());
+    const QPoint pos(movingUnit->pos.toPoint());
     const QRect frame(pos, this->tileSize);
-    const core::UnitType *ut = this->movingUnit->getUnitType();
+    const core::UnitType *ut = movingUnit->unit->getUnitType();
     const QImage image = this->surface->getImage(ut->objectName());
     painter->drawImage(frame, image);
 }
@@ -573,63 +621,65 @@ void GameMap::moveUnit(const QPoint &p)
         destinationNodeInfo == this->focusedNodeInfo)
         return;
 
-    this->movingUnit = this->focusedNodeInfo->unit;
-    this->unitPath = this->game->shortestPath(
+    QList<core::MapNode *> path = this->game->shortestPath(
         this->focusedNodeInfo->unit,
         this->focusedNodeInfo->node,
         destinationNodeInfo->node
     );
-    this->nextNodeIndex = 1;
-    this->unitPos = this->focusedNodeInfo->pos;
-
-    this->unitMoveTimer->start(1000/20);
+    MovingUnit *movingUnit = new MovingUnit(
+        this->focusedNodeInfo->unit,
+        path,
+        this->focusedNodeInfo->pos
+    );
+    this->movingUnits.append(movingUnit);
 }
 
-void GameMap::advanceUnit()
+void GameMap::advanceUnits()
 {
-    if (this->movingUnit == nullptr)
+    if (this->movingUnits.empty())
         return;
 
-    core::MapNode *nextNode = this->unitPath[this->nextNodeIndex];
-    NodeInfo *nextNodeInfo = this->nodesInfo[nextNode];
-
-    qreal distTravelled = this->stepUnitTorwards(nextNodeInfo);
-
-    if (distTravelled != 0 && this->nextNodeIndex != this->unitPath.size())
+    for (MovingUnit *movingUnit : this->movingUnits)
     {
-        this->nextNodeIndex++;
-        nextNode = this->unitPath[this->nextNodeIndex];
-        nextNodeInfo = this->nodesInfo[nextNode];
+        NodeInfo *nextNode = this->nodesInfo[movingUnit->nextNode()];
+        qreal distTravelled = this->stepUnitTorwards(movingUnit, nextNode);
 
-        this->stepUnitTorwards(nextNodeInfo);
-    }
+        if (distTravelled != 0 &&
+            movingUnit->index < movingUnit->path.size() - 1)
+        {
+            movingUnit->index++;
+            nextNode = this->nodesInfo[movingUnit->nextNode()];
 
-    core::MapNode *destinationNode = this->unitPath.last();
-    NodeInfo *destinationNodeInfo = this->nodesInfo[destinationNode];
-    if (this->unitPos == destinationNodeInfo->pos)
-    {
-        this->unitMoveTimer->stop();
-        core::MapNode *originalNode = this->movingUnit->getMapNode();
-        NodeInfo *originalNodeInfo = this->nodesInfo[originalNode];
+            this->stepUnitTorwards(movingUnit, nextNode);
+        }
 
-        this->movingUnit->setMapNode(destinationNode);
-        originalNodeInfo->unit = nullptr;
-        destinationNodeInfo->unit = this->movingUnit;
+        NodeInfo *destinationNode = this->nodesInfo[movingUnit->path.last()];
+        if (movingUnit->pos == destinationNode->pos)
+        {
+            NodeInfo *originalNode = this->nodesInfo[
+                movingUnit->unit->getMapNode()
+            ];
 
-        this->movingUnit = nullptr;
+            movingUnit->unit->setMapNode(destinationNode->node);
+            originalNode->unit = nullptr;
+            destinationNode->unit = movingUnit->unit;
+
+            this->movingUnits.removeOne(movingUnit);
+            delete movingUnit;
+        }
     }
 
     this->update();
 }
 
-qreal GameMap::stepUnitTorwards(NodeInfo *n)
+qreal GameMap::stepUnitTorwards(MovingUnit *u, NodeInfo *n)
 {
-    QLineF path(this->unitPos, n->pos);
+    QLineF path(u->pos, n->pos);
 
-    if (path.length() > GameMap::unitStep)
-        path.setLength(GameMap::unitStep);
+    if (path.length() > MovingUnit::unitStep)
+        path.setLength(MovingUnit::unitStep);
 
-    this->unitPos = n->pos;
+    u->pos = path.p2();
 
-    return GameMap::unitStep - path.length();
+    return MovingUnit::unitStep - path.length();
 }

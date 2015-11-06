@@ -32,7 +32,7 @@ struct MovingUnit
         unit(unit),
         path(path),
         pos(pos),
-        index(1)
+        index(0)
     {
         MovingUnit::movingUnits.insert(unit);
     }
@@ -57,7 +57,7 @@ struct MovingUnit
 };
 
 QSet<const core::Unit *> MovingUnit::movingUnits{};
-const qreal MovingUnit::unitStep{1.0};
+const qreal MovingUnit::unitStep{10.0};
 
 } // namespace ui
 } // namespace warmonger
@@ -110,7 +110,7 @@ GameMap::GameMap(QQuickItem *parent) :
         &GameMap::advanceUnits
     );
 
-    this->unitMoveTimer->start(1000/20);
+    this->unitMoveTimer->start(1000/25);
 }
 
 GameMap::~GameMap()
@@ -611,23 +611,29 @@ void GameMap::moveUnit(const QPoint &p)
         this->focusedNodeInfo->unit == nullptr)
         return;
 
-    NodeInfo *destinationNodeInfo = findNodeInfo(
+    NodeInfo *destNodeInfo = findNodeInfo(
         this->surface,
         this->nodesInfo,
         p
     );
 
-    if (destinationNodeInfo == nullptr ||
-        destinationNodeInfo == this->focusedNodeInfo)
+    if (destNodeInfo == nullptr || destNodeInfo == this->focusedNodeInfo)
         return;
 
     QList<core::MapNode *> path = this->game->shortestPath(
         this->focusedNodeInfo->unit,
         this->focusedNodeInfo->node,
-        destinationNodeInfo->node
+        destNodeInfo->node
     );
+
+    core::Unit *unit = this->focusedNodeInfo->unit;
+    unit->setMapNode(destNodeInfo->node);
+
+    this->focusedNodeInfo->unit = nullptr;
+    destNodeInfo->unit = unit;
+
     MovingUnit *movingUnit = new MovingUnit(
-        this->focusedNodeInfo->unit,
+        unit,
         path,
         this->focusedNodeInfo->pos
     );
@@ -653,17 +659,10 @@ void GameMap::advanceUnits()
             this->stepUnitTorwards(movingUnit, nextNode);
         }
 
-        NodeInfo *destinationNode = this->nodesInfo[movingUnit->path.last()];
-        if (movingUnit->pos == destinationNode->pos)
+        core::MapNode *destNode = movingUnit->unit->getMapNode();
+        NodeInfo *destNodeInfo = this->nodesInfo[destNode];
+        if (movingUnit->pos == destNodeInfo->pos)
         {
-            NodeInfo *originalNode = this->nodesInfo[
-                movingUnit->unit->getMapNode()
-            ];
-
-            movingUnit->unit->setMapNode(destinationNode->node);
-            originalNode->unit = nullptr;
-            destinationNode->unit = movingUnit->unit;
-
             this->movingUnits.removeOne(movingUnit);
             delete movingUnit;
         }

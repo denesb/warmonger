@@ -11,16 +11,13 @@ Core
 
 Map Editor
 ----------
+* Migrate to C++/QQuickItem
 * Make it possible to create new maps (the first node has to be created
 automatically).
 * Batch terrain editing and creation.
 * Make it possible to move, or remove objects (settlements, units).
 * Do not allow more than one settlement and unit per tile
 * Handle switching between maps.
-
-Map
----
-* Center map on the canvas (if smaller than canvas).
 
 MiniMap
 -------

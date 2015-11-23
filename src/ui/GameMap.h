@@ -66,12 +66,10 @@ public:
 
 signals:
     void gameChanged();
-    void focusedMapNodeInfoChanged();
     void focusedMapNodeChanged();
     void focusedPosChanged();
     void focusedSettlementChanged();
     void focusedUnitChanged();
-    void currentMapNodeInfoChanged();
     void currentMapNodeChanged();
     void currentPosChanged();
     void currentSettlementChanged();
@@ -93,8 +91,8 @@ private:
 
     void onWidthChanged();
     void onHeightChanged();
-    void onFocusedNodeInfoChanged();
-    void onCurrentNodeInfoChanged();
+    void onFocusedNodeChanged();
+    void onCurrentNodeChanged();
 
     void drawNode(QPainter *painter, const core::MapNode *node);
     void drawGrid(QPainter *painter, const core::MapNode *node);
@@ -106,7 +104,7 @@ private:
     void updateFocus(const QPoint &p);
     void moveUnit(const QPoint &p);
     void advanceUnits();
-    qreal stepUnitTorwards(MovingUnit *u, NodeInfo *n);
+    qreal stepUnitTorwards(MovingUnit *u, core::MapNode *n);
 
     core::Game *game;
     core::World *world;
@@ -114,12 +112,12 @@ private:
     QSize tileSize;
 
     QList<core::MapNode *> nodes;
-    QHash<const core::MapNode *, NodeInfo *> nodesInfo;
+    QHash<const core::MapNode *, QPoint> nodesPos;
     QSet<core::MapNode *> reachableNodes;
     QSet<core::MapNode *> pathNodes;
 
-    NodeInfo *focusedNodeInfo;
-    NodeInfo *currentNodeInfo;
+    core::MapNode *focusedNode;
+    core::MapNode *currentNode;
 
     QTimer *unitMoveTimer;
     QList<MovingUnit *> movingUnits;

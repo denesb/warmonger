@@ -55,7 +55,7 @@ private:
     QSize tileSize;
 
     core::Map *map;
-    QHash<const core::MapNode *, NodeInfo *> nodesInfo;
+    QHash<const core::MapNode *, QPoint> nodesPos;
     QRect boundingRect;
     QPainterPath hexagonPainterPath;
 

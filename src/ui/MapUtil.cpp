@@ -6,6 +6,12 @@
 namespace warmonger {
 namespace ui {
 
+static void positionNode(
+    core::MapNode *node,
+    QHash<const core::MapNode *, QPoint> &nodesPos,
+    const QSize &tileSize
+);
+
 QPoint neighbourPos(
     const QPoint &pos,
     core::MapNode::Direction dir,
@@ -46,13 +52,27 @@ QPoint neighbourPos(
     );
 }
 
-void positionNodes(
-    core::MapNode *node,
-    QHash<const core::MapNode *, NodeInfo *> &nodesInfo,
+QHash<const core::MapNode *, QPoint> positionNodes(
+    const QList<core::MapNode *> &nodes,
     const QSize &tileSize
 )
 {
-    QPoint pos = nodesInfo[node]->pos;
+    QHash<const core::MapNode *, QPoint> nodesPos;
+
+    nodesPos.insert(nodes[0], QPoint(0, 0));
+
+    positionNode(nodes[0], nodesPos, tileSize);
+
+    return std::move(nodesPos);
+}
+
+void positionNode(
+    core::MapNode *node,
+    QHash<const core::MapNode *, QPoint> &nodesPos,
+    const QSize &tileSize
+)
+{
+    QPoint pos = nodesPos[node];
     QHash<core::MapNode::Direction, core::MapNode *> neighbours =
         node->getNeighbours();
     for (auto it = neighbours.constBegin(); it != neighbours.constEnd(); it++)
@@ -60,38 +80,29 @@ void positionNodes(
         core::MapNode *neighbour = it.value();
         core::MapNode::Direction dir = it.key();
 
-        if (neighbour == nullptr || nodesInfo.contains(neighbour))
+        if (neighbour == nullptr || nodesPos.contains(neighbour))
             continue;
 
-        NodeInfo *nodeInfo = new NodeInfo(neighbour);
-        nodeInfo->pos = neighbourPos(pos, dir, tileSize);
-        nodeInfo->center = QPointF(
-            nodeInfo->pos.x() - tileSize.width() / 2.0,
-            nodeInfo->pos.y() - tileSize.height() / 2.0
-        );
-        nodesInfo.insert(neighbour, nodeInfo);
+        nodesPos.insert(neighbour, neighbourPos(pos, dir, tileSize));
 
-        positionNodes(neighbour, nodesInfo, tileSize);
+        positionNode(neighbour, nodesPos, tileSize);
     }
 }
 
 QRect calculateBoundingRect(
-    QHash<const core::MapNode *, NodeInfo *> &nodesInfo,
+    QHash<const core::MapNode *, QPoint> &nodesPos,
     const QSize &tileSize
 )
 {
-    if (nodesInfo.size() == 0)
+    if (nodesPos.size() == 0)
         return QRect(0, 0, 0, 0);
 
-    NodeInfo *nodeInfo = *(nodesInfo.begin());
+    QPoint bpos = *(nodesPos.begin());
+    QPoint topLeft = bpos;
+    QPoint bottomRight = bpos;
 
-    QPoint topLeft = QPoint(nodeInfo->pos);
-    QPoint bottomRight = QPoint(nodeInfo->pos);
-
-    for (auto it = nodesInfo.constBegin(); it != nodesInfo.constEnd(); it++)
+    for (const QPoint pos : nodesPos)
     {
-        const QPoint pos = (*it)->pos;
-
         topLeft.setX(std::min(pos.x(), topLeft.x()));
         bottomRight.setX(std::max(pos.x(), bottomRight.x()));
 
@@ -146,22 +157,6 @@ QPoint project(const QPoint &p, const QRect &r)
     }
 
     return pp;
-}
-
-NodeInfo * findNodeInfo(
-    const core::WorldSurface *surface,
-    const QHash<const core::MapNode *, NodeInfo *> &nodesInfo,
-    const QPoint &pos
-)
-{
-    auto cbegin = nodesInfo.constBegin();
-    auto cend = nodesInfo.constEnd();
-
-    auto it = std::find_if(cbegin, cend, [&](const NodeInfo *nodeInfo) {
-        return surface->hexContains(pos - nodeInfo->pos);
-    });
-
-    return it == cend ? nullptr : it.value();
 }
 
 } // namespace ui

@@ -73,29 +73,35 @@ public:
     QVariantList readUnits() const;
 
     void createMapNode(TerrainType *terrainType, const QHash<MapNode::Direction, MapNode *> &neighbours);
-    Q_INVOKABLE void createMapNode(QObject *terrainType, QVariantMap neighbours);
 
     void createSettlement(SettlementType *settlementType, MapNode *mapNode);
-    Q_INVOKABLE void createSettlement(QObject *settlementType, QObject *mapNode);
 
     void createUnit(UnitType *unitType, MapNode *mapNode);
-    Q_INVOKABLE void createUnit(QObject *unitType, QObject *mapNode);
 
     virtual GameObject *resolveReference(const QString &objectName) const;
 
+    Settlement * getSettlementOn(const MapNode *mapNode) const;
+    Unit * getUnitOn(const MapNode *mapNode) const;
+
+    bool hasSettlement(const MapNode *mapNode) const;
+    bool hasUnit(const MapNode *mapNode) const;
+
 signals:
     void worldChanged();
+    void mapNodesAboutToChange();
     void mapNodesChanged();
     void mapNodeAdded(QObject *mapNode);
     void mapNodeRemoved(QObject *mapNode);
-    void playersChanged();
-    void neutralPlayerChanged();
+    void settlementsAboutToChange();
     void settlementsChanged();
     void settlementAdded(QObject *settlement);
     void settlementRemoved(QObject *settlement);
+    void unitsAboutToChange();
     void unitsChanged();
     void unitAdded(QObject *unit);
     void unitRemoved(QObject *unit);
+    void playersChanged();
+    void neutralPlayerChanged();
 
 private slots:
     void onSurfaceChanged();
@@ -107,8 +113,21 @@ protected:
     QList<MapNode *> mapNodesFromJson(const QJsonObject &obj);
     QJsonObject mapNodesToJson(const QList<MapNode *> &mapNodes) const;
 
-    Settlement * getSettlementOn(MapNode *mapNode) const;
-    Unit * getUnitOn(MapNode *mapNode) const;
+    void onMapNodesAboutToChange();
+    void onMapNodesChanged();
+    void onMapNodeAdded(MapNode *n);
+    void onMapNodeRemoved(MapNode *n);
+    void onSettlementsAboutToChange();
+    void onSettlementsChanged();
+    void onSettlementAdded(Settlement *s);
+    void onSettlementRemoved(Settlement *s);
+    void onUnitsAboutToChange();
+    void onUnitsChanged();
+    void onUnitAdded(Unit *u);
+    void onUnitRemoved(Unit *u);
+
+    void setupContent();
+    void updateContent();
 
     World *world;
     int mapNodeIndex;
@@ -119,6 +138,7 @@ protected:
     QList<Unit *> units;
     QList<Player *> players;
     Player *neutralPlayer;
+    QHash<const MapNode *, QPair<Settlement *, Unit *>> mapContent;
 };
 
 } // namespace core

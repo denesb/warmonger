@@ -29,7 +29,7 @@ MapPreview::MapPreview(QQuickItem *parent) :
     surface(nullptr),
     tileSize(),
     map(nullptr),
-    nodesInfo(),
+    nodesPos(),
     boundingRect(),
     hexagonPainterPath(),
     scale(1.0),
@@ -125,7 +125,7 @@ void MapPreview::setupMap()
         this->surface = nullptr;
         this->tileSize = QSize();
         this->hexagonPainterPath = QPainterPath();
-        this->nodesInfo.clear();
+        this->nodesPos.clear();
         this->boundingRect = QRect();
 
         this->update();
@@ -139,32 +139,7 @@ void MapPreview::setupMap()
     this->tileSize = this->surface->getTileSize();
 
     this->hexagonPainterPath = hexagonPath(this->tileSize);
-
-    this->nodesInfo.clear();
-    this->nodesInfo.insert(this->nodes[0], new NodeInfo(this->nodes[0]));
-    positionNodes(this->nodes[0], this->nodesInfo, this->tileSize);
-
-    const QList<core::Settlement *> settlements = this->map->getSettlements();
-    std::for_each(
-        settlements.constBegin(),
-        settlements.constEnd(),
-        [&](core::Settlement *s)
-        {
-            //FIXME: can settlement's mapnodes be null?
-            this->nodesInfo[s->getMapNode()]->settlement = s;
-        }
-    );
-
-    const QList<core::Unit *> units = this->map->getUnits();
-    std::for_each(
-        units.constBegin(),
-        units.constEnd(),
-        [&](core::Unit *u)
-        {
-            //FIXME: can unit's mapnodes be null?
-            this->nodesInfo[u->getMapNode()]->unit = u;
-        }
-    );
+    this->nodesPos = positionNodes(this->nodes, this->tileSize);
 
     this->updateGeometry();
     this->update();
@@ -173,7 +148,7 @@ void MapPreview::setupMap()
 void MapPreview::updateGeometry()
 {
     this->boundingRect = calculateBoundingRect(
-        this->nodesInfo,
+        this->nodesPos,
         this->tileSize
     );
     this->updateTransform();
@@ -197,13 +172,12 @@ void MapPreview::updateTransform()
 
 void MapPreview::drawNode(QPainter *painter, const core::MapNode *node)
 {
-    const NodeInfo *nodeInfo = this->nodesInfo[node];
     const QString terrainTypeName = node->getTerrainType()->objectName();
-    const core::Settlement *settlement = nodeInfo->settlement;
-    const core::Unit *unit = nodeInfo->unit;
+    const core::Settlement *settlement = this->map->getSettlementOn(node);
+    const core::Unit *unit = this->map->getUnitOn(node);
 
     painter->save();
-    painter->translate(nodeInfo->pos);
+    painter->translate(this->nodesPos[node]);
 
     const QColor color = this->surface->getColor(terrainTypeName);
     painter->fillPath(this->hexagonPainterPath, color);

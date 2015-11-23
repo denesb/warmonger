@@ -1,3 +1,4 @@
+#include <QMetaMethod>
 #include <QSet>
 
 #include "core/Map.h"
@@ -28,7 +29,8 @@ Map::Map() :
     settlements(),
     units(),
     players(),
-    neutralPlayer(new Player(this))
+    neutralPlayer(new Player(this)),
+    mapContent()
 {
     this->neutralPlayer->setObjectName("neutral");
     this->neutralPlayer->setDisplayName("Neutral");
@@ -99,6 +101,7 @@ void Map::setMapNodes(const QList<MapNode *> &mapNodes)
 {
     if (this->mapNodes != mapNodes)
     {
+        emit mapNodesAboutToChange();
         this->mapNodes = mapNodes;
         emit mapNodesChanged();
     }
@@ -134,6 +137,7 @@ void Map::setSettlements(const QList<Settlement *> &settlements)
 {
     if (this->settlements != settlements)
     {
+        emit settlementsAboutToChange();
         this->settlements = settlements;
         emit settlementsChanged();
     }
@@ -169,6 +173,7 @@ void Map::setUnits(const QList<Unit *> &units)
 {
     if (this->units != units)
     {
+        emit unitsAboutToChange();
         this->units = units;
         emit unitsChanged();
     }
@@ -211,7 +216,10 @@ QObject * Map::readNeutralPlayer() const
     return this->neutralPlayer;
 }
 
-void Map::createMapNode(TerrainType *terrainType, const QHash<MapNode::Direction, MapNode *> &neighbours)
+void Map::createMapNode(
+    TerrainType *terrainType,
+    const QHash<MapNode::Direction, MapNode *> &neighbours
+)
 {
     if (neighbours.empty())
     {
@@ -227,24 +235,6 @@ void Map::createMapNode(TerrainType *terrainType, const QHash<MapNode::Direction
     this->addMapNode(newMapNode);
 }
 
-void Map::createMapNode(QObject *terrainType, QVariantMap neighbours)
-{
-    if (neighbours.empty())
-    {
-        wError(category) << "neighbours is empty";
-        throw Exception(Exception::InvalidValue);
-    }
-
-    std::unique_ptr<MapNode> newMapNode(new MapNode(nullptr));
-    newMapNode->setObjectName(
-        Map::mapNodeNameTemplate.arg(++this->mapNodeIndex)
-    );
-    newMapNode->writeTerrainType(terrainType);
-    newMapNode->writeNeighbours(neighbours);
-
-    this->addMapNode(newMapNode.release());
-}
-
 void Map::createSettlement(SettlementType *settlementType, MapNode *mapNode)
 {
     Settlement * newSettlement = new Settlement(this);
@@ -256,19 +246,6 @@ void Map::createSettlement(SettlementType *settlementType, MapNode *mapNode)
     newSettlement->setOwner(this->neutralPlayer);
 
     this->addSettlement(newSettlement);
-}
-
-Q_INVOKABLE void Map::createSettlement(QObject *settlementType, QObject *mapNode)
-{
-    std::unique_ptr<Settlement> newSettlement(new Settlement(nullptr));
-    newSettlement->setObjectName(
-        Map::settlementNameTemplate.arg(++this->settlementIndex)
-    );
-    newSettlement->writeSettlementType(settlementType);
-    newSettlement->writeMapNode(mapNode);
-    newSettlement->setOwner(this->neutralPlayer);
-
-    this->addSettlement(newSettlement.release());
 }
 
 void Map::createUnit(UnitType *unitType, MapNode *mapNode)
@@ -284,23 +261,6 @@ void Map::createUnit(UnitType *unitType, MapNode *mapNode)
     newUnit->setOwner(this->neutralPlayer);
 
     this->addUnit(newUnit);
-}
-
-Q_INVOKABLE void Map::createUnit(QObject *unitType, QObject *mapNode)
-{
-    std::unique_ptr<Unit> newUnit(new Unit(nullptr));
-    newUnit->setObjectName(
-        Map::unitNameTemplate.arg(++this->unitIndex)
-    );
-    newUnit->writeUnitType(unitType);
-    newUnit->writeMapNode(mapNode);
-    UnitType *ut = newUnit->getUnitType();
-    UnitClass *uc = ut->getUnitClass();
-    newUnit->setHitPoints(ut->getHitPoints());
-    newUnit->setMovementPoints(uc->getMovementPoints());
-    newUnit->setOwner(this->neutralPlayer);
-
-    this->addUnit(newUnit.release());
 }
 
 GameObject * Map::resolveReference(const QString &objectName) const
@@ -319,6 +279,28 @@ GameObject * Map::resolveReference(const QString &objectName) const
     }
 
     return gobject;
+}
+
+Settlement * Map::getSettlementOn(const MapNode *mapNode) const
+{
+    return this->mapContent[mapNode].first;
+}
+
+Unit * Map::getUnitOn(const MapNode *mapNode) const
+{
+    return this->mapContent[mapNode].second;
+}
+
+bool Map::hasSettlement(const MapNode *mapNode) const
+{
+    QPair<Settlement *, Unit *> content = this->mapContent[mapNode];
+    return content.first != nullptr;
+}
+
+bool Map::hasUnit(const MapNode *mapNode) const
+{
+    QPair<Settlement *, Unit *> content = this->mapContent[mapNode];
+    return content.second != nullptr;
 }
 
 void Map::onSurfaceChanged()
@@ -347,6 +329,8 @@ void Map::dataFromJson(const QJsonObject &obj)
     this->players = newListFromJson<Player>(obj["players"].toArray(), this);
     this->units = newListFromJson<Unit>(obj["units"].toArray(), this);
     this->settlements = newListFromJson<Settlement>(obj["settlements"].toArray(), this);
+
+    this->setupContent();
 }
 
 void Map::dataToJson(QJsonObject &obj) const
@@ -457,20 +441,148 @@ QJsonObject Map::mapNodesToJson(const QList<MapNode *> &mapNodes) const
     return std::move(obj);
 }
 
-Settlement * Map::getSettlementOn(MapNode *mapNode) const
+void Map::onMapNodesAboutToChange()
 {
-    for (Settlement *settlement : this->settlements)
-    {
-        if (settlement->getMapNode() == mapNode) return settlement;
-    }
-    return nullptr;
+    this->mapContent.clear();
 }
 
-Unit * Map::getUnitOn(MapNode *mapNode) const
+void Map::onMapNodesChanged()
 {
-    for (Unit *unit : this->units)
+    std::for_each(
+        this->mapNodes.constBegin(),
+        this->mapNodes.constEnd(),
+        std::bind(&Map::onMapNodeAdded, this, std::placeholders::_1)
+    );
+}
+
+void Map::onMapNodeAdded(MapNode *n)
+{
+    this->mapContent.insert(
+        n,
+        QPair<Settlement *, Unit *>(nullptr, nullptr)
+    );
+}
+
+void Map::onMapNodeRemoved(MapNode *n)
+{
+    this->mapContent.remove(n);
+}
+
+void Map::onSettlementsAboutToChange()
+{
+    std::for_each(
+        this->settlements.constBegin(),
+        this->settlements.constEnd(),
+        std::bind(&Map::onSettlementRemoved, this, std::placeholders::_1)
+    );
+}
+
+void Map::onSettlementsChanged()
+{
+    std::for_each(
+        this->settlements.constBegin(),
+        this->settlements.constEnd(),
+        std::bind(&Map::onSettlementAdded, this, std::placeholders::_1)
+    );
+}
+
+void Map::onSettlementAdded(Settlement *s)
+{
+    QObject::connect(
+        s,
+        &Settlement::mapNodeChanged,
+        this,
+        &Map::updateContent
+    );
+
+    if (s->getMapNode() != nullptr)
     {
-        if (unit->getMapNode() == mapNode) return unit;
+        this->mapContent[s->getMapNode()].first = s;
     }
-    return nullptr;
+}
+
+void Map::onSettlementRemoved(Settlement *s)
+{
+    QObject::disconnect(s, QMetaMethod(), this, QMetaMethod());
+
+    if (s->getMapNode() != nullptr)
+        this->mapContent[s->getMapNode()].first = nullptr;
+}
+
+void Map::onUnitsAboutToChange()
+{
+    std::for_each(
+        this->units.constBegin(),
+        this->units.constEnd(),
+        std::bind(&Map::onUnitRemoved, this, std::placeholders::_1)
+    );
+}
+
+void Map::onUnitsChanged()
+{
+    std::for_each(
+        this->units.constBegin(),
+        this->units.constEnd(),
+        std::bind(&Map::onUnitAdded, this, std::placeholders::_1)
+    );
+}
+
+void Map::onUnitAdded(Unit *u)
+{
+    QObject::connect(
+        u,
+        &Unit::mapNodeChanged,
+        this,
+        &Map::updateContent
+    );
+
+    if (u->getMapNode() != nullptr)
+        this->mapContent[u->getMapNode()].second = u;
+}
+
+void Map::onUnitRemoved(Unit *u)
+{
+    QObject::disconnect(u, QMetaMethod(), this, QMetaMethod());
+
+    if (u->getMapNode() != nullptr)
+        this->mapContent[u->getMapNode()].second = nullptr;
+}
+
+void Map::setupContent()
+{
+    this->onMapNodesChanged();
+
+    std::for_each(
+        this->settlements.constBegin(),
+        this->settlements.constEnd(),
+        std::bind(&Map::onSettlementAdded, this, std::placeholders::_1)
+    );
+    std::for_each(
+        this->units.constBegin(),
+        this->units.constEnd(),
+        std::bind(&Map::onUnitAdded, this, std::placeholders::_1)
+    );
+}
+
+void Map::updateContent()
+{
+    auto begin = this->mapContent.begin();
+    auto end = this->mapContent.end();
+    for (auto it = begin; it != end; it++)
+    {
+        QPair<Settlement *, Unit *> &p = *it;
+        Settlement *s = p.first;
+        Unit *u = p.second;
+        if (s != nullptr && s->getMapNode() != it.key())
+        {
+            p.first = nullptr;
+            this->mapContent[s->getMapNode()].first = s;
+        }
+
+        if (u != nullptr && u->getMapNode() != it.key())
+        {
+            p.second = nullptr;
+            this->mapContent[u->getMapNode()].second = u;
+        }
+    }
 }

@@ -6,9 +6,6 @@ INCLUDEPATH += src
 # Please keep the lists sorted!
 #
 
-# app
-HEADERS += src/Warmonger.h
-
 # log
 HEADERS += \
     src/log/ConsoleHandler.h \
@@ -56,8 +53,7 @@ HEADERS += \
 
 # app
 SOURCES += \
-    src/Main.cpp \
-    src/Warmonger.cpp
+    src/Main.cpp
 
 # log
 SOURCES += \

@@ -20,7 +20,7 @@ class ApplicationContext :
     Q_PROPERTY(QObject * world READ readWorld NOTIFY worldChanged)
 
 public:
-    ApplicationContext(QObject *parent);
+    ApplicationContext(QObject *parent=nullptr);
     ~ApplicationContext();
 
     QVariantList readMaps() const;

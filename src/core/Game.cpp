@@ -14,12 +14,18 @@ using namespace warmonger::core;
 
 static const QString category{"core"};
 
+/**
+ * Get the movement cost for travelling from node1 to node2.
+ */
 static double movementCost(
     const UnitClass *klass,
     const MapNode *node1,
     const MapNode *node2
 );
 
+/**
+ * Find the shortest path with the dijstra algorithm
+ */
 static QMap<MapNode *, MapNode *> dijkstraPath(
     MapNode *source,
     MapNode *target,
@@ -46,6 +52,10 @@ QString Game::fileExtension() const
 QSet<MapNode *> Game::reachableMapNodes(Unit *unit) const
 {
     QSet<MapNode *> reachableNodes;
+
+    // Always include the current node
+    reachableNodes.insert(unit->getMapNode());
+
     this->reachableMapNodes(
         reachableNodes,
         unit->getMapNode(),
@@ -86,6 +96,56 @@ QList<MapNode *> Game::shortestPath(
         path.clear(); // the path is no good
 
     return path;
+}
+
+QList<MapNode *> Game::moveUnitAlongPath(
+    Unit *unit,
+    const QList<MapNode *> &path
+)
+{
+    const UnitClass *klass = unit->getUnitType()->getUnitClass();
+    double mp = unit->getMovementPoints();
+    QList<MapNode*> travelledPath;
+
+    // The first node in the path is actually
+    travelledPath.append(path[0]);
+
+    for (int i = 1; i < path.size(); i++)
+    {
+        MapNode *n0 = path[i - 1];
+        MapNode *n1 = path[i];
+
+        const double cost = movementCost(klass, n0, n1);
+        if (mp < cost)
+            break;
+
+        mp -= cost;
+        travelledPath.append(n1);
+    }
+
+    unit->setMovementPoints(mp);
+    unit->setMapNode(travelledPath.last());
+
+    return std::move(travelledPath);
+}
+
+QList<MapNode *> Game::moveUnitToNode(Unit *unit, MapNode *node)
+{
+    QList<MapNode *> desiredPath = this->shortestPath(
+        unit,
+        unit->getMapNode(),
+        node
+    );
+
+    QList<MapNode *> path;
+
+    // If there is no path to the destination return empty path
+    if (desiredPath.size() == 0)
+        return path;
+
+    path = this->moveUnitAlongPath(unit, desiredPath);
+
+    return std::move(path);
 }
 
 void Game::reachableMapNodes(

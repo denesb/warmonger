@@ -594,13 +594,10 @@ void GameMap::moveUnit(const QPoint &p)
     if (destNode == nullptr || destNode == this->focusedNode)
         return;
 
-    QList<core::MapNode *> path = this->game->shortestPath(
+    QList<core::MapNode *> path = this->game->moveUnitToNode(
         unit,
-        this->focusedNode,
         destNode
     );
-
-    unit->setMapNode(destNode);
 
     MovingUnit *movingUnit = new MovingUnit(
         unit,

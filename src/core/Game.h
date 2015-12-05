@@ -23,13 +23,54 @@ public:
 
     Q_INVOKABLE virtual QString fileExtension() const;
 
+    /**
+     * Get all reachable nodes for the unit.
+     *
+     * A node is reachable if the unit can travel to that node with its
+     * currently available movement points.
+     * The current node of the unit is always included.
+     */
     QSet<MapNode *> reachableMapNodes(Unit *unit) const;
 
+    /**
+     * Get the shortest path for the unit from node1 to node2.
+     *
+     * The shortest path is calculated from the unit's perspective,
+     * that is the shortest path is that which requires the least
+     * movement points for the given unit.
+     * N.B.: The first node in the path is always the starting point!
+     * If no path can be found return an empty list.
+     */
     QList<MapNode *> shortestPath(
         Unit *unit,
         MapNode *node1,
         MapNode *node2
     ) const;
+
+    /**
+     * Move the unit along the path.
+     *
+     * The unit will move until all its movement points are exhausted or
+     * it reached the last node in the path.
+     * Return the path actually travelled by the unit.
+     * N.B.: The first node in the path should always the starting
+     * point, that is the node the unit is on!
+     */
+    QList<MapNode *> moveUnitAlongPath(
+        Unit *unit,
+        const QList<MapNode *> &path
+    );
+
+    /**
+     * Convenience method to move the unit to the destination node.
+     *
+     * The unit will be moved along the shortest path from its current
+     * node to the destination node. The unit will move unitl either
+     * all of its movement points are exhausted or it reached the
+     * destination node.
+     * Return the path actually travelled by the unit.
+     */
+    QList<MapNode *> moveUnitToNode(Unit *unit, MapNode *node);
 
     void fromMapJson(const QJsonObject &obj);
 

@@ -241,7 +241,7 @@ void Map::createSettlement(SettlementType *settlementType, MapNode *mapNode)
     newSettlement->setObjectName(
         Map::settlementNameTemplate.arg(++this->settlementIndex)
     );
-    newSettlement->setSettlementType(settlementType);
+    newSettlement->setType(settlementType);
     newSettlement->setMapNode(mapNode);
     newSettlement->setOwner(this->neutralPlayer);
 

@@ -96,7 +96,7 @@ Rectangle {
             source: {
                 if (root.settlement) {
                     var surface = W.world.surface;
-                    var tn = root.settlement.settlementType.objectName;
+                    var tn = root.settlement.type.objectName;
                     surface.prefix + surface.imagePaths[tn];
                 } else {
                     "";
@@ -119,7 +119,7 @@ Rectangle {
                     if (dn != "")
                         text += dn + " ";
 
-                    text += root.settlement.settlementType.displayName;
+                    text += root.settlement.type.displayName;
                     text += " - " + root.settlement.owner.displayName;
                     text;
                 } else {

@@ -3163,21 +3163,21 @@
             "mapNode": "mapNode0",
             "objectName": "settlement0",
             "owner": "player1",
-            "settlementType": "castle"
+            "type": "castle"
         },
         {
             "displayName": "",
             "mapNode": "mapNode3",
             "objectName": "settlement2",
             "owner": "player2",
-            "settlementType": "castle"
+            "type": "castle"
         },
         {
             "displayName": "Varsolc",
             "mapNode": "mapNode6",
             "objectName": "settlement3",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         }
     ],
     "unitIndex": 2,

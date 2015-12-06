@@ -11399,217 +11399,217 @@
             "mapNode": "mapNode181",
             "objectName": "settlement1",
             "owner": "player1",
-            "settlementType": "city"
+            "type": "city"
         },
         {
             "displayName": "",
             "mapNode": "mapNode308",
             "objectName": "settlement2",
             "owner": "player2",
-            "settlementType": "city"
+            "type": "city"
         },
         {
             "displayName": "",
             "mapNode": "mapNode439",
             "objectName": "settlement3",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode392",
             "objectName": "settlement4",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode509",
             "objectName": "settlement5",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode473",
             "objectName": "settlement6",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode491",
             "objectName": "settlement7",
             "owner": "neutral",
-            "settlementType": "castle"
+            "type": "castle"
         },
         {
             "displayName": "",
             "mapNode": "mapNode413",
             "objectName": "settlement8",
             "owner": "neutral",
-            "settlementType": "castle"
+            "type": "castle"
         },
         {
             "displayName": "",
             "mapNode": "mapNode19",
             "objectName": "settlement9",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode357",
             "objectName": "settlement10",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode36",
             "objectName": "settlement11",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode371",
             "objectName": "settlement12",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode52",
             "objectName": "settlement13",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode273",
             "objectName": "settlement14",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode12",
             "objectName": "settlement15",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode7",
             "objectName": "settlement16",
             "owner": "neutral",
-            "settlementType": "castle"
+            "type": "castle"
         },
         {
             "displayName": "",
             "mapNode": "mapNode8",
             "objectName": "settlement17",
             "owner": "neutral",
-            "settlementType": "castle"
+            "type": "castle"
         },
         {
             "displayName": "",
             "mapNode": "mapNode31",
             "objectName": "settlement18",
             "owner": "neutral",
-            "settlementType": "castle"
+            "type": "castle"
         },
         {
             "displayName": "",
             "mapNode": "mapNode48",
             "objectName": "settlement19",
             "owner": "neutral",
-            "settlementType": "castle"
+            "type": "castle"
         },
         {
             "displayName": "",
             "mapNode": "mapNode190",
             "objectName": "settlement20",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode131",
             "objectName": "settlement21",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode119",
             "objectName": "settlement22",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode387",
             "objectName": "settlement23",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode479",
             "objectName": "settlement24",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode0",
             "objectName": "settlement25",
             "owner": "neutral",
-            "settlementType": "city"
+            "type": "city"
         },
         {
             "displayName": "",
             "mapNode": "mapNode58",
             "objectName": "settlement26",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode64",
             "objectName": "settlement27",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode61",
             "objectName": "settlement28",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode60",
             "objectName": "settlement29",
             "owner": "neutral",
-            "settlementType": "village"
+            "type": "village"
         },
         {
             "displayName": "",
             "mapNode": "mapNode169",
             "objectName": "settlement30",
             "owner": "neutral",
-            "settlementType": "castle"
+            "type": "castle"
         },
         {
             "displayName": "",
             "mapNode": "mapNode364",
             "objectName": "settlement31",
             "owner": "neutral",
-            "settlementType": "castle"
+            "type": "castle"
         }
     ],
     "unitIndex": 8,

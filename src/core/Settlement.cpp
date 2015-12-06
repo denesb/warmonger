@@ -10,7 +10,7 @@ static const QString category{"core"};
 
 Settlement::Settlement(QObject *parent) :
     GameObject(parent),
-    settlementType(nullptr),
+    type(nullptr),
     mapNode(nullptr),
     owner(nullptr)
 {
@@ -20,35 +20,35 @@ Settlement::~Settlement()
 {
 }
 
-SettlementType * Settlement::getSettlementType() const
+SettlementType * Settlement::getType() const
 {
-    return this->settlementType;
+    return this->type;
 }
 
-void Settlement::setSettlementType(SettlementType *settlementType)
+void Settlement::setType(SettlementType *type)
 {
-    if (this->settlementType != settlementType)
+    if (this->type != type)
     {
-        this->settlementType = settlementType;
-        emit settlementTypeChanged();
+        this->type = type;
+        emit typeChanged();
     }
 }
 
-QObject * Settlement::readSettlementType() const
+QObject * Settlement::readType() const
 {
-    return this->settlementType;
+    return this->type;
 }
 
-void Settlement::writeSettlementType(QObject *settlementType)
+void Settlement::writeType(QObject *type)
 {
-    SettlementType *st = qobject_cast<SettlementType *>(settlementType);
+    SettlementType *st = qobject_cast<SettlementType *>(type);
     if (st == nullptr)
     {
-        wError(category) << "settlementType is null or has wrong type";
+        wError(category) << "type is null or has wrong type";
         throw Exception(Exception::InvalidValue);
     }
 
-    this->setSettlementType(st);
+    this->setType(st);
 }
 
 MapNode * Settlement::getMapNode() const
@@ -114,8 +114,8 @@ void Settlement::writeOwner(QObject *owner)
 
 void Settlement::dataFromJson(const QJsonObject &obj)
 {
-    this->settlementType = resolveReference<SettlementType>(
-        obj["settlementType"].toString(),
+    this->type = resolveReference<SettlementType>(
+        obj["type"].toString(),
         this->parent()
     );
     this->mapNode = resolveReference<MapNode>(
@@ -130,7 +130,7 @@ void Settlement::dataFromJson(const QJsonObject &obj)
 
 void Settlement::dataToJson(QJsonObject &obj) const
 {
-    obj["settlementType"] = this->settlementType->objectName();
+    obj["type"] = this->type->objectName();
     obj["mapNode"] = this->mapNode->objectName();
     obj["owner"] = this->owner->objectName();
 }

@@ -524,7 +524,7 @@ void GameMap::drawContent(QPainter *painter, const core::MapNode *node)
 
     if (settlement != nullptr)
     {
-        const core::SettlementType *st = settlement->getSettlementType();
+        const core::SettlementType *st = settlement->getType();
         const QImage image = this->surface->getImage(st->objectName());
         painter->drawImage(frame, image);
     }

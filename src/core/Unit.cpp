@@ -54,7 +54,10 @@ void Unit::setUnitType(UnitType *unitType)
 {
     if (this->unitType != unitType)
     {
+        const UnitType *oldUnitType = this->unitType;
         this->unitType = unitType;
+
+        this->onUnitTypeChanged(oldUnitType);
         emit unitTypeChanged();
     }
 }
@@ -176,6 +179,12 @@ void Unit::setMovementPoints(double movementPoints)
         this->movementPoints = movementPoints;
         emit movementPointsChanged();
     }
+}
+
+void Unit::onUnitTypeChanged(const UnitType *oldUnitType)
+{
+    int hpPercentage = this->hitPoints * 100 / oldUnitType->getHitPoints();
+    this->hitPoints = (this->unitType->getHitPoints() * hpPercentage) / 100;
 }
 
 void Unit::dataFromJson(const QJsonObject &obj)

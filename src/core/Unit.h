@@ -73,6 +73,8 @@ signals:
     void movementPointsChanged();
 
 private:
+    void onUnitTypeChanged(const UnitType *oldUnitType);
+
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 

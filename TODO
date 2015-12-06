@@ -8,7 +8,7 @@ modified, but this might not be what we want.
 
 Core
 ----
-* Unit: update hp, mp, xp, when unit type changes.
+* XP and unit upgrading
 
 Map Editor
 ----------
@@ -27,6 +27,7 @@ MiniMap
 Gameplay (both core and ui)
 ---------------------------
 * Recruit units.
+* Occupy settlements.
 * Battle.
 
 UI

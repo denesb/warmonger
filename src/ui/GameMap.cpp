@@ -47,7 +47,7 @@ struct MovingUnit
         return this->path[this->index];
     }
 
-    static const qreal unitStep;
+    static const double unitStep;
     static QSet<const core::Unit *> movingUnits;
 
     core::Unit *unit;
@@ -57,7 +57,7 @@ struct MovingUnit
 };
 
 QSet<const core::Unit *> MovingUnit::movingUnits{};
-const qreal MovingUnit::unitStep{10.0};
+const double MovingUnit::unitStep{10.0};
 
 } // namespace ui
 } // namespace warmonger
@@ -640,7 +640,7 @@ void GameMap::advanceUnits()
 
     for (MovingUnit *movingUnit : this->movingUnits)
     {
-        qreal l = MovingUnit::unitStep;
+        double l = MovingUnit::unitStep;
 
         while (l > 0 && movingUnit->index < movingUnit->path.size())
         {

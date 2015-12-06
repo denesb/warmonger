@@ -29,8 +29,10 @@ class GameMap :
     Q_OBJECT
 
     Q_PROPERTY(QObject *game READ readGame WRITE writeGame NOTIFY gameChanged)
+    Q_PROPERTY(QObject *focusedMapNode READ readFocusedMapNode NOTIFY focusedMapNodeChanged)
+    Q_PROPERTY(QObject *focusedSettlement READ readFocusedSettlement NOTIFY focusedSettlementChanged)
+    Q_PROPERTY(QObject *focusedUnit READ readFocusedUnit NOTIFY focusedUnitChanged)
     Q_PROPERTY(QObject *currentMapNode READ readCurrentMapNode NOTIFY currentMapNodeChanged)
-    Q_PROPERTY(QPoint currentPos READ getCurrentPos NOTIFY currentPosChanged)
     Q_PROPERTY(QObject *currentSettlement READ readCurrentSettlement NOTIFY currentSettlementChanged)
     Q_PROPERTY(QObject *currentUnit READ readCurrentUnit NOTIFY currentUnitChanged)
     Q_PROPERTY(QPoint windowPos READ getWindowPos WRITE setWindowPos NOTIFY windowPosChanged)
@@ -44,10 +46,17 @@ public:
     QObject *readGame() const;
     void writeGame(QObject *game);
 
+    core::MapNode * getFocusedMapNode() const;
+    QObject * readFocusedMapNode() const;
+
+    core::Settlement * getFocusedSettlement() const;
+    QObject * readFocusedSettlement() const;
+
+    core::Unit * getFocusedUnit() const;
+    QObject * readFocusedUnit() const;
+
     core::MapNode * getCurrentMapNode() const;
     QObject * readCurrentMapNode() const;
-
-    QPoint getCurrentPos() const;
 
     core::Settlement * getCurrentSettlement() const;
     QObject * readCurrentSettlement() const;
@@ -67,11 +76,9 @@ public:
 signals:
     void gameChanged();
     void focusedMapNodeChanged();
-    void focusedPosChanged();
     void focusedSettlementChanged();
     void focusedUnitChanged();
     void currentMapNodeChanged();
-    void currentPosChanged();
     void currentSettlementChanged();
     void currentUnitChanged();
     void windowPosChanged();

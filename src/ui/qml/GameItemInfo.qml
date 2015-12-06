@@ -6,6 +6,8 @@ Rectangle {
 
     property var world
     property var mapNode
+    property var settlement
+    property var unit
 
     Rectangle {
         id: mapNodeInfo
@@ -21,7 +23,7 @@ Rectangle {
             id: mapNodeImage
             height: 20
             width: {
-                var tileSize = root.world.surface.tileSize;
+                var tileSize = W.world.surface.tileSize;
                 height * tileSize.width/tileSize.height;
             }
             anchors {
@@ -32,9 +34,9 @@ Rectangle {
 
             source: {
                 if (root.mapNode) {
-                    var surface = root.world.surface;
-                    var terrainTypeName = root.mapNode.qobj.terrainType.objectName;
-                    surface.prefix + surface.bigMap[terrainTypeName];
+                    var surface = W.world.surface;
+                    var terrainTypeName = root.mapNode.terrainType.objectName;
+                    surface.prefix + surface.imagePaths[terrainTypeName];
                 } else {
                     "";
                 }
@@ -51,10 +53,8 @@ Rectangle {
 
             text: {
                 if (root.mapNode) {
-                    var n = root.mapNode;
-                    var text = n.qobj.displayName + " ";
-                    text += "(" + n.pos.x + "," + n.pos.y + ") ";
-                    text += n.qobj.terrainType.displayName;
+                    var text = root.mapNode.displayName + " ";
+                    text += root.mapNode.terrainType.displayName;
                     text;
                 } else {
                     "";
@@ -65,6 +65,10 @@ Rectangle {
 
     Rectangle {
         id: settlementInfo
+        visible: {
+            if (root.settlement) true;
+            else false;
+        }
 
         height: 24
         anchors {
@@ -77,8 +81,8 @@ Rectangle {
             id: settlementImage
             height: 20
             width: {
-                if (root.mapNode && root.mapNode.settlement) {
-                    var tileSize = root.world.surface.tileSize;
+                if (root.settlement) {
+                    var tileSize = W.world.surface.tileSize;
                     height * tileSize.width/tileSize.height;
                 } else {
                     0;
@@ -90,11 +94,10 @@ Rectangle {
             }
 
             source: {
-                var n = root.mapNode;
-                if (n && n.settlement) {
-                    var surface = root.world.surface;
-                    var settlementTypeName = n.settlement.qobj.settlementType.objectName;
-                    surface.prefix + surface.bigMap[settlementTypeName];
+                if (root.settlement) {
+                    var surface = W.world.surface;
+                    var tn = root.settlement.settlementType.objectName;
+                    surface.prefix + surface.imagePaths[tn];
                 } else {
                     "";
                 }
@@ -109,12 +112,15 @@ Rectangle {
             }
 
             text: {
-                var n = root.mapNode;
-                if (n && n.settlement) {
-                    var s = n.settlement.qobj;
-                    var text = s.displayName + " ";
-                    text += s.settlementType.displayName;
-                    text += " - " + s.owner.displayName;
+                if (root.settlement) {
+                    var text = "";
+
+                    var dn = root.settlement.displayName;
+                    if (dn != "")
+                        text += dn + " ";
+
+                    text += root.settlement.settlementType.displayName;
+                    text += " - " + root.settlement.owner.displayName;
                     text;
                 } else {
                     "";
@@ -126,7 +132,7 @@ Rectangle {
     Rectangle {
         id: unitInfo
         visible: {
-            if (root.mapNode && root.mapNode.unit) true;
+            if (root.unit) true;
             else false;
         }
 
@@ -146,9 +152,8 @@ Rectangle {
             }
 
             text: {
-                var n = root.mapNode;
-                if (n && n.unit) {
-                    var u = n.unit.qobj;
+                if (root.unit) {
+                    var u = root.unit;
                     var text = "";
 
                     if (u.displayName != "")
@@ -183,8 +188,8 @@ Rectangle {
 
                 Image {
                     width: {
-                        if (root.mapNode && root.mapNode.unit) {
-                            var tileSize = root.world.surface.tileSize;
+                        if (root.unit) {
+                            var tileSize = W.world.surface.tileSize;
                             if (tileSize.width < tileSize.height) {
                                 parent.height * tileSize.height/tileSize.width;
                             } else {
@@ -195,8 +200,8 @@ Rectangle {
                         }
                     }
                     height: {
-                        if (root.mapNode && root.mapNode.unit) {
-                            var tileSize = root.world.surface.tileSize;
+                        if (root.unit) {
+                            var tileSize = W.world.surface.tileSize;
                             if (tileSize.height > tileSize.width) {
                                 parent.width * tileSize.width/tileSize.height;
                             } else {
@@ -212,11 +217,10 @@ Rectangle {
                     }
 
                     source: {
-                        var n = root.mapNode;
-                        if (n && n.unit) {
-                            var surface = root.world.surface;
-                            var unitTypeName = n.unit.qobj.unitType.objectName;
-                            surface.prefix + surface.bigMap[unitTypeName];
+                        if (root.unit) {
+                            var surface = W.world.surface;
+                            var unitTypeName = root.unit.unitType.objectName;
+                            surface.prefix + surface.imagePaths[unitTypeName];
                         } else {
                             "";
                         }
@@ -253,13 +257,11 @@ Rectangle {
                             height: parent.height * 0.8
 
                             points: {
-                                var n = root.mapNode;
-                                if (n && n.unit) n.unit.qobj.hitPoints;
+                                if (root.unit) root.unit.hitPoints;
                                 else 0;
                             }
                             maxPoints: {
-                                var n = root.mapNode;
-                                if (n && n.unit) n.unit.qobj.unitType.hitPoints;
+                                if (root.unit) root.unit.unitType.hitPoints;
                                 else 0;
                             }
                             color: {
@@ -291,15 +293,12 @@ Rectangle {
                             height: parent.height * 0.8
 
                             points: {
-                                var n = root.mapNode;
-                                if (n && n.unit) n.unit.qobj.movementPoints;
+                                if (root.unit) root.unit.movementPoints;
                                 else 0;
                             }
                             maxPoints: {
-                                var n = root.mapNode;
-                                if (n && n.unit) {
-                                    var u = n.unit.qobj;
-                                    u.unitType.unitClass.movementPoints;
+                                if (root.unit) {
+                                    root.unit.unitType.unitClass.movementPoints;
                                 } else {
                                     0;
                                 }
@@ -324,14 +323,12 @@ Rectangle {
                             height: parent.height * 0.8
 
                             points: {
-                                var n = root.mapNode;
-                                if (n && n.unit) n.unit.qobj.experiencePoints;
+                                if (root.unit) root.unit.experiencePoints;
                                 else 0;
                             }
                             maxPoints: {
-                                var n = root.mapNode;
-                                if (n && n.unit) {
-                                    //n.unit.qobj.experiencePoints;
+                                if (root.unit) {
+                                    //root.unit.experiencePoints;
                                     100;
                                 } else {
                                     0;

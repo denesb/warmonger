@@ -3,9 +3,7 @@ import QtQuick 2.2
 Rectangle {
     id: root
 
-    property var world
     property var mapNode
-    property var pos
     property var settlement
     property var unit
 
@@ -24,14 +22,14 @@ Rectangle {
             id: mapNodeImage
             height: 20
             width: {
-                var tileSize = root.world.surface.tileSize;
+                var tileSize = W.world.surface.tileSize;
                 height * tileSize.width/tileSize.height;
             }
             anchors.verticalCenter: parent.verticalCenter
 
             source: {
                 if (root.mapNode) {
-                    var surface = root.world.surface;
+                    var surface = W.world.surface;
                     var terrainTypeName = root.mapNode.terrainType.objectName;
                     surface.prefix + surface.imagePaths[terrainTypeName];
                 } else {
@@ -46,11 +44,9 @@ Rectangle {
             text: {
                 if (root.mapNode) {
                     var n = root.mapNode;
-                    var p = root.pos;
                     var text = "";
                     if (n.displayName != "")
                         text += n.displayName + " ";
-                    text += "(" + p.x + "," + p.y + ") ";
                     text += n.terrainType.displayName;
                     text;
                 } else {
@@ -77,7 +73,7 @@ Rectangle {
             height: 20
             width: {
                 if (root.settlement) {
-                    var tileSize = root.world.surface.tileSize;
+                    var tileSize = W.world.surface.tileSize;
                     height * tileSize.width/tileSize.height;
                 } else {
                     0;
@@ -87,7 +83,7 @@ Rectangle {
 
             source: {
                 if (root.settlement) {
-                    var surface = root.world.surface;
+                    var surface = W.world.surface;
                     var settlementTypeName = root.settlement.settlementType.objectName;
                     surface.prefix + surface.imagePaths[settlementTypeName];
                 } else {
@@ -130,7 +126,7 @@ Rectangle {
             height: 20
             width: {
                 if (root.unit) {
-                    var tileSize = root.world.surface.tileSize;
+                    var tileSize = W.world.surface.tileSize;
                     height * tileSize.width/tileSize.height;
                 } else {
                     0;
@@ -140,7 +136,7 @@ Rectangle {
 
             source: {
                 if (root.unit) {
-                    var surface = root.world.surface;
+                    var surface = W.world.surface;
                     var unitTypeName = root.unit.unitType.objectName;
                     surface.prefix + surface.imagePaths[unitTypeName];
                 } else {

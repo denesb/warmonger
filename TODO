@@ -1,4 +1,4 @@
-Things to do until the first "usable" release.
+# Things to do until the first "usable" release.
 
 General
 -------
@@ -27,7 +27,6 @@ MiniMap
 Gameplay (both core and ui)
 ---------------------------
 * Recruit units.
-* Unit movement.
 * Battle.
 
 UI
@@ -40,3 +39,10 @@ Settings
 --------
 * Store preferred world surface.
 * Store map and world search paths.
+
+
+# Things to be refined
+
+* Allow units to pass through nodes occupied by frendlies
+* Do not allow a unit to move after arriving to a node bordering a node occupied
+by an enemy (consume all mp when arriving to such node)

@@ -148,6 +148,42 @@ void GameMap::writeGame(QObject *game)
     this->setGame(g);
 }
 
+core::MapNode * GameMap::getFocusedMapNode() const
+{
+    return this->focusedNode;
+}
+
+QObject * GameMap::readFocusedMapNode() const
+{
+    return this->focusedNode;
+}
+
+core::Settlement * GameMap::getFocusedSettlement() const
+{
+    if (this->focusedNode == nullptr)
+        return nullptr;
+
+    return this->game->getSettlementOn(this->focusedNode);
+}
+
+QObject * GameMap::readFocusedSettlement() const
+{
+    return this->getFocusedSettlement();
+}
+
+core::Unit * GameMap::getFocusedUnit() const
+{
+    if (this->focusedNode == nullptr)
+        return nullptr;
+
+    return this->game->getUnitOn(this->focusedNode);
+}
+
+QObject * GameMap::readFocusedUnit() const
+{
+    return this->getFocusedUnit();
+}
+
 core::MapNode * GameMap::getCurrentMapNode() const
 {
     return this->currentNode;
@@ -156,14 +192,6 @@ core::MapNode * GameMap::getCurrentMapNode() const
 QObject * GameMap::readCurrentMapNode() const
 {
     return this->currentNode;
-}
-
-QPoint GameMap::getCurrentPos() const
-{
-    if (this->currentNode != nullptr)
-        return this->nodesPos[this->currentNode];
-    else
-        return QPoint();
 }
 
 core::Settlement * GameMap::getCurrentSettlement() const
@@ -408,7 +436,6 @@ void GameMap::onFocusedNodeChanged()
     }
 
     emit focusedMapNodeChanged();
-    emit focusedPosChanged();
     emit focusedSettlementChanged();
     emit focusedUnitChanged();
 
@@ -434,7 +461,6 @@ void GameMap::onCurrentNodeChanged()
     }
 
     emit currentMapNodeChanged();
-    emit currentPosChanged();
     emit currentSettlementChanged();
     emit currentUnitChanged();
 

@@ -80,8 +80,9 @@ Rectangle {
         GameItemInfo {
             id: gameItemInfo
 
-            world: W.world
             mapNode: map.focusedMapNode
+            settlement: map.focusedSettlement
+            unit: map.focusedUnit
 
             anchors {
                 top: miniMapWrapper.bottom
@@ -118,9 +119,7 @@ Rectangle {
     InfoBar {
         id: infoBar
 
-        world: W.world
         mapNode: map.currentMapNode
-        pos: map.currentPos
         settlement: map.currentSettlement
         unit: map.currentUnit
 

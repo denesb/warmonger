@@ -8,25 +8,26 @@
 namespace warmonger {
 namespace core {
 
-class WorldSurface;
+class Armor;
+class DamageType;
+class Faction;
+class SettlementType;
 class TerrainType;
 class UnitClass;
-class DamageType;
-class Weapon;
-class Armor;
 class UnitType;
-class SettlementType;
-class Faction;
+class UnitLevel;
+class Weapon;
+class WorldSurface;
 
 class World :
     public GameEntity
 {
     Q_OBJECT
     Q_PROPERTY(QObject * surface READ readSurface NOTIFY surfaceChanged)
+    Q_PROPERTY(QVariantList factions READ readFactions NOTIFY factionsChanged)
+    Q_PROPERTY(QVariantList settlementTypes READ readSettlementTypes NOTIFY settlementTypesChanged)
     Q_PROPERTY(QVariantList terrainTypes READ readTerrainTypes NOTIFY terrainTypesChanged)
     Q_PROPERTY(QVariantList unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
-    Q_PROPERTY(QVariantList settlementTypes READ readSettlementTypes NOTIFY settlementTypesChanged)
-    Q_PROPERTY(QVariantList factions READ readFactions NOTIFY factionsChanged)
 
 public:
     Q_INVOKABLE World();
@@ -38,6 +39,20 @@ public:
     void setSurface(const QString &surfaceName);
     QObject * readSurface() const;
 
+    QList<Armor *> getArmors() const;
+    void setArmors(const QList<Armor *> &armors);
+
+    QList<DamageType *> getDamageTypes() const;
+    void setDamageTypes(const QList<DamageType *> &damageTypes);
+
+    QList<Faction *> getFactions() const;
+    void setFactions(const QList<Faction *> &factions);
+    QVariantList readFactions() const;
+
+    QList<SettlementType *> getSettlementTypes() const;
+    void setSettlementTypes(const QList<SettlementType *> &settlementTypes);
+    QVariantList readSettlementTypes() const;
+
     QList<TerrainType *> getTerrainTypes() const;
     void setTerrainTypes(const QList<TerrainType *> &terrainTypes);
     QVariantList readTerrainTypes() const;
@@ -45,47 +60,40 @@ public:
     QList<UnitClass *> getUnitClasses() const;
     void setUnitClasses(const QList<UnitClass *> &unitClasses);
 
-    QList<DamageType *> getDamageTypes() const;
-    void setDamageTypes(const QList<DamageType *> &damageTypes);
-
-    QList<Armor *> getArmors() const;
-    void setArmors(const QList<Armor *> &armors);
-
-    QList<Weapon *> getWeapons() const;
-    void setWeapons(const QList<Weapon *> &weapons);
+    QList<UnitLevel *> getUnitLevels() const;
+    void setUnitLevels(const QList<UnitLevel *> &unitLevels);
+    QVariantList readUnitLevels() const;
 
     QList<UnitType *> getUnitTypes() const;
     void setUnitTypes(const QList<UnitType *> &unitTypes);
     QVariantList readUnitTypes() const;
 
-    QList<SettlementType *> getSettlementTypes() const;
-    void setSettlementTypes(const QList<SettlementType *> &settlementTypes);
-    QVariantList readSettlementTypes() const;
-
-    QList<Faction *> getFactions() const;
-    void setFactions(const QList<Faction *> &factions);
-    QVariantList readFactions() const;
+    QList<Weapon *> getWeapons() const;
+    void setWeapons(const QList<Weapon *> &weapons);
 
 signals:
-    void surfaceChanged();
-    void terrainTypesChanged();
-    void unitTypesChanged();
-    void settlementTypesChanged();
     void factionsChanged();
+    void surfaceChanged();
+    void settlementTypesChanged();
+    void terrainTypesChanged();
+    void unitClassesChanged();
+    void unitLevelsChanged();
+    void unitTypesChanged();
 
 private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
     WorldSurface *surface;
+    QList<Armor *> armors;
+    QList<DamageType *> damageTypes;
+    QList<Faction *> factions;
+    QList<SettlementType *> settlementTypes;
     QList<TerrainType *> terrainTypes;
     QList<UnitClass *> unitClasses;
-    QList<DamageType *> damageTypes;
-    QList<Weapon *> weapons;
-    QList<Armor *> armors;
+    QList<UnitLevel *> unitLevels;
     QList<UnitType *> unitTypes;
-    QList<SettlementType *> settlementTypes;
-    QList<Faction *> factions;
+    QList<Weapon *> weapons;
 };
 
 } // namespace core

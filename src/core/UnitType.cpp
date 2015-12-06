@@ -1,8 +1,9 @@
-#include "core/UnitType.h"
-#include "core/UnitClass.h"
 #include "core/Armor.h"
-#include "core/Weapon.h"
 #include "core/JsonUtil.h"
+#include "core/UnitClass.h"
+#include "core/UnitLevel.h"
+#include "core/UnitType.h"
+#include "core/Weapon.h"
 
 using namespace warmonger::core;
 
@@ -11,10 +12,12 @@ static const QString category{"core"};
 UnitType::UnitType(QObject *parent) :
     GameObject(parent),
     hitPoints(0),
+    experiencePoints(0),
+    level(nullptr),
     unitClass(nullptr),
-    level(0),
     armor(nullptr),
-    weapons()
+    weapons(),
+    upgrades()
 {
 }
 
@@ -33,6 +36,20 @@ void UnitType::setHitPoints(int hitPoints)
     {
         this->hitPoints = hitPoints;
         emit hitPointsChanged();
+    }
+}
+
+UnitLevel * UnitType::getLevel() const
+{
+    return this->level;
+}
+
+void UnitType::setLevel(UnitLevel *level)
+{
+    if (this->level != level)
+    {
+        this->level = level;
+        emit levelChanged();
     }
 }
 
@@ -67,16 +84,6 @@ void UnitType::writeUnitClass(QObject *unitClass)
     this->setUnitClass(uc);
 }
 
-int UnitType::getLevel() const
-{
-    return this->level;
-}
-
-void UnitType::setLevel(int level)
-{
-    this->level = level;
-}
-
 Armor * UnitType::getArmor() const
 {
     return this->armor;
@@ -84,7 +91,11 @@ Armor * UnitType::getArmor() const
 
 void UnitType::setArmor(Armor *armor)
 {
-    this->armor = armor;
+    if (this->armor != armor)
+    {
+        this->armor = armor;
+        emit armorChanged();
+    }
 }
 
 QList<Weapon *> UnitType::getWeapons() const
@@ -94,23 +105,46 @@ QList<Weapon *> UnitType::getWeapons() const
 
 void UnitType::setWeapons(const QList<Weapon *> &weapons)
 {
-    this->weapons = weapons;
+    if (this->weapons != weapons)
+    {
+        this->weapons = weapons;
+        emit weaponsChanged();
+    }
+}
+
+
+QList<UnitType *> UnitType::getUpgrades() const
+{
+    return this->upgrades;
+}
+
+void UnitType::setUpgrades(const QList<UnitType *> &upgrades)
+{
+    if (this->upgrades != upgrades)
+    {
+        this->upgrades = upgrades;
+        emit upgradesChanged();
+    }
 }
 
 void UnitType::dataFromJson(const QJsonObject &obj)
 {
     this->hitPoints = obj["hitPoints"].toInt();
+    this->experiencePoints = obj["experiencePoints"].toInt();
+    this->level = this->parent()->findChild<UnitLevel *>(obj["level"].toString());
     this->unitClass = this->parent()->findChild<UnitClass *>(obj["class"].toString());
-    this->level = obj["level"].toInt();
     this->armor = this->parent()->findChild<Armor *>(obj["armor"].toString());
     this->weapons = referenceListFromJson<Weapon>(obj["weapons"].toArray(), this);
+    this->upgrades = referenceListFromJson<UnitType>(obj["upgrades"].toArray(), this);
 }
 
 void UnitType::dataToJson(QJsonObject &obj) const
 {
     obj["hitPoints"] = this->hitPoints;
+    obj["experiencePoints"] = this->experiencePoints;
+    obj["level"] = this->level->objectName();
     obj["class"] = this->unitClass->objectName();
-    obj["level"] = this->level;
     obj["armor"] = this->armor->objectName();
     obj["weapons"] = referenceListToJson<Weapon>(this->weapons);
+    obj["upgrades"] = referenceListToJson<UnitType>(this->upgrades);
 }

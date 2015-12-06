@@ -22,6 +22,45 @@
         }
     ],
 
+    "unitLevels": [
+        {
+            "objectName": "level0",
+            "displayName": "level0",
+            "index": 0,
+            "experiencePoints": 90
+        },
+        {
+            "objectName": "level1",
+            "displayName": "Levy",
+            "index": 1,
+            "experiencePoints": 100
+        },
+        {
+            "objectName": "level2",
+            "displayName": "Trained",
+            "index": 2,
+            "experiencePoints": 120
+        },
+        {
+            "objectName": "level3",
+            "displayName": "Experienced",
+            "index": 3,
+            "experiencePoints": 150
+        },
+        {
+            "objectName": "level4",
+            "displayName": "Veteran",
+            "index": 4,
+            "experiencePoints": 200
+        },
+        {
+            "objectName": "level5",
+            "displayName": "Elite",
+            "index": 5,
+            "experiencePoints": 400
+        }
+    ],
+
     "unitClasses": [
         {
             "objectName": "infantry",
@@ -217,161 +256,168 @@
         }
     ],
 
-	"unitTypes": [
+    "unitTypes": [
         {
-			"objectName": "levy_spearman",
-			"displayName": "Levy Spearman",
-			"hitPoints": 30,
-			"class": "infantry",
-			"level": 1,
-			"armor": "cloth",
-			"weapons": ["spear"]
-		},
-		{
-			"objectName": "spearman1",
-			"displayName": "Spearman",
-			"hitPoints": 30,
-			"class": "infantry",
-			"level": 2,
-			"armor": "leather",
-			"weapons": ["spear"]
-		},
-		{
-			"objectName": "spearman2",
-			"displayName": "Spearman",
-			"hitPoints": 30,
-			"class": "infantry",
-			"level": 3,
-			"armor": "leather",
-			"weapons": ["spear", "shortsword"]
-		},
-		{
-			"objectName": "veteran_spearman",
-			"displayName": "Veteran Spearman",
-			"hitPoints": 30,
-			"class": "infantry",
-			"level": 4,
-			"armor": "partial_mail",
-			"weapons": ["spear", "shortsword"]
-		},
-		{
-			"objectName": "sergeant_spearman",
-			"displayName": "Sergeant Spearman",
-			"hitPoints": 30,
-			"class": "infantry",
-			"level": 5,
-			"armor": "partial_mail",
-			"weapons": ["spear", "sword"]
-		},
+            "objectName": "sergeant_spearman",
+            "displayName": "Sergeant Spearman",
+            "hitPoints": 30,
+            "class": "infantry",
+            "level": "level5",
+            "armor": "partial_mail",
+            "weapons": ["spear", "sword"],
+            "upgrades": []
+        },
         {
-			"objectName": "levy_bowman",
-			"displayName": "Levy Bowman",
-			"hitPoints": 30,
-			"class": "missile",
-			"level": 1,
-			"armor": "cloth",
-			"weapons": ["bow", "hunting_knife"]
-		},
-		{
-			"objectName": "bowman1",
-			"displayName": "Bowman",
-			"hitPoints": 30,
-			"class": "missile",
-			"level": 2,
-			"armor": "leather",
-			"weapons": ["bow", "hatchet"]
-		},
+            "objectName": "veteran_spearman",
+            "displayName": "Veteran Spearman",
+            "hitPoints": 30,
+            "class": "infantry",
+            "level": "level4",
+            "armor": "partial_mail",
+            "weapons": ["spear", "shortsword"],
+            "upgrades": ["sergeant_spearman"]
+        },
         {
-			"objectName": "bowman2",
-			"displayName": "Bowman",
-			"hitPoints": 30,
-			"class": "missile",
-			"level": 3,
-			"armor": "leather",
-			"weapons": ["bow", "hatchet"]
-		},
-		{
-			"objectName": "veteran_bowman",
-			"displayName": "Veteran Bowman",
-			"hitPoints": 30,
-			"class": "missile",
-			"level": 4,
-			"armor": "leather",
-			"weapons": ["bow", "shortsword"]
-		},
+            "objectName": "spearman2",
+            "displayName": "Spearman",
+            "hitPoints": 30,
+            "class": "infantry",
+            "level": "level3",
+            "armor": "leather",
+            "weapons": ["spear", "shortsword"],
+            "upgrades": ["veteran_spearman"]
+        },
         {
-			"objectName": "marksman",
-			"displayName": "Marksman",
-			"hitPoints": 30,
-			"class": "missile",
-			"level": 5,
-			"armor": "leather",
-			"weapons": ["bow", "sword"]
-		},
+            "objectName": "spearman1",
+            "displayName": "Spearman",
+            "hitPoints": 30,
+            "class": "infantry",
+            "level": "level2",
+            "armor": "leather",
+            "weapons": ["spear"],
+            "upgrades": ["spearman2"]
+        },
         {
-			"objectName": "crossbowman1",
-			"displayName": "Crossbowman",
-			"hitPoints": 30,
-			"class": "missile",
-			"level": 2,
-			"armor": "leather",
-			"weapons": ["crossbow", "shortsword"]
-		},
-		{
-			"objectName": "crossbowman2",
-			"displayName": "Crossbowman",
-			"hitPoints": 30,
-			"class": "missile",
-			"level": 3,
-			"armor": "leather",
-			"weapons": ["crossbow", "shortsword"]
-		},
-		{
-			"objectName": "veteran_crossbowman",
-			"displayName": "Veteran Crossbowman",
-			"hitPoints": 30,
-			"class": "missile",
-			"level": 4,
-			"armor": "partial_mail",
-			"weapons": ["crossbow", "shortsword"]
-		},
+            "objectName": "levy_spearman",
+            "displayName": "Levy Spearman",
+            "hitPoints": 30,
+            "class": "infantry",
+            "level": "level1",
+            "armor": "cloth",
+            "weapons": ["spear"],
+            "upgrades": ["spearman1"]
+        },
         {
-			"objectName": "sergeant_crossbowman",
-			"displayName": "Sergeant Crossbowman",
-			"hitPoints": 30,
-			"class": "missile",
-			"level": 5,
-			"armor": "partial_mail",
-			"weapons": ["crossbow", "sword"]
-		},
-		{
-			"objectName": "knight1",
-			"displayName": "Knight",
-			"hitPoints": 30,
-			"class": "cavalry",
-			"level": 3,
-			"armor": "full_mail",
-			"weapons": ["lance", "knightly_sword"]
-		},
+            "objectName": "veteran_bowman",
+            "displayName": "Veteran Bowman",
+            "hitPoints": 30,
+            "class": "missile",
+            "level": "level4",
+            "armor": "leather",
+            "weapons": ["bow", "shortsword"],
+            "upgrades": []
+        },
         {
-			"objectName": "knight2",
-			"displayName": "Knight",
-			"hitPoints": 30,
-			"class": "cavalry",
-			"level": 4,
-			"armor": "full_mail",
-			"weapons": ["lance", "knightly_sword"]
-		},
-		{
-			"objectName": "knight3",
-			"displayName": "Royal Knight",
-			"hitPoints": 30,
-			"class": "cavalry",
-			"level": 5,
-			"armor": "advanced_mail",
-			"weapons": ["lance", "knightly_sword"]
-		}
-	],
+            "objectName": "bowman2",
+            "displayName": "Bowman",
+            "hitPoints": 30,
+            "class": "missile",
+            "level": "level3",
+            "armor": "leather",
+            "weapons": ["bow", "hatchet"],
+            "upgrades": ["veteran_bowman"]
+        },
+        {
+            "objectName": "bowman1",
+            "displayName": "Bowman",
+            "hitPoints": 30,
+            "class": "missile",
+            "level": "level2",
+            "armor": "leather",
+            "weapons": ["bow", "hatchet"],
+            "upgrades": ["bowman2"]
+        },
+        {
+            "objectName": "levy_bowman",
+            "displayName": "Levy Bowman",
+            "hitPoints": 30,
+            "class": "missile",
+            "level": "level1",
+            "armor": "cloth",
+            "weapons": ["bow", "hunting_knife"],
+            "upgrades": ["bowman1"]
+        },
+        {
+            "objectName": "sergeant_crossbowman",
+            "displayName": "Sergeant Crossbowman",
+            "hitPoints": 30,
+            "class": "missile",
+            "level": "level5",
+            "armor": "partial_mail",
+            "weapons": ["crossbow", "sword"],
+            "upgrades": []
+        },
+        {
+            "objectName": "veteran_crossbowman",
+            "displayName": "Veteran Crossbowman",
+            "hitPoints": 30,
+            "class": "missile",
+            "level": "level4",
+            "armor": "partial_mail",
+            "weapons": ["crossbow", "shortsword"],
+            "upgrades": ["sergeant_crossbowman"]
+        },
+        {
+            "objectName": "crossbowman2",
+            "displayName": "Crossbowman",
+            "hitPoints": 30,
+            "class": "missile",
+            "level": "level3",
+            "armor": "leather",
+            "weapons": ["crossbow", "shortsword"],
+            "upgrades": ["veteran_crossbowman"]
+        },
+        {
+            "objectName": "crossbowman1",
+            "displayName": "Crossbowman",
+            "hitPoints": 30,
+            "class": "missile",
+            "level": "level2",
+            "armor": "leather",
+            "weapons": ["crossbow", "shortsword"],
+            "upgrades": ["crossbowman2"]
+        },
+        {
+            "objectName": "knight3",
+            "displayName": "Royal Knight",
+            "hitPoints": 30,
+            "class": "cavalry",
+            "level": "level5",
+            "armor": "advanced_mail",
+            "weapons": ["lance", "knightly_sword"],
+            "upgrades": []
+        },
+        {
+            "objectName": "knight2",
+            "displayName": "Knight",
+            "hitPoints": 30,
+            "class": "cavalry",
+            "level": "level4",
+            "armor": "full_mail",
+            "weapons": ["lance", "knightly_sword"],
+            "upgrades": ["knight3"]
+        },
+        {
+            "objectName": "knight1",
+            "displayName": "Knight",
+            "hitPoints": 30,
+            "class": "cavalry",
+            "level": "level3",
+            "armor": "full_mail",
+            "weapons": ["lance", "knightly_sword"],
+            "upgrades": ["knight2"]
+        }
+    ],
 
     "settlementTypes": [
         {
@@ -379,8 +425,8 @@
             "displayName": "Village",
             "goldPerTurn": 2,
             "recruits": [
-				"levy_spearman",
-				"levy_bowman"
+                "levy_spearman",
+                "levy_bowman"
             ]
         },
         {
@@ -388,9 +434,9 @@
             "displayName": "Castle",
             "goldPerTurn": 4,
             "recruits": [
-				"spearman1",
-				"bowman1",
-				"crossbowman1",
+                "spearman1",
+                "bowman1",
+                "crossbowman1",
                 "knight1"
             ]
         },
@@ -399,8 +445,8 @@
             "displayName": "City",
             "goldPerTurn": 6,
             "recruits": [
-				"spearman1",
-				"crossbowman1",
+                "spearman1",
+                "crossbowman1",
                 "knight1"
             ]
         }
@@ -410,17 +456,16 @@
         {
             "objectName": "kingdom",
             "displayName": "The Kingdom",
-			"unitTypes": [
-				"levy_spearman",
-				"spearman1",
-				"spearman2",
-				"veteran_spearman",
-				"sergeant_spearman",
+            "unitTypes": [
+                "levy_spearman",
+                "spearman1",
+                "spearman2",
+                "veteran_spearman",
+                "sergeant_spearman",
                 "levy_bowman",
                 "bowman1",
                 "bowman2",
                 "veteran_bowman",
-                "marksman",
                 "crossbowman1",
                 "crossbowman2",
                 "veteran_crossbowman",
@@ -428,7 +473,7 @@
                 "knight1",
                 "knight2",
                 "knight3"
-			]
+            ]
         }
     ]
 }

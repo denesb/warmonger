@@ -7,6 +7,7 @@ namespace warmonger {
 namespace core {
 
 class UnitClass;
+class UnitLevel;
 class Armor;
 class Weapon;
 
@@ -24,13 +25,16 @@ public:
     int getHitPoints() const;
     void setHitPoints(int hitPoints);
 
+    int getExperiencePoints() const;
+    void setExperiencePoints(int experiencePoints);
+
+    UnitLevel * getLevel() const;
+    void setLevel(UnitLevel *level);
+
     UnitClass * getUnitClass() const;
     void setUnitClass(UnitClass *unitClass);
     QObject * readUnitClass() const;
     void writeUnitClass(QObject *unitClass);
-
-    int getLevel() const;
-    void setLevel(int level);
 
     Armor * getArmor() const;
     void setArmor(Armor *armor);
@@ -38,19 +42,28 @@ public:
     QList<Weapon *> getWeapons() const;
     void setWeapons(const QList<Weapon *> &weapons);
 
+    QList<UnitType *> getUpgrades() const;
+    void setUpgrades(const QList<UnitType *> &upgrades);
+
 signals:
     void hitPointsChanged();
+    void levelChanged();
     void unitClassChanged();
+    void armorChanged();
+    void weaponsChanged();
+    void upgradesChanged();
 
 private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
     int hitPoints;
+    int experiencePoints;
+    UnitLevel *level;
     UnitClass *unitClass;
-    int level;
     Armor *armor;
     QList<Weapon *> weapons;
+    QList<UnitType *> upgrades;
 };
 
 } // namespace core

@@ -6,10 +6,6 @@ General
 modified, but this might not be what we want.
 * Test suite
 
-Core
-----
-* XP and unit upgrading
-
 Map Editor
 ----------
 * Migrate to C++/QQuickItem
@@ -29,6 +25,7 @@ Gameplay (both core and ui)
 * Recruit units.
 * Occupy settlements.
 * Battle.
+* Unit upgrading
 
 UI
 --

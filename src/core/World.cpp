@@ -1,18 +1,19 @@
-#include <QFile>
 #include <QDir>
+#include <QFile>
 #include <QJsonDocument>
 
-#include "core/World.h"
-#include "core/WorldSurface.h"
+#include "core/Armor.h"
+#include "core/DamageType.h"
+#include "core/Faction.h"
+#include "core/JsonUtil.h"
 #include "core/TerrainType.h"
 #include "core/SettlementType.h"
 #include "core/UnitClass.h"
-#include "core/DamageType.h"
-#include "core/Weapon.h"
-#include "core/Armor.h"
+#include "core/UnitLevel.h"
 #include "core/UnitType.h"
-#include "core/Faction.h"
-#include "core/JsonUtil.h"
+#include "core/Weapon.h"
+#include "core/World.h"
+#include "core/WorldSurface.h"
 
 using namespace warmonger::core;
 
@@ -21,13 +22,14 @@ static const QString category{"core"};
 World::World() :
     GameEntity(),
     surface(nullptr),
+    armors(),
+    damageTypes(),
+    factions(),
     terrainTypes(),
     unitClasses(),
-    damageTypes(),
-    weapons(),
-    armors(),
+    unitLevels(),
     unitTypes(),
-    factions()
+    weapons()
 {
 }
 
@@ -70,6 +72,60 @@ QObject * World::readSurface() const
     return this->surface;
 }
 
+QList<Armor *> World::getArmors() const
+{
+    return this->armors;
+}
+
+void World::setArmors(const QList<Armor *> &armors)
+{
+    this->armors = armors;
+}
+
+QList<DamageType *> World::getDamageTypes() const
+{
+    return this->damageTypes;
+}
+
+void World::setDamageTypes(const QList<DamageType *> &damageTypes)
+{
+    this->damageTypes = damageTypes;
+}
+
+QList<Faction *> World::getFactions() const
+{
+    return this->factions;
+}
+
+void World::setFactions(const QList<Faction *> &factions)
+{
+    this->factions = factions;
+}
+
+QVariantList World::readFactions() const
+{
+    return toQVariantList<Faction>(this->factions);
+}
+
+QList<SettlementType *> World::getSettlementTypes() const
+{
+    return this->settlementTypes;
+}
+
+void World::setSettlementTypes(const QList<SettlementType *> &settlementTypes)
+{
+    if (this->settlementTypes != settlementTypes)
+    {
+        this->settlementTypes = settlementTypes;
+        emit settlementTypesChanged();
+    }
+}
+
+QVariantList World::readSettlementTypes() const
+{
+    return toQVariantList<SettlementType>(this->settlementTypes);
+}
+
 QList<TerrainType *> World::getTerrainTypes() const
 {
     return this->terrainTypes;
@@ -99,34 +155,18 @@ void World::setUnitClasses(const QList<UnitClass *> &unitClasses)
     this->unitClasses = unitClasses;
 }
 
-QList<DamageType *> World::getDamageTypes() const
+QList<UnitLevel *> World::getUnitLevels() const
 {
-    return this->damageTypes;
+    return this->unitLevels;
 }
 
-void World::setDamageTypes(const QList<DamageType *> &damageTypes)
+void World::setUnitLevels(const QList<UnitLevel *> &unitLevels)
 {
-    this->damageTypes = damageTypes;
-}
-
-QList<Armor *> World::getArmors() const
-{
-    return this->armors;
-}
-
-void World::setArmors(const QList<Armor *> &armors)
-{
-    this->armors = armors;
-}
-
-QList<Weapon *> World::getWeapons() const
-{
-    return this->weapons;
-}
-
-void World::setWeapons(const QList<Weapon *> &weapons)
-{
-    this->weapons = weapons;
+    if (this->unitLevels != unitLevels)
+    {
+        this->unitLevels = unitLevels;
+        emit unitLevelsChanged();
+    }
 }
 
 QList<UnitType *> World::getUnitTypes() const
@@ -148,47 +188,25 @@ QVariantList World::readUnitTypes() const
     return toQVariantList<UnitType>(this->unitTypes);
 }
 
-QList<SettlementType *> World::getSettlementTypes() const
+QList<Weapon *> World::getWeapons() const
 {
-    return this->settlementTypes;
+    return this->weapons;
 }
 
-void World::setSettlementTypes(const QList<SettlementType *> &settlementTypes)
+void World::setWeapons(const QList<Weapon *> &weapons)
 {
-    if (this->settlementTypes != settlementTypes)
-    {
-        this->settlementTypes = settlementTypes;
-        emit settlementTypesChanged();
-    }
-}
-
-QVariantList World::readSettlementTypes() const
-{
-    return toQVariantList<SettlementType>(this->settlementTypes);
-}
-
-QList<Faction *> World::getFactions() const
-{
-    return this->factions;
-}
-
-void World::setFactions(const QList<Faction *> &factions)
-{
-    this->factions = factions;
-}
-
-QVariantList World::readFactions() const
-{
-    return toQVariantList<Faction>(this->factions);
+    this->weapons = weapons;
 }
 
 void World::dataFromJson(const QJsonObject &obj)
 {
+    //N.B.: the order here is leaf->root in the world items dependency tree
+    this->damageTypes = newListFromJson<DamageType>(obj["damageTypes"].toArray(), this);
+    this->armors = newListFromJson<Armor>(obj["armors"].toArray(), this);
+    this->weapons = newListFromJson<Weapon>(obj["weapons"].toArray(), this);
     this->terrainTypes = newListFromJson<TerrainType>(obj["terrainTypes"].toArray(), this);
     this->unitClasses = newListFromJson<UnitClass>(obj["unitClasses"].toArray(), this);
-    this->damageTypes = newListFromJson<DamageType>(obj["damageTypes"].toArray(), this);
-    this->weapons = newListFromJson<Weapon>(obj["weapons"].toArray(), this);
-    this->armors = newListFromJson<Armor>(obj["armors"].toArray(), this);
+    this->unitLevels = newListFromJson<UnitLevel>(obj["unitLevels"].toArray(), this);
     this->unitTypes = newListFromJson<UnitType>(obj["unitTypes"].toArray(), this);
     this->settlementTypes = newListFromJson<SettlementType>(obj["settlementTypes"].toArray(), this);
     this->factions = newListFromJson<Faction>(obj["factions"].toArray(), this);
@@ -196,11 +214,13 @@ void World::dataFromJson(const QJsonObject &obj)
 
 void World::dataToJson(QJsonObject &obj) const
 {
+    //N.B.: the order here is leaf->root in the world items dependency tree
+    obj["damageTypes"] = listToJson<DamageType>(this->damageTypes);
+    obj["armors"] = listToJson<Armor>(this->armors);
+    obj["weapons"] = listToJson<Weapon>(this->weapons);
     obj["terrainTypes"] = listToJson<TerrainType>(this->terrainTypes);
     obj["unitClasses"] = listToJson<UnitClass>(this->unitClasses);
-    obj["damageTypes"] = listToJson<DamageType>(this->damageTypes);
-    obj["weapons"] = listToJson<Weapon>(this->weapons);
-    obj["armors"] = listToJson<Armor>(this->armors);
+    obj["unitLevels"] = listToJson<UnitLevel>(this->unitLevels);
     obj["unitTypes"] = listToJson<UnitType>(this->unitTypes);
     obj["settlementTypes"] = listToJson<SettlementType>(this->settlementTypes);
     obj["factions"] = listToJson<Faction>(this->factions);

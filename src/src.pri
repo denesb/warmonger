@@ -36,6 +36,7 @@ HEADERS += \
     src/core/TerrainType.h \
     src/core/Unit.h \
     src/core/UnitClass.h \
+    src/core/UnitLevel.h \
     src/core/UnitType.h \
     src/core/Util.h \
     src/core/Weapon.h \
@@ -84,6 +85,7 @@ SOURCES += \
     src/core/TerrainType.cpp \
     src/core/Unit.cpp \
     src/core/UnitClass.cpp \
+    src/core/UnitLevel.cpp \
     src/core/UnitType.cpp \
     src/core/Util.cpp \
     src/core/Weapon.cpp \

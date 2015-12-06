@@ -640,20 +640,23 @@ void GameMap::advanceUnits()
 
     for (MovingUnit *movingUnit : this->movingUnits)
     {
-        core::MapNode *nextNode = movingUnit->nextNode();
-        qreal distTravelled = this->stepUnitTorwards(movingUnit, nextNode);
+        qreal l = MovingUnit::unitStep;
 
-        if (distTravelled != 0 &&
-            movingUnit->index < movingUnit->path.size() - 1)
+        while (l > 0 && movingUnit->index < movingUnit->path.size())
         {
-            movingUnit->index++;
-            nextNode = movingUnit->nextNode();
+            core::MapNode *nextNode = movingUnit->nextNode();
+            QLineF path(movingUnit->pos, this->nodesPos[nextNode]);
 
-            this->stepUnitTorwards(movingUnit, nextNode);
+            if (path.length() > MovingUnit::unitStep)
+                path.setLength(MovingUnit::unitStep);
+            else
+                movingUnit->index++;
+
+            l -= path.length();
+            movingUnit->pos = path.p2();
         }
 
-        core::MapNode *destNode = movingUnit->unit->getMapNode();
-        if (movingUnit->pos == this->nodesPos[destNode])
+        if (movingUnit->index == movingUnit->path.size())
         {
             this->movingUnits.removeOne(movingUnit);
             delete movingUnit;
@@ -661,16 +664,4 @@ void GameMap::advanceUnits()
     }
 
     this->update();
-}
-
-qreal GameMap::stepUnitTorwards(MovingUnit *u, core::MapNode *n)
-{
-    QLineF path(u->pos, this->nodesPos[n]);
-
-    if (path.length() > MovingUnit::unitStep)
-        path.setLength(MovingUnit::unitStep);
-
-    u->pos = path.p2();
-
-    return MovingUnit::unitStep - path.length();
 }

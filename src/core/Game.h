@@ -74,7 +74,15 @@ public:
 
     void fromMapJson(const QJsonObject &obj);
 
-signals:
+protected:
+    /**
+     * Get the movement cost for travelling from node1 to node2.
+     */
+    double movementCost(
+        const Unit *unit,
+        const MapNode *node1,
+        const MapNode *node2
+    ) const;
 
 private:
     void reachableMapNodes(

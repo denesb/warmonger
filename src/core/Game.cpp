@@ -15,15 +15,6 @@ using namespace warmonger::core;
 static const QString category{"core"};
 
 /**
- * Get the movement cost for travelling from node1 to node2.
- */
-static double movementCost(
-    const UnitClass *klass,
-    const MapNode *node1,
-    const MapNode *node2
-);
-
-/**
  * Find the shortest path with the dijstra algorithm
  */
 static QMap<MapNode *, MapNode *> dijkstraPath(
@@ -72,11 +63,11 @@ QList<MapNode *> Game::shortestPath(
     MapNode *node2
 ) const
 {
-    UnitClass *klass = unit->getUnitType()->getUnitClass();
     std::function<double(const MapNode *, const MapNode *)> edgeCostFunc =
         std::bind(
-            movementCost,
-            klass,
+            &Game::movementCost,
+            this,
+            unit,
             std::placeholders::_1,
             std::placeholders::_2
         );
@@ -103,7 +94,6 @@ QList<MapNode *> Game::moveUnitAlongPath(
     const QList<MapNode *> &path
 )
 {
-    const UnitClass *klass = unit->getUnitType()->getUnitClass();
     double mp = unit->getMovementPoints();
     QList<MapNode*> travelledPath;
 
@@ -115,7 +105,7 @@ QList<MapNode *> Game::moveUnitAlongPath(
         MapNode *n0 = path[i - 1];
         MapNode *n1 = path[i];
 
-        const double cost = movementCost(klass, n0, n1);
+        const double cost = this->movementCost(unit, n0, n1);
         if (mp < cost)
             break;
 
@@ -148,6 +138,30 @@ QList<MapNode *> Game::moveUnitToNode(Unit *unit, MapNode *node)
     return std::move(path);
 }
 
+double Game::movementCost(
+    const Unit *unit,
+    const MapNode *node1,
+    const MapNode *node2
+) const
+{
+    // Cannot move to an already occupied node
+    if (this->hasUnit(node2))
+        return std::numeric_limits<double>::max();
+
+    const UnitClass *klass = unit->getUnitType()->getUnitClass();
+    int cost1i = klass->getMovementCost(node1->getTerrainType());
+    int cost2i = klass->getMovementCost(node2->getTerrainType());
+
+    // Less than 0 cost means impassable terrain for this unit
+    if (cost1i <= 0 || cost2i <= 0)
+        return std::numeric_limits<double>::max();
+
+    double cost1 = static_cast<double>(cost1i);
+    double cost2 = static_cast<double>(cost2i);
+
+    return (cost1 + cost2)/2.0;
+}
+
 void Game::reachableMapNodes(
     QSet<MapNode *> &reachedNodes,
     MapNode *node,
@@ -155,15 +169,13 @@ void Game::reachableMapNodes(
     double mp
 ) const
 {
-    UnitClass *klass = unit->getUnitType()->getUnitClass();
-
     QHash<MapNode::Direction, MapNode *> neighbours = node->getNeighbours();
     for (MapNode *neighbour : neighbours)
     {
         if (neighbour == nullptr)
             continue;
 
-        double cost = movementCost(klass, node, neighbour);
+        double cost = this->movementCost(unit, node, neighbour);
         if (mp >= cost)
         {
             reachedNodes << neighbour;
@@ -194,24 +206,6 @@ void Game::dataFromJson(const QJsonObject &obj)
 void Game::dataToJson(QJsonObject &obj) const
 {
     Map::dataToJson(obj);
-}
-
-double movementCost(
-    const UnitClass *klass,
-    const MapNode *node1,
-    const MapNode *node2
-)
-{
-    int cost1i = klass->getMovementCost(node1->getTerrainType());
-    int cost2i = klass->getMovementCost(node2->getTerrainType());
-
-    if (cost1i <= 0 || cost2i <= 0)
-        return std::numeric_limits<double>::max();
-
-    double cost1 = static_cast<double>(cost1i);
-    double cost2 = static_cast<double>(cost2i);
-
-    return (cost1 + cost2)/2.0;
 }
 
 QMap<MapNode *, MapNode *> dijkstraPath(

@@ -13,6 +13,11 @@ const QMap<Unit::UnitRank, QString> Unit::rank2str{
     std::make_pair(Unit::Officer, "officer"),
     std::make_pair(Unit::Leader, "leader")
 };
+const QMap<Unit::UnitRank, QString> Unit::rankNames{
+    std::make_pair(Unit::Soldier, "Soldier"),
+    std::make_pair(Unit::Officer, "Officer"),
+    std::make_pair(Unit::Leader, "Leader")
+};
 const QMap<QString, Unit::UnitRank> Unit::str2rank{
     std::make_pair("soldier", Unit::Soldier),
     std::make_pair("officer", Unit::Officer),
@@ -42,7 +47,16 @@ Unit::UnitRank Unit::getRank() const
 
 void Unit::setRank(Unit::UnitRank rank)
 {
-    this->rank = rank;
+    if (this->rank != rank)
+    {
+        this->rank = rank;
+        emit rankChanged();
+    }
+}
+
+QString Unit::getRankName() const
+{
+    return Unit::rankNames[this->rank];
 }
 
 UnitType * Unit::getType() const

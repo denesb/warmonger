@@ -16,6 +16,8 @@ class Unit :
     public GameObject
 {
     Q_OBJECT
+    Q_PROPERTY(UnitRank rank READ getRank WRITE setRank NOTIFY rankChanged)
+    Q_PROPERTY(QString rankName READ getRankName NOTIFY rankChanged)
     Q_PROPERTY(QObject * type READ readType WRITE writeType NOTIFY typeChanged)
     Q_PROPERTY(QObject * mapNode READ readMapNode WRITE writeMapNode NOTIFY mapNodeChanged)
     Q_PROPERTY(QObject * owner READ readOwner WRITE writeOwner NOTIFY ownerChanged)
@@ -30,8 +32,10 @@ public:
         Officer = 1,
         Leader = 2
     };
+    Q_ENUM(UnitRank)
 
     static const QMap<UnitRank, QString> rank2str;
+    static const QMap<UnitRank, QString> rankNames;
     static const QMap<QString, UnitRank> str2rank;
 
     Unit(QObject *parent);
@@ -39,6 +43,8 @@ public:
 
     UnitRank getRank() const;
     void setRank(UnitRank rank);
+
+    QString getRankName() const;
 
     UnitType * getType() const;
     void setType(UnitType *type);
@@ -65,6 +71,7 @@ public:
     void setMovementPoints(double movementPoints);
 
 signals:
+    void rankChanged();
     void typeChanged();
     void mapNodeChanged();
     void ownerChanged();

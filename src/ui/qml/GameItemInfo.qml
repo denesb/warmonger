@@ -168,9 +168,32 @@ Rectangle {
             }
         }
 
-        Rectangle {
+        Text {
+            id: unitRank
             anchors {
                 top: unitName.bottom
+                left: parent.left
+                right: parent.right
+            }
+
+            text: {
+                if (root.unit) {
+                    var u = root.unit;
+                    var text = "";
+
+                    text += "Level " + u.type.level.index;
+                    text += " (" + u.type.level.displayName + ")";
+                    text += " " + u.rankName;
+                    text;
+                } else {
+                    "";
+                }
+            }
+        }
+
+        Rectangle {
+            anchors {
+                top: unitRank.bottom
                 left: parent.left
                 right: parent.right
             }

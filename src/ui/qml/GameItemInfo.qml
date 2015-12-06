@@ -158,8 +158,8 @@ Rectangle {
 
                     if (u.displayName != "")
                         text += u.displayName + " ";
-                    text += u.unitType.displayName;
-                    text += " [" + u.unitType.unitClass.displayName + "]";
+                    text += u.type.displayName;
+                    text += " [" + u.type.klass.displayName + "]";
                     text += " - " + u.owner.displayName;
                     text;
                 } else {
@@ -219,8 +219,8 @@ Rectangle {
                     source: {
                         if (root.unit) {
                             var surface = W.world.surface;
-                            var unitTypeName = root.unit.unitType.objectName;
-                            surface.prefix + surface.imagePaths[unitTypeName];
+                            var typeName = root.unit.type.objectName;
+                            surface.prefix + surface.imagePaths[typeName];
                         } else {
                             "";
                         }
@@ -261,7 +261,7 @@ Rectangle {
                                 else 0;
                             }
                             maxPoints: {
-                                if (root.unit) root.unit.unitType.hitPoints;
+                                if (root.unit) root.unit.type.hitPoints;
                                 else 0;
                             }
                             color: {
@@ -298,7 +298,7 @@ Rectangle {
                             }
                             maxPoints: {
                                 if (root.unit) {
-                                    root.unit.unitType.unitClass.movementPoints;
+                                    root.unit.type.klass.movementPoints;
                                 } else {
                                     0;
                                 }
@@ -328,8 +328,7 @@ Rectangle {
                             }
                             maxPoints: {
                                 if (root.unit) {
-                                    //root.unit.experiencePoints;
-                                    100;
+                                    root.unit.type.level.experiencePoints;
                                 } else {
                                     0;
                                 }

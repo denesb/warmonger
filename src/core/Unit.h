@@ -16,7 +16,7 @@ class Unit :
     public GameObject
 {
     Q_OBJECT
-    Q_PROPERTY(QObject * unitType READ readUnitType WRITE writeUnitType NOTIFY unitTypeChanged)
+    Q_PROPERTY(QObject * type READ readType WRITE writeType NOTIFY typeChanged)
     Q_PROPERTY(QObject * mapNode READ readMapNode WRITE writeMapNode NOTIFY mapNodeChanged)
     Q_PROPERTY(QObject * owner READ readOwner WRITE writeOwner NOTIFY ownerChanged)
     Q_PROPERTY(int experiencePoints READ getExperiencePoints WRITE setExperiencePoints NOTIFY experiencePointsChanged)
@@ -31,19 +31,19 @@ public:
         Leader = 2
     };
 
-    static const QMap<UnitRank, QString> unitRank2str;
-    static const QMap<QString, UnitRank> str2unitRank;
+    static const QMap<UnitRank, QString> rank2str;
+    static const QMap<QString, UnitRank> str2rank;
 
     Unit(QObject *parent);
     ~Unit();
 
-    UnitRank getUnitRank() const;
-    void setUnitRank(UnitRank unitRank);
+    UnitRank getRank() const;
+    void setRank(UnitRank rank);
 
-    UnitType * getUnitType() const;
-    void setUnitType(UnitType *unitType);
-    QObject * readUnitType() const;
-    void writeUnitType(QObject *settlementType);
+    UnitType * getType() const;
+    void setType(UnitType *type);
+    QObject * readType() const;
+    void writeType(QObject *type);
 
     MapNode * getMapNode() const;
     QObject * readMapNode() const;
@@ -65,7 +65,7 @@ public:
     void setMovementPoints(double movementPoints);
 
 signals:
-    void unitTypeChanged();
+    void typeChanged();
     void mapNodeChanged();
     void ownerChanged();
     void experiencePointsChanged();
@@ -73,13 +73,13 @@ signals:
     void movementPointsChanged();
 
 private:
-    void onUnitTypeChanged(const UnitType *oldUnitType);
+    void onTypeChanged(const UnitType *oldUnitType);
 
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
-    UnitRank unitRank;
-    UnitType *unitType;
+    UnitRank rank;
+    UnitType *type;
     MapNode *mapNode;
     Player *owner;
     double experiencePoints;

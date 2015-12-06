@@ -11623,7 +11623,7 @@
             "objectName": "unit1",
             "owner": "player2",
             "rank": "leader",
-            "unitType": "knight1"
+            "type": "knight1"
         },
         {
             "displayName": "",
@@ -11634,7 +11634,7 @@
             "objectName": "unit2",
             "owner": "player2",
             "rank": "officer",
-            "unitType": "knight1"
+            "type": "knight1"
         },
         {
             "displayName": "",
@@ -11645,7 +11645,7 @@
             "objectName": "unit3",
             "owner": "player2",
             "rank": "officer",
-            "unitType": "knight1"
+            "type": "knight1"
         },
         {
             "displayName": "",
@@ -11656,7 +11656,7 @@
             "objectName": "unit4",
             "owner": "player2",
             "rank": "soldier",
-            "unitType": "spearman1"
+            "type": "spearman1"
         },
         {
             "displayName": "",
@@ -11667,7 +11667,7 @@
             "objectName": "unit5",
             "owner": "player1",
             "rank": "soldier",
-            "unitType": "spearman1"
+            "type": "spearman1"
         },
         {
             "displayName": "",
@@ -11678,7 +11678,7 @@
             "objectName": "unit6",
             "owner": "player1",
             "rank": "leader",
-            "unitType": "knight1"
+            "type": "knight1"
         },
         {
             "displayName": "",
@@ -11689,7 +11689,7 @@
             "objectName": "unit7",
             "owner": "player1",
             "rank": "officer",
-            "unitType": "knight1"
+            "type": "knight1"
         },
         {
             "displayName": "",
@@ -11700,7 +11700,7 @@
             "objectName": "unit8",
             "owner": "player1",
             "rank": "officer",
-            "unitType": "knight1"
+            "type": "knight1"
         }
     ],
     "world": "iron_age"

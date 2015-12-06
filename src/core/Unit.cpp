@@ -8,12 +8,12 @@ using namespace warmonger::core;
 
 static const QString category{"core"};
 
-const QMap<Unit::UnitRank, QString> Unit::unitRank2str{
+const QMap<Unit::UnitRank, QString> Unit::rank2str{
     std::make_pair(Unit::Soldier, "soldier"),
     std::make_pair(Unit::Officer, "officer"),
     std::make_pair(Unit::Leader, "leader")
 };
-const QMap<QString, Unit::UnitRank> Unit::str2unitRank{
+const QMap<QString, Unit::UnitRank> Unit::str2rank{
     std::make_pair("soldier", Unit::Soldier),
     std::make_pair("officer", Unit::Officer),
     std::make_pair("leader", Unit::Leader)
@@ -21,8 +21,8 @@ const QMap<QString, Unit::UnitRank> Unit::str2unitRank{
 
 Unit::Unit(QObject *parent) :
     GameObject(parent),
-    unitRank(Unit::Soldier),
-    unitType(nullptr),
+    rank(Unit::Soldier),
+    type(nullptr),
     mapNode(nullptr),
     owner(nullptr),
     experiencePoints(0.0),
@@ -35,48 +35,48 @@ Unit::~Unit()
 {
 }
 
-Unit::UnitRank Unit::getUnitRank() const
+Unit::UnitRank Unit::getRank() const
 {
-    return this->unitRank;
+    return this->rank;
 }
 
-void Unit::setUnitRank(Unit::UnitRank unitRank)
+void Unit::setRank(Unit::UnitRank rank)
 {
-    this->unitRank = unitRank;
+    this->rank = rank;
 }
 
-UnitType * Unit::getUnitType() const
+UnitType * Unit::getType() const
 {
-    return this->unitType;
+    return this->type;
 }
 
-void Unit::setUnitType(UnitType *unitType)
+void Unit::setType(UnitType *type)
 {
-    if (this->unitType != unitType)
+    if (this->type != type)
     {
-        const UnitType *oldUnitType = this->unitType;
-        this->unitType = unitType;
+        const UnitType *oldType = this->type;
+        this->type = type;
 
-        this->onUnitTypeChanged(oldUnitType);
-        emit unitTypeChanged();
+        this->onTypeChanged(oldType);
+        emit typeChanged();
     }
 }
 
-QObject * Unit::readUnitType() const
+QObject * Unit::readType() const
 {
-    return this->unitType;
+    return this->type;
 }
 
-void Unit::writeUnitType(QObject *unitType)
+void Unit::writeType(QObject *type)
 {
-    UnitType *ut = qobject_cast<UnitType *>(unitType);
+    UnitType *ut = qobject_cast<UnitType *>(type);
     if (ut == nullptr)
     {
-        wError(category) << "unitType is null or has wrong type";
+        wError(category) << "type is null or has wrong type";
         throw Exception(Exception::InvalidValue);
     }
 
-    this->setUnitType(ut);
+    this->setType(ut);
 }
 
 MapNode * Unit::getMapNode() const
@@ -181,26 +181,26 @@ void Unit::setMovementPoints(double movementPoints)
     }
 }
 
-void Unit::onUnitTypeChanged(const UnitType *oldUnitType)
+void Unit::onTypeChanged(const UnitType *oldUnitType)
 {
     int hpPercentage = this->hitPoints * 100 / oldUnitType->getHitPoints();
-    this->hitPoints = (this->unitType->getHitPoints() * hpPercentage) / 100;
+    this->hitPoints = (this->type->getHitPoints() * hpPercentage) / 100;
 }
 
 void Unit::dataFromJson(const QJsonObject &obj)
 {
-    const QString unitRankStr = obj["rank"].toString();
-    if (Unit::str2unitRank.contains(unitRankStr))
+    const QString rankStr = obj["rank"].toString();
+    if (Unit::str2rank.contains(rankStr))
     {
-        this->unitRank = Unit::str2unitRank[unitRankStr];
+        this->rank = Unit::str2rank[rankStr];
     }
     else
     {
-        wError(category) << "Invalid unit rank: " << unitRankStr;
+        wError(category) << "Invalid unit rank: " << rankStr;
         throw Exception(Exception::InvalidValue);
     }
-    this->unitType = resolveReference<UnitType>(
-        obj["unitType"].toString(),
+    this->type = resolveReference<UnitType>(
+        obj["type"].toString(),
         this->parent()
     );
     this->mapNode = resolveReference<MapNode>(
@@ -218,8 +218,8 @@ void Unit::dataFromJson(const QJsonObject &obj)
 
 void Unit::dataToJson(QJsonObject &obj) const
 {
-    obj["rank"] = Unit::unitRank2str[this->unitRank];
-    obj["unitType"] = this->unitType->objectName();
+    obj["rank"] = Unit::rank2str[this->rank];
+    obj["type"] = this->type->objectName();
     obj["mapNode"] = this->mapNode->objectName();
     obj["owner"] = this->owner->objectName();
     obj["experiencePoints"] = this->experiencePoints;

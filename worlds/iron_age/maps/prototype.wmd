@@ -3191,7 +3191,7 @@
             "objectName": "unit0",
             "owner": "player1",
             "rank": "soldier",
-            "unitType": "levy_spearman"
+            "type": "levy_spearman"
         },
         {
             "displayName": "",
@@ -3202,7 +3202,7 @@
             "objectName": "unit1",
             "owner": "neutral",
             "rank": "soldier",
-            "unitType": "spearman2"
+            "type": "spearman2"
         },
         {
             "displayName": "",
@@ -3213,7 +3213,7 @@
             "objectName": "unit2",
             "owner": "neutral",
             "rank": "soldier",
-            "unitType": "spearman1"
+            "type": "spearman1"
         }
     ],
     "world": "iron_age"

@@ -137,8 +137,8 @@ Rectangle {
             source: {
                 if (root.unit) {
                     var surface = W.world.surface;
-                    var unitTypeName = root.unit.unitType.objectName;
-                    surface.prefix + surface.imagePaths[unitTypeName];
+                    var typeName = root.unit.type.objectName;
+                    surface.prefix + surface.imagePaths[typeName];
                 } else {
                     "";
                 }
@@ -154,7 +154,7 @@ Rectangle {
 
                     if (root.unit.displayName != "")
                         text += root.unit.displayName + " ";
-                    text += root.unit.unitType.displayName;
+                    text += root.unit.type.displayName;
                     text;
                 } else {
                     "";

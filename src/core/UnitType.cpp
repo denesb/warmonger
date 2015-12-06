@@ -14,7 +14,7 @@ UnitType::UnitType(QObject *parent) :
     hitPoints(0),
     experiencePoints(0),
     level(nullptr),
-    unitClass(nullptr),
+    klass(nullptr),
     armor(nullptr),
     weapons(),
     upgrades()
@@ -44,6 +44,11 @@ UnitLevel * UnitType::getLevel() const
     return this->level;
 }
 
+QObject * UnitType::readLevel() const
+{
+    return this->level;
+}
+
 void UnitType::setLevel(UnitLevel *level)
 {
     if (this->level != level)
@@ -53,35 +58,35 @@ void UnitType::setLevel(UnitLevel *level)
     }
 }
 
-UnitClass *UnitType::getUnitClass() const
+UnitClass *UnitType::getClass() const
 {
-    return this->unitClass;
+    return this->klass;
 }
 
-void UnitType::setUnitClass(UnitClass *unitClass)
+void UnitType::setClass(UnitClass *klass)
 {
-    if (this->unitClass != unitClass)
+    if (this->klass != klass)
     {
-        this->unitClass = unitClass;
-        emit unitClassChanged();
+        this->klass = klass;
+        emit classChanged();
     }
 }
 
-QObject * UnitType::readUnitClass() const
+QObject * UnitType::readClass() const
 {
-    return this->unitClass;
+    return this->klass;
 }
 
-void UnitType::writeUnitClass(QObject *unitClass)
+void UnitType::writeClass(QObject *klass)
 {
-    UnitClass *uc = qobject_cast<UnitClass *>(unitClass);
+    UnitClass *uc = qobject_cast<UnitClass *>(klass);
     if (uc == nullptr)
     {
-        wError(category) << "unitClass is null or has wrong type";
+        wError(category) << "klass is null or has wrong type";
         throw Exception(Exception::InvalidValue);
     }
 
-    this->setUnitClass(uc);
+    this->setClass(uc);
 }
 
 Armor * UnitType::getArmor() const
@@ -132,7 +137,7 @@ void UnitType::dataFromJson(const QJsonObject &obj)
     this->hitPoints = obj["hitPoints"].toInt();
     this->experiencePoints = obj["experiencePoints"].toInt();
     this->level = this->parent()->findChild<UnitLevel *>(obj["level"].toString());
-    this->unitClass = this->parent()->findChild<UnitClass *>(obj["class"].toString());
+    this->klass = this->parent()->findChild<UnitClass *>(obj["class"].toString());
     this->armor = this->parent()->findChild<Armor *>(obj["armor"].toString());
     this->weapons = referenceListFromJson<Weapon>(obj["weapons"].toArray(), this);
     this->upgrades = referenceListFromJson<UnitType>(obj["upgrades"].toArray(), this);
@@ -143,7 +148,7 @@ void UnitType::dataToJson(QJsonObject &obj) const
     obj["hitPoints"] = this->hitPoints;
     obj["experiencePoints"] = this->experiencePoints;
     obj["level"] = this->level->objectName();
-    obj["class"] = this->unitClass->objectName();
+    obj["class"] = this->klass->objectName();
     obj["armor"] = this->armor->objectName();
     obj["weapons"] = referenceListToJson<Weapon>(this->weapons);
     obj["upgrades"] = referenceListToJson<UnitType>(this->upgrades);

@@ -16,7 +16,8 @@ class UnitType :
 {
     Q_OBJECT;
     Q_PROPERTY(int hitPoints READ getHitPoints WRITE setHitPoints NOTIFY hitPointsChanged)
-    Q_PROPERTY(QObject * unitClass READ readUnitClass WRITE writeUnitClass NOTIFY unitClassChanged)
+    Q_PROPERTY(QObject * klass READ readClass WRITE writeClass NOTIFY classChanged)
+    Q_PROPERTY(QObject * level READ readLevel NOTIFY levelChanged)
 
 public:
     UnitType(QObject *parent);
@@ -29,12 +30,13 @@ public:
     void setExperiencePoints(int experiencePoints);
 
     UnitLevel * getLevel() const;
+    QObject * readLevel() const;
     void setLevel(UnitLevel *level);
 
-    UnitClass * getUnitClass() const;
-    void setUnitClass(UnitClass *unitClass);
-    QObject * readUnitClass() const;
-    void writeUnitClass(QObject *unitClass);
+    UnitClass * getClass() const;
+    void setClass(UnitClass *klass);
+    QObject * readClass() const;
+    void writeClass(QObject *klass);
 
     Armor * getArmor() const;
     void setArmor(Armor *armor);
@@ -48,7 +50,7 @@ public:
 signals:
     void hitPointsChanged();
     void levelChanged();
-    void unitClassChanged();
+    void classChanged();
     void armorChanged();
     void weaponsChanged();
     void upgradesChanged();
@@ -60,7 +62,7 @@ private:
     int hitPoints;
     int experiencePoints;
     UnitLevel *level;
-    UnitClass *unitClass;
+    UnitClass *klass;
     Armor *armor;
     QList<Weapon *> weapons;
     QList<UnitType *> upgrades;

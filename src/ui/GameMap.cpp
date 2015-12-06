@@ -531,7 +531,7 @@ void GameMap::drawContent(QPainter *painter, const core::MapNode *node)
 
     if (unit != nullptr && !MovingUnit::movingUnits.contains(unit))
     {
-        const core::UnitType *ut = unit->getUnitType();
+        const core::UnitType *ut = unit->getType();
         const QImage image = this->surface->getImage(ut->objectName());
         painter->drawImage(frame, image);
     }
@@ -541,7 +541,7 @@ void GameMap::drawMovingUnit(QPainter *painter, const MovingUnit *movingUnit)
 {
     const QPoint pos(movingUnit->pos.toPoint());
     const QRect frame(pos, this->tileSize);
-    const core::UnitType *ut = movingUnit->unit->getUnitType();
+    const core::UnitType *ut = movingUnit->unit->getType();
     const QImage image = this->surface->getImage(ut->objectName());
     painter->drawImage(frame, image);
 }

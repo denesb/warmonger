@@ -254,10 +254,10 @@ void Map::createUnit(UnitType *unitType, MapNode *mapNode)
     newUnit->setObjectName(
         Map::unitNameTemplate.arg(++this->unitIndex)
     );
-    newUnit->setUnitType(unitType);
+    newUnit->setType(unitType);
     newUnit->setMapNode(mapNode);
     newUnit->setHitPoints(unitType->getHitPoints());
-    newUnit->setMovementPoints(unitType->getUnitClass()->getMovementPoints());
+    newUnit->setMovementPoints(unitType->getClass()->getMovementPoints());
     newUnit->setOwner(this->neutralPlayer);
 
     this->addUnit(newUnit);

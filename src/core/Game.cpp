@@ -148,7 +148,7 @@ double Game::movementCost(
     if (this->hasUnit(node2))
         return std::numeric_limits<double>::max();
 
-    const UnitClass *klass = unit->getUnitType()->getUnitClass();
+    const UnitClass *klass = unit->getType()->getClass();
     int cost1i = klass->getMovementCost(node1->getTerrainType());
     int cost2i = klass->getMovementCost(node2->getTerrainType());
 

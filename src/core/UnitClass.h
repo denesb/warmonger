@@ -4,11 +4,10 @@
 #include <QMap>
 
 #include "core/GameObject.h"
+#include "core/TerrainType.h"
 
 namespace warmonger {
 namespace core {
-
-class TerrainType;
 
 class UnitClass :
     public GameObject

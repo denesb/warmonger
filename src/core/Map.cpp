@@ -1,16 +1,11 @@
 #include <QMetaMethod>
 #include <QSet>
 
-#include "core/Map.h"
-#include "core/World.h"
-#include "core/WorldSurface.h"
-#include "core/Player.h"
-#include "core/Settlement.h"
-#include "core/TerrainType.h"
-#include "core/UnitType.h"
-#include "core/UnitClass.h"
-#include "core/Unit.h"
 #include "core/JsonUtil.h"
+#include "core/Map.h"
+#include "core/TerrainType.h"
+#include "core/WorldSurface.h"
+#include "core/UnitClass.h"
 
 using namespace warmonger::core;
 
@@ -57,23 +52,6 @@ void Map::setWorld(World *world)
         this->world = world;
         emit worldChanged();
     }
-}
-
-QObject * Map::readWorld() const
-{
-    return this->world;
-}
-
-void Map::writeWorld(QObject *world)
-{
-    World *w = qobject_cast<World *>(world);
-    if (w == nullptr)
-    {
-        wError("core") << "world is null or has wrong type";
-        throw Exception(Exception::InvalidValue);
-    }
-
-    this->setWorld(w);
 }
 
 void Map::addMapNode(MapNode *mapNode)
@@ -211,7 +189,7 @@ QVariantList Map::readAllPlayers() const
     return toQVariantList<Player>(allPlayers);
 }
 
-QObject * Map::readNeutralPlayer() const
+Player * Map::getNeutralPlayer() const
 {
     return this->neutralPlayer;
 }

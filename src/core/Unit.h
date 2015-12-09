@@ -4,13 +4,12 @@
 #include <QPoint>
 
 #include "core/GameObject.h"
+#include "core/MapNode.h"
+#include "core/Player.h"
+#include "core/UnitType.h"
 
 namespace warmonger {
 namespace core {
-
-class UnitType;
-class MapNode;
-class Player;
 
 class Unit :
     public GameObject
@@ -18,9 +17,9 @@ class Unit :
     Q_OBJECT
     Q_PROPERTY(UnitRank rank READ getRank WRITE setRank NOTIFY rankChanged)
     Q_PROPERTY(QString rankName READ getRankName NOTIFY rankChanged)
-    Q_PROPERTY(QObject * type READ readType WRITE writeType NOTIFY typeChanged)
-    Q_PROPERTY(QObject * mapNode READ readMapNode WRITE writeMapNode NOTIFY mapNodeChanged)
-    Q_PROPERTY(QObject * owner READ readOwner WRITE writeOwner NOTIFY ownerChanged)
+    Q_PROPERTY(UnitType *type READ getType WRITE setType NOTIFY typeChanged)
+    Q_PROPERTY(MapNode *mapNode READ getMapNode WRITE setMapNode NOTIFY mapNodeChanged)
+    Q_PROPERTY(Player *owner READ getOwner WRITE setOwner NOTIFY ownerChanged)
     Q_PROPERTY(int experiencePoints READ getExperiencePoints WRITE setExperiencePoints NOTIFY experiencePointsChanged)
     Q_PROPERTY(int hitPoints READ getHitPoints WRITE setHitPoints NOTIFY hitPointsChanged)
     Q_PROPERTY(int movementPoints READ getMovementPoints WRITE setMovementPoints NOTIFY movementPointsChanged)
@@ -48,18 +47,12 @@ public:
 
     UnitType * getType() const;
     void setType(UnitType *type);
-    QObject * readType() const;
-    void writeType(QObject *type);
 
     MapNode * getMapNode() const;
-    QObject * readMapNode() const;
-    void writeMapNode(QObject *mapNode);
     void setMapNode(MapNode *mapNode);
 
     Player * getOwner() const;
     void setOwner(Player *owner);
-    QObject * readOwner() const;
-    void writeOwner(QObject *owner);
 
     double getExperiencePoints() const;
     void setExperiencePoints(double experiencePoints);

@@ -3,27 +3,26 @@
 
 #include <QList>
 
+#include "core/Armor.h"
+#include "core/DamageType.h"
+#include "core/Faction.h"
 #include "core/GameEntity.h"
+#include "core/SettlementType.h"
+#include "core/TerrainType.h"
+#include "core/UnitClass.h"
+#include "core/UnitType.h"
+#include "core/UnitLevel.h"
+#include "core/Weapon.h"
+#include "core/WorldSurface.h"
 
 namespace warmonger {
 namespace core {
-
-class Armor;
-class DamageType;
-class Faction;
-class SettlementType;
-class TerrainType;
-class UnitClass;
-class UnitType;
-class UnitLevel;
-class Weapon;
-class WorldSurface;
 
 class World :
     public GameEntity
 {
     Q_OBJECT
-    Q_PROPERTY(QObject * surface READ readSurface NOTIFY surfaceChanged)
+    Q_PROPERTY(WorldSurface *surface READ getSurface NOTIFY surfaceChanged)
     Q_PROPERTY(QVariantList factions READ readFactions NOTIFY factionsChanged)
     Q_PROPERTY(QVariantList settlementTypes READ readSettlementTypes NOTIFY settlementTypesChanged)
     Q_PROPERTY(QVariantList terrainTypes READ readTerrainTypes NOTIFY terrainTypesChanged)
@@ -37,7 +36,6 @@ public:
     WorldSurface * getSurface() const;
     void setSurface(WorldSurface *surface);
     void setSurface(const QString &surfaceName);
-    QObject * readSurface() const;
 
     QList<Armor *> getArmors() const;
     void setArmors(const QList<Armor *> &armors);

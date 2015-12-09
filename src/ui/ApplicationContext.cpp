@@ -2,8 +2,6 @@
 #include <QDir>
 #include <QStringList>
 
-#include "core/Map.h"
-#include "core/World.h"
 #include "core/WorldSurface.h"
 #include "core/Util.h"
 #include "ApplicationContext.h"
@@ -32,17 +30,17 @@ QVariantList ApplicationContext::readMaps() const
     return core::toQVariantList<core::Map>(this->maps);
 }
 
-QObject * ApplicationContext::readMap() const
+core::Map * ApplicationContext::getMap() const
 {
     return this->map;
 }
 
-QObject * ApplicationContext::readGame() const
+core::Game * ApplicationContext::getGame() const
 {
     return this->game;
 }
 
-QObject * ApplicationContext::readWorld() const
+core::World * ApplicationContext::getWorld() const
 {
     return this->world;
 }
@@ -149,15 +147,8 @@ void ApplicationContext::closeMap()
     emit mapChanged();
 }
 
-void ApplicationContext::newGame(QObject *map)
+void ApplicationContext::newGame(warmonger::core::Map *map)
 {
-    core::Map *m = qobject_cast<core::Map *>(map);
-    if (m == nullptr)
-    {
-        wError(category) << "map is null or has wrong type";
-        throw core::Exception(core::Exception::InvalidValue);
-    }
-
     if (this->game != nullptr)
     {
         delete this->game;
@@ -165,7 +156,7 @@ void ApplicationContext::newGame(QObject *map)
     this->closeMap();
 
     this->game = new core::Game();
-    this->game->fromMapJson(m->toJson());
+    this->game->fromMapJson(map->toJson());
 
     this->setWorld(this->game->getWorld());
 

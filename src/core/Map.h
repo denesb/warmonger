@@ -5,28 +5,27 @@
 #include <QString>
 
 #include "core/GameEntity.h"
-#include "core/World.h"
+#include "core/GameObject.h"
 #include "core/MapNode.h"
+#include "core/Player.h"
+#include "core/Settlement.h"
+#include "core/SettlementType.h"
+#include "core/World.h"
+#include "core/Unit.h"
+#include "core/UnitType.h"
 
 namespace warmonger {
 namespace core {
-
-class GameObject;
-class Player;
-class UnitType;
-class Unit;
-class SettlementType;
-class Settlement;
 
 class Map :
     public GameEntity
 {
     Q_OBJECT
-    Q_PROPERTY(QObject * world READ readWorld WRITE writeWorld NOTIFY worldChanged)
+    Q_PROPERTY(World * world READ getWorld WRITE setWorld NOTIFY worldChanged)
     Q_PROPERTY(QVariantList mapNodes READ readMapNodes NOTIFY mapNodesChanged)
     Q_PROPERTY(QVariantList players READ readPlayers NOTIFY playersChanged)
     Q_PROPERTY(QVariantList allPlayers READ readAllPlayers NOTIFY playersChanged)
-    Q_PROPERTY(QObject * neutralPlayer READ readNeutralPlayer NOTIFY neutralPlayerChanged)
+    Q_PROPERTY(Player *neutralPlayer READ getNeutralPlayer NOTIFY neutralPlayerChanged)
     Q_PROPERTY(QVariantList units READ readUnits)
     Q_PROPERTY(QVariantList settlements READ readSettlements NOTIFY settlementsChanged)
 
@@ -42,8 +41,6 @@ public:
 
     World * getWorld() const;
     void setWorld(World *world);
-    QObject * readWorld() const;
-    void writeWorld(QObject *world);
 
     void addMapNode(MapNode *mapNode);
     void removeMapNode(MapNode *mapNode);
@@ -56,7 +53,7 @@ public:
     void setPlayers(const QList<Player *> &units);
     QVariantList readPlayers() const;
     QVariantList readAllPlayers() const;
-    QObject * readNeutralPlayer() const;
+    Player * getNeutralPlayer() const;
 
     void addSettlement(Settlement *settlement);
     void removeSettlement(Settlement *settlement);

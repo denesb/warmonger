@@ -6,11 +6,10 @@
 #include <QHash>
 
 #include "core/GameObject.h"
+#include "core/TerrainType.h"
 
 namespace warmonger {
 namespace core {
-
-class TerrainType;
 
 /*
  *
@@ -26,7 +25,7 @@ class MapNode :
     public GameObject
 {
     Q_OBJECT
-    Q_PROPERTY(QObject * terrainType READ readTerrainType WRITE writeTerrainType NOTIFY terrainTypeChanged)
+    Q_PROPERTY(TerrainType *terrainType READ getTerrainType WRITE setTerrainType NOTIFY terrainTypeChanged)
     Q_PROPERTY(QVariantMap neighbours READ readNeighbours WRITE writeNeighbours NOTIFY neighboursChanged)
 
 public:
@@ -48,8 +47,6 @@ public:
 
     TerrainType * getTerrainType() const;
     void setTerrainType(TerrainType *terrainType);
-    QObject * readTerrainType() const;
-    void writeTerrainType(QObject *terrainType);
 
     MapNode * getNeighbour(Direction direction) const;
     QHash<Direction, MapNode *> getNeighbours() const;

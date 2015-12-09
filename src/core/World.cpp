@@ -2,18 +2,8 @@
 #include <QFile>
 #include <QJsonDocument>
 
-#include "core/Armor.h"
-#include "core/DamageType.h"
-#include "core/Faction.h"
 #include "core/JsonUtil.h"
-#include "core/TerrainType.h"
-#include "core/SettlementType.h"
-#include "core/UnitClass.h"
-#include "core/UnitLevel.h"
-#include "core/UnitType.h"
-#include "core/Weapon.h"
 #include "core/World.h"
-#include "core/WorldSurface.h"
 
 using namespace warmonger::core;
 
@@ -65,11 +55,6 @@ void World::setSurface(const QString &surfaceName)
     this->surface->loadAs(path);
 
     emit surfaceChanged();
-}
-
-QObject * World::readSurface() const
-{
-    return this->surface;
 }
 
 QList<Armor *> World::getArmors() const

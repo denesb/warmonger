@@ -6,6 +6,8 @@
 #include <QRect>
 
 #include "core/Game.h"
+#include "core/Map.h"
+#include "core/World.h"
 
 namespace warmonger {
 namespace ui {
@@ -15,18 +17,18 @@ class ApplicationContext :
 {
     Q_OBJECT
     Q_PROPERTY(QVariantList maps READ readMaps NOTIFY mapsChanged)
-    Q_PROPERTY(QObject * map READ readMap NOTIFY mapChanged)
-    Q_PROPERTY(QObject * game READ readGame NOTIFY gameChanged)
-    Q_PROPERTY(QObject * world READ readWorld NOTIFY worldChanged)
+    Q_PROPERTY(warmonger::core::Map *map READ getMap NOTIFY mapChanged)
+    Q_PROPERTY(warmonger::core::Game *game READ getGame NOTIFY gameChanged)
+    Q_PROPERTY(warmonger::core::World *world READ getWorld NOTIFY worldChanged)
 
 public:
     ApplicationContext(QObject *parent=nullptr);
     ~ApplicationContext();
 
     QVariantList readMaps() const;
-    QObject * readMap() const;
-    QObject * readGame() const;
-    QObject * readWorld() const;
+    core::Map * getMap() const;
+    core::Game * getGame() const;
+    core::World * getWorld() const;
 
     Q_INVOKABLE bool intersects(QRect rect1, QRect rect2) const;
 
@@ -40,7 +42,7 @@ public slots:
     void loadMapFromUrl(QUrl url);
     void closeMap();
 
-    void newGame(QObject *map);
+    void newGame(warmonger::core::Map *map);
     void loadGame(QString objectName);
     void loadGameFromPath(QString path);
     void loadGameFromUrl(QUrl url);

@@ -1,6 +1,5 @@
-#include "core/MapNode.h"
-#include "core/TerrainType.h"
 #include "core/JsonUtil.h"
+#include "core/MapNode.h"
 
 using namespace warmonger::core;
 
@@ -63,23 +62,6 @@ void MapNode::setTerrainType(TerrainType *terrainType)
         this->terrainType = terrainType;
         emit terrainTypeChanged();
     }
-}
-
-QObject * MapNode::readTerrainType() const
-{
-    return this->terrainType;
-}
-
-void MapNode::writeTerrainType(QObject *terrainType)
-{
-    TerrainType *tt = qobject_cast<TerrainType *>(terrainType);
-    if (tt == nullptr)
-    {
-        wError(category) << "terrainType is null or has wrong type";
-        throw Exception(Exception::InvalidValue);
-    }
-
-    this->setTerrainType(tt);
 }
 
 MapNode * MapNode::getNeighbour(Direction direction) const

@@ -63,22 +63,6 @@ void Player::setFaction(Faction *faction)
     }
 }
 
-QObject * Player::readFaction() const
-{
-    return this->faction;
-}
-
-void Player::writeFaction(QObject *faction)
-{
-    Faction *f = qobject_cast<Faction *>(faction);
-    if (f == nullptr)
-    {
-        wError(category) << "faction is null or has wrong type";
-        throw Exception(Exception::InvalidValue);
-    }
-    this->setFaction(f);
-}
-
 void Player::dataFromJson(const QJsonObject &obj)
 {
     this->color = QColor(obj["color"].toString());

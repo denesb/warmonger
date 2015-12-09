@@ -1,7 +1,4 @@
 #include "core/Settlement.h"
-#include "core/SettlementType.h"
-#include "core/MapNode.h"
-#include "core/Player.h"
 #include "core/Util.h"
 
 using namespace warmonger::core;
@@ -34,23 +31,6 @@ void Settlement::setType(SettlementType *type)
     }
 }
 
-QObject * Settlement::readType() const
-{
-    return this->type;
-}
-
-void Settlement::writeType(QObject *type)
-{
-    SettlementType *st = qobject_cast<SettlementType *>(type);
-    if (st == nullptr)
-    {
-        wError(category) << "type is null or has wrong type";
-        throw Exception(Exception::InvalidValue);
-    }
-
-    this->setType(st);
-}
-
 MapNode * Settlement::getMapNode() const
 {
     return this->mapNode;
@@ -65,23 +45,6 @@ void Settlement::setMapNode(MapNode *mapNode)
     }
 }
 
-QObject * Settlement::readMapNode() const
-{
-    return this->mapNode;
-}
-
-void Settlement::writeMapNode(QObject *mapNode)
-{
-    MapNode *n = qobject_cast<MapNode *>(mapNode);
-    if (n == nullptr)
-    {
-        wError(category) << "mapNode is null or has wrong type";
-        throw Exception(Exception::InvalidValue);
-    }
-
-    this->setMapNode(n);
-}
-
 Player * Settlement::getOwner() const
 {
     return this->owner;
@@ -94,22 +57,6 @@ void Settlement::setOwner(Player *owner)
         this->owner = owner;
         emit ownerChanged();
     }
-}
-
-QObject * Settlement::readOwner() const
-{
-    return this->owner;
-}
-
-void Settlement::writeOwner(QObject *owner)
-{
-    Player *o = qobject_cast<Player *>(owner);
-    if (o == nullptr)
-    {
-        wError(category) << "owner is null or has wrong type";
-        throw Exception(Exception::InvalidValue);
-    }
-    this->setOwner(o);
 }
 
 void Settlement::dataFromJson(const QJsonObject &obj)

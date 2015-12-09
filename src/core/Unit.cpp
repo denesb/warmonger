@@ -1,7 +1,4 @@
 #include "core/Unit.h"
-#include "core/UnitType.h"
-#include "core/MapNode.h"
-#include "core/Player.h"
 #include "core/JsonUtil.h"
 
 using namespace warmonger::core;
@@ -76,23 +73,6 @@ void Unit::setType(UnitType *type)
     }
 }
 
-QObject * Unit::readType() const
-{
-    return this->type;
-}
-
-void Unit::writeType(QObject *type)
-{
-    UnitType *ut = qobject_cast<UnitType *>(type);
-    if (ut == nullptr)
-    {
-        wError(category) << "type is null or has wrong type";
-        throw Exception(Exception::InvalidValue);
-    }
-
-    this->setType(ut);
-}
-
 MapNode * Unit::getMapNode() const
 {
     return this->mapNode;
@@ -105,23 +85,6 @@ void Unit::setMapNode(MapNode *mapNode)
         this->mapNode = mapNode;
         emit mapNodeChanged();
     }
-}
-
-QObject * Unit::readMapNode() const
-{
-    return this->mapNode;
-}
-
-void Unit::writeMapNode(QObject *mapNode)
-{
-    MapNode *n = qobject_cast<MapNode *>(mapNode);
-    if (n == nullptr)
-    {
-        wError(category) << "mapNode is null or has wrong type";
-        throw Exception(Exception::InvalidValue);
-    }
-
-    this->setMapNode(n);
 }
 
 Player * Unit::getOwner() const
@@ -138,21 +101,6 @@ void Unit::setOwner(Player *owner)
     }
 }
 
-QObject * Unit::readOwner() const
-{
-    return this->owner;
-}
-
-void Unit::writeOwner(QObject *owner)
-{
-    Player *o = qobject_cast<Player *>(owner);
-    if (o == nullptr)
-    {
-        wError(category) << "owner is null or has wrong type";
-        throw Exception(Exception::InvalidValue);
-    }
-    this->setOwner(o);
-}
 double Unit::getExperiencePoints() const
 {
     return this->experiencePoints;

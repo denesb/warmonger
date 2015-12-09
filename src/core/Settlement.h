@@ -4,21 +4,20 @@
 #include <QPoint>
 
 #include "core/GameObject.h"
+#include "core/MapNode.h"
+#include "core/Player.h"
+#include "core/SettlementType.h"
 
 namespace warmonger {
 namespace core {
-
-class SettlementType;
-class MapNode;
-class Player;
 
 class Settlement :
     public GameObject
 {
     Q_OBJECT
-    Q_PROPERTY(QObject * type READ readType WRITE writeType NOTIFY typeChanged)
-    Q_PROPERTY(QObject * mapNode READ readMapNode WRITE writeMapNode NOTIFY mapNodeChanged)
-    Q_PROPERTY(QObject * owner READ readOwner WRITE writeOwner NOTIFY ownerChanged)
+    Q_PROPERTY(SettlementType *type READ getType WRITE setType NOTIFY typeChanged)
+    Q_PROPERTY(MapNode *mapNode READ getMapNode WRITE setMapNode NOTIFY mapNodeChanged)
+    Q_PROPERTY(Player *owner READ getOwner WRITE setOwner NOTIFY ownerChanged)
 
 public:
     Settlement(QObject *parent);
@@ -26,18 +25,12 @@ public:
 
     SettlementType * getType() const;
     void setType(SettlementType *type);
-    QObject * readType() const;
-    void writeType(QObject *type);
 
     MapNode * getMapNode() const;
     void setMapNode(MapNode *mapNode);
-    QObject * readMapNode() const;
-    void writeMapNode(QObject *mapNode);
 
     Player * getOwner() const;
     void setOwner(Player *owner);
-    QObject * readOwner() const;
-    void writeOwner(QObject *owner);
 
 signals:
     void typeChanged();

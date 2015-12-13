@@ -16,12 +16,17 @@ class Game :
 {
     Q_OBJECT
 
+    Q_PROPERTY(int turn READ getTurn WRITE setTurn NOTIFY turnChanged)
+
 public:
 
     Game();
     ~Game();
 
     Q_INVOKABLE virtual QString fileExtension() const;
+
+    int getTurn() const;
+    void setTurn(int turn);
 
     /**
      * Get all reachable nodes for the unit.
@@ -74,6 +79,9 @@ public:
 
     void fromMapJson(const QJsonObject &obj);
 
+signals:
+    void turnChanged();
+
 protected:
     /**
      * Get the movement cost for travelling from node1 to node2.
@@ -95,7 +103,7 @@ private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
-    int turnNumber;
+    int turn;
     int playerIndex;
 };
 

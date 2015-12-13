@@ -9,6 +9,8 @@ Rectangle {
     property var settlement
     property var unit
 
+    signal settlementClicked()
+
     Rectangle {
         id: mapNodeInfo
 
@@ -63,7 +65,7 @@ Rectangle {
         }
     }
 
-    Rectangle {
+    WButton {
         id: settlementInfo
         visible: {
             if (root.settlement) true;
@@ -79,29 +81,20 @@ Rectangle {
 
         Image {
             id: settlementImage
-            height: 20
-            width: {
-                if (root.settlement) {
-                    var tileSize = W.world.surface.tileSize;
-                    height * tileSize.width/tileSize.height;
-                } else {
-                    0;
-                }
-            }
-            anchors {
-                left: parent.left
-                verticalCenter: parent.verticalCenter
-            }
-
+            height: 24
+            width: 24
             source: {
                 if (root.settlement) {
                     var surface = W.world.surface;
-                    var tn = root.settlement.type.objectName;
-                    surface.prefix + surface.imagePaths[tn];
+                    var imageName = root.settlement.type.objectName;
+                    surface.prefix + surface.imagePaths[imageName];
                 } else {
                     "";
                 }
             }
+            fillMode: Image.PreserveAspectFit
+
+            anchors.left: parent.left
         }
 
         Text {
@@ -127,6 +120,10 @@ Rectangle {
                 }
             }
         }
+
+        Connections {
+            onClicked: root.settlementClicked()
+        }
     }
 
     Rectangle {
@@ -138,7 +135,7 @@ Rectangle {
 
         anchors {
             top: settlementInfo.bottom
-            bottom: turnInfo.top
+            bottom: parent.bottom
             left: parent.left
             right: parent.right
         }
@@ -199,55 +196,27 @@ Rectangle {
             }
             height: 100
 
-            Rectangle {
+            Image {
                 id: unitImage
 
                 width: 100
+                height: 100
+                source: {
+                    if (root.unit) {
+                        var surface = W.world.surface;
+                        var imageName = root.unit.type.objectName;
+                        surface.prefix + surface.imagePaths[imageName];
+                    } else {
+                        "";
+                    }
+                }
+
+                fillMode: Image.PreserveAspectFit
+
                 anchors {
                     top: parent.top
                     bottom: parent.bottom
                     left: parent.left
-                }
-
-                Image {
-                    width: {
-                        if (root.unit) {
-                            var tileSize = W.world.surface.tileSize;
-                            if (tileSize.width < tileSize.height) {
-                                parent.height * tileSize.height/tileSize.width;
-                            } else {
-                                parent.width;
-                            }
-                        } else {
-                            0;
-                        }
-                    }
-                    height: {
-                        if (root.unit) {
-                            var tileSize = W.world.surface.tileSize;
-                            if (tileSize.height > tileSize.width) {
-                                parent.width * tileSize.width/tileSize.height;
-                            } else {
-                                parent.height;
-                            }
-                        } else {
-                            0;
-                        }
-                    }
-                    anchors {
-                        top: parent.top
-                        left: parent.left
-                    }
-
-                    source: {
-                        if (root.unit) {
-                            var surface = W.world.surface;
-                            var typeName = root.unit.type.objectName;
-                            surface.prefix + surface.imagePaths[typeName];
-                        } else {
-                            "";
-                        }
-                    }
                 }
             }
 
@@ -362,17 +331,5 @@ Rectangle {
                 }
             }
         }
-    }
-
-    Rectangle {
-        id: turnInfo
-
-        height: 24
-        anchors {
-            bottom: parent.bottom
-            left: parent.left
-            right: parent.right
-        }
-        color: "green"
     }
 }

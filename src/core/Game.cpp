@@ -26,7 +26,7 @@ static QMap<MapNode *, MapNode *> dijkstraPath(
 
 Game::Game() :
     Map(),
-    turnNumber(0),
+    turn(0),
     playerIndex(0)
 {
 }
@@ -38,6 +38,20 @@ Game::~Game()
 QString Game::fileExtension() const
 {
     return "wgd";
+}
+
+int Game::getTurn() const
+{
+    return this->turn;
+}
+
+void Game::setTurn(int turn)
+{
+    if (this->turn != turn)
+    {
+        this->turn = turn;
+        emit turnChanged();
+    }
 }
 
 QSet<MapNode *> Game::reachableMapNodes(Unit *unit) const
@@ -192,14 +206,14 @@ void Game::reachableMapNodes(
 void Game::fromMapJson(const QJsonObject &obj)
 {
     Map::fromJson(obj);
-    this->turnNumber = 0;
+    this->turn = 0;
     this->playerIndex = 0;
 }
 
 void Game::dataFromJson(const QJsonObject &obj)
 {
     Map::dataFromJson(obj);
-    this->turnNumber = obj["turnNumber"].toInt();
+    this->turn = obj["turn"].toInt();
     this->playerIndex = obj["playerIndex"].toInt();
 }
 

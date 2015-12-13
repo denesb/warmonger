@@ -77,18 +77,55 @@ Rectangle {
             }
         }
 
-        GameItemInfo {
-            id: gameItemInfo
-
-            mapNode: map.focusedMapNode
-            settlement: map.focusedSettlement
-            unit: map.focusedUnit
+        StackView {
+            id: gameControlStack
 
             anchors {
                 top: miniMapWrapper.bottom
                 bottom: parent.bottom
                 left: parent.left
                 right: parent.right
+            }
+            initialItem: gameItemInfo
+
+            Component {
+                id: gameItemInfo
+
+                GameItemInfo {
+                    mapNode: map.focusedMapNode
+                    settlement: map.focusedSettlement
+                    unit: map.focusedUnit
+
+                    onSettlementClicked: {
+                        gameControlStack.push({
+                            item: Qt.createComponent("RecruitUnits.qml"),
+                            properties: {
+                                stack: gameControlStack,
+                                settlement: map.focusedSettlement
+                            }
+                        });
+                    }
+                }
+            }
+        }
+
+        Rectangle {
+            id: turnInfo
+
+            height: 24
+            anchors {
+                bottom: parent.bottom
+                left: parent.left
+                right: parent.right
+            }
+
+            Text {
+                anchors {
+                    verticalCenter: parent.verticalCenter
+                    left: parent.left
+                }
+
+                text: "Turn " + W.game.turn
             }
         }
     }

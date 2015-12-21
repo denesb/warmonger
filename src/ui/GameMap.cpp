@@ -2,20 +2,17 @@
 #include <functional>
 #include <iterator>
 
-#include <QBrush>
-#include <QColor>
 #include <QPainter>
 #include <QTimer>
 
-#include "core/Game.h"
-#include "core/Settlement.h"
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
-#include "core/Unit.h"
 #include "core/UnitType.h"
 #include "core/Util.h"
 #include "core/WorldSurface.h"
 #include "ui/GameMap.h"
+#include "ui/MapDrawer.h"
+#include "ui/MapUtil.h"
 
 static const QString category{"ui"};
 
@@ -34,12 +31,10 @@ struct MovingUnit
         pos(pos),
         index(0)
     {
-        MovingUnit::movingUnits.insert(unit);
     }
 
     ~MovingUnit()
     {
-        MovingUnit::movingUnits.remove(unit);
     }
 
     core::MapNode * nextNode() const
@@ -56,7 +51,6 @@ struct MovingUnit
     int index;
 };
 
-QSet<const core::Unit *> MovingUnit::movingUnits{};
 const double MovingUnit::unitStep{10.0};
 
 } // namespace ui
@@ -71,6 +65,7 @@ GameMap::GameMap(QQuickItem *parent) :
     world(nullptr),
     surface(nullptr),
     tileSize(),
+    mapDrawer(nullptr),
     nodes(),
     nodesPos(),
     reachableNodes(),
@@ -80,7 +75,6 @@ GameMap::GameMap(QQuickItem *parent) :
     unitMoveTimer(new QTimer()),
     movingUnits(),
     boundingRect(),
-    hexagonPainterPath(),
     windowPosRect(),
     windowPos(0, 0),
     windowSize(0, 0),
@@ -110,6 +104,7 @@ GameMap::GameMap(QQuickItem *parent) :
         &GameMap::advanceUnits
     );
 
+    //FIXME: get this magic number from config?
     this->unitMoveTimer->start(1000/25);
 }
 
@@ -132,11 +127,6 @@ void GameMap::setGame(core::Game *game)
     }
 }
 
-QObject * GameMap::readGame() const
-{
-    return this->game;
-}
-
 void GameMap::writeGame(QObject *game)
 {
     core::Game *g = qobject_cast<core::Game *>(game);
@@ -153,22 +143,12 @@ core::MapNode * GameMap::getFocusedMapNode() const
     return this->focusedNode;
 }
 
-QObject * GameMap::readFocusedMapNode() const
-{
-    return this->focusedNode;
-}
-
 core::Settlement * GameMap::getFocusedSettlement() const
 {
     if (this->focusedNode == nullptr)
         return nullptr;
 
     return this->game->getSettlementOn(this->focusedNode);
-}
-
-QObject * GameMap::readFocusedSettlement() const
-{
-    return this->getFocusedSettlement();
 }
 
 core::Unit * GameMap::getFocusedUnit() const
@@ -179,17 +159,7 @@ core::Unit * GameMap::getFocusedUnit() const
     return this->game->getUnitOn(this->focusedNode);
 }
 
-QObject * GameMap::readFocusedUnit() const
-{
-    return this->getFocusedUnit();
-}
-
 core::MapNode * GameMap::getCurrentMapNode() const
-{
-    return this->currentNode;
-}
-
-QObject * GameMap::readCurrentMapNode() const
 {
     return this->currentNode;
 }
@@ -202,22 +172,12 @@ core::Settlement * GameMap::getCurrentSettlement() const
     return this->game->getSettlementOn(this->currentNode);
 }
 
-QObject * GameMap::readCurrentSettlement() const
-{
-    return this->getCurrentSettlement();
-}
-
 core::Unit * GameMap::getCurrentUnit() const
 {
     if (this->currentNode == nullptr)
         return nullptr;
 
     return this->game->getUnitOn(this->currentNode);
-}
-
-QObject * GameMap::readCurrentUnit() const
-{
-    return this->getCurrentUnit();
 }
 
 QPoint GameMap::getWindowPos() const
@@ -255,6 +215,20 @@ QSize GameMap::getWindowSize() const
     return this->windowSize;
 }
 
+GameMap::Mode GameMap::getMode() const
+{
+    return this->mode;
+}
+
+void GameMap::setMode(GameMap::Mode mode)
+{
+    if (this->mode != mode)
+    {
+        this->mode = mode;
+        emit modeChanged();
+    }
+}
+
 void GameMap::paint(QPainter *painter)
 {
     painter->save();
@@ -278,52 +252,28 @@ void GameMap::paint(QPainter *painter)
         filterFunc
     );
 
-    auto cbegin = dirtyNodes.constBegin();
-    auto cend = dirtyNodes.constEnd();
-    std::function<void(const core::MapNode *)> drawNodeFunc = std::bind(
-        &GameMap::drawNode,
-        this,
-        painter,
-        std::placeholders::_1
-    );
-    std::function<void(const core::MapNode *)> drawGridFunc = std::bind(
-        &GameMap::drawGrid,
-        this,
-        painter,
-        std::placeholders::_1
-    );
-    std::function<void(const core::MapNode *)> drawContentFunc = std::bind(
-        &GameMap::drawContent,
-        this,
-        painter,
-        std::placeholders::_1
-    );
-    std::function<void(core::MapNode *)> drawOverlayFunc = std::bind(
-        &GameMap::drawOverlay,
-        this,
-        painter,
-        std::placeholders::_1
-    );
+    DrawingInfo drawingInfo;
+    drawingInfo.focusedNode = this->focusedNode;
 
-    std::function<void(MovingUnit *)> drawMovingUnitFunc = std::bind(
-        &GameMap::drawMovingUnit,
-        this,
-        painter,
-        std::placeholders::_1
-    );
+    DrawingInfo::Overlay reachableNodesOverlay;
+    reachableNodesOverlay.color = QColor("white");
+    reachableNodesOverlay.color.setAlphaF(0.2);
+    reachableNodesOverlay.nodes = this->reachableNodes;
 
-    std::for_each(cbegin, cend, drawNodeFunc);
-    std::for_each(cbegin, cend, drawGridFunc);
-    if (this->focusedNode != nullptr)
-        this->drawFocusMark(painter, this->focusedNode);
-    std::for_each(cbegin, cend, drawContentFunc);
-    std::for_each(cbegin, cend, drawOverlayFunc);
+    DrawingInfo::Overlay pathNodesOverlay;
+    pathNodesOverlay.color = QColor("green");
+    pathNodesOverlay.color.setAlphaF(0.4);
+    pathNodesOverlay.nodes = this->pathNodes;
 
-    std::for_each(
-        this->movingUnits.constBegin(),
-        this->movingUnits.constEnd(),
-        drawMovingUnitFunc
-    );
+    drawingInfo.overlays << reachableNodesOverlay;
+    drawingInfo.overlays << pathNodesOverlay;
+
+    for (MovingUnit *movingUnit : this->movingUnits)
+    {
+        drawingInfo.movingUnits[movingUnit->unit] = movingUnit->pos.toPoint();
+    }
+
+    this->mapDrawer->drawMap(painter, dirtyNodes, drawingInfo);
 
     painter->restore();
 }
@@ -374,8 +324,12 @@ void GameMap::setupMap()
     this->surface = this->world->getSurface();
     this->tileSize = this->surface->getTileSize();
 
-    this->hexagonPainterPath = hexagonPath(this->tileSize);
     this->nodesPos = positionNodes(this->nodes, this->tileSize);
+
+    if (this->mapDrawer)
+        delete this->mapDrawer;
+
+    this->mapDrawer = new MapDrawer(this->game, this->nodesPos);
 
     this->updateGeometry();
 }
@@ -424,15 +378,14 @@ void GameMap::onHeightChanged()
 
 void GameMap::onFocusedNodeChanged()
 {
+    this->reachableNodes.clear();
+    this->pathNodes.clear();
+
     if (this->focusedNode != nullptr && this->game->hasUnit(this->focusedNode))
     {
         this->reachableNodes = this->game->reachableMapNodes(
             this->game->getUnitOn(this->focusedNode)
         );
-    }
-    else
-    {
-        this->reachableNodes.clear();
     }
 
     emit focusedMapNodeChanged();
@@ -475,110 +428,6 @@ bool GameMap::rectContainsNode(const QRect &rect, const core::MapNode *node)
 
     const QRect nodeRect = QRect(pos, this->tileSize);
     return rect.intersects(nodeRect);
-}
-
-void GameMap::drawNode(QPainter *painter, const core::MapNode *node)
-{
-    const QString terrainTypeName = node->getTerrainType()->objectName();
-    QImage image = this->surface->getImage(terrainTypeName);
-    QPoint pos = this->nodesPos[node];
-    painter->drawImage(pos, image);
-}
-
-void GameMap::drawGrid(QPainter *painter, const core::MapNode *node)
-{
-    const QPoint pos = this->nodesPos[node];
-    const QColor color = this->surface->getColor("grid");
-    QPen pen(color);
-    pen.setWidth(1);
-
-    painter->save();
-    painter->translate(pos);
-
-    painter->strokePath(this->hexagonPainterPath, pen);
-
-    painter->restore();
-}
-
-void GameMap::drawFocusMark(QPainter *painter, const core::MapNode *node)
-{
-    const QPoint pos = this->nodesPos[node];
-    const QColor color = this->surface->getColor("focusOutline");
-    QPen pen(color);
-    pen.setWidth(2);
-
-    painter->save();
-    painter->translate(pos);
-
-    painter->strokePath(this->hexagonPainterPath, pen);
-
-    painter->restore();
-}
-
-void GameMap::drawContent(QPainter *painter, const core::MapNode *node)
-{
-    const QPoint pos = this->nodesPos[node];
-    const QRect frame(pos, this->tileSize);
-    const core::Settlement *settlement = this->game->getSettlementOn(node);
-    const core::Unit *unit = this->game->getUnitOn(node);
-
-    if (settlement != nullptr)
-    {
-        const core::SettlementType *st = settlement->getType();
-        const QImage image = this->surface->getImage(st->objectName());
-        painter->drawImage(frame, image);
-    }
-
-    if (unit != nullptr && !MovingUnit::movingUnits.contains(unit))
-    {
-        const core::UnitType *ut = unit->getType();
-        const QImage image = this->surface->getImage(ut->objectName());
-        painter->drawImage(frame, image);
-    }
-}
-
-void GameMap::drawMovingUnit(QPainter *painter, const MovingUnit *movingUnit)
-{
-    const QPoint pos(movingUnit->pos.toPoint());
-    const QRect frame(pos, this->tileSize);
-    const core::UnitType *ut = movingUnit->unit->getType();
-    const QImage image = this->surface->getImage(ut->objectName());
-    painter->drawImage(frame, image);
-}
-
-void GameMap::drawOverlay(QPainter *painter, core::MapNode *node)
-{
-    if (this->focusedNode == nullptr || !this->game->hasUnit(this->focusedNode))
-        return;
-
-    bool hasOverlay = false;
-    QColor color;
-    if (this->reachableNodes.contains(node))
-    {
-        if (this->pathNodes.contains(node))
-        {
-            hasOverlay = true;
-            color.setNamedColor("green");
-        }
-    }
-    else
-    {
-        hasOverlay = true;
-        color.setNamedColor("black");
-    }
-
-    if (hasOverlay)
-    {
-        color.setAlphaF(0.5);
-        const QBrush brush(color);
-
-        painter->save();
-        painter->translate(this->nodesPos[node]);
-
-        painter->fillPath(this->hexagonPainterPath, brush);
-
-        painter->restore();
-    }
 }
 
 void GameMap::updateFocus(const QPoint &p)

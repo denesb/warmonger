@@ -49,6 +49,7 @@ HEADERS += \
     src/ui/ApplicationContext.h \
     src/ui/GameMap.h \
     src/ui/MiniMap.h \
+    src/ui/MapDrawer.h \
     src/ui/MapPreview.h \
     src/ui/MapUtil.h
 
@@ -97,6 +98,7 @@ SOURCES += \
     src/ui/qtquick2applicationviewer.cpp \
     src/ui/ApplicationContext.cpp \
     src/ui/GameMap.cpp \
+    src/ui/MapDrawer.cpp \
     src/ui/MiniMap.cpp \
     src/ui/MapPreview.cpp \
     src/ui/MapUtil.cpp

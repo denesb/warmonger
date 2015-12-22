@@ -11,7 +11,6 @@
 #include "core/Util.h"
 #include "core/WorldSurface.h"
 #include "ui/GameMap.h"
-#include "ui/MapDrawer.h"
 #include "ui/MapUtil.h"
 
 static const QString category{"ui"};
@@ -78,7 +77,8 @@ GameMap::GameMap(QQuickItem *parent) :
     windowPosRect(),
     windowPos(0, 0),
     windowSize(0, 0),
-    lastPos(0, 0)
+    lastPos(0, 0),
+    mode(MoveMode)
 {
     this->setAcceptHoverEvents(true);
     this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
@@ -225,6 +225,7 @@ void GameMap::setMode(GameMap::Mode mode)
     if (this->mode != mode)
     {
         this->mode = mode;
+        this->update();
         emit modeChanged();
     }
 }
@@ -254,19 +255,7 @@ void GameMap::paint(QPainter *painter)
 
     DrawingInfo drawingInfo;
     drawingInfo.focusedNode = this->focusedNode;
-
-    DrawingInfo::Overlay reachableNodesOverlay;
-    reachableNodesOverlay.color = QColor("white");
-    reachableNodesOverlay.color.setAlphaF(0.2);
-    reachableNodesOverlay.nodes = this->reachableNodes;
-
-    DrawingInfo::Overlay pathNodesOverlay;
-    pathNodesOverlay.color = QColor("green");
-    pathNodesOverlay.color.setAlphaF(0.4);
-    pathNodesOverlay.nodes = this->pathNodes;
-
-    drawingInfo.overlays << reachableNodesOverlay;
-    drawingInfo.overlays << pathNodesOverlay;
+    drawingInfo.overlays = this->getMapOverlays();
 
     for (MovingUnit *movingUnit : this->movingUnits)
     {
@@ -513,4 +502,76 @@ void GameMap::advanceUnits()
     }
 
     this->update();
+}
+
+QList<DrawingInfo::Overlay> GameMap::getMapOverlays() const
+{
+    QList<DrawingInfo::Overlay> overlays;
+
+    switch (this->mode)
+    {
+        case MoveMode:
+            overlays = this->getMovementMapOverlays();
+            break;
+        case RecruitMode:
+            overlays = this->getRecruitmentMapOverlays();
+            break;
+        case BattleMode:
+            overlays = this->getBattleMapOverlays();
+            break;
+    }
+
+    return std::move(overlays);
+}
+
+QList<DrawingInfo::Overlay> GameMap::getMovementMapOverlays() const
+{
+    QList<DrawingInfo::Overlay> overlays;
+
+    DrawingInfo::Overlay reachableNodesOverlay;
+    reachableNodesOverlay.color = QColor("white");
+    reachableNodesOverlay.color.setAlphaF(0.2);
+    reachableNodesOverlay.nodes = this->reachableNodes;
+
+    DrawingInfo::Overlay pathNodesOverlay;
+    pathNodesOverlay.color = QColor("green");
+    pathNodesOverlay.color.setAlphaF(0.4);
+    pathNodesOverlay.nodes = this->pathNodes;
+
+    overlays << reachableNodesOverlay;
+    overlays << pathNodesOverlay;
+
+    return std::move(overlays);
+}
+
+QList<DrawingInfo::Overlay> GameMap::getRecruitmentMapOverlays() const
+{
+    QList<DrawingInfo::Overlay> overlays;
+
+    DrawingInfo::Overlay freeNodes;
+    DrawingInfo::Overlay occupiedNodes;
+
+    freeNodes.color = QColor("green");
+    freeNodes.color.setAlphaF(0.4);
+
+    occupiedNodes.color = QColor("red");
+    occupiedNodes.color.setAlphaF(0.4);
+
+    for (core::MapNode *node : this->focusedNode->getNeighbours())
+    {
+        if (this->game->hasUnit(node))
+            occupiedNodes.nodes << node;
+        else
+            freeNodes.nodes << node;
+    }
+
+    overlays << freeNodes << occupiedNodes;
+
+    return std::move(overlays);
+}
+
+QList<DrawingInfo::Overlay> GameMap::getBattleMapOverlays() const
+{
+    QList<DrawingInfo::Overlay> overlays;
+    return std::move(overlays);
 }

@@ -10,6 +10,7 @@
 #include "core/MapNode.h"
 #include "core/Settlement.h"
 #include "core/Unit.h"
+#include "ui/MapDrawer.h"
 
 namespace warmonger {
 
@@ -42,7 +43,7 @@ class GameMap :
 public:
     enum Mode
     {
-        MovementMode,
+        MoveMode,
         RecruitMode,
         BattleMode
     };
@@ -112,7 +113,11 @@ private:
     void updateFocus(const QPoint &p);
     void moveUnit(const QPoint &p);
     void advanceUnits();
-    qreal stepUnitTorwards(MovingUnit *u, core::MapNode *n);
+
+    QList<DrawingInfo::Overlay> getMapOverlays() const;
+    QList<DrawingInfo::Overlay> getMovementMapOverlays() const;
+    QList<DrawingInfo::Overlay> getRecruitmentMapOverlays() const;
+    QList<DrawingInfo::Overlay> getBattleMapOverlays() const;
 
     core::Game *game;
     core::World *world;

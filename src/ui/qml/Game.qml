@@ -86,25 +86,10 @@ Rectangle {
                 left: parent.left
                 right: parent.right
             }
-            initialItem: gameItemInfo
-
-            Component {
-                id: gameItemInfo
-
-                GameItemInfo {
-                    mapNode: map.focusedMapNode
-                    settlement: map.focusedSettlement
-                    unit: map.focusedUnit
-
-                    onSettlementClicked: {
-                        gameControlStack.push({
-                            item: Qt.createComponent("RecruitUnits.qml"),
-                            properties: {
-                                stack: gameControlStack,
-                                settlement: map.focusedSettlement
-                            }
-                        });
-                    }
+            initialItem: {
+                "item": Qt.resolvedUrl("GameItemInfo.qml"),
+                "properties": {
+                    "map": map
                 }
             }
         }

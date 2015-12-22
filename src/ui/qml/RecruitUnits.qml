@@ -1,12 +1,20 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Layouts 1.1
+import Warmonger 1.0
 
 Rectangle {
     id: root
 
-    property var settlement
-    property var stack
+    property var map
+    readonly property var settlement: W.getSettlementOn(map.focusedMapNode)
+    readonly property var stack: Stack.view
+
+    Stack.onStatusChanged: {
+        if (Stack.status === Stack.Active) {
+            map.mode = GameMap.RecruitMode;
+        }
+    }
 
     Button {
         id: backButton
@@ -21,7 +29,7 @@ Rectangle {
         text: "<<"
 
         Connections {
-            onClicked: root.stack.pop()
+            onClicked: root.stack.pop();
         }
     }
 

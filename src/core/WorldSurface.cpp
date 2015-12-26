@@ -1,3 +1,4 @@
+#include <QDir>
 #include <QFile>
 #include <QJsonDocument>
 
@@ -6,14 +7,17 @@
 
 using namespace warmonger::core;
 
+const QString WorldSurface::fileExtension{"wsd"};
+
 static QHash<QString, QImage> loadImages(
-    const QString &basePath,
     const QMap<QString, QString> &imagePaths
 );
 
 static QHash<QString, QColor> createColors(
     const QMap<QString, QString> &colorNames
 );
+
+static const QString pathTemplate{"/surfaces/%1/%1.%2"};
 
 static const QString category{"core"};
 
@@ -27,14 +31,12 @@ WorldSurface::WorldSurface(QObject *parent) :
 {
 }
 
-QString WorldSurface::fileExtension() const
+QString WorldSurface::getEntityRelativePath(const QString &name) const
 {
-    return QString("wsd");
-}
-
-QString WorldSurface::getPrefix() const
-{
-    return "Surface:";
+    return pathTemplate.arg(
+        name,
+        WorldSurface::fileExtension
+    );
 }
 
 QSize WorldSurface::getTileSize() const
@@ -133,10 +135,21 @@ void WorldSurface::dataFromJson(const QJsonObject &obj)
 
     this->colorNames = this->mapFromJson(obj["colors"].toObject());
     this->imagePaths = this->mapFromJson(obj["images"].toObject());
+
+    // Convert paths to absolute paths
+    QMap<QString, QString>::Iterator it;
+    QMap<QString, QString>::Iterator b = this->imagePaths.begin();
+    QMap<QString, QString>::Iterator e = this->imagePaths.end();
+    for (it = b; it != e; it++)
+    {
+        QString path = this->getPath() + "/" + it.value();
+        it.value() = QDir::cleanPath(path);
+    }
+
     this->tileSize = sizeFromJson(obj["tileSize"].toObject());
 
     this->colors = createColors(this->colorNames);
-    this->images = loadImages(this->getPath(), this->imagePaths);
+    this->images = loadImages(this->imagePaths);
 }
 
 void WorldSurface::dataToJson(QJsonObject &obj) const
@@ -197,7 +210,6 @@ QHash<QString, QColor> createColors(
 }
 
 QHash<QString, QImage> loadImages(
-    const QString &basePath,
     const QMap<QString, QString> &imagePaths
 )
 {
@@ -205,8 +217,7 @@ QHash<QString, QImage> loadImages(
     QMap<QString, QString>::ConstIterator it;
     for (it = imagePaths.constBegin(); it != imagePaths.constEnd(); it++)
     {
-        const QString path = basePath + "/" + it.value();
-        QImage image(path);
+        QImage image(it.value());
         images.insert(it.key(), image);
     }
 

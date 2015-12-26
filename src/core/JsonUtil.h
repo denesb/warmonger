@@ -54,16 +54,18 @@ QJsonArray listToJson(const QList<T *> &list)
     return std::move(array);
 }
 
+/**
+ * Convert a JSON list of strings into resolved references.
+ *
+ * The references are resolved against `parent`.
+ */
 template<typename T>
-QList<T *> referenceListFromJson(const QJsonArray &array, QObject *owner)
+QList<T *> referenceListFromJson(
+    const QJsonArray &array,
+    const QObject * const parent
+)
 {
     QList<T *> list;
-    QObject *parent = owner->parent();
-    if (parent == nullptr)
-    {
-        wError("core") << "Parent of owner " << owner->objectName() << " is null";
-        throw Exception(Exception::NullPointer);
-    }
 
     for (const QJsonValue v : array)
     {
@@ -93,16 +95,19 @@ QJsonArray referenceListToJson(const QList<T *> &list)
     return std::move(array);
 }
 
+/**
+ * Convert a JSON object to a QMap<T*, int>.
+ *
+ * The keys of the JSON object are assumed to be references. They will
+ * be resolved against the `parent` parameter.
+ */
 template<typename T>
-QMap<const T *, int> objectValueMapFromJson(const QJsonObject &obj, const QObject * const owner)
+QMap<const T *, int> objectValueMapFromJson(
+    const QJsonObject &obj,
+    const QObject * const parent
+)
 {
     QMap<const T *, int> map;
-    QObject *parent = owner->parent();
-    if (parent == nullptr)
-    {
-        wError("core") << "Parent of owner " << owner->objectName() << " is null";
-        throw Exception(Exception::NullPointer);
-    }
 
     QJsonObject::const_iterator it;
     for(it = obj.constBegin(); it != obj.constEnd(); it++)
@@ -126,7 +131,7 @@ QJsonObject objectValueMapToJson(const QMap<const T *, int> &map)
         const T *instance = it.key();
         obj[instance->objectName()] = it.value();
     }
-    
+
     return std::move(obj);
 }
 

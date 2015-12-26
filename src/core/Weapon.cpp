@@ -47,7 +47,10 @@ void Weapon::setDamage(const DamageType *const damageType, int damage)
 void Weapon::dataFromJson(const QJsonObject &obj)
 {
     this->range = obj["range"].toInt();
-    this->damages = objectValueMapFromJson<DamageType>(obj["damages"].toObject(), this);
+    this->damages = objectValueMapFromJson<DamageType>(
+        obj["damages"].toObject(),
+        this->parent()
+    );
 }
 
 void Weapon::dataToJson(QJsonObject &obj) const

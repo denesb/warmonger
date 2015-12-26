@@ -52,12 +52,10 @@ public:
     QHash<Direction, MapNode *> getNeighbours() const;
     void setNeighbour(Direction direction, MapNode *neighbour);
     void setNeighbours(const QHash<Direction, MapNode *> &neighbours);
-    Q_INVOKABLE QObject * getNeighbour(QString directionName) const;
-    Q_INVOKABLE void setNeighbour(QString directionName, QObject *neighbour);
     QVariantMap readNeighbours() const;
     void writeNeighbours(QVariantMap neighbours);
 
-    Q_INVOKABLE QString oppositeDirection(QString directionStr) const;
+    QString oppositeDirection(QString directionStr) const;
 
 signals:
     void terrainTypeChanged();

@@ -60,24 +60,15 @@ QObjectList toQObjectList(const QList<T *> &list)
 }
 
 template<typename T>
-T* resolveReference(const QString &objectName, QObject *parent)
+T* resolveReference(const QString &objectName, const QObject * const parent)
 {
-    GameEntity *entity = qobject_cast<GameEntity *>(parent);
-    if (entity == nullptr)
-    {
-        wError(_category) << "Parent " << parent->objectName()
-            << " seems not to be a GameEntity";
-        throw Exception(Exception::WrongType);
-    }
-
-    GameObject *gobject = entity->resolveReference(objectName);
-    T *obj = qobject_cast<T *>(gobject);
+    T *obj = parent->findChild<T *>(objectName);
     if (obj == nullptr)
     {
-        wError(_category) << "Referred object " << objectName
-            << " has unexpected type";
-        throw Exception(Exception::WrongType);
+        wError(_category) << "Cannot resolve reference " << objectName;
+        throw Exception(Exception::UnresolvedReference);
     }
+
     return obj;
 }
 

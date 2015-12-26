@@ -8,6 +8,8 @@
 namespace warmonger {
 namespace core {
 
+class GameEntity;
+
 class GameEntityPart :
     public QObject
 {
@@ -24,7 +26,7 @@ public:
     QString getPath() const;
     QString getFileName() const;
 
-    Q_INVOKABLE virtual QString fileExtension() const = 0;
+    virtual QString getEntityRelativePath(const QString &name) const = 0;
 
     QString getDescription() const;
     void setDescription(const QString &description);
@@ -32,9 +34,10 @@ public:
     QString getDisplayName() const;
     void setDisplayName(const QString &displayName);
 
-    Q_INVOKABLE virtual void loadAs(const QString &path);
-    Q_INVOKABLE virtual void save() const;
-    Q_INVOKABLE virtual void saveAs(const QString &path) const;
+    virtual void load(const GameEntity * entity, const QString &name);
+    virtual void loadAs(const QString &path);
+    virtual void save() const;
+    virtual void saveAs(const QString &path) const;
 
     void fromJson(const QJsonObject &obj);
     QJsonObject toJson() const;

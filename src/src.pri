@@ -22,6 +22,7 @@ HEADERS += \
     src/core/Armor.h \
     src/core/DamageType.h \
     src/core/Exception.h \
+    src/core/EntityManager.h \
     src/core/Faction.h \
     src/core/Game.h \
     src/core/GameEntity.h \
@@ -71,6 +72,7 @@ SOURCES += \
 SOURCES += \
     src/core/Armor.cpp \
     src/core/DamageType.cpp \
+    src/core/EntityManager.cpp \
     src/core/Exception.cpp \
     src/core/Faction.cpp \
     src/core/Game.cpp \

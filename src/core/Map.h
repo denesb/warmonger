@@ -30,14 +30,13 @@ class Map :
     Q_PROPERTY(QVariantList settlements READ readSettlements NOTIFY settlementsChanged)
 
 public:
+    static const QString fileExtension;
     static const QString mapNodeNameTemplate;
     static const QString settlementNameTemplate;
     static const QString unitNameTemplate;
 
-    Map();
+    Map(QObject *parent);
     ~Map();
-
-    virtual QString fileExtension() const;
 
     World * getWorld() const;
     void setWorld(World *world);
@@ -74,8 +73,6 @@ public:
     void createSettlement(SettlementType *settlementType, MapNode *mapNode);
 
     void createUnit(UnitType *unitType, MapNode *mapNode);
-
-    virtual GameObject *resolveReference(const QString &objectName) const;
 
     Settlement * getSettlementOn(const MapNode *mapNode) const;
     Unit * getUnitOn(const MapNode *mapNode) const;

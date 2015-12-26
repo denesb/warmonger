@@ -31,7 +31,7 @@ Rectangle {
             var surface = W.map.world.surface;
             if (mapNodeEdit.mapNode) {
                 var terrainTypeName = mapNodeEdit.mapNode.terrainType.objectName;
-                surface.prefix + surface.bigMap[terrainTypeName];
+                surface.bigMap[terrainTypeName];
             } else {
                 "";
             }

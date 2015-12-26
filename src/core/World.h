@@ -29,9 +29,10 @@ class World :
     Q_PROPERTY(QVariantList unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
 
 public:
-    Q_INVOKABLE World();
+    static const QString fileExtension;
 
-    Q_INVOKABLE virtual QString fileExtension() const;
+    World(QObject *parent);
+    ~World();
 
     WorldSurface * getSurface() const;
     void setSurface(WorldSurface *surface);

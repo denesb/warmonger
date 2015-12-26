@@ -15,17 +15,16 @@ class WorldSurface :
     public GameEntityPart
 {
     Q_OBJECT
-    Q_PROPERTY(QString prefix READ getPrefix NOTIFY prefixChanged);
     Q_PROPERTY(QSize tileSize READ getTileSize NOTIFY tileSizeChanged);
     Q_PROPERTY(QVariantMap imagePaths READ readImagePaths NOTIFY imagePathsChanged);
     Q_PROPERTY(QVariantMap colorNames READ readColorNames NOTIFY colorNamesChanged);
 
 public:
-    Q_INVOKABLE WorldSurface(QObject *parent);
+    static const QString fileExtension;
 
-    Q_INVOKABLE virtual QString fileExtension() const;
+    WorldSurface(QObject *parent);
 
-    QString getPrefix() const;
+    QString getEntityRelativePath(const QString &name) const;
 
     QSize getTileSize() const;
     void setTileSize(const QSize &tileSize);
@@ -42,7 +41,7 @@ public:
 
     QColor getColor(const QString &key) const;
 
-    Q_INVOKABLE bool hexContains(const QPoint &p) const;
+    bool hexContains(const QPoint &p) const;
     bool hexContains(const QPointF &p) const;
 
 signals:

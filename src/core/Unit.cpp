@@ -1,5 +1,6 @@
-#include "core/Unit.h"
 #include "core/JsonUtil.h"
+#include "core/Map.h"
+#include "core/Unit.h"
 
 using namespace warmonger::core;
 
@@ -161,9 +162,13 @@ void Unit::dataFromJson(const QJsonObject &obj)
         wError(category) << "Invalid unit rank: " << rankStr;
         throw Exception(Exception::InvalidValue);
     }
+
+    Map *map = qobject_cast<Map *>(this->parent());
+    World *world = map->getWorld();
+
     this->type = resolveReference<UnitType>(
         obj["type"].toString(),
-        this->parent()
+        world
     );
     this->mapNode = resolveReference<MapNode>(
         obj["mapNode"].toString(),

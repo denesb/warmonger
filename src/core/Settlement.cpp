@@ -1,3 +1,4 @@
+#include "core/Map.h"
 #include "core/Settlement.h"
 #include "core/Util.h"
 
@@ -61,9 +62,12 @@ void Settlement::setOwner(Player *owner)
 
 void Settlement::dataFromJson(const QJsonObject &obj)
 {
+    Map *map = qobject_cast<Map *>(this->parent());
+    World *world = map->getWorld();
+
     this->type = resolveReference<SettlementType>(
         obj["type"].toString(),
-        this->parent()
+        world
     );
     this->mapNode = resolveReference<MapNode>(
         obj["mapNode"].toString(),

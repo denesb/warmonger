@@ -6,6 +6,15 @@ General
 modified, but this might not be what we want.
 * Test suite
 
+Game Concept
+------------
+* Add `damage class` (e.g. melee, ranged, magic, etc..) to group damages. Units
+can only retaliate to attacks if they have a weapon with same damage class.
+* Make XP cumulative. Levels are merely xp value intervals
+(e.g. 0-100 -> level 0, 101-200 -> level 1).
+* Leaders can promote Soldiers to Officers.
+* Weapon speed
+
 Map Editor
 ----------
 * Migrate to C++/QQuickItem

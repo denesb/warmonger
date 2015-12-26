@@ -3,8 +3,9 @@
 #include <QStringList>
 
 #include "core/WorldSurface.h"
+#include "core/EntityManager.h"
 #include "core/Util.h"
-#include "ApplicationContext.h"
+#include "ui/ApplicationContext.h"
 
 using namespace warmonger;
 using namespace warmonger::ui;
@@ -18,7 +19,6 @@ ApplicationContext::ApplicationContext(QObject *parent) :
     game(nullptr),
     world(nullptr)
 {
-    core::GameEntity::setOwner(this);
 }
 
 ApplicationContext::~ApplicationContext()
@@ -101,16 +101,17 @@ void ApplicationContext::loadMaps()
 
     QFlags<QDir::Filter> filters = QDir::Files | QDir::Readable;
 
+    core::EntityManager *em = core::EntityManager::getInstance();
+
     for (QString path : QDir::searchPaths("Map"))
     {
         QDir mapsDir(path);
 
         for (QString mapFile : mapsDir.entryList(nameFilters, filters))
         {
-            core::Map *map = new core::Map();
-            map->loadAs(mapsDir.absoluteFilePath(mapFile));
-            map->getWorld()->setSurface("default");
-            this->maps << map;
+            this->maps << em->loadEntityAs<core::Map>(
+                mapsDir.absoluteFilePath(mapFile)
+            );
         }
     }
 
@@ -136,7 +137,7 @@ void ApplicationContext::newMap()
     }
     this->closeGame();
 
-    this->map = new core::Map();
+    this->map = new core::Map(core::EntityManager::getInstance());
 
     emit this->mapChanged();
 }
@@ -149,11 +150,8 @@ void ApplicationContext::loadMap(QString objectName)
     }
     this->closeGame();
 
-    core::GameEntity *entity = core::GameEntity::get(
-        objectName,
-        &core::Map::staticMetaObject
-    );
-    this->map = qobject_cast<core::Map *>(entity);
+    core::EntityManager *em = core::EntityManager::getInstance();
+    this->map = em->loadEntity<core::Map>(objectName);
 
     this->setWorld(this->map->getWorld());
 
@@ -168,8 +166,9 @@ void ApplicationContext::loadMapFromPath(QString path)
     }
     this->closeGame();
 
-    this->map = new core::Map();
-    this->map->loadAs(path);
+    core::EntityManager *em = core::EntityManager::getInstance();
+
+    this->map = em->loadEntityAs<core::Map>(path);
 
     this->setWorld(this->map->getWorld());
 
@@ -199,7 +198,7 @@ void ApplicationContext::newGame(warmonger::core::Map *map)
     }
     this->closeMap();
 
-    this->game = new core::Game();
+    this->game = new core::Game(core::EntityManager::getInstance());
     this->game->fromMapJson(map->toJson());
 
     this->setWorld(this->game->getWorld());
@@ -215,11 +214,8 @@ void ApplicationContext::loadGame(QString objectName)
     }
     this->closeMap();
 
-    core::GameEntity *entity = core::GameEntity::get(
-        objectName,
-        &core::Game::staticMetaObject
-    );
-    this->game = qobject_cast<core::Game *>(entity);
+    core::EntityManager *em = core::EntityManager::getInstance();
+    this->game = em->loadEntity<core::Game>(objectName);
 
     this->setWorld(this->game->getWorld());
 
@@ -234,8 +230,9 @@ void ApplicationContext::loadGameFromPath(QString path)
     }
     this->closeMap();
 
-    this->game = new core::Game();
-    this->game->loadAs(path);
+    core::EntityManager *em = core::EntityManager::getInstance();
+
+    this->game = em->loadEntityAs<core::Game>(path);
 
     this->setWorld(this->game->getWorld());
 
@@ -263,30 +260,10 @@ void ApplicationContext::setWorld(core::World *world)
 
     this->world = world;
 
-    QObject::connect(
-        this->world,
-        &core::World::surfaceChanged,
-        this,
-        &ApplicationContext::onWorldSurfaceChanged
-    );
-
     if (this->world->getSurface() == nullptr)
     {
         this->world->setSurface("default");
     }
 
-    this->onWorldSurfaceChanged();
     emit worldChanged();
-}
-
-void ApplicationContext::onWorldSurfaceChanged()
-{
-    QStringList searchPath;
-
-    if (this->world != nullptr)
-    {
-        searchPath << this->world->getSurface()->getPath();
-    }
-
-    QDir::setSearchPaths("surface", searchPath);
 }

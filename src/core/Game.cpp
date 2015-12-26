@@ -13,6 +13,7 @@
 using namespace warmonger::core;
 
 static const QString category{"core"};
+const QString Game::fileExtension{"wgd"};
 
 /**
  * Find the shortest path with the dijstra algorithm
@@ -24,8 +25,8 @@ static QMap<MapNode *, MapNode *> dijkstraPath(
     std::function<double(const MapNode *, const MapNode*)> edgeCostFunc
 );
 
-Game::Game() :
-    Map(),
+Game::Game(QObject *parent) :
+    Map(parent),
     turn(0),
     playerIndex(0)
 {
@@ -33,11 +34,6 @@ Game::Game() :
 
 Game::~Game()
 {
-}
-
-QString Game::fileExtension() const
-{
-    return "wgd";
 }
 
 int Game::getTurn() const

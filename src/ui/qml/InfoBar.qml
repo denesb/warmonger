@@ -31,7 +31,7 @@ Rectangle {
                 if (root.mapNode) {
                     var surface = W.world.surface;
                     var terrainTypeName = root.mapNode.terrainType.objectName;
-                    surface.prefix + surface.imagePaths[terrainTypeName];
+                    surface.imagePaths[terrainTypeName];
                 } else {
                     "";
                 }
@@ -85,7 +85,7 @@ Rectangle {
                 if (root.settlement) {
                     var surface = W.world.surface;
                     var typeName = root.settlement.type.objectName;
-                    surface.prefix + surface.imagePaths[typeName];
+                    surface.imagePaths[typeName];
                 } else {
                     "";
                 }
@@ -138,7 +138,7 @@ Rectangle {
                 if (root.unit) {
                     var surface = W.world.surface;
                     var typeName = root.unit.type.objectName;
-                    surface.prefix + surface.imagePaths[typeName];
+                    surface.imagePaths[typeName];
                 } else {
                     "";
                 }

@@ -38,7 +38,7 @@ Rectangle {
                 if (W.map !== undefined && root.mapNode !== undefined) {
                     var surface = W.map.world.surface;
                     var terrainTypeName = root.mapNode.terrainType.objectName;
-                    surface.prefix + surface.bigMap[terrainTypeName];
+                    surface.bigMap[terrainTypeName];
                 } else {
                     "";
                 }
@@ -142,7 +142,7 @@ Rectangle {
                 if (W.map && root.settlement) {
                     var surface = W.map.world.surface;
                     var settlementTypeName = root.settlement.settlementType.objectName;
-                    surface.prefix + surface.bigMap[settlementTypeName];
+                    surface.bigMap[settlementTypeName];
                 } else {
                     "";
                 }
@@ -264,7 +264,7 @@ Rectangle {
                 if (W.map && root.unit) {
                     var surface = W.map.world.surface;
                     var unitTypeName = root.unit.unitType.objectName;
-                    surface.prefix + surface.bigMap[unitTypeName];
+                    surface.bigMap[unitTypeName];
                 } else {
                     "";
                 }

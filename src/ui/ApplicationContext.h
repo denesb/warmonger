@@ -70,9 +70,6 @@ signals:
 private:
     void setWorld(core::World *world);
 
-private slots:
-    void onWorldSurfaceChanged();
-
 private:
     QList<core::Map *> maps;
     core::Map *map;

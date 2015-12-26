@@ -25,7 +25,10 @@ void Faction::setUnitTypes(const QList<UnitType *> &unitTypes)
 
 void Faction::dataFromJson(const QJsonObject &obj)
 {
-    this->unitTypes = referenceListFromJson<UnitType>(obj["unitTypes"].toArray(), this);
+    this->unitTypes = referenceListFromJson<UnitType>(
+        obj["unitTypes"].toArray(),
+        this->parent()
+    );
 }
 
 void Faction::dataToJson(QJsonObject &obj) const

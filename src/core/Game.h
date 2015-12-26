@@ -19,11 +19,10 @@ class Game :
     Q_PROPERTY(int turn READ getTurn WRITE setTurn NOTIFY turnChanged)
 
 public:
+    static const QString fileExtension;
 
-    Game();
+    Game(QObject *parent);
     ~Game();
-
-    Q_INVOKABLE virtual QString fileExtension() const;
 
     int getTurn() const;
     void setTurn(int turn);

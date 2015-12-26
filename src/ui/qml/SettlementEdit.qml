@@ -23,7 +23,7 @@ Rectangle {
             var surface = W.map.world.surface;
             if (settlementEdit.settlement) {
                 var settlementTypeName = settlementEdit.settlement.settlementType.objectName;
-                surface.prefix + surface.bigMap[settlementTypeName];
+                surface.bigMap[settlementTypeName];
             } else {
                 "";
             }

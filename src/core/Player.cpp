@@ -1,8 +1,9 @@
-#include "core/Player.h"
 #include "core/Faction.h"
-#include "core/Unit.h"
+#include "core/Map.h"
+#include "core/Player.h"
 #include "core/Settlement.h"
 #include "core/World.h"
+#include "core/Unit.h"
 #include "core/Util.h"
 
 using namespace warmonger::core;
@@ -67,9 +68,11 @@ void Player::dataFromJson(const QJsonObject &obj)
 {
     this->color = QColor(obj["color"].toString());
     this->goldBalance = obj["goldBalance"].toInt();
+
+    Map *map = qobject_cast<Map *>(this->parent());
     this->faction = resolveReference<Faction>(
         obj["faction"].toString(),
-        this->parent()
+        map->getWorld()
     );
 }
 

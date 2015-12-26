@@ -9,8 +9,10 @@ using namespace warmonger::core;
 
 static const QString category{"core"};
 
-World::World() :
-    GameEntity(),
+const QString World::fileExtension{"wwd"};
+
+World::World(QObject *parent) :
+    GameEntity(parent),
     surface(nullptr),
     armors(),
     damageTypes(),
@@ -23,9 +25,8 @@ World::World() :
 {
 }
 
-QString World::fileExtension() const
+World::~World()
 {
-    return QString("wwd");
 }
 
 WorldSurface * World::getSurface() const
@@ -48,11 +49,7 @@ void World::setSurface(const QString &surfaceName)
         return;
 
     this->surface = new WorldSurface(this);
-
-    QString path = this->getPath() + "/surfaces/" + surfaceName + "/"
-        + surfaceName + "." + this->surface->fileExtension();
-
-    this->surface->loadAs(path);
+    this->surface->load(this, surfaceName);
 
     emit surfaceChanged();
 }
@@ -195,6 +192,8 @@ void World::dataFromJson(const QJsonObject &obj)
     this->unitTypes = newListFromJson<UnitType>(obj["unitTypes"].toArray(), this);
     this->settlementTypes = newListFromJson<SettlementType>(obj["settlementTypes"].toArray(), this);
     this->factions = newListFromJson<Faction>(obj["factions"].toArray(), this);
+
+    this->setSurface("default");
 }
 
 void World::dataToJson(QJsonObject &obj) const

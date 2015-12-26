@@ -1,5 +1,7 @@
+#include <QDir>
 #include <QFileInfo>
 
+#include "core/EntityManager.h"
 #include "core/GameEntityPart.h"
 #include "core/JsonUtil.h"
 
@@ -58,13 +60,22 @@ void GameEntityPart::setDisplayName(const QString &displayName)
     }
 }
 
+void GameEntityPart::load(const GameEntity *entity, const QString &name)
+{
+    const EntityManager *em = EntityManager::getInstance();
+    const QString entityPath = em->getEntityPath(entity);
+    const QFileInfo entityFile(entityPath);
+
+    const QString relativePath = this->getEntityRelativePath(name);
+
+    const QString path(entityFile.absolutePath() + '/' + relativePath);
+
+    this->loadFromFile(QDir::cleanPath(path));
+}
+
 void GameEntityPart::loadAs(const QString &path)
 {
-    QFileInfo fileInfo(path);
-    this->setPath(fileInfo.absolutePath());
-    this->setFileName(fileInfo.fileName());
-
-    this->loadFromFile(fileInfo.absoluteFilePath());
+    this->loadFromFile(path);
 }
 
 void GameEntityPart::save() const
@@ -123,6 +134,10 @@ void GameEntityPart::setFileName(const QString &fileName)
 
 void GameEntityPart::loadFromFile(const QString &path)
 {
+    QFileInfo fileInfo(path);
+    this->setPath(fileInfo.absolutePath());
+    this->setFileName(fileInfo.fileName());
+
     QJsonDocument doc = loadJsonDocument(path);
     this->fromJson(doc.object());
 

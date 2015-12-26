@@ -41,7 +41,7 @@ void initLogger()
 {
     warmonger::log::Logger::init();
 
-    const QString formatStr("%{level} {%{name}}: %{message}");
+    const QString formatStr("%{level} {%{name}:%{file}:%{line}}: %{message}");
     std::shared_ptr<warmonger::log::Formatter> formatter(
         new warmonger::log::Formatter(formatStr)
     );

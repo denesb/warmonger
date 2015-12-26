@@ -53,7 +53,10 @@ void SettlementType::writeRecruits(QVariantList recruits)
 void SettlementType::dataFromJson(const QJsonObject &obj)
 {
     this->goldPerTurn = obj["goldPerTurn"].toInt();
-    this->recruits = referenceListFromJson<UnitType>(obj["recruits"].toArray(), this);
+    this->recruits = referenceListFromJson<UnitType>(
+        obj["recruits"].toArray(),
+        this->parent()
+    );
 }
 
 void SettlementType::dataToJson(QJsonObject &obj) const

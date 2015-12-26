@@ -95,15 +95,15 @@ void UnitClass::dataFromJson(const QJsonObject &obj)
     this->movementPoints = obj["movementPoints"].toInt();
     this->movementCosts = objectValueMapFromJson<const TerrainType>(
         obj["terrainMovementCosts"].toObject(),
-        this
+        this->parent()
     );
     this->attacks = objectValueMapFromJson<const TerrainType>(
         obj["terrainAttacks"].toObject(),
-        this
+        this->parent()
     );
     this->defenses = objectValueMapFromJson<const TerrainType>(
         obj["terrainDefenses"].toObject(),
-        this
+        this->parent()
     );
 }
 

@@ -42,7 +42,7 @@ Rectangle {
                 if (root.focusedMapNode) {
                     var surface = W.world.surface;
                     var terrainTypeName = root.focusedMapNode.terrainType.objectName;
-                    surface.prefix + surface.imagePaths[terrainTypeName];
+                    surface.imagePaths[terrainTypeName];
                 } else {
                     "";
                 }
@@ -95,7 +95,7 @@ Rectangle {
                 if (s) {
                     var surface = W.world.surface;
                     var imageName = s.type.objectName;
-                    path = surface.prefix + surface.imagePaths[imageName];
+                    path = surface.imagePaths[imageName];
                 }
                 path;
             }
@@ -214,7 +214,7 @@ Rectangle {
                     if (unitInfo.unit) {
                         var surface = W.world.surface;
                         var imageName = unitInfo.unit.type.objectName;
-                        path = surface.prefix + surface.imagePaths[imageName];
+                        path = surface.imagePaths[imageName];
                     }
                     path;
                 }

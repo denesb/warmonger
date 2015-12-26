@@ -1,6 +1,7 @@
 #include <QMetaMethod>
 #include <QSet>
 
+#include "core/EntityManager.h"
 #include "core/JsonUtil.h"
 #include "core/Map.h"
 #include "core/TerrainType.h"
@@ -10,12 +11,13 @@
 using namespace warmonger::core;
 
 static const QString category{"core"};
+const QString Map::fileExtension{"wmd"};
 const QString Map::mapNodeNameTemplate{"mapNode%1"};
 const QString Map::settlementNameTemplate{"settlement%1"};
 const QString Map::unitNameTemplate{"unit%1"};
 
-Map::Map() :
-    GameEntity(),
+Map::Map(QObject *parent) :
+    GameEntity(parent),
     world(nullptr),
     mapNodeIndex(0),
     settlementIndex(0),
@@ -33,11 +35,6 @@ Map::Map() :
 
 Map::~Map()
 {
-}
-
-QString Map::fileExtension() const
-{
-    return QString("wmd");
 }
 
 World * Map::getWorld() const
@@ -241,24 +238,6 @@ void Map::createUnit(UnitType *unitType, MapNode *mapNode)
     this->addUnit(newUnit);
 }
 
-GameObject * Map::resolveReference(const QString &objectName) const
-{
-    GameObject *gobject = this->findChild<GameObject *>(objectName);
-
-    if (gobject == nullptr)
-    {
-        gobject = this->world->findChild<GameObject *>(objectName);
-    }
-
-    if (gobject == nullptr)
-    {
-        wError(category) << "Unable to resolve reference to " << objectName;
-        throw Exception(Exception::UnresolvedReference);
-    }
-
-    return gobject;
-}
-
 Settlement * Map::getSettlementOn(const MapNode *mapNode) const
 {
     return this->mapContent[mapNode].first;
@@ -290,8 +269,7 @@ void Map::onSurfaceChanged()
 void Map::dataFromJson(const QJsonObject &obj)
 {
     const QString worldName(obj["world"].toString());
-    GameEntity *entity = GameEntity::get(worldName, &World::staticMetaObject);
-    World *world = qobject_cast<World *>(entity);
+    World *world = EntityManager::getInstance()->getEntity<World>(worldName);
     QObject::connect(
         world,
         &World::surfaceChanged,
@@ -326,7 +304,10 @@ void Map::dataToJson(QJsonObject &obj) const
 QList<MapNode *> Map::mapNodesFromJson(const QJsonObject &obj)
 {
     QList<MapNode *> mapNodes;
-    mapNodes = newListFromJson<MapNode>(obj["nodes"].toArray(), this);
+    mapNodes = newListFromJson<MapNode>(
+        obj["nodes"].toArray(),
+        this
+    );
 
     QHash<QString, MapNode *> mapNodeLookup;
     for (MapNode *mapNode : mapNodes)

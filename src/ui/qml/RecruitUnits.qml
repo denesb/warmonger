@@ -74,7 +74,7 @@ Rectangle {
                     source: {
                         var imageName = model.modelData.objectName;
                         var surface = W.world.surface;
-                        surface.prefix + surface.imagePaths[imageName];
+                        surface.imagePaths[imageName];
                     }
 
                     fillMode: Image.PreserveAspectFit

@@ -46,7 +46,10 @@ void Armor::setDefense(const DamageType * const damageType, int defense)
 void Armor::dataFromJson(const QJsonObject &obj)
 {
     this->range = obj["range"].toInt();
-    this->defenses = objectValueMapFromJson<DamageType>(obj["defenses"].toObject(), this);
+    this->defenses = objectValueMapFromJson<DamageType>(
+        obj["defenses"].toObject(),
+        this->parent()
+    );
 }
 
 void Armor::dataToJson(QJsonObject &obj) const

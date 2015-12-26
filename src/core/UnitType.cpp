@@ -111,8 +111,14 @@ void UnitType::dataFromJson(const QJsonObject &obj)
     this->level = this->parent()->findChild<UnitLevel *>(obj["level"].toString());
     this->klass = this->parent()->findChild<UnitClass *>(obj["class"].toString());
     this->armor = this->parent()->findChild<Armor *>(obj["armor"].toString());
-    this->weapons = referenceListFromJson<Weapon>(obj["weapons"].toArray(), this);
-    this->upgrades = referenceListFromJson<UnitType>(obj["upgrades"].toArray(), this);
+    this->weapons = referenceListFromJson<Weapon>(
+        obj["weapons"].toArray(),
+        this->parent()
+    );
+    this->upgrades = referenceListFromJson<UnitType>(
+        obj["upgrades"].toArray(),
+        this->parent()
+    );
 }
 
 void UnitType::dataToJson(QJsonObject &obj) const

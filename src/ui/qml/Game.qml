@@ -8,6 +8,14 @@ Rectangle {
 
     property var stack
 
+    Component {
+        id: recruitUnits
+
+        RecruitUnits {
+            anchors.centerIn: parent
+        }
+    }
+
     Rectangle {
         id: statusBar
 
@@ -63,6 +71,33 @@ Rectangle {
                 settlement: map.focusedSettlement
                 unit: map.focusedUnit
             }
+
+            Rectangle {
+                Layout.preferredHeight: 30
+                Layout.fillWidth: true
+
+                Button {
+                    text: "Recruit"
+
+                    visible: {
+                        var n = map.focusedMapNode;
+                        var s = map.focusedSettlement;
+                        var u = map.focusedUnit;
+                        n && s && u && (u.rankName === "Officer" || u.rankName === "Leader");
+                    }
+
+                    onClicked: {
+                        recruitUnits.createObject(
+                            mapOverlay,
+                            {
+                                "settlement": map.focusedSettlement
+                            }
+                        );
+                        mapOverlay.visible = true;
+                        map.enabled = false;
+                    }
+                }
+            }
         }
     }
 
@@ -86,6 +121,15 @@ Rectangle {
                 fill: parent
                 margins: 1
             }
+        }
+
+        Rectangle {
+            id: mapOverlay
+
+            anchors.fill: parent
+            z: 1
+            visible: false
+            color: "transparent"
         }
     }
 

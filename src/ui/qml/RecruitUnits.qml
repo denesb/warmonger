@@ -1,118 +1,91 @@
 import QtQuick 2.2
-import QtQuick.Controls 1.1
 import QtQuick.Layouts 1.1
 import Warmonger 1.0
 
 Rectangle {
     id: root
 
-    property var map
-    readonly property var settlement: W.getSettlementOn(map.focusedMapNode)
-    readonly property var stack: Stack.view
+    property var settlement
 
-    Stack.onStatusChanged: {
-        if (Stack.status === Stack.Active) {
-            map.mode = GameMap.RecruitMode;
-        }
-    }
+    width: 600
+    height: 600
 
-    Button {
-        id: backButton
-
+    Rectangle {
+        id: titleBar
         height: 24
+
         anchors {
             left: parent.left
             right: parent.right
             top: parent.top
         }
 
-        text: "<<"
-
-        Connections {
-            onClicked: root.stack.pop();
+        Text {
+            text: "Recruit units"
         }
     }
 
     Rectangle {
-        id: settlementInfo
-
-        height: 24
         anchors {
+            top: titleBar.bottom
+            bottom: parent.bottom
             left: parent.left
             right: parent.right
-            top: backButton.bottom
         }
 
-        Text {
-            anchors.verticalCenter: parent.verticalCenter
+        Component {
+            id: unitDelegate
 
-            text: {
-                var dn = root.settlement.displayName;
-                if (dn != "")
-                    text += dn + " ";
-
-                text += root.settlement.type.displayName;
-                text += " - " + root.settlement.owner.displayName;
-                text;
+            UnitDelegate {
             }
         }
-    }
 
-    Component {
-        id: unitDelegate
+        ListView {
+            id: recruitList
+
+            width: 300
+
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                left: parent.left
+            }
+
+            model: settlement.type.recruits
+            delegate: unitDelegate
+        }
 
         Rectangle {
-            id: unit
-            height: 48
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                left: recruitList.right
+                right: parent.right
+            }
 
-            Row {
-                anchors.fill: parent
+            Rectangle {
+                id: mapFragment
+                height: (W.world.surface.tileSize.height * 3) / 2
 
-                Image {
-                    width: 48
-                    height: 48
-                    source: {
-                        var imageName = model.modelData.objectName;
-                        var surface = W.world.surface;
-                        surface.imagePaths[imageName];
-                    }
-
-                    fillMode: Image.PreserveAspectFit
+                anchors {
+                    top: parent.top
+                    left: parent.left
+                    right: parent.right
                 }
+                color: "green"
+            }
 
-                Text {
-                    id: unitText
+            Rectangle {
+                id: details
 
-                    anchors {
-                        verticalCenter: parent.verticalCenter
-                    }
-
-                    text: {
-                        var text = "";
-
-                        text += model.modelData.displayName;
-                        text += " [" + model.modelData.klass.displayName + "]";
-                        text += "\n";
-                        text += "Level " + model.modelData.level.index;
-                        text += " (" + model.modelData.level.displayName + ")";
-                        text;
-                    }
+                anchors {
+                    top: mapFragment.bottom
+                    bottom: parent.bottom
+                    left: parent.left
+                    right: parent.right
                 }
+                color: "yellow"
             }
         }
-    }
-
-    ListView {
-        id: recruits
-
-        anchors {
-            left: parent.left
-            right: parent.right
-            top: settlementInfo.bottom
-            bottom: parent.bottom
-        }
-
-        model: root.settlement.type.recruits
-        delegate: unitDelegate
     }
 }

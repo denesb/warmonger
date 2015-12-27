@@ -7,12 +7,12 @@
 #include <QSize>
 #include <QtQuick/QQuickPaintedItem>
 
+#include "core/Map.h"
 #include "ui/MapUtil.h"
 
 namespace warmonger {
 
 namespace core {
-    class Map;
     class MapNode;
     class World;
     class WorldSurface;
@@ -20,20 +20,23 @@ namespace core {
 
 namespace ui {
 
-class MapPreview :
-    public QQuickPaintedItem
+/**
+ * Show a preview of a map.
+ *
+ * The map preview is very similar to the mini-map, showing the whole
+ * map scaled down to fit into the available space.
+ */
+class MapPreview : public QQuickPaintedItem
 {
     Q_OBJECT
 
-    Q_PROPERTY(QObject *map READ readMap WRITE writeMap NOTIFY mapChanged)
+    Q_PROPERTY(warmonger::core::Map *map READ getMap WRITE setMap NOTIFY mapChanged)
 public:
     MapPreview(QQuickItem *parent = nullptr);
     ~MapPreview();
 
     core::Map *getMap() const;
     void setMap(core::Map *map);
-    QObject *readMap() const;
-    void writeMap(QObject *map);
 
     void paint(QPainter *painter);
 

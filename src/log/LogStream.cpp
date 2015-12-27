@@ -161,6 +161,13 @@ LogStream& LogStream::operator<<(const QSize &size)
     return *this;
 }
 
+LogStream& LogStream::operator<<(const QSizeF &size)
+{
+    this->textStream << "<QSizeF " << size.width() << "x"
+        << size.height() << ">";
+    return *this;
+}
+
 LogStream& LogStream::operator<<(const QJsonValue &value)
 {
     switch(value.type())

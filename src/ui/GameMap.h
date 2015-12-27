@@ -29,7 +29,7 @@ class GameMap :
 {
     Q_OBJECT
 
-    Q_PROPERTY(warmonger::core::Game *game READ getGame WRITE writeGame NOTIFY gameChanged)
+    Q_PROPERTY(warmonger::core::Game *game READ getGame WRITE setGame NOTIFY gameChanged)
     Q_PROPERTY(warmonger::core::MapNode *focusedMapNode READ getFocusedMapNode NOTIFY focusedMapNodeChanged)
     Q_PROPERTY(warmonger::core::Settlement *focusedSettlement READ getFocusedSettlement NOTIFY focusedSettlementChanged)
     Q_PROPERTY(warmonger::core::Unit *focusedUnit READ getFocusedUnit NOTIFY focusedUnitChanged)
@@ -54,7 +54,6 @@ public:
 
     core::Game *getGame() const;
     void setGame(core::Game *game);
-    void writeGame(QObject *game);
 
     core::MapNode * getFocusedMapNode() const;
 

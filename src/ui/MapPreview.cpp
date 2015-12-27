@@ -5,7 +5,6 @@
 #include <QColor>
 #include <QPainter>
 
-#include "core/Map.h"
 #include "core/Player.h"
 #include "core/Settlement.h"
 #include "core/SettlementType.h"
@@ -16,8 +15,6 @@
 #include "ui/MapPreview.h"
 
 static const QString category{"ui"};
-
-static qreal calculateScaleFactor(const QSizeF &source, const QSizeF &target);
 
 using namespace warmonger;
 using namespace warmonger::ui;
@@ -69,28 +66,6 @@ void MapPreview::setMap(core::Map *map)
     }
 }
 
-QObject * MapPreview::readMap() const
-{
-    return this->map;
-}
-
-void MapPreview::writeMap(QObject *map)
-{
-    if (map == nullptr)
-    {
-        this->setMap(nullptr);
-        return;
-    }
-
-    core::Map *m = qobject_cast<core::Map *>(map);
-    if (m == nullptr)
-    {
-        wError(category) << "map has wrong type";
-        throw core::Exception(core::Exception::InvalidValue);
-    }
-    this->setMap(m);
-}
-
 void MapPreview::paint(QPainter *painter)
 {
     if (this->map == nullptr)
@@ -139,7 +114,7 @@ void MapPreview::setupMap()
     this->tileSize = this->surface->getTileSize();
 
     this->hexagonPainterPath = hexagonPath(this->tileSize);
-    this->nodesPos = positionNodes(this->nodes, this->tileSize);
+    this->nodesPos = positionNodes(this->nodes[0], this->tileSize);
 
     this->updateGeometry();
     this->update();
@@ -156,18 +131,12 @@ void MapPreview::updateGeometry()
 
 void MapPreview::updateTransform()
 {
-    this->scale = calculateScaleFactor(
-        QSizeF(this->boundingRect.size()),
-        this->contentsBoundingRect().size()
+    QPair<qreal, QPointF> transform = centerIn(
+        this->boundingRect,
+        this->contentsBoundingRect()
     );
-
-    const QSizeF itemSize = this->contentsBoundingRect().size();
-    const QSizeF mapSize = QSizeF(this->boundingRect.size()) * this->scale;
-    const qreal dx = (itemSize.width() - mapSize.width()) / 2.0;
-    const qreal dy = (itemSize.height() - mapSize.height()) / 2.0;
-
-    this->translate = QPointF(-this->boundingRect.topLeft());
-    this->translate += (QPointF(dx, dy) * (1 / this->scale));
+    this->scale = transform.first;
+    this->translate = transform.second;
 }
 
 void MapPreview::drawNode(QPainter *painter, const core::MapNode *node)
@@ -206,10 +175,3 @@ void MapPreview::drawNode(QPainter *painter, const core::MapNode *node)
     painter->restore();
 }
 
-qreal calculateScaleFactor(const QSizeF &source, const QSizeF &target)
-{
-    const qreal sourceSize = std::max(source.width(), source.height());
-    const qreal targetSize = std::min(target.width(), target.width());
-
-    return targetSize / sourceSize;
-}

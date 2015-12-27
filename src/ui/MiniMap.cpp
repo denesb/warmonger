@@ -5,7 +5,6 @@
 #include <QColor>
 #include <QPainter>
 
-#include "core/Map.h"
 #include "core/Player.h"
 #include "core/Settlement.h"
 #include "core/SettlementType.h"
@@ -16,8 +15,6 @@
 #include "ui/MiniMap.h"
 
 static const QString category{"ui"};
-
-static qreal calculateScaleFactor(const QSizeF &source, const QSizeF &target);
 
 using namespace warmonger;
 using namespace warmonger::ui;
@@ -71,22 +68,6 @@ void MiniMap::setMap(core::Map *map)
         this->setupMap();
         emit mapChanged();
     }
-}
-
-QObject * MiniMap::readMap() const
-{
-    return this->map;
-}
-
-void MiniMap::writeMap(QObject *map)
-{
-    core::Map *m = qobject_cast<core::Map *>(map);
-    if (m == nullptr)
-    {
-        wError(category) << "map is null or has wrong type";
-        throw core::Exception(core::Exception::InvalidValue);
-    }
-    this->setMap(m);
 }
 
 QPoint MiniMap::getWindowPos() const
@@ -185,7 +166,7 @@ void MiniMap::setupMap()
     this->tileSize = this->surface->getTileSize();
 
     this->hexagonPainterPath = hexagonPath(this->tileSize);
-    this->nodesPos = positionNodes(this->nodes, this->tileSize);
+    this->nodesPos = positionNodes(this->nodes[0], this->tileSize);
 
     this->updateGeometry();
 }
@@ -213,18 +194,12 @@ void MiniMap::updateWindowPosRect()
 
 void MiniMap::updateTransform()
 {
-    this->scale = calculateScaleFactor(
-        QSizeF(this->boundingRect.size()),
-        this->contentsBoundingRect().size()
+    QPair<qreal, QPointF> transform = centerIn(
+        this->boundingRect,
+        this->contentsBoundingRect()
     );
-
-    const QSizeF itemSize = this->contentsBoundingRect().size();
-    const QSizeF mapSize = QSizeF(this->boundingRect.size()) * this->scale;
-    const qreal dx = (itemSize.width() - mapSize.width()) / 2.0;
-    const qreal dy = (itemSize.height() - mapSize.height()) / 2.0;
-
-    this->translate = QPointF(-this->boundingRect.topLeft());
-    this->translate += (QPointF(dx, dy) * (1 / this->scale));
+    this->scale = transform.first;
+    this->translate = transform.second;
 }
 
 
@@ -268,12 +243,4 @@ void MiniMap::drawNode(QPainter *painter, const core::MapNode *node)
     }
 
     painter->restore();
-}
-
-qreal calculateScaleFactor(const QSizeF &source, const QSizeF &target)
-{
-    const qreal sourceSize = std::max(source.width(), source.height());
-    const qreal targetSize = std::min(target.width(), target.width());
-
-    return targetSize / sourceSize;
 }

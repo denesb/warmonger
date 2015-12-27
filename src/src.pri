@@ -52,7 +52,8 @@ HEADERS += \
     src/ui/MiniMap.h \
     src/ui/MapDrawer.h \
     src/ui/MapPreview.h \
-    src/ui/MapUtil.h
+    src/ui/MapUtil.h \
+    src/ui/UnitRecruit.h
 
 # app
 SOURCES += \
@@ -103,7 +104,8 @@ SOURCES += \
     src/ui/MapDrawer.cpp \
     src/ui/MiniMap.cpp \
     src/ui/MapPreview.cpp \
-    src/ui/MapUtil.cpp
+    src/ui/MapUtil.cpp \
+    src/ui/UnitRecruit.cpp
 
 # qml
 OTHER_FILES += \

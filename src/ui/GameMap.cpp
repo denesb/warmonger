@@ -5,9 +5,6 @@
 #include <QPainter>
 #include <QTimer>
 
-#include "core/SettlementType.h"
-#include "core/TerrainType.h"
-#include "core/UnitType.h"
 #include "core/Util.h"
 #include "core/WorldSurface.h"
 #include "ui/GameMap.h"
@@ -125,17 +122,6 @@ void GameMap::setGame(core::Game *game)
         this->setupMap();
         emit gameChanged();
     }
-}
-
-void GameMap::writeGame(QObject *game)
-{
-    core::Game *g = qobject_cast<core::Game *>(game);
-    if (g == nullptr)
-    {
-        wError(category) << "game is null or has wrong type";
-        throw core::Exception(core::Exception::InvalidValue);
-    }
-    this->setGame(g);
 }
 
 core::MapNode * GameMap::getFocusedMapNode() const
@@ -313,7 +299,7 @@ void GameMap::setupMap()
     this->surface = this->world->getSurface();
     this->tileSize = this->surface->getTileSize();
 
-    this->nodesPos = positionNodes(this->nodes, this->tileSize);
+    this->nodesPos = positionNodes(this->nodes[0], this->tileSize);
 
     if (this->mapDrawer)
         delete this->mapDrawer;

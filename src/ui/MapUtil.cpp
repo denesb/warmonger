@@ -53,15 +53,15 @@ QPoint neighbourPos(
 }
 
 QHash<const core::MapNode *, QPoint> positionNodes(
-    const QList<core::MapNode *> &nodes,
+    core::MapNode * startNode,
     const QSize &tileSize
 )
 {
     QHash<const core::MapNode *, QPoint> nodesPos;
 
-    nodesPos.insert(nodes[0], QPoint(0, 0));
+    nodesPos.insert(startNode, QPoint(0, 0));
 
-    positionNode(nodes[0], nodesPos, tileSize);
+    positionNode(startNode, nodesPos, tileSize);
 
     return std::move(nodesPos);
 }
@@ -157,6 +157,24 @@ QPoint project(const QPoint &p, const QRect &r)
     }
 
     return pp;
+}
+
+QPair<qreal, QPointF> centerIn(const QRectF &content, const QRectF &frame)
+{
+    const qreal contentSize = std::max(content.width(), content.height());
+    const qreal frameSize = std::min(frame.width(), frame.height());
+
+    const qreal scale = frameSize / contentSize;
+
+    const QSizeF scaledContentSize = QSizeF(content.size()) * scale;
+
+    const qreal dx = (frame.width() - scaledContentSize.width()) / 2.0;
+    const qreal dy = (frame.height() - scaledContentSize.height()) / 2.0;
+
+    QPointF translate = QPointF(-content.topLeft());
+    translate += (QPointF(dx, dy) * (1 / scale));
+
+    return QPair<qreal, QPointF>(scale, translate);
 }
 
 } // namespace ui

@@ -65,14 +65,25 @@ Rectangle {
 
             Rectangle {
                 id: mapFragment
-                height: (W.world.surface.tileSize.height * 3) / 2
+                height: W.world.surface.tileSize.height * 3/2
 
                 anchors {
                     top: parent.top
                     left: parent.left
                     right: parent.right
                 }
-                color: "green"
+                border {
+                    width: 1
+                    color: "black"
+                }
+
+                UnitRecruit {
+                    anchors.fill: parent
+                    anchors.margins: 1
+
+                    game: W.game
+                    settlement: root.settlement
+                }
             }
 
             Rectangle {

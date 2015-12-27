@@ -7,12 +7,12 @@
 #include <QSize>
 #include <QtQuick/QQuickPaintedItem>
 
+#include "core/Map.h"
 #include "ui/MapUtil.h"
 
 namespace warmonger {
 
 namespace core {
-    class Map;
     class MapNode;
     class World;
     class WorldSurface;
@@ -25,7 +25,7 @@ class MiniMap :
 {
     Q_OBJECT
 
-    Q_PROPERTY(QObject *map READ readMap WRITE writeMap NOTIFY mapChanged)
+    Q_PROPERTY(warmonger::core::Map *map READ getMap WRITE setMap NOTIFY mapChanged)
     Q_PROPERTY(QPoint windowPos READ getWindowPos WRITE setWindowPos NOTIFY windowPosChanged)
     Q_PROPERTY(QSize windowSize READ getWindowSize WRITE setWindowSize NOTIFY windowSizeChanged)
 public:
@@ -34,8 +34,6 @@ public:
 
     core::Map *getMap() const;
     void setMap(core::Map *map);
-    QObject *readMap() const;
-    void writeMap(QObject *map);
 
     QPoint getWindowPos() const;
     void setWindowPos(const QPoint &windowPos);

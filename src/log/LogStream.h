@@ -54,6 +54,7 @@ public:
     LogStream& operator<<(const QRect &rect);
     LogStream& operator<<(const QRectF &rect);
     LogStream& operator<<(const QSize &size);
+    LogStream& operator<<(const QSizeF &size);
 
     LogStream& operator<<(const QJsonValue &value);
     LogStream& operator<<(const QJsonObject &obj);

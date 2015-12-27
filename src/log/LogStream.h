@@ -62,6 +62,8 @@ public:
 
     LogStream& operator<<(const QStringList &list);
 
+    LogStream& operator<<(const QObject * const obj);
+
 private:
     QTextStream textStream;
     QString buffer;

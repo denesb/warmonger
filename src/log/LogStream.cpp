@@ -250,3 +250,18 @@ LogStream& LogStream::operator<<(const QStringList &list)
 
     return *this;
 }
+
+
+LogStream& LogStream::operator<<(const QObject * const obj)
+{
+    if (obj == nullptr)
+    {
+        this->textStream << "nullptr";
+        return *this;
+    }
+
+    const QMetaObject *metaObj = obj->metaObject();
+    this->textStream << metaObj->className() << "<" << obj->objectName() << ">";
+
+    return *this;
+}

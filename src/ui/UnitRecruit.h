@@ -9,7 +9,7 @@
 #include "core/Game.h"
 #include "core/MapNode.h"
 #include "core/Settlement.h"
-#include "core/Unit.h"
+#include "core/UnitType.h"
 #include "ui/MapDrawer.h"
 
 namespace warmonger {
@@ -30,6 +30,7 @@ class UnitRecruit :
 
     Q_PROPERTY(warmonger::core::Game *game READ getGame WRITE setGame NOTIFY gameChanged)
     Q_PROPERTY(warmonger::core::Settlement *settlement READ getSettlement WRITE setSettlement NOTIFY settlementChanged)
+    Q_PROPERTY(warmonger::core::UnitType *unitType READ getUnitType WRITE setUnitType NOTIFY unitTypeChanged)
 
 public:
     UnitRecruit(QQuickItem *parent = nullptr);
@@ -41,11 +42,18 @@ public:
     core::Settlement * getSettlement() const;
     void setSettlement(core::Settlement *settlement);
 
+    core::UnitType * getUnitType() const;
+    void setUnitType(core::UnitType *unitType);
+
     void paint(QPainter *painter);
 
 signals:
     void gameChanged();
     void settlementChanged();
+    void unitTypeChanged();
+
+public slots:
+    void recruitUnit();
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -57,12 +65,12 @@ private:
     bool rectContainsNode(const QRect &rect, const core::MapNode *node);
     QPointF mapToMap(const QPointF &p) const;
 
-    void onFocusedNodeChanged();
-    void onCurrentNodeChanged();
-
+    void setFocusedNode(core::MapNode *node);
     void updateFocus(const QPoint &p);
-    void moveUnit(const QPoint &p);
-    void advanceUnits();
+
+    bool canRecruitOnNode(const core::MapNode *node);
+
+    void selectFocusNode();
 
     core::Game *game;
     core::World *world;
@@ -70,6 +78,7 @@ private:
     QSize tileSize;
 
     core::Settlement *settlement;
+    core::UnitType *unitType;
 
     MapDrawer *mapDrawer;
 
@@ -77,10 +86,8 @@ private:
     QHash<const core::MapNode *, QPoint> nodesPos;
 
     core::MapNode *focusedNode;
-    core::MapNode *currentNode;
 
     QRect boundingRect;
-    QPoint lastPos;
 
     qreal scale;
     QPointF translate;

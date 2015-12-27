@@ -9,7 +9,7 @@
 #include "ui/MapUtil.h"
 #include "ui/UnitRecruit.h"
 
-static const QString category{"ui"};
+static const QString category{"ui.UnitRecruit"};
 
 using namespace warmonger;
 using namespace warmonger::ui;
@@ -20,13 +20,13 @@ UnitRecruit::UnitRecruit(QQuickItem *parent) :
     world(nullptr),
     surface(nullptr),
     tileSize(),
+    settlement(nullptr),
+    unitType(nullptr),
     mapDrawer(nullptr),
     nodes(),
     nodesPos(),
     focusedNode(nullptr),
-    currentNode(nullptr),
-    boundingRect(),
-    lastPos(0, 0)
+    boundingRect()
 {
     this->setAcceptedMouseButtons(Qt::LeftButton);
 
@@ -78,8 +78,23 @@ void UnitRecruit::setSettlement(core::Settlement *settlement)
     {
         this->settlement = settlement;
         this->setupMap();
-
+        this->selectFocusNode();
         emit settlementChanged();
+    }
+}
+
+core::UnitType * UnitRecruit::getUnitType() const
+{
+    return this->unitType;
+}
+
+void UnitRecruit::setUnitType(core::UnitType *unitType)
+{
+    if (this->unitType != unitType)
+    {
+        this->unitType = unitType;
+        this->selectFocusNode();
+        emit unitTypeChanged();
     }
 }
 
@@ -97,6 +112,10 @@ void UnitRecruit::paint(QPainter *painter)
     this->mapDrawer->drawMap(painter, this->nodes, drawingInfo);
 
     painter->restore();
+}
+
+void UnitRecruit::recruitUnit()
+{
 }
 
 void UnitRecruit::mousePressEvent(QMouseEvent *event)
@@ -168,9 +187,20 @@ bool UnitRecruit::rectContainsNode(const QRect &rect, const core::MapNode *node)
     return rect.intersects(nodeRect);
 }
 
+void UnitRecruit::setFocusedNode(core::MapNode *focusedNode)
+{
+    if (this->canRecruitOnNode(focusedNode)
+            && this->focusedNode != focusedNode) {
+        wInfo(category) << "Focused node " << this->focusedNode
+            << " -> " << focusedNode;
+        this->focusedNode = focusedNode;
+
+        this->update();
+    }
+}
+
 void UnitRecruit::updateFocus(const QPoint &p)
 {
-    this->lastPos = p;
     const QPointF posf(this->mapToMap(p));
     const QPoint pos = posf.toPoint();
     auto it = std::find_if(
@@ -182,8 +212,48 @@ void UnitRecruit::updateFocus(const QPoint &p)
         }
     );
     core::MapNode *focusedNode = it == this->nodes.constEnd() ? nullptr : *it;
+    this->setFocusedNode(focusedNode);
+}
 
-    if (this->focusedNode != focusedNode) {
-        this->focusedNode = focusedNode;
+bool UnitRecruit::canRecruitOnNode(const core::MapNode *node)
+{
+    bool nodeFree = !this->game->hasSettlement(node)
+        && !this->game->hasUnit(node);
+
+    if (this->unitType == nullptr)
+    {
+        return nodeFree;
     }
+    else
+    {
+        core::UnitClass *klass = this->unitType->getClass();
+        return nodeFree && klass->getMovementCost(node->getTerrainType()) > 0;
+    }
+}
+
+void UnitRecruit::selectFocusNode()
+{
+    static const QList<core::MapNode::Direction> directionOrder{
+        core::MapNode::West,
+        core::MapNode::NorthWest,
+        core::MapNode::NorthEast,
+        core::MapNode::East,
+        core::MapNode::SouthEast,
+        core::MapNode::SouthWest
+    };
+
+    core::MapNode *nextFocusedNode = nullptr;
+
+    core::MapNode *settlementNode = this->settlement->getMapNode();
+    for (core::MapNode::Direction direction : directionOrder)
+    {
+        core::MapNode *node = settlementNode->getNeighbour(direction);
+        if (node != nullptr && this->canRecruitOnNode(node))
+        {
+            nextFocusedNode = node;
+            break;
+        }
+    }
+
+    this->setFocusedNode(nextFocusedNode);
 }

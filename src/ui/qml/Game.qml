@@ -1,5 +1,6 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.1
+import QtQuick.Layouts 1.1
 import Warmonger 1.0
 
 Rectangle {
@@ -28,89 +29,37 @@ Rectangle {
             right: parent.right
         }
 
-        Rectangle {
-            id: controls
+        ColumnLayout {
+            anchors.fill: parent
 
-            height: 24
-            anchors {
-                top: parent.top
-                left: parent.left
-                right: parent.right
-            }
+            Rectangle {
+                Layout.preferredHeight: 256
+                Layout.fillWidth: true
 
-            Button {
-                text: "Quit"
-
-                onClicked: {
-                    W.closeGame();
-                    root.stack.pop();
-                    root.stack.pop();
-                }
-            }
-        }
-
-        Rectangle {
-            id: miniMapWrapper
-
-            height: 288
-            anchors {
-                top: controls.bottom
-                left: parent.left
-                right: parent.right
-            }
-            border {
-                width: 1
-                color: "black"
-            }
-
-            MiniMap {
-                id: miniMap
-
-                map: W.game
-                windowPos: map.windowPos
-                windowSize: map.windowSize
-
-                anchors {
-                    fill: parent
-                    margins: 1
-                }
-            }
-        }
-
-        StackView {
-            id: gameControlStack
-
-            anchors {
-                top: miniMapWrapper.bottom
-                bottom: parent.bottom
-                left: parent.left
-                right: parent.right
-            }
-            initialItem: {
-                "item": Qt.resolvedUrl("GameItemInfo.qml"),
-                "properties": {
-                    "map": map
-                }
-            }
-        }
-
-        Rectangle {
-            id: turnInfo
-
-            height: 24
-            anchors {
-                bottom: parent.bottom
-                left: parent.left
-                right: parent.right
-            }
-
-            Text {
-                anchors {
-                    verticalCenter: parent.verticalCenter
-                    left: parent.left
+                border {
+                    width: 1
+                    color: "black"
                 }
 
-                text: "Turn " + W.game.turn
+                MiniMap {
+                    id: miniMap
+
+                    map: W.game
+                    windowPos: map.windowPos
+                    windowSize: map.windowSize
+
+                    anchors {
+                        fill: parent
+                        margins: 1
+                    }
+                }
+            }
+
+            GameItemInfo {
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+
+                map: map
             }
         }
     }

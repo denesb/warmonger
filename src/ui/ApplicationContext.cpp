@@ -45,55 +45,6 @@ core::World * ApplicationContext::getWorld() const
     return this->world;
 }
 
-bool ApplicationContext::intersects(QRect rect1, QRect rect2) const
-{
-    return rect1.intersects(rect2);
-}
-
-warmonger::core::Settlement * ApplicationContext::getSettlementOn(
-    warmonger::core::MapNode *mapNode
-) const
-{
-    if (this->game)
-        return this->game->getSettlementOn(mapNode);
-    else if (this->map)
-        return this->map->getSettlementOn(mapNode);
-    else
-        return nullptr;
-}
-
-warmonger::core::Unit * ApplicationContext::getUnitOn(
-    warmonger::core::MapNode *mapNode
-) const
-{
-    if (this->game)
-        return this->game->getUnitOn(mapNode);
-    else if (this->map)
-        return this->map->getUnitOn(mapNode);
-    else
-        return nullptr;
-}
-
-bool ApplicationContext::hasSettlement(warmonger::core::MapNode *mapNode) const
-{
-    if (this->game)
-        return this->game->hasSettlement(mapNode);
-    else if (this->map)
-        return this->map->hasSettlement(mapNode);
-    else
-        return false;
-}
-
-bool ApplicationContext::hasUnit(warmonger::core::MapNode *mapNode) const
-{
-    if (this->game)
-        return this->game->hasUnit(mapNode);
-    else if (this->map)
-        return this->map->hasUnit(mapNode);
-    else
-        return false;
-}
-
 void ApplicationContext::loadMaps()
 {
     QStringList nameFilters;

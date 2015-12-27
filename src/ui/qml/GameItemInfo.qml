@@ -5,7 +5,9 @@ import QtQuick.Layouts 1.1
 Rectangle {
     id: root
 
-    property var map
+    property var mapNode
+    property var settlement
+    property var unit
 
     Column {
         anchors.fill: parent
@@ -52,9 +54,9 @@ Rectangle {
                 }
 
                 source: {
-                    if (root.map.focusedMapNode) {
+                    if (root.mapNode) {
                         var surface = W.world.surface;
-                        var terrainTypeName = root.map.focusedMapNode.terrainType.objectName;
+                        var terrainTypeName = root.mapNode.terrainType.objectName;
                         surface.imagePaths[terrainTypeName];
                     } else {
                         "";
@@ -71,9 +73,9 @@ Rectangle {
                 }
 
                 text: {
-                    if (root.map.focusedMapNode) {
-                        var text = root.map.focusedMapNode.displayName + " ";
-                        text += root.map.focusedMapNode.terrainType.displayName;
+                    if (root.mapNode) {
+                        var text = root.mapNode.displayName + " ";
+                        text += root.mapNode.terrainType.displayName;
                         text;
                     } else {
                         "";
@@ -83,13 +85,10 @@ Rectangle {
         }
 
         Rectangle {
-            id: settlementInfo
             visible: {
-                if (W.hasSettlement(root.map.focusedMapNode)) true
-                else false;
+                if (root.settlement) true
+                else false
             }
-
-            readonly property var settlement: W.getSettlementOn(root.map.focusedMapNode)
 
             height: 24
             anchors {
@@ -102,7 +101,7 @@ Rectangle {
                 height: 24
                 width: 24
                 source: {
-                    var s = settlementInfo.settlement;
+                    var s = root.settlement;
                     var path = "";
                     if (s) {
                         var surface = W.world.surface;
@@ -124,7 +123,7 @@ Rectangle {
                 }
 
                 text: {
-                    var s = settlementInfo.settlement
+                    var s = root.settlement
                     var text = "";
                     if (s) {
                         var dn = s.displayName;
@@ -140,10 +139,9 @@ Rectangle {
         }
 
         Rectangle {
-            id: unitInfo
             visible: {
-                if (W.hasUnit(root.map.focusedMapNode)) true
-                else false;
+                if (root.unit) true
+                else false
             }
 
             height: 148
@@ -152,8 +150,6 @@ Rectangle {
                 left: parent.left
                 right: parent.right
             }
-
-            readonly property var unit: W.getUnitOn(root.map.focusedMapNode)
 
             Column {
                 anchors.fill: parent
@@ -167,7 +163,7 @@ Rectangle {
 
                     text: {
                         var text = "";
-                        var u = unitInfo.unit;
+                        var u = root.unit;
 
                         if (u) {
                             if (u.displayName != "")
@@ -189,7 +185,7 @@ Rectangle {
 
                     text: {
                         var text = "";
-                        var u = unitInfo.unit;
+                        var u = root.unit;
 
                         if (u) {
                             text += "Level " + u.type.level.index;
@@ -214,9 +210,9 @@ Rectangle {
                         height: 100
                         source: {
                             var path = "";
-                            if (unitInfo.unit) {
+                            if (root.unit) {
                                 var surface = W.world.surface;
-                                var imageName = unitInfo.unit.type.objectName;
+                                var imageName = root.unit.type.objectName;
                                 path = surface.imagePaths[imageName];
                             }
                             path;
@@ -259,8 +255,8 @@ Rectangle {
                                     Layout.fillWidth: true
                                     height: parent.height * 0.8
 
-                                    points: if (unitInfo.unit) unitInfo.unit.hitPoints;
-                                    maxPoints: if (unitInfo.unit) unitInfo.unit.type.hitPoints
+                                    points: if (root.unit) root.unit.hitPoints;
+                                    maxPoints: if (root.unit) root.unit.type.hitPoints
                                     color: {
                                         if (maxPoints) {
                                             var proportion = points/maxPoints;
@@ -289,8 +285,8 @@ Rectangle {
                                     Layout.fillWidth: true
                                     height: parent.height * 0.8
 
-                                    points: if (unitInfo.unit) unitInfo.unit.movementPoints
-                                    maxPoints: if (unitInfo.unit) unitInfo.unit.type.klass.movementPoints
+                                    points: if (root.unit) root.unit.movementPoints
+                                    maxPoints: if (root.unit) root.unit.type.klass.movementPoints
                                     color: "blue"
                                 }
                             }
@@ -310,8 +306,8 @@ Rectangle {
                                     Layout.fillWidth: true
                                     height: parent.height * 0.8
 
-                                    points: if (unitInfo.unit) unitInfo.unit.experiencePoints
-                                    maxPoints: if (unitInfo.unit) unitInfo.unit.type.level.experiencePoints
+                                    points: if (root.unit) root.unit.experiencePoints
+                                    maxPoints: if (root.unit) root.unit.type.level.experiencePoints
                                     color: "purple"
                                 }
                             }

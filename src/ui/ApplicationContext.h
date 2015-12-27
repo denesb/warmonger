@@ -8,9 +8,9 @@
 #include "core/Game.h"
 #include "core/Map.h"
 #include "core/MapNode.h"
+#include "core/Settlement.h"
 #include "core/World.h"
 #include "core/Unit.h"
-#include "core/Settlement.h"
 
 namespace warmonger {
 namespace ui {
@@ -32,18 +32,6 @@ public:
     core::Map * getMap() const;
     core::Game * getGame() const;
     core::World * getWorld() const;
-
-    Q_INVOKABLE bool intersects(QRect rect1, QRect rect2) const;
-
-    Q_INVOKABLE warmonger::core::Settlement * getSettlementOn(
-        warmonger::core::MapNode *mapNode
-    ) const;
-    Q_INVOKABLE warmonger::core::Unit * getUnitOn(
-        warmonger::core::MapNode *mapNode
-    ) const;
-
-    Q_INVOKABLE bool hasSettlement(warmonger::core::MapNode *mapNode) const;
-    Q_INVOKABLE bool hasUnit(warmonger::core::MapNode *mapNode) const;
 
 public slots:
     void loadMaps();

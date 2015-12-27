@@ -59,7 +59,9 @@ Rectangle {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
 
-                map: map
+                mapNode: map.focusedMapNode
+                settlement: map.focusedSettlement
+                unit: map.focusedUnit
             }
         }
     }

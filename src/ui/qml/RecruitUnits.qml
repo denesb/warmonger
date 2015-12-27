@@ -33,15 +33,8 @@ Rectangle {
             right: parent.right
         }
 
-        Component {
-            id: unitDelegate
-
-            UnitDelegate {
-            }
-        }
-
-        ListView {
-            id: recruitList
+        UnitTypeSelector {
+            id: unitTypeSelector
 
             width: 300
 
@@ -51,51 +44,47 @@ Rectangle {
                 left: parent.left
             }
 
-            model: settlement.type.recruits
-            delegate: unitDelegate
+            unitTypes: settlement.type.recruits
         }
 
         Rectangle {
             anchors {
                 top: parent.top
                 bottom: parent.bottom
-                left: recruitList.right
+                left: unitTypeSelector.right
                 right: parent.right
             }
 
-            Rectangle {
-                id: mapFragment
-                height: W.world.surface.tileSize.height * 3/2
+            ColumnLayout {
+                anchors.fill: parent
 
-                anchors {
-                    top: parent.top
-                    left: parent.left
-                    right: parent.right
+                Rectangle {
+                    id: unitRecruitWrapper
+
+                    Layout.preferredHeight: W.world.surface.tileSize.height * 3/2
+                    Layout.fillWidth: true
+
+                    border {
+                        width: 1
+                        color: "black"
+                    }
+
+                    UnitRecruit {
+                        anchors.fill: parent
+                        anchors.margins: 1
+
+                        game: W.game
+                        settlement: root.settlement
+                        unitType: unitTypeSelector.unitType
+                    }
                 }
-                border {
-                    width: 1
-                    color: "black"
+
+                UnitTypeDetails {
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+
+                    unitType: unitTypeSelector.unitType
                 }
-
-                UnitRecruit {
-                    anchors.fill: parent
-                    anchors.margins: 1
-
-                    game: W.game
-                    settlement: root.settlement
-                }
-            }
-
-            Rectangle {
-                id: details
-
-                anchors {
-                    top: mapFragment.bottom
-                    bottom: parent.bottom
-                    left: parent.left
-                    right: parent.right
-                }
-                color: "yellow"
             }
         }
     }

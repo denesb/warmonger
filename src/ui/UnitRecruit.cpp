@@ -92,8 +92,12 @@ void UnitRecruit::setUnitType(core::UnitType *unitType)
 {
     if (this->unitType != unitType)
     {
+        wInfo(category) << "UnitType changed " << this->unitType
+            << " -> " << unitType;
+
         this->unitType = unitType;
         this->selectFocusNode();
+
         emit unitTypeChanged();
     }
 }
@@ -191,7 +195,7 @@ void UnitRecruit::setFocusedNode(core::MapNode *focusedNode)
 {
     if (this->canRecruitOnNode(focusedNode)
             && this->focusedNode != focusedNode) {
-        wInfo(category) << "Focused node " << this->focusedNode
+        wInfo(category) << "Focused node changed " << this->focusedNode
             << " -> " << focusedNode;
         this->focusedNode = focusedNode;
 

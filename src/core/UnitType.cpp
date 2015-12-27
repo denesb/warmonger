@@ -90,6 +90,10 @@ void UnitType::setWeapons(const QList<Weapon *> &weapons)
     }
 }
 
+QVariantList UnitType::readWeapons() const
+{
+    return toQVariantList<Weapon>(this->weapons);
+}
 
 QList<UnitType *> UnitType::getUpgrades() const
 {

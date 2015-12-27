@@ -17,6 +17,8 @@ class UnitType :
     Q_PROPERTY(int hitPoints READ getHitPoints WRITE setHitPoints NOTIFY hitPointsChanged)
     Q_PROPERTY(UnitClass *klass READ getClass WRITE setClass NOTIFY classChanged)
     Q_PROPERTY(UnitLevel *level READ getLevel WRITE setLevel NOTIFY levelChanged)
+    Q_PROPERTY(Armor *armor READ getArmor WRITE setArmor NOTIFY armorChanged)
+    Q_PROPERTY(QVariantList weapons READ readWeapons NOTIFY weaponsChanged)
 
 public:
     UnitType(QObject *parent);
@@ -36,6 +38,8 @@ public:
 
     QList<Weapon *> getWeapons() const;
     void setWeapons(const QList<Weapon *> &weapons);
+
+    QVariantList readWeapons() const;
 
     QList<UnitType *> getUpgrades() const;
     void setUpgrades(const QList<UnitType *> &upgrades);

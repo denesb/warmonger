@@ -8,7 +8,7 @@
 
 using namespace warmonger::core;
 
-static const QString category{"core"};
+static const QString loggerName{"core.Player"};
 
 Player::Player(QObject *parent) :
     GameObject(parent),

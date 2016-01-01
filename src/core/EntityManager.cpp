@@ -3,7 +3,7 @@
 #include "core/JsonUtil.h"
 #include "log/LogStream.h"
 
-static const QString category("core");
+static const QString loggerName("core.EntityManager");
 
 using namespace warmonger;
 using namespace warmonger::core;

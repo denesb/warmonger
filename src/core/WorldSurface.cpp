@@ -19,7 +19,7 @@ static QHash<QString, QColor> createColors(
 
 static const QString pathTemplate{"/surfaces/%1/%1.%2"};
 
-static const QString category{"core"};
+static const QString loggerName{"core.WorldSurface"};
 
 WorldSurface::WorldSurface(QObject *parent) :
     GameEntityPart(parent),

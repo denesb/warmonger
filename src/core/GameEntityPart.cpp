@@ -7,7 +7,7 @@
 
 using namespace warmonger::core;
 
-static const QString category("core");
+static const QString loggerName("core.GameEntityPart");
 
 GameEntityPart::GameEntityPart(QObject *parent) :
     QObject(parent),
@@ -112,7 +112,7 @@ void GameEntityPart::setPath(const QString &path)
 {
     if (!this->path.isNull())
     {
-        wError(category) << "Entity " << this->objectName() << " already loaded";
+        wError(loggerName) << "Entity " << this->objectName() << " already loaded";
         throw Exception(Exception::EntityAlreadyLoaded);
     }
     this->path = path;
@@ -124,7 +124,7 @@ void GameEntityPart::setFileName(const QString &fileName)
 {
     if (!this->fileName.isNull())
     {
-        wError(category) << "Entity " << this->objectName() << " already loaded";
+        wError(loggerName) << "Entity " << this->objectName() << " already loaded";
         throw Exception(Exception::EntityAlreadyLoaded);
     }
     this->fileName = fileName;

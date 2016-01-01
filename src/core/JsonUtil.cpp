@@ -2,7 +2,7 @@
 
 #include "core/JsonUtil.h"
 
-static const QString category("core");
+static const QString loggerName("core.JsonUtil");
 
 using namespace warmonger;
 
@@ -22,7 +22,7 @@ QJsonDocument core::loadJsonDocument(const QString &path)
 
     if (!jsonFile.open(QIODevice::ReadOnly))
     {
-        wError(category) << "Failed to open Json document from path " << path;
+        wError(loggerName) << "Failed to open Json document from path " << path;
         throw Exception(Exception::FileIO, "File open failed");
     }
 
@@ -36,12 +36,12 @@ QJsonDocument core::loadJsonDocument(const QString &path)
 
     if (parseError.error != QJsonParseError::NoError)
     {
-        wError(category) << "Parse of Json document " << path << " failed: "
+        wError(loggerName) << "Parse of Json document " << path << " failed: "
             << parseError.errorString() << " at offset " << parseError.offset;
         throw Exception(Exception::JsonParse);
     }
 
-    wInfo(category) << "Loaded Json document from " << path;
+    wInfo(loggerName) << "Loaded Json document from " << path;
 
     return std::move(doc);
 }
@@ -52,7 +52,7 @@ void core::saveJsonDocument(const QString &path, const QJsonDocument &doc)
 
     if (!jsonFile.open(QIODevice::WriteOnly))
     {
-        wError(category) << "Failed to open Json document from path " << path;
+        wError(loggerName) << "Failed to open Json document from path " << path;
         throw Exception(Exception::FileIO, "File open failed");
     }
 
@@ -60,10 +60,10 @@ void core::saveJsonDocument(const QString &path, const QJsonDocument &doc)
 
     if (jsonFile.write(jsonData) == -1)
     {
-        wError(category) << "Failed to write Json document " << path;
+        wError(loggerName) << "Failed to write Json document " << path;
         throw Exception(Exception::FileIO, "Failed to write file");
     }
 
-    wInfo(category) << "Saved Json document to " << path;
+    wInfo(loggerName) << "Saved Json document to " << path;
 }
 

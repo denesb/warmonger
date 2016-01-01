@@ -10,7 +10,7 @@
 using namespace warmonger;
 using namespace warmonger::ui;
 
-static const QString category{"ui"};
+static const QString loggerName{"ui.ApplicationContext"};
 
 ApplicationContext::ApplicationContext(QObject *parent) :
     QObject(parent),

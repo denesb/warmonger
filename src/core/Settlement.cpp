@@ -4,7 +4,7 @@
 
 using namespace warmonger::core;
 
-static const QString category{"core"};
+static const QString loggerName{"core.Settlement"};
 
 Settlement::Settlement(QObject *parent) :
     GameObject(parent),

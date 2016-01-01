@@ -4,7 +4,7 @@
 
 using namespace warmonger::core;
 
-static const QString category{"core"};
+static const QString loggerName{"core.Unit"};
 
 const QMap<Unit::UnitRank, QString> Unit::rank2str{
     std::make_pair(Unit::Soldier, "soldier"),
@@ -166,7 +166,7 @@ void Unit::dataFromJson(const QJsonObject &obj)
     }
     else
     {
-        wError(category) << "Invalid unit rank: " << rankStr;
+        wError(loggerName) << "Invalid unit rank: " << rankStr;
         throw Exception(Exception::InvalidValue);
     }
 

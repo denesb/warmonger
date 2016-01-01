@@ -3,7 +3,7 @@
 
 using namespace warmonger::core;
 
-static const QString category{"core"};
+static const QString loggerName{"core.UnitLevel"};
 
 UnitLevel::UnitLevel(QObject *parent) :
     GameObject(parent),

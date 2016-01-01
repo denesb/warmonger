@@ -13,7 +13,7 @@
 namespace warmonger {
 namespace core {
 
-static const QString _category{"core"};
+static const QString _loggerName{"core.Util"};
 
 template<typename T>
 QVariantList toQVariantList(const QList<T *> &list)
@@ -37,7 +37,7 @@ QList<T *> fromQVariantList(QVariantList vlist)
     {
         if (v.canConvert<T *>())
         {
-            wError(_category) << "QVariant has wrong type";
+            wError(_loggerName) << "QVariant has wrong type";
             throw Exception(Exception::WrongType);
         }
         list << v.value<T *>();
@@ -65,7 +65,7 @@ T* resolveReference(const QString &objectName, const QObject * const parent)
     T *obj = parent->findChild<T *>(objectName);
     if (obj == nullptr)
     {
-        wError(_category) << "Cannot resolve reference " << objectName;
+        wError(_loggerName) << "Cannot resolve reference " << objectName;
         throw Exception(Exception::UnresolvedReference);
     }
 

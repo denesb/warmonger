@@ -32,7 +32,7 @@ const QHash<MapNode::Direction, MapNode::Direction> MapNode::oppositeDirections{
     std::make_pair(MapNode::SouthWest, MapNode::NorthEast)
 };
 
-static const QString category{"core"};
+static const QString loggerName{"core.MapNode"};
 
 MapNode::MapNode(QObject *parent) :
     GameObject(parent),
@@ -129,7 +129,7 @@ void MapNode::writeNeighbours(QVariantMap neighbours)
         QVariant neighbour = it.value();
         if (!neighbour.canConvert<MapNode *>())
         {
-            wError(category) << "neighbour has wrong type";
+            wError(loggerName) << "neighbour has wrong type";
             throw Exception(Exception::WrongType);
         }
         MapNode *node = neighbour.value<MapNode *>();
@@ -137,7 +137,7 @@ void MapNode::writeNeighbours(QVariantMap neighbours)
         const QString directionName = it.key();
         if (!MapNode::str2direction.contains(directionName))
         {
-            wError(category) << "invalid direction " << directionName;
+            wError(loggerName) << "invalid direction " << directionName;
             throw Exception(Exception::InvalidValue);
         }
         MapNode::Direction direction = MapNode::str2direction[directionName];
@@ -150,7 +150,7 @@ QString MapNode::oppositeDirection(QString directionStr) const
 {
     if (!MapNode::str2direction.contains(directionStr))
     {
-        wError(category) << "Unknown direction " << directionStr;
+        wError(loggerName) << "Unknown direction " << directionStr;
         throw Exception(Exception::InvalidValue);
     }
 

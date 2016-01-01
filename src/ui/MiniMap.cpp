@@ -14,7 +14,7 @@
 #include "core/WorldSurface.h"
 #include "ui/MiniMap.h"
 
-static const QString category{"ui"};
+static const QString loggerName{"ui.MiniMap"};
 
 using namespace warmonger;
 using namespace warmonger::ui;
@@ -64,8 +64,27 @@ void MiniMap::setMap(core::Map *map)
 {
     if (this->map != map)
     {
+        if (this->map != nullptr)
+            QObject::disconnect(
+                this->map,
+                nullptr,
+                this,
+                nullptr
+            );
+
+        wInfo(loggerName) << "Map changed " << this->map
+            << " -> " << map;
+
         this->map = map;
         this->setupMap();
+
+        QObject::connect(
+            this->map,
+            &core::Map::unitAdded,
+            this,
+            &MiniMap::onUnitAdded
+        );
+
         emit mapChanged();
     }
 }
@@ -155,6 +174,12 @@ void MiniMap::mouseMoveEvent(QMouseEvent *event)
         QPointF pos(this->mapToMap(event->pos()));
         this->centerWindow(pos.toPoint());
     }
+}
+
+void MiniMap::onUnitAdded(const core::Unit *unit)
+{
+    Q_UNUSED(unit);
+    this->update();
 }
 
 void MiniMap::setupMap()

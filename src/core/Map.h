@@ -68,11 +68,16 @@ public:
     void setUnits(const QList<Unit *> &units);
     QVariantList readUnits() const;
 
-    void createMapNode(TerrainType *terrainType, const QHash<MapNode::Direction, MapNode *> &neighbours);
-
-    void createSettlement(SettlementType *settlementType, MapNode *mapNode);
-
-    void createUnit(UnitType *unitType, MapNode *mapNode);
+    void createMapNode(
+        TerrainType *terrainType,
+        const QHash<MapNode::Direction, MapNode *> &neighbours
+    );
+    void createSettlement(
+        SettlementType *settlementType,
+        MapNode *mapNode,
+        Player *owner
+    );
+    Unit * createUnit(UnitType *unitType, MapNode *mapNode, Player *owner);
 
     Settlement * getSettlementOn(const MapNode *mapNode) const;
     Unit * getUnitOn(const MapNode *mapNode) const;
@@ -92,8 +97,8 @@ signals:
     void settlementRemoved(QObject *settlement);
     void unitsAboutToChange();
     void unitsChanged();
-    void unitAdded(QObject *unit);
-    void unitRemoved(QObject *unit);
+    void unitAdded(Unit *unit);
+    void unitRemoved(Unit *unit);
     void playersChanged();
     void neutralPlayerChanged();
 

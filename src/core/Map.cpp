@@ -10,7 +10,8 @@
 
 using namespace warmonger::core;
 
-static const QString category{"core"};
+static const QString loggerName{"core.Map"};
+
 const QString Map::fileExtension{"wmd"};
 const QString Map::mapNodeNameTemplate{"mapNode%1"};
 const QString Map::settlementNameTemplate{"settlement%1"};
@@ -128,6 +129,8 @@ void Map::addUnit(Unit *unit)
     unit->setParent(this);
     this->units << unit;
 
+    wInfo(loggerName) << "Added unit " << unit;
+
     emit unitAdded(unit);
 }
 
@@ -198,7 +201,7 @@ void Map::createMapNode(
 {
     if (neighbours.empty())
     {
-        wError(category) << "neighbours is empty";
+        wError(loggerName) << "neighbours is empty";
         throw Exception(Exception::InvalidValue);
     }
 
@@ -210,7 +213,11 @@ void Map::createMapNode(
     this->addMapNode(newMapNode);
 }
 
-void Map::createSettlement(SettlementType *settlementType, MapNode *mapNode)
+void Map::createSettlement(
+    SettlementType *settlementType,
+    MapNode *mapNode,
+    Player *owner
+)
 {
     Settlement * newSettlement = new Settlement(this);
     newSettlement->setObjectName(
@@ -218,12 +225,16 @@ void Map::createSettlement(SettlementType *settlementType, MapNode *mapNode)
     );
     newSettlement->setType(settlementType);
     newSettlement->setMapNode(mapNode);
-    newSettlement->setOwner(this->neutralPlayer);
+
+    if (owner == nullptr)
+        owner = this->neutralPlayer;
+
+    newSettlement->setOwner(owner);
 
     this->addSettlement(newSettlement);
 }
 
-void Map::createUnit(UnitType *unitType, MapNode *mapNode)
+Unit * Map::createUnit(UnitType *unitType, MapNode *mapNode, Player *owner)
 {
     Unit * newUnit = new Unit(this);
     newUnit->setObjectName(
@@ -233,9 +244,17 @@ void Map::createUnit(UnitType *unitType, MapNode *mapNode)
     newUnit->setMapNode(mapNode);
     newUnit->setHitPoints(unitType->getHitPoints());
     newUnit->setMovementPoints(unitType->getClass()->getMovementPoints());
-    newUnit->setOwner(this->neutralPlayer);
+
+    if (owner == nullptr)
+        owner = this->neutralPlayer;
+
+    newUnit->setOwner(owner);
+
+    wInfo(loggerName) << "Created unit " << newUnit;
 
     this->addUnit(newUnit);
+
+    return newUnit;
 }
 
 Settlement * Map::getSettlementOn(const MapNode *mapNode) const
@@ -326,13 +345,13 @@ QList<MapNode *> Map::mapNodesFromJson(const QJsonObject &obj)
 
         if (!mapNodeLookup.contains(nodeNameA))
         {
-            wError(category) << "Node " << nodeNameA << " does not exists";
+            wError(loggerName) << "Node " << nodeNameA << " does not exists";
             throw Exception(Exception::UnresolvedReference);
         }
 
         if (!mapNodeLookup.contains(nodeNameB))
         {
-            wError(category) << "Node " << nodeNameB << " does not exists";
+            wError(loggerName) << "Node " << nodeNameB << " does not exists";
             throw Exception(Exception::UnresolvedReference);
         }
 
@@ -520,6 +539,13 @@ void Map::setupContent()
         this->units.constBegin(),
         this->units.constEnd(),
         std::bind(&Map::onUnitAdded, this, std::placeholders::_1)
+    );
+
+    QObject::connect(
+        this,
+        &Map::unitAdded,
+        this,
+        &Map::onUnitAdded
     );
 }
 

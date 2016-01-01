@@ -53,6 +53,9 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
 
+private slots:
+    void onUnitAdded(const core::Unit *unit);
+
 private:
     void setupMap();
     void updateGeometry();

@@ -42,3 +42,29 @@ QString Exception::getDetails() const
 {
     return this->details;
 }
+
+namespace warmonger {
+namespace core {
+
+log::LogStream& operator<<(log::LogStream &stream, const GameException &e)
+{
+    stream << "warmonger::core::GameException<" << e.getMessage() << ">";
+    return stream;
+}
+
+log::LogStream& operator<<(log::LogStream &stream, const GameRuleViolationError &e)
+{
+    stream << "warmonger::core::GameRuleViolationError<" << e.getMessage()
+        << ">";
+    return stream;
+}
+
+log::LogStream& operator<<(log::LogStream &stream, const UnitRecruitError &e)
+{
+    stream << "warmonger::core::UnitRecruitError<" << e.getMessage()
+        << ">";
+    return stream;
+}
+
+} // namespace core
+} // namespace warmonger

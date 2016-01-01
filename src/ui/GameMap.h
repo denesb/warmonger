@@ -97,6 +97,9 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
     void hoverMoveEvent(QHoverEvent *event);
 
+private slots:
+    void onUnitAdded(const core::Unit *unit);
+
 private:
     void setupMap();
     void updateGeometry();

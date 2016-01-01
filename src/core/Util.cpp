@@ -9,5 +9,5 @@ QString getClassName(const QString &fullClassName)
     return classNameParts.takeLast();
 }
 
-}; // namespace core
-}; // namespace warmonger
+} // namespace core
+} // namespace warmonger

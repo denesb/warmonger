@@ -146,8 +146,15 @@ void Unit::setMovementPoints(double movementPoints)
 
 void Unit::onTypeChanged(const UnitType *oldUnitType)
 {
-    int hpPercentage = this->hitPoints * 100 / oldUnitType->getHitPoints();
-    this->hitPoints = (this->type->getHitPoints() * hpPercentage) / 100;
+    if (oldUnitType == nullptr)
+    {
+        this->hitPoints = this->type->getHitPoints();
+    }
+    else
+    {
+        int hpPercentage = this->hitPoints * 100 / oldUnitType->getHitPoints();
+        this->hitPoints = (this->type->getHitPoints() * hpPercentage) / 100;
+    }
 }
 
 void Unit::dataFromJson(const QJsonObject &obj)

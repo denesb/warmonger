@@ -69,12 +69,41 @@ public:
      * Convenience method to move the unit to the destination node.
      *
      * The unit will be moved along the shortest path from its current
-     * node to the destination node. The unit will move unitl either
+     * node to the destination node. The unit will move until either
      * all of its movement points are exhausted or it reached the
      * destination node.
      * Return the path actually travelled by the unit.
      */
     QList<MapNode *> moveUnitToNode(Unit *unit, MapNode *node);
+
+    /**
+     * Check if a unit of type `unitType` can be recruited on the node
+     * `node`.
+     *
+     * Check all applying game rules before actually recruiting the
+     * unit. That is:
+     * - One of the `node`'s neighbours must contain a settlement _and_
+     *   a unit of at least `Officer` rank.
+     * - The player's faction must be able to recruit `unitType` from
+     *   the settlement (see above).
+     * - The player must have the funds to recruit the unit.
+     * - The `node` must not be occupied (cannot contain a unit).
+     * - The `node` must be passable for `unitType`.
+     */
+    bool canRecruitUnit(UnitType *unitType, MapNode *node) const;
+
+    /**
+     * Recruit a new unit of type `unitType` on the node `node`.
+     *
+     * Check all applying game rules before actually recruiting the
+     * unit. See `canRecruitUnit`.
+     *
+     * If any of the rules are violated an exception will be thrown and
+     * no unit will be recruited.
+     *
+     * The unit will have no movement points when recruited.
+     */
+    void recruitUnit(UnitType *unitType, MapNode *node);
 
     void fromMapJson(const QJsonObject &obj);
 
@@ -98,6 +127,8 @@ private:
         Unit *unit,
         double mp
     ) const;
+
+    QString checkUnitRecruitmentRules(UnitType *unitType, MapNode *node) const;
 
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;

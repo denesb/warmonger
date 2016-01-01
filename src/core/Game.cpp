@@ -12,7 +12,7 @@
 
 using namespace warmonger::core;
 
-static const QString category{"core"};
+static const QString loggerName{"core.Game"};
 const QString Game::fileExtension{"wgd"};
 
 /**
@@ -148,6 +148,26 @@ QList<MapNode *> Game::moveUnitToNode(Unit *unit, MapNode *node)
     return std::move(path);
 }
 
+bool Game::canRecruitUnit(UnitType *unitType, MapNode *node) const
+{
+    return this->checkUnitRecruitmentRules(unitType, node).isNull();
+}
+
+void Game::recruitUnit(UnitType *unitType, MapNode *node)
+{
+    Player *owner = this->players[this->playerIndex];
+
+    const QString error = this->checkUnitRecruitmentRules(unitType, node);
+
+    if (!error.isNull())
+        throw UnitRecruitError(error);
+
+    Unit *newUnit = this->createUnit(unitType, node, owner);
+    newUnit->setMovementPoints(0);
+
+    wInfo(loggerName) << "Unit " << newUnit << " recruited";
+}
+
 double Game::movementCost(
     const Unit *unit,
     const MapNode *node1,
@@ -216,6 +236,52 @@ void Game::dataFromJson(const QJsonObject &obj)
 void Game::dataToJson(QJsonObject &obj) const
 {
     Map::dataToJson(obj);
+}
+
+QString Game::checkUnitRecruitmentRules(
+    UnitType *unitType,
+    MapNode *node
+) const
+{
+    bool hasRecruitingNeighbour = false;
+    QHash<MapNode::Direction, MapNode *> neighbours = node->getNeighbours();
+
+    for (MapNode *neighbour : neighbours)
+    {
+        if (!this->hasSettlement(neighbour) || !this->hasUnit(neighbour))
+            continue;
+
+        Settlement *s = this->getSettlementOn(neighbour);
+        Unit *u = this->getUnitOn(neighbour);
+        QList<UnitType *> recruits = s->getType()->getRecruits();
+
+        if (u->getRank() >= Unit::Officer && recruits.contains(unitType))
+        {
+            hasRecruitingNeighbour = true;
+            break;
+        }
+    }
+
+    if (!hasRecruitingNeighbour)
+    {
+        return QStringLiteral("No settlement with an officer were found in the neighbourhood where this unit can be trained");
+    }
+
+    //TODO: fund check (not yet implemented)
+
+    if (this->hasUnit(node))
+    {
+        return QStringLiteral("This map-node is already occupied by another unit");
+    }
+
+    UnitClass *klass = unitType->getClass();
+    if (klass->getMovementCost(node->getTerrainType()) < 0)
+    {
+        return QStringLiteral("This map-node is impassable for this unit-type");
+    }
+
+    // All seems fine
+    return QString();
 }
 
 QMap<MapNode *, MapNode *> dijkstraPath(

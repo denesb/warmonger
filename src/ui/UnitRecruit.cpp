@@ -4,12 +4,13 @@
 
 #include <QPainter>
 
+#include "core/Exception.h"
 #include "core/Util.h"
 #include "core/WorldSurface.h"
 #include "ui/MapUtil.h"
 #include "ui/UnitRecruit.h"
 
-static const QString category{"ui.UnitRecruit"};
+static const QString loggerName{"ui.UnitRecruit"};
 
 using namespace warmonger;
 using namespace warmonger::ui;
@@ -26,7 +27,9 @@ UnitRecruit::UnitRecruit(QQuickItem *parent) :
     nodes(),
     nodesPos(),
     focusedNode(nullptr),
-    boundingRect()
+    boundingRect(),
+    error(),
+    canRecruit(false)
 {
     this->setAcceptedMouseButtons(Qt::LeftButton);
 
@@ -47,6 +50,8 @@ UnitRecruit::UnitRecruit(QQuickItem *parent) :
 
 UnitRecruit::~UnitRecruit()
 {
+    if (this->mapDrawer)
+        delete this->mapDrawer;
 }
 
 core::Game * UnitRecruit::getGame() const
@@ -58,10 +63,30 @@ void UnitRecruit::setGame(core::Game *game)
 {
     if (this->game != game)
     {
+        if (this->game != nullptr)
+            QObject::disconnect(
+                this->game,
+                nullptr,
+                this,
+                nullptr
+            );
+
+        wInfo(loggerName) << "Game changed " << this->game
+            << " -> " << game;
+
         this->game = game;
         this->world = this->game->getWorld();
         this->surface = this->world->getSurface();
         this->tileSize = this->surface->getTileSize();
+
+        QObject::connect(
+            this->game,
+            &core::Game::unitAdded,
+            this,
+            &UnitRecruit::onUnitAdded
+        );
+
+        this->updateCanRecruit();
 
         emit gameChanged();
     }
@@ -76,9 +101,16 @@ void UnitRecruit::setSettlement(core::Settlement *settlement)
 {
     if (this->settlement != settlement)
     {
+        wInfo(loggerName) << "Settlement changed " << this->settlement
+            << " -> " << settlement;
+
         this->settlement = settlement;
+
         this->setupMap();
         this->selectFocusNode();
+
+        this->updateCanRecruit();
+
         emit settlementChanged();
     }
 }
@@ -92,14 +124,26 @@ void UnitRecruit::setUnitType(core::UnitType *unitType)
 {
     if (this->unitType != unitType)
     {
-        wInfo(category) << "UnitType changed " << this->unitType
+        wInfo(loggerName) << "UnitType changed " << this->unitType
             << " -> " << unitType;
 
         this->unitType = unitType;
+
         this->selectFocusNode();
+        this->updateCanRecruit();
 
         emit unitTypeChanged();
     }
+}
+
+QString UnitRecruit::getError() const
+{
+    return this->error;
+}
+
+bool UnitRecruit::getCanRecruit() const
+{
+    return this->canRecruit;
 }
 
 void UnitRecruit::paint(QPainter *painter)
@@ -118,8 +162,42 @@ void UnitRecruit::paint(QPainter *painter)
     painter->restore();
 }
 
+void UnitRecruit::updateCanRecruit()
+{
+    bool canRecruit = this->settlement != nullptr
+        && this->focusedNode != nullptr
+        && this->unitType != nullptr
+        && this->game->canRecruitUnit(this->unitType, this->focusedNode);
+
+    if (this->canRecruit != canRecruit)
+    {
+        this->canRecruit = canRecruit;
+        emit canRecruitChanged();
+    }
+}
+
 void UnitRecruit::recruitUnit()
 {
+    if (!this->canRecruit)
+        return;
+
+    // Clear the error
+    this->setError(QString());
+
+    try
+    {
+        this->game->recruitUnit(
+            this->unitType,
+            this->focusedNode
+        );
+    }
+    catch(core::UnitRecruitError &e)
+    {
+        wError(loggerName) << "Error recruiting unit: " << e;
+        this->setError(e.getMessage());
+    }
+
+    this->selectFocusNode();
 }
 
 void UnitRecruit::mousePressEvent(QMouseEvent *event)
@@ -127,8 +205,34 @@ void UnitRecruit::mousePressEvent(QMouseEvent *event)
     this->updateFocus(event->pos());
 }
 
+void UnitRecruit::setError(const QString &error)
+{
+    if (this->error != error)
+    {
+        this->error = error;
+        emit errorChanged();
+    }
+}
+
+void UnitRecruit::onUnitAdded(const core::Unit *unit)
+{
+    Q_UNUSED(unit);
+    this->update();
+}
+
+void UnitRecruit::cleanup()
+{
+    if (this->mapDrawer != nullptr)
+        delete this->mapDrawer;
+
+    this->nodes.clear();
+    this->nodesPos.clear();
+}
+
 void UnitRecruit::setupMap()
 {
+    this->cleanup();
+
     QList<core::MapNode *> nodes;
 
     core::MapNode *node = settlement->getMapNode();
@@ -141,7 +245,6 @@ void UnitRecruit::setupMap()
         this->tileSize
     );
 
-    this->nodesPos.clear();
     for (core::MapNode *node : this->nodes)
     {
         this->nodesPos[node] = allNodesPos[node];
@@ -193,12 +296,18 @@ bool UnitRecruit::rectContainsNode(const QRect &rect, const core::MapNode *node)
 
 void UnitRecruit::setFocusedNode(core::MapNode *focusedNode)
 {
-    if (this->canRecruitOnNode(focusedNode)
-            && this->focusedNode != focusedNode) {
-        wInfo(category) << "Focused node changed " << this->focusedNode
+    if (focusedNode == nullptr
+            || (
+                this->canRecruitOnNode(focusedNode)
+                && this->focusedNode != focusedNode
+            )
+        )
+    {
+        wInfo(loggerName) << "Focused node changed " << this->focusedNode
             << " -> " << focusedNode;
         this->focusedNode = focusedNode;
 
+        this->updateCanRecruit();
         this->update();
     }
 }
@@ -219,7 +328,7 @@ void UnitRecruit::updateFocus(const QPoint &p)
     this->setFocusedNode(focusedNode);
 }
 
-bool UnitRecruit::canRecruitOnNode(const core::MapNode *node)
+bool UnitRecruit::canRecruitOnNode(const core::MapNode *node) const
 {
     bool nodeFree = !this->game->hasSettlement(node)
         && !this->game->hasUnit(node);
@@ -231,7 +340,8 @@ bool UnitRecruit::canRecruitOnNode(const core::MapNode *node)
     else
     {
         core::UnitClass *klass = this->unitType->getClass();
-        return nodeFree && klass->getMovementCost(node->getTerrainType()) > 0;
+        const int mc = klass->getMovementCost(node->getTerrainType());
+        return nodeFree && (mc >= 0);
     }
 }
 
@@ -246,11 +356,34 @@ void UnitRecruit::selectFocusNode()
         core::MapNode::SouthWest
     };
 
+    if (this->focusedNode != nullptr
+            && this->canRecruitOnNode(this->focusedNode))
+        return;
+
+    int lastIndex = -1;
+    core::MapNode *settlementNode = this->settlement->getMapNode();
+
+    if (this->focusedNode != nullptr)
+    {
+        QHash<core::MapNode::Direction, core::MapNode *> nodes =
+            settlementNode->getNeighbours();
+        QHash<core::MapNode::Direction, core::MapNode *>::ConstIterator it;
+        for (it = nodes.constBegin(); it != nodes.constEnd(); it++)
+        {
+            if (it.value() == this->focusedNode)
+            {
+                lastIndex = directionOrder.indexOf(it.key());
+                break;
+            }
+        }
+    }
+
     core::MapNode *nextFocusedNode = nullptr;
 
-    core::MapNode *settlementNode = this->settlement->getMapNode();
-    for (core::MapNode::Direction direction : directionOrder)
+    int l = directionOrder.size();
+    for (int i = (lastIndex + 1) % l; i  != lastIndex; i = (i + 1) % l)
     {
+        core::MapNode::Direction direction = directionOrder[i];
         core::MapNode *node = settlementNode->getNeighbour(direction);
         if (node != nullptr && this->canRecruitOnNode(node))
         {

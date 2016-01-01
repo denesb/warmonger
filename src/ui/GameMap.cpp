@@ -10,7 +10,7 @@
 #include "ui/GameMap.h"
 #include "ui/MapUtil.h"
 
-static const QString category{"ui"};
+static const QString loggerName{"ui.GameMap"};
 
 namespace warmonger {
 namespace ui {
@@ -107,6 +107,8 @@ GameMap::GameMap(QQuickItem *parent) :
 
 GameMap::~GameMap()
 {
+    if (this->mapDrawer)
+        delete this->mapDrawer;
 }
 
 core::Game * GameMap::getGame() const
@@ -118,8 +120,27 @@ void GameMap::setGame(core::Game *game)
 {
     if (this->game != game)
     {
+        if (this->game != nullptr)
+            QObject::disconnect(
+                this->game,
+                nullptr,
+                this,
+                nullptr
+            );
+
+        wInfo(loggerName) << "Game changed " << this->game
+            << " -> " << game;
+
         this->game = game;
         this->setupMap();
+
+        QObject::connect(
+            this->game,
+            &core::Game::unitAdded,
+            this,
+            &GameMap::onUnitAdded
+        );
+
         emit gameChanged();
     }
 }
@@ -289,6 +310,12 @@ void GameMap::hoverMoveEvent(QHoverEvent *event)
         this->currentNode = node;
         this->onCurrentNodeChanged();
     }
+}
+
+void GameMap::onUnitAdded(const core::Unit *unit)
+{
+    Q_UNUSED(unit);
+    this->update();
 }
 
 void GameMap::setupMap()

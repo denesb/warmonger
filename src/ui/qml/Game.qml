@@ -87,14 +87,12 @@ Rectangle {
                     }
 
                     onClicked: {
-                        recruitUnits.createObject(
-                            mapOverlay,
+                        mapOverlay.createDialog(
+                            recruitUnits,
                             {
                                 "settlement": map.focusedSettlement
                             }
                         );
-                        mapOverlay.visible = true;
-                        map.enabled = false;
                     }
                 }
             }
@@ -126,10 +124,33 @@ Rectangle {
         Rectangle {
             id: mapOverlay
 
+            property var dialog
+
             anchors.fill: parent
             z: 1
             visible: false
             color: "transparent"
+
+            function createDialog(component, properties) {
+                var obj = component.createObject(this, properties);
+                obj.finished.connect(mapOverlay.closeDialog);
+
+                mapOverlay.dialog = obj;
+                mapOverlay.visible = true;
+                map.enabled = false;
+            }
+
+            function closeDialog() {
+                if (mapOverlay.dialog)
+                {
+                    mapOverlay.dialog.visible = false;
+                    mapOverlay.dialog.destroy();
+                    mapOverlay.dialog = undefined;
+                }
+
+                mapOverlay.visible = false;
+                map.enabled = true;
+            }
         }
     }
 

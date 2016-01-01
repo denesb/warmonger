@@ -31,6 +31,8 @@ class UnitRecruit :
     Q_PROPERTY(warmonger::core::Game *game READ getGame WRITE setGame NOTIFY gameChanged)
     Q_PROPERTY(warmonger::core::Settlement *settlement READ getSettlement WRITE setSettlement NOTIFY settlementChanged)
     Q_PROPERTY(warmonger::core::UnitType *unitType READ getUnitType WRITE setUnitType NOTIFY unitTypeChanged)
+    Q_PROPERTY(QString error READ getError NOTIFY errorChanged)
+    Q_PROPERTY(bool canRecruit READ getCanRecruit NOTIFY canRecruitChanged)
 
 public:
     UnitRecruit(QQuickItem *parent = nullptr);
@@ -45,20 +47,33 @@ public:
     core::UnitType * getUnitType() const;
     void setUnitType(core::UnitType *unitType);
 
+    QString getError() const;
+
+    bool getCanRecruit() const;
+
     void paint(QPainter *painter);
 
 signals:
     void gameChanged();
     void settlementChanged();
     void unitTypeChanged();
+    void errorChanged();
+    void canRecruitChanged();
 
 public slots:
     void recruitUnit();
 
-protected:
-    void mousePressEvent(QMouseEvent *event);
+private slots:
+    void onUnitAdded(const core::Unit *unit);
 
 private:
+    void mousePressEvent(QMouseEvent *event);
+
+    void setError(const QString &error);
+
+    void updateCanRecruit();
+
+    void cleanup();
     void setupMap();
     void updateGeometry();
     void updateTransform();
@@ -68,7 +83,7 @@ private:
     void setFocusedNode(core::MapNode *node);
     void updateFocus(const QPoint &p);
 
-    bool canRecruitOnNode(const core::MapNode *node);
+    bool canRecruitOnNode(const core::MapNode *node) const;
 
     void selectFocusNode();
 
@@ -91,6 +106,9 @@ private:
 
     qreal scale;
     QPointF translate;
+
+    QString error;
+    bool canRecruit;
 };
 
 } // namespace ui

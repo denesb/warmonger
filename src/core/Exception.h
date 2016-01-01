@@ -5,6 +5,8 @@
 #include <QString>
 #include <QStringList>
 
+#include "log/LogStream.h"
+
 namespace warmonger {
 namespace core {
 
@@ -44,6 +46,47 @@ protected:
     QString msg;
     QString details;
 };
+
+class GameException
+{
+public:
+
+    GameException(const QString &message) :
+        message(message)
+    {}
+
+    QString getMessage() const
+    {
+        return this->message;
+    }
+
+private:
+    const QString message;
+};
+
+log::LogStream& operator<<(log::LogStream &stream, const GameException &e);
+
+class GameRuleViolationError :
+    public GameException
+{
+public:
+    GameRuleViolationError(const QString &message) :
+        GameException(message)
+    {}
+};
+
+log::LogStream& operator<<(log::LogStream &stream, const GameRuleViolationError &e);
+
+class UnitRecruitError :
+    public GameRuleViolationError
+{
+public:
+    UnitRecruitError(const QString &message) :
+        GameRuleViolationError(message)
+    {}
+};
+
+log::LogStream& operator<<(log::LogStream &stream, const UnitRecruitError &e);
 
 } // core
 } // warmonger

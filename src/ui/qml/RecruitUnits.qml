@@ -1,4 +1,5 @@
 import QtQuick 2.2
+import QtQuick.Controls 1.1
 import QtQuick.Layouts 1.1
 import Warmonger 1.0
 
@@ -6,6 +7,7 @@ Rectangle {
     id: root
 
     property var settlement
+    signal finished()
 
     width: 600
     height: 600
@@ -70,6 +72,8 @@ Rectangle {
                     }
 
                     UnitRecruit {
+                        id: unitRecruit
+
                         anchors.fill: parent
                         anchors.margins: 1
 
@@ -84,6 +88,28 @@ Rectangle {
                     Layout.fillWidth: true
 
                     unitType: unitTypeSelector.unitType
+                }
+
+                Row {
+                    height: 30
+
+                    Button {
+                        text: "Recruit"
+
+                        enabled: unitRecruit.canRecruit
+
+                        Connections {
+                            onClicked: unitRecruit.recruitUnit()
+                        }
+                    }
+
+                    Button {
+                        text: "Finish"
+
+                        onClicked: {
+                            root.finished()
+                        }
+                    }
                 }
             }
         }

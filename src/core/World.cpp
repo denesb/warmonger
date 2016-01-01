@@ -7,7 +7,7 @@
 
 using namespace warmonger::core;
 
-static const QString category{"core"};
+static const QString loggerName{"core.World"};
 
 const QString World::fileExtension{"wwd"};
 

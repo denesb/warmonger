@@ -46,7 +46,7 @@ Rectangle {
                 left: parent.left
             }
 
-            unitTypes: settlement.type.recruits
+            unitTypes: settlement.recruits
         }
 
         Rectangle {

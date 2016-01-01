@@ -79,6 +79,12 @@ Rectangle {
                 Button {
                     text: "Recruit"
 
+                    enabled: {
+                        var n = map.focusedMapNode;
+                        var s = map.focusedSettlement;
+                        n && s && s.recruits.length > 0;
+                    }
+
                     visible: {
                         var n = map.focusedMapNode;
                         var s = map.focusedSettlement;

@@ -27,7 +27,7 @@ ApplicationContext::~ApplicationContext()
 
 QVariantList ApplicationContext::readMaps() const
 {
-    return core::toQVariantList<core::Map>(this->maps);
+    return core::toQVariantList<core::Map *>(this->maps);
 }
 
 core::Map * ApplicationContext::getMap() const

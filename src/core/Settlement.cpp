@@ -12,6 +12,18 @@ Settlement::Settlement(QObject *parent) :
     mapNode(nullptr),
     owner(nullptr)
 {
+    QObject::connect(
+        this,
+        &Settlement::typeChanged,
+        this,
+        &Settlement::recruitsChanged
+    );
+    QObject::connect(
+        this,
+        &Settlement::ownerChanged,
+        this,
+        &Settlement::recruitsChanged
+    );
 }
 
 Settlement::~Settlement()
@@ -27,7 +39,17 @@ void Settlement::setType(SettlementType *type)
 {
     if (this->type != type)
     {
+        QObject::disconnect(this->type, nullptr, this, nullptr);
+
         this->type = type;
+
+        QObject::connect(
+            this->type,
+            &SettlementType::recruitsChanged,
+            this,
+            &Settlement::recruitsChanged
+        );
+
         emit typeChanged();
     }
 }
@@ -55,9 +77,43 @@ void Settlement::setOwner(Player *owner)
 {
     if (this->owner != owner)
     {
+        if (this->owner->getFaction() != nullptr)
+            QObject::disconnect(
+                this->owner->getFaction(),
+                nullptr,
+                this,
+                nullptr
+            );
+
         this->owner = owner;
+
+        if (this->owner->getFaction() != nullptr)
+            QObject::connect(
+                this->owner->getFaction(),
+                &Faction::recruitsChanged,
+                this,
+                &Settlement::recruitsChanged
+            );
+
         emit ownerChanged();
     }
+}
+
+QList<UnitType *> Settlement::getRecruits() const
+{
+    QList<UnitType *> recruits;
+
+    if (this->owner != nullptr)
+        recruits << this->owner->getFaction()->getRecruitsFor(this->type);
+
+    recruits << this->type->getRecruits();
+
+    return recruits;
+}
+
+QVariantList Settlement::readRecruits() const
+{
+    return toQVariantList<UnitType *>(this->getRecruits());
 }
 
 void Settlement::dataFromJson(const QJsonObject &obj)
@@ -77,6 +133,21 @@ void Settlement::dataFromJson(const QJsonObject &obj)
         obj["owner"].toString(),
         this->parent()
     );
+
+    QObject::connect(
+        this->type,
+        &SettlementType::recruitsChanged,
+        this,
+        &Settlement::recruitsChanged
+    );
+
+if (this->owner->getFaction() != nullptr)
+        QObject::connect(
+            this->owner->getFaction(),
+            &Faction::recruitsChanged,
+            this,
+            &Settlement::recruitsChanged
+        );
 }
 
 void Settlement::dataToJson(QJsonObject &obj) const

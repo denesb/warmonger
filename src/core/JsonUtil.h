@@ -95,6 +95,26 @@ QJsonArray referenceListToJson(const QList<T *> &list)
     return std::move(array);
 }
 
+template<typename Map, typename KeyFromJsonFunc, typename ValueFromJsonFunc>
+Map mapFromJson(
+    const QJsonObject &obj,
+    KeyFromJsonFunc keyFromJson,
+    ValueFromJsonFunc valueFromJson
+)
+{
+    Map map;
+
+    for(auto it = obj.constBegin(); it != obj.constEnd(); it++)
+    {
+        typename Map::key_type key = keyFromJson(it.key());
+        typename Map::mapped_type value = valueFromJson(it.value());
+
+        map[key] = value;
+    }
+
+    return std::move(map);
+}
+
 /**
  * Convert a JSON object to a QMap<T*, int>.
  *

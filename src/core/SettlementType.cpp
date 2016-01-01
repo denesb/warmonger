@@ -41,12 +41,12 @@ void SettlementType::setRecruits(const QList<UnitType *> &recruits)
 
 QVariantList SettlementType::readRecruits() const
 {
-    return toQVariantList<UnitType>(this->recruits);
+    return toQVariantList<UnitType *>(this->recruits);
 }
 
 void SettlementType::writeRecruits(QVariantList recruits)
 {
-    QList<UnitType *> r = fromQVariantList<UnitType>(recruits);
+    QList<UnitType *> r = fromQVariantList<UnitType *>(recruits);
     this->setRecruits(r);
 }
 

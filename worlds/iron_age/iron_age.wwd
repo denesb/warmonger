@@ -425,8 +425,6 @@
             "displayName": "Village",
             "goldPerTurn": 2,
             "recruits": [
-                "levy_spearman",
-                "levy_bowman"
             ]
         },
         {
@@ -434,10 +432,6 @@
             "displayName": "Castle",
             "goldPerTurn": 4,
             "recruits": [
-                "spearman1",
-                "bowman1",
-                "crossbowman1",
-                "knight1"
             ]
         },
         {
@@ -445,9 +439,6 @@
             "displayName": "City",
             "goldPerTurn": 6,
             "recruits": [
-                "spearman1",
-                "crossbowman1",
-                "knight1"
             ]
         }
     ],
@@ -473,7 +464,24 @@
                 "knight1",
                 "knight2",
                 "knight3"
-            ]
+            ],
+            "recruits": {
+                "village": [
+                    "levy_spearman",
+                    "levy_bowman"
+                ],
+                "castle": [
+                    "spearman1",
+                    "bowman1",
+                    "crossbowman1",
+                    "knight1"
+                ],
+                "city": [
+                    "spearman1",
+                    "crossbowman1",
+                    "knight1"
+                ]
+            }
         }
     ]
 }

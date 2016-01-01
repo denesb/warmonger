@@ -85,7 +85,7 @@ void Map::setMapNodes(const QList<MapNode *> &mapNodes)
 
 QVariantList Map::readMapNodes() const
 {
-    return toQVariantList<MapNode>(this->mapNodes);
+    return toQVariantList<MapNode *>(this->mapNodes);
 }
 
 void Map::addSettlement(Settlement *settlement)
@@ -121,7 +121,7 @@ void Map::setSettlements(const QList<Settlement *> &settlements)
 
 QVariantList Map::readSettlements() const
 {
-    return toQVariantList<Settlement>(this->settlements);
+    return toQVariantList<Settlement *>(this->settlements);
 }
 
 void Map::addUnit(Unit *unit)
@@ -159,7 +159,7 @@ void Map::setUnits(const QList<Unit *> &units)
 
 QVariantList Map::readUnits() const
 {
-    return toQVariantList<Unit>(this->units);
+    return toQVariantList<Unit *>(this->units);
 }
 
 QList<Player *> Map::getPlayers() const
@@ -178,7 +178,7 @@ void Map::setPlayers(const QList<Player *> &players)
 
 QVariantList Map::readPlayers() const
 {
-    return toQVariantList<Player>(this->players);
+    return toQVariantList<Player *>(this->players);
 }
 
 QVariantList Map::readAllPlayers() const
@@ -186,7 +186,7 @@ QVariantList Map::readAllPlayers() const
     QList<Player *> allPlayers;
     allPlayers << this->neutralPlayer;
     allPlayers << this->players;
-    return toQVariantList<Player>(allPlayers);
+    return toQVariantList<Player *>(allPlayers);
 }
 
 Player * Map::getNeutralPlayer() const

@@ -202,7 +202,7 @@ void Map::createMapNode(
     if (neighbours.empty())
     {
         wError(loggerName) << "neighbours is empty";
-        throw Exception(Exception::InvalidValue);
+        throw MapEditingError("Cannot create map-node without neighbours");
     }
 
     MapNode *newMapNode = new MapNode(this);
@@ -346,13 +346,13 @@ QList<MapNode *> Map::mapNodesFromJson(const QJsonObject &obj)
         if (!mapNodeLookup.contains(nodeNameA))
         {
             wError(loggerName) << "Node " << nodeNameA << " does not exists";
-            throw Exception(Exception::UnresolvedReference);
+            throw UnresolvedReferenceError(nodeNameA);
         }
 
         if (!mapNodeLookup.contains(nodeNameB))
         {
             wError(loggerName) << "Node " << nodeNameB << " does not exists";
-            throw Exception(Exception::UnresolvedReference);
+            throw UnresolvedReferenceError(nodeNameB);
         }
 
         MapNode *nodeA = mapNodeLookup[nodeNameA];

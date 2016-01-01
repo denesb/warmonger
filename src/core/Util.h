@@ -36,10 +36,8 @@ QList<T *> fromQVariantList(QVariantList vlist)
     for (QVariant v : vlist)
     {
         if (v.canConvert<T *>())
-        {
-            wError(_loggerName) << "QVariant has wrong type";
-            throw Exception(Exception::WrongType);
-        }
+            throw QVariantTypeError();
+
         list << v.value<T *>();
     }
 
@@ -65,8 +63,7 @@ T* resolveReference(const QString &objectName, const QObject * const parent)
     T *obj = parent->findChild<T *>(objectName);
     if (obj == nullptr)
     {
-        wError(_loggerName) << "Cannot resolve reference " << objectName;
-        throw Exception(Exception::UnresolvedReference);
+        throw UnresolvedReferenceError(objectName);
     }
 
     return obj;

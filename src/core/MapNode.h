@@ -55,8 +55,6 @@ public:
     QVariantMap readNeighbours() const;
     void writeNeighbours(QVariantMap neighbours);
 
-    QString oppositeDirection(QString directionStr) const;
-
 signals:
     void terrainTypeChanged();
     void neighboursChanged();

@@ -40,7 +40,7 @@ public:
         );
         QFileInfo fileInfo(prefixedFileName);
         if (!fileInfo.exists())
-            throw Exception(Exception::FileIO, "File not found");
+            throw IOError("File " + prefixedFileName + " not found");
 
         T *entity = new T(this);
         this->loadEntityFromFile(entity, fileInfo.absoluteFilePath());

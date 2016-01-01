@@ -167,7 +167,7 @@ void Unit::dataFromJson(const QJsonObject &obj)
     else
     {
         wError(loggerName) << "Invalid unit rank: " << rankStr;
-        throw Exception(Exception::InvalidValue);
+        throw ValueError("Invalued value for Unit::Rank " + rankStr);
     }
 
     Map *map = qobject_cast<Map *>(this->parent());

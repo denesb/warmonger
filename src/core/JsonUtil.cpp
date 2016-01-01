@@ -23,7 +23,7 @@ QJsonDocument core::loadJsonDocument(const QString &path)
     if (!jsonFile.open(QIODevice::ReadOnly))
     {
         wError(loggerName) << "Failed to open Json document from path " << path;
-        throw Exception(Exception::FileIO, "File open failed");
+        throw IOError("Failed to open " + path);
     }
 
     QByteArray jsonData = jsonFile.readAll();
@@ -38,7 +38,9 @@ QJsonDocument core::loadJsonDocument(const QString &path)
     {
         wError(loggerName) << "Parse of Json document " << path << " failed: "
             << parseError.errorString() << " at offset " << parseError.offset;
-        throw Exception(Exception::JsonParse);
+        throw JsonParseError(
+            parseError.errorString() + " at " + parseError.offset
+        );
     }
 
     wInfo(loggerName) << "Loaded Json document from " << path;
@@ -53,7 +55,7 @@ void core::saveJsonDocument(const QString &path, const QJsonDocument &doc)
     if (!jsonFile.open(QIODevice::WriteOnly))
     {
         wError(loggerName) << "Failed to open Json document from path " << path;
-        throw Exception(Exception::FileIO, "File open failed");
+        throw IOError("Failed to open " + path);
     }
 
     QByteArray jsonData = doc.toJson(QJsonDocument::Indented);
@@ -61,7 +63,7 @@ void core::saveJsonDocument(const QString &path, const QJsonDocument &doc)
     if (jsonFile.write(jsonData) == -1)
     {
         wError(loggerName) << "Failed to write Json document " << path;
-        throw Exception(Exception::FileIO, "Failed to write file");
+        throw IOError("Failed to open " + path);
     }
 
     wInfo(loggerName) << "Saved Json document to " << path;

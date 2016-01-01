@@ -2,67 +2,137 @@
 
 using namespace warmonger::core;
 
-const QMap<Exception::ErrorCode, QString> Exception::messageDefinitions = {
-    std::make_pair(Exception::General, QStringLiteral("Error")),
-    std::make_pair(Exception::NullPointer, QStringLiteral("Pointer is null")),
-    std::make_pair(Exception::WrongType, QStringLiteral("Failed to extract value from QVariant, enclosed value has wrong type")),
-    std::make_pair(Exception::IO, QStringLiteral("IO error")),
-    std::make_pair(Exception::FileIO, QStringLiteral("File IO error")),
-    std::make_pair(Exception::Serialization, QStringLiteral("Serialization error")),
-    std::make_pair(Exception::JsonParse, QStringLiteral("Json parse error")),
-    std::make_pair(Exception::UnresolvedReference, QStringLiteral("Unable to resolve reference")),
-    std::make_pair(Exception::ResourceLoadFailed, QStringLiteral("Failed to load resource")),
-    std::make_pair(Exception::InvalidValue, QStringLiteral("Invalid value")),
-    std::make_pair(Exception::NullPath, QStringLiteral("No path specified for file operation")),
-    std::make_pair(Exception::EntityAlreadyLoaded, QStringLiteral("Entity is already loaded"))
-};
-
-Exception::Exception(ErrorCode code, const QString &details) :
-    code(code),
-    msg(Exception::messageDefinitions[code]),
-    details(details)
+GameException::GameException(const QString &message) :
+    message(message)
 {
 }
 
-Exception::~Exception()
+const QString GameException::name{"GameException"};
+
+QString GameException::getMessage() const
+{
+    return this->message;
+}
+
+
+UnresolvedReferenceError::UnresolvedReferenceError(const QString &message) :
+    GameException(message)
 {
 }
 
-Exception::ErrorCode Exception::getErrorCode() const
+const QString UnresolvedReferenceError::name{"UnresolvedReferenceError"};
+
+
+QVariantTypeError::QVariantTypeError(const QString &message) :
+    GameException(message)
 {
-    return this->code;
 }
 
-QString Exception::getMsg() const
+const QString QVariantTypeError::name{"QVariantTypeError"};
+
+
+ValueError::ValueError(const QString &message) :
+    GameException(message)
 {
-    return this->msg;
 }
 
-QString Exception::getDetails() const
+const QString ValueError::name{"ValueError"};
+
+
+IOError::IOError(const QString &message) :
+    GameException(message)
 {
-    return this->details;
 }
+
+const QString IOError::name{"IOError"};
+
+
+JsonParseError::JsonParseError(const QString &message) :
+    GameException(message)
+{
+}
+
+const QString JsonParseError::name{"JsonParseError"};
+
+
+GameRuleViolationError::GameRuleViolationError(const QString &message) :
+    GameException(message)
+{
+}
+
+const QString GameRuleViolationError::name{"GameRuleViolationError"};
+
+
+UnitRecruitError::UnitRecruitError(const QString &message) :
+    GameRuleViolationError(message)
+{
+}
+
+const QString UnitRecruitError::name{"UnitRecruitError"};
+
+
+MapEditingError::MapEditingError(const QString &message) :
+    GameRuleViolationError(message)
+{
+}
+
+const QString MapEditingError::name{"MapEditingError"};
+
 
 namespace warmonger {
 namespace core {
 
 log::LogStream& operator<<(log::LogStream &stream, const GameException &e)
 {
-    stream << "warmonger::core::GameException<" << e.getMessage() << ">";
+    logException(stream, e);
+    return stream;
+}
+
+log::LogStream& operator<<(log::LogStream &stream, const UnresolvedReferenceError &e)
+{
+    logException(stream, e);
+    return stream;
+}
+
+log::LogStream& operator<<(log::LogStream &stream, const QVariantTypeError &e)
+{
+    logException(stream, e);
+    return stream;
+}
+
+log::LogStream& operator<<(log::LogStream &stream, const ValueError &e)
+{
+    logException(stream, e);
+    return stream;
+}
+
+log::LogStream& operator<<(log::LogStream &stream, const IOError &e)
+{
+    logException(stream, e);
+    return stream;
+}
+
+log::LogStream& operator<<(log::LogStream &stream, const JsonParseError &e)
+{
+    logException(stream, e);
     return stream;
 }
 
 log::LogStream& operator<<(log::LogStream &stream, const GameRuleViolationError &e)
 {
-    stream << "warmonger::core::GameRuleViolationError<" << e.getMessage()
-        << ">";
+    logException(stream, e);
     return stream;
 }
 
 log::LogStream& operator<<(log::LogStream &stream, const UnitRecruitError &e)
 {
-    stream << "warmonger::core::UnitRecruitError<" << e.getMessage()
-        << ">";
+    logException(stream, e);
+    return stream;
+}
+
+log::LogStream& operator<<(log::LogStream &stream, const MapEditingError &e)
+{
+    logException(stream, e);
     return stream;
 }
 

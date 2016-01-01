@@ -110,11 +110,6 @@ QJsonObject GameEntityPart::toJson() const
 
 void GameEntityPart::setPath(const QString &path)
 {
-    if (!this->path.isNull())
-    {
-        wError(loggerName) << "Entity " << this->objectName() << " already loaded";
-        throw Exception(Exception::EntityAlreadyLoaded);
-    }
     this->path = path;
 
     emit this->pathChanged();
@@ -122,11 +117,6 @@ void GameEntityPart::setPath(const QString &path)
 
 void GameEntityPart::setFileName(const QString &fileName)
 {
-    if (!this->fileName.isNull())
-    {
-        wError(loggerName) << "Entity " << this->objectName() << " already loaded";
-        throw Exception(Exception::EntityAlreadyLoaded);
-    }
     this->fileName = fileName;
 
     emit this->fileNameChanged();

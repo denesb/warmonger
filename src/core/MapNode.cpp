@@ -130,7 +130,7 @@ void MapNode::writeNeighbours(QVariantMap neighbours)
         if (!neighbour.canConvert<MapNode *>())
         {
             wError(loggerName) << "neighbour has wrong type";
-            throw Exception(Exception::WrongType);
+            throw QVariantTypeError("Neighbour has wrong type");
         }
         MapNode *node = neighbour.value<MapNode *>();
 
@@ -138,26 +138,14 @@ void MapNode::writeNeighbours(QVariantMap neighbours)
         if (!MapNode::str2direction.contains(directionName))
         {
             wError(loggerName) << "invalid direction " << directionName;
-            throw Exception(Exception::InvalidValue);
+            throw ValueError(
+                "Invalid value for MapNode::Direction " + directionName
+            );
         }
         MapNode::Direction direction = MapNode::str2direction[directionName];
 
         this->setNeighbour(direction, node);
     }
-}
-
-QString MapNode::oppositeDirection(QString directionStr) const
-{
-    if (!MapNode::str2direction.contains(directionStr))
-    {
-        wError(loggerName) << "Unknown direction " << directionStr;
-        throw Exception(Exception::InvalidValue);
-    }
-
-    Direction direction = MapNode::str2direction[directionStr];
-    Direction oppositeDirection = MapNode::oppositeDirections[direction];
-
-    return MapNode::direction2str[oppositeDirection];
 }
 
 void MapNode::dataFromJson(const QJsonObject &obj)

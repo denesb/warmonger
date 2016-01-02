@@ -4,7 +4,7 @@
 
 #include "core/WorldSurface.h"
 #include "core/EntityManager.h"
-#include "core/Util.h"
+#include "core/QVariantUtil.h"
 #include "ui/ApplicationContext.h"
 
 using namespace warmonger;
@@ -27,7 +27,7 @@ ApplicationContext::~ApplicationContext()
 
 QVariantList ApplicationContext::readMaps() const
 {
-    return core::toQVariantList<core::Map *>(this->maps);
+    return core::toQVariantList(this->maps);
 }
 
 core::Map * ApplicationContext::getMap() const

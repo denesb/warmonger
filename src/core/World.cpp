@@ -3,6 +3,7 @@
 #include <QJsonDocument>
 
 #include "core/JsonUtil.h"
+#include "core/QVariantUtil.h"
 #include "core/World.h"
 
 using namespace warmonger::core;
@@ -86,7 +87,7 @@ void World::setFactions(const QList<Faction *> &factions)
 
 QVariantList World::readFactions() const
 {
-    return toQVariantList<Faction *>(this->factions);
+    return toQVariantList(this->factions);
 }
 
 QList<SettlementType *> World::getSettlementTypes() const
@@ -105,7 +106,7 @@ void World::setSettlementTypes(const QList<SettlementType *> &settlementTypes)
 
 QVariantList World::readSettlementTypes() const
 {
-    return toQVariantList<SettlementType *>(this->settlementTypes);
+    return toQVariantList(this->settlementTypes);
 }
 
 QList<TerrainType *> World::getTerrainTypes() const
@@ -124,7 +125,7 @@ void World::setTerrainTypes(const QList<TerrainType *> &terrainTypes)
 
 QVariantList World::readTerrainTypes() const
 {
-    return toQVariantList<TerrainType *>(this->terrainTypes);
+    return toQVariantList(this->terrainTypes);
 }
 
 QList<UnitClass *> World::getUnitClasses() const
@@ -167,7 +168,7 @@ void World::setUnitTypes(const QList<UnitType *> &unitTypes)
 
 QVariantList World::readUnitTypes() const
 {
-    return toQVariantList<UnitType *>(this->unitTypes);
+    return toQVariantList(this->unitTypes);
 }
 
 QList<Weapon *> World::getWeapons() const

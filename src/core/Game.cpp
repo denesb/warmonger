@@ -8,7 +8,6 @@
 #include "core/UnitClass.h"
 #include "core/UnitType.h"
 #include "core/Unit.h"
-#include "core/Util.h"
 
 using namespace warmonger::core;
 

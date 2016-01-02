@@ -1,9 +1,11 @@
+#include "core/GameEntity.h"
 #include "core/EntityManager.h"
 #include "core/Exception.h"
-#include "core/JsonUtil.h"
 #include "log/LogStream.h"
 
 static const QString loggerName("core.EntityManager");
+
+static QString getClassName(const QString &fullClassName);
 
 using namespace warmonger;
 using namespace warmonger::core;
@@ -75,8 +77,13 @@ void EntityManager::saveEntityToFile(
     saveJsonDocument(path, doc);
 }
 
-
 QString EntityManager::getEntityPath(const GameEntity * entity) const
 {
     return this->entityPaths[entity];
+}
+
+QString getClassName(const QString &fullClassName)
+{
+    QStringList classNameParts = fullClassName.split("::");
+    return classNameParts.takeLast();
 }

@@ -1,4 +1,5 @@
 #include "core/JsonUtil.h"
+#include "core/QVariantUtil.h"
 #include "core/UnitType.h"
 
 using namespace warmonger::core;
@@ -92,7 +93,7 @@ void UnitType::setWeapons(const QList<Weapon *> &weapons)
 
 QVariantList UnitType::readWeapons() const
 {
-    return toQVariantList<Weapon *>(this->weapons);
+    return toQVariantList(this->weapons);
 }
 
 QList<UnitType *> UnitType::getUpgrades() const

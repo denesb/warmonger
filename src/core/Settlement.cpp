@@ -1,6 +1,7 @@
+#include "core/JsonUtil.h"
 #include "core/Map.h"
+#include "core/QVariantUtil.h"
 #include "core/Settlement.h"
-#include "core/Util.h"
 
 using namespace warmonger::core;
 
@@ -113,7 +114,7 @@ QList<UnitType *> Settlement::getRecruits() const
 
 QVariantList Settlement::readRecruits() const
 {
-    return toQVariantList<UnitType *>(this->getRecruits());
+    return toQVariantList(this->getRecruits());
 }
 
 void Settlement::dataFromJson(const QJsonObject &obj)

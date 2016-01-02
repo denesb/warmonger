@@ -12,7 +12,6 @@
 #include "core/TerrainType.h"
 #include "core/Unit.h"
 #include "core/UnitType.h"
-#include "core/Util.h"
 #include "core/WorldSurface.h"
 #include "ui/MapDrawer.h"
 #include "ui/MapUtil.h"

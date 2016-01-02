@@ -1,9 +1,15 @@
 #include "core/JsonUtil.h"
 #include "core/Map.h"
 #include "core/MapNode.h"
+#include "core/QVariantUtil.h"
 #include "core/World.h"
 
+using namespace warmonger;
 using namespace warmonger::core;
+
+static const QString loggerName{"core.MapNode"};
+
+MapNode::Direction convertStr2direction(const QString &str);
 
 const QHash<MapNode::Direction, QString> MapNode::direction2str{
     std::make_pair(MapNode::West, "West"),
@@ -31,8 +37,6 @@ const QHash<MapNode::Direction, MapNode::Direction> MapNode::oppositeDirections{
     std::make_pair(MapNode::SouthEast, MapNode::NorthWest),
     std::make_pair(MapNode::SouthWest, MapNode::NorthEast)
 };
-
-static const QString loggerName{"core.MapNode"};
 
 MapNode::MapNode(QObject *parent) :
     GameObject(parent),
@@ -106,46 +110,21 @@ void MapNode::setNeighbours(const QHash<MapNode::Direction, MapNode *> &neighbou
 
 QVariantMap MapNode::readNeighbours() const
 {
-    QVariantMap vmap;
-    QHash<Direction, MapNode *>::ConstIterator it;
-    for (it = this->neighbours.constBegin(); it != this->neighbours.constEnd(); it++)
-    {
-        QVariant val;
-        if (it.value() != nullptr)
-        {
-            val = QVariant::fromValue<QObject *>(it.value());
-        }
-        vmap.insert(MapNode::direction2str[it.key()], val);
-    }
-
-    return std::move(vmap);
+    return toQVariantMap(
+        this->neighbours,
+        [&](const Direction &d){return MapNode::direction2str[d];},
+        QVariant::fromValue<MapNode *>
+    );
 }
 
 void MapNode::writeNeighbours(QVariantMap neighbours)
 {
-    QVariantMap::ConstIterator it;
-    for (it = neighbours.constBegin(); it != neighbours.constEnd(); it++)
-    {
-        QVariant neighbour = it.value();
-        if (!neighbour.canConvert<MapNode *>())
-        {
-            wError(loggerName) << "neighbour has wrong type";
-            throw QVariantTypeError("Neighbour has wrong type");
-        }
-        MapNode *node = neighbour.value<MapNode *>();
-
-        const QString directionName = it.key();
-        if (!MapNode::str2direction.contains(directionName))
-        {
-            wError(loggerName) << "invalid direction " << directionName;
-            throw ValueError(
-                "Invalid value for MapNode::Direction " + directionName
-            );
-        }
-        MapNode::Direction direction = MapNode::str2direction[directionName];
-
-        this->setNeighbour(direction, node);
-    }
+    //FIXME: what to do in case of exceptions???
+    this->neighbours = fromQVariantMap<QHash<Direction, MapNode *>>(
+        neighbours,
+        convertStr2direction,
+        fromQVariant<MapNode *>
+    );
 }
 
 void MapNode::dataFromJson(const QJsonObject &obj)
@@ -181,4 +160,15 @@ void MapNode::removeNeighbour(MapNode::Direction direction)
 {
     this->neighbours[direction] = nullptr;
     emit neighboursChanged();
+}
+
+MapNode::Direction convertStr2direction(const QString &str)
+{
+    if (!MapNode::str2direction.contains(str))
+    {
+        throw ValueError(
+            "Invalid value for MapNode::Direction " + str
+        );
+    }
+    return MapNode::str2direction[str];
 }

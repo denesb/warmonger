@@ -32,6 +32,7 @@ HEADERS += \
     src/core/Map.h \
     src/core/MapNode.h \
     src/core/Player.h \
+    src/core/QVariantUtil.h \
     src/core/Settlement.h \
     src/core/SettlementType.h \
     src/core/TerrainType.h \
@@ -39,7 +40,6 @@ HEADERS += \
     src/core/UnitClass.h \
     src/core/UnitLevel.h \
     src/core/UnitType.h \
-    src/core/Util.h \
     src/core/Weapon.h \
     src/core/World.h \
     src/core/WorldSurface.h
@@ -91,7 +91,6 @@ SOURCES += \
     src/core/UnitClass.cpp \
     src/core/UnitLevel.cpp \
     src/core/UnitType.cpp \
-    src/core/Util.cpp \
     src/core/Weapon.cpp \
     src/core/World.cpp \
     src/core/WorldSurface.cpp

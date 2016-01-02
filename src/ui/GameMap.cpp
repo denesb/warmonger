@@ -5,7 +5,6 @@
 #include <QPainter>
 #include <QTimer>
 
-#include "core/Util.h"
 #include "core/WorldSurface.h"
 #include "ui/GameMap.h"
 #include "ui/MapUtil.h"

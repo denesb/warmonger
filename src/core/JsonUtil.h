@@ -13,10 +13,31 @@
 #include <QJsonDocument>
 
 #include "core/Exception.h"
-#include "core/Util.h"
 
 namespace warmonger {
 namespace core {
+
+/**
+ * Resolve a reference.
+ *
+ * Resolving a reference is the process of looking up an object by name.
+ * References in Json are stored as strings (the objectName of the
+ * QObjects). In the C++ in-memory tree hovever references are stored as
+ * pointers to the objects. This function provides a way from
+ * object-name to object-pointer. The parent is the parent of the
+ * sought-after object.
+ */
+template<typename T>
+T * resolveReference(const QString &objectName, const QObject * const parent)
+{
+    T *obj = parent->findChild<T *>(objectName);
+    if (obj == nullptr)
+    {
+        throw UnresolvedReferenceError(objectName);
+    }
+
+    return obj;
+}
 
 template<typename T>
 T * newFromJson(const QJsonObject &obj, QObject *parent)

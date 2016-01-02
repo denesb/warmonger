@@ -2,8 +2,9 @@
 #include <QFile>
 #include <QJsonDocument>
 
-#include "core/WorldSurface.h"
 #include "core/JsonUtil.h"
+#include "core/QVariantUtil.h"
+#include "core/WorldSurface.h"
 
 using namespace warmonger::core;
 
@@ -65,7 +66,11 @@ QString WorldSurface::getImagePath(const QString &key) const
 
 QVariantMap WorldSurface::readImagePaths() const
 {
-    return this->toQVariantMap(this->imagePaths);
+    return toQVariantMap(
+        this->imagePaths,
+        passThrough<QString>,
+        QVariant::fromValue<QString>
+    );
 }
 
 QImage WorldSurface::getImage(const QString &key) const
@@ -85,7 +90,11 @@ QString WorldSurface::getColorName(const QString &key) const
 
 QVariantMap WorldSurface::readColorNames() const
 {
-    return this->toQVariantMap(this->colorNames);
+    return toQVariantMap(
+        this->colorNames,
+        passThrough<QString>,
+        QVariant::fromValue<QString>
+    );
 }
 
 QColor WorldSurface::getColor(const QString &key) const
@@ -157,18 +166,6 @@ void WorldSurface::dataToJson(QJsonObject &obj) const
     obj["tileSize"] = sizeToJson(this->tileSize);
     obj["images"] = this->mapToJson(this->imagePaths);
     obj["colors"] = this->mapToJson(this->colorNames);
-}
-
-QVariantMap WorldSurface::toQVariantMap(const QMap<QString, QString> &qmap) const
-{
-    QVariantMap vmap;
-    QMap<QString, QString>::ConstIterator it;
-    for (it = qmap.constBegin(); it != qmap.constEnd(); it++)
-    {
-        vmap.insert(it.key(), it.value());
-    }
-
-    return std::move(vmap);
 }
 
 QMap<QString, QString> WorldSurface::mapFromJson(const QJsonObject &obj) const

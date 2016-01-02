@@ -3,6 +3,7 @@
 #include "core/Faction.h"
 #include "core/JsonUtil.h"
 #include "core/SettlementType.h"
+#include "core/QVariantUtil.h"
 #include "core/UnitType.h"
 
 using namespace warmonger::core;
@@ -23,7 +24,7 @@ QList<UnitType *> Faction::getUnitTypes() const
 
 QVariantList Faction::readUnitTypes() const
 {
-    return toQVariantList<UnitType *>(this->unitTypes);
+    return toQVariantList(this->unitTypes);
 }
 
 void Faction::setUnitTypes(const QList<UnitType *> &unitTypes)
@@ -43,10 +44,9 @@ QMap<SettlementType *, QList<UnitType *>> Faction::getRecruits() const
 QVariantMap Faction::readRecruits() const
 {
     return toQVariantMap(
-        this->recruits.constBegin(),
-        this->recruits.constEnd(),
+        this->recruits,
         std::bind(&QObject::objectName, std::placeholders::_1),
-        listToQVariant<UnitType *>
+        containerToQVariant<QList<UnitType *>>
     );
 }
 

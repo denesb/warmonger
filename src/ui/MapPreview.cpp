@@ -10,7 +10,6 @@
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
 #include "core/Unit.h"
-#include "core/Util.h"
 #include "core/WorldSurface.h"
 #include "ui/MapPreview.h"
 

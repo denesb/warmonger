@@ -5,7 +5,6 @@
 #include <QPainter>
 
 #include "core/Exception.h"
-#include "core/Util.h"
 #include "core/WorldSurface.h"
 #include "ui/MapUtil.h"
 #include "ui/UnitRecruit.h"

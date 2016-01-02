@@ -131,7 +131,8 @@ Rectangle {
                             text += dn + " ";
 
                         text += s.type.displayName;
-                        text += " - " + s.owner.displayName;
+                        if (s.owner)
+                            text += " - " + s.owner.displayName;
                     }
                     text;
                 }
@@ -170,7 +171,8 @@ Rectangle {
                                 text += u.displayName + " ";
                             text += u.type.displayName;
                             text += " [" + u.type.klass.displayName + "]";
-                            text += " - " + u.owner.displayName;
+                            if (u.owner)
+                                text += " - " + u.owner.displayName;
                         }
                         text;
                     }

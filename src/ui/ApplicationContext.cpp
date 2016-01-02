@@ -60,9 +60,32 @@ void ApplicationContext::loadMaps()
 
         for (QString mapFile : mapsDir.entryList(nameFilters, filters))
         {
-            this->maps << em->loadEntityAs<core::Map>(
-                mapsDir.absoluteFilePath(mapFile)
-            );
+            const QString mapPath = mapsDir.absoluteFilePath(mapFile);
+            core::Map *map{nullptr};
+            try
+            {
+                map = em->loadEntityAs<core::Map>(mapPath);
+            }
+            catch (core::JsonParseError &e)
+            {
+                wError(loggerName) << "Caught " << e
+                    << " while loading map " << mapPath;
+                continue;
+            }
+            catch (core::ValueError &e)
+            {
+                wError(loggerName) << "Caught " << e
+                    << " while loading map from " << mapPath;
+                continue;
+            }
+            catch (core::UnresolvedReferenceError &e)
+            {
+                wError(loggerName) << "Caught " << e
+                    << " while loading map " << mapPath;
+                continue;
+            }
+
+            this->maps << map;
         }
     }
 

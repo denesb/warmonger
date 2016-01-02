@@ -124,7 +124,7 @@ Rectangle {
             label: "Owner"
             model: W.map.allPlayers
             currentIndex: {
-                if (unitEdit.unit) {
+                if (unitEdit.unit && unitEdit.unit.owner) {
                     ownerEdit.find(unitEdit.unit.owner.displayName);
                 } else {
                     0;

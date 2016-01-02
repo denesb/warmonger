@@ -123,7 +123,7 @@ Rectangle {
             label: "Owner"
             model: W.map.allPlayers
             currentIndex: {
-                if (settlementEdit.settlement) {
+                if (settlementEdit.settlement && settlementEdit.settlement.owner) {
                     ownerEdit.find(settlementEdit.settlement.owner.displayName);
                 } else {
                     0;

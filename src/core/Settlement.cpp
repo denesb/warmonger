@@ -78,7 +78,7 @@ void Settlement::setOwner(Player *owner)
 {
     if (this->owner != owner)
     {
-        if (this->owner->getFaction() != nullptr)
+        if (this->owner != nullptr)
             QObject::disconnect(
                 this->owner->getFaction(),
                 nullptr,
@@ -88,7 +88,7 @@ void Settlement::setOwner(Player *owner)
 
         this->owner = owner;
 
-        if (this->owner->getFaction() != nullptr)
+        if (this->owner != nullptr)
             QObject::connect(
                 this->owner->getFaction(),
                 &Faction::recruitsChanged,
@@ -130,10 +130,15 @@ void Settlement::dataFromJson(const QJsonObject &obj)
         obj["mapNode"].toString(),
         this->parent()
     );
-    this->owner = resolveReference<Player>(
-        obj["owner"].toString(),
-        this->parent()
-    );
+
+    const QString ownerName = obj["owner"].toString();
+    if (ownerName.isEmpty())
+        this->owner = nullptr;
+    else
+        this->owner = resolveReference<Player>(
+            ownerName,
+            this->parent()
+        );
 
     QObject::connect(
         this->type,
@@ -142,7 +147,7 @@ void Settlement::dataFromJson(const QJsonObject &obj)
         &Settlement::recruitsChanged
     );
 
-if (this->owner->getFaction() != nullptr)
+    if (this->owner != nullptr)
         QObject::connect(
             this->owner->getFaction(),
             &Faction::recruitsChanged,
@@ -155,5 +160,9 @@ void Settlement::dataToJson(QJsonObject &obj) const
 {
     obj["type"] = this->type->objectName();
     obj["mapNode"] = this->mapNode->objectName();
-    obj["owner"] = this->owner->objectName();
+
+    if (this->owner == nullptr)
+        obj["owner"] = QStringLiteral("");
+    else
+        obj["owner"] = this->owner->objectName();
 }

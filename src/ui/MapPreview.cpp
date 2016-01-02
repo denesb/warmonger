@@ -157,7 +157,13 @@ void MapPreview::drawNode(QPainter *painter, const core::MapNode *node)
     {
         const int size = w/2 - w/10;
         const QRect sr(w/20, h/2 - size/2, size, size);
-        const QColor sc = settlement->getOwner()->getColor();
+
+        const core::Player *owner = settlement->getOwner();
+        QColor sc;
+        if (owner == nullptr)
+            sc= this->surface->getColorName("noOwner");
+        else
+            sc = owner->getColor();
 
         painter->fillRect(sr, sc);
     }
@@ -166,7 +172,13 @@ void MapPreview::drawNode(QPainter *painter, const core::MapNode *node)
     {
         const int size = w/4;
         const QRect ur(w/2 + w/5, h/2 - size/2, size, size);
-        const QColor uc = unit->getOwner()->getColor();
+
+        const core::Player *owner = unit->getOwner();
+        QColor uc;
+        if (owner == nullptr)
+            uc= this->surface->getColorName("noOwner");
+        else
+            uc = owner->getColor();
 
         painter->fillRect(ur, uc);
     }

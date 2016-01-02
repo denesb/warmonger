@@ -3176,7 +3176,7 @@
             "displayName": "Varsolc",
             "mapNode": "mapNode6",
             "objectName": "settlement3",
-            "owner": "neutral",
+            "owner": "",
             "type": "village"
         }
     ],
@@ -3200,7 +3200,7 @@
             "mapNode": "mapNode9",
             "movementPoints": 8,
             "objectName": "unit1",
-            "owner": "neutral",
+            "owner": "",
             "rank": "soldier",
             "type": "spearman2"
         },
@@ -3211,7 +3211,7 @@
             "mapNode": "mapNode7",
             "movementPoints": 8,
             "objectName": "unit2",
-            "owner": "neutral",
+            "owner": "",
             "rank": "soldier",
             "type": "spearman1"
         }

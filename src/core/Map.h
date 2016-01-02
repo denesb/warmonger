@@ -24,8 +24,6 @@ class Map :
     Q_PROPERTY(World * world READ getWorld WRITE setWorld NOTIFY worldChanged)
     Q_PROPERTY(QVariantList mapNodes READ readMapNodes NOTIFY mapNodesChanged)
     Q_PROPERTY(QVariantList players READ readPlayers NOTIFY playersChanged)
-    Q_PROPERTY(QVariantList allPlayers READ readAllPlayers NOTIFY playersChanged)
-    Q_PROPERTY(Player *neutralPlayer READ getNeutralPlayer NOTIFY neutralPlayerChanged)
     Q_PROPERTY(QVariantList units READ readUnits)
     Q_PROPERTY(QVariantList settlements READ readSettlements NOTIFY settlementsChanged)
 
@@ -51,8 +49,6 @@ public:
     QList<Player *> getPlayers() const;
     void setPlayers(const QList<Player *> &units);
     QVariantList readPlayers() const;
-    QVariantList readAllPlayers() const;
-    Player * getNeutralPlayer() const;
 
     void addSettlement(Settlement *settlement);
     void removeSettlement(Settlement *settlement);
@@ -100,10 +96,6 @@ signals:
     void unitAdded(Unit *unit);
     void unitRemoved(Unit *unit);
     void playersChanged();
-    void neutralPlayerChanged();
-
-private slots:
-    void onSurfaceChanged();
 
 protected:
     void dataFromJson(const QJsonObject &obj);
@@ -136,7 +128,6 @@ protected:
     QList<Settlement *> settlements;
     QList<Unit *> units;
     QList<Player *> players;
-    Player *neutralPlayer;
     QHash<const MapNode *, QPair<Settlement *, Unit *>> mapContent;
 };
 

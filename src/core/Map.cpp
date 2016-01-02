@@ -28,11 +28,8 @@ Map::Map(QObject *parent) :
     settlements(),
     units(),
     players(),
-    neutralPlayer(new Player(this)),
     mapContent()
 {
-    this->neutralPlayer->setObjectName("neutral");
-    this->neutralPlayer->setDisplayName("Neutral");
 }
 
 Map::~Map()
@@ -182,19 +179,6 @@ QVariantList Map::readPlayers() const
     return toQVariantList(this->players);
 }
 
-QVariantList Map::readAllPlayers() const
-{
-    QList<Player *> allPlayers;
-    allPlayers << this->neutralPlayer;
-    allPlayers << this->players;
-    return toQVariantList(allPlayers);
-}
-
-Player * Map::getNeutralPlayer() const
-{
-    return this->neutralPlayer;
-}
-
 void Map::createMapNode(
     TerrainType *terrainType,
     const QHash<MapNode::Direction, MapNode *> &neighbours
@@ -226,10 +210,6 @@ void Map::createSettlement(
     );
     newSettlement->setType(settlementType);
     newSettlement->setMapNode(mapNode);
-
-    if (owner == nullptr)
-        owner = this->neutralPlayer;
-
     newSettlement->setOwner(owner);
 
     this->addSettlement(newSettlement);
@@ -245,10 +225,6 @@ Unit * Map::createUnit(UnitType *unitType, MapNode *mapNode, Player *owner)
     newUnit->setMapNode(mapNode);
     newUnit->setHitPoints(unitType->getHitPoints());
     newUnit->setMovementPoints(unitType->getClass()->getMovementPoints());
-
-    if (owner == nullptr)
-        owner = this->neutralPlayer;
-
     newUnit->setOwner(owner);
 
     wInfo(loggerName) << "Created unit " << newUnit;
@@ -280,22 +256,10 @@ bool Map::hasUnit(const MapNode *mapNode) const
     return content.second != nullptr;
 }
 
-void Map::onSurfaceChanged()
-{
-    QColor c(this->world->getSurface()->getColor("neutral"));
-    this->neutralPlayer->setColor(c);
-}
-
 void Map::dataFromJson(const QJsonObject &obj)
 {
     const QString worldName(obj["world"].toString());
     World *world = EntityManager::getInstance()->getEntity<World>(worldName);
-    QObject::connect(
-        world,
-        &World::surfaceChanged,
-        this,
-        &Map::onSurfaceChanged
-    );
 
     this->world = world;
     this->mapNodeIndex = obj["mapNodeIndex"].toInt();

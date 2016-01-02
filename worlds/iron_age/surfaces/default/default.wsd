@@ -11,7 +11,7 @@
 
         "grid": "#000000",
         "focusOutline": "#d59037",
-        "neutral": "#222222"
+        "noOwner": "#222222"
     },
 
     "images": {

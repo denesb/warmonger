@@ -225,7 +225,7 @@ Rectangle {
                 color: "black"
                 text: {
                     var label = "Owner: ";
-                    if (root.settlement) {
+                    if (root.settlement && root.settlement.owner) {
                         label += root.settlement.owner.displayName;
                     }
                     label;
@@ -347,7 +347,7 @@ Rectangle {
                 color: "black"
                 text: {
                     var label = "Owner: ";
-                    if (root.unit) {
+                    if (root.unit && root.unit.owner) {
                         label += root.unit.owner.displayName;
                     }
                     label;

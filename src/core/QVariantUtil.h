@@ -7,7 +7,6 @@
 #include <QString>
 #include <QVariant>
 
-#include "core/GameEntity.h"
 #include "core/Exception.h"
 
 namespace warmonger {
@@ -19,18 +18,18 @@ namespace core {
  * Container::value_type must be a convertable to QVariant!
  */
 template<typename Container>
-QVariantList toQVariantList(Container c)
+QVariantList toQVariantList(Container container)
 {
-    QVariantList vlist;
+    QVariantList list;
 
     std::transform(
-        c.cbegin(),
-        c.cend(),
-        std::back_inserter(vlist),
+        container.cbegin(),
+        container.cend(),
+        std::back_inserter(list),
         QVariant::fromValue<typename Container::value_type>
     );
 
-    return std::move(vlist);
+    return std::move(list);
 }
 
 /**
@@ -39,9 +38,9 @@ QVariantList toQVariantList(Container c)
  * Container::value_type must be a convertable to QVariant!
  */
 template<typename Container>
-QVariant containerToQVariant(Container c)
+QVariant containerToQVariant(Container container)
 {
-    return QVariant::fromValue<QVariantList>(toQVariantList(c));
+    return QVariant::fromValue<QVariantList>(toQVariantList(container));
 }
 
 /**
@@ -67,34 +66,34 @@ T fromQVariant(const QVariant &v)
  * Container::value_type, otherwise QVariantTypeError will be thrown!
  */
 template<typename Container>
-Container fromQVariantList(QVariantList vlist)
+Container fromQVariantList(QVariantList list)
 {
-    Container c;
+    Container container;
 
     std::transform(
-        vlist.cbegin(),
-        vlist.cend(),
-        std::back_inserter(c),
+        list.cbegin(),
+        list.cend(),
+        std::back_inserter(container),
         fromQVariant<typename Container::value_type>
     );
 
-    return std::move(c);
+    return std::move(container);
 }
 
 /**
- * Return the parameter.
+ * Return the parameter as-is.
  *
  * This function is useful as a convert function, when no conversion
  * is necessary.
  */
 template<typename T>
-T passThrough(const T &v)
+T verbatim(const T &v)
 {
     return v;
 }
 
 /**
- * Convert a Qt-style mapping-type c to QVariantMap.
+ * Convert a Qt-style mapping-type Container to QVariantMap.
  *
  * Qt-style means that the iterator has a key() and value() member
  * returning the key and value respectively.
@@ -105,21 +104,21 @@ T passThrough(const T &v)
  */
 template<typename Container, typename ConvertKeyFunc, typename ConvertValueFunc>
 QVariantMap toQVariantMap(
-    Container c,
+    Container container,
     ConvertKeyFunc convertKey,
     ConvertValueFunc convertValue
 )
 {
-    QVariantMap vmap;
+    QVariantMap map;
 
-    for (auto it = c.cbegin(); it != c.cend(); it++)
+    for (auto it = container.cbegin(); it != container.cend(); it++)
     {
         QString key = convertKey(it.key());
         QVariant value = convertValue(it.value());
-        vmap[key] = value;
+        map[key] = value;
     }
 
-    return std::move(vmap);
+    return std::move(map);
 }
 
 /**
@@ -133,21 +132,21 @@ QVariantMap toQVariantMap(
  */
 template<typename Container, typename ConvertKeyFunc, typename ConvertValueFunc>
 Container fromQVariantMap(
-    QVariantMap vmap,
+    QVariantMap map,
     ConvertKeyFunc convertKey,
     ConvertValueFunc convertValue
 )
 {
-    Container c;
+    Container container;
 
-    for (auto it = vmap.cbegin(); it != vmap.cend(); it++)
+    for (auto it = map.cbegin(); it != map.cend(); it++)
     {
         typename Container::key_type key = convertKey(it.key());
         typename Container::mapped_type value = convertValue(it.value());
-        c[key] = value;
+        container[key] = value;
     }
 
-    return std::move(c);
+    return std::move(container);
 }
 
 } // namespace core

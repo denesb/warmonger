@@ -3,7 +3,7 @@
 
 #include "core/EntityManager.h"
 #include "core/GameEntityPart.h"
-#include "core/JsonUtil.h"
+#include "core/QJsonUtil.h"
 
 using namespace warmonger::core;
 

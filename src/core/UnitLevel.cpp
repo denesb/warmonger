@@ -1,5 +1,4 @@
 #include "core/UnitLevel.h"
-#include "core/JsonUtil.h"
 
 using namespace warmonger::core;
 

@@ -1,8 +1,8 @@
 #include <functional>
 
 #include "core/Faction.h"
-#include "core/JsonUtil.h"
 #include "core/SettlementType.h"
+#include "core/QJsonUtil.h"
 #include "core/QVariantUtil.h"
 #include "core/UnitType.h"
 
@@ -45,7 +45,7 @@ QVariantMap Faction::readRecruits() const
 {
     return toQVariantMap(
         this->recruits,
-        std::bind(&QObject::objectName, std::placeholders::_1),
+        qObjectName,
         containerToQVariant<QList<UnitType *>>
     );
 }
@@ -78,26 +78,31 @@ bool Faction::canRecruitFrom(
 
 void Faction::dataFromJson(const QJsonObject &obj)
 {
-    std::function<QList<UnitType *>(const QJsonArray &)> unitTypesFromJsonFunc
-        = std::bind(
-        referenceListFromJson<UnitType>,
-        std::placeholders::_1,
-        this->parent()
-    );
+    const ReferenceResolver<UnitType> unitTypeReferenceResolver(this->parent());
 
-    this->unitTypes = unitTypesFromJsonFunc(obj["unitTypes"].toArray());
-    this->recruits = mapFromJson<QMap<SettlementType *, QList<UnitType *>>>(
+    this->unitTypes = fromQJsonArray<QList<UnitType *>>(
+        obj["unitTypes"].toArray(),
+        unitTypeReferenceResolver
+    );
+    this->recruits = fromQJsonObject<QMap<SettlementType *, QList<UnitType *>>>(
         obj["recruits"].toObject(),
-        std::bind(
-            resolveReference<SettlementType>,
-            std::placeholders::_1,
-            this->parent()
-        ),
-        [&](const QJsonValue &v){return unitTypesFromJsonFunc(v.toArray());}
+        ReferenceResolver<SettlementType>(this->parent()),
+        [&](const QJsonValue &v)
+        {
+            return fromQJsonArray<QList<UnitType *>>(
+                v.toArray(),
+                unitTypeReferenceResolver
+            );
+        }
     );
 }
 
 void Faction::dataToJson(QJsonObject &obj) const
 {
-    obj["unitTypes"] = referenceListToJson<UnitType>(this->unitTypes);
+    obj["unitTypes"] = toQJsonArray(this->unitTypes, qObjectName);
+    obj["recruits"] = toQJsonObject(
+        this->recruits,
+        qObjectName,
+        [](const QList<UnitType *> &l){return toQJsonArray(l, qObjectName);}
+    );
 }

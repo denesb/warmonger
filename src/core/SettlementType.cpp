@@ -1,4 +1,4 @@
-#include "core/JsonUtil.h"
+#include "core/QJsonUtil.h"
 #include "core/QVariantUtil.h"
 #include "core/SettlementType.h"
 #include "core/UnitType.h"
@@ -54,15 +54,15 @@ void SettlementType::writeRecruits(QVariantList recruits)
 void SettlementType::dataFromJson(const QJsonObject &obj)
 {
     this->goldPerTurn = obj["goldPerTurn"].toInt();
-    this->recruits = referenceListFromJson<UnitType>(
+    this->recruits = fromQJsonArray<QList<UnitType *>>(
         obj["recruits"].toArray(),
-        this->parent()
+        ReferenceResolver<UnitType>(this->parent())
     );
 }
 
 void SettlementType::dataToJson(QJsonObject &obj) const
 {
     obj["goldPerTurn"] = this->goldPerTurn;
-    obj["recruits"] = referenceListToJson<UnitType>(this->recruits);
+    obj["recruits"] = toQJsonArray(this->recruits, qObjectName);
 }
 

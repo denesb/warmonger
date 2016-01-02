@@ -1,12 +1,19 @@
 #include <QFile>
 
-#include "core/JsonUtil.h"
+#include "core/QJsonUtil.h"
 
-static const QString loggerName("core.JsonUtil");
+static const QString loggerName("core.QJsonUtil");
 
 using namespace warmonger;
+namespace warmonger {
+namespace core {
 
-QJsonObject core::sizeToJson(const QSize &size)
+QSize sizeFromJson(const QJsonObject &obj)
+{
+    return QSize(obj["width"].toInt(), obj["height"].toInt());
+}
+
+QJsonObject sizeToJson(const QSize &size)
 {
     QJsonObject obj;
 
@@ -16,7 +23,7 @@ QJsonObject core::sizeToJson(const QSize &size)
     return std::move(obj);
 }
 
-QJsonDocument core::loadJsonDocument(const QString &path)
+QJsonDocument loadJsonDocument(const QString &path)
 {
     QFile jsonFile(path);
 
@@ -48,7 +55,7 @@ QJsonDocument core::loadJsonDocument(const QString &path)
     return std::move(doc);
 }
 
-void core::saveJsonDocument(const QString &path, const QJsonDocument &doc)
+void saveJsonDocument(const QString &path, const QJsonDocument &doc)
 {
     QFile jsonFile(path);
 
@@ -69,3 +76,5 @@ void core::saveJsonDocument(const QString &path, const QJsonDocument &doc)
     wInfo(loggerName) << "Saved Json document to " << path;
 }
 
+} // namespace core
+} // namespace warmonger

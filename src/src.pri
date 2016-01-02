@@ -28,10 +28,10 @@ HEADERS += \
     src/core/GameEntity.h \
     src/core/GameEntityPart.h \
     src/core/GameObject.h \
-    src/core/JsonUtil.h \
     src/core/Map.h \
     src/core/MapNode.h \
     src/core/Player.h \
+    src/core/QJsonUtil.h \
     src/core/QVariantUtil.h \
     src/core/Settlement.h \
     src/core/SettlementType.h \
@@ -80,10 +80,10 @@ SOURCES += \
     src/core/GameEntity.cpp \
     src/core/GameEntityPart.cpp \
     src/core/GameObject.cpp \
-    src/core/JsonUtil.cpp \
     src/core/Map.cpp \
     src/core/MapNode.cpp \
     src/core/Player.cpp \
+    src/core/QJsonUtil.cpp \
     src/core/Settlement.cpp \
     src/core/SettlementType.cpp \
     src/core/TerrainType.cpp \

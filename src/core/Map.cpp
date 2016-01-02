@@ -2,8 +2,8 @@
 #include <QSet>
 
 #include "core/EntityManager.h"
-#include "core/JsonUtil.h"
 #include "core/Map.h"
+#include "core/QJsonUtil.h"
 #include "core/QVariantUtil.h"
 #include "core/TerrainType.h"
 #include "core/WorldSurface.h"
@@ -302,9 +302,18 @@ void Map::dataFromJson(const QJsonObject &obj)
     this->settlementIndex = obj["settlementIndex"].toInt();
     this->unitIndex = obj["unitIndex"].toInt();
     this->mapNodes = this->mapNodesFromJson(obj["mapNodes"].toObject());
-    this->players = newListFromJson<Player>(obj["players"].toArray(), this);
-    this->units = newListFromJson<Unit>(obj["units"].toArray(), this);
-    this->settlements = newListFromJson<Settlement>(obj["settlements"].toArray(), this);
+    this->players = fromQJsonArray<QList<Player *>>(
+        obj["players"].toArray(),
+        ObjectConstructor<Player>(this)
+    );
+    this->units = fromQJsonArray<QList<Unit *>>(
+        obj["units"].toArray(),
+        ObjectConstructor<Unit>(this)
+    );
+    this->settlements = fromQJsonArray<QList<Settlement *>>(
+        obj["settlements"].toArray(),
+        ObjectConstructor<Settlement>(this)
+    );
 
     this->setupContent();
 }
@@ -316,17 +325,20 @@ void Map::dataToJson(QJsonObject &obj) const
     obj["settlementIndex"] = this->settlementIndex;
     obj["unitIndex"] = this->unitIndex;
     obj["mapNodes"] = this->mapNodesToJson(this->mapNodes);
-    obj["players"] = listToJson<Player>(this->players);
-    obj["units"] = listToJson<Unit>(this->units);
-    obj["settlements"] = listToJson<Settlement>(this->settlements);
+    obj["players"] = toQJsonArray(this->players, objectToQJsonObject<Player>);
+    obj["units"] = toQJsonArray(this->units, objectToQJsonObject<Unit>);
+    obj["settlements"] = toQJsonArray(
+        this->settlements,
+        objectToQJsonObject<Settlement>
+    );
 }
 
 QList<MapNode *> Map::mapNodesFromJson(const QJsonObject &obj)
 {
     QList<MapNode *> mapNodes;
-    mapNodes = newListFromJson<MapNode>(
+    mapNodes = fromQJsonArray<QList<MapNode *>>(
         obj["nodes"].toArray(),
-        this
+        ObjectConstructor<MapNode>(this)
     );
 
     QHash<QString, MapNode *> mapNodeLookup;
@@ -370,7 +382,7 @@ QJsonObject Map::mapNodesToJson(const QList<MapNode *> &mapNodes) const
     static const QString connectionStrTemplate("%1_%2_%3");
 
     QJsonObject obj;
-    obj["nodes"] = listToJson<MapNode>(this->mapNodes);
+    obj["nodes"] = toQJsonArray(this->mapNodes, objectToQJsonObject<MapNode>);
 
     QJsonArray connections;
     QSet<QString> connectionStrs;

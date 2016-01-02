@@ -5,7 +5,7 @@
 #include <QJsonDocument>
 #include <QMetaObject>
 
-#include "core/JsonUtil.h"
+#include "core/QJsonUtil.h"
 
 namespace warmonger {
 namespace core {

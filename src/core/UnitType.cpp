@@ -1,5 +1,5 @@
-#include "core/JsonUtil.h"
 #include "core/QVariantUtil.h"
+#include "core/QJsonUtil.h"
 #include "core/UnitType.h"
 
 using namespace warmonger::core;
@@ -113,16 +113,25 @@ void UnitType::setUpgrades(const QList<UnitType *> &upgrades)
 void UnitType::dataFromJson(const QJsonObject &obj)
 {
     this->hitPoints = obj["hitPoints"].toInt();
-    this->level = this->parent()->findChild<UnitLevel *>(obj["level"].toString());
-    this->klass = this->parent()->findChild<UnitClass *>(obj["class"].toString());
-    this->armor = this->parent()->findChild<Armor *>(obj["armor"].toString());
-    this->weapons = referenceListFromJson<Weapon>(
-        obj["weapons"].toArray(),
+    this->level = resolveReference<UnitLevel>(
+        obj["level"].toString(),
         this->parent()
     );
-    this->upgrades = referenceListFromJson<UnitType>(
-        obj["upgrades"].toArray(),
+    this->klass = resolveReference<UnitClass>(
+        obj["class"].toString(),
         this->parent()
+    );
+    this->armor = resolveReference<Armor>(
+        obj["armor"].toString(),
+        this->parent()
+    );
+    this->weapons = fromQJsonArray<QList<Weapon *>>(
+        obj["weapons"].toArray(),
+        ReferenceResolver<Weapon>(this->parent())
+    );
+    this->upgrades = fromQJsonArray<QList<UnitType *>>(
+        obj["upgrades"].toArray(),
+        ReferenceResolver<UnitType>(this->parent())
     );
 }
 
@@ -132,6 +141,6 @@ void UnitType::dataToJson(QJsonObject &obj) const
     obj["level"] = this->level->objectName();
     obj["class"] = this->klass->objectName();
     obj["armor"] = this->armor->objectName();
-    obj["weapons"] = referenceListToJson<Weapon>(this->weapons);
-    obj["upgrades"] = referenceListToJson<UnitType>(this->upgrades);
+    obj["weapons"] = toQJsonArray(this->weapons, qObjectName);
+    obj["upgrades"] = toQJsonArray(this->upgrades, qObjectName);
 }

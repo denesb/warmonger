@@ -1,5 +1,5 @@
-#include "core/JsonUtil.h"
 #include "core/Map.h"
+#include "core/QJsonUtil.h"
 #include "core/Unit.h"
 
 using namespace warmonger::core;

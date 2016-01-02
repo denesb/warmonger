@@ -1,9 +1,7 @@
 #include <QDir>
-#include <QFile>
-#include <QJsonDocument>
 
-#include "core/JsonUtil.h"
 #include "core/QVariantUtil.h"
+#include "core/QJsonUtil.h"
 #include "core/WorldSurface.h"
 
 using namespace warmonger::core;
@@ -68,7 +66,7 @@ QVariantMap WorldSurface::readImagePaths() const
 {
     return toQVariantMap(
         this->imagePaths,
-        passThrough<QString>,
+        verbatim<QString>,
         QVariant::fromValue<QString>
     );
 }
@@ -92,7 +90,7 @@ QVariantMap WorldSurface::readColorNames() const
 {
     return toQVariantMap(
         this->colorNames,
-        passThrough<QString>,
+        verbatim<QString>,
         QVariant::fromValue<QString>
     );
 }
@@ -142,8 +140,16 @@ void WorldSurface::dataFromJson(const QJsonObject &obj)
 {
     this->hexMask.load(this->getPath() + QStringLiteral("/hexagon_mask.xpm"), "XPM");
 
-    this->colorNames = this->mapFromJson(obj["colors"].toObject());
-    this->imagePaths = this->mapFromJson(obj["images"].toObject());
+    this->colorNames = fromQJsonObject<QMap<QString, QString>>(
+        obj["colors"].toObject(),
+        verbatim<QString>,
+        qJsonValueToQString
+    );
+    this->imagePaths = fromQJsonObject<QMap<QString, QString>>(
+        obj["images"].toObject(),
+        verbatim<QString>,
+        qJsonValueToQString
+    );
 
     // Convert paths to absolute paths
     QMap<QString, QString>::Iterator it;
@@ -164,32 +170,16 @@ void WorldSurface::dataFromJson(const QJsonObject &obj)
 void WorldSurface::dataToJson(QJsonObject &obj) const
 {
     obj["tileSize"] = sizeToJson(this->tileSize);
-    obj["images"] = this->mapToJson(this->imagePaths);
-    obj["colors"] = this->mapToJson(this->colorNames);
-}
-
-QMap<QString, QString> WorldSurface::mapFromJson(const QJsonObject &obj) const
-{
-    QMap<QString, QString> map;
-    QJsonObject::ConstIterator it;
-    for (it = obj.constBegin(); it != obj.constEnd(); it++)
-    {
-        map.insert(it.key(), it.value().toString());
-    }
-
-    return std::move(map);
-}
-
-QJsonObject WorldSurface::mapToJson(const QMap<QString, QString> &map) const
-{
-    QJsonObject obj;
-    QMap<QString, QString>::ConstIterator it;
-    for (it = map.constBegin(); it != map.constEnd(); it++)
-    {
-        obj[it.key()] = it.value();
-    }
-
-    return std::move(obj);
+    obj["images"] = toQJsonObject(
+        this->imagePaths,
+        verbatim<QString>,
+        constructQJsonValue<QString>
+    );
+    obj["colors"] = toQJsonObject(
+        this->colorNames,
+        verbatim<QString>,
+        constructQJsonValue<QString>
+    );
 }
 
 QHash<QString, QColor> createColors(

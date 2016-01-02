@@ -2,8 +2,8 @@
 #include <QFile>
 #include <QJsonDocument>
 
-#include "core/JsonUtil.h"
 #include "core/QVariantUtil.h"
+#include "core/QJsonUtil.h"
 #include "core/World.h"
 
 using namespace warmonger::core;
@@ -184,15 +184,42 @@ void World::setWeapons(const QList<Weapon *> &weapons)
 void World::dataFromJson(const QJsonObject &obj)
 {
     //N.B.: the order here is leaf->root in the world items dependency tree
-    this->damageTypes = newListFromJson<DamageType>(obj["damageTypes"].toArray(), this);
-    this->armors = newListFromJson<Armor>(obj["armors"].toArray(), this);
-    this->weapons = newListFromJson<Weapon>(obj["weapons"].toArray(), this);
-    this->terrainTypes = newListFromJson<TerrainType>(obj["terrainTypes"].toArray(), this);
-    this->unitClasses = newListFromJson<UnitClass>(obj["unitClasses"].toArray(), this);
-    this->unitLevels = newListFromJson<UnitLevel>(obj["unitLevels"].toArray(), this);
-    this->unitTypes = newListFromJson<UnitType>(obj["unitTypes"].toArray(), this);
-    this->settlementTypes = newListFromJson<SettlementType>(obj["settlementTypes"].toArray(), this);
-    this->factions = newListFromJson<Faction>(obj["factions"].toArray(), this);
+    this->damageTypes = fromQJsonArray<QList<DamageType *>>(
+        obj["damageTypes"].toArray(),
+        ObjectConstructor<DamageType>(this)
+    );
+    this->armors = fromQJsonArray<QList<Armor *>>(
+        obj["armors"].toArray(),
+        ObjectConstructor<Armor>(this)
+    );
+    this->weapons = fromQJsonArray<QList<Weapon *>>(
+        obj["weapons"].toArray(),
+        ObjectConstructor<Weapon>(this)
+    );
+    this->terrainTypes = fromQJsonArray<QList<TerrainType *>>(
+        obj["terrainTypes"].toArray(),
+        ObjectConstructor<TerrainType>(this)
+    );
+    this->unitClasses = fromQJsonArray<QList<UnitClass *>>(
+        obj["unitClasses"].toArray(),
+        ObjectConstructor<UnitClass>(this)
+    );
+    this->unitLevels = fromQJsonArray<QList<UnitLevel *>>(
+        obj["unitLevels"].toArray(),
+        ObjectConstructor<UnitLevel>(this)
+    );
+    this->unitTypes = fromQJsonArray<QList<UnitType *>>(
+        obj["unitTypes"].toArray(),
+        ObjectConstructor<UnitType>(this)
+    );
+    this->settlementTypes = fromQJsonArray<QList<SettlementType *>>(
+        obj["settlementTypes"].toArray(),
+        ObjectConstructor<SettlementType>(this)
+    );
+    this->factions = fromQJsonArray<QList<Faction *>>(
+        obj["factions"].toArray(),
+        ObjectConstructor<Faction>(this)
+    );
 
     this->setSurface("default");
 }
@@ -200,13 +227,40 @@ void World::dataFromJson(const QJsonObject &obj)
 void World::dataToJson(QJsonObject &obj) const
 {
     //N.B.: the order here is leaf->root in the world items dependency tree
-    obj["damageTypes"] = listToJson<DamageType>(this->damageTypes);
-    obj["armors"] = listToJson<Armor>(this->armors);
-    obj["weapons"] = listToJson<Weapon>(this->weapons);
-    obj["terrainTypes"] = listToJson<TerrainType>(this->terrainTypes);
-    obj["unitClasses"] = listToJson<UnitClass>(this->unitClasses);
-    obj["unitLevels"] = listToJson<UnitLevel>(this->unitLevels);
-    obj["unitTypes"] = listToJson<UnitType>(this->unitTypes);
-    obj["settlementTypes"] = listToJson<SettlementType>(this->settlementTypes);
-    obj["factions"] = listToJson<Faction>(this->factions);
+    obj["damageTypes"] = toQJsonArray(
+        this->damageTypes,
+        objectToQJsonObject<DamageType>
+    );
+    obj["armors"] = toQJsonArray(
+        this->armors,
+        objectToQJsonObject<Armor>
+    );
+    obj["weapons"] = toQJsonArray(
+        this->weapons,
+        objectToQJsonObject<Weapon>
+    );
+    obj["terrainTypes"] = toQJsonArray(
+        this->terrainTypes,
+        objectToQJsonObject<TerrainType>
+    );
+    obj["unitClasses"] = toQJsonArray(
+        this->unitClasses,
+        objectToQJsonObject<UnitClass>
+    );
+    obj["unitLevels"] = toQJsonArray(
+        this->unitLevels,
+        objectToQJsonObject<UnitLevel>
+    );
+    obj["unitTypes"] = toQJsonArray(
+        this->unitTypes,
+        objectToQJsonObject<UnitType>
+    );
+    obj["settlementTypes"] = toQJsonArray(
+        this->settlementTypes,
+        objectToQJsonObject<SettlementType>
+    );
+    obj["factions"] = toQJsonArray(
+        this->factions,
+        objectToQJsonObject<Faction>
+    );
 }

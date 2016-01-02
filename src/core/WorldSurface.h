@@ -54,9 +54,6 @@ private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
-    QMap<QString, QString> mapFromJson(const QJsonObject &obj) const;
-    QJsonObject mapToJson(const QMap<QString, QString> &map) const;
-
     QSize tileSize;
     QHash<QString, QImage> images;
     QMap<QString, QString> imagePaths;

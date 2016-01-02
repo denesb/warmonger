@@ -1,6 +1,6 @@
 #include "core/Armor.h"
 #include "core/DamageType.h"
-#include "core/JsonUtil.h"
+#include "core/QJsonUtil.h"
 
 using namespace warmonger::core;
 
@@ -46,14 +46,19 @@ void Armor::setDefense(const DamageType * const damageType, int defense)
 void Armor::dataFromJson(const QJsonObject &obj)
 {
     this->range = obj["range"].toInt();
-    this->defenses = objectValueMapFromJson<DamageType>(
+    this->defenses = fromQJsonObject<QMap<const DamageType *, int>>(
         obj["defenses"].toObject(),
-        this->parent()
+        ReferenceResolver<DamageType>(this->parent()),
+        qJsonValueToInt
     );
 }
 
 void Armor::dataToJson(QJsonObject &obj) const
 {
     obj["range"] = this->range;
-    obj["defenses"] = objectValueMapToJson<DamageType>(this->defenses);
+    obj["defenses"] = toQJsonObject(
+        this->defenses,
+        qObjectName,
+        constructQJsonValue<int>
+    );
 }

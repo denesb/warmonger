@@ -252,7 +252,7 @@ QString Game::checkUnitRecruitmentRules(
 
         Settlement *s = this->getSettlementOn(neighbour);
         Unit *u = this->getUnitOn(neighbour);
-        QList<UnitType *> recruits = s->getType()->getRecruits();
+        QList<UnitType *> recruits = s->getRecruits();
 
         if (u->getRank() >= Unit::Officer && recruits.contains(unitType))
         {

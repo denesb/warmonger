@@ -2,8 +2,6 @@
 
 General
 -------
-* Rethink the GameEntity setPath business. Currently, once loaded it cannot be
-modified, but this might not be what we want.
 * Test suite
 
 Game Concept

@@ -164,6 +164,10 @@ void Game::recruitUnit(UnitType *unitType, MapNode *node)
     Unit *newUnit = this->createUnit(unitType, node, owner);
     newUnit->setMovementPoints(0);
 
+    const int newGoldBalance = owner->getGoldBalance()
+        - unitType->getRecruitmentCost();
+    owner->setGoldBalance(newGoldBalance);
+
     wInfo(loggerName) << "Unit " << newUnit << " recruited";
 }
 
@@ -266,7 +270,11 @@ QString Game::checkUnitRecruitmentRules(
         return QStringLiteral("No settlement with an officer were found in the neighbourhood where this unit can be trained");
     }
 
-    //TODO: fund check (not yet implemented)
+    Player *owner = this->players[this->playerIndex];
+    if (unitType->getRecruitmentCost() > owner->getGoldBalance())
+    {
+        return QStringLiteral("Insufficient funds");
+    }
 
     if (this->hasUnit(node))
     {

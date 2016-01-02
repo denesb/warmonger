@@ -8,9 +8,11 @@ static const QString loggerName{"core.UnitType"};
 
 UnitType::UnitType(QObject *parent) :
     GameObject(parent),
-    hitPoints(0),
-    level(nullptr),
     klass(nullptr),
+    level(nullptr),
+    hitPoints(0),
+    recruitmentCost(0),
+    upkeepCost(0),
     armor(nullptr),
     weapons(),
     upgrades()
@@ -21,17 +23,17 @@ UnitType::~UnitType()
 {
 }
 
-int UnitType::getHitPoints() const
+UnitClass *UnitType::getClass() const
 {
-    return this->hitPoints;
+    return this->klass;
 }
 
-void UnitType::setHitPoints(int hitPoints)
+void UnitType::setClass(UnitClass *klass)
 {
-    if (this->hitPoints != hitPoints)
+    if (this->klass != klass)
     {
-        this->hitPoints = hitPoints;
-        emit hitPointsChanged();
+        this->klass = klass;
+        emit classChanged();
     }
 }
 
@@ -49,17 +51,45 @@ void UnitType::setLevel(UnitLevel *level)
     }
 }
 
-UnitClass *UnitType::getClass() const
+int UnitType::getHitPoints() const
 {
-    return this->klass;
+    return this->hitPoints;
 }
 
-void UnitType::setClass(UnitClass *klass)
+void UnitType::setHitPoints(int hitPoints)
 {
-    if (this->klass != klass)
+    if (this->hitPoints != hitPoints)
     {
-        this->klass = klass;
-        emit classChanged();
+        this->hitPoints = hitPoints;
+        emit hitPointsChanged();
+    }
+}
+
+int UnitType::getRecruitmentCost() const
+{
+    return this->recruitmentCost;
+}
+
+void UnitType::setRecruitmentCost(int recruitmentCost)
+{
+    if (this->recruitmentCost != recruitmentCost)
+    {
+        this->recruitmentCost = recruitmentCost;
+        emit recruitmentCostChanged();
+    }
+}
+
+int UnitType::getUpkeepCost() const
+{
+    return this->upkeepCost;
+}
+
+void UnitType::getUpkeepCost(int upkeepCost)
+{
+    if (this->upkeepCost != upkeepCost)
+    {
+        this->upkeepCost = upkeepCost;
+        emit upkeepCostChanged();
     }
 }
 
@@ -112,15 +142,17 @@ void UnitType::setUpgrades(const QList<UnitType *> &upgrades)
 
 void UnitType::dataFromJson(const QJsonObject &obj)
 {
-    this->hitPoints = obj["hitPoints"].toInt();
-    this->level = resolveReference<UnitLevel>(
-        obj["level"].toString(),
-        this->parent()
-    );
     this->klass = resolveReference<UnitClass>(
         obj["class"].toString(),
         this->parent()
     );
+    this->level = resolveReference<UnitLevel>(
+        obj["level"].toString(),
+        this->parent()
+    );
+    this->hitPoints = obj["hitPoints"].toInt();
+    this->recruitmentCost = obj["recruitmentCost"].toInt();
+    this->upkeepCost = obj["upkeepCost"].toInt();
     this->armor = resolveReference<Armor>(
         obj["armor"].toString(),
         this->parent()
@@ -137,9 +169,11 @@ void UnitType::dataFromJson(const QJsonObject &obj)
 
 void UnitType::dataToJson(QJsonObject &obj) const
 {
-    obj["hitPoints"] = this->hitPoints;
-    obj["level"] = this->level->objectName();
     obj["class"] = this->klass->objectName();
+    obj["level"] = this->level->objectName();
+    obj["hitPoints"] = this->hitPoints;
+    obj["recruitmentCost"] = this->recruitmentCost;
+    obj["upkeepCost"] = this->upkeepCost;
     obj["armor"] = this->armor->objectName();
     obj["weapons"] = toQJsonArray(this->weapons, qObjectName);
     obj["upgrades"] = toQJsonArray(this->upgrades, qObjectName);

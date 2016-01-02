@@ -11381,14 +11381,14 @@
             "color": "#00ff00",
             "displayName": "Player 1",
             "faction": "kingdom",
-            "goldBalance": 0,
+            "goldBalance": 50,
             "objectName": "player1"
         },
         {
             "color": "#0000ff",
             "displayName": "Player 2",
             "faction": "kingdom",
-            "goldBalance": 0,
+            "goldBalance": 50,
             "objectName": "player2"
         }
     ],

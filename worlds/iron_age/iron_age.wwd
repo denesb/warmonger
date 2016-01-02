@@ -260,6 +260,8 @@
         {
             "objectName": "sergeant_spearman",
             "displayName": "Sergeant Spearman",
+            "recruitmentCost": 28,
+            "upkeepCost": 3,
             "hitPoints": 30,
             "class": "infantry",
             "level": "level5",
@@ -270,6 +272,8 @@
         {
             "objectName": "veteran_spearman",
             "displayName": "Veteran Spearman",
+            "recruitmentCost": 22,
+            "upkeepCost": 2,
             "hitPoints": 30,
             "class": "infantry",
             "level": "level4",
@@ -280,6 +284,8 @@
         {
             "objectName": "spearman2",
             "displayName": "Spearman",
+            "recruitmentCost": 16,
+            "upkeepCost": 1,
             "hitPoints": 30,
             "class": "infantry",
             "level": "level3",
@@ -290,6 +296,8 @@
         {
             "objectName": "spearman1",
             "displayName": "Spearman",
+            "recruitmentCost": 14,
+            "upkeepCost": 1,
             "hitPoints": 30,
             "class": "infantry",
             "level": "level2",
@@ -300,6 +308,8 @@
         {
             "objectName": "levy_spearman",
             "displayName": "Levy Spearman",
+            "recruitmentCost": 12,
+            "upkeepCost": 1,
             "hitPoints": 30,
             "class": "infantry",
             "level": "level1",
@@ -310,6 +320,8 @@
         {
             "objectName": "veteran_bowman",
             "displayName": "Veteran Bowman",
+            "recruitmentCost": 20,
+            "upkeepCost": 2,
             "hitPoints": 30,
             "class": "missile",
             "level": "level4",
@@ -320,6 +332,8 @@
         {
             "objectName": "bowman2",
             "displayName": "Bowman",
+            "recruitmentCost": 16,
+            "upkeepCost": 1,
             "hitPoints": 30,
             "class": "missile",
             "level": "level3",
@@ -330,6 +344,8 @@
         {
             "objectName": "bowman1",
             "displayName": "Bowman",
+            "recruitmentCost": 14,
+            "upkeepCost": 1,
             "hitPoints": 30,
             "class": "missile",
             "level": "level2",
@@ -340,6 +356,8 @@
         {
             "objectName": "levy_bowman",
             "displayName": "Levy Bowman",
+            "recruitmentCost": 12,
+            "upkeepCost": 1,
             "hitPoints": 30,
             "class": "missile",
             "level": "level1",
@@ -350,6 +368,8 @@
         {
             "objectName": "sergeant_crossbowman",
             "displayName": "Sergeant Crossbowman",
+            "recruitmentCost": 28,
+            "upkeepCost": 3,
             "hitPoints": 30,
             "class": "missile",
             "level": "level5",
@@ -360,6 +380,8 @@
         {
             "objectName": "veteran_crossbowman",
             "displayName": "Veteran Crossbowman",
+            "recruitmentCost": 22,
+            "upkeepCost": 2,
             "hitPoints": 30,
             "class": "missile",
             "level": "level4",
@@ -370,6 +392,8 @@
         {
             "objectName": "crossbowman2",
             "displayName": "Crossbowman",
+            "recruitmentCost": 18,
+            "upkeepCost": 1,
             "hitPoints": 30,
             "class": "missile",
             "level": "level3",
@@ -380,6 +404,8 @@
         {
             "objectName": "crossbowman1",
             "displayName": "Crossbowman",
+            "recruitmentCost": 16,
+            "upkeepCost": 1,
             "hitPoints": 30,
             "class": "missile",
             "level": "level2",
@@ -390,6 +416,8 @@
         {
             "objectName": "knight3",
             "displayName": "Royal Knight",
+            "recruitmentCost": 40,
+            "upkeepCost": 6,
             "hitPoints": 30,
             "class": "cavalry",
             "level": "level5",
@@ -400,6 +428,8 @@
         {
             "objectName": "knight2",
             "displayName": "Knight",
+            "recruitmentCost": 32,
+            "upkeepCost": 5,
             "hitPoints": 30,
             "class": "cavalry",
             "level": "level4",
@@ -410,6 +440,8 @@
         {
             "objectName": "knight1",
             "displayName": "Knight",
+            "recruitmentCost": 24,
+            "upkeepCost": 4,
             "hitPoints": 30,
             "class": "cavalry",
             "level": "level3",

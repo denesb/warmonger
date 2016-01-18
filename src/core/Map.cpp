@@ -338,7 +338,7 @@ QList<MapNode *> Map::mapNodesFromJson(const QJsonObject &obj)
         nodeA->setNeighbour(nodeDirectionA, nodeB);
     }
 
-    return std::move(mapNodes);
+    return mapNodes;
 }
 
 QJsonObject Map::mapNodesToJson(const QList<MapNode *> &mapNodes) const
@@ -393,7 +393,7 @@ QJsonObject Map::mapNodesToJson(const QList<MapNode *> &mapNodes) const
 
     obj["connections"] = connections;
 
-    return std::move(obj);
+    return obj;
 }
 
 void Map::onMapNodesAboutToChange()

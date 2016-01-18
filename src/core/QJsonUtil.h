@@ -115,7 +115,7 @@ inline QString qJsonValueToQString(const QJsonValue &value)
 template<typename T>
 QJsonValue constructQJsonValue(const T &value)
 {
-    return std::move(QJsonValue(value));
+    return QJsonValue(value);
 }
 
 /**
@@ -164,7 +164,7 @@ private:
 template<typename T>
 QJsonObject objectToQJsonObject(const T *object)
 {
-    return std::move(object->toJson());
+    return object->toJson();
 }
 
 /**
@@ -185,7 +185,7 @@ QJsonArray toQJsonArray(Container container, ConvertFunc convertFunc)
         convertFunc
     );
 
-    return std::move(array);
+    return array;
 }
 
 /**
@@ -207,7 +207,7 @@ Container fromQJsonArray(const QJsonArray &array, ConvertFunc convertFunc)
         convertFunc
     );
 
-    return std::move(container);
+    return container;
 }
 
 /**
@@ -237,7 +237,7 @@ QJsonObject toQJsonObject(
         object[key] = value;
     }
 
-    return std::move(object);
+    return object;
 }
 
 /**
@@ -266,7 +266,7 @@ Container fromQJsonObject(
         container[key] = value;
     }
 
-    return std::move(container);
+    return container;
 }
 
 /**

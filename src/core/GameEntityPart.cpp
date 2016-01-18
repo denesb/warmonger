@@ -105,7 +105,7 @@ QJsonObject GameEntityPart::toJson() const
 
     this->dataToJson(obj);
 
-	return std::move(obj);
+	return obj;
 }
 
 void GameEntityPart::setPath(const QString &path)

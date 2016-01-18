@@ -63,7 +63,7 @@ QSet<MapNode *> Game::reachableMapNodes(Unit *unit) const
         unit->getMovementPoints()
     );
 
-    return std::move(reachableNodes);
+    return reachableNodes;
 }
 
 QList<MapNode *> Game::shortestPath(
@@ -125,7 +125,7 @@ QList<MapNode *> Game::moveUnitAlongPath(
     unit->setMovementPoints(mp);
     unit->setMapNode(travelledPath.last());
 
-    return std::move(travelledPath);
+    return travelledPath;
 }
 
 QList<MapNode *> Game::moveUnitToNode(Unit *unit, MapNode *node)
@@ -144,7 +144,7 @@ QList<MapNode *> Game::moveUnitToNode(Unit *unit, MapNode *node)
 
     path = this->moveUnitAlongPath(unit, desiredPath);
 
-    return std::move(path);
+    return path;
 }
 
 bool Game::canRecruitUnit(UnitType *unitType, MapNode *node) const

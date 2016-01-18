@@ -20,7 +20,7 @@ QJsonObject sizeToJson(const QSize &size)
     obj["width"] = size.width();
     obj["height"] = size.height();
 
-    return std::move(obj);
+    return obj;
 }
 
 QJsonDocument loadJsonDocument(const QString &path)
@@ -52,7 +52,7 @@ QJsonDocument loadJsonDocument(const QString &path)
 
     wInfo(loggerName) << "Loaded Json document from " << path;
 
-    return std::move(doc);
+    return doc;
 }
 
 void saveJsonDocument(const QString &path, const QJsonDocument &doc)

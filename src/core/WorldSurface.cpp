@@ -193,7 +193,7 @@ QHash<QString, QColor> createColors(
         colors.insert(it.key(), QColor(it.value()));
     }
 
-    return std::move(colors);
+    return colors;
 }
 
 QHash<QString, QImage> loadImages(
@@ -208,5 +208,5 @@ QHash<QString, QImage> loadImages(
         images.insert(it.key(), image);
     }
 
-    return std::move(images);
+    return images;
 }

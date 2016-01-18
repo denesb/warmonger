@@ -533,7 +533,7 @@ QList<DrawingInfo::Overlay> GameMap::getMapOverlays() const
             break;
     }
 
-    return std::move(overlays);
+    return overlays;
 }
 
 QList<DrawingInfo::Overlay> GameMap::getMovementMapOverlays() const
@@ -553,7 +553,7 @@ QList<DrawingInfo::Overlay> GameMap::getMovementMapOverlays() const
     overlays << reachableNodesOverlay;
     overlays << pathNodesOverlay;
 
-    return std::move(overlays);
+    return overlays;
 }
 
 QList<DrawingInfo::Overlay> GameMap::getRecruitmentMapOverlays() const
@@ -579,11 +579,11 @@ QList<DrawingInfo::Overlay> GameMap::getRecruitmentMapOverlays() const
 
     overlays << freeNodes << occupiedNodes;
 
-    return std::move(overlays);
+    return overlays;
 }
 
 QList<DrawingInfo::Overlay> GameMap::getBattleMapOverlays() const
 {
     QList<DrawingInfo::Overlay> overlays;
-    return std::move(overlays);
+    return overlays;
 }

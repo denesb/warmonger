@@ -63,7 +63,7 @@ QHash<const core::MapNode *, QPoint> positionNodes(
 
     positionNode(startNode, nodesPos, tileSize);
 
-    return std::move(nodesPos);
+    return nodesPos;
 }
 
 void positionNode(

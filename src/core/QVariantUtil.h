@@ -29,7 +29,7 @@ QVariantList toQVariantList(Container container)
         QVariant::fromValue<typename Container::value_type>
     );
 
-    return std::move(list);
+    return list;
 }
 
 /**
@@ -77,7 +77,7 @@ Container fromQVariantList(QVariantList list)
         fromQVariant<typename Container::value_type>
     );
 
-    return std::move(container);
+    return container;
 }
 
 /**
@@ -118,7 +118,7 @@ QVariantMap toQVariantMap(
         map[key] = value;
     }
 
-    return std::move(map);
+    return map;
 }
 
 /**
@@ -146,7 +146,7 @@ Container fromQVariantMap(
         container[key] = value;
     }
 
-    return std::move(container);
+    return container;
 }
 
 } // namespace core

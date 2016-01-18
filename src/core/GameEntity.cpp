@@ -64,5 +64,5 @@ QJsonObject GameEntity::toJson() const
 
     this->dataToJson(obj);
 
-	return std::move(obj);
+	return obj;
 }

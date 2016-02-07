@@ -5,6 +5,7 @@
 #include "core/DamageType.h"
 #include "core/TerrainType.h"
 #include "core/UnitClass.h"
+#include "core/UnitLevel.h"
 
 using namespace warmonger;
 using namespace warmonger::io;
@@ -72,6 +73,8 @@ QByteArray JsonSerializer::serialize(const core::UnitClass *obj)
 
 QByteArray JsonSerializer::serialize(const core::UnitLevel *obj)
 {
+    QJsonDocument jdoc(this->toJson(obj));
+    return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::UnitType *obj)
@@ -137,6 +140,15 @@ QJsonObject JsonSerializer::toJson(const core::UnitClass *obj)
     return jobj;
 }
 
+QJsonObject JsonSerializer::toJson(const core::UnitLevel *obj)
+{
+    QJsonObject jobj(this->gameObjectToJson(obj));
+
+    jobj["index"] = obj->getIndex();
+    jobj["experiencePoints"] = obj->getExperiencePoints();
+
+    return jobj;
+}
 
 QJsonObject JsonSerializer::gameObjectToJson(const core::GameObject *obj)
 {

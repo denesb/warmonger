@@ -10,6 +10,7 @@
 #include "core/DamageType.h"
 #include "core/TerrainType.h"
 #include "core/UnitClass.h"
+#include "core/UnitLevel.h"
 #include "io/JsonSerializer.h"
 
 using namespace warmonger;
@@ -88,18 +89,18 @@ TEST_CASE("TerrainType can be serialized to JSON", "[JsonSerializer]")
 {
     core::TerrainType tt(nullptr);
 
-    const QString objectName{"terrainType1"};
-    const QString displayName{"TerrainType 1"};
+    const QString ttObjectName{"terrainType1"};
+    const QString ttDisplayName{"TerrainType 1"};
 
-    tt.setObjectName(objectName);
-    tt.setDisplayName(displayName);
+    tt.setObjectName(ttObjectName);
+    tt.setDisplayName(ttDisplayName);
 
     SECTION("serializing TerrainType")
     {
         QJsonObject jobj(serialize(&tt));
 
-        REQUIRE(jobj["objectName"] == objectName);
-        REQUIRE(jobj["displayName"] == displayName);
+        REQUIRE(jobj["objectName"] == ttObjectName);
+        REQUIRE(jobj["displayName"] == ttDisplayName);
     }
 }
 
@@ -146,5 +147,30 @@ TEST_CASE("UnitClass can be serialized to JSON", "[JsonSerializer]")
         QJsonObject defenses(jobj["defenses"].toObject());
         REQUIRE(defenses.size() == 1);
         REQUIRE(defenses[ttObjectName] == ucD);
+    }
+}
+
+TEST_CASE("UnitLevel can be serialized to JSON", "[JsonSerializer]")
+{
+    core::UnitLevel ul(nullptr);
+
+    const QString ulObjectName{"unitLevel1"};
+    const QString ulDisplayName{"UnitLevel 1"};
+    const int ulIndex{1};
+    const int ulXP{100};
+
+    ul.setObjectName(ulObjectName);
+    ul.setDisplayName(ulDisplayName);
+    ul.setIndex(ulIndex);
+    ul.setExperiencePoints(ulXP);
+
+    SECTION("serializing UnitLevel")
+    {
+        QJsonObject jobj(serialize(&ul));
+
+        REQUIRE(jobj["objectName"] == ulObjectName);
+        REQUIRE(jobj["displayName"] == ulDisplayName);
+        REQUIRE(jobj["index"] == ulIndex);
+        REQUIRE(jobj["experiencePoints"] == ulXP);
     }
 }

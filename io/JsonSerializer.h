@@ -42,6 +42,7 @@ private:
     QJsonObject toJson(const core::DamageType *obj);
     QJsonObject toJson(const core::TerrainType *obj);
     QJsonObject toJson(const core::UnitClass *obj);
+    QJsonObject toJson(const core::UnitLevel *obj);
 
     QJsonObject gameObjectToJson(const core::GameObject *obj);
 

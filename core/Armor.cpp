@@ -5,22 +5,13 @@
 using namespace warmonger::core;
 
 Armor::Armor(QObject *parent) :
-    GameObject(parent)
+    GameObject(parent),
+    defenses()
 {
 }
 
 Armor::~Armor()
 {
-}
-
-int Armor::getRange() const
-{
-    return this->range;
-}
-
-void Armor::setRange(int range)
-{
-    this->range = range;
 }
 
 QMap<const DamageType *, int> Armor::getDefenses() const
@@ -45,7 +36,6 @@ void Armor::setDefense(const DamageType * const damageType, int defense)
 
 void Armor::dataFromJson(const QJsonObject &obj)
 {
-    this->range = obj["range"].toInt();
     this->defenses = fromQJsonObject<QMap<const DamageType *, int>>(
         obj["defenses"].toObject(),
         ReferenceResolver<DamageType>(this->parent()),
@@ -55,7 +45,6 @@ void Armor::dataFromJson(const QJsonObject &obj)
 
 void Armor::dataToJson(QJsonObject &obj) const
 {
-    obj["range"] = this->range;
     obj["defenses"] = toQJsonObject(
         this->defenses,
         qObjectName,

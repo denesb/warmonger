@@ -1,13 +1,12 @@
 include(../common.pri)
-include(../deploy.pri)
 
 TEMPLATE = app
 
 TARGET = test_warmonger
 
-QT += qml quick
-
-LIBS += -L../log -L../core -llog -lcore
+LIBS += -L../io -L../core -L../log -lio -lcore -llog
 
 SOURCES += \
     Main.cpp
+
+include(io/io.pri)

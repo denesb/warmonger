@@ -1,0 +1,2 @@
+SOURCES += \
+    io/JsonSerializer.cpp

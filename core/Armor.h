@@ -19,9 +19,6 @@ public:
     Armor(QObject *parent);
     ~Armor();
 
-    int getRange() const;
-    void setRange(int range);
-
     QMap<const DamageType *, int> getDefenses() const;
     void setDefenses(const QMap<const DamageType *, int> &damages);
 
@@ -32,7 +29,6 @@ private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
-    int range;
     QMap<const DamageType *, int> defenses;
 };
 

@@ -117,17 +117,17 @@ void UnitClass::dataFromJson(const QJsonObject &obj)
 void UnitClass::dataToJson(QJsonObject &obj) const
 {
     obj["movementPoints"] = this->movementPoints;
-    obj["terrainMovementCosts"] = toQJsonObject(
+    obj["movementCosts"] = toQJsonObject(
         this->movementCosts,
         qObjectName,
         constructQJsonValue<int>
     );
-    obj["terrainAttacks"] = toQJsonObject(
+    obj["attacks"] = toQJsonObject(
         this->attacks,
         qObjectName,
         constructQJsonValue<int>
     );
-    obj["terrainDefenses"] = toQJsonObject(
+    obj["defenses"] = toQJsonObject(
         this->defenses,
         qObjectName,
         constructQJsonValue<int>

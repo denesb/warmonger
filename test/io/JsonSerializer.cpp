@@ -11,6 +11,7 @@
 #include "core/TerrainType.h"
 #include "core/UnitClass.h"
 #include "core/UnitLevel.h"
+#include "core/Weapon.h"
 #include "io/JsonSerializer.h"
 
 using namespace warmonger;
@@ -42,13 +43,10 @@ TEST_CASE("Armor can be serialized to JSON", "[JsonSerializer]")
     a.setDisplayName(aDisplayName);
 
     const QString dtObjectName{"damageType1"};
-    const QString dtDisplayName{"DamageType 1"};
-
     const int dtDefense{10};
 
     core::DamageType dt(nullptr);
     dt.setObjectName(dtObjectName);
-    dt.setDisplayName(dtDisplayName);
 
     a.setDefense(&dt, dtDefense);
 
@@ -80,8 +78,8 @@ TEST_CASE("DamageType can be serialized to JSON", "[JsonSerializer]")
     {
         QJsonObject jobj(serialize(&dt));
 
-        REQUIRE(jobj["objectName"] == objectName);
-        REQUIRE(jobj["displayName"] == displayName);
+        REQUIRE(jobj["objectName"].toString() == objectName);
+        REQUIRE(jobj["displayName"].toString() == displayName);
     }
 }
 
@@ -99,8 +97,8 @@ TEST_CASE("TerrainType can be serialized to JSON", "[JsonSerializer]")
     {
         QJsonObject jobj(serialize(&tt));
 
-        REQUIRE(jobj["objectName"] == ttObjectName);
-        REQUIRE(jobj["displayName"] == ttDisplayName);
+        REQUIRE(jobj["objectName"].toString() == ttObjectName);
+        REQUIRE(jobj["displayName"].toString() == ttDisplayName);
     }
 }
 
@@ -132,21 +130,21 @@ TEST_CASE("UnitClass can be serialized to JSON", "[JsonSerializer]")
     {
         QJsonObject jobj(serialize(&uc));
 
-        REQUIRE(jobj["objectName"] == ucObjectName);
-        REQUIRE(jobj["displayName"] == ucDisplayName);
-        REQUIRE(jobj["movementPoints"] == ucMP);
+        REQUIRE(jobj["objectName"].toString() == ucObjectName);
+        REQUIRE(jobj["displayName"].toString() == ucDisplayName);
+        REQUIRE(jobj["movementPoints"].toInt() == ucMP);
 
         QJsonObject mc(jobj["movementCosts"].toObject());
         REQUIRE(mc.size() == 1);
-        REQUIRE(mc[ttObjectName] == ucMC);
+        REQUIRE(mc[ttObjectName].toInt() == ucMC);
 
         QJsonObject attacks(jobj["attacks"].toObject());
         REQUIRE(attacks.size() == 1);
-        REQUIRE(attacks[ttObjectName] == ucA);
+        REQUIRE(attacks[ttObjectName].toInt() == ucA);
 
         QJsonObject defenses(jobj["defenses"].toObject());
         REQUIRE(defenses.size() == 1);
-        REQUIRE(defenses[ttObjectName] == ucD);
+        REQUIRE(defenses[ttObjectName].toInt() == ucD);
     }
 }
 
@@ -168,9 +166,44 @@ TEST_CASE("UnitLevel can be serialized to JSON", "[JsonSerializer]")
     {
         QJsonObject jobj(serialize(&ul));
 
-        REQUIRE(jobj["objectName"] == ulObjectName);
-        REQUIRE(jobj["displayName"] == ulDisplayName);
-        REQUIRE(jobj["index"] == ulIndex);
-        REQUIRE(jobj["experiencePoints"] == ulXP);
+        REQUIRE(jobj["objectName"].toString() == ulObjectName);
+        REQUIRE(jobj["displayName"].toString() == ulDisplayName);
+        REQUIRE(jobj["index"].toInt() == ulIndex);
+        REQUIRE(jobj["experiencePoints"].toInt() == ulXP);
+    }
+}
+
+TEST_CASE("Weapon can be serialized to JSON", "[JsonSerializer]")
+{
+    core::Weapon w(nullptr);
+
+    const QString wObjectName{"weapon1"};
+    const QString wDisplayName{"Weapon 1"};
+    const int wRange{2};
+
+    w.setObjectName(wObjectName);
+    w.setDisplayName(wDisplayName);
+    w.setRange(wRange);
+
+    const QString dtObjectName{"damageType1"};
+    const int dtDamage{20};
+
+    core::DamageType dt(nullptr);
+    dt.setObjectName(dtObjectName);
+
+    w.setDamage(&dt, dtDamage);
+
+    SECTION("serializing Weapon")
+    {
+        QJsonObject jobj(serialize(&w));
+
+        REQUIRE(jobj["objectName"].toString() == wObjectName);
+        REQUIRE(jobj["displayName"].toString() == wDisplayName);
+        REQUIRE(jobj["range"].toInt() == wRange);
+        REQUIRE(jobj["damages"].isObject() == true);
+
+        QJsonObject damages(jobj["damages"].toObject());
+        REQUIRE(damages.size() == 1);
+        REQUIRE(damages[dtObjectName].toInt() == dtDamage);
     }
 }

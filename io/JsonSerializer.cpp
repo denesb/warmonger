@@ -3,6 +3,7 @@
 
 #include "core/Armor.h"
 #include "core/DamageType.h"
+#include "core/Faction.h"
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
 #include "core/UnitClass.h"
@@ -32,6 +33,8 @@ QByteArray JsonSerializer::serialize(const core::DamageType *obj)
 
 QByteArray JsonSerializer::serialize(const core::Faction *obj)
 {
+    QJsonDocument jdoc(this->toJson(obj));
+    return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::Game *obj)
@@ -118,6 +121,24 @@ QJsonObject JsonSerializer::toJson(const core::Armor *obj)
 QJsonObject JsonSerializer::toJson(const core::DamageType *obj)
 {
     return this->gameObjectToJson(obj);
+}
+
+QJsonObject JsonSerializer::toJson(const core::Faction *obj)
+{
+    QJsonObject jobj(this->gameObjectToJson(obj));
+
+    jobj["unitTypes"] = toQJsonArray(obj->getUnitTypes(), qObjectName);
+    jobj["recruits"] = toQJsonObject(
+        obj->getRecruits(),
+        qObjectName,
+        std::bind(
+            toQJsonArray<QList<core::UnitType *>, std::function<QString(core::UnitType *)>>,
+            std::placeholders::_1,
+            qObjectName
+        )
+    );
+
+    return jobj;
 }
 
 QJsonObject JsonSerializer::toJson(const core::SettlementType *obj)

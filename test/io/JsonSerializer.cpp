@@ -8,6 +8,7 @@
 
 #include "core/Armor.h"
 #include "core/DamageType.h"
+#include "core/Faction.h"
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
 #include "core/UnitClass.h"
@@ -70,18 +71,59 @@ TEST_CASE("DamageType can be serialized to JSON", "[JsonSerializer]")
 {
     core::DamageType dt(nullptr);
 
-    const QString objectName{"damageType1"};
-    const QString displayName{"DamageType 1"};
+    const QString dtObjectName{"damageType1"};
+    const QString dtDisplayName{"DamageType 1"};
 
-    dt.setObjectName(objectName);
-    dt.setDisplayName(displayName);
+    dt.setObjectName(dtObjectName);
+    dt.setDisplayName(dtDisplayName);
 
     SECTION("serializing DamageType")
     {
         QJsonObject jobj(serialize(&dt));
 
-        REQUIRE(jobj["objectName"].toString() == objectName);
-        REQUIRE(jobj["displayName"].toString() == displayName);
+        REQUIRE(jobj["objectName"].toString() == dtObjectName);
+        REQUIRE(jobj["displayName"].toString() == dtDisplayName);
+    }
+}
+
+TEST_CASE("Faction can be serialized to JSON", "[JsonSerializer]")
+{
+    core::Faction f{nullptr};
+    f.setObjectName("faction1");
+    f.setDisplayName("Faction 1");
+
+    core::UnitType ut1{nullptr};
+    core::UnitType ut2{nullptr};
+
+    ut1.setObjectName("unitType1");
+    ut2.setObjectName("unitType2");
+
+    QList<core::UnitType *> unitTypes{&ut1, &ut2};
+    f.setUnitTypes(unitTypes);
+
+    core::SettlementType st{nullptr};
+    st.setObjectName("settlementType1");
+
+    QMap<core::SettlementType *, QList<core::UnitType *>> recruits;
+    recruits[&st] = QList<core::UnitType *>{&ut1, &ut2};
+    f.setRecruits(recruits);
+
+    SECTION("serializing Faction")
+    {
+        QJsonObject jobj(serialize(&f));
+
+        REQUIRE(jobj["objectName"].toString() == f.objectName());
+        REQUIRE(jobj["displayName"].toString() == f.getDisplayName());
+        REQUIRE(jobj["unitTypes"].isArray() == true);
+
+        QJsonArray unitTypes = jobj["unitTypes"].toArray();
+        REQUIRE(unitTypes[0].toString() == ut1.objectName());
+        REQUIRE(unitTypes[1].toString() == ut2.objectName());
+
+        REQUIRE(jobj["recruits"].isObject() == true);
+
+        QJsonObject recruits = jobj["recruits"].toObject();
+        REQUIRE(recruits[st.objectName()].isArray() == true);
     }
 }
 

@@ -4,6 +4,7 @@
 #include "core/Armor.h"
 #include "core/DamageType.h"
 #include "core/Faction.h"
+#include "core/MapNode.h"
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
 #include "core/UnitClass.h"
@@ -47,6 +48,8 @@ QByteArray JsonSerializer::serialize(const core::Map *obj)
 
 QByteArray JsonSerializer::serialize(const core::MapNode *obj)
 {
+    QJsonDocument jdoc(this->toJson(obj));
+    return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::Player *obj)
@@ -137,6 +140,15 @@ QJsonObject JsonSerializer::toJson(const core::Faction *obj)
             qObjectName
         )
     );
+
+    return jobj;
+}
+
+QJsonObject JsonSerializer::toJson(const core::MapNode *obj)
+{
+    QJsonObject jobj(this->gameObjectToJson(obj));
+
+    jobj["terrainType"] = obj->getTerrainType()->objectName();
 
     return jobj;
 }

@@ -9,6 +9,7 @@
 #include "core/Armor.h"
 #include "core/DamageType.h"
 #include "core/Faction.h"
+#include "core/MapNode.h"
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
 #include "core/UnitClass.h"
@@ -113,6 +114,28 @@ TEST_CASE("Faction can be serialized to JSON", "[JsonSerializer]")
 
         QJsonObject recruits = jobj["recruits"].toObject();
         REQUIRE(recruits[st.objectName()].isArray() == true);
+    }
+}
+
+TEST_CASE("MapNode can be serialized to JSON", "[JsonSerializer]")
+{
+    core::MapNode n{nullptr};
+    n.setObjectName("mapNode1");
+    n.setDisplayName("MapNode 1");
+
+    core::TerrainType tt{nullptr};
+    tt.setObjectName("terrainType1");
+    tt.setDisplayName("TerrainType 1");
+
+    n.setTerrainType(&tt);
+
+    SECTION("serializing MapNode")
+    {
+        QJsonObject jobj(serialize(&n));
+
+        REQUIRE(jobj["objectName"] == n.objectName());
+        REQUIRE(jobj["displayName"] == n.getDisplayName());
+        REQUIRE(jobj["terrainType"] == tt.objectName());
     }
 }
 

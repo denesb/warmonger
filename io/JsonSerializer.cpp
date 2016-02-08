@@ -3,6 +3,7 @@
 
 #include "core/Armor.h"
 #include "core/DamageType.h"
+#include "core/SettlementType.h"
 #include "core/TerrainType.h"
 #include "core/UnitClass.h"
 #include "core/UnitLevel.h"
@@ -55,6 +56,8 @@ QByteArray JsonSerializer::serialize(const core::Settlement *obj)
 
 QByteArray JsonSerializer::serialize(const core::SettlementType *obj)
 {
+    QJsonDocument jdoc(this->toJson(obj));
+    return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::TerrainType *obj)
@@ -115,6 +118,16 @@ QJsonObject JsonSerializer::toJson(const core::Armor *obj)
 QJsonObject JsonSerializer::toJson(const core::DamageType *obj)
 {
     return this->gameObjectToJson(obj);
+}
+
+QJsonObject JsonSerializer::toJson(const core::SettlementType *obj)
+{
+    QJsonObject jobj(this->gameObjectToJson(obj));
+
+    jobj["goldPerTurn"] = obj->getGoldPerTurn();
+    jobj["recruits"] = toQJsonArray(obj->getRecruits(), qObjectName);
+
+    return jobj;
 }
 
 QJsonObject JsonSerializer::toJson(const core::TerrainType *obj)

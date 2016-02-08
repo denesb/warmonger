@@ -8,6 +8,7 @@
 
 #include "core/Armor.h"
 #include "core/DamageType.h"
+#include "core/SettlementType.h"
 #include "core/TerrainType.h"
 #include "core/UnitClass.h"
 #include "core/UnitLevel.h"
@@ -81,6 +82,49 @@ TEST_CASE("DamageType can be serialized to JSON", "[JsonSerializer]")
 
         REQUIRE(jobj["objectName"].toString() == objectName);
         REQUIRE(jobj["displayName"].toString() == displayName);
+    }
+}
+
+TEST_CASE("SettlementType can be serialized to JSON", "[JsonSerializer]")
+{
+    core::SettlementType st(nullptr);
+
+    const QString stObjectName{"settlementType1"};
+    const QString stDisplayName{"SettlementType 1"};
+    const int stGoldPerTurn{9};
+
+    st.setObjectName(stObjectName);
+    st.setDisplayName(stDisplayName);
+    st.setGoldPerTurn(stGoldPerTurn);
+
+    const QString ut1ObjectName{"unitType1"};
+    const QString ut2ObjectName{"unitType3"};
+    const QString ut3ObjectName{"unitType2"};
+
+    core::UnitType ut1{nullptr};
+    core::UnitType ut2{nullptr};
+    core::UnitType ut3{nullptr};
+
+    ut1.setObjectName(ut1ObjectName);
+    ut2.setObjectName(ut2ObjectName);
+    ut3.setObjectName(ut3ObjectName);
+
+    QList<core::UnitType *> recruits{&ut1, &ut2, &ut3};
+    st.setRecruits(recruits);
+
+    SECTION("serializing SettlementType")
+    {
+        QJsonObject jobj(serialize(&st));
+
+        REQUIRE(jobj["objectName"].toString() == stObjectName);
+        REQUIRE(jobj["displayName"].toString() == stDisplayName);
+        REQUIRE(jobj["goldPerTurn"].toInt() == stGoldPerTurn);
+        REQUIRE(jobj["recruits"].isArray() == true);
+
+        QJsonArray recruits = jobj["recruits"].toArray();
+        REQUIRE(recruits[0].toString() == ut1ObjectName);
+        REQUIRE(recruits[1].toString() == ut2ObjectName);
+        REQUIRE(recruits[2].toString() == ut3ObjectName);
     }
 }
 

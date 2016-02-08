@@ -11,6 +11,7 @@
 #include "core/TerrainType.h"
 #include "core/UnitClass.h"
 #include "core/UnitLevel.h"
+#include "core/UnitType.h"
 #include "core/Weapon.h"
 #include "io/JsonSerializer.h"
 
@@ -133,6 +134,9 @@ TEST_CASE("UnitClass can be serialized to JSON", "[JsonSerializer]")
         REQUIRE(jobj["objectName"].toString() == ucObjectName);
         REQUIRE(jobj["displayName"].toString() == ucDisplayName);
         REQUIRE(jobj["movementPoints"].toInt() == ucMP);
+        REQUIRE(jobj["movementCosts"].isObject() == true);
+        REQUIRE(jobj["attacks"].isObject() == true);
+        REQUIRE(jobj["defenses"].isObject() == true);
 
         QJsonObject mc(jobj["movementCosts"].toObject());
         REQUIRE(mc.size() == 1);
@@ -170,6 +174,85 @@ TEST_CASE("UnitLevel can be serialized to JSON", "[JsonSerializer]")
         REQUIRE(jobj["displayName"].toString() == ulDisplayName);
         REQUIRE(jobj["index"].toInt() == ulIndex);
         REQUIRE(jobj["experiencePoints"].toInt() == ulXP);
+    }
+}
+
+TEST_CASE("UnitType can be serialized to JSON", "[JsonSerializer]")
+{
+    const QString utObjectName{"unitType1"};
+    const QString utDisplayName{"UnitType 1"};
+
+    core::UnitType ut(nullptr);
+    ut.setObjectName(utObjectName);
+    ut.setDisplayName(utDisplayName);
+
+    core::UnitClass uc(nullptr);
+    const QString ucObjectName{"unitClass1"};
+    uc.setObjectName(ucObjectName);
+
+    ut.setClass(&uc);
+
+    core::UnitLevel ul(nullptr);
+    const QString ulObjectName{"unitLevel1"};
+    ul.setObjectName(ulObjectName);
+
+    ut.setLevel(&ul);
+
+    const int utHP{100};
+    const int utRecruitmentCost{50};
+    const int utUpkeepCost{8};
+
+    ut.setHitPoints(utHP);
+    ut.setRecruitmentCost(utRecruitmentCost);
+    ut.setUpkeepCost(utUpkeepCost);
+
+    core::Armor a(nullptr);
+    const QString aObjectName{"armor1"};
+    a.setObjectName(aObjectName);
+
+    ut.setArmor(&a);
+
+    core::Weapon w1(nullptr);
+    const QString w1ObjectName{"weapon1"};
+    w1.setObjectName(w1ObjectName);
+
+    core::Weapon w2(nullptr);
+    const QString w2ObjectName{"weapon2"};
+    w2.setObjectName(w2ObjectName);
+
+    const QList<core::Weapon *> weapons{&w1, &w2};
+    ut.setWeapons(weapons);
+
+    core::UnitType ut2(nullptr);
+    const QString ut2ObjectName{"unitType2"};
+    ut2.setObjectName(ut2ObjectName);
+
+    const QList<core::UnitType *> upgrades{&ut2};
+    ut.setUpgrades(upgrades);
+
+    SECTION("serializing UnitType")
+    {
+        QJsonObject jobj(serialize(&ut));
+
+        REQUIRE(jobj["objectName"].toString() == utObjectName);
+        REQUIRE(jobj["displayName"].toString() == utDisplayName);
+        REQUIRE(jobj["class"].toString() == ucObjectName);
+        REQUIRE(jobj["level"].toString() == ulObjectName);
+        REQUIRE(jobj["hitPoints"].toInt() == utHP);
+        REQUIRE(jobj["recruitmentCost"].toInt() == utRecruitmentCost);
+        REQUIRE(jobj["upkeepCost"].toInt() == utUpkeepCost);
+        REQUIRE(jobj["armor"].toString() == aObjectName);
+        REQUIRE(jobj["weapons"].isArray() == true);
+        REQUIRE(jobj["upgrades"].isArray() == true);
+
+        QJsonArray weapons(jobj["weapons"].toArray());
+        REQUIRE(weapons.size() == 2);
+        REQUIRE(weapons[0].toString() == w1ObjectName);
+        REQUIRE(weapons[1].toString() == w2ObjectName);
+
+        QJsonArray upgrades(jobj["upgrades"].toArray());
+        REQUIRE(upgrades.size() == 1);
+        REQUIRE(upgrades[0].toString() == ut2ObjectName);
     }
 }
 

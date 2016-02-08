@@ -6,6 +6,7 @@
 #include "core/TerrainType.h"
 #include "core/UnitClass.h"
 #include "core/UnitLevel.h"
+#include "core/UnitType.h"
 #include "core/Weapon.h"
 
 using namespace warmonger;
@@ -80,6 +81,8 @@ QByteArray JsonSerializer::serialize(const core::UnitLevel *obj)
 
 QByteArray JsonSerializer::serialize(const core::UnitType *obj)
 {
+    QJsonDocument jdoc(this->toJson(obj));
+    return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::Weapon *obj)
@@ -149,6 +152,22 @@ QJsonObject JsonSerializer::toJson(const core::UnitLevel *obj)
 
     jobj["index"] = obj->getIndex();
     jobj["experiencePoints"] = obj->getExperiencePoints();
+
+    return jobj;
+}
+
+QJsonObject JsonSerializer::toJson(const core::UnitType *obj)
+{
+    QJsonObject jobj(this->gameObjectToJson(obj));
+
+    jobj["class"] = obj->getClass()->objectName();
+    jobj["level"] = obj->getLevel()->objectName();
+    jobj["hitPoints"] = obj->getHitPoints();
+    jobj["recruitmentCost"] = obj->getRecruitmentCost();
+    jobj["upkeepCost"] = obj->getUpkeepCost();
+    jobj["armor"] = obj->getArmor()->objectName();
+    jobj["weapons"] = toQJsonArray(obj->getWeapons(), qObjectName);
+    jobj["upgrades"] = toQJsonArray(obj->getUpgrades(), qObjectName);
 
     return jobj;
 }

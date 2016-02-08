@@ -39,7 +39,7 @@ public:
     void setRecruitmentCost(int recruitmentCost);
 
     int getUpkeepCost() const;
-    void getUpkeepCost(int upkeepCost);
+    void setUpkeepCost(int upkeepCost);
 
     Armor * getArmor() const;
     void setArmor(Armor *armor);

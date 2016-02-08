@@ -84,7 +84,7 @@ int UnitType::getUpkeepCost() const
     return this->upkeepCost;
 }
 
-void UnitType::getUpkeepCost(int upkeepCost)
+void UnitType::setUpkeepCost(int upkeepCost)
 {
     if (this->upkeepCost != upkeepCost)
     {

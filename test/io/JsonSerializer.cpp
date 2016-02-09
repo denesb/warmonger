@@ -10,8 +10,10 @@
 #include "core/DamageType.h"
 #include "core/Faction.h"
 #include "core/MapNode.h"
+#include "core/Player.h"
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
+#include "core/Unit.h"
 #include "core/UnitClass.h"
 #include "core/UnitLevel.h"
 #include "core/UnitType.h"
@@ -139,6 +141,31 @@ TEST_CASE("MapNode can be serialized to JSON", "[JsonSerializer]")
     }
 }
 
+TEST_CASE("Player can be serialized to JSON", "[JsonSerializer]")
+{
+    core::Player p{nullptr};
+    p.setObjectName("player1");
+    p.setDisplayName("Player 1");
+    p.setColor(QColor("red"));
+    p.setGoldBalance(100);
+
+    core::Faction f{nullptr};
+    f.setObjectName("faction1");
+
+    p.setFaction(&f);
+
+    SECTION("serializing Player")
+    {
+        QJsonObject jobj(serialize(&p));
+
+        REQUIRE(jobj["objectName"].toString() == p.objectName());
+        REQUIRE(jobj["displayName"].toString() == p.getDisplayName());
+        REQUIRE(jobj["color"].toString() == p.getColor().name());
+        REQUIRE(jobj["goldBalance"].toInt() == p.getGoldBalance());
+        REQUIRE(jobj["faction"].toString() == f.objectName());
+    }
+}
+
 TEST_CASE("SettlementType can be serialized to JSON", "[JsonSerializer]")
 {
     core::SettlementType st(nullptr);
@@ -185,6 +212,48 @@ TEST_CASE("TerrainType can be serialized to JSON", "[JsonSerializer]")
 
         REQUIRE(jobj["objectName"].toString() == tt.objectName());
         REQUIRE(jobj["displayName"].toString() == tt.getDisplayName());
+    }
+}
+
+TEST_CASE("Unit can be serialized to JSON", "[JsonSerializer]")
+{
+    core::Unit u{nullptr};
+    u.setObjectName("unit1");
+    u.setDisplayName("Unit 1");
+    u.setRank(core::Unit::Soldier);
+
+    core::UnitType ut{nullptr};
+    ut.setObjectName("unitType1");
+
+    u.setType(&ut);
+
+    core::MapNode mn{nullptr};
+    mn.setObjectName("mapNode1");
+
+    u.setMapNode(&mn);
+
+    core::Player p{nullptr};
+    p.setObjectName("player1");
+
+    u.setOwner(&p);
+
+    u.setExperiencePoints(15.0);
+    u.setHitPoints(28.2);
+    u.setMovementPoints(16.0);
+
+    SECTION("serializing Unit")
+    {
+        QJsonObject jobj(serialize(&u));
+
+        REQUIRE(jobj["objectName"].toString() == u.objectName());
+        REQUIRE(jobj["displayName"].toString() == u.getDisplayName());
+        REQUIRE(jobj["rank"].toString() == core::Unit::rank2str[u.getRank()]);
+        REQUIRE(jobj["type"].toString() == u.getType()->objectName());
+        REQUIRE(jobj["mapNode"].toString() == u.getMapNode()->objectName());
+        REQUIRE(jobj["owner"].toString() == u.getOwner()->objectName());
+        REQUIRE(jobj["experiencePoints"].toDouble() == u.getExperiencePoints());
+        REQUIRE(jobj["hitPoints"].toDouble() == u.getHitPoints());
+        REQUIRE(jobj["movementPoints"].toDouble() == u.getMovementPoints());
     }
 }
 

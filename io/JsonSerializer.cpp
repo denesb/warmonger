@@ -6,7 +6,9 @@
 #include "core/Faction.h"
 #include "core/MapNode.h"
 #include "core/SettlementType.h"
+#include "core/Player.h"
 #include "core/TerrainType.h"
+#include "core/Unit.h"
 #include "core/UnitClass.h"
 #include "core/UnitLevel.h"
 #include "core/UnitType.h"
@@ -54,6 +56,8 @@ QByteArray JsonSerializer::serialize(const core::MapNode *obj)
 
 QByteArray JsonSerializer::serialize(const core::Player *obj)
 {
+    QJsonDocument jdoc(this->toJson(obj));
+    return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::Settlement *obj)
@@ -74,6 +78,8 @@ QByteArray JsonSerializer::serialize(const core::TerrainType *obj)
 
 QByteArray JsonSerializer::serialize(const core::Unit *obj)
 {
+    QJsonDocument jdoc(this->toJson(obj));
+    return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::UnitClass *obj)
@@ -153,6 +159,17 @@ QJsonObject JsonSerializer::toJson(const core::MapNode *obj)
     return jobj;
 }
 
+QJsonObject JsonSerializer::toJson(const core::Player *obj)
+{
+    QJsonObject jobj(this->gameObjectToJson(obj));
+
+    jobj["color"] = obj->getColor().name();
+    jobj["goldBalance"] = obj->getGoldBalance();
+    jobj["faction"] = obj->getFaction()->objectName();
+
+    return jobj;
+}
+
 QJsonObject JsonSerializer::toJson(const core::SettlementType *obj)
 {
     QJsonObject jobj(this->gameObjectToJson(obj));
@@ -166,6 +183,21 @@ QJsonObject JsonSerializer::toJson(const core::SettlementType *obj)
 QJsonObject JsonSerializer::toJson(const core::TerrainType *obj)
 {
     return this->gameObjectToJson(obj);
+}
+
+QJsonObject JsonSerializer::toJson(const core::Unit *obj)
+{
+    QJsonObject jobj(this->gameObjectToJson(obj));
+
+    jobj["rank"] = core::Unit::rank2str[obj->getRank()];
+    jobj["type"] = obj->getType()->objectName();
+    jobj["mapNode"] = obj->getMapNode()->objectName();
+    jobj["owner"] = obj->getOwner()->objectName();
+    jobj["experiencePoints"] = obj->getExperiencePoints();
+    jobj["hitPoints"] = obj->getHitPoints();
+    jobj["movementPoints"] = obj->getMovementPoints();
+
+    return jobj;
 }
 
 QJsonObject JsonSerializer::toJson(const core::UnitClass *obj)

@@ -11,6 +11,7 @@
 #include "core/Faction.h"
 #include "core/MapNode.h"
 #include "core/Player.h"
+#include "core/Settlement.h"
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
 #include "core/Unit.h"
@@ -18,6 +19,7 @@
 #include "core/UnitLevel.h"
 #include "core/UnitType.h"
 #include "core/Weapon.h"
+#include "core/WorldSurface.h"
 #include "io/JsonSerializer.h"
 
 using namespace warmonger;
@@ -163,6 +165,33 @@ TEST_CASE("Player can be serialized to JSON", "[JsonSerializer]")
         REQUIRE(jobj["color"].toString() == p.getColor().name());
         REQUIRE(jobj["goldBalance"].toInt() == p.getGoldBalance());
         REQUIRE(jobj["faction"].toString() == f.objectName());
+    }
+}
+
+TEST_CASE("Settlement can be serialized to JSON", "[JsonSerializer]")
+{
+    core::Settlement s(nullptr);
+    s.setObjectName("settlementType1");
+    s.setDisplayName("Settlement 1");
+
+    core::MapNode mn{nullptr};
+    mn.setObjectName("mapNode1");
+
+    s.setMapNode(&mn);
+
+    core::Player p{nullptr};
+    p.setObjectName("player1");
+
+    s.setOwner(&p);
+
+    SECTION("serializing Settlement")
+    {
+        QJsonObject jobj(serialize(&s));
+
+        REQUIRE(jobj["objectName"].toString() == s.objectName());
+        REQUIRE(jobj["displayName"].toString() == s.getDisplayName());
+        REQUIRE(jobj["mapNode"].toString() == s.getMapNode()->objectName());
+        REQUIRE(jobj["owner"].toString() == s.getOwner()->objectName());
     }
 }
 
@@ -405,5 +434,23 @@ TEST_CASE("Weapon can be serialized to JSON", "[JsonSerializer]")
         QJsonObject damages(jobj["damages"].toObject());
         REQUIRE(damages.size() == 1);
         REQUIRE(damages[dt.objectName()].toInt() == w.getDamage(&dt));
+    }
+}
+
+TEST_CASE("WorldSurface can be serialized to JSON", "[JsonSerializer]")
+{
+    core::WorldSurface ws(nullptr);
+    ws.setObjectName("worldSurface1");
+    ws.setDisplayName("WorldSurface 1");
+    ws.setTileSize(QSize(118, 128));
+
+    SECTION("serializing Weapon")
+    {
+        QJsonObject jobj(serialize(&ws));
+
+        REQUIRE(jobj["objectName"].toString() == ws.objectName());
+        REQUIRE(jobj["displayName"].toString() == ws.getDisplayName());
+        REQUIRE(jobj["tileWidth"].toInt() == ws.getTileWidth());
+        REQUIRE(jobj["tileHeight"].toInt() == ws.getTileHeight());
     }
 }

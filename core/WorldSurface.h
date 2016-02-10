@@ -26,6 +26,12 @@ public:
 
     QString getEntityRelativePath(const QString &name) const;
 
+    int getTileWidth() const;
+    void setTileWidth(int width);
+
+    int getTileHeight() const;
+    void setTileHeight(int height);
+
     QSize getTileSize() const;
     void setTileSize(const QSize &tileSize);
 
@@ -46,6 +52,8 @@ public:
 
 signals:
     void prefixChanged();
+    void tileWidthChanged();
+    void tileHeightChanged();
     void tileSizeChanged();
     void imagePathsChanged();
     void colorNamesChanged();
@@ -54,7 +62,9 @@ private:
     void dataFromJson(const QJsonObject &obj);
     void dataToJson(QJsonObject &obj) const;
 
-    QSize tileSize;
+    int tileWidth;
+    int tileHeight;
+
     QHash<QString, QImage> images;
     QMap<QString, QString> imagePaths;
     QHash<QString, QColor> colors;

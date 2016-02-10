@@ -5,6 +5,7 @@
 #include "core/DamageType.h"
 #include "core/Faction.h"
 #include "core/MapNode.h"
+#include "core/Settlement.h"
 #include "core/SettlementType.h"
 #include "core/Player.h"
 #include "core/TerrainType.h"
@@ -13,6 +14,7 @@
 #include "core/UnitLevel.h"
 #include "core/UnitType.h"
 #include "core/Weapon.h"
+#include "core/WorldSurface.h"
 
 using namespace warmonger;
 using namespace warmonger::io;
@@ -62,6 +64,8 @@ QByteArray JsonSerializer::serialize(const core::Player *obj)
 
 QByteArray JsonSerializer::serialize(const core::Settlement *obj)
 {
+    QJsonDocument jdoc(this->toJson(obj));
+    return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::SettlementType *obj)
@@ -112,6 +116,8 @@ QByteArray JsonSerializer::serialize(const core::World *obj)
 
 QByteArray JsonSerializer::serialize(const core::WorldSurface *obj)
 {
+    QJsonDocument jdoc(this->toJson(obj));
+    return jdoc.toJson(this->format);
 }
 
 QJsonObject JsonSerializer::toJson(const core::Armor *obj)
@@ -166,6 +172,16 @@ QJsonObject JsonSerializer::toJson(const core::Player *obj)
     jobj["color"] = obj->getColor().name();
     jobj["goldBalance"] = obj->getGoldBalance();
     jobj["faction"] = obj->getFaction()->objectName();
+
+    return jobj;
+}
+
+QJsonObject JsonSerializer::toJson(const core::Settlement *obj)
+{
+    QJsonObject jobj(this->gameObjectToJson(obj));
+
+    jobj["mapNode"] = obj->getMapNode()->objectName();
+    jobj["owner"] = obj->getOwner()->objectName();
 
     return jobj;
 }
@@ -260,6 +276,18 @@ QJsonObject JsonSerializer::toJson(const core::Weapon *obj)
         qObjectName,
         constructQJsonValue<int>
     );
+
+    return jobj;
+}
+
+QJsonObject JsonSerializer::toJson(const core::WorldSurface *obj)
+{
+    QJsonObject jobj;
+
+	jobj["objectName"] = obj->objectName();
+	jobj["displayName"] = obj->getDisplayName();
+	jobj["tileWidth"] = obj->getTileWidth();
+	jobj["tileHeight"] = obj->getTileHeight();
 
     return jobj;
 }

@@ -43,8 +43,6 @@
         "knight3": "unitTypes/knight3.png"
     },
 
-    "tileSize": {
-        "width": 110,
-        "height": 128
-    }
+    "tileHeight": 128,
+    "tileWidth": 110
 }

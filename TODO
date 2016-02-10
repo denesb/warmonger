@@ -8,6 +8,7 @@ Game structure overhaul
 * Get rid of EntityManager, store Map or Game pointers in GameContext
 * Unit: xp, hp and mp double -> int
 * Store map-node connections in the map, instead of in the map-node
+* WorldSurface how to serve images?
 * Game - Map: inheritance -> composition
 
 New direction

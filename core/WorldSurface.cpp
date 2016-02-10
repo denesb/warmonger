@@ -22,7 +22,8 @@ static const QString loggerName{"core.WorldSurface"};
 
 WorldSurface::WorldSurface(QObject *parent) :
     GameEntityPart(parent),
-    tileSize(),
+    tileWidth(0),
+    tileHeight(0),
     images(),
     imagePaths(),
     colors(),
@@ -38,16 +39,51 @@ QString WorldSurface::getEntityRelativePath(const QString &name) const
     );
 }
 
+int WorldSurface::getTileWidth() const
+{
+    return this->tileWidth;
+}
+
+void WorldSurface::setTileWidth(int width)
+{
+    if (this->tileWidth != width)
+    {
+        this->tileWidth = width;
+        emit tileWidthChanged();
+        emit tileSizeChanged();
+    }
+}
+
+int WorldSurface::getTileHeight() const
+{
+    return this->tileHeight;
+}
+
+void WorldSurface::setTileHeight(int height)
+{
+    if (this->tileHeight != height)
+    {
+        this->tileHeight = height;
+        emit tileHeightChanged();
+        emit tileSizeChanged();
+    }
+
+}
+
 QSize WorldSurface::getTileSize() const
 {
-    return this->tileSize;
+    return QSize(this->tileWidth, this->tileHeight);
 }
 
 void WorldSurface::setTileSize(const QSize &tileSize)
 {
-    if (this->tileSize != tileSize)
+    if (this->tileWidth != tileSize.width() ||
+        this->tileHeight != tileSize.height())
     {
-        this->tileSize = tileSize;
+        this->tileWidth = tileSize.width();
+        this->tileHeight = tileSize.height();
+        emit tileWidthChanged();
+        emit tileHeightChanged();
         emit tileSizeChanged();
     }
 }
@@ -104,8 +140,8 @@ bool WorldSurface::hexContains(const QPoint &p) const
 {
     const int x = p.x();
     const int y = p.y();
-    const int w = this->tileSize.width();
-    const int h = this->tileSize.height();
+    const int w = this->tileWidth;
+    const int h = this->tileHeight;
 
     if (x < 0 || x >= w || y < 0 || y >= h)
         return false;
@@ -119,8 +155,8 @@ bool WorldSurface::hexContains(const QPointF &p) const
 {
     const qreal x = p.x();
     const qreal y = p.y();
-    const qreal w = static_cast<qreal>(this->tileSize.width());
-    const qreal h = static_cast<qreal>(this->tileSize.height());
+    const qreal w = static_cast<qreal>(this->tileWidth);
+    const qreal h = static_cast<qreal>(this->tileHeight);
 
     if (x < 0.0 || x >= w || y < 0.0 || y >= h)
         return false;
@@ -161,7 +197,8 @@ void WorldSurface::dataFromJson(const QJsonObject &obj)
         it.value() = QDir::cleanPath(path);
     }
 
-    this->tileSize = sizeFromJson(obj["tileSize"].toObject());
+    this->tileWidth = obj["tileWidth"].toInt();
+    this->tileHeight = obj["tileHeight"].toInt();
 
     this->colors = createColors(this->colorNames);
     this->images = loadImages(this->imagePaths);
@@ -169,7 +206,8 @@ void WorldSurface::dataFromJson(const QJsonObject &obj)
 
 void WorldSurface::dataToJson(QJsonObject &obj) const
 {
-    obj["tileSize"] = sizeToJson(this->tileSize);
+    obj["tileWidth"] = this->tileWidth;
+    obj["tileHeight"] = this->tileHeight;
     obj["images"] = toQJsonObject(
         this->imagePaths,
         verbatim<QString>,

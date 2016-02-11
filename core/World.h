@@ -84,15 +84,15 @@ private:
     void dataToJson(QJsonObject &obj) const;
 
     WorldSurface *surface;
-    QList<Armor *> armors;
     QList<DamageType *> damageTypes;
-    QList<Faction *> factions;
-    QList<SettlementType *> settlementTypes;
+    QList<Armor *> armors;
+    QList<Weapon *> weapons;
     QList<TerrainType *> terrainTypes;
     QList<UnitClass *> unitClasses;
     QList<UnitLevel *> unitLevels;
     QList<UnitType *> unitTypes;
-    QList<Weapon *> weapons;
+    QList<SettlementType *> settlementTypes;
+    QList<Faction *> factions;
 };
 
 } // namespace core

@@ -5,6 +5,7 @@ Game structure overhaul
 * TDD everything!
 * Move json serialization code from core classes to the io module
 * Move file-loading code from core to io
+* Get rid of GameObject, GameEntity and GameEntityPart
 * Get rid of EntityManager, store Map or Game pointers in GameContext
 * Unit: xp, hp and mp double -> int
 * Store map-node connections in the map, instead of in the map-node

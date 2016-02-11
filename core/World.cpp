@@ -15,14 +15,15 @@ const QString World::fileExtension{"wwd"};
 World::World(QObject *parent) :
     GameEntity(parent),
     surface(nullptr),
-    armors(),
     damageTypes(),
-    factions(),
+    armors(),
+    weapons(),
     terrainTypes(),
     unitClasses(),
     unitLevels(),
     unitTypes(),
-    weapons()
+    settlementTypes(),
+    factions()
 {
 }
 

@@ -2,7 +2,6 @@
 #define IO_JSON_SERIALIZER_H
 
 #include <QJsonDocument>
-#include <QJsonObject>
 
 #include "io/Serializer.h"
 
@@ -38,23 +37,6 @@ public:
     virtual QByteArray serialize(const core::WorldSurface *obj);
 
 private:
-    QJsonObject toJson(const core::Armor *obj);
-    QJsonObject toJson(const core::DamageType *obj);
-    QJsonObject toJson(const core::Faction *obj);
-    QJsonObject toJson(const core::MapNode *obj);
-    QJsonObject toJson(const core::Player *obj);
-    QJsonObject toJson(const core::Settlement *obj);
-    QJsonObject toJson(const core::SettlementType *obj);
-    QJsonObject toJson(const core::TerrainType *obj);
-    QJsonObject toJson(const core::Unit *obj);
-    QJsonObject toJson(const core::UnitClass *obj);
-    QJsonObject toJson(const core::UnitLevel *obj);
-    QJsonObject toJson(const core::UnitType *obj);
-    QJsonObject toJson(const core::Weapon *obj);
-    QJsonObject toJson(const core::WorldSurface *obj);
-
-    QJsonObject gameObjectToJson(const core::GameObject *obj);
-
     QJsonDocument::JsonFormat format;
 };
 

@@ -19,6 +19,7 @@
 #include "core/UnitLevel.h"
 #include "core/UnitType.h"
 #include "core/Weapon.h"
+#include "core/World.h"
 #include "core/WorldSurface.h"
 #include "io/JsonSerializer.h"
 
@@ -422,7 +423,7 @@ TEST_CASE("Weapon can be serialized to JSON", "[JsonSerializer]")
 
     w.setDamage(&dt, 20);
 
-    SECTION("serializing Weapon")
+    SECTION("serializing WorldSurface")
     {
         QJsonObject jobj(serialize(&w));
 
@@ -434,6 +435,35 @@ TEST_CASE("Weapon can be serialized to JSON", "[JsonSerializer]")
         QJsonObject damages(jobj["damages"].toObject());
         REQUIRE(damages.size() == 1);
         REQUIRE(damages[dt.objectName()].toInt() == w.getDamage(&dt));
+    }
+}
+
+TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
+{
+    core::World w{nullptr};
+    w.setObjectName("world1");
+    w.setDisplayName("World 1");
+
+    core::DamageType dt1{nullptr};
+    dt1.setObjectName("damageType1");
+
+    w.setDamageTypes({&dt1});
+
+    SECTION("serializing World")
+    {
+        QJsonObject jobj(serialize(&w));
+
+        REQUIRE(jobj["objectName"].toString() == w.objectName());
+        REQUIRE(jobj["displayName"].toString() == w.getDisplayName());
+        REQUIRE(jobj["damageTypes"].isArray() == true);
+
+        QJsonArray dts(jobj["damageTypes"].toArray());
+
+        REQUIRE(dts.size() == 1);
+        REQUIRE(dts[0].isObject() == true);
+
+        QJsonObject dt1j(dts[0].toObject());
+        REQUIRE(dt1j["objectName"] == dt1.objectName());
     }
 }
 

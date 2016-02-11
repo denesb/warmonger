@@ -1,5 +1,10 @@
+#include <functional>
+
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonValue>
+
 #include "io/JsonSerializer.h"
-#include "io/QJsonUtil.h"
 
 #include "core/Armor.h"
 #include "core/DamageType.h"
@@ -14,10 +19,27 @@
 #include "core/UnitLevel.h"
 #include "core/UnitType.h"
 #include "core/Weapon.h"
+#include "core/World.h"
 #include "core/WorldSurface.h"
 
 using namespace warmonger;
 using namespace warmonger::io;
+
+QJsonObject toJson(const core::Armor *obj);
+QJsonObject toJson(const core::DamageType *obj);
+QJsonObject toJson(const core::Faction *obj);
+QJsonObject toJson(const core::MapNode *obj);
+QJsonObject toJson(const core::Player *obj);
+QJsonObject toJson(const core::Settlement *obj);
+QJsonObject toJson(const core::SettlementType *obj);
+QJsonObject toJson(const core::TerrainType *obj);
+QJsonObject toJson(const core::Unit *obj);
+QJsonObject toJson(const core::UnitClass *obj);
+QJsonObject toJson(const core::UnitLevel *obj);
+QJsonObject toJson(const core::UnitType *obj);
+QJsonObject toJson(const core::Weapon *obj);
+QJsonObject toJson(const core::World *obj);
+QJsonObject toJson(const core::WorldSurface *obj);
 
 JsonSerializer::JsonSerializer(QJsonDocument::JsonFormat format) :
     format(format)
@@ -26,19 +48,19 @@ JsonSerializer::JsonSerializer(QJsonDocument::JsonFormat format) :
 
 QByteArray JsonSerializer::serialize(const core::Armor *obj)
 {
-    QJsonDocument jdoc(this->toJson(obj));
+    QJsonDocument jdoc(toJson(obj));
     return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::DamageType *obj)
 {
-    QJsonDocument jdoc(this->toJson(obj));
+    QJsonDocument jdoc(toJson(obj));
     return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::Faction *obj)
 {
-    QJsonDocument jdoc(this->toJson(obj));
+    QJsonDocument jdoc(toJson(obj));
     return jdoc.toJson(this->format);
 }
 
@@ -52,77 +74,173 @@ QByteArray JsonSerializer::serialize(const core::Map *obj)
 
 QByteArray JsonSerializer::serialize(const core::MapNode *obj)
 {
-    QJsonDocument jdoc(this->toJson(obj));
+    QJsonDocument jdoc(toJson(obj));
     return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::Player *obj)
 {
-    QJsonDocument jdoc(this->toJson(obj));
+    QJsonDocument jdoc(toJson(obj));
     return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::Settlement *obj)
 {
-    QJsonDocument jdoc(this->toJson(obj));
+    QJsonDocument jdoc(toJson(obj));
     return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::SettlementType *obj)
 {
-    QJsonDocument jdoc(this->toJson(obj));
+    QJsonDocument jdoc(toJson(obj));
     return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::TerrainType *obj)
 {
-    QJsonDocument jdoc(this->toJson(obj));
+    QJsonDocument jdoc(toJson(obj));
     return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::Unit *obj)
 {
-    QJsonDocument jdoc(this->toJson(obj));
+    QJsonDocument jdoc(toJson(obj));
     return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::UnitClass *obj)
 {
-    QJsonDocument jdoc(this->toJson(obj));
+    QJsonDocument jdoc(toJson(obj));
     return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::UnitLevel *obj)
 {
-    QJsonDocument jdoc(this->toJson(obj));
+    QJsonDocument jdoc(toJson(obj));
     return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::UnitType *obj)
 {
-    QJsonDocument jdoc(this->toJson(obj));
+    QJsonDocument jdoc(toJson(obj));
     return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::Weapon *obj)
 {
-    QJsonDocument jdoc(this->toJson(obj));
+    QJsonDocument jdoc(toJson(obj));
     return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::World *obj)
 {
+    QJsonDocument jdoc(toJson(obj));
+    return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::WorldSurface *obj)
 {
-    QJsonDocument jdoc(this->toJson(obj));
+    QJsonDocument jdoc(toJson(obj));
     return jdoc.toJson(this->format);
 }
 
-QJsonObject JsonSerializer::toJson(const core::Armor *obj)
+template <typename T>
+QJsonObject namesToJson(T obj)
 {
-    QJsonObject jobj(this->gameObjectToJson(obj));
+    QJsonObject jobj;
+
+	jobj["objectName"] = obj->objectName();
+	jobj["displayName"] = obj->getDisplayName();
+
+    return jobj;
+}
+
+template <typename T>
+struct TypeToJson
+{
+    typedef QJsonObject (*ToJsonFunc)(const T *);
+    constexpr static ToJsonFunc _func = toJson;
+
+    static std::function<QJsonObject(const T *)> func()
+    {
+        return std::function<QJsonObject(const T *)>(TypeToJson::_func);
+    }
+};
+
+/**
+ * Get the objectName of a QObject.
+ */
+inline QString qObjectName(const QObject * const object)
+{
+    return object->objectName();
+}
+
+/**
+ * Construct a QJsonValue object directly from T.
+ *
+ * Only usable if QJsonValue has a constructor with T (or a type
+ * implicitly convertable to T).
+ */
+template<typename T>
+QJsonValue constructQJsonValue(const T &value)
+{
+    return QJsonValue(value);
+}
+
+/**
+ * Convert Container to QJsonArray.
+ *
+ * The convertFunc function converts Container::value_type to
+ * QJsonValue.
+ */
+template<typename Container, typename ConvertFunc>
+QJsonArray toQJsonArray(Container container, ConvertFunc convertFunc)
+{
+    QJsonArray array;
+
+    std::transform(
+        container.cbegin(),
+        container.cend(),
+        std::back_inserter(array),
+        convertFunc
+    );
+
+    return array;
+}
+
+/**
+ * Convert a Qt-style mapping-type Container to QJsonObject.
+ *
+ * Qt-style means that the iterator has a key() and value() member
+ * returning the key and value respectively.
+ * For the conversion a `convertKey` and a `convertValue` function must
+ * be supplied, where `convertKey` converts from Container::key_type to
+ * QString and `convertValue converts from Container::mapping_type to
+ * QJsonValue.
+ */
+template<typename Container, typename ConvertKeyFunc, typename ConvertValueFunc>
+QJsonObject toQJsonObject(
+    Container container,
+    ConvertKeyFunc convertKey,
+    ConvertValueFunc convertValue
+)
+{
+    QJsonObject object;
+
+    for(auto it = container.cbegin(); it != container.cend(); it++)
+    {
+        QString key = convertKey(it.key());
+        QJsonValue value = convertValue(it.value());
+
+        object[key] = value;
+    }
+
+    return object;
+}
+
+QJsonObject toJson(const core::Armor *obj)
+{
+    QJsonObject jobj(namesToJson(obj));
 
     jobj["defenses"] = toQJsonObject(
         obj->getDefenses(),
@@ -133,14 +251,14 @@ QJsonObject JsonSerializer::toJson(const core::Armor *obj)
     return jobj;
 }
 
-QJsonObject JsonSerializer::toJson(const core::DamageType *obj)
+QJsonObject toJson(const core::DamageType *obj)
 {
-    return this->gameObjectToJson(obj);
+    return namesToJson(obj);
 }
 
-QJsonObject JsonSerializer::toJson(const core::Faction *obj)
+QJsonObject toJson(const core::Faction *obj)
 {
-    QJsonObject jobj(this->gameObjectToJson(obj));
+    QJsonObject jobj(namesToJson(obj));
 
     jobj["unitTypes"] = toQJsonArray(obj->getUnitTypes(), qObjectName);
     jobj["recruits"] = toQJsonObject(
@@ -156,18 +274,18 @@ QJsonObject JsonSerializer::toJson(const core::Faction *obj)
     return jobj;
 }
 
-QJsonObject JsonSerializer::toJson(const core::MapNode *obj)
+QJsonObject toJson(const core::MapNode *obj)
 {
-    QJsonObject jobj(this->gameObjectToJson(obj));
+    QJsonObject jobj(namesToJson(obj));
 
     jobj["terrainType"] = obj->getTerrainType()->objectName();
 
     return jobj;
 }
 
-QJsonObject JsonSerializer::toJson(const core::Player *obj)
+QJsonObject toJson(const core::Player *obj)
 {
-    QJsonObject jobj(this->gameObjectToJson(obj));
+    QJsonObject jobj(namesToJson(obj));
 
     jobj["color"] = obj->getColor().name();
     jobj["goldBalance"] = obj->getGoldBalance();
@@ -176,9 +294,9 @@ QJsonObject JsonSerializer::toJson(const core::Player *obj)
     return jobj;
 }
 
-QJsonObject JsonSerializer::toJson(const core::Settlement *obj)
+QJsonObject toJson(const core::Settlement *obj)
 {
-    QJsonObject jobj(this->gameObjectToJson(obj));
+    QJsonObject jobj(namesToJson(obj));
 
     jobj["mapNode"] = obj->getMapNode()->objectName();
     jobj["owner"] = obj->getOwner()->objectName();
@@ -186,9 +304,9 @@ QJsonObject JsonSerializer::toJson(const core::Settlement *obj)
     return jobj;
 }
 
-QJsonObject JsonSerializer::toJson(const core::SettlementType *obj)
+QJsonObject toJson(const core::SettlementType *obj)
 {
-    QJsonObject jobj(this->gameObjectToJson(obj));
+    QJsonObject jobj(namesToJson(obj));
 
     jobj["goldPerTurn"] = obj->getGoldPerTurn();
     jobj["recruits"] = toQJsonArray(obj->getRecruits(), qObjectName);
@@ -196,14 +314,14 @@ QJsonObject JsonSerializer::toJson(const core::SettlementType *obj)
     return jobj;
 }
 
-QJsonObject JsonSerializer::toJson(const core::TerrainType *obj)
+QJsonObject toJson(const core::TerrainType *obj)
 {
-    return this->gameObjectToJson(obj);
+    return namesToJson(obj);
 }
 
-QJsonObject JsonSerializer::toJson(const core::Unit *obj)
+QJsonObject toJson(const core::Unit *obj)
 {
-    QJsonObject jobj(this->gameObjectToJson(obj));
+    QJsonObject jobj(namesToJson(obj));
 
     jobj["rank"] = core::Unit::rank2str[obj->getRank()];
     jobj["type"] = obj->getType()->objectName();
@@ -216,9 +334,9 @@ QJsonObject JsonSerializer::toJson(const core::Unit *obj)
     return jobj;
 }
 
-QJsonObject JsonSerializer::toJson(const core::UnitClass *obj)
+QJsonObject toJson(const core::UnitClass *obj)
 {
-    QJsonObject jobj(this->gameObjectToJson(obj));
+    QJsonObject jobj(namesToJson(obj));
 
     jobj["movementPoints"] = obj->getMovementPoints();
     jobj["movementCosts"] = toQJsonObject(
@@ -240,9 +358,9 @@ QJsonObject JsonSerializer::toJson(const core::UnitClass *obj)
     return jobj;
 }
 
-QJsonObject JsonSerializer::toJson(const core::UnitLevel *obj)
+QJsonObject toJson(const core::UnitLevel *obj)
 {
-    QJsonObject jobj(this->gameObjectToJson(obj));
+    QJsonObject jobj(namesToJson(obj));
 
     jobj["index"] = obj->getIndex();
     jobj["experiencePoints"] = obj->getExperiencePoints();
@@ -250,9 +368,9 @@ QJsonObject JsonSerializer::toJson(const core::UnitLevel *obj)
     return jobj;
 }
 
-QJsonObject JsonSerializer::toJson(const core::UnitType *obj)
+QJsonObject toJson(const core::UnitType *obj)
 {
-    QJsonObject jobj(this->gameObjectToJson(obj));
+    QJsonObject jobj(namesToJson(obj));
 
     jobj["class"] = obj->getClass()->objectName();
     jobj["level"] = obj->getLevel()->objectName();
@@ -266,9 +384,9 @@ QJsonObject JsonSerializer::toJson(const core::UnitType *obj)
     return jobj;
 }
 
-QJsonObject JsonSerializer::toJson(const core::Weapon *obj)
+QJsonObject toJson(const core::Weapon *obj)
 {
-    QJsonObject jobj(this->gameObjectToJson(obj));
+    QJsonObject jobj(namesToJson(obj));
 
     jobj["range"] = obj->getRange();
     jobj["damages"] = toQJsonObject(
@@ -280,24 +398,24 @@ QJsonObject JsonSerializer::toJson(const core::Weapon *obj)
     return jobj;
 }
 
-QJsonObject JsonSerializer::toJson(const core::WorldSurface *obj)
+QJsonObject toJson(const core::World *obj)
 {
-    QJsonObject jobj;
+    QJsonObject jobj(namesToJson(obj));
 
-	jobj["objectName"] = obj->objectName();
-	jobj["displayName"] = obj->getDisplayName();
-	jobj["tileWidth"] = obj->getTileWidth();
-	jobj["tileHeight"] = obj->getTileHeight();
+    jobj["damageTypes"] = toQJsonArray(
+        obj->getDamageTypes(),
+        TypeToJson<core::DamageType>::func()
+    );
 
     return jobj;
 }
 
-QJsonObject JsonSerializer::gameObjectToJson(const core::GameObject *obj)
+QJsonObject toJson(const core::WorldSurface *obj)
 {
-    QJsonObject jobj;
+    QJsonObject jobj(namesToJson(obj));
 
-	jobj["objectName"] = obj->objectName();
-	jobj["displayName"] = obj->getDisplayName();
+	jobj["tileWidth"] = obj->getTileWidth();
+	jobj["tileHeight"] = obj->getTileHeight();
 
     return jobj;
 }

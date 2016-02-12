@@ -156,16 +156,11 @@ QJsonObject namesToJson(T obj)
 }
 
 template <typename T>
-struct TypeToJson
+std::function<QJsonObject(const T *)> typeToJsonFunc()
 {
-    typedef QJsonObject (*ToJsonFunc)(const T *);
-    constexpr static ToJsonFunc _func = toJson;
-
-    static std::function<QJsonObject(const T *)> func()
-    {
-        return std::function<QJsonObject(const T *)>(TypeToJson::_func);
-    }
-};
+    QJsonObject (*func)(const T *) = toJson;
+    return std::function<QJsonObject(const T *)>(func);
+}
 
 /**
  * Get the objectName of a QObject.
@@ -404,7 +399,15 @@ QJsonObject toJson(const core::World *obj)
 
     jobj["damageTypes"] = toQJsonArray(
         obj->getDamageTypes(),
-        TypeToJson<core::DamageType>::func()
+        typeToJsonFunc<core::DamageType>()
+    );
+    jobj["armors"] = toQJsonArray(
+        obj->getArmors(),
+        typeToJsonFunc<core::Armor>()
+    );
+    jobj["weapons"] = toQJsonArray(
+        obj->getWeapons(),
+        typeToJsonFunc<core::Weapon>()
     );
 
     return jobj;

@@ -446,24 +446,107 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
 
     core::DamageType dt1{nullptr};
     dt1.setObjectName("damageType1");
+    dt1.setDisplayName("DamageType 1");
 
-    w.setDamageTypes({&dt1});
+    core::DamageType dt2{nullptr};
+    dt2.setObjectName("damageType2");
+    dt2.setDisplayName("DamageType 2");
+
+    w.setDamageTypes({&dt1, &dt2});
+
+    core::Armor a1{nullptr};
+    a1.setObjectName("armor1");
+    a1.setDisplayName("Armor 1");
+    a1.setDefense(&dt1, 22);
+
+    w.setArmors({&a1});
+
+    core::Weapon w1{nullptr};
+    w1.setObjectName("weapon1");
+    w1.setDisplayName("Weapon 1");
+    w1.setRange(0);
+    w1.setDamage(&dt1, 10);
+    w1.setDamage(&dt2, 5);
+
+    core::Weapon w2{nullptr};
+    w2.setObjectName("weapon2");
+    w2.setDisplayName("Weapon 2");
+    w2.setRange(2);
+    w2.setDamage(&dt2, 12);
+
+    w.setWeapons({&w1, &w2});
 
     SECTION("serializing World")
     {
-        QJsonObject jobj(serialize(&w));
+        const QJsonObject jobj(serialize(&w));
 
         REQUIRE(jobj["objectName"].toString() == w.objectName());
         REQUIRE(jobj["displayName"].toString() == w.getDisplayName());
+
         REQUIRE(jobj["damageTypes"].isArray() == true);
+        SECTION("serializing DamageTypes")
+        {
+            const QJsonArray dts(jobj["damageTypes"].toArray());
 
-        QJsonArray dts(jobj["damageTypes"].toArray());
+            REQUIRE(dts.size() == 2);
+            REQUIRE(dts[0].isObject() == true);
+            REQUIRE(dts[1].isObject() == true);
 
-        REQUIRE(dts.size() == 1);
-        REQUIRE(dts[0].isObject() == true);
+            const QJsonObject dt1j(dts[0].toObject());
+            REQUIRE(dt1j["objectName"].toString() == dt1.objectName());
+            REQUIRE(dt1j["displayName"].toString() == dt1.getDisplayName());
 
-        QJsonObject dt1j(dts[0].toObject());
-        REQUIRE(dt1j["objectName"] == dt1.objectName());
+            const QJsonObject dt2j(dts[1].toObject());
+            REQUIRE(dt2j["objectName"].toString() == dt2.objectName());
+            REQUIRE(dt2j["displayName"].toString() == dt2.getDisplayName());
+        }
+
+        REQUIRE(jobj["armors"].isArray() == true);
+        SECTION("serializing Armors")
+        {
+            const QJsonArray as(jobj["armors"].toArray());
+
+            REQUIRE(as.size() == 1);
+            REQUIRE(as[0].isObject() == true);
+
+            const QJsonObject a1j(as[0].toObject());
+            REQUIRE(a1j["objectName"].toString() == a1.objectName());
+            REQUIRE(a1j["displayName"].toString() == a1.getDisplayName());
+            REQUIRE(a1j["defenses"].isObject() == true);
+
+            const QJsonObject ds(a1j["defenses"].toObject());
+
+            REQUIRE(ds[dt1.objectName()] == a1.getDefense(&dt1));
+        }
+
+        REQUIRE(jobj["weapons"].isArray() == true);
+        SECTION("serializing Weapons")
+        {
+            const QJsonArray ws(jobj["weapons"].toArray());
+
+            REQUIRE(ws.size() == 2);
+            REQUIRE(ws[0].isObject() == true);
+            REQUIRE(ws[1].isObject() == true);
+
+            const QJsonObject w1j(ws[0].toObject());
+            REQUIRE(w1j["objectName"].toString() == w1.objectName());
+            REQUIRE(w1j["displayName"].toString() == w1.getDisplayName());
+            REQUIRE(w1j["range"].toInt() == w1.getRange());
+            REQUIRE(w1j["damages"].isObject() == true);
+
+            const QJsonObject ds1(w1j["damages"].toObject());
+            REQUIRE(ds1[dt1.objectName()].toInt() == w1.getDamage(&dt1));
+            REQUIRE(ds1[dt2.objectName()].toInt() == w1.getDamage(&dt2));
+
+            const QJsonObject w2j(ws[1].toObject());
+            REQUIRE(w2j["objectName"].toString() == w2.objectName());
+            REQUIRE(w2j["displayName"].toString() == w2.getDisplayName());
+            REQUIRE(w2j["range"].toInt() == w2.getRange());
+            REQUIRE(w2j["damages"].isObject() == true);
+
+            const QJsonObject ds2(w2j["damages"].toObject());
+            REQUIRE(ds2[dt1.objectName()].toInt() == w2.getDamage(&dt1));
+        }
     }
 }
 

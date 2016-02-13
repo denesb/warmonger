@@ -9,7 +9,6 @@ namespace core {
     class Armor;
     class DamageType;
     class Faction;
-    class Game;
     class Map;
     class MapNode;
     class Player;
@@ -33,7 +32,6 @@ public:
     virtual QByteArray serialize(const core::Armor *obj) = 0;
     virtual QByteArray serialize(const core::DamageType *obj) = 0;
     virtual QByteArray serialize(const core::Faction *obj) = 0;
-    virtual QByteArray serialize(const core::Game *obj) = 0;
     virtual QByteArray serialize(const core::Map *obj) = 0;
     virtual QByteArray serialize(const core::MapNode *obj) = 0;
     virtual QByteArray serialize(const core::Player *obj) = 0;

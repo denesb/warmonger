@@ -6,10 +6,6 @@
 #include "io/Serializer.h"
 
 namespace warmonger {
-namespace core {
-    class GameObject;
-}
-
 namespace io {
 
 class JsonSerializer :
@@ -21,7 +17,6 @@ public:
     virtual QByteArray serialize(const core::Armor *obj);
     virtual QByteArray serialize(const core::DamageType *obj);
     virtual QByteArray serialize(const core::Faction *obj);
-    virtual QByteArray serialize(const core::Game *obj);
     virtual QByteArray serialize(const core::Map *obj);
     virtual QByteArray serialize(const core::MapNode *obj);
     virtual QByteArray serialize(const core::Player *obj);

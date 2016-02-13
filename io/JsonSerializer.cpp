@@ -66,10 +66,6 @@ QByteArray JsonSerializer::serialize(const core::Faction *obj)
     return jdoc.toJson(this->format);
 }
 
-QByteArray JsonSerializer::serialize(const core::Game *obj)
-{
-}
-
 QByteArray JsonSerializer::serialize(const core::Map *obj)
 {
     QJsonDocument jdoc(toJson(obj));

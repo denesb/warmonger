@@ -409,6 +409,30 @@ QJsonObject toJson(const core::World *obj)
         obj->getWeapons(),
         typeToJsonFunc<core::Weapon>()
     );
+    jobj["terrainTypes"] = toQJsonArray(
+        obj->getTerrainTypes(),
+        typeToJsonFunc<core::TerrainType>()
+    );
+    jobj["unitClasses"] = toQJsonArray(
+        obj->getUnitClasses(),
+        typeToJsonFunc<core::UnitClass>()
+    );
+    jobj["unitLevels"] = toQJsonArray(
+        obj->getUnitLevels(),
+        typeToJsonFunc<core::UnitLevel>()
+    );
+    jobj["unitTypes"] = toQJsonArray(
+        obj->getUnitTypes(),
+        typeToJsonFunc<core::UnitType>()
+    );
+    jobj["settlementTypes"] = toQJsonArray(
+        obj->getSettlementTypes(),
+        typeToJsonFunc<core::SettlementType>()
+    );
+    jobj["factions"] = toQJsonArray(
+        obj->getFactions(),
+        typeToJsonFunc<core::Faction>()
+    );
 
     return jobj;
 }

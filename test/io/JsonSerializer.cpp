@@ -54,13 +54,13 @@ TEST_CASE("Armor can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing Armor")
     {
-        QJsonObject jobj(serialize(&a));
+        const QJsonObject jobj(serialize(&a));
 
         REQUIRE(jobj["objectName"].toString() == a.objectName());
         REQUIRE(jobj["displayName"].toString() == a.getDisplayName());
         REQUIRE(jobj["defenses"].isObject() == true);
 
-        QJsonObject defenses(jobj["defenses"].toObject());
+        const QJsonObject defenses(jobj["defenses"].toObject());
         REQUIRE(defenses.size() == 1);
         REQUIRE(defenses[dt.objectName()] == a.getDefense(&dt));
     }
@@ -74,7 +74,7 @@ TEST_CASE("DamageType can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing DamageType")
     {
-        QJsonObject jobj(serialize(&dt));
+        const QJsonObject jobj(serialize(&dt));
 
         REQUIRE(jobj["objectName"].toString() == dt.objectName());
         REQUIRE(jobj["displayName"].toString() == dt.getDisplayName());
@@ -105,19 +105,19 @@ TEST_CASE("Faction can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing Faction")
     {
-        QJsonObject jobj(serialize(&f));
+        const QJsonObject jobj(serialize(&f));
 
         REQUIRE(jobj["objectName"].toString() == f.objectName());
         REQUIRE(jobj["displayName"].toString() == f.getDisplayName());
         REQUIRE(jobj["unitTypes"].isArray() == true);
 
-        QJsonArray unitTypes = jobj["unitTypes"].toArray();
+        const QJsonArray unitTypes = jobj["unitTypes"].toArray();
         REQUIRE(unitTypes[0].toString() == ut1.objectName());
         REQUIRE(unitTypes[1].toString() == ut2.objectName());
 
         REQUIRE(jobj["recruits"].isObject() == true);
 
-        QJsonObject recruits = jobj["recruits"].toObject();
+        const QJsonObject recruits = jobj["recruits"].toObject();
         REQUIRE(recruits[st.objectName()].isArray() == true);
     }
 }
@@ -136,7 +136,7 @@ TEST_CASE("MapNode can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing MapNode")
     {
-        QJsonObject jobj(serialize(&n));
+        const QJsonObject jobj(serialize(&n));
 
         REQUIRE(jobj["objectName"] == n.objectName());
         REQUIRE(jobj["displayName"] == n.getDisplayName());
@@ -159,7 +159,7 @@ TEST_CASE("Player can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing Player")
     {
-        QJsonObject jobj(serialize(&p));
+        const QJsonObject jobj(serialize(&p));
 
         REQUIRE(jobj["objectName"].toString() == p.objectName());
         REQUIRE(jobj["displayName"].toString() == p.getDisplayName());
@@ -187,7 +187,7 @@ TEST_CASE("Settlement can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing Settlement")
     {
-        QJsonObject jobj(serialize(&s));
+        const QJsonObject jobj(serialize(&s));
 
         REQUIRE(jobj["objectName"].toString() == s.objectName());
         REQUIRE(jobj["displayName"].toString() == s.getDisplayName());
@@ -216,14 +216,14 @@ TEST_CASE("SettlementType can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing SettlementType")
     {
-        QJsonObject jobj(serialize(&st));
+        const QJsonObject jobj(serialize(&st));
 
         REQUIRE(jobj["objectName"].toString() == st.objectName());
         REQUIRE(jobj["displayName"].toString() == st.getDisplayName());
         REQUIRE(jobj["goldPerTurn"].toInt() == st.getGoldPerTurn());
         REQUIRE(jobj["recruits"].isArray() == true);
 
-        QJsonArray recruits = jobj["recruits"].toArray();
+        const QJsonArray recruits = jobj["recruits"].toArray();
         REQUIRE(recruits[0].toString() == ut1.objectName());
         REQUIRE(recruits[1].toString() == ut2.objectName());
         REQUIRE(recruits[2].toString() == ut3.objectName());
@@ -238,7 +238,7 @@ TEST_CASE("TerrainType can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing TerrainType")
     {
-        QJsonObject jobj(serialize(&tt));
+        const QJsonObject jobj(serialize(&tt));
 
         REQUIRE(jobj["objectName"].toString() == tt.objectName());
         REQUIRE(jobj["displayName"].toString() == tt.getDisplayName());
@@ -273,7 +273,7 @@ TEST_CASE("Unit can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing Unit")
     {
-        QJsonObject jobj(serialize(&u));
+        const QJsonObject jobj(serialize(&u));
 
         REQUIRE(jobj["objectName"].toString() == u.objectName());
         REQUIRE(jobj["displayName"].toString() == u.getDisplayName());
@@ -303,7 +303,7 @@ TEST_CASE("UnitClass can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing UnitClass")
     {
-        QJsonObject jobj(serialize(&uc));
+        const QJsonObject jobj(serialize(&uc));
 
         REQUIRE(jobj["objectName"].toString() == uc.objectName());
         REQUIRE(jobj["displayName"].toString() == uc.getDisplayName());
@@ -312,15 +312,15 @@ TEST_CASE("UnitClass can be serialized to JSON", "[JsonSerializer]")
         REQUIRE(jobj["attacks"].isObject() == true);
         REQUIRE(jobj["defenses"].isObject() == true);
 
-        QJsonObject mc(jobj["movementCosts"].toObject());
+        const QJsonObject mc(jobj["movementCosts"].toObject());
         REQUIRE(mc.size() == 1);
         REQUIRE(mc[tt.objectName()].toInt() == uc.getMovementCost(&tt));
 
-        QJsonObject attacks(jobj["attacks"].toObject());
+        const QJsonObject attacks(jobj["attacks"].toObject());
         REQUIRE(attacks.size() == 1);
         REQUIRE(attacks[tt.objectName()].toInt() == uc.getAttack(&tt));
 
-        QJsonObject defenses(jobj["defenses"].toObject());
+        const QJsonObject defenses(jobj["defenses"].toObject());
         REQUIRE(defenses.size() == 1);
         REQUIRE(defenses[tt.objectName()].toInt() == uc.getDefense(&tt));
     }
@@ -336,7 +336,7 @@ TEST_CASE("UnitLevel can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing UnitLevel")
     {
-        QJsonObject jobj(serialize(&ul));
+        const QJsonObject jobj(serialize(&ul));
 
         REQUIRE(jobj["objectName"].toString() == ul.objectName());
         REQUIRE(jobj["displayName"].toString() == ul.getDisplayName());
@@ -376,18 +376,16 @@ TEST_CASE("UnitType can be serialized to JSON", "[JsonSerializer]")
     core::Weapon w2(nullptr);
     w2.setObjectName("weapon2");
 
-    const QList<core::Weapon *> weapons{&w1, &w2};
-    ut.setWeapons(weapons);
+    ut.setWeapons({&w1, &w2});
 
     core::UnitType ut2(nullptr);
     ut2.setObjectName("unitType2");
 
-    const QList<core::UnitType *> upgrades{&ut2};
-    ut.setUpgrades(upgrades);
+    ut.setUpgrades({&ut2});
 
     SECTION("serializing UnitType")
     {
-        QJsonObject jobj(serialize(&ut));
+        const QJsonObject jobj(serialize(&ut));
 
         REQUIRE(jobj["objectName"].toString() == ut.objectName());
         REQUIRE(jobj["displayName"].toString() == ut.getDisplayName());
@@ -400,12 +398,12 @@ TEST_CASE("UnitType can be serialized to JSON", "[JsonSerializer]")
         REQUIRE(jobj["weapons"].isArray() == true);
         REQUIRE(jobj["upgrades"].isArray() == true);
 
-        QJsonArray weapons(jobj["weapons"].toArray());
+        const QJsonArray weapons(jobj["weapons"].toArray());
         REQUIRE(weapons.size() == 2);
         REQUIRE(weapons[0].toString() == w1.objectName());
         REQUIRE(weapons[1].toString() == w2.objectName());
 
-        QJsonArray upgrades(jobj["upgrades"].toArray());
+        const QJsonArray upgrades(jobj["upgrades"].toArray());
         REQUIRE(upgrades.size() == 1);
         REQUIRE(upgrades[0].toString() == ut2.objectName());
     }
@@ -425,14 +423,14 @@ TEST_CASE("Weapon can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing WorldSurface")
     {
-        QJsonObject jobj(serialize(&w));
+        const QJsonObject jobj(serialize(&w));
 
         REQUIRE(jobj["objectName"].toString() == w.objectName());
         REQUIRE(jobj["displayName"].toString() == w.getDisplayName());
         REQUIRE(jobj["range"].toInt() == w.getRange());
         REQUIRE(jobj["damages"].isObject() == true);
 
-        QJsonObject damages(jobj["damages"].toObject());
+        const QJsonObject damages(jobj["damages"].toObject());
         REQUIRE(damages.size() == 1);
         REQUIRE(damages[dt.objectName()].toInt() == w.getDamage(&dt));
     }
@@ -475,6 +473,61 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
     w2.setDamage(&dt2, 12);
 
     w.setWeapons({&w1, &w2});
+
+    core::TerrainType tt1{nullptr};
+    tt1.setObjectName("terrainType1");
+    tt1.setDisplayName("TerrainType 1");
+
+    w.setTerrainTypes({&tt1});
+
+    core::UnitClass uc1{nullptr};
+    uc1.setObjectName("unitClass1");
+    uc1.setDisplayName("UnitClass 1");
+    uc1.setMovementCost(&tt1, 8);
+    uc1.setAttack(&tt1, 10);
+    uc1.setDefense(&tt1, 30);
+
+    w.setUnitClasses({&uc1});
+
+    core::UnitLevel ul1{nullptr};
+    ul1.setObjectName("unitLevel1");
+    ul1.setDisplayName("UnitLevel 1");
+    ul1.setExperiencePoints(800);
+    ul1.setIndex(1);
+
+    w.setUnitLevels({&ul1});
+
+    core::UnitType ut1{nullptr};
+    ut1.setObjectName("unitType1");
+    ut1.setDisplayName("UnitType 1");
+    ut1.setClass(&uc1);
+    ut1.setLevel(&ul1);
+    ut1.setHitPoints(32);
+    ut1.setRecruitmentCost(200);
+    ut1.setUpkeepCost(20);
+    ut1.setArmor(&a1);
+    ut1.setWeapons({&w1});
+
+    w.setUnitTypes({&ut1});
+
+    core::SettlementType st1{nullptr};
+    st1.setObjectName("settlementType1");
+    st1.setDisplayName("SettlementType 1");
+    st1.setGoldPerTurn(7);
+    st1.setRecruits({&ut1});
+
+    w.setSettlementTypes({&st1});
+
+    core::Faction f1{nullptr};
+    f1.setObjectName("faction1");
+    f1.setDisplayName("Faction 1");
+    f1.setUnitTypes({&ut1});
+
+    w.setFactions({&f1});
+
+    QMap<core::SettlementType *, QList<core::UnitType *>> recruits;
+    recruits[&st1] = QList<core::UnitType *>({&ut1});
+    f1.setRecruits(recruits);
 
     SECTION("serializing World")
     {
@@ -546,6 +599,138 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
 
             const QJsonObject ds2(w2j["damages"].toObject());
             REQUIRE(ds2[dt1.objectName()].toInt() == w2.getDamage(&dt1));
+        }
+
+        REQUIRE(jobj["terrainTypes"].isArray() == true);
+        SECTION("serializing TerrainTypes")
+        {
+            const QJsonArray tts(jobj["terrainTypes"].toArray());
+
+            REQUIRE(tts.size() == 1);
+            REQUIRE(tts[0].isObject() == true);
+
+            const QJsonObject tt1j(tts[0].toObject());
+            REQUIRE(tt1j["objectName"].toString() == tt1.objectName());
+            REQUIRE(tt1j["displayName"].toString() == tt1.getDisplayName());
+        }
+
+        REQUIRE(jobj["unitClasses"].isArray() == true);
+        SECTION("serializing UnitClasses")
+        {
+            const QJsonArray ucs(jobj["unitClasses"].toArray());
+
+            REQUIRE(ucs.size() == 1);
+            REQUIRE(ucs[0].isObject() == true);
+
+            const QJsonObject uc1j(ucs[0].toObject());
+            REQUIRE(uc1j["objectName"].toString() == uc1.objectName());
+            REQUIRE(uc1j["displayName"].toString() == uc1.getDisplayName());
+
+            REQUIRE(uc1j["movementCosts"].isObject() == true);
+            const QJsonObject mcs1(uc1j["movementCosts"].toObject());
+            REQUIRE(mcs1.size() == 1);
+            REQUIRE(mcs1[tt1.objectName()].toInt() == uc1.getMovementCost(&tt1));
+
+            REQUIRE(uc1j["attacks"].isObject() == true);
+            const QJsonObject as1(uc1j["attacks"].toObject());
+            REQUIRE(as1.size() == 1);
+            REQUIRE(as1[tt1.objectName()].toInt() == uc1.getAttack(&tt1));
+
+            REQUIRE(uc1j["defenses"].isObject() == true);
+            const QJsonObject ds1(uc1j["defenses"].toObject());
+            REQUIRE(ds1.size() == 1);
+            REQUIRE(ds1[tt1.objectName()].toInt() == uc1.getDefense(&tt1));
+        }
+
+        REQUIRE(jobj["unitLevels"].isArray() == true);
+        SECTION("serializing UnitLevels")
+        {
+            const QJsonArray uls(jobj["unitLevels"].toArray());
+
+            REQUIRE(uls.size() == 1);
+            REQUIRE(uls[0].isObject() == true);
+
+            const QJsonObject ul1j(uls[0].toObject());
+            REQUIRE(ul1j["objectName"].toString() == ul1.objectName());
+            REQUIRE(ul1j["displayName"].toString() == ul1.getDisplayName());
+            REQUIRE(ul1j["experiencePoints"].toInt() == ul1.getExperiencePoints());
+            REQUIRE(ul1j["index"].toInt() == ul1.getIndex());
+        }
+
+        REQUIRE(jobj["unitTypes"].isArray() == true);
+        SECTION("serializing UnitTypes")
+        {
+            const QJsonArray uts(jobj["unitTypes"].toArray());
+
+            REQUIRE(uts.size() == 1);
+            REQUIRE(uts[0].isObject() == true);
+
+            const QJsonObject ut1j(uts[0].toObject());
+            REQUIRE(ut1j["objectName"].toString() == ut1.objectName());
+            REQUIRE(ut1j["displayName"].toString() == ut1.getDisplayName());
+            REQUIRE(ut1j["class"].toString() == ut1.getClass()->objectName());
+            REQUIRE(ut1j["level"].toString() == ut1.getLevel()->objectName());
+            REQUIRE(ut1j["hitPoints"].toInt() == ut1.getHitPoints());
+            REQUIRE(ut1j["recruitmentCost"].toInt() == ut1.getRecruitmentCost());
+            REQUIRE(ut1j["upkeepCost"].toInt() == ut1.getUpkeepCost());
+            REQUIRE(ut1j["armor"].toString() == ut1.getArmor()->objectName());
+            REQUIRE(ut1j["weapons"].isArray() == true);
+
+            const QJsonArray ws(ut1j["weapons"].toArray());
+            REQUIRE(ws.size() == 1);
+            REQUIRE(ws[0].toString() == w1.objectName());
+
+            REQUIRE(ut1j["upgrades"].isArray() == true);
+
+            const QJsonArray us(ut1j["upgrades"].toArray());
+            REQUIRE(us.size() == 0);
+        }
+
+        REQUIRE(jobj["settlementTypes"].isArray() == true);
+        SECTION("serializing SettlementTypes")
+        {
+            const QJsonArray sts(jobj["settlementTypes"].toArray());
+
+            REQUIRE(sts.size() == 1);
+            REQUIRE(sts[0].isObject() == true);
+
+            const QJsonObject st1j(sts[0].toObject());
+            REQUIRE(st1j["objectName"].toString() == st1.objectName());
+            REQUIRE(st1j["displayName"].toString() == st1.getDisplayName());
+            REQUIRE(st1j["goldPerTurn"].toInt() == st1.getGoldPerTurn());
+            REQUIRE(st1j["recruits"].isArray() == true);
+
+            const QJsonArray rs(st1j["recruits"].toArray());
+            REQUIRE(rs.size() == 1);
+            REQUIRE(rs[0].toString() == ut1.objectName());
+        }
+
+        REQUIRE(jobj["factions"].isArray() == true);
+        SECTION("serializing Factions")
+        {
+            const QJsonArray fs(jobj["factions"].toArray());
+
+            REQUIRE(fs.size() == 1);
+            REQUIRE(fs[0].isObject() == true);
+
+            const QJsonObject f1j(fs[0].toObject());
+            REQUIRE(f1j["objectName"].toString() == f1.objectName());
+            REQUIRE(f1j["displayName"].toString() == f1.getDisplayName());
+            REQUIRE(f1j["unitTypes"].isArray() == true);
+
+            const QJsonArray uts(f1j["unitTypes"].toArray());
+            REQUIRE(uts.size() == 1);
+            REQUIRE(uts[0].toString() == ut1.objectName());
+
+            REQUIRE(f1j["recruits"].isObject() == true);
+
+            const QJsonObject rs(f1j["recruits"].toObject());
+            REQUIRE(rs.size() == 1);
+            REQUIRE(rs[st1.objectName()].isArray() == true);
+
+            const QJsonArray recruits(rs[st1.objectName()].toArray());
+            REQUIRE(recruits.size() == 1);
+            REQUIRE(recruits[0].toString() == ut1.objectName());
         }
     }
 }

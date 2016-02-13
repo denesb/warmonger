@@ -39,6 +39,15 @@ public:
     World * getWorld() const;
     void setWorld(World *world);
 
+    int getMapNodeIndex() const;
+    void setMapNodeIndex(int mapNodeIndex);
+
+    int getSettlementIndex() const;
+    void setSettlementIndex(int settlementIndex);
+
+    int getUnitIndex() const;
+    void setUnitIndex(int unitIndex);
+
     void addMapNode(MapNode *mapNode);
     void removeMapNode(MapNode *mapNode);
 
@@ -83,6 +92,9 @@ public:
 
 signals:
     void worldChanged();
+    void mapNodeIndexChanged();
+    void settlementIndexChanged();
+    void unitIndexChanged();
     void mapNodesAboutToChange();
     void mapNodesChanged();
     void mapNodeAdded(QObject *mapNode);
@@ -125,9 +137,9 @@ protected:
     int settlementIndex;
     int unitIndex;
     QList<MapNode *> mapNodes;
+    QList<Player *> players;
     QList<Settlement *> settlements;
     QList<Unit *> units;
-    QList<Player *> players;
     QHash<const MapNode *, QPair<Settlement *, Unit *>> mapContent;
 };
 

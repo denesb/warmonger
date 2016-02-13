@@ -9,6 +9,7 @@
 #include "core/Armor.h"
 #include "core/DamageType.h"
 #include "core/Faction.h"
+#include "core/Map.h"
 #include "core/MapNode.h"
 #include "core/Player.h"
 #include "core/Settlement.h"
@@ -122,6 +123,150 @@ TEST_CASE("Faction can be serialized to JSON", "[JsonSerializer]")
     }
 }
 
+TEST_CASE("Map can be serialized to JSON", "[JsonSerializer]")
+{
+    core::Map m{nullptr};
+    m.setObjectName("Map1");
+    m.setDisplayName("Map 1");
+
+    core::World w1{nullptr};
+    w1.setObjectName("world1");
+
+    m.setWorld(&w1);
+
+    m.setMapNodeIndex(999);
+    m.setSettlementIndex(99);
+    m.setUnitIndex(9);
+
+    core::TerrainType tt1{nullptr};
+    tt1.setObjectName("terrainType1");
+
+    core::MapNode mn1{nullptr};
+    mn1.setObjectName("mapNode1");
+    mn1.setDisplayName("mapNode1");
+    mn1.setTerrainType(&tt1);
+
+    m.setMapNodes({&mn1});
+
+    core::Faction f1{nullptr};
+    f1.setObjectName("faction1");
+
+    core::Player p1{nullptr};
+    p1.setObjectName("player1");
+    p1.setDisplayName("Player 1");
+    p1.setColor(QColor("red"));
+    p1.setGoldBalance(3563465);
+    p1.setFaction(&f1);
+
+    m.setPlayers({&p1});
+
+    core::SettlementType st1{nullptr};
+    st1.setObjectName("settlementType1");
+
+    core::Settlement s1{nullptr};
+    s1.setObjectName("settlement1");
+    s1.setDisplayName("Settlement 1");
+    s1.setType(&st1);
+    s1.setMapNode(&mn1);
+    s1.setOwner(&p1);
+
+    m.setSettlements({&s1});
+
+    core::UnitType ut1{nullptr};
+    ut1.setObjectName("unitType1");
+
+    core::Unit u1{nullptr};
+    u1.setObjectName("unit1");
+    u1.setDisplayName("Unit 1");
+    u1.setRank(core::Unit::Leader);
+    u1.setType(&ut1);
+    u1.setMapNode(&mn1);
+    u1.setOwner(&p1);
+    u1.setExperiencePoints(10.0);
+    u1.setHitPoints(20.0);
+    u1.setMovementPoints(30.0);
+
+    m.setUnits({&u1});
+
+    SECTION("serializing Map")
+    {
+        QJsonObject jobj(serialize(&m));
+
+        REQUIRE(jobj["objectName"].toString() == m.objectName());
+        REQUIRE(jobj["displayName"].toString() == m.getDisplayName());
+        REQUIRE(jobj["world"].toString() == w1.objectName());
+        REQUIRE(jobj["mapNodeIndex"].toInt() == m.getMapNodeIndex());
+        REQUIRE(jobj["settlementIndex"].toInt() == m.getSettlementIndex());
+        REQUIRE(jobj["unitIndex"].toInt() == m.getUnitIndex());
+
+        REQUIRE(jobj["mapNodes"].isArray() == true);
+        SECTION("serializing MapNodes")
+        {
+            const QJsonArray mns(jobj["mapNodes"].toArray());
+
+            REQUIRE(mns.size() == 1);
+            REQUIRE(mns[0].isObject() == true);
+
+            const QJsonObject mn1j(mns[0].toObject());
+            REQUIRE(mn1j["objectName"].toString() == mn1.objectName());
+            REQUIRE(mn1j["displayName"].toString() == mn1.getDisplayName());
+            REQUIRE(mn1j["terrainType"].toString() == tt1.objectName());
+        }
+
+        REQUIRE(jobj["players"].isArray() == true);
+        SECTION("serializing Players")
+        {
+            const QJsonArray ps(jobj["players"].toArray());
+
+            REQUIRE(ps.size() == 1);
+            REQUIRE(ps[0].isObject() == true);
+
+            const QJsonObject p1j(ps[0].toObject());
+            REQUIRE(p1j["objectName"].toString() == p1.objectName());
+            REQUIRE(p1j["displayName"].toString() == p1.getDisplayName());
+            REQUIRE(p1j["color"].toString() == p1.getColor().name());
+            REQUIRE(p1j["goldBalance"].toInt() == p1.getGoldBalance());
+            REQUIRE(p1j["faction"].toString() == p1.getFaction()->objectName());
+        }
+
+        REQUIRE(jobj["settlements"].isArray() == true);
+        SECTION("serializing Settlements")
+        {
+            const QJsonArray ss(jobj["settlements"].toArray());
+
+            REQUIRE(ss.size() == 1);
+            REQUIRE(ss[0].isObject() == true);
+
+            const QJsonObject s1j(ss[0].toObject());
+            REQUIRE(s1j["objectName"].toString() == s1.objectName());
+            REQUIRE(s1j["displayName"].toString() == s1.getDisplayName());
+            REQUIRE(s1j["type"].toString() == s1.getType()->objectName());
+            REQUIRE(s1j["mapNode"].toString() == s1.getMapNode()->objectName());
+            REQUIRE(s1j["owner"].toString() == s1.getOwner()->objectName());
+        }
+
+        REQUIRE(jobj["units"].isArray() == true);
+        SECTION("serializing Units")
+        {
+            const QJsonArray us(jobj["units"].toArray());
+
+            REQUIRE(us.size() == 1);
+            REQUIRE(us[0].isObject() == true);
+
+            const QJsonObject u1j(us[0].toObject());
+            REQUIRE(u1j["objectName"].toString() == u1.objectName());
+            REQUIRE(u1j["displayName"].toString() == u1.getDisplayName());
+            REQUIRE(u1j["rank"].toString() == core::Unit::rank2str[u1.getRank()]);
+            REQUIRE(u1j["type"].toString() == u1.getType()->objectName());
+            REQUIRE(u1j["mapNode"].toString() == u1.getMapNode()->objectName());
+            REQUIRE(u1j["owner"].toString() == u1.getOwner()->objectName());
+            REQUIRE(u1j["experiencePoints"].toInt() == u1.getExperiencePoints());
+            REQUIRE(u1j["hitPoints"].toDouble() == u1.getHitPoints());
+            REQUIRE(u1j["movementPoints"].toDouble() == u1.getMovementPoints());
+        }
+    }
+}
+
 TEST_CASE("MapNode can be serialized to JSON", "[JsonSerializer]")
 {
     core::MapNode n{nullptr};
@@ -172,8 +317,13 @@ TEST_CASE("Player can be serialized to JSON", "[JsonSerializer]")
 TEST_CASE("Settlement can be serialized to JSON", "[JsonSerializer]")
 {
     core::Settlement s(nullptr);
-    s.setObjectName("settlementType1");
+    s.setObjectName("settlement1");
     s.setDisplayName("Settlement 1");
+
+    core::SettlementType st1{nullptr};
+    st1.setObjectName("settlementType1");
+
+    s.setType(&st1);
 
     core::MapNode mn{nullptr};
     mn.setObjectName("mapNode1");
@@ -191,6 +341,7 @@ TEST_CASE("Settlement can be serialized to JSON", "[JsonSerializer]")
 
         REQUIRE(jobj["objectName"].toString() == s.objectName());
         REQUIRE(jobj["displayName"].toString() == s.getDisplayName());
+        REQUIRE(jobj["type"].toString() == s.getType()->objectName());
         REQUIRE(jobj["mapNode"].toString() == s.getMapNode()->objectName());
         REQUIRE(jobj["owner"].toString() == s.getOwner()->objectName());
     }

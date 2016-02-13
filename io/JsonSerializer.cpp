@@ -9,6 +9,7 @@
 #include "core/Armor.h"
 #include "core/DamageType.h"
 #include "core/Faction.h"
+#include "core/Map.h"
 #include "core/MapNode.h"
 #include "core/Settlement.h"
 #include "core/SettlementType.h"
@@ -28,6 +29,7 @@ using namespace warmonger::io;
 QJsonObject toJson(const core::Armor *obj);
 QJsonObject toJson(const core::DamageType *obj);
 QJsonObject toJson(const core::Faction *obj);
+QJsonObject toJson(const core::Map *obj);
 QJsonObject toJson(const core::MapNode *obj);
 QJsonObject toJson(const core::Player *obj);
 QJsonObject toJson(const core::Settlement *obj);
@@ -70,6 +72,8 @@ QByteArray JsonSerializer::serialize(const core::Game *obj)
 
 QByteArray JsonSerializer::serialize(const core::Map *obj)
 {
+    QJsonDocument jdoc(toJson(obj));
+    return jdoc.toJson(this->format);
 }
 
 QByteArray JsonSerializer::serialize(const core::MapNode *obj)
@@ -269,6 +273,34 @@ QJsonObject toJson(const core::Faction *obj)
     return jobj;
 }
 
+QJsonObject toJson(const core::Map *obj)
+{
+    QJsonObject jobj(namesToJson(obj));
+
+    jobj["world"] = obj->getWorld()->objectName();
+    jobj["mapNodeIndex"] = obj->getMapNodeIndex();
+    jobj["settlementIndex"] = obj->getSettlementIndex();
+    jobj["unitIndex"] = obj->getUnitIndex();
+    jobj["mapNodes"] = toQJsonArray(
+        obj->getMapNodes(),
+        typeToJsonFunc<core::MapNode>()
+    );
+    jobj["players"] = toQJsonArray(
+        obj->getPlayers(),
+        typeToJsonFunc<core::Player>()
+    );
+    jobj["settlements"] = toQJsonArray(
+        obj->getSettlements(),
+        typeToJsonFunc<core::Settlement>()
+    );
+    jobj["units"] = toQJsonArray(
+        obj->getUnits(),
+        typeToJsonFunc<core::Unit>()
+    );
+
+    return jobj;
+}
+
 QJsonObject toJson(const core::MapNode *obj)
 {
     QJsonObject jobj(namesToJson(obj));
@@ -294,6 +326,7 @@ QJsonObject toJson(const core::Settlement *obj)
     QJsonObject jobj(namesToJson(obj));
 
     jobj["mapNode"] = obj->getMapNode()->objectName();
+    jobj["type"] = obj->getType()->objectName();
     jobj["owner"] = obj->getOwner()->objectName();
 
     return jobj;

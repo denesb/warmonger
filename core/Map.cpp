@@ -25,9 +25,9 @@ Map::Map(QObject *parent) :
     settlementIndex(0),
     unitIndex(0),
     mapNodes(),
+    players(),
     settlements(),
     units(),
-    players(),
     mapContent()
 {
 }
@@ -47,6 +47,48 @@ void Map::setWorld(World *world)
     {
         this->world = world;
         emit worldChanged();
+    }
+}
+
+int Map::getMapNodeIndex() const
+{
+    return this->mapNodeIndex;
+}
+
+void Map::setMapNodeIndex(int mapNodeIndex)
+{
+    if (this->mapNodeIndex != mapNodeIndex)
+    {
+        this->mapNodeIndex = mapNodeIndex;
+        emit mapNodeIndexChanged();
+    }
+}
+
+int Map::getSettlementIndex() const
+{
+    return this->settlementIndex;
+}
+
+void Map::setSettlementIndex(int settlementIndex)
+{
+    if (this->settlementIndex != settlementIndex)
+    {
+        emit settlementIndexChanged();
+        this->settlementIndex = settlementIndex;
+    }
+}
+
+int Map::getUnitIndex() const
+{
+    return this->unitIndex;
+}
+
+void Map::setUnitIndex(int unitIndex)
+{
+    if (this->unitIndex != unitIndex)
+    {
+        emit unitIndexChanged();
+        this->unitIndex = unitIndex;
     }
 }
 

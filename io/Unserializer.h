@@ -1,6 +1,8 @@
 #ifndef IO_UNSERIALIZER_H
 #define IO_UNSERIALIZER_H
 
+#include "io/Context.h"
+
 namespace warmonger {
 
 namespace core {
@@ -27,6 +29,11 @@ namespace io {
 class Unserializer
 {
 public:
+    Unserializer(const Context &ctx) :
+        ctx(ctx)
+    {
+    }
+
     virtual core::Armor * unserializeArmor(const QByteArray &data) = 0;
     virtual core::DamageType * unserializeDamageType(const QByteArray &data) = 0;
     virtual core::Faction * unserializeFaction(const QByteArray &data) = 0;
@@ -43,6 +50,9 @@ public:
     virtual core::Weapon * unserializeWeapon(const QByteArray &data) = 0;
     virtual core::World * unserializeWorld(const QByteArray &data) = 0;
     virtual core::WorldSurface * unserializeWorldSurface(const QByteArray &data) = 0;
+
+protected:
+    const Context &ctx;
 };
 
 } // namespace warmonger

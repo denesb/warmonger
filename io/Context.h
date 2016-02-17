@@ -39,7 +39,7 @@ public:
      * the context.
      */
     template <typename T>
-    T get(const QString &name)
+    T get(const QString &name) const
     {
         std::type_index tindex(typeid(typename std::remove_pointer<T>::type));
 

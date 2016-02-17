@@ -28,7 +28,7 @@ TEST_CASE("Armor can be unserialized from JSON", "[JsonUnserializer]")
 
     SECTION("unserializing DamageType")
     {
-        io::JsonUnserializer unserializer;
+        io::JsonUnserializer unserializer(ctx);
         QJsonDocument jdoc(jobj);
         const core::Armor *a = unserializer.unserializeArmor(jdoc.toJson());
 
@@ -45,13 +45,15 @@ TEST_CASE("Armor can be unserialized from JSON", "[JsonUnserializer]")
 
 TEST_CASE("DamageType can be unserialized from JSON", "[JsonUnserializer]")
 {
+    io::Context ctx;
+
     QJsonObject jobj;
     jobj["objectName"] = "damageType1";
     jobj["displayName"] = "DamageType 1";
 
     SECTION("unserializing DamageType")
     {
-        io::JsonUnserializer unserializer;
+        io::JsonUnserializer unserializer(ctx);
         QJsonDocument jdoc(jobj);
         const core::DamageType *dt = unserializer.unserializeDamageType(jdoc.toJson());
 

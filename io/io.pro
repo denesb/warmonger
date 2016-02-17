@@ -9,10 +9,8 @@ HEADERS += \
     Context.h \
     JsonSerializer.h \
     JsonUnserializer.h \
-    QJsonUtil.h \
     Unserializer.h
 
 SOURCES += \
     JsonSerializer.cpp \
-    JsonUnserializer.cpp \
-    QJsonUtil.cpp
+    JsonUnserializer.cpp

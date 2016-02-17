@@ -16,7 +16,7 @@ class Armor :
     Q_OBJECT
 
 public:
-    Armor(QObject *parent);
+    Armor(QObject *parent=nullptr);
     ~Armor();
 
     QMap<const DamageType *, int> getDefenses() const;

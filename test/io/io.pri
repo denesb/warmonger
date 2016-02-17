@@ -1,2 +1,4 @@
 SOURCES += \
-    io/JsonSerializer.cpp
+    io/Context.cpp \
+    io/JsonSerializer.cpp \
+    io/JsonUnserializer.cpp

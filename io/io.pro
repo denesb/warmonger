@@ -6,9 +6,13 @@ CONFIG += staticlib
 
 HEADERS += \
     Serializer.h \
+    Context.h \
     JsonSerializer.h \
-    QJsonUtil.h
+    JsonUnserializer.h \
+    QJsonUtil.h \
+    Unserializer.h
 
 SOURCES += \
     JsonSerializer.cpp \
+    JsonUnserializer.cpp \
     QJsonUtil.cpp

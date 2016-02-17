@@ -1,10 +1,6 @@
 #include <memory>
-#include <string>
-#include <ostream>
 
 #include <QJsonDocument>
-
-#include "test/catch.hpp"
 
 #include "core/Armor.h"
 #include "core/DamageType.h"
@@ -23,14 +19,10 @@
 #include "core/World.h"
 #include "core/WorldSurface.h"
 #include "io/JsonSerializer.h"
+#include "test/catch.hpp"
+#include "test/Util.h"
 
 using namespace warmonger;
-
-std::ostream &operator<<(std::ostream &os, const QString &s)
-{
-    os << s.toStdString();
-    return os;
-}
 
 template <typename T>
 QJsonObject serialize(T obj)

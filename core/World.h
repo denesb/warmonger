@@ -31,7 +31,7 @@ class World :
 public:
     static const QString fileExtension;
 
-    World(QObject *parent);
+    World(QObject *parent=nullptr);
     ~World();
 
     WorldSurface * getSurface() const;

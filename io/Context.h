@@ -53,7 +53,7 @@ private:
     QMap<std::type_index, QMap<QString, QObject *>> objects;
 };
 
-} // namespace core
+} // namespace io
 } // namespace warmonger
 
 #endif // IO_CONTEXT_H

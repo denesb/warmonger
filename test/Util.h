@@ -18,26 +18,26 @@ std::ostream &operator<<(std::ostream &os, const QString &s);
 
 std::unique_ptr<core::World> makeWorld();
 
-template <typename Map>
-void objectEqualsMap(const QJsonObject &object, Map map)
-{
-    REQUIRE(object.size() == map.size());
-
-    for (const typename Map::key_type key : map.keys())
-    {
+/**
+ * Compare a QJsonObject to a map.
+ *
+ * Looks like we have to have this in the direct context of a TEST_CASE
+ * to get rid of annoying warnings about parantheses.
+ */
+#define objectEqualsMap(object, map) \
+    REQUIRE(object.size() == map.size()); \
+    for (auto key : map.keys()) \
         REQUIRE(object[key->objectName()] == map[key]);
-    }
-}
 
-template <typename List>
-void arrayEqualsList(const QJsonArray &array, List list)
-{
-    REQUIRE(array.size() == list.size());
-
-    for (int i = 0; i < list.size(); i++)
-    {
+/**
+ * Compare a QJsonArray to a list.
+ *
+ * Looks like we have to have this in the direct context of a TEST_CASE
+ * to get rid of annoying warnings about parantheses.
+ */
+#define arrayEqualsList(array, list) \
+    REQUIRE(array.size() == list.size()); \
+    for (int i = 0; i < list.size(); i++) \
         REQUIRE(array[i] == list[i]->objectName());
-    }
-}
 
 #endif // TEST_UTIL_H

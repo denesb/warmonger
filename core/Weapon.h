@@ -16,8 +16,7 @@ class Weapon :
     Q_OBJECT
 
 public:
-    Weapon(QObject *parent);
-    ~Weapon();
+    Weapon(QObject *parent=nullptr);
 
     int getRange() const;
     void setRange(int range);

@@ -3,6 +3,10 @@
 
 #include "core/Armor.h"
 #include "core/DamageType.h"
+#include "core/TerrainType.h"
+#include "core/UnitClass.h"
+#include "core/UnitLevel.h"
+#include "core/Weapon.h"
 #include "io/JsonUnserializer.h"
 #include "test/Util.h"
 
@@ -72,7 +76,6 @@ core::Armor * JsonUnserializer::unserializeArmor(
     core::Armor *obj = new core::Armor();
     obj->setObjectName(jobj["objectName"].toString());
     obj->setDisplayName(jobj["displayName"].toString());
-
     obj->setDefenses(fromQJsonObject<QMap<const core::DamageType *, int>>(
         jobj["defenses"].toObject(),
         typeFromContext(core::DamageType *),
@@ -136,6 +139,14 @@ core::TerrainType * JsonUnserializer::unserializeTerrainType(
     const QByteArray &data
 )
 {
+    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonObject jobj = jdoc.object();
+
+    core::TerrainType *obj = new core::TerrainType();
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+
+    return obj;
 }
 
 core::Unit * JsonUnserializer::unserializeUnit(
@@ -148,12 +159,46 @@ core::UnitClass * JsonUnserializer::unserializeUnitClass(
     const QByteArray &data
 )
 {
+    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonObject jobj = jdoc.object();
+
+    core::UnitClass *obj = new core::UnitClass();
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+    obj->setMovementPoints(jobj["movementPoints"].toInt());
+    obj->setMovementCosts(fromQJsonObject<QMap<const core::TerrainType *, int>>(
+        jobj["movementCosts"].toObject(),
+        typeFromContext(core::TerrainType *),
+        qJsonValueToInt
+    ));
+    obj->setAttacks(fromQJsonObject<QMap<const core::TerrainType *, int>>(
+        jobj["attacks"].toObject(),
+        typeFromContext(core::TerrainType *),
+        qJsonValueToInt
+    ));
+    obj->setDefenses(fromQJsonObject<QMap<const core::TerrainType *, int>>(
+        jobj["defenses"].toObject(),
+        typeFromContext(core::TerrainType *),
+        qJsonValueToInt
+    ));
+
+    return obj;
 }
 
 core::UnitLevel * JsonUnserializer::unserializeUnitLevel(
     const QByteArray &data
 )
 {
+    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonObject jobj = jdoc.object();
+
+    core::UnitLevel *obj = new core::UnitLevel();
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+    obj->setExperiencePoints(jobj["experiencePoints"].toInt());
+    obj->setIndex(jobj["index"].toInt());
+
+    return obj;
 }
 
 core::UnitType * JsonUnserializer::unserializeUnitType(
@@ -166,6 +211,20 @@ core::Weapon * JsonUnserializer::unserializeWeapon(
     const QByteArray &data
 )
 {
+    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonObject jobj = jdoc.object();
+
+    core::Weapon *obj = new core::Weapon();
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+    obj->setRange(jobj["range"].toInt());
+    obj->setDamages(fromQJsonObject<QMap<const core::DamageType *, int>>(
+        jobj["damages"].toObject(),
+        typeFromContext(core::DamageType *),
+        qJsonValueToInt
+    ));
+
+    return obj;
 }
 
 core::World * JsonUnserializer::unserializeWorld(

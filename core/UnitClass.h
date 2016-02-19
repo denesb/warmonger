@@ -16,7 +16,7 @@ class UnitClass :
     Q_PROPERTY(int movementPoints READ getMovementPoints WRITE setMovementPoints NOTIFY movementPointsChanged)
 
 public:
-    UnitClass(QObject *parent);
+    UnitClass(QObject *parent=nullptr);
     ~UnitClass();
 
     int getMovementPoints() const;

@@ -14,7 +14,7 @@ class UnitLevel :
     Q_PROPERTY(int experiencePoints READ getExperiencePoints WRITE setExperiencePoints NOTIFY experiencePointsChanged)
 
 public:
-    UnitLevel(QObject *parent);
+    UnitLevel(QObject *parent=nullptr);
     ~UnitLevel();
 
     int getIndex() const;

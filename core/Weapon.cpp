@@ -6,11 +6,8 @@ using namespace warmonger::core;
 
 Weapon::Weapon(QObject *parent) :
     GameObject(parent),
+    range(),
     damages()
-{
-}
-
-Weapon::~Weapon()
 {
 }
 

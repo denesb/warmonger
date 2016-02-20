@@ -3,6 +3,10 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+#include "core/MapNode.h"
+#include "core/Player.h"
+#include "core/Settlement.h"
+#include "core/Unit.h"
 #include "io/Context.h"
 #include "io/JsonUnserializer.h"
 #include "test/catch.hpp"
@@ -26,7 +30,7 @@ TEST_CASE("Armor can be unserialized from JSON", "[JsonUnserializer]")
     jdefenses[dt->objectName()] = 12;
     jobj["defenses"] = jdefenses;
 
-    SECTION("unserializing DamageType")
+    SECTION("unserializing Armor")
     {
         io::JsonUnserializer unserializer(ctx);
         QJsonDocument jdoc(jobj);
@@ -117,6 +121,104 @@ TEST_CASE("Faction can be unserialized from JSON", "[JsonUnserializer]")
     }
 }
 
+TEST_CASE("MapNode can be unserialized from JSON", "[JsonUnserializer]")
+{
+    io::Context ctx;
+    const std::unique_ptr<core::World> world{makeWorld()};
+    core::TerrainType *tt = world->getTerrainTypes()[0];
+    ctx.add(tt);
+
+    QJsonObject jobj;
+    jobj["objectName"] = "mapNode1";
+    jobj["displayName"] = "MapNode 1";
+    jobj["terrainType"] = tt->objectName();
+
+    SECTION("unserializing MapNode")
+    {
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        const std::unique_ptr<core::MapNode> mn(
+            unserializer.unserializeMapNode(jdoc.toJson())
+        );
+
+        REQUIRE(mn->objectName() == jobj["objectName"].toString());
+        REQUIRE(mn->getDisplayName() == jobj["displayName"].toString());
+        REQUIRE(mn->getTerrainType() == tt);
+    }
+}
+
+TEST_CASE("Player can be unserialized from JSON", "[JsonUnserializer]")
+{
+    io::Context ctx;
+    const std::unique_ptr<core::World> world{makeWorld()};
+    core::Faction *f = world->getFactions()[0];
+    ctx.add(f);
+
+    QJsonObject jobj;
+    jobj["objectName"] = "player1";
+    jobj["displayName"] = "Player 1";
+
+    QColor color("red");
+    jobj["color"] = color.name();
+    jobj["goldBalance"] = 300;
+    jobj["faction"] = f->objectName();
+
+    SECTION("unserializing Player")
+    {
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        const std::unique_ptr<core::Player> p(
+            unserializer.unserializePlayer(jdoc.toJson())
+        );
+
+        REQUIRE(p->objectName() == jobj["objectName"].toString());
+        REQUIRE(p->getDisplayName() == jobj["displayName"].toString());
+        REQUIRE(p->getColor() == color);
+        REQUIRE(p->getGoldBalance() == jobj["goldBalance"].toInt());
+        REQUIRE(p->getFaction() == f);
+    }
+}
+
+TEST_CASE("Settlement can be unserialized from JSON", "[JsonUnserializer]")
+{
+    io::Context ctx;
+
+    const std::unique_ptr<core::World> world{makeWorld()};
+    core::SettlementType *st = world->getSettlementTypes()[0];
+
+    core::MapNode mn;
+    mn.setObjectName("mapNode1");
+
+    core::Player p;
+    p.setObjectName("player1");
+
+    ctx.add(st);
+    ctx.add(&mn);
+    ctx.add(&p);
+
+    QJsonObject jobj;
+    jobj["objectName"] = "settlement1";
+    jobj["displayName"] = "Settlement 1";
+    jobj["type"] = st->objectName();
+    jobj["mapNode"] = mn.objectName();
+    jobj["owner"] = p.objectName();
+
+    SECTION("unserializing Settlement")
+    {
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        const std::unique_ptr<core::Settlement> s(
+            unserializer.unserializeSettlement(jdoc.toJson())
+        );
+
+        REQUIRE(s->objectName() == jobj["objectName"].toString());
+        REQUIRE(s->getDisplayName() == jobj["displayName"].toString());
+        REQUIRE(s->getType() == st);
+        REQUIRE(s->getMapNode() == &mn);
+        REQUIRE(s->getOwner() == &p);
+    }
+}
+
 TEST_CASE("SettlementType can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
@@ -175,6 +277,45 @@ TEST_CASE("TerrainType can be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE(tt->objectName() == jobj["objectName"].toString());
         REQUIRE(tt->getDisplayName() == jobj["displayName"].toString());
+    }
+}
+
+TEST_CASE("Unit can be unserialized from JSON", "[JsonUnserializer]")
+{
+    io::Context ctx;
+    const std::unique_ptr<core::World> world{makeWorld()};
+    core::UnitType *ut = world->getUnitTypes()[0];
+
+    core::MapNode mn;
+    mn.setObjectName("mapNode1");
+
+    core::Player p;
+    p.setObjectName("player1");
+
+    ctx.add(ut);
+    ctx.add(&mn);
+    ctx.add(&p);
+
+    QJsonObject jobj;
+    jobj["objectName"] = "unit1";
+    jobj["displayName"] = "Unit 1";
+    jobj["type"] = ut->objectName();
+    jobj["mapNode"] = mn.objectName();
+    jobj["owner"] = p.objectName();
+
+    SECTION("unserializing Unit")
+    {
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        const std::unique_ptr<core::Unit> u(
+            unserializer.unserializeUnit(jdoc.toJson())
+        );
+
+        REQUIRE(u->objectName() == jobj["objectName"].toString());
+        REQUIRE(u->getDisplayName() == jobj["displayName"].toString());
+        REQUIRE(u->getType() == ut);
+        REQUIRE(u->getMapNode() == &mn);
+        REQUIRE(u->getOwner() == &p);
     }
 }
 

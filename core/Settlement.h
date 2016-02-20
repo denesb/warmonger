@@ -21,7 +21,7 @@ class Settlement :
     Q_PROPERTY(QVariantList recruits READ readRecruits NOTIFY recruitsChanged);
 
 public:
-    Settlement(QObject *parent);
+    Settlement(QObject *parent=nullptr);
     ~Settlement();
 
     SettlementType * getType() const;

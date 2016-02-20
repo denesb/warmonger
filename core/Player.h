@@ -20,7 +20,7 @@ class Player :
     Q_PROPERTY(Faction *faction READ getFaction WRITE setFaction NOTIFY factionChanged)
 
 public:
-    Player(QObject *parent);
+    Player(QObject *parent=nullptr);
     ~Player();
 
     QColor getColor() const;

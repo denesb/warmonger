@@ -37,7 +37,7 @@ public:
     static const QMap<UnitRank, QString> rankNames;
     static const QMap<QString, UnitRank> str2rank;
 
-    Unit(QObject *parent);
+    Unit(QObject *parent=nullptr);
     ~Unit();
 
     UnitRank getRank() const;

@@ -42,7 +42,7 @@ public:
     static const QHash<Direction, QString> direction2str;
     static const QHash<Direction, Direction> oppositeDirections;
 
-    MapNode(QObject *parent);
+    MapNode(QObject *parent=nullptr);
     ~MapNode();
 
     TerrainType * getTerrainType() const;

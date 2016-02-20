@@ -7,8 +7,12 @@
 #include "core/Armor.h"
 #include "core/DamageType.h"
 #include "core/Faction.h"
+#include "core/MapNode.h"
+#include "core/Player.h"
+#include "core/Settlement.h"
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
+#include "core/Unit.h"
 #include "core/UnitClass.h"
 #include "core/UnitLevel.h"
 #include "core/Weapon.h"
@@ -149,7 +153,6 @@ core::Faction * JsonUnserializer::unserializeFaction(
     QJsonDocument jdoc(QJsonDocument::fromJson(data));
     QJsonObject jobj = jdoc.object();
 
-
     ReferenceResolver<core::UnitType *> unitTypeRefResolver(this->ctx);
 
     core::Faction *obj = new core::Faction();
@@ -186,18 +189,59 @@ core::MapNode * JsonUnserializer::unserializeMapNode(
     const QByteArray &data
 )
 {
+    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonObject jobj = jdoc.object();
+
+    core::MapNode *obj = new core::MapNode();
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+    obj->setTerrainType(
+        this->ctx.get<core::TerrainType *>(jobj["terrainType"].toString())
+    );
+
+    return obj;
 }
 
 core::Player * JsonUnserializer::unserializePlayer(
     const QByteArray &data
 )
 {
+    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonObject jobj = jdoc.object();
+
+    core::Player *obj = new core::Player();
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+    obj->setColor(QColor(jobj["color"].toString()));
+    obj->setGoldBalance(jobj["goldBalance"].toInt());
+    obj->setFaction(
+        this->ctx.get<core::Faction *>(jobj["faction"].toString())
+    );
+
+    return obj;
 }
 
 core::Settlement * JsonUnserializer::unserializeSettlement(
     const QByteArray &data
 )
 {
+    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonObject jobj = jdoc.object();
+
+    core::Settlement *obj = new core::Settlement();
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+    obj->setType(
+        this->ctx.get<core::SettlementType *>(jobj["type"].toString())
+    );
+    obj->setMapNode(
+        this->ctx.get<core::MapNode *>(jobj["mapNode"].toString())
+    );
+    obj->setOwner(
+        this->ctx.get<core::Player *>(jobj["owner"].toString())
+    );
+
+    return obj;
 }
 
 core::SettlementType * JsonUnserializer::unserializeSettlementType(
@@ -237,6 +281,23 @@ core::Unit * JsonUnserializer::unserializeUnit(
     const QByteArray &data
 )
 {
+    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonObject jobj = jdoc.object();
+
+    core::Unit *obj = new core::Unit();
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+    obj->setType(
+        this->ctx.get<core::UnitType *>(jobj["type"].toString())
+    );
+    obj->setMapNode(
+        this->ctx.get<core::MapNode *>(jobj["mapNode"].toString())
+    );
+    obj->setOwner(
+        this->ctx.get<core::Player *>(jobj["owner"].toString())
+    );
+
+    return obj;
 }
 
 core::UnitClass * JsonUnserializer::unserializeUnitClass(

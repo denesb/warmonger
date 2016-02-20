@@ -36,6 +36,12 @@ void Faction::setUnitTypes(const QList<UnitType *> &unitTypes)
     }
 }
 
+void Faction::addUnitType(UnitType *unitType)
+{
+    this->unitTypes.append(unitType);
+    emit unitTypesChanged();
+}
+
 QMap<SettlementType *, QList<UnitType *>> Faction::getRecruits() const
 {
     return this->recruits;

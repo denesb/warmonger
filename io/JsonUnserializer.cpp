@@ -6,6 +6,8 @@
 
 #include "core/Armor.h"
 #include "core/DamageType.h"
+#include "core/Faction.h"
+#include "core/SettlementType.h"
 #include "core/TerrainType.h"
 #include "core/UnitClass.h"
 #include "core/UnitLevel.h"
@@ -144,6 +146,34 @@ core::Faction * JsonUnserializer::unserializeFaction(
     const QByteArray &data
 )
 {
+    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonObject jobj = jdoc.object();
+
+
+    ReferenceResolver<core::UnitType *> unitTypeRefResolver(this->ctx);
+
+    core::Faction *obj = new core::Faction();
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+    obj->setUnitTypes(fromQJsonArray<QList<core::UnitType *>>(
+        jobj["unitTypes"].toArray(),
+        unitTypeRefResolver
+    ));
+    obj->setRecruits(
+        fromQJsonObject<QMap<core::SettlementType *, QList<core::UnitType *>>>(
+            jobj["recruits"].toObject(),
+            ReferenceResolver<core::SettlementType *>(this->ctx),
+            [&](const QJsonValue &v)
+            {
+                return fromQJsonArray<QList<core::UnitType *>>(
+                    v.toArray(),
+                    unitTypeRefResolver
+                );
+            }
+        )
+    );
+
+    return obj;
 }
 
 core::Map * JsonUnserializer::unserializeMap(
@@ -174,6 +204,19 @@ core::SettlementType * JsonUnserializer::unserializeSettlementType(
     const QByteArray &data
 )
 {
+    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonObject jobj = jdoc.object();
+
+    core::SettlementType *obj = new core::SettlementType();
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+    obj->setGoldPerTurn(jobj["goldPerTurn"].toInt());
+    obj->setRecruits(fromQJsonArray<QList<core::UnitType *>>(
+        jobj["recruits"].toArray(),
+        ReferenceResolver<core::UnitType *>(this->ctx)
+    ));
+
+    return obj;
 }
 
 core::TerrainType * JsonUnserializer::unserializeTerrainType(

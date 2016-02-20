@@ -16,7 +16,7 @@ class SettlementType :
     Q_PROPERTY(QVariantList recruits READ readRecruits WRITE writeRecruits NOTIFY recruitsChanged)
 
 public:
-    SettlementType(QObject *parent);
+    SettlementType(QObject *parent=nullptr);
     ~SettlementType();
 
     int getGoldPerTurn() const;

@@ -17,12 +17,13 @@ class Faction :
     Q_PROPERTY(QVariantMap recruits READ readRecruits NOTIFY recruitsChanged)
 
 public:
-    Faction(QObject *parent);
+    Faction(QObject *parent=nullptr);
     ~Faction();
 
     QList<UnitType *> getUnitTypes() const;
     QVariantList readUnitTypes() const;
     void setUnitTypes(const QList<UnitType *> &unitTypes);
+    void addUnitType(UnitType *unitType);
 
     QMap<SettlementType *, QList<UnitType *>> getRecruits() const;
     QVariantMap readRecruits() const;

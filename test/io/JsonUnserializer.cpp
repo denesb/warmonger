@@ -62,6 +62,101 @@ TEST_CASE("DamageType can be unserialized from JSON", "[JsonUnserializer]")
     }
 }
 
+TEST_CASE("Faction can be unserialized from JSON", "[JsonUnserializer]")
+{
+    io::Context ctx;
+
+    const std::unique_ptr<core::World> world{makeWorld()};
+    QList<core::UnitType *> uts = world->getUnitTypes();
+    std::for_each(
+        uts.cbegin(),
+        uts.cend(),
+        [&](core::UnitType *ut){ctx.add<core::UnitType *>(ut);}
+    );
+    core::SettlementType *st = world->getSettlementTypes()[0];
+    ctx.add(st);
+
+    QJsonObject jobj;
+    jobj["objectName"] = "faction1";
+    jobj["displayName"] = "Faction 1";
+    QJsonArray unitTypes;
+    std::transform(
+        uts.begin(),
+        uts.end(),
+        std::back_inserter(unitTypes),
+        [](core::UnitType *o){return o->objectName();}
+    );
+    jobj["unitTypes"] = unitTypes;
+
+    QJsonObject jrecruits;
+    jrecruits[st->objectName()] = unitTypes;
+    jobj["recruits"] = jrecruits;
+
+    SECTION("unserializing Faction")
+    {
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        const std::unique_ptr<core::Faction> f(
+            unserializer.unserializeFaction(jdoc.toJson())
+        );
+
+        REQUIRE(f->objectName() == jobj["objectName"].toString());
+        REQUIRE(f->getDisplayName() == jobj["displayName"].toString());
+        arrayEqualsList(unitTypes, f->getUnitTypes());
+
+        QMap<core::SettlementType *, QList<core::UnitType *>> recruits =
+            f->getRecruits();
+        REQUIRE(recruits.size() == jrecruits.size());
+        for (core::SettlementType *s : recruits.keys())
+        {
+            arrayEqualsList(
+                jrecruits[s->objectName()].toArray(),
+                recruits[s]
+            );
+        }
+    }
+}
+
+TEST_CASE("SettlementType can be unserialized from JSON", "[JsonUnserializer]")
+{
+    io::Context ctx;
+
+    const std::unique_ptr<core::World> world{makeWorld()};
+    QList<core::UnitType *> uts = world->getUnitTypes();
+    std::for_each(
+        uts.cbegin(),
+        uts.cend(),
+        [&](core::UnitType *ut){ctx.add<core::UnitType *>(ut);}
+    );
+
+    QJsonObject jobj;
+    jobj["objectName"] = "settlementType1";
+    jobj["displayName"] = "SettlementType 1";
+    jobj["goldPerTurn"] = 20;
+    QJsonArray recruits;
+    std::transform(
+        uts.begin(),
+        uts.end(),
+        std::back_inserter(recruits),
+        [](core::UnitType *o){return o->objectName();}
+    );
+    jobj["recruits"] = recruits;
+
+    SECTION("unserializing SettlementType")
+    {
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        const std::unique_ptr<core::SettlementType> st(
+            unserializer.unserializeSettlementType(jdoc.toJson())
+        );
+
+        REQUIRE(st->objectName() == jobj["objectName"].toString());
+        REQUIRE(st->getDisplayName() == jobj["displayName"].toString());
+        REQUIRE(st->getGoldPerTurn() == jobj["goldPerTurn"].toInt());
+        arrayEqualsList(recruits, st->getRecruits());
+    }
+}
+
 TEST_CASE("TerrainType can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;

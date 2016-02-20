@@ -23,7 +23,7 @@ class UnitType :
     Q_PROPERTY(QVariantList weapons READ readWeapons NOTIFY weaponsChanged)
 
 public:
-    UnitType(QObject *parent);
+    UnitType(QObject *parent=nullptr);
     ~UnitType();
 
     UnitClass * getClass() const;

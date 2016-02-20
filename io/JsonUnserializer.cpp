@@ -1,3 +1,6 @@
+#include <algorithm>
+
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 
@@ -14,15 +17,53 @@ using namespace warmonger;
 using namespace warmonger::io;
 
 /**
- * Generate a callable to get Type from the context.
- * Only usable in an instance member function.
+ * Functor object that retrieves object from the ctx.
  */
-#define typeFromContext(Type) \
-    std::bind( \
-        &Context::get<Type>, \
-        &this->ctx, \
-        std::placeholders::_1 \
-    ) \
+template <typename Type>
+class ReferenceResolver
+{
+public:
+    ReferenceResolver(const Context &ctx) :
+        ctx(ctx)
+    {
+    }
+
+    Type operator()(const QString &n) const
+    {
+        return ctx.get<Type>(n);
+    }
+
+    Type operator()(const QJsonValue &v) const
+    {
+        return (*this)(v.toString());
+    }
+
+private:
+    const Context &ctx;
+};
+
+
+/**
+ * Convert QJsonArray to Container.
+ *
+ * Container must be an STL-compatible container having a push_back
+ * method. The convertFunc function converts QJsonValue to
+ * Container::value_type.
+ */
+template<typename Container, typename ConvertFunc>
+Container fromQJsonArray(const QJsonArray &array, ConvertFunc convertFunc)
+{
+    Container container;
+
+    std::transform(
+        array.begin(),
+        array.end(),
+        std::back_inserter(container),
+        convertFunc
+    );
+
+    return container;
+}
 
 /**
  * Convert QJsonObject to Container.
@@ -78,7 +119,7 @@ core::Armor * JsonUnserializer::unserializeArmor(
     obj->setDisplayName(jobj["displayName"].toString());
     obj->setDefenses(fromQJsonObject<QMap<const core::DamageType *, int>>(
         jobj["defenses"].toObject(),
-        typeFromContext(core::DamageType *),
+        ReferenceResolver<core::DamageType *>(this->ctx),
         qJsonValueToInt
     ));
 
@@ -168,17 +209,17 @@ core::UnitClass * JsonUnserializer::unserializeUnitClass(
     obj->setMovementPoints(jobj["movementPoints"].toInt());
     obj->setMovementCosts(fromQJsonObject<QMap<const core::TerrainType *, int>>(
         jobj["movementCosts"].toObject(),
-        typeFromContext(core::TerrainType *),
+        ReferenceResolver<core::TerrainType *>(this->ctx),
         qJsonValueToInt
     ));
     obj->setAttacks(fromQJsonObject<QMap<const core::TerrainType *, int>>(
         jobj["attacks"].toObject(),
-        typeFromContext(core::TerrainType *),
+        ReferenceResolver<core::TerrainType *>(this->ctx),
         qJsonValueToInt
     ));
     obj->setDefenses(fromQJsonObject<QMap<const core::TerrainType *, int>>(
         jobj["defenses"].toObject(),
-        typeFromContext(core::TerrainType *),
+        ReferenceResolver<core::TerrainType *>(this->ctx),
         qJsonValueToInt
     ));
 
@@ -205,6 +246,28 @@ core::UnitType * JsonUnserializer::unserializeUnitType(
     const QByteArray &data
 )
 {
+    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonObject jobj = jdoc.object();
+
+    core::UnitType *obj = new core::UnitType();
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+    obj->setClass(this->ctx.get<core::UnitClass *>(jobj["class"].toString()));
+    obj->setLevel(this->ctx.get<core::UnitLevel *>(jobj["level"].toString()));
+    obj->setHitPoints(jobj["hitPoints"].toInt());
+    obj->setRecruitmentCost(jobj["recruitmentCost"].toInt());
+    obj->setUpkeepCost(jobj["upkeepCost"].toInt());
+    obj->setArmor(this->ctx.get<core::Armor *>(jobj["armor"].toString()));
+    obj->setWeapons(fromQJsonArray<QList<core::Weapon *>>(
+        jobj["weapons"].toArray(),
+        ReferenceResolver<core::Weapon *>(this->ctx)
+    ));
+    obj->setUpgrades(fromQJsonArray<QList<core::UnitType *>>(
+        jobj["upgrades"].toArray(),
+        ReferenceResolver<core::UnitType *>(this->ctx)
+    ));
+
+    return obj;
 }
 
 core::Weapon * JsonUnserializer::unserializeWeapon(
@@ -220,7 +283,7 @@ core::Weapon * JsonUnserializer::unserializeWeapon(
     obj->setRange(jobj["range"].toInt());
     obj->setDamages(fromQJsonObject<QMap<const core::DamageType *, int>>(
         jobj["damages"].toObject(),
-        typeFromContext(core::DamageType *),
+        ReferenceResolver<core::DamageType *>(this->ctx),
         qJsonValueToInt
     ));
 

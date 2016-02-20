@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include <QJsonDocument>
 #include <QJsonObject>
 
@@ -145,6 +147,74 @@ TEST_CASE("UnitLevel can be unserialized from JSON", "[JsonUnserializer]")
         REQUIRE(ul->getDisplayName() == jobj["displayName"].toString());
         REQUIRE(ul->getExperiencePoints() == jobj["experiencePoints"].toInt());
         REQUIRE(ul->getIndex() == jobj["index"].toInt());
+    }
+}
+
+TEST_CASE("UnitType can be unserialized from JSON", "[JsonUnserializer]")
+{
+    io::Context ctx;
+
+    const std::unique_ptr<core::World> world{makeWorld()};
+    core::UnitClass *uc = world->getUnitClasses()[0];
+    core::UnitLevel *ul = world->getUnitLevels()[0];
+    core::Armor *a = world->getArmors()[0];
+    QList<core::Weapon *> ws = world->getWeapons();
+    QList<core::UnitType *> uts = world->getUnitTypes();
+    ctx.add(uc);
+    ctx.add(ul);
+    ctx.add(a);
+    std::for_each(
+        ws.cbegin(),
+        ws.cend(),
+        [&](core::Weapon *w){ctx.add<core::Weapon *>(w);}
+    );
+    std::for_each(
+        uts.cbegin(),
+        uts.cend(),
+        [&](core::UnitType *ut){ctx.add<core::UnitType *>(ut);}
+    );
+
+    QJsonObject jobj;
+    jobj["objectName"] = "__unitType2";
+    jobj["displayName"] = "__UnitType 2";
+    jobj["class"] = uc->objectName();
+    jobj["level"] = ul->objectName();
+    jobj["hitPoints"] = 43;
+    jobj["recruitmentCost"] = 25;
+    jobj["upkeepCost"] = 8;
+    jobj["armor"] = a->objectName();
+
+    QJsonArray weapons;
+    for (core::Weapon * w : ws)
+    {
+        weapons << w->objectName();
+    }
+    jobj["weapons"] = weapons;
+
+    QJsonArray upgrades;
+    for (core::UnitType * ut : uts)
+    {
+        upgrades << ut->objectName();
+    }
+    jobj["upgrades"] = upgrades;
+
+    SECTION("unserializing UnitType")
+    {
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        const std::unique_ptr<core::UnitType> ut(
+            unserializer.unserializeUnitType(jdoc.toJson())
+        );
+
+        REQUIRE(ut->objectName() == jobj["objectName"].toString());
+        REQUIRE(ut->getDisplayName() == jobj["displayName"].toString());
+        REQUIRE(ut->getClass()->objectName() == jobj["class"].toString());
+        REQUIRE(ut->getHitPoints() == jobj["hitPoints"].toInt());
+        REQUIRE(ut->getRecruitmentCost() == jobj["recruitmentCost"].toInt());
+        REQUIRE(ut->getUpkeepCost() == jobj["upkeepCost"].toInt());
+        REQUIRE(ut->getArmor()->objectName() == jobj["armor"].toString());
+        arrayEqualsList(weapons, ut->getWeapons());
+        arrayEqualsList(upgrades, ut->getUpgrades());
     }
 }
 

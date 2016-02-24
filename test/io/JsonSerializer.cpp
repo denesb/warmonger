@@ -36,8 +36,10 @@ QJsonObject serialize(T obj)
 
 TEST_CASE("Armor can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::unique_ptr<core::World> w{makeWorld()};
-    core::Armor *a = w->getArmors()[0];
+    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+
+    core::Armor *a = world->getArmors()[0];
 
     SECTION("serializing Armor")
     {
@@ -52,8 +54,10 @@ TEST_CASE("Armor can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("DamageType can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::unique_ptr<core::World> w{makeWorld()};
-    core::DamageType *dt = w->getDamageTypes()[0];
+    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+
+    core::DamageType *dt = world->getDamageTypes()[0];
 
     SECTION("serializing DamageType")
     {
@@ -66,8 +70,10 @@ TEST_CASE("DamageType can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("Faction can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::unique_ptr<core::World> w{makeWorld()};
-    core::Faction *f = w->getFactions()[0];
+    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+
+    core::Faction *f = world->getFactions()[0];
 
     SECTION("serializing Faction")
     {
@@ -320,8 +326,10 @@ TEST_CASE("Settlement can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("SettlementType can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::unique_ptr<core::World> w{makeWorld()};
-    core::SettlementType *st = w->getSettlementTypes()[0];
+    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+
+    core::SettlementType *st = world->getSettlementTypes()[0];
 
     SECTION("serializing SettlementType")
     {
@@ -339,8 +347,10 @@ TEST_CASE("SettlementType can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("TerrainType can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::unique_ptr<core::World> w{makeWorld()};
-    core::TerrainType *tt = w->getTerrainTypes()[0];
+    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+
+    core::TerrainType *tt = world->getTerrainTypes()[0];
 
     SECTION("serializing TerrainType")
     {
@@ -395,8 +405,10 @@ TEST_CASE("Unit can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("UnitClass can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::unique_ptr<core::World> w{makeWorld()};
-    core::UnitClass *uc = w->getUnitClasses()[0];
+    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+
+    core::UnitClass *uc = world->getUnitClasses()[0];
 
     SECTION("serializing UnitClass")
     {
@@ -422,8 +434,10 @@ TEST_CASE("UnitClass can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("UnitLevel can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::unique_ptr<core::World> w{makeWorld()};
-    core::UnitLevel *ul = w->getUnitLevels()[0];
+    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+
+    core::UnitLevel *ul = world->getUnitLevels()[0];
 
     SECTION("serializing UnitLevel")
     {
@@ -438,8 +452,10 @@ TEST_CASE("UnitLevel can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("UnitType can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::unique_ptr<core::World> w{makeWorld()};
-    core::UnitType *ut = w->getUnitTypes()[0];
+    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+
+    core::UnitType *ut = world->getUnitTypes()[0];
 
     SECTION("serializing UnitType")
     {
@@ -466,7 +482,9 @@ TEST_CASE("UnitType can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("Weapon can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::unique_ptr<core::World> world{makeWorld()};
+    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+
     core::Weapon *w = world->getWeapons()[0];
 
     SECTION("serializing WorldSurface")
@@ -485,14 +503,15 @@ TEST_CASE("Weapon can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::unique_ptr<core::World> w{makeWorld()};
+    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
 
     SECTION("serializing World")
     {
-        const QJsonObject jobj(serialize(w.get()));
+        const QJsonObject jobj(serialize(world.get()));
 
-        REQUIRE(jobj["objectName"].toString() == w->objectName());
-        REQUIRE(jobj["displayName"].toString() == w->getDisplayName());
+        REQUIRE(jobj["objectName"].toString() == world->objectName());
+        REQUIRE(jobj["displayName"].toString() == world->getDisplayName());
 
         REQUIRE(jobj["damageTypes"].isArray() == true);
         SECTION("serializing DamageTypes")
@@ -503,12 +522,12 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
             REQUIRE(dts[0].isObject() == true);
             REQUIRE(dts[1].isObject() == true);
 
-            const core::DamageType *dt1 = w->getDamageTypes()[0];
+            const core::DamageType *dt1 = world->getDamageTypes()[0];
             const QJsonObject dt1j(dts[0].toObject());
             REQUIRE(dt1j["objectName"].toString() == dt1->objectName());
             REQUIRE(dt1j["displayName"].toString() == dt1->getDisplayName());
 
-            const core::DamageType *dt2 = w->getDamageTypes()[1];
+            const core::DamageType *dt2 = world->getDamageTypes()[1];
             const QJsonObject dt2j(dts[1].toObject());
             REQUIRE(dt2j["objectName"].toString() == dt2->objectName());
             REQUIRE(dt2j["displayName"].toString() == dt2->getDisplayName());
@@ -522,7 +541,7 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
             REQUIRE(as.size() == 1);
             REQUIRE(as[0].isObject() == true);
 
-            const core::Armor *a1 = w->getArmors()[0];
+            const core::Armor *a1 = world->getArmors()[0];
             const QJsonObject a1j(as[0].toObject());
             REQUIRE(a1j["objectName"].toString() == a1->objectName());
             REQUIRE(a1j["displayName"].toString() == a1->getDisplayName());
@@ -541,7 +560,7 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
             REQUIRE(ws[0].isObject() == true);
             REQUIRE(ws[1].isObject() == true);
 
-            const core::Weapon *w1 = w->getWeapons()[0];
+            const core::Weapon *w1 = world->getWeapons()[0];
             const QJsonObject w1j(ws[0].toObject());
             REQUIRE(w1j["objectName"].toString() == w1->objectName());
             REQUIRE(w1j["displayName"].toString() == w1->getDisplayName());
@@ -551,7 +570,7 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
             const QJsonObject ds1(w1j["damages"].toObject());
             objectEqualsMap(ds1, w1->getDamages());
 
-            const core::Weapon *w2 = w->getWeapons()[1];
+            const core::Weapon *w2 = world->getWeapons()[1];
             const QJsonObject w2j(ws[1].toObject());
             REQUIRE(w2j["objectName"].toString() == w2->objectName());
             REQUIRE(w2j["displayName"].toString() == w2->getDisplayName());
@@ -570,7 +589,7 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
             REQUIRE(tts.size() == 1);
             REQUIRE(tts[0].isObject() == true);
 
-            const core::TerrainType *tt1 = w->getTerrainTypes()[0];
+            const core::TerrainType *tt1 = world->getTerrainTypes()[0];
             const QJsonObject tt1j(tts[0].toObject());
             REQUIRE(tt1j["objectName"].toString() == tt1->objectName());
             REQUIRE(tt1j["displayName"].toString() == tt1->getDisplayName());
@@ -584,7 +603,7 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
             REQUIRE(ucs.size() == 1);
             REQUIRE(ucs[0].isObject() == true);
 
-            const core::UnitClass *uc1 = w->getUnitClasses()[0];
+            const core::UnitClass *uc1 = world->getUnitClasses()[0];
             const QJsonObject uc1j(ucs[0].toObject());
             REQUIRE(uc1j["objectName"].toString() == uc1->objectName());
             REQUIRE(uc1j["displayName"].toString() == uc1->getDisplayName());
@@ -610,7 +629,7 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
             REQUIRE(uls.size() == 1);
             REQUIRE(uls[0].isObject() == true);
 
-            const core::UnitLevel *ul1 = w->getUnitLevels()[0];
+            const core::UnitLevel *ul1 = world->getUnitLevels()[0];
             const QJsonObject ul1j(uls[0].toObject());
             REQUIRE(ul1j["objectName"].toString() == ul1->objectName());
             REQUIRE(ul1j["displayName"].toString() == ul1->getDisplayName());
@@ -623,10 +642,10 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
         {
             const QJsonArray uts(jobj["unitTypes"].toArray());
 
-            REQUIRE(uts.size() == 1);
+            REQUIRE(uts.size() == world->getUnitTypes().size());
             REQUIRE(uts[0].isObject() == true);
 
-            const core::UnitType *ut1 = w->getUnitTypes()[0];
+            const core::UnitType *ut1 = world->getUnitTypes()[0];
             const QJsonObject ut1j(uts[0].toObject());
             REQUIRE(ut1j["objectName"].toString() == ut1->objectName());
             REQUIRE(ut1j["displayName"].toString() == ut1->getDisplayName());
@@ -654,7 +673,7 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
             REQUIRE(sts.size() == 1);
             REQUIRE(sts[0].isObject() == true);
 
-            const core::SettlementType *st1 = w->getSettlementTypes()[0];
+            const core::SettlementType *st1 = world->getSettlementTypes()[0];
             const QJsonObject st1j(sts[0].toObject());
             REQUIRE(st1j["objectName"].toString() == st1->objectName());
             REQUIRE(st1j["displayName"].toString() == st1->getDisplayName());
@@ -673,7 +692,7 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
             REQUIRE(fs.size() == 1);
             REQUIRE(fs[0].isObject() == true);
 
-            const core::Faction *f1 = w->getFactions()[0];
+            const core::Faction *f1 = world->getFactions()[0];
             const QJsonObject f1j(fs[0].toObject());
             REQUIRE(f1j["objectName"].toString() == f1->objectName());
             REQUIRE(f1j["displayName"].toString() == f1->getDisplayName());

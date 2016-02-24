@@ -7,6 +7,8 @@
 #include <QObject>
 #include <QMap>
 
+#include "log/LogStream.h"
+
 namespace warmonger {
 namespace io {
 
@@ -28,6 +30,8 @@ public:
     {
         std::type_index tindex(typeid(typename std::remove_pointer<T>::type));
 
+        wDebug("io.Context") << "Added object " << object;
+
         QMap<QString, QObject *> &typeObjs = this->objects[tindex];
         typeObjs[object->objectName()] = object;
     }
@@ -42,6 +46,8 @@ public:
     T get(const QString &name) const
     {
         std::type_index tindex(typeid(typename std::remove_pointer<T>::type));
+
+        wDebug("io.Context") << "Looking up object with name " << name;
 
         QMap<QString, QObject *> typeObjs = this->objects[tindex];
         QObject *o = typeObjs[name];

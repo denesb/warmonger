@@ -5,12 +5,14 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 HEADERS += \
-    Serializer.h \
     Context.h \
+    Exception.h \
+    Serializer.h \
     JsonSerializer.h \
     JsonUnserializer.h \
     Unserializer.h
 
 SOURCES += \
+    Exception.cpp \
     JsonSerializer.cpp \
     JsonUnserializer.cpp

@@ -1,7 +1,6 @@
 #ifndef TEST_UTIL_H
 #define TEST_UTIL_H
 
-#include <memory>
 #include <string>
 #include <ostream>
 
@@ -16,7 +15,7 @@ using namespace warmonger;
 
 std::ostream &operator<<(std::ostream &os, const QString &s);
 
-std::unique_ptr<core::World> makeWorld();
+QPair<core::World *, QJsonObject> makeWorld();
 
 /**
  * Compare a QJsonObject to a map.
@@ -27,7 +26,10 @@ std::unique_ptr<core::World> makeWorld();
 #define objectEqualsMap(object, map) \
     REQUIRE(object.size() == map.size()); \
     for (auto key : map.keys()) \
-        REQUIRE(object[key->objectName()] == map[key]);
+    { \
+        REQUIRE(key != nullptr); \
+        REQUIRE(object[key->objectName()] == map[key]); \
+    }
 
 /**
  * Compare a QJsonArray to a list.
@@ -38,6 +40,9 @@ std::unique_ptr<core::World> makeWorld();
 #define arrayEqualsList(array, list) \
     REQUIRE(array.size() == list.size()); \
     for (int i = 0; i < list.size(); i++) \
-        REQUIRE(array[i] == list[i]->objectName());
+    { \
+        REQUIRE(list[i] != nullptr); \
+        REQUIRE(array[i] == list[i]->objectName()); \
+    }
 
 #endif // TEST_UTIL_H

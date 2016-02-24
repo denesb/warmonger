@@ -12,6 +12,24 @@ namespace core {
 
 /**
  * The father of all exceptions.
+ * TODO: migrate all exceptions to inherit from this class.
+ */
+class Exception :
+    std::exception
+{
+public:
+    explicit Exception(const QString &message = QString());
+
+    QString getMessage() const noexcept;
+
+    const char * what() const noexcept;
+
+private:
+    const QString message;
+};
+
+/**
+ * The father of all exceptions.
  */
 class GameException
 {

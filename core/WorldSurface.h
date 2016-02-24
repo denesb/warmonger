@@ -22,7 +22,7 @@ class WorldSurface :
 public:
     static const QString fileExtension;
 
-    WorldSurface(QObject *parent);
+    WorldSurface(QObject *parent=nullptr);
 
     QString getEntityRelativePath(const QString &name) const;
 

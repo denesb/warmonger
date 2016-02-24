@@ -2,6 +2,22 @@
 
 using namespace warmonger::core;
 
+Exception::Exception(const QString &message) :
+    message(message)
+{
+}
+
+QString Exception::getMessage() const noexcept
+{
+    return this->message;
+}
+
+const char * Exception::what() const noexcept
+{
+    return this->message.toStdString().c_str();
+}
+
+
 GameException::GameException(const QString &message) :
     message(message)
 {
@@ -13,7 +29,6 @@ QString GameException::getMessage() const
 {
     return this->message;
 }
-
 
 UnresolvedReferenceError::UnresolvedReferenceError(const QString &message) :
     GameException(message)

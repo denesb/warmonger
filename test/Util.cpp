@@ -243,3 +243,120 @@ QPair<core::World *, QJsonObject> makeWorld()
 
     return qMakePair(w, jw);
 }
+
+QPair<core::Map *, QJsonObject> makeMap()
+{
+    core::Map *m(new core::Map());
+    QJsonObject jm;
+
+    setNames(m, jm, 0);
+
+    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    core::World *w = worlds.first;
+
+    m->setWorld(w);
+    jm["world"] = w->objectName();
+
+    m->setMapNodeIndex(2);
+    jm["mapNodeIndex"] = 2;
+
+    m->setSettlementIndex(1);
+    jm["settlementIndex"] = 1;
+
+    m->setUnitIndex(1);
+    jm["unitIndex"] = 1;
+
+    // MapNodes
+    core::MapNode *mn0 = new core::MapNode(m);
+    QJsonObject jmn0;
+
+    setNames(mn0, jmn0, 0);
+
+    core::TerrainType *tt0 = w->getTerrainTypes()[0];
+
+    mn0->setTerrainType(tt0);
+    jmn0["terrainType"] = tt0->objectName();
+
+    core::MapNode *mn1 = new core::MapNode(m);
+    QJsonObject jmn1;
+
+    setNames(mn1, jmn1, 1);
+
+    mn1->setTerrainType(tt0);
+    jmn1["terrainType"] = tt0->objectName();
+
+    m->setMapNodes({mn0, mn1});
+    jm["mapNodes"] = QJsonArray({jmn0, jmn1});
+
+    // Players
+    core::Player *p0 = new core::Player(m);
+    QJsonObject jp0;
+
+    setNames(p0, jp0, 0);
+
+    QColor color("red");
+    p0->setColor(color);
+    jp0["color"] = color.name();
+
+    p0->setGoldBalance(142);
+    jp0["goldBalance"] = 142;
+
+    core::Faction *f0 = w->getFactions()[0];
+
+    p0->setFaction(f0);
+    jp0["faction"] = f0->objectName();
+
+    m->setPlayers({p0});
+    jm["players"] = QJsonArray({jp0});
+
+    // Settlements
+    core::Settlement *s0 = new core::Settlement(m);
+    QJsonObject js0;
+
+    setNames(s0, js0, 0);
+
+    core::SettlementType *st0 = w->getSettlementTypes()[0];
+
+    s0->setType(st0);
+    js0["type"] = st0->objectName();
+
+    s0->setMapNode(mn0);
+    js0["mapNode"] = mn0->objectName();
+
+    s0->setOwner(p0);
+    js0["owner"] = p0->objectName();
+
+    m->setSettlements({s0});
+    jm["settlements"] = QJsonArray({js0});
+
+    // Units
+    core::Unit *u0 = new core::Unit(m);
+    QJsonObject ju0;
+
+    setNames(u0, ju0, 0);
+
+    core::UnitType *ut0 = w->getUnitTypes()[0];
+
+    u0->setType(ut0);
+    ju0["type"] = ut0->objectName();
+
+    u0->setMapNode(mn1);
+    ju0["mapNode"] = mn1->objectName();
+
+    u0->setOwner(p0);
+    ju0["owner"] = p0->objectName();
+
+    u0->setExperiencePoints(100.0);
+    ju0["experiencePoints"] = 100.0;
+
+    u0->setHitPoints(30.0);
+    ju0["hitPoints"] = 30.0;
+
+    u0->setMovementPoints(16.0);
+    ju0["movementPoints"] = 16.0;
+
+    m->setUnits({u0});
+    jm["units"] = QJsonArray({ju0});
+
+    return qMakePair(m, jm);
+}

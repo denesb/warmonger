@@ -4,10 +4,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-#include "core/MapNode.h"
-#include "core/Player.h"
-#include "core/Settlement.h"
-#include "core/Unit.h"
 #include "io/Context.h"
 #include "io/Exception.h"
 #include "io/JsonUnserializer.h"
@@ -126,20 +122,152 @@ TEST_CASE("Faction can be unserialized from JSON", "[JsonUnserializer]")
     }
 }
 
+TEST_CASE("Map can be unserialized from JSON", "[JsonUnserializer]")
+{
+    io::Context ctx;
+
+    const QPair<core::Map *, QJsonObject> maps = makeMap();
+    const std::unique_ptr<core::Map> obj{maps.first};
+    const QJsonObject jobj{maps.second};
+    const std::unique_ptr<core::World> world{obj->getWorld()};
+
+    ctx.add(world.get());
+
+    QList<core::TerrainType *> tts = world->getTerrainTypes();
+    std::for_each(
+        tts.cbegin(),
+        tts.cend(),
+        [&](core::TerrainType *o){ctx.add<core::TerrainType *>(o);}
+    );
+
+    QList<core::Faction *> fs = world->getFactions();
+    std::for_each(
+        fs.cbegin(),
+        fs.cend(),
+        [&](core::Faction *o){ctx.add<core::Faction *>(o);}
+    );
+
+    QList<core::SettlementType *> sts = world->getSettlementTypes();
+    std::for_each(
+        sts.cbegin(),
+        sts.cend(),
+        [&](core::SettlementType *o){ctx.add<core::SettlementType *>(o);}
+    );
+
+    QList<core::UnitType *> uts = world->getUnitTypes();
+    std::for_each(
+        uts.cbegin(),
+        uts.cend(),
+        [&](core::UnitType *o){ctx.add<core::UnitType *>(o);}
+    );
+
+    SECTION("unserializing Map")
+    {
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        const std::unique_ptr<core::Map> m(
+            unserializer.unserializeMap(jdoc.toJson())
+        );
+
+        REQUIRE(m->objectName() == jobj["objectName"].toString());
+        REQUIRE(m->getDisplayName() == jobj["displayName"].toString());
+        REQUIRE(m->getWorld()->objectName() == jobj["world"].toString());
+        REQUIRE(m->getMapNodeIndex() == jobj["mapNodeIndex"].toInt());
+        REQUIRE(m->getSettlementIndex() == jobj["settlementIndex"].toInt());
+        REQUIRE(m->getUnitIndex() == jobj["unitIndex"].toInt());
+
+        SECTION("unserializing mapNodes")
+        {
+            QList<core::MapNode *> mns(m->getMapNodes());
+            QJsonArray jmns(jobj["mapNodes"].toArray());
+
+            REQUIRE(jmns.size() == mns.size());
+
+            for (int i = 0; i < mns.size(); i++)
+            {
+                core::MapNode *mn{mns[i]};
+                QJsonObject jmn(jmns[i].toObject());
+                REQUIRE(mn->objectName() == jmn["objectName"].toString());
+                REQUIRE(mn->getDisplayName() == jmn["displayName"].toString());
+                REQUIRE(mn->getTerrainType()->objectName() == jmn["terrainType"].toString());
+            }
+        }
+
+        SECTION("unserializing players")
+        {
+            QList<core::Player *> ps(m->getPlayers());
+            QJsonArray jps(jobj["players"].toArray());
+
+            REQUIRE(jps.size() == ps.size());
+
+            for (int i = 0; i < ps.size(); i++)
+            {
+                core::Player *p{ps[i]};
+                QJsonObject jp(jps[i].toObject());
+                REQUIRE(p->objectName() == jp["objectName"].toString());
+                REQUIRE(p->getDisplayName() == jp["displayName"].toString());
+                REQUIRE(p->getColor().name() == jp["color"].toString());
+                REQUIRE(p->getFaction()->objectName() == jp["faction"].toString());
+            }
+        }
+
+        SECTION("unserializing settlements")
+        {
+            QList<core::Settlement *> ss(m->getSettlements());
+            QJsonArray jss(jobj["settlements"].toArray());
+
+            REQUIRE(jss.size() == ss.size());
+
+            for (int i = 0; i < ss.size(); i++)
+            {
+                core::Settlement *s{ss[i]};
+                QJsonObject js(jss[i].toObject());
+                REQUIRE(s->objectName() == js["objectName"].toString());
+                REQUIRE(s->getDisplayName() == js["displayName"].toString());
+                REQUIRE(s->getType()->objectName() == js["type"].toString());
+                REQUIRE(s->getMapNode()->objectName() == js["mapNode"].toString());
+                REQUIRE(s->getOwner()->objectName() == js["owner"].toString());
+            }
+        }
+
+        SECTION("unserializing units")
+        {
+            QList<core::Unit *> us(m->getUnits());
+            QJsonArray jus(jobj["units"].toArray());
+
+            REQUIRE(jus.size() == us.size());
+
+            for (int i = 0; i < us.size(); i++)
+            {
+                core::Unit *u{us[i]};
+                QJsonObject js(jus[i].toObject());
+                REQUIRE(u->objectName() == js["objectName"].toString());
+                REQUIRE(u->getDisplayName() == js["displayName"].toString());
+                REQUIRE(u->getType()->objectName() == js["type"].toString());
+                REQUIRE(u->getMapNode()->objectName() == js["mapNode"].toString());
+                REQUIRE(u->getOwner()->objectName() == js["owner"].toString());
+            }
+        }
+    }
+}
+
 TEST_CASE("MapNode can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
-    const QPair<core::World *, QJsonObject> worlds = makeWorld();
-    const std::unique_ptr<core::World> world{worlds.first};
-    const QJsonObject jworld{worlds.second};
 
-    core::TerrainType *tt = world->getTerrainTypes()[0];
-    ctx.add(tt);
+    const QPair<core::Map *, QJsonObject> maps = makeMap();
+    const std::unique_ptr<core::Map> map{maps.first};
+    const QJsonObject jmap{maps.second};
+    const std::unique_ptr<core::World> world{map->getWorld()};
 
-    QJsonObject jobj;
-    jobj["objectName"] = "mapNode1";
-    jobj["displayName"] = "MapNode 1";
-    jobj["terrainType"] = tt->objectName();
+    QList<core::TerrainType *> tts = world->getTerrainTypes();
+    std::for_each(
+        tts.cbegin(),
+        tts.cend(),
+        [&](core::TerrainType *o){ctx.add<core::TerrainType *>(o);}
+    );
+
+    QJsonObject jobj = jmap["mapNodes"].toArray()[0].toObject();
 
     SECTION("unserializing MapNode")
     {
@@ -151,7 +279,7 @@ TEST_CASE("MapNode can be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE(mn->objectName() == jobj["objectName"].toString());
         REQUIRE(mn->getDisplayName() == jobj["displayName"].toString());
-        REQUIRE(mn->getTerrainType() == tt);
+        REQUIRE(mn->getTerrainType()->objectName() == jobj["terrainType"].toString());
     }
 }
 
@@ -159,21 +287,19 @@ TEST_CASE("Player can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
 
-    const QPair<core::World *, QJsonObject> worlds = makeWorld();
-    const std::unique_ptr<core::World> world{worlds.first};
-    const QJsonObject jworld{worlds.second};
+    const QPair<core::Map *, QJsonObject> maps = makeMap();
+    const std::unique_ptr<core::Map> map{maps.first};
+    const QJsonObject jmap{maps.second};
+    const std::unique_ptr<core::World> world{map->getWorld()};
 
-    core::Faction *f = world->getFactions()[0];
-    ctx.add(f);
+    QList<core::Faction *> fs = world->getFactions();
+    std::for_each(
+        fs.cbegin(),
+        fs.cend(),
+        [&](core::Faction *o){ctx.add<core::Faction *>(o);}
+    );
 
-    QJsonObject jobj;
-    jobj["objectName"] = "player1";
-    jobj["displayName"] = "Player 1";
-
-    QColor color("red");
-    jobj["color"] = color.name();
-    jobj["goldBalance"] = 300;
-    jobj["faction"] = f->objectName();
+    QJsonObject jobj = jmap["players"].toArray()[0].toObject();
 
     SECTION("unserializing Player")
     {
@@ -185,9 +311,9 @@ TEST_CASE("Player can be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE(p->objectName() == jobj["objectName"].toString());
         REQUIRE(p->getDisplayName() == jobj["displayName"].toString());
-        REQUIRE(p->getColor() == color);
+        REQUIRE(p->getColor().name() == jobj["color"].toString());
         REQUIRE(p->getGoldBalance() == jobj["goldBalance"].toInt());
-        REQUIRE(p->getFaction() == f);
+        REQUIRE(p->getFaction()->objectName() == jobj["faction"].toString());
     }
 }
 
@@ -195,28 +321,33 @@ TEST_CASE("Settlement can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
 
-    const QPair<core::World *, QJsonObject> worlds = makeWorld();
-    const std::unique_ptr<core::World> world{worlds.first};
-    const QJsonObject jworld{worlds.second};
+    const QPair<core::Map *, QJsonObject> maps = makeMap();
+    const std::unique_ptr<core::Map> map{maps.first};
+    const QJsonObject jmap{maps.second};
+    const std::unique_ptr<core::World> world{map->getWorld()};
 
-    core::SettlementType *st = world->getSettlementTypes()[0];
+    QList<core::SettlementType *> sts = world->getSettlementTypes();
+    std::for_each(
+        sts.cbegin(),
+        sts.cend(),
+        [&](core::SettlementType *o){ctx.add<core::SettlementType *>(o);}
+    );
 
-    core::MapNode mn;
-    mn.setObjectName("mapNode1");
+    QList<core::MapNode *> mns = map->getMapNodes();
+    std::for_each(
+        mns.cbegin(),
+        mns.cend(),
+        [&](core::MapNode *o){ctx.add<core::MapNode *>(o);}
+    );
 
-    core::Player p;
-    p.setObjectName("player1");
+    QList<core::Player *> ps = map->getPlayers();
+    std::for_each(
+        ps.cbegin(),
+        ps.cend(),
+        [&](core::Player *o){ctx.add<core::Player *>(o);}
+    );
 
-    ctx.add(st);
-    ctx.add(&mn);
-    ctx.add(&p);
-
-    QJsonObject jobj;
-    jobj["objectName"] = "settlement1";
-    jobj["displayName"] = "Settlement 1";
-    jobj["type"] = st->objectName();
-    jobj["mapNode"] = mn.objectName();
-    jobj["owner"] = p.objectName();
+    QJsonObject jobj = jmap["settlements"].toArray()[0].toObject();
 
     SECTION("unserializing Settlement")
     {
@@ -228,9 +359,9 @@ TEST_CASE("Settlement can be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE(s->objectName() == jobj["objectName"].toString());
         REQUIRE(s->getDisplayName() == jobj["displayName"].toString());
-        REQUIRE(s->getType() == st);
-        REQUIRE(s->getMapNode() == &mn);
-        REQUIRE(s->getOwner() == &p);
+        REQUIRE(s->getType()->objectName() == jobj["type"].toString());
+        REQUIRE(s->getMapNode()->objectName() == jobj["mapNode"].toString());
+        REQUIRE(s->getOwner()->objectName() == jobj["owner"].toString());
     }
 }
 
@@ -292,28 +423,34 @@ TEST_CASE("TerrainType can be unserialized from JSON", "[JsonUnserializer]")
 TEST_CASE("Unit can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
-    const QPair<core::World *, QJsonObject> worlds = makeWorld();
-    const std::unique_ptr<core::World> world{worlds.first};
-    const QJsonObject jworld{worlds.second};
 
-    core::UnitType *ut = world->getUnitTypes()[0];
+    const QPair<core::Map *, QJsonObject> maps = makeMap();
+    const std::unique_ptr<core::Map> map{maps.first};
+    const QJsonObject jmap{maps.second};
+    const std::unique_ptr<core::World> world{map->getWorld()};
 
-    core::MapNode mn;
-    mn.setObjectName("mapNode1");
+    QList<core::UnitType *> uts = world->getUnitTypes();
+    std::for_each(
+        uts.cbegin(),
+        uts.cend(),
+        [&](core::UnitType *o){ctx.add<core::UnitType *>(o);}
+    );
 
-    core::Player p;
-    p.setObjectName("player1");
+    QList<core::MapNode *> mns = map->getMapNodes();
+    std::for_each(
+        mns.cbegin(),
+        mns.cend(),
+        [&](core::MapNode *o){ctx.add<core::MapNode *>(o);}
+    );
 
-    ctx.add(ut);
-    ctx.add(&mn);
-    ctx.add(&p);
+    QList<core::Player *> ps = map->getPlayers();
+    std::for_each(
+        ps.cbegin(),
+        ps.cend(),
+        [&](core::Player *o){ctx.add<core::Player *>(o);}
+    );
 
-    QJsonObject jobj;
-    jobj["objectName"] = "unit1";
-    jobj["displayName"] = "Unit 1";
-    jobj["type"] = ut->objectName();
-    jobj["mapNode"] = mn.objectName();
-    jobj["owner"] = p.objectName();
+    QJsonObject jobj = jmap["units"].toArray()[0].toObject();
 
     SECTION("unserializing Unit")
     {
@@ -325,9 +462,9 @@ TEST_CASE("Unit can be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE(u->objectName() == jobj["objectName"].toString());
         REQUIRE(u->getDisplayName() == jobj["displayName"].toString());
-        REQUIRE(u->getType() == ut);
-        REQUIRE(u->getMapNode() == &mn);
-        REQUIRE(u->getOwner() == &p);
+        REQUIRE(u->getType()->objectName() == jobj["type"].toString());
+        REQUIRE(u->getMapNode()->objectName() == jobj["mapNode"].toString());
+        REQUIRE(u->getOwner()->objectName() == jobj["owner"].toString());
     }
 }
 

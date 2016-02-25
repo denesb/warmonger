@@ -33,7 +33,7 @@ public:
     static const QString settlementNameTemplate;
     static const QString unitNameTemplate;
 
-    Map(QObject *parent);
+    Map(QObject *parent=nullptr);
     ~Map();
 
     World * getWorld() const;

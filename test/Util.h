@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QString>
 
+#include "core/Map.h"
 #include "core/World.h"
 #include "test/catch.hpp"
 
@@ -16,6 +17,7 @@ using namespace warmonger;
 std::ostream &operator<<(std::ostream &os, const QString &s);
 
 QPair<core::World *, QJsonObject> makeWorld();
+QPair<core::Map *, QJsonObject> makeMap();
 
 /**
  * Compare a QJsonObject to a map.

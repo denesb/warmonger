@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <functional>
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -21,8 +22,6 @@
 #include "core/WorldSurface.h"
 #include "io/Exception.h"
 #include "io/JsonUnserializer.h"
-
-#include <iostream>
 
 using namespace warmonger;
 using namespace warmonger::io;

@@ -24,16 +24,6 @@
 
 using namespace warmonger;
 
-template <typename T>
-QJsonObject serialize(T obj)
-{
-    std::unique_ptr<io::Serializer> serializer(new io::JsonSerializer());
-    QByteArray json(serializer->serialize(obj));
-
-    QJsonDocument jdoc(QJsonDocument::fromJson(json));
-    return jdoc.object();
-}
-
 TEST_CASE("Armor can be serialized to JSON", "[JsonSerializer]")
 {
     const QPair<core::World *, QJsonObject> worlds = makeWorld();
@@ -43,7 +33,10 @@ TEST_CASE("Armor can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing Armor")
     {
-        const QJsonObject jobj(serialize(a));
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeArmor(a));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
 
         REQUIRE(jobj["objectName"].toString() == a->objectName());
         REQUIRE(jobj["displayName"].toString() == a->getDisplayName());
@@ -61,7 +54,10 @@ TEST_CASE("DamageType can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing DamageType")
     {
-        const QJsonObject jobj(serialize(dt));
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeDamageType(dt));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
 
         REQUIRE(jobj["objectName"].toString() == dt->objectName());
         REQUIRE(jobj["displayName"].toString() == dt->getDisplayName());
@@ -77,7 +73,10 @@ TEST_CASE("Faction can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing Faction")
     {
-        const QJsonObject jobj(serialize(f));
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeFaction(f));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
 
         REQUIRE(jobj["objectName"].toString() == f->objectName());
         REQUIRE(jobj["displayName"].toString() == f->getDisplayName());
@@ -167,7 +166,10 @@ TEST_CASE("Map can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing Map")
     {
-        QJsonObject jobj(serialize(&m));
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeMap(&m));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
 
         REQUIRE(jobj["objectName"].toString() == m.objectName());
         REQUIRE(jobj["displayName"].toString() == m.getDisplayName());
@@ -258,7 +260,10 @@ TEST_CASE("MapNode can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing MapNode")
     {
-        const QJsonObject jobj(serialize(&n));
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeMapNode(&n));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
 
         REQUIRE(jobj["objectName"] == n.objectName());
         REQUIRE(jobj["displayName"] == n.getDisplayName());
@@ -281,7 +286,10 @@ TEST_CASE("Player can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing Player")
     {
-        const QJsonObject jobj(serialize(&p));
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializePlayer(&p));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
 
         REQUIRE(jobj["objectName"].toString() == p.objectName());
         REQUIRE(jobj["displayName"].toString() == p.getDisplayName());
@@ -314,7 +322,10 @@ TEST_CASE("Settlement can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing Settlement")
     {
-        const QJsonObject jobj(serialize(&s));
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeSettlement(&s));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
 
         REQUIRE(jobj["objectName"].toString() == s.objectName());
         REQUIRE(jobj["displayName"].toString() == s.getDisplayName());
@@ -333,7 +344,10 @@ TEST_CASE("SettlementType can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing SettlementType")
     {
-        const QJsonObject jobj(serialize(st));
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeSettlementType(st));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
 
         REQUIRE(jobj["objectName"].toString() == st->objectName());
         REQUIRE(jobj["displayName"].toString() == st->getDisplayName());
@@ -354,7 +368,10 @@ TEST_CASE("TerrainType can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing TerrainType")
     {
-        const QJsonObject jobj(serialize(tt));
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeTerrainType(tt));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
 
         REQUIRE(jobj["objectName"].toString() == tt->objectName());
         REQUIRE(jobj["displayName"].toString() == tt->getDisplayName());
@@ -389,7 +406,10 @@ TEST_CASE("Unit can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing Unit")
     {
-        const QJsonObject jobj(serialize(&u));
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeUnit(&u));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
 
         REQUIRE(jobj["objectName"].toString() == u.objectName());
         REQUIRE(jobj["displayName"].toString() == u.getDisplayName());
@@ -412,7 +432,10 @@ TEST_CASE("UnitClass can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing UnitClass")
     {
-        const QJsonObject jobj(serialize(uc));
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeUnitClass(uc));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
 
         REQUIRE(jobj["objectName"].toString() == uc->objectName());
         REQUIRE(jobj["displayName"].toString() == uc->getDisplayName());
@@ -441,7 +464,10 @@ TEST_CASE("UnitLevel can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing UnitLevel")
     {
-        const QJsonObject jobj(serialize(ul));
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeUnitLevel(ul));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
 
         REQUIRE(jobj["objectName"].toString() == ul->objectName());
         REQUIRE(jobj["displayName"].toString() == ul->getDisplayName());
@@ -459,7 +485,10 @@ TEST_CASE("UnitType can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing UnitType")
     {
-        const QJsonObject jobj(serialize(ut));
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeUnitType(ut));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
 
         REQUIRE(jobj["objectName"].toString() == ut->objectName());
         REQUIRE(jobj["displayName"].toString() == ut->getDisplayName());
@@ -487,9 +516,12 @@ TEST_CASE("Weapon can be serialized to JSON", "[JsonSerializer]")
 
     core::Weapon *w = world->getWeapons()[0];
 
-    SECTION("serializing WorldSurface")
+    SECTION("serializing Weapon")
     {
-        const QJsonObject jobj(serialize(w));
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeWeapon(w));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
 
         REQUIRE(jobj["objectName"].toString() == w->objectName());
         REQUIRE(jobj["displayName"].toString() == w->getDisplayName());
@@ -508,7 +540,10 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
 
     SECTION("serializing World")
     {
-        const QJsonObject jobj(serialize(world.get()));
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeWorld(world.get()));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
 
         REQUIRE(jobj["objectName"].toString() == world->objectName());
         REQUIRE(jobj["displayName"].toString() == world->getDisplayName());
@@ -724,9 +759,12 @@ TEST_CASE("WorldSurface can be serialized to JSON", "[JsonSerializer]")
     ws.setDisplayName("WorldSurface 1");
     ws.setTileSize(QSize(118, 128));
 
-    SECTION("serializing Weapon")
+    SECTION("serializing WorldSurface")
     {
-        QJsonObject jobj(serialize(&ws));
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeWorldSurface(&ws));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
 
         REQUIRE(jobj["objectName"].toString() == ws.objectName());
         REQUIRE(jobj["displayName"].toString() == ws.getDisplayName());

@@ -25,7 +25,15 @@ public:
     }
 };
 
-std::ostream& operator<<(std::ostream &os, const UnresolvedReferenceError &e);
+class FileIOError :
+    public core::Exception
+{
+public:
+    explicit FileIOError(const QString message=QString()) :
+        core::Exception(message)
+    {
+    }
+};
 
 } // io
 } // warmonger

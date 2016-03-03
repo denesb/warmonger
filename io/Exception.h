@@ -14,6 +14,7 @@ namespace io {
 
 
 /**
+ * Error resolving a refrence to a game-object.
  */
 class UnresolvedReferenceError :
     public core::Exception
@@ -25,11 +26,27 @@ public:
     }
 };
 
+/**
+ * Error reading/writing a file.
+ */
 class FileIOError :
     public core::Exception
 {
 public:
     explicit FileIOError(const QString message=QString()) :
+        core::Exception(message)
+    {
+    }
+};
+
+/**
+ * Json parse error.
+ */
+class JsonParseError :
+    public core::Exception
+{
+public:
+    explicit JsonParseError(const QString message=QString()) :
         core::Exception(message)
     {
     }

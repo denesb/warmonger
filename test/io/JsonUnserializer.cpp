@@ -16,6 +16,8 @@ CATCH_TRANSLATE_EXCEPTION(io::UnresolvedReferenceError& e) {
     return e.getMessage().toStdString();
 }
 
+static const QByteArray invalidJson{"{\"displayName\": \"displayName\" \"objectName\": \"objectName\"}"};
+
 TEST_CASE("Armor can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
@@ -58,6 +60,16 @@ TEST_CASE("Armor can't be unserialized from JSON", "[JsonUnserializer]")
 
     QJsonObject jobj = jworld["armors"].toArray()[0].toObject();
 
+    SECTION("invalid JSON")
+    {
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeArmor(invalidJson),
+            io::JsonParseError
+        );
+    }
+
     SECTION("no damageTypes")
     {
         io::JsonUnserializer unserializer(ctx);
@@ -90,6 +102,20 @@ TEST_CASE("DamageType can be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE(dt->objectName() == jobj["objectName"].toString());
         REQUIRE(dt->getDisplayName() == jobj["displayName"].toString());
+    }
+}
+
+TEST_CASE("DamageType can't be unserialized from JSON", "[JsonUnserializer]")
+{
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeDamageType(invalidJson),
+            io::JsonParseError
+        );
     }
 }
 
@@ -151,6 +177,17 @@ TEST_CASE("Faction can't be unserialized from JSON", "[JsonUnserializer]")
     const QJsonObject jworld{worlds.second};
 
     QJsonObject jobj = jworld["factions"].toArray()[0].toObject();
+
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeFaction(invalidJson),
+            io::JsonParseError
+        );
+    }
 
     SECTION("unserializing Faction, no settlementTypes")
     {
@@ -328,6 +365,17 @@ TEST_CASE("Map can't be unserialized from JSON", "[JsonUnserializer]")
     const std::unique_ptr<core::Map> obj{maps.first};
     const QJsonObject jobj{maps.second};
     const std::unique_ptr<core::World> world{obj->getWorld()};
+
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeMap(invalidJson),
+            io::JsonParseError
+        );
+    }
 
     SECTION("unserializing Map, no world")
     {
@@ -545,6 +593,17 @@ TEST_CASE("MapNode can't be unserialized from JSON", "[JsonUnserializer]")
 
     QJsonObject jobj = jmap["mapNodes"].toArray()[0].toObject();
 
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeMapNode(invalidJson),
+            io::JsonParseError
+        );
+    }
+
     SECTION("unserializing MapNode, no terrainTypes")
     {
         io::Context ctx;
@@ -601,6 +660,17 @@ TEST_CASE("Player can't be unserialized from JSON", "[JsonUnserializer]")
     const std::unique_ptr<core::World> world{map->getWorld()};
 
     QJsonObject jobj = jmap["players"].toArray()[0].toObject();
+
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializePlayer(invalidJson),
+            io::JsonParseError
+        );
+    }
 
     SECTION("unserializing Player, no Factions")
     {
@@ -672,6 +742,17 @@ TEST_CASE("Settlement can't be unserialized from JSON", "[JsonUnserializer]")
     const std::unique_ptr<core::World> world{map->getWorld()};
 
     QJsonObject jobj = jmap["settlements"].toArray()[0].toObject();
+
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeSettlement(invalidJson),
+            io::JsonParseError
+        );
+    }
 
     SECTION("unserializing Settlement, no settlementTypes")
     {
@@ -792,6 +873,17 @@ TEST_CASE("SettlementType can't be unserialized from JSON", "[JsonUnserializer]"
 
     QJsonObject jobj = jworld["settlementTypes"].toArray()[0].toObject();
 
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeSettlementType(invalidJson),
+            io::JsonParseError
+        );
+    }
+
     SECTION("unserializing SettlementType, no unitTypes")
     {
         io::Context ctx;
@@ -825,6 +917,20 @@ TEST_CASE("TerrainType can be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE(tt->objectName() == jobj["objectName"].toString());
         REQUIRE(tt->getDisplayName() == jobj["displayName"].toString());
+    }
+}
+
+TEST_CASE("TerrainType can't be unserialized from JSON", "[JsonUnserializer]")
+{
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeTerrainType(invalidJson),
+            io::JsonParseError
+        );
     }
 }
 
@@ -884,6 +990,17 @@ TEST_CASE("Unit can't be unserialized from JSON", "[JsonUnserializer]")
     const std::unique_ptr<core::World> world{map->getWorld()};
 
     QJsonObject jobj = jmap["units"].toArray()[0].toObject();
+
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeUnit(invalidJson),
+            io::JsonParseError
+        );
+    }
 
     SECTION("unserializing Unit, no unitTypes")
     {
@@ -1012,6 +1129,17 @@ TEST_CASE("UnitClass can't be unserialized from JSON", "[JsonUnserializer]")
 
     QJsonObject jobj = jworld["unitClasses"].toArray()[0].toObject();
 
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeUnitClass(invalidJson),
+            io::JsonParseError
+        );
+    }
+
     SECTION("unserializing UnitClass, no terrainTypes")
     {
         io::Context ctx;
@@ -1047,6 +1175,20 @@ TEST_CASE("UnitLevel can be unserialized from JSON", "[JsonUnserializer]")
         REQUIRE(ul->getDisplayName() == jobj["displayName"].toString());
         REQUIRE(ul->getExperiencePoints() == jobj["experiencePoints"].toInt());
         REQUIRE(ul->getIndex() == jobj["index"].toInt());
+    }
+}
+
+TEST_CASE("UnitLevel can't be unserialized from JSON", "[JsonUnserializer]")
+{
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeUnitLevel(invalidJson),
+            io::JsonParseError
+        );
     }
 }
 
@@ -1118,6 +1260,17 @@ TEST_CASE("UnitType can't be unserialized from JSON", "[JsonUnserializer]")
     const QJsonObject jworld{worlds.second};
 
     QJsonObject jobj = jworld["unitTypes"].toArray()[1].toObject();
+
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeUnitType(invalidJson),
+            io::JsonParseError
+        );
+    }
 
     SECTION("unserializing UnitType, no unitClasses")
     {
@@ -1350,6 +1503,17 @@ TEST_CASE("Weapon can't be unserialized from JSON", "[JsonUnserializer]")
 
     QJsonObject jobj = jworld["weapons"].toArray()[0].toObject();
 
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeWeapon(invalidJson),
+            io::JsonParseError
+        );
+    }
+
     SECTION("unserializing Weapon")
     {
         io::Context ctx;
@@ -1559,6 +1723,20 @@ TEST_CASE("World can be unserialized from JSON", "[JsonUnserializer]")
     }
 }
 
+TEST_CASE("World can't be unserialized from JSON", "[JsonUnserializer]")
+{
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeWorld(invalidJson),
+            io::JsonParseError
+        );
+    }
+}
+
 TEST_CASE("WorldSurface can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
@@ -1581,5 +1759,19 @@ TEST_CASE("WorldSurface can be unserialized from JSON", "[JsonUnserializer]")
         REQUIRE(ws->getDisplayName() == jobj["displayName"].toString());
         REQUIRE(ws->getTileWidth() == jobj["tileWidth"].toInt());
         REQUIRE(ws->getTileHeight() == jobj["tileHeight"].toInt());
+    }
+}
+
+TEST_CASE("WorldSurface can't be unserialized from JSON", "[JsonUnserializer]")
+{
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeWorldSurface(invalidJson),
+            io::JsonParseError
+        );
     }
 }

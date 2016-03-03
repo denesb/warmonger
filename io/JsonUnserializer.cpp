@@ -27,6 +27,7 @@
 using namespace warmonger;
 using namespace warmonger::io;
 
+QJsonDocument parseJson(const QByteArray &json);
 core::Armor * armorFromJson(const QJsonObject &jobj, const Context &ctx);
 core::DamageType * damageTypeFromJson(const QJsonObject &jobj);
 core::Faction * factionsFromJson(const QJsonObject &jobj, const Context &ctx);
@@ -95,7 +96,6 @@ public:
 private:
     const Context &ctx;
 };
-
 
 /**
  * Convert QJsonArray to Container.
@@ -204,7 +204,7 @@ core::Armor * JsonUnserializer::unserializeArmor(
     const QByteArray &data
 )
 {
-    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonDocument jdoc(parseJson(data));
     return armorFromJson(jdoc.object(), this->ctx);
 }
 
@@ -212,7 +212,7 @@ core::DamageType * JsonUnserializer::unserializeDamageType(
     const QByteArray &data
 )
 {
-    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonDocument jdoc(parseJson(data));
     return damageTypeFromJson(jdoc.object());
 }
 
@@ -220,7 +220,7 @@ core::Faction * JsonUnserializer::unserializeFaction(
     const QByteArray &data
 )
 {
-    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonDocument jdoc(parseJson(data));
     return factionsFromJson(jdoc.object(), this->ctx);
 }
 
@@ -230,7 +230,7 @@ core::Map * JsonUnserializer::unserializeMap(
 {
     Context mapCtx(this->ctx);
 
-    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonDocument jdoc(parseJson(data));
     QJsonObject jobj = jdoc.object();
 
     std::unique_ptr<core::Map> obj(new core::Map());
@@ -270,7 +270,7 @@ core::MapNode * JsonUnserializer::unserializeMapNode(
     const QByteArray &data
 )
 {
-    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonDocument jdoc(parseJson(data));
     return mapNodeFromJson(jdoc.object(), this->ctx);
 }
 
@@ -278,7 +278,7 @@ core::Player * JsonUnserializer::unserializePlayer(
     const QByteArray &data
 )
 {
-    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonDocument jdoc(parseJson(data));
     return playerFromJson(jdoc.object(), this->ctx);
 }
 
@@ -286,7 +286,7 @@ core::Settlement * JsonUnserializer::unserializeSettlement(
     const QByteArray &data
 )
 {
-    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonDocument jdoc(parseJson(data));
     return settlementFromJson(jdoc.object(), this->ctx);
 }
 
@@ -294,7 +294,7 @@ core::SettlementType * JsonUnserializer::unserializeSettlementType(
     const QByteArray &data
 )
 {
-    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonDocument jdoc(parseJson(data));
     return settlementTypeFromJson(jdoc.object(), this->ctx);
 }
 
@@ -302,7 +302,7 @@ core::TerrainType * JsonUnserializer::unserializeTerrainType(
     const QByteArray &data
 )
 {
-    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonDocument jdoc(parseJson(data));
     return terrainTypeFromJson(jdoc.object());
 }
 
@@ -310,7 +310,7 @@ core::Unit * JsonUnserializer::unserializeUnit(
     const QByteArray &data
 )
 {
-    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonDocument jdoc(parseJson(data));
     return unitFromJson(jdoc.object(), this->ctx);
 }
 
@@ -318,7 +318,7 @@ core::UnitClass * JsonUnserializer::unserializeUnitClass(
     const QByteArray &data
 )
 {
-    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonDocument jdoc(parseJson(data));
     return unitClassFromJson(jdoc.object(), this->ctx);
 }
 
@@ -326,7 +326,7 @@ core::UnitLevel * JsonUnserializer::unserializeUnitLevel(
     const QByteArray &data
 )
 {
-    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonDocument jdoc(parseJson(data));
     return unitLevelFromJson(jdoc.object());
 }
 
@@ -334,7 +334,7 @@ core::UnitType * JsonUnserializer::unserializeUnitType(
     const QByteArray &data
 )
 {
-    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonDocument jdoc(parseJson(data));
     return unitTypeFromJson(jdoc.object(), this->ctx);
 }
 
@@ -342,7 +342,7 @@ core::Weapon * JsonUnserializer::unserializeWeapon(
     const QByteArray &data
 )
 {
-    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonDocument jdoc(parseJson(data));
     return weaponFromJson(jdoc.object(), this->ctx);
 }
 
@@ -350,7 +350,7 @@ core::World * JsonUnserializer::unserializeWorld(
     const QByteArray &data
 )
 {
-    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonDocument jdoc(parseJson(data));
     QJsonObject jobj = jdoc.object();
 
     Context worldCtx;
@@ -417,7 +417,7 @@ core::WorldSurface * JsonUnserializer::unserializeWorldSurface(
     const QByteArray &data
 )
 {
-    QJsonDocument jdoc(QJsonDocument::fromJson(data));
+    QJsonDocument jdoc(parseJson(data));
     QJsonObject jobj = jdoc.object();
 
     core::WorldSurface *obj = new core::WorldSurface();
@@ -427,6 +427,22 @@ core::WorldSurface * JsonUnserializer::unserializeWorldSurface(
     obj->setTileHeight(jobj["tileHeight"].toInt());
 
     return obj;
+}
+
+QJsonDocument parseJson(const QByteArray &json)
+{
+    QJsonParseError parseError;
+
+    QJsonDocument doc(QJsonDocument::fromJson(json, &parseError));
+
+    if (parseError.error != QJsonParseError::NoError)
+    {
+        throw JsonParseError(
+            parseError.errorString() + " at " + parseError.offset
+        );
+    }
+
+    return doc;
 }
 
 core::Armor * armorFromJson(const QJsonObject &jobj, const Context &ctx)

@@ -103,3 +103,41 @@ TEST_CASE("Inexistent object", "[Context]")
         REQUIRE(a1 == nullptr);
     }
 }
+
+class TestCallback
+{
+public:
+    TestCallback(QObject *obj) :
+        obj(obj)
+    {
+    }
+
+    void operator()(const QString &className, const QString &objectName, io::Context &ctx)
+    {
+        const QMetaObject *mo = this->obj->metaObject();
+        if (className == mo->className() &&
+                this->obj->objectName() == objectName)
+        {
+            ctx.add(this->obj);
+        }
+    }
+
+private:
+    QObject *obj;
+};
+
+TEST_CASE("Lookup callback", "[Context]")
+{
+    core::Armor a;
+    a.setObjectName("retrievedObject");
+
+    SECTION("Armor can retrieved, via callback")
+    {
+        TestCallback cb(&a);
+        io::Context ctx(cb);
+
+        core::Armor *a1 = ctx.get<core::Armor *>(a.objectName());
+
+        REQUIRE(a1 == &a);
+    }
+}

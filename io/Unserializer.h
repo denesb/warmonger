@@ -29,7 +29,7 @@ namespace io {
 class Unserializer
 {
 public:
-    Unserializer(const Context &ctx) :
+    Unserializer(Context ctx) :
         ctx(ctx)
     {
     }
@@ -52,7 +52,7 @@ public:
     virtual core::WorldSurface * unserializeWorldSurface(const QByteArray &data) = 0;
 
 protected:
-    const Context &ctx;
+    Context ctx;
 };
 
 } // namespace warmonger

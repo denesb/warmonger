@@ -10,7 +10,7 @@ class JsonUnserializer :
     public Unserializer
 {
 public:
-    JsonUnserializer(const Context &ctx);
+    JsonUnserializer(Context &ctx);
 
     core::Armor * unserializeArmor(const QByteArray &data);
     core::DamageType * unserializeDamageType(const QByteArray &data);

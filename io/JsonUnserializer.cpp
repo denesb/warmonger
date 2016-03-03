@@ -28,34 +28,35 @@ using namespace warmonger;
 using namespace warmonger::io;
 
 QJsonDocument parseJson(const QByteArray &json);
-core::Armor * armorFromJson(const QJsonObject &jobj, const Context &ctx);
+
+core::Armor * armorFromJson(const QJsonObject &jobj, Context &ctx);
 core::DamageType * damageTypeFromJson(const QJsonObject &jobj);
-core::Faction * factionsFromJson(const QJsonObject &jobj, const Context &ctx);
-core::MapNode * mapNodeFromJson(const QJsonObject &jobj, const Context &ctx);
-core::Player * playerFromJson(const QJsonObject &jobj, const Context &ctx);
+core::Faction * factionsFromJson(const QJsonObject &jobj, Context &ctx);
+core::MapNode * mapNodeFromJson(const QJsonObject &jobj, Context &ctx);
+core::Player * playerFromJson(const QJsonObject &jobj, Context &ctx);
 core::Settlement * settlementFromJson(
     const QJsonObject &jobj,
-    const Context &ctx
+    Context &ctx
 );
 core::SettlementType * settlementTypeFromJson(
     const QJsonObject &jobj,
-    const Context &ctx
+    Context &ctx
 );
 core::TerrainType * terrainTypeFromJson(const QJsonObject &jobj);
-core::Unit * unitFromJson(const QJsonObject &jobj, const Context &ctx);
+core::Unit * unitFromJson(const QJsonObject &jobj, Context &ctx);
 core::UnitClass * unitClassFromJson(
     const QJsonObject &jobj,
-    const Context &ctx
+    Context &ctx
 );
 core::UnitLevel * unitLevelFromJson(const QJsonObject &jobj);
-core::UnitType * unitTypeFromJson(const QJsonObject &jobj, const Context &ctx);
-core::Weapon * weaponFromJson(const QJsonObject &jobj, const Context &ctx);
+core::UnitType * unitTypeFromJson(const QJsonObject &jobj, Context &ctx);
+core::Weapon * weaponFromJson(const QJsonObject &jobj, Context &ctx);
 
 /**
  * Resolve reference `name` to `Type`.
  */
 template <typename Type>
-Type * resolveReference(const Context &ctx, const QString &name)
+Type * resolveReference(Context &ctx, const QString &name)
 {
     Type *obj = ctx.get<Type *>(name);
     if (obj == nullptr)
@@ -78,7 +79,7 @@ template <typename Type>
 class ReferenceResolver
 {
 public:
-    ReferenceResolver(const Context &ctx) :
+    ReferenceResolver(Context &ctx) :
         ctx(ctx)
     {
     }
@@ -94,7 +95,7 @@ public:
     }
 
 private:
-    const Context &ctx;
+    Context &ctx;
 };
 
 /**
@@ -174,7 +175,7 @@ QList<T *> objectListFromJson(
     std::for_each(
         objects.begin(),
         objects.end(),
-        std::bind(&Context::add<T *>, &ctx, std::placeholders::_1)
+        std::bind(&Context::add, &ctx, std::placeholders::_1)
     );
 
     return objects;
@@ -184,7 +185,7 @@ template <class T>
 QList<T *> objectListFromJson(
     const QJsonArray &array,
     Context &ctx,
-    std::function<T * (const QJsonObject &, const Context &ctx)> fromJsonFunc
+    std::function<T * (const QJsonObject &, Context &ctx)> fromJsonFunc
 )
 {
     std::function<T * (const QJsonObject &)> func = std::bind(
@@ -195,7 +196,7 @@ QList<T *> objectListFromJson(
     return objectListFromJson<T>(array, ctx, func);
 }
 
-JsonUnserializer::JsonUnserializer(const Context &ctx) :
+JsonUnserializer::JsonUnserializer(Context &ctx) :
     Unserializer(ctx)
 {
 }
@@ -228,8 +229,6 @@ core::Map * JsonUnserializer::unserializeMap(
     const QByteArray &data
 )
 {
-    Context mapCtx(this->ctx);
-
     QJsonDocument jdoc(parseJson(data));
     QJsonObject jobj = jdoc.object();
 
@@ -244,22 +243,22 @@ core::Map * JsonUnserializer::unserializeMap(
     obj->setUnitIndex(jobj["unitIndex"].toInt());
     obj->setMapNodes(objectListFromJson<core::MapNode>(
         jobj["mapNodes"].toArray(),
-        mapCtx,
+        this->ctx,
         mapNodeFromJson
     ));
     obj->setPlayers(objectListFromJson<core::Player>(
         jobj["players"].toArray(),
-        mapCtx,
+        this->ctx,
         playerFromJson
     ));
     obj->setSettlements(objectListFromJson<core::Settlement>(
         jobj["settlements"].toArray(),
-        mapCtx,
+        this->ctx,
         settlementFromJson
     ));
     obj->setUnits(objectListFromJson<core::Unit>(
         jobj["units"].toArray(),
-        mapCtx,
+        this->ctx,
         unitFromJson
     ));
 
@@ -353,39 +352,37 @@ core::World * JsonUnserializer::unserializeWorld(
     QJsonDocument jdoc(parseJson(data));
     QJsonObject jobj = jdoc.object();
 
-    Context worldCtx;
-
     std::unique_ptr<core::World> obj(new core::World());
     obj->setObjectName(jobj["objectName"].toString());
     obj->setDisplayName(jobj["displayName"].toString());
     obj->setDamageTypes(objectListFromJson<core::DamageType>(
         jobj["damageTypes"].toArray(),
-        worldCtx,
+        this->ctx,
         damageTypeFromJson
     ));
     obj->setArmors(objectListFromJson<core::Armor>(
         jobj["armors"].toArray(),
-        worldCtx,
+        this->ctx,
         armorFromJson
     ));
     obj->setWeapons(objectListFromJson<core::Weapon>(
         jobj["weapons"].toArray(),
-        worldCtx,
+        this->ctx,
         weaponFromJson
     ));
     obj->setTerrainTypes(objectListFromJson<core::TerrainType>(
         jobj["terrainTypes"].toArray(),
-        worldCtx,
+        this->ctx,
         terrainTypeFromJson
     ));
     obj->setUnitClasses(objectListFromJson<core::UnitClass>(
         jobj["unitClasses"].toArray(),
-        worldCtx,
+        this->ctx,
         unitClassFromJson
     ));
     obj->setUnitLevels(objectListFromJson<core::UnitLevel>(
         jobj["unitLevels"].toArray(),
-        worldCtx,
+        this->ctx,
         unitLevelFromJson
     ));
     // UniTypes refer to other UnitTypes so we need to add UnitTypes
@@ -394,19 +391,19 @@ core::World * JsonUnserializer::unserializeWorld(
         jobj["unitTypes"].toArray(),
         [&](const QJsonValue &v)
         {
-            core::UnitType *ut = unitTypeFromJson(v.toObject(), worldCtx);
-            worldCtx.add(ut);
+            core::UnitType *ut = unitTypeFromJson(v.toObject(), this->ctx);
+            this->ctx.add(ut);
             return ut;
         }
     ));
     obj->setSettlementTypes(objectListFromJson<core::SettlementType>(
         jobj["settlementTypes"].toArray(),
-        worldCtx,
+        this->ctx,
         settlementTypeFromJson
     ));
     obj->setFactions(objectListFromJson<core::Faction>(
         jobj["factions"].toArray(),
-        worldCtx,
+        this->ctx,
         factionsFromJson
     ));
 
@@ -445,7 +442,7 @@ QJsonDocument parseJson(const QByteArray &json)
     return doc;
 }
 
-core::Armor * armorFromJson(const QJsonObject &jobj, const Context &ctx)
+core::Armor * armorFromJson(const QJsonObject &jobj, Context &ctx)
 {
     std::unique_ptr<core::Armor> obj(new core::Armor());
     obj->setObjectName(jobj["objectName"].toString());
@@ -468,7 +465,7 @@ core::DamageType * damageTypeFromJson(const QJsonObject &jobj)
     return obj.release();
 }
 
-core::Faction * factionsFromJson(const QJsonObject &jobj, const Context &ctx)
+core::Faction * factionsFromJson(const QJsonObject &jobj, Context &ctx)
 {
     ReferenceResolver<core::UnitType> unitTypeRefResolver(ctx);
 
@@ -496,7 +493,7 @@ core::Faction * factionsFromJson(const QJsonObject &jobj, const Context &ctx)
     return obj.release();
 }
 
-core::MapNode * mapNodeFromJson(const QJsonObject &jobj, const Context &ctx)
+core::MapNode * mapNodeFromJson(const QJsonObject &jobj, Context &ctx)
 {
     std::unique_ptr<core::MapNode> obj(new core::MapNode());
     obj->setObjectName(jobj["objectName"].toString());
@@ -509,7 +506,7 @@ core::MapNode * mapNodeFromJson(const QJsonObject &jobj, const Context &ctx)
     return obj.release();
 }
 
-core::Player * playerFromJson(const QJsonObject &jobj, const Context &ctx)
+core::Player * playerFromJson(const QJsonObject &jobj, Context &ctx)
 {
     std::unique_ptr<core::Player> obj(new core::Player());
     obj->setObjectName(jobj["objectName"].toString());
@@ -526,7 +523,7 @@ core::Player * playerFromJson(const QJsonObject &jobj, const Context &ctx)
 
 core::Settlement * settlementFromJson(
     const QJsonObject &jobj,
-    const Context &ctx
+    Context &ctx
 )
 {
     std::unique_ptr<core::Settlement> obj(new core::Settlement());
@@ -550,7 +547,7 @@ core::Settlement * settlementFromJson(
 
 core::SettlementType * settlementTypeFromJson(
     const QJsonObject &jobj,
-    const Context &ctx
+    Context &ctx
 )
 {
     std::unique_ptr<core::SettlementType> obj(new core::SettlementType());
@@ -574,7 +571,7 @@ core::TerrainType * terrainTypeFromJson(const QJsonObject &jobj)
     return obj.release();
 }
 
-core::Unit * unitFromJson(const QJsonObject &jobj, const Context &ctx)
+core::Unit * unitFromJson(const QJsonObject &jobj, Context &ctx)
 {
     std::unique_ptr<core::Unit> obj(new core::Unit());
     obj->setObjectName(jobj["objectName"].toString());
@@ -595,7 +592,7 @@ core::Unit * unitFromJson(const QJsonObject &jobj, const Context &ctx)
     return obj.release();
 }
 
-core::UnitClass * unitClassFromJson(const QJsonObject &jobj, const Context &ctx)
+core::UnitClass * unitClassFromJson(const QJsonObject &jobj, Context &ctx)
 {
     std::unique_ptr<core::UnitClass> obj(new core::UnitClass());
     obj->setObjectName(jobj["objectName"].toString());
@@ -631,7 +628,7 @@ core::UnitLevel * unitLevelFromJson(const QJsonObject &jobj)
     return obj.release();
 }
 
-core::UnitType * unitTypeFromJson(const QJsonObject &jobj, const Context &ctx)
+core::UnitType * unitTypeFromJson(const QJsonObject &jobj, Context &ctx)
 {
     std::unique_ptr<core::UnitType> obj(new core::UnitType());
     obj->setObjectName(jobj["objectName"].toString());
@@ -663,7 +660,7 @@ core::UnitType * unitTypeFromJson(const QJsonObject &jobj, const Context &ctx)
     return obj.release();
 }
 
-core::Weapon * weaponFromJson(const QJsonObject &jobj, const Context &ctx)
+core::Weapon * weaponFromJson(const QJsonObject &jobj, Context &ctx)
 {
     std::unique_ptr<core::Weapon> obj(new core::Weapon());
     obj->setObjectName(jobj["objectName"].toString());

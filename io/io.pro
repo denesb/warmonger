@@ -14,6 +14,7 @@ HEADERS += \
     Unserializer.h
 
 SOURCES += \
+    Context.cpp \
     File.cpp \
     JsonSerializer.cpp \
     JsonUnserializer.cpp

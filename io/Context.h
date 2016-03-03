@@ -1,8 +1,7 @@
 #ifndef IO_CONTEXT_H
 #define IO_CONTEXT_H
 
-#include <typeinfo>
-#include <typeindex>
+#include <functional>
 
 #include <QObject>
 #include <QMap>
@@ -16,47 +15,60 @@ namespace io {
  * A context for object unserializations.
  * It can be used to resolve references while unserializing game
  * hierarcy objects. Only usable for QObject-derived classes. Objects
- * are stored by type and name. The context does not take ownership
- * of the stored objects.
+ * are stored by type and objectName. The context does not take
+ * ownership of the stored objects.
  */
 class Context
 {
 public:
+    Context();
+
+    Context(
+        std::function<void (const QString &, const QString &, Context &)> injectFn
+    );
+
     /**
      * Add object to the context.
      */
-    template <typename T>
-    void add(T object)
-    {
-        std::type_index tindex(typeid(typename std::remove_pointer<T>::type));
-
-        wDebug("io.Context") << "Added object " << object;
-
-        QMap<QString, QObject *> &typeObjs = this->objects[tindex];
-        typeObjs[object->objectName()] = object;
-    }
+    void add(QObject *object);
 
     /**
-     * Retrieve the object with name `name` and type `T` from the
-     * context. If the object is not found, nullptr is returned.
-     * Retriveing an object from the context does not remove it from
-     * the context.
+     * Retrieve the object with objectName `objectName` and type `T`
+     * from the context. If the object is not found, nullptr is
+     * returned. If there was an `injectFn` set it will be used
+     * to inject new objects into the context. This is useful when
+     * some dependencies of an object are not now at the point when the
+     * context is created. Retriveing an object from the context does
+     * not remove it from the context.
      */
     template <typename T>
-    T get(const QString &name) const
+    T get(const QString &objectName)
     {
-        std::type_index tindex(typeid(typename std::remove_pointer<T>::type));
+        typedef typename std::remove_pointer<T>::type Class;
+        const QMetaObject metaObject = Class::staticMetaObject;
+        const QString className = metaObject.className();
 
-        wDebug("io.Context") << "Looking up object with name " << name;
+        wDebug("io.Context") << "Looking up object "
+            << className << " with objectName " << objectName;
 
-        QMap<QString, QObject *> typeObjs = this->objects[tindex];
-        QObject *o = typeObjs[name];
+        QObject *object = this->getObject(className, objectName);
+        if (object == nullptr && this->injectFn)
+        {
+            this->injectFn(className, objectName, *this);
+            object = this->getObject(className, objectName);
+        }
 
-        return qobject_cast<T>(o);
+        return qobject_cast<T>(object);
     }
 
 private:
-    QMap<std::type_index, QMap<QString, QObject *>> objects;
+    QObject * getObject(
+        const QString &className,
+        const QString &objectName
+    ) const;
+
+    std::function<void (const QString &, const QString &, Context &)> injectFn;
+    QMap<QString, QMap<QString, QObject *>> objectsByType;
 };
 
 } // namespace io

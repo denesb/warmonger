@@ -89,9 +89,49 @@ TEST_CASE("Map can be written to file", "[File]")
     }
 }
 
+void loadWorld(
+    const QString &className,
+    const QString &objectName,
+    io::Context &ctx
+)
+{
+    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    core::World *world{worlds.first};
+
+    if (className == world->metaObject()->className() ||
+            objectName == world->objectName())
+    {
+        ctx.add(world);
+        QList<core::TerrainType *> tts = world->getTerrainTypes();
+        std::for_each(
+            tts.cbegin(),
+            tts.cend(),
+            [&](core::TerrainType *o){ctx.add(o);}
+        );
+        QList<core::Faction *> fs = world->getFactions();
+        std::for_each(
+            fs.cbegin(),
+            fs.cend(),
+            [&](core::Faction *o){ctx.add(o);}
+        );
+        QList<core::SettlementType *> sts = world->getSettlementTypes();
+        std::for_each(
+            sts.cbegin(),
+            sts.cend(),
+            [&](core::SettlementType *o){ctx.add(o);}
+        );
+        QList<core::UnitType *> uts = world->getUnitTypes();
+        std::for_each(
+            uts.cbegin(),
+            uts.cend(),
+            [&](core::UnitType *o){ctx.add(o);}
+        );
+    }
+}
+
 TEST_CASE("Map can be read from file", "[File]")
 {
-    io::Context ctx;
+    io::Context ctx(loadWorld);
     const QString path("./read_map.json");
     io::JsonUnserializer unserializer(ctx);
 
@@ -99,9 +139,10 @@ TEST_CASE("Map can be read from file", "[File]")
 
     SECTION("reading Map")
     {
-        //core::Map *map = io::readMap(path, &unserializer);
+        core::Map *map = io::readMap(path, &unserializer);
 
-        //REQUIRE(map != nullptr);
+        REQUIRE(map != nullptr);
+        REQUIRE(map->getWorld() != nullptr);
     }
 
     QFile file(path);

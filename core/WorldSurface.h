@@ -5,26 +5,25 @@
 #include <QHash>
 #include <QImage>
 #include <QSize>
-
-#include "core/GameEntityPart.h"
+#include <QVariant>
 
 namespace warmonger {
 namespace core {
 
 class WorldSurface :
-    public GameEntityPart
+    public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(QSize tileSize READ getTileSize NOTIFY tileSizeChanged);
     Q_PROPERTY(QVariantMap imagePaths READ readImagePaths NOTIFY imagePathsChanged);
     Q_PROPERTY(QVariantMap colorNames READ readColorNames NOTIFY colorNamesChanged);
 
 public:
-    static const QString fileExtension;
+    explicit WorldSurface(QObject *parent=nullptr);
 
-    WorldSurface(QObject *parent=nullptr);
-
-    QString getEntityRelativePath(const QString &name) const;
+    QString getDisplayName() const;
+    void setDisplayName(const QString &displayName);
 
     int getTileWidth() const;
     void setTileWidth(int width);
@@ -51,6 +50,7 @@ public:
     bool hexContains(const QPointF &p) const;
 
 signals:
+    void displayNameChanged();
     void prefixChanged();
     void tileWidthChanged();
     void tileHeightChanged();
@@ -59,8 +59,7 @@ signals:
     void colorNamesChanged();
 
 private:
-    void dataFromJson(const QJsonObject &obj);
-    void dataToJson(QJsonObject &obj) const;
+    QString displayName;
 
     int tileWidth;
     int tileHeight;

@@ -1,8 +1,10 @@
 #ifndef CORE_UNIT_TYPE_H
 #define CORE_UNIT_TYPE_H
 
+#include <QObject>
+#include <QVariant>
+
 #include "core/Armor.h"
-#include "core/GameObject.h"
 #include "core/UnitClass.h"
 #include "core/UnitLevel.h"
 #include "core/Weapon.h"
@@ -11,9 +13,10 @@ namespace warmonger {
 namespace core {
 
 class UnitType :
-    public GameObject
+    public QObject
 {
     Q_OBJECT;
+    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(UnitClass *klass READ getClass WRITE setClass NOTIFY classChanged)
     Q_PROPERTY(UnitLevel *level READ getLevel WRITE setLevel NOTIFY levelChanged)
     Q_PROPERTY(int hitPoints READ getHitPoints WRITE setHitPoints NOTIFY hitPointsChanged)
@@ -23,8 +26,11 @@ class UnitType :
     Q_PROPERTY(QVariantList weapons READ readWeapons NOTIFY weaponsChanged)
 
 public:
-    UnitType(QObject *parent=nullptr);
+    explicit UnitType(QObject *parent=nullptr);
     ~UnitType();
+
+    QString getDisplayName() const;
+    void setDisplayName(const QString &displayName);
 
     UnitClass * getClass() const;
     void setClass(UnitClass *klass);
@@ -53,6 +59,7 @@ public:
     void setUpgrades(const QList<UnitType *> &upgrades);
 
 signals:
+    void displayNameChanged();
     void classChanged();
     void levelChanged();
     void hitPointsChanged();
@@ -63,9 +70,7 @@ signals:
     void upgradesChanged();
 
 private:
-    void dataFromJson(const QJsonObject &obj);
-    void dataToJson(QJsonObject &obj) const;
-
+    QString displayName;
     UnitClass *klass;
     UnitLevel *level;
     int hitPoints;

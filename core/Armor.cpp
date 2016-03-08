@@ -1,17 +1,30 @@
 #include "core/Armor.h"
 #include "core/DamageType.h"
-#include "core/QJsonUtil.h"
 
 using namespace warmonger::core;
 
 Armor::Armor(QObject *parent) :
-    GameObject(parent),
+    QObject(parent),
     defenses()
 {
 }
 
 Armor::~Armor()
 {
+}
+
+QString Armor::getDisplayName() const
+{
+    return this->displayName;
+}
+
+void Armor::setDisplayName(const QString &displayName)
+{
+    if (this->displayName != displayName)
+    {
+        this->displayName = displayName;
+        emit displayNameChanged();
+    }
 }
 
 QMap<const DamageType *, int> Armor::getDefenses() const
@@ -32,22 +45,4 @@ int Armor::getDefense(const DamageType * const damageType) const
 void Armor::setDefense(const DamageType * const damageType, int defense)
 {
     this->defenses[damageType] = defense;
-}
-
-void Armor::dataFromJson(const QJsonObject &obj)
-{
-    this->defenses = fromQJsonObject<QMap<const DamageType *, int>>(
-        obj["defenses"].toObject(),
-        ReferenceResolver<DamageType>(this->parent()),
-        qJsonValueToInt
-    );
-}
-
-void Armor::dataToJson(QJsonObject &obj) const
-{
-    obj["defenses"] = toQJsonObject(
-        this->defenses,
-        qObjectName,
-        constructQJsonValue<int>
-    );
 }

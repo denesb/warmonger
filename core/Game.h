@@ -19,8 +19,6 @@ class Game :
     Q_PROPERTY(int turn READ getTurn WRITE setTurn NOTIFY turnChanged)
 
 public:
-    static const QString fileExtension;
-
     Game(QObject *parent);
     ~Game();
 
@@ -129,9 +127,6 @@ private:
     ) const;
 
     QString checkUnitRecruitmentRules(UnitType *unitType, MapNode *node) const;
-
-    void dataFromJson(const QJsonObject &obj);
-    void dataToJson(QJsonObject &obj) const;
 
     int turn;
     int playerIndex;

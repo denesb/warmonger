@@ -1,9 +1,8 @@
 #ifndef CORE_ARMOR_H
 #define CORE_ARMOR_H
 
+#include <QObject>
 #include <QMap>
-
-#include "core/GameObject.h"
 
 namespace warmonger {
 namespace core {
@@ -11,13 +10,17 @@ namespace core {
 class DamageType;
 
 class Armor :
-    public GameObject
+    public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
 
 public:
-    Armor(QObject *parent=nullptr);
+    explicit Armor(QObject *parent=nullptr);
     ~Armor();
+
+    QString getDisplayName() const;
+    void setDisplayName(const QString &displayName);
 
     QMap<const DamageType *, int> getDefenses() const;
     void setDefenses(const QMap<const DamageType *, int> &damages);
@@ -25,11 +28,13 @@ public:
     int getDefense(const DamageType * const damageType) const;
     void setDefense(const DamageType * const damageType, int defense);
 
-private:
-    void dataFromJson(const QJsonObject &obj);
-    void dataToJson(QJsonObject &obj) const;
+signals:
+    void displayNameChanged();
 
+private:
     QMap<const DamageType *, int> defenses;
+
+    QString displayName;
 };
 
 } // namespace core

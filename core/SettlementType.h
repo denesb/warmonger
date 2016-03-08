@@ -1,7 +1,8 @@
 #ifndef CORE_SETTLEMENT_TYPE_H
 #define CORE_SETTLEMENT_TYPE_H
 
-#include "core/GameObject.h"
+#include <QObject>
+#include <QVariant>
 
 namespace warmonger {
 namespace core {
@@ -9,15 +10,19 @@ namespace core {
 class UnitType;
 
 class SettlementType :
-    public GameObject
+    public QObject
 {
     Q_OBJECT;
+    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(int goldPerTurn READ getGoldPerTurn WRITE setGoldPerTurn NOTIFY goldPerTurnChanged)
     Q_PROPERTY(QVariantList recruits READ readRecruits WRITE writeRecruits NOTIFY recruitsChanged)
 
 public:
-    SettlementType(QObject *parent=nullptr);
+    explicit SettlementType(QObject *parent=nullptr);
     ~SettlementType();
+
+    QString getDisplayName() const;
+    void setDisplayName(const QString &displayName);
 
     int getGoldPerTurn() const;
     void setGoldPerTurn(int goldPerTurn);
@@ -28,13 +33,12 @@ public:
     void writeRecruits(QVariantList recruits);
 
 signals:
+    void displayNameChanged();
     void goldPerTurnChanged();
     void recruitsChanged();
 
 private:
-    void dataFromJson(const QJsonObject &obj);
-    void dataToJson(QJsonObject &obj) const;
-
+    QString displayName;
     int goldPerTurn;
     QList<UnitType *> recruits;
 };

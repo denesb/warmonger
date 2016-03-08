@@ -2,19 +2,32 @@
 
 #include "core/Faction.h"
 #include "core/SettlementType.h"
-#include "core/QJsonUtil.h"
 #include "core/QVariantUtil.h"
 #include "core/UnitType.h"
 
 using namespace warmonger::core;
 
 Faction::Faction(QObject *parent) :
-    GameObject(parent)
+    QObject(parent)
 {
 }
 
 Faction::~Faction()
 {
+}
+
+QString Faction::getDisplayName() const
+{
+    return this->displayName;
+}
+
+void Faction::setDisplayName(const QString &displayName)
+{
+    if (this->displayName != displayName)
+    {
+        this->displayName = displayName;
+        emit displayNameChanged();
+    }
 }
 
 QList<UnitType *> Faction::getUnitTypes() const
@@ -51,7 +64,7 @@ QVariantMap Faction::readRecruits() const
 {
     return toQVariantMap(
         this->recruits,
-        qObjectName,
+        std::bind(&QObject::objectName, std::placeholders::_1),
         containerToQVariant<QList<UnitType *>>
     );
 }
@@ -80,35 +93,4 @@ bool Faction::canRecruitFrom(
 ) const
 {
     return this->recruits[settlementType].contains(unitType);
-}
-
-void Faction::dataFromJson(const QJsonObject &obj)
-{
-    const ReferenceResolver<UnitType> unitTypeReferenceResolver(this->parent());
-
-    this->unitTypes = fromQJsonArray<QList<UnitType *>>(
-        obj["unitTypes"].toArray(),
-        unitTypeReferenceResolver
-    );
-    this->recruits = fromQJsonObject<QMap<SettlementType *, QList<UnitType *>>>(
-        obj["recruits"].toObject(),
-        ReferenceResolver<SettlementType>(this->parent()),
-        [&](const QJsonValue &v)
-        {
-            return fromQJsonArray<QList<UnitType *>>(
-                v.toArray(),
-                unitTypeReferenceResolver
-            );
-        }
-    );
-}
-
-void Faction::dataToJson(QJsonObject &obj) const
-{
-    obj["unitTypes"] = toQJsonArray(this->unitTypes, qObjectName);
-    obj["recruits"] = toQJsonObject(
-        this->recruits,
-        qObjectName,
-        [](const QList<UnitType *> &l){return toQJsonArray(l, qObjectName);}
-    );
 }

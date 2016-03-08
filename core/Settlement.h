@@ -1,9 +1,8 @@
 #ifndef CORE_SETTLEMENT_H
 #define CORE_SETTLEMENT_H
 
-#include <QPoint>
+#include <QObject>
 
-#include "core/GameObject.h"
 #include "core/MapNode.h"
 #include "core/Player.h"
 #include "core/SettlementType.h"
@@ -12,17 +11,21 @@ namespace warmonger {
 namespace core {
 
 class Settlement :
-    public GameObject
+    public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(SettlementType *type READ getType WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(MapNode *mapNode READ getMapNode WRITE setMapNode NOTIFY mapNodeChanged)
     Q_PROPERTY(Player *owner READ getOwner WRITE setOwner NOTIFY ownerChanged)
     Q_PROPERTY(QVariantList recruits READ readRecruits NOTIFY recruitsChanged);
 
 public:
-    Settlement(QObject *parent=nullptr);
+    explicit Settlement(QObject *parent=nullptr);
     ~Settlement();
+
+    QString getDisplayName() const;
+    void setDisplayName(const QString &displayName);
 
     SettlementType * getType() const;
     void setType(SettlementType *type);
@@ -46,15 +49,14 @@ public:
     QVariantList readRecruits() const;
 
 signals:
+    void displayNameChanged();
     void typeChanged();
     void mapNodeChanged();
     void ownerChanged();
     void recruitsChanged();
 
 private:
-    void dataFromJson(const QJsonObject &obj);
-    void dataToJson(QJsonObject &obj) const;
-
+    QString displayName;
     SettlementType *type;
     MapNode *mapNode;
     Player *owner;

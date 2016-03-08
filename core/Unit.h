@@ -1,9 +1,8 @@
 #ifndef CORE_UNIT_H
 #define CORE_UNIT_H
 
-#include <QPoint>
+#include <QObject>
 
-#include "core/GameObject.h"
 #include "core/MapNode.h"
 #include "core/Player.h"
 #include "core/UnitType.h"
@@ -12,9 +11,10 @@ namespace warmonger {
 namespace core {
 
 class Unit :
-    public GameObject
+    public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(UnitRank rank READ getRank WRITE setRank NOTIFY rankChanged)
     Q_PROPERTY(QString rankName READ getRankName NOTIFY rankChanged)
     Q_PROPERTY(UnitType *type READ getType WRITE setType NOTIFY typeChanged)
@@ -37,8 +37,11 @@ public:
     static const QMap<UnitRank, QString> rankNames;
     static const QMap<QString, UnitRank> str2rank;
 
-    Unit(QObject *parent=nullptr);
+    explicit Unit(QObject *parent=nullptr);
     ~Unit();
+
+    QString getDisplayName() const;
+    void setDisplayName(const QString &displayName);
 
     UnitRank getRank() const;
     void setRank(UnitRank rank);
@@ -64,6 +67,7 @@ public:
     void setMovementPoints(double movementPoints);
 
 signals:
+    void displayNameChanged();
     void rankChanged();
     void typeChanged();
     void mapNodeChanged();
@@ -75,9 +79,7 @@ signals:
 private:
     void onTypeChanged(const UnitType *oldUnitType);
 
-    void dataFromJson(const QJsonObject &obj);
-    void dataToJson(QJsonObject &obj) const;
-
+    QString displayName;
     UnitRank rank;
     UnitType *type;
     MapNode *mapNode;

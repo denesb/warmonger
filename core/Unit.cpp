@@ -1,5 +1,4 @@
 #include "core/Map.h"
-#include "core/QJsonUtil.h"
 #include "core/Unit.h"
 
 using namespace warmonger::core;
@@ -23,7 +22,7 @@ const QMap<QString, Unit::UnitRank> Unit::str2rank{
 };
 
 Unit::Unit(QObject *parent) :
-    GameObject(parent),
+    QObject(parent),
     rank(Unit::Soldier),
     type(nullptr),
     mapNode(nullptr),
@@ -36,6 +35,20 @@ Unit::Unit(QObject *parent) :
 
 Unit::~Unit()
 {
+}
+
+QString Unit::getDisplayName() const
+{
+    return this->displayName;
+}
+
+void Unit::setDisplayName(const QString &displayName)
+{
+    if (this->displayName != displayName)
+    {
+        this->displayName = displayName;
+        emit displayNameChanged();
+    }
 }
 
 Unit::UnitRank Unit::getRank() const
@@ -155,59 +168,4 @@ void Unit::onTypeChanged(const UnitType *oldUnitType)
         int hpPercentage = this->hitPoints * 100 / oldUnitType->getHitPoints();
         this->hitPoints = (this->type->getHitPoints() * hpPercentage) / 100;
     }
-}
-
-void Unit::dataFromJson(const QJsonObject &obj)
-{
-    const QString rankStr = obj["rank"].toString();
-    if (Unit::str2rank.contains(rankStr))
-    {
-        this->rank = Unit::str2rank[rankStr];
-    }
-    else
-    {
-        wError(loggerName) << "Invalid unit rank: " << rankStr;
-        throw ValueError("Invalued value for Unit::Rank " + rankStr);
-    }
-
-    Map *map = qobject_cast<Map *>(this->parent());
-    World *world = map->getWorld();
-
-    this->type = resolveReference<UnitType>(
-        obj["type"].toString(),
-        world
-    );
-    this->mapNode = resolveReference<MapNode>(
-        obj["mapNode"].toString(),
-        this->parent()
-    );
-
-    const QString ownerName = obj["owner"].toString();
-    if (ownerName.isEmpty())
-        this->owner = nullptr;
-    else
-        this->owner = resolveReference<Player>(
-            ownerName,
-            this->parent()
-        );
-
-    this->hitPoints = obj["hitPoints"].toDouble();
-    this->movementPoints = obj["movementPoints"].toDouble();
-    this->experiencePoints = obj["experiencePoints"].toDouble();
-}
-
-void Unit::dataToJson(QJsonObject &obj) const
-{
-    obj["rank"] = Unit::rank2str[this->rank];
-    obj["type"] = this->type->objectName();
-    obj["mapNode"] = this->mapNode->objectName();
-
-    if (this->owner == nullptr)
-        obj["owner"] = QStringLiteral("");
-    else
-        obj["owner"] = this->owner->objectName();
-
-    obj["experiencePoints"] = this->experiencePoints;
-    obj["hitPoints"] = this->hitPoints;
-    obj["movementPoints"] = this->movementPoints;
 }

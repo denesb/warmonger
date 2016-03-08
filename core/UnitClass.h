@@ -1,23 +1,27 @@
 #ifndef CORE_UNIT_CLASS_H
 #define CORE_UNIT_CLASS_H
 
+#include <QObject>
 #include <QMap>
 
-#include "core/GameObject.h"
 #include "core/TerrainType.h"
 
 namespace warmonger {
 namespace core {
 
 class UnitClass :
-    public GameObject
+    public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(int movementPoints READ getMovementPoints WRITE setMovementPoints NOTIFY movementPointsChanged)
 
 public:
-    UnitClass(QObject *parent=nullptr);
+    explicit UnitClass(QObject *parent=nullptr);
     ~UnitClass();
+
+    QString getDisplayName() const;
+    void setDisplayName(const QString &displayName);
 
     int getMovementPoints() const;
     void setMovementPoints(int movementPoints);
@@ -41,12 +45,11 @@ public:
     void setDefense(const TerrainType *terrainType, int defense);
 
 signals:
+    void displayNameChanged();
     void movementPointsChanged();
 
 private:
-    void dataFromJson(const QJsonObject &obj);
-    void dataToJson(QJsonObject &obj) const;
-
+    QString displayName;
     int movementPoints;
     QMap<const TerrainType *, int> movementCosts;
     QMap<const TerrainType *, int> attacks;

@@ -1,12 +1,9 @@
 #include <QDir>
 
 #include "core/QVariantUtil.h"
-#include "core/QJsonUtil.h"
 #include "core/WorldSurface.h"
 
 using namespace warmonger::core;
-
-const QString WorldSurface::fileExtension{"wsd"};
 
 static QHash<QString, QImage> loadImages(
     const QMap<QString, QString> &imagePaths
@@ -16,12 +13,10 @@ static QHash<QString, QColor> createColors(
     const QMap<QString, QString> &colorNames
 );
 
-static const QString pathTemplate{"/surfaces/%1/%1.%2"};
-
 static const QString loggerName{"core.WorldSurface"};
 
 WorldSurface::WorldSurface(QObject *parent) :
-    GameEntityPart(parent),
+    QObject(parent),
     tileWidth(0),
     tileHeight(0),
     images(),
@@ -31,12 +26,18 @@ WorldSurface::WorldSurface(QObject *parent) :
 {
 }
 
-QString WorldSurface::getEntityRelativePath(const QString &name) const
+QString WorldSurface::getDisplayName() const
 {
-    return pathTemplate.arg(
-        name,
-        WorldSurface::fileExtension
-    );
+    return this->displayName;
+}
+
+void WorldSurface::setDisplayName(const QString &displayName)
+{
+    if (this->displayName != displayName)
+    {
+        this->displayName = displayName;
+        emit displayNameChanged();
+    }
 }
 
 int WorldSurface::getTileWidth() const
@@ -170,54 +171,6 @@ bool WorldSurface::hexContains(const QPointF &p) const
     QRgb pixelf = this->hexMask.pixel(xf, yf);
 
     return (pixelc == 0xffffffff || pixelf == 0xffffffff);
-}
-
-void WorldSurface::dataFromJson(const QJsonObject &obj)
-{
-    this->hexMask.load(this->getPath() + QStringLiteral("/hexagon_mask.xpm"), "XPM");
-
-    this->colorNames = fromQJsonObject<QMap<QString, QString>>(
-        obj["colors"].toObject(),
-        verbatim<QString>,
-        qJsonValueToQString
-    );
-    this->imagePaths = fromQJsonObject<QMap<QString, QString>>(
-        obj["images"].toObject(),
-        verbatim<QString>,
-        qJsonValueToQString
-    );
-
-    // Convert paths to absolute paths
-    QMap<QString, QString>::Iterator it;
-    QMap<QString, QString>::Iterator b = this->imagePaths.begin();
-    QMap<QString, QString>::Iterator e = this->imagePaths.end();
-    for (it = b; it != e; it++)
-    {
-        QString path = this->getPath() + "/" + it.value();
-        it.value() = QDir::cleanPath(path);
-    }
-
-    this->tileWidth = obj["tileWidth"].toInt();
-    this->tileHeight = obj["tileHeight"].toInt();
-
-    this->colors = createColors(this->colorNames);
-    this->images = loadImages(this->imagePaths);
-}
-
-void WorldSurface::dataToJson(QJsonObject &obj) const
-{
-    obj["tileWidth"] = this->tileWidth;
-    obj["tileHeight"] = this->tileHeight;
-    obj["images"] = toQJsonObject(
-        this->imagePaths,
-        verbatim<QString>,
-        constructQJsonValue<QString>
-    );
-    obj["colors"] = toQJsonObject(
-        this->colorNames,
-        verbatim<QString>,
-        constructQJsonValue<QString>
-    );
 }
 
 QHash<QString, QColor> createColors(

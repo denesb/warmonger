@@ -5,7 +5,7 @@ using namespace warmonger::core;
 static const QString loggerName{"core.UnitLevel"};
 
 UnitLevel::UnitLevel(QObject *parent) :
-    GameObject(parent),
+    QObject(parent),
     experiencePoints(0),
     index(0)
 {
@@ -13,6 +13,20 @@ UnitLevel::UnitLevel(QObject *parent) :
 
 UnitLevel::~UnitLevel()
 {
+}
+
+QString UnitLevel::getDisplayName() const
+{
+    return this->displayName;
+}
+
+void UnitLevel::setDisplayName(const QString &displayName)
+{
+    if (this->displayName != displayName)
+    {
+        this->displayName = displayName;
+        emit displayNameChanged();
+    }
 }
 
 int UnitLevel::getExperiencePoints() const
@@ -41,16 +55,4 @@ void UnitLevel::setIndex(int index)
         this->index = index;
         emit indexChanged();
     }
-}
-
-void UnitLevel::dataFromJson(const QJsonObject &obj)
-{
-    this->experiencePoints = obj["experiencePoints"].toInt();
-    this->index = obj["index"].toInt();
-}
-
-void UnitLevel::dataToJson(QJsonObject &obj) const
-{
-    obj["experiencePoints"] = this->experiencePoints;
-    obj["index"] = this->index;
 }

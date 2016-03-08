@@ -1,9 +1,7 @@
 #include <QMetaMethod>
 #include <QSet>
 
-#include "core/EntityManager.h"
 #include "core/Map.h"
-#include "core/QJsonUtil.h"
 #include "core/QVariantUtil.h"
 #include "core/TerrainType.h"
 #include "core/WorldSurface.h"
@@ -13,13 +11,12 @@ using namespace warmonger::core;
 
 static const QString loggerName{"core.Map"};
 
-const QString Map::fileExtension{"wmd"};
 const QString Map::mapNodeNameTemplate{"mapNode%1"};
 const QString Map::settlementNameTemplate{"settlement%1"};
 const QString Map::unitNameTemplate{"unit%1"};
 
 Map::Map(QObject *parent) :
-    GameEntity(parent),
+    QObject(parent),
     world(nullptr),
     mapNodeIndex(0),
     settlementIndex(0),
@@ -32,13 +29,23 @@ Map::Map(QObject *parent) :
 {
 }
 
-Map::~Map()
-{
-}
-
 World * Map::getWorld() const
 {
     return this->world;
+}
+
+QString Map::getDisplayName() const
+{
+    return this->displayName;
+}
+
+void Map::setDisplayName(const QString &displayName)
+{
+    if (this->displayName != displayName)
+    {
+        this->displayName = displayName;
+        emit displayNameChanged();
+    }
 }
 
 void Map::setWorld(World *world)
@@ -296,146 +303,6 @@ bool Map::hasUnit(const MapNode *mapNode) const
 {
     QPair<Settlement *, Unit *> content = this->mapContent[mapNode];
     return content.second != nullptr;
-}
-
-void Map::dataFromJson(const QJsonObject &obj)
-{
-    const QString worldName(obj["world"].toString());
-    World *world = EntityManager::getInstance()->getEntity<World>(worldName);
-
-    this->world = world;
-    this->mapNodeIndex = obj["mapNodeIndex"].toInt();
-    this->settlementIndex = obj["settlementIndex"].toInt();
-    this->unitIndex = obj["unitIndex"].toInt();
-    this->mapNodes = this->mapNodesFromJson(obj["mapNodes"].toObject());
-    this->players = fromQJsonArray<QList<Player *>>(
-        obj["players"].toArray(),
-        ObjectConstructor<Player>(this)
-    );
-    this->units = fromQJsonArray<QList<Unit *>>(
-        obj["units"].toArray(),
-        ObjectConstructor<Unit>(this)
-    );
-    this->settlements = fromQJsonArray<QList<Settlement *>>(
-        obj["settlements"].toArray(),
-        ObjectConstructor<Settlement>(this)
-    );
-
-    this->setupContent();
-}
-
-void Map::dataToJson(QJsonObject &obj) const
-{
-    obj["world"] = this->world->objectName();
-    obj["mapNodeIndex"] = this->mapNodeIndex;
-    obj["settlementIndex"] = this->settlementIndex;
-    obj["unitIndex"] = this->unitIndex;
-    obj["mapNodes"] = this->mapNodesToJson(this->mapNodes);
-    obj["players"] = toQJsonArray(this->players, objectToQJsonObject<Player>);
-    obj["units"] = toQJsonArray(this->units, objectToQJsonObject<Unit>);
-    obj["settlements"] = toQJsonArray(
-        this->settlements,
-        objectToQJsonObject<Settlement>
-    );
-}
-
-QList<MapNode *> Map::mapNodesFromJson(const QJsonObject &obj)
-{
-    QList<MapNode *> mapNodes;
-    mapNodes = fromQJsonArray<QList<MapNode *>>(
-        obj["nodes"].toArray(),
-        ObjectConstructor<MapNode>(this)
-    );
-
-    QHash<QString, MapNode *> mapNodeLookup;
-    for (MapNode *mapNode : mapNodes)
-    {
-        mapNodeLookup.insert(mapNode->objectName(), mapNode);
-    }
-
-    QJsonArray connections = obj["connections"].toArray();
-    for (const QJsonValue connection : connections)
-    {
-        const QJsonObject connectionObj = connection.toObject();
-        const QString nodeNameA = connectionObj["nodeA"].toString();
-        const QString nodeNameB = connectionObj["nodeB"].toString();
-        const MapNode::Direction nodeDirectionA =
-            MapNode::str2direction[connectionObj["directionA"].toString()];
-
-        if (!mapNodeLookup.contains(nodeNameA))
-        {
-            wError(loggerName) << "Node " << nodeNameA << " does not exists";
-            throw UnresolvedReferenceError(nodeNameA);
-        }
-
-        if (!mapNodeLookup.contains(nodeNameB))
-        {
-            wError(loggerName) << "Node " << nodeNameB << " does not exists";
-            throw UnresolvedReferenceError(nodeNameB);
-        }
-
-        MapNode *nodeA = mapNodeLookup[nodeNameA];
-        MapNode *nodeB = mapNodeLookup[nodeNameB];
-
-        nodeA->setNeighbour(nodeDirectionA, nodeB);
-    }
-
-    return mapNodes;
-}
-
-QJsonObject Map::mapNodesToJson(const QList<MapNode *> &mapNodes) const
-{
-    static const QString connectionStrTemplate("%1_%2_%3");
-
-    QJsonObject obj;
-    obj["nodes"] = toQJsonArray(this->mapNodes, objectToQJsonObject<MapNode>);
-
-    QJsonArray connections;
-    QSet<QString> connectionStrs;
-
-    for (const MapNode *mapNodeA : mapNodes)
-    {
-        QHash<MapNode::Direction, MapNode *> neighbours = mapNodeA->getNeighbours();
-        QHash<MapNode::Direction, MapNode *>::ConstIterator it;
-        for (it = neighbours.constBegin(); it != neighbours.constEnd(); it++)
-        {
-            const MapNode *mapNodeB = it.value();
-
-            if (mapNodeB == nullptr)
-                continue;
-
-            const QString directionA(MapNode::direction2str[it.key()]);
-            const QString directionB(MapNode::direction2str[MapNode::oppositeDirections[it.key()]]);
-
-            const QString connectionStrA = connectionStrTemplate
-                .arg(mapNodeA->objectName())
-                .arg(directionA)
-                .arg(mapNodeB->objectName());
-
-            const QString connectionStrB = connectionStrTemplate
-                .arg(mapNodeB->objectName())
-                .arg(directionB)
-                .arg(mapNodeA->objectName());
-
-            if (connectionStrs.contains(connectionStrA) || connectionStrs.contains(connectionStrB))
-                continue;
-
-            connectionStrs << connectionStrA;
-            connectionStrs << connectionStrB;
-
-            QJsonObject connection;
-            connection["nodeA"] = mapNodeA->objectName();
-            connection["nodeB"] = mapNodeB->objectName();
-            connection["directionA"] = directionA;
-            connection["directionB"] = directionB;
-
-            connections.append(connection);
-        }
-    }
-
-    obj["connections"] = connections;
-
-    return obj;
 }
 
 void Map::onMapNodesAboutToChange()

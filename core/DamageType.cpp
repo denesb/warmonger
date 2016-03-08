@@ -3,7 +3,7 @@
 using namespace warmonger::core;
 
 DamageType::DamageType(QObject *parent) :
-    GameObject(parent)
+    QObject(parent)
 {
 }
 
@@ -11,12 +11,16 @@ DamageType::~DamageType()
 {
 }
 
-void DamageType::dataFromJson(const QJsonObject &obj)
+QString DamageType::getDisplayName() const
 {
-    Q_UNUSED(obj);
+    return this->displayName;
 }
 
-void DamageType::dataToJson(QJsonObject &obj) const
+void DamageType::setDisplayName(const QString &displayName)
 {
-    Q_UNUSED(obj);
+    if (this->displayName != displayName)
+    {
+        this->displayName = displayName;
+        emit displayNameChanged();
+    }
 }

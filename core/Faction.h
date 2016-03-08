@@ -1,7 +1,8 @@
 #ifndef CORE_FACTION_H
 #define CORE_FACTION_H
 
-#include "core/GameObject.h"
+#include <QObject>
+#include <QVariant>
 
 namespace warmonger {
 namespace core {
@@ -10,15 +11,19 @@ class UnitType;
 class SettlementType;
 
 class Faction :
-    public GameObject
+    public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(QVariantList unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
     Q_PROPERTY(QVariantMap recruits READ readRecruits NOTIFY recruitsChanged)
 
 public:
-    Faction(QObject *parent=nullptr);
+    explicit Faction(QObject *parent=nullptr);
     ~Faction();
+
+    QString getDisplayName() const;
+    void setDisplayName(const QString &displayName);
 
     QList<UnitType *> getUnitTypes() const;
     QVariantList readUnitTypes() const;
@@ -38,13 +43,12 @@ public:
     ) const;
 
 signals:
+    void displayNameChanged();
     void unitTypesChanged();
     void recruitsChanged();
 
 private:
-    void dataFromJson(const QJsonObject &obj);
-    void dataToJson(QJsonObject &obj) const;
-
+    QString displayName;
     QList<UnitType *> unitTypes;
     QMap<SettlementType *, QList<UnitType *>> recruits;
 };

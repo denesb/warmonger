@@ -1,7 +1,6 @@
 #include "core/Faction.h"
 #include "core/Map.h"
 #include "core/Player.h"
-#include "core/QJsonUtil.h"
 #include "core/Settlement.h"
 #include "core/World.h"
 #include "core/Unit.h"
@@ -11,7 +10,7 @@ using namespace warmonger::core;
 static const QString loggerName{"core.Player"};
 
 Player::Player(QObject *parent) :
-    GameObject(parent),
+    QObject(parent),
     color(),
     goldBalance(0),
     faction(nullptr)
@@ -20,6 +19,20 @@ Player::Player(QObject *parent) :
 
 Player::~Player()
 {
+}
+
+QString Player::getDisplayName() const
+{
+    return this->displayName;
+}
+
+void Player::setDisplayName(const QString &displayName)
+{
+    if (this->displayName != displayName)
+    {
+        this->displayName = displayName;
+        emit displayNameChanged();
+    }
 }
 
 QColor Player::getColor() const
@@ -62,23 +75,4 @@ void Player::setFaction(Faction *faction)
         this->faction = faction;
         emit factionChanged();
     }
-}
-
-void Player::dataFromJson(const QJsonObject &obj)
-{
-    this->color = QColor(obj["color"].toString());
-    this->goldBalance = obj["goldBalance"].toInt();
-
-    Map *map = qobject_cast<Map *>(this->parent());
-    this->faction = resolveReference<Faction>(
-        obj["faction"].toString(),
-        map->getWorld()
-    );
-}
-
-void Player::dataToJson(QJsonObject &obj) const
-{
-    obj["color"] = this->color.name();
-    obj["goldBalance"] = this->goldBalance;
-    obj["faction"] = this->faction->objectName();
 }

@@ -1,5 +1,4 @@
 #include "core/QVariantUtil.h"
-#include "core/QJsonUtil.h"
 #include "core/UnitType.h"
 
 using namespace warmonger::core;
@@ -7,7 +6,7 @@ using namespace warmonger::core;
 static const QString loggerName{"core.UnitType"};
 
 UnitType::UnitType(QObject *parent) :
-    GameObject(parent),
+    QObject(parent),
     klass(nullptr),
     level(nullptr),
     hitPoints(0),
@@ -21,6 +20,20 @@ UnitType::UnitType(QObject *parent) :
 
 UnitType::~UnitType()
 {
+}
+
+QString UnitType::getDisplayName() const
+{
+    return this->displayName;
+}
+
+void UnitType::setDisplayName(const QString &displayName)
+{
+    if (this->displayName != displayName)
+    {
+        this->displayName = displayName;
+        emit displayNameChanged();
+    }
 }
 
 UnitClass *UnitType::getClass() const
@@ -138,43 +151,4 @@ void UnitType::setUpgrades(const QList<UnitType *> &upgrades)
         this->upgrades = upgrades;
         emit upgradesChanged();
     }
-}
-
-void UnitType::dataFromJson(const QJsonObject &obj)
-{
-    this->klass = resolveReference<UnitClass>(
-        obj["class"].toString(),
-        this->parent()
-    );
-    this->level = resolveReference<UnitLevel>(
-        obj["level"].toString(),
-        this->parent()
-    );
-    this->hitPoints = obj["hitPoints"].toInt();
-    this->recruitmentCost = obj["recruitmentCost"].toInt();
-    this->upkeepCost = obj["upkeepCost"].toInt();
-    this->armor = resolveReference<Armor>(
-        obj["armor"].toString(),
-        this->parent()
-    );
-    this->weapons = fromQJsonArray<QList<Weapon *>>(
-        obj["weapons"].toArray(),
-        ReferenceResolver<Weapon>(this->parent())
-    );
-    this->upgrades = fromQJsonArray<QList<UnitType *>>(
-        obj["upgrades"].toArray(),
-        ReferenceResolver<UnitType>(this->parent())
-    );
-}
-
-void UnitType::dataToJson(QJsonObject &obj) const
-{
-    obj["class"] = this->klass->objectName();
-    obj["level"] = this->level->objectName();
-    obj["hitPoints"] = this->hitPoints;
-    obj["recruitmentCost"] = this->recruitmentCost;
-    obj["upkeepCost"] = this->upkeepCost;
-    obj["armor"] = this->armor->objectName();
-    obj["weapons"] = toQJsonArray(this->weapons, qObjectName);
-    obj["upgrades"] = toQJsonArray(this->upgrades, qObjectName);
 }

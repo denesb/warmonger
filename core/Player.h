@@ -1,27 +1,31 @@
 #ifndef CORE_PLAYER_H
 #define CORE_PLAYER_H
 
-#include <QString>
 #include <QColor>
+#include <QObject>
 #include <QList>
+#include <QString>
 
 #include "core/Faction.h"
-#include "core/GameObject.h"
 
 namespace warmonger {
 namespace core {
 
 class Player :
-    public GameObject
+    public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(QColor color READ getColor WRITE setColor NOTIFY colorChanged)
     Q_PROPERTY(int goldBalance READ getGoldBalance WRITE setGoldBalance NOTIFY goldBalanceChanged)
     Q_PROPERTY(Faction *faction READ getFaction WRITE setFaction NOTIFY factionChanged)
 
 public:
-    Player(QObject *parent=nullptr);
+    explicit Player(QObject *parent=nullptr);
     ~Player();
+
+    QString getDisplayName() const;
+    void setDisplayName(const QString &displayName);
 
     QColor getColor() const;
     void setColor(const QColor &color);
@@ -33,14 +37,13 @@ public:
     void setFaction(Faction *faction);
 
 signals:
+    void displayNameChanged();
     void colorChanged();
     void goldBalanceChanged();
     void factionChanged();
 
 private:
-    void dataFromJson(const QJsonObject &obj);
-    void dataToJson(QJsonObject &obj) const;
-
+    QString displayName;
     QColor color;
     int goldBalance;
     Faction *faction;

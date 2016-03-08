@@ -1,7 +1,6 @@
 #include "core/Map.h"
 #include "core/MapNode.h"
 #include "core/QVariantUtil.h"
-#include "core/QJsonUtil.h"
 #include "core/World.h"
 
 using namespace warmonger;
@@ -39,7 +38,7 @@ const QHash<MapNode::Direction, MapNode::Direction> MapNode::oppositeDirections{
 };
 
 MapNode::MapNode(QObject *parent) :
-    GameObject(parent),
+    QObject(parent),
     terrainType(nullptr),
     neighbours({
         std::make_pair(MapNode::West, nullptr),
@@ -54,6 +53,20 @@ MapNode::MapNode(QObject *parent) :
 
 MapNode::~MapNode()
 {
+}
+
+QString MapNode::getDisplayName() const
+{
+    return this->displayName;
+}
+
+void MapNode::setDisplayName(const QString &displayName)
+{
+    if (this->displayName != displayName)
+    {
+        this->displayName = displayName;
+        emit displayNameChanged();
+    }
 }
 
 TerrainType * MapNode::getTerrainType() const
@@ -125,22 +138,6 @@ void MapNode::writeNeighbours(QVariantMap neighbours)
         convertStr2direction,
         fromQVariant<MapNode *>
     );
-}
-
-void MapNode::dataFromJson(const QJsonObject &obj)
-{
-    Map *map = qobject_cast<Map *>(this->parent());
-    World *world = map->getWorld();
-
-    this->terrainType = resolveReference<TerrainType>(
-        obj["terrainType"].toString(),
-        world
-    );
-}
-
-void MapNode::dataToJson(QJsonObject &obj) const
-{
-    obj["terrainType"] = this->terrainType->objectName();
 }
 
 void MapNode::addNeighbour(MapNode::Direction direction, MapNode *neighbour)

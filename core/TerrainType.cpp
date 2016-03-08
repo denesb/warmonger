@@ -3,7 +3,7 @@
 using namespace warmonger::core;
 
 TerrainType::TerrainType(QObject *parent) :
-    GameObject(parent)
+    QObject(parent)
 {
 }
 
@@ -11,12 +11,16 @@ TerrainType::~TerrainType()
 {
 }
 
-void TerrainType::dataFromJson(const QJsonObject &obj)
+QString TerrainType::getDisplayName() const
 {
-    Q_UNUSED(obj);
+    return this->displayName;
 }
 
-void TerrainType::dataToJson(QJsonObject &obj) const
+void TerrainType::setDisplayName(const QString &displayName)
 {
-    Q_UNUSED(obj);
+    if (this->displayName != displayName)
+    {
+        this->displayName = displayName;
+        emit displayNameChanged();
+    }
 }

@@ -1,26 +1,32 @@
-#ifndef TERRAIN_TYPE_WORLD_H
-#define TERRAIN_TYPE_WORLD_H
+#ifndef CORE_TERRAIN_TYPE_H
+#define CORE_TERRAIN_TYPE_H
 
-#include "core/GameObject.h"
+#include <QObject>
 
 namespace warmonger {
 namespace core {
 
 class TerrainType :
-    public GameObject
+    public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
 
 public:
-    TerrainType(QObject *parent=nullptr);
+    explicit TerrainType(QObject *parent=nullptr);
     ~TerrainType();
 
+    QString getDisplayName() const;
+    void setDisplayName(const QString &displayName);
+
+signals:
+    void displayNameChanged();
+
 private:
-    void dataFromJson(const QJsonObject &obj);
-    void dataToJson(QJsonObject &obj) const;
+    QString displayName;
 };
 
 } // namespace core
 } // namespace warmonger
 
-#endif // TERRAIN_TYPE_WORLD_H
+#endif // CORE_TERRAIN_TYPE_H

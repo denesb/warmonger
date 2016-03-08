@@ -1,5 +1,4 @@
 #include "core/Map.h"
-#include "core/QJsonUtil.h"
 #include "core/QVariantUtil.h"
 #include "core/Settlement.h"
 
@@ -8,7 +7,7 @@ using namespace warmonger::core;
 static const QString loggerName{"core.Settlement"};
 
 Settlement::Settlement(QObject *parent) :
-    GameObject(parent),
+    QObject(parent),
     type(nullptr),
     mapNode(nullptr),
     owner(nullptr)
@@ -29,6 +28,20 @@ Settlement::Settlement(QObject *parent) :
 
 Settlement::~Settlement()
 {
+}
+
+QString Settlement::getDisplayName() const
+{
+    return this->displayName;
+}
+
+void Settlement::setDisplayName(const QString &displayName)
+{
+    if (this->displayName != displayName)
+    {
+        this->displayName = displayName;
+        emit displayNameChanged();
+    }
 }
 
 SettlementType * Settlement::getType() const
@@ -115,54 +128,4 @@ QList<UnitType *> Settlement::getRecruits() const
 QVariantList Settlement::readRecruits() const
 {
     return toQVariantList(this->getRecruits());
-}
-
-void Settlement::dataFromJson(const QJsonObject &obj)
-{
-    Map *map = qobject_cast<Map *>(this->parent());
-    World *world = map->getWorld();
-
-    this->type = resolveReference<SettlementType>(
-        obj["type"].toString(),
-        world
-    );
-    this->mapNode = resolveReference<MapNode>(
-        obj["mapNode"].toString(),
-        this->parent()
-    );
-
-    const QString ownerName = obj["owner"].toString();
-    if (ownerName.isEmpty())
-        this->owner = nullptr;
-    else
-        this->owner = resolveReference<Player>(
-            ownerName,
-            this->parent()
-        );
-
-    QObject::connect(
-        this->type,
-        &SettlementType::recruitsChanged,
-        this,
-        &Settlement::recruitsChanged
-    );
-
-    if (this->owner != nullptr)
-        QObject::connect(
-            this->owner->getFaction(),
-            &Faction::recruitsChanged,
-            this,
-            &Settlement::recruitsChanged
-        );
-}
-
-void Settlement::dataToJson(QJsonObject &obj) const
-{
-    obj["type"] = this->type->objectName();
-    obj["mapNode"] = this->mapNode->objectName();
-
-    if (this->owner == nullptr)
-        obj["owner"] = QStringLiteral("");
-    else
-        obj["owner"] = this->owner->objectName();
 }

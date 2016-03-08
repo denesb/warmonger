@@ -2,10 +2,9 @@
 #define CORE_MAP_H
 
 #include <QList>
+#include <QObject>
 #include <QString>
 
-#include "core/GameEntity.h"
-#include "core/GameObject.h"
 #include "core/MapNode.h"
 #include "core/Player.h"
 #include "core/Settlement.h"
@@ -18,9 +17,10 @@ namespace warmonger {
 namespace core {
 
 class Map :
-    public GameEntity
+    public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(World * world READ getWorld WRITE setWorld NOTIFY worldChanged)
     Q_PROPERTY(QVariantList mapNodes READ readMapNodes NOTIFY mapNodesChanged)
     Q_PROPERTY(QVariantList players READ readPlayers NOTIFY playersChanged)
@@ -28,13 +28,14 @@ class Map :
     Q_PROPERTY(QVariantList settlements READ readSettlements NOTIFY settlementsChanged)
 
 public:
-    static const QString fileExtension;
     static const QString mapNodeNameTemplate;
     static const QString settlementNameTemplate;
     static const QString unitNameTemplate;
 
-    Map(QObject *parent=nullptr);
-    ~Map();
+    explicit Map(QObject *parent=nullptr);
+
+    QString getDisplayName() const;
+    void setDisplayName(const QString &displayName);
 
     World * getWorld() const;
     void setWorld(World *world);
@@ -91,6 +92,7 @@ public:
     bool hasUnit(const MapNode *mapNode) const;
 
 signals:
+    void displayNameChanged();
     void worldChanged();
     void mapNodeIndexChanged();
     void settlementIndexChanged();
@@ -110,12 +112,10 @@ signals:
     void playersChanged();
 
 protected:
-    void dataFromJson(const QJsonObject &obj);
-    void dataToJson(QJsonObject &obj) const;
-
     QList<MapNode *> mapNodesFromJson(const QJsonObject &obj);
     QJsonObject mapNodesToJson(const QList<MapNode *> &mapNodes) const;
 
+    QString displayName;
     void onMapNodesAboutToChange();
     void onMapNodesChanged();
     void onMapNodeAdded(MapNode *n);

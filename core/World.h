@@ -1,12 +1,12 @@
 #ifndef CORE_WORLD_H
 #define CORE_WORLD_H
 
-#include <QList>
+#include <QObject>
+#include <QVariant>
 
 #include "core/Armor.h"
 #include "core/DamageType.h"
 #include "core/Faction.h"
-#include "core/GameEntity.h"
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
 #include "core/UnitClass.h"
@@ -19,9 +19,10 @@ namespace warmonger {
 namespace core {
 
 class World :
-    public GameEntity
+    public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(WorldSurface *surface READ getSurface NOTIFY surfaceChanged)
     Q_PROPERTY(QVariantList factions READ readFactions NOTIFY factionsChanged)
     Q_PROPERTY(QVariantList settlementTypes READ readSettlementTypes NOTIFY settlementTypesChanged)
@@ -29,14 +30,13 @@ class World :
     Q_PROPERTY(QVariantList unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
 
 public:
-    static const QString fileExtension;
+    explicit World(QObject *parent=nullptr);
 
-    World(QObject *parent=nullptr);
-    ~World();
+    QString getDisplayName() const;
+    void setDisplayName(const QString &displayName);
 
     WorldSurface * getSurface() const;
     void setSurface(WorldSurface *surface);
-    void setSurface(const QString &surfaceName);
 
     QList<Armor *> getArmors() const;
     void setArmors(const QList<Armor *> &armors);
@@ -71,6 +71,7 @@ public:
     void setWeapons(const QList<Weapon *> &weapons);
 
 signals:
+    void displayNameChanged();
     void factionsChanged();
     void surfaceChanged();
     void settlementTypesChanged();
@@ -80,9 +81,7 @@ signals:
     void unitTypesChanged();
 
 private:
-    void dataFromJson(const QJsonObject &obj);
-    void dataToJson(QJsonObject &obj) const;
-
+    QString displayName;
     WorldSurface *surface;
     QList<DamageType *> damageTypes;
     QList<Armor *> armors;

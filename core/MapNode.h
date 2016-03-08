@@ -4,8 +4,8 @@
 #include <QObject>
 #include <QJsonObject>
 #include <QHash>
+#include <QVariant>
 
-#include "core/GameObject.h"
 #include "core/TerrainType.h"
 
 namespace warmonger {
@@ -22,9 +22,10 @@ namespace core {
  *
  */
 class MapNode :
-    public GameObject
+    public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(TerrainType *terrainType READ getTerrainType WRITE setTerrainType NOTIFY terrainTypeChanged)
     Q_PROPERTY(QVariantMap neighbours READ readNeighbours WRITE writeNeighbours NOTIFY neighboursChanged)
 
@@ -42,8 +43,11 @@ public:
     static const QHash<Direction, QString> direction2str;
     static const QHash<Direction, Direction> oppositeDirections;
 
-    MapNode(QObject *parent=nullptr);
+    explicit MapNode(QObject *parent=nullptr);
     ~MapNode();
+
+    QString getDisplayName() const;
+    void setDisplayName(const QString &displayName);
 
     TerrainType * getTerrainType() const;
     void setTerrainType(TerrainType *terrainType);
@@ -56,13 +60,12 @@ public:
     void writeNeighbours(QVariantMap neighbours);
 
 signals:
+    void displayNameChanged();
     void terrainTypeChanged();
     void neighboursChanged();
 
 private:
-    void dataFromJson(const QJsonObject &obj);
-    void dataToJson(QJsonObject &obj) const;
-
+    QString displayName;
     void addNeighbour(Direction direction, MapNode *neighbour);
     void removeNeighbour(Direction direction);
 

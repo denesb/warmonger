@@ -1,10 +1,9 @@
-#include "core/QJsonUtil.h"
 #include "core/UnitClass.h"
 
 using namespace warmonger::core;
 
 UnitClass::UnitClass(QObject *parent) :
-    GameObject(parent),
+    QObject(parent),
     movementPoints(0),
     movementCosts(),
     attacks(),
@@ -14,6 +13,20 @@ UnitClass::UnitClass(QObject *parent) :
 
 UnitClass::~UnitClass()
 {
+}
+
+QString UnitClass::getDisplayName() const
+{
+    return this->displayName;
+}
+
+void UnitClass::setDisplayName(const QString &displayName)
+{
+    if (this->displayName != displayName)
+    {
+        this->displayName = displayName;
+        emit displayNameChanged();
+    }
 }
 
 int UnitClass::getMovementPoints() const
@@ -89,48 +102,3 @@ void UnitClass::setDefense(const TerrainType *terrainType, int defense)
 {
     this->defenses[terrainType] = defense;
 }
-
-void UnitClass::dataFromJson(const QJsonObject &obj)
-{
-    this->movementPoints = obj["movementPoints"].toInt();
-
-    ReferenceResolver<TerrainType> terrainTypeReferenceResolver(
-        this->parent()
-    );
-    this->movementCosts = fromQJsonObject<QMap<const TerrainType *, int>>(
-        obj["terrainMovementCosts"].toObject(),
-        terrainTypeReferenceResolver,
-        qJsonValueToInt
-    );
-    this->attacks = fromQJsonObject<QMap<const TerrainType *, int>>(
-        obj["terrainAttacks"].toObject(),
-        terrainTypeReferenceResolver,
-        qJsonValueToInt
-    );
-    this->defenses = fromQJsonObject<QMap<const TerrainType *, int>>(
-        obj["terrainDefenses"].toObject(),
-        terrainTypeReferenceResolver,
-        qJsonValueToInt
-    );
-}
-
-void UnitClass::dataToJson(QJsonObject &obj) const
-{
-    obj["movementPoints"] = this->movementPoints;
-    obj["movementCosts"] = toQJsonObject(
-        this->movementCosts,
-        qObjectName,
-        constructQJsonValue<int>
-    );
-    obj["attacks"] = toQJsonObject(
-        this->attacks,
-        qObjectName,
-        constructQJsonValue<int>
-    );
-    obj["defenses"] = toQJsonObject(
-        this->defenses,
-        qObjectName,
-        constructQJsonValue<int>
-    );
-}
-

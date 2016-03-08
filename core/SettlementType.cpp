@@ -1,4 +1,3 @@
-#include "core/QJsonUtil.h"
 #include "core/QVariantUtil.h"
 #include "core/SettlementType.h"
 #include "core/UnitType.h"
@@ -6,7 +5,7 @@
 using namespace warmonger::core;
 
 SettlementType::SettlementType(QObject *parent) :
-    GameObject(parent),
+    QObject(parent),
     goldPerTurn(0),
     recruits()
 {
@@ -14,6 +13,20 @@ SettlementType::SettlementType(QObject *parent) :
 
 SettlementType::~SettlementType()
 {
+}
+
+QString SettlementType::getDisplayName() const
+{
+    return this->displayName;
+}
+
+void SettlementType::setDisplayName(const QString &displayName)
+{
+    if (this->displayName != displayName)
+    {
+        this->displayName = displayName;
+        emit displayNameChanged();
+    }
 }
 
 int SettlementType::getGoldPerTurn() const
@@ -50,19 +63,3 @@ void SettlementType::writeRecruits(QVariantList recruits)
     QList<UnitType *> r = fromQVariantList<QList<UnitType *>>(recruits);
     this->setRecruits(r);
 }
-
-void SettlementType::dataFromJson(const QJsonObject &obj)
-{
-    this->goldPerTurn = obj["goldPerTurn"].toInt();
-    this->recruits = fromQJsonArray<QList<UnitType *>>(
-        obj["recruits"].toArray(),
-        ReferenceResolver<UnitType>(this->parent())
-    );
-}
-
-void SettlementType::dataToJson(QJsonObject &obj) const
-{
-    obj["goldPerTurn"] = this->goldPerTurn;
-    obj["recruits"] = toQJsonArray(this->recruits, qObjectName);
-}
-

@@ -3,6 +3,7 @@
 #include <limits>
 #include <typeinfo>
 
+#include "core/Exception.h"
 #include "core/Game.h"
 #include "core/MapNode.h"
 #include "core/UnitClass.h"
@@ -12,7 +13,6 @@
 using namespace warmonger::core;
 
 static const QString loggerName{"core.Game"};
-const QString Game::fileExtension{"wgd"};
 
 /**
  * Find the shortest path with the dijstra algorithm
@@ -220,25 +220,6 @@ void Game::reachableMapNodes(
             );
         }
     }
-}
-
-void Game::fromMapJson(const QJsonObject &obj)
-{
-    Map::fromJson(obj);
-    this->turn = 0;
-    this->playerIndex = 0;
-}
-
-void Game::dataFromJson(const QJsonObject &obj)
-{
-    Map::dataFromJson(obj);
-    this->turn = obj["turn"].toInt();
-    this->playerIndex = obj["playerIndex"].toInt();
-}
-
-void Game::dataToJson(QJsonObject &obj) const
-{
-    Map::dataToJson(obj);
 }
 
 QString Game::checkUnitRecruitmentRules(

@@ -342,7 +342,6 @@ QJsonObject unitToJson(const core::Unit *obj)
 {
     QJsonObject jobj(namesToJson(obj));
 
-    jobj["rank"] = core::Unit::rank2str[obj->getRank()];
     jobj["type"] = obj->getType()->objectName();
     jobj["mapNode"] = obj->getMapNode()->objectName();
     jobj["owner"] = obj->getOwner()->objectName();

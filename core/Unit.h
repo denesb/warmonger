@@ -15,8 +15,6 @@ class Unit :
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
-    Q_PROPERTY(UnitRank rank READ getRank WRITE setRank NOTIFY rankChanged)
-    Q_PROPERTY(QString rankName READ getRankName NOTIFY rankChanged)
     Q_PROPERTY(UnitType *type READ getType WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(MapNode *mapNode READ getMapNode WRITE setMapNode NOTIFY mapNodeChanged)
     Q_PROPERTY(Player *owner READ getOwner WRITE setOwner NOTIFY ownerChanged)
@@ -25,28 +23,11 @@ class Unit :
     Q_PROPERTY(int movementPoints READ getMovementPoints WRITE setMovementPoints NOTIFY movementPointsChanged)
 
 public:
-    enum UnitRank
-    {
-        Soldier = 0,
-        Officer = 1,
-        Leader = 2
-    };
-    Q_ENUM(UnitRank)
-
-    static const QMap<UnitRank, QString> rank2str;
-    static const QMap<UnitRank, QString> rankNames;
-    static const QMap<QString, UnitRank> str2rank;
-
     explicit Unit(QObject *parent=nullptr);
     ~Unit();
 
     QString getDisplayName() const;
     void setDisplayName(const QString &displayName);
-
-    UnitRank getRank() const;
-    void setRank(UnitRank rank);
-
-    QString getRankName() const;
 
     UnitType * getType() const;
     void setType(UnitType *type);
@@ -57,18 +38,17 @@ public:
     Player * getOwner() const;
     void setOwner(Player *owner);
 
-    double getExperiencePoints() const;
-    void setExperiencePoints(double experiencePoints);
+    int getExperiencePoints() const;
+    void setExperiencePoints(int experiencePoints);
 
-    double getHitPoints() const;
-    void setHitPoints(double hitPoints);
+    int getHitPoints() const;
+    void setHitPoints(int hitPoints);
 
-    double getMovementPoints() const;
-    void setMovementPoints(double movementPoints);
+    int getMovementPoints() const;
+    void setMovementPoints(int movementPoints);
 
 signals:
     void displayNameChanged();
-    void rankChanged();
     void typeChanged();
     void mapNodeChanged();
     void ownerChanged();
@@ -80,13 +60,12 @@ private:
     void onTypeChanged(const UnitType *oldUnitType);
 
     QString displayName;
-    UnitRank rank;
     UnitType *type;
     MapNode *mapNode;
     Player *owner;
-    double experiencePoints;
-    double hitPoints;
-    double movementPoints;
+    int experiencePoints;
+    int hitPoints;
+    int movementPoints;
 };
 
 } // namespace core

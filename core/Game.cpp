@@ -227,45 +227,10 @@ QString Game::checkUnitRecruitmentRules(
     MapNode *node
 ) const
 {
-    bool hasRecruitingNeighbour = false;
-    QHash<MapNode::Direction, MapNode *> neighbours = node->getNeighbours();
-
-    for (MapNode *neighbour : neighbours)
-    {
-        if (!this->hasSettlement(neighbour) || !this->hasUnit(neighbour))
-            continue;
-
-        Settlement *s = this->getSettlementOn(neighbour);
-        Unit *u = this->getUnitOn(neighbour);
-        QList<UnitType *> recruits = s->getRecruits();
-
-        if (u->getRank() >= Unit::Officer && recruits.contains(unitType))
-        {
-            hasRecruitingNeighbour = true;
-            break;
-        }
-    }
-
-    if (!hasRecruitingNeighbour)
-    {
-        return QStringLiteral("No settlement with an officer were found in the neighbourhood where this unit can be trained");
-    }
-
     Player *owner = this->players[this->playerIndex];
     if (unitType->getRecruitmentCost() > owner->getGoldBalance())
     {
         return QStringLiteral("Insufficient funds");
-    }
-
-    if (this->hasUnit(node))
-    {
-        return QStringLiteral("This map-node is already occupied by another unit");
-    }
-
-    UnitClass *klass = unitType->getClass();
-    if (klass->getMovementCost(node->getTerrainType()) < 0)
-    {
-        return QStringLiteral("This map-node is impassable for this unit-type");
     }
 
     // All seems fine

@@ -33,6 +33,7 @@ core::Armor * armorFromJson(const QJsonObject &jobj, Context &ctx);
 core::DamageType * damageTypeFromJson(const QJsonObject &jobj);
 core::Faction * factionsFromJson(const QJsonObject &jobj, Context &ctx);
 core::MapNode * mapNodeFromJson(const QJsonObject &jobj, Context &ctx);
+void mapNodeConnectionFromJson(const QJsonValue &jobj, core::Map *map, Context &ctx);
 core::Player * playerFromJson(const QJsonObject &jobj, Context &ctx);
 core::Settlement * settlementFromJson(
     const QJsonObject &jobj,
@@ -233,29 +234,45 @@ core::Map * JsonUnserializer::unserializeMap(
     QJsonObject jobj = jdoc.object();
 
     std::unique_ptr<core::Map> obj(new core::Map());
+
     obj->setObjectName(jobj["objectName"].toString());
+
     obj->setDisplayName(jobj["displayName"].toString());
+
     obj->setWorld(
         resolveReference<core::World>(this->ctx, jobj["world"].toString())
     );
+
     obj->setMapNodeIndex(jobj["mapNodeIndex"].toInt());
+
     obj->setSettlementIndex(jobj["settlementIndex"].toInt());
+
     obj->setUnitIndex(jobj["unitIndex"].toInt());
+
     obj->setMapNodes(objectListFromJson<core::MapNode>(
         jobj["mapNodes"].toArray(),
         this->ctx,
         mapNodeFromJson
     ));
+    QJsonArray jMapNodeConnections = jobj["mapNodeConnections"].toArray();
+    std::for_each(
+        jMapNodeConnections.constBegin(),
+        jMapNodeConnections.constEnd(),
+        std::bind(mapNodeConnectionFromJson, std::placeholders::_1, obj.get(), this->ctx)
+    );
+
     obj->setPlayers(objectListFromJson<core::Player>(
         jobj["players"].toArray(),
         this->ctx,
         playerFromJson
     ));
+
     obj->setSettlements(objectListFromJson<core::Settlement>(
         jobj["settlements"].toArray(),
         this->ctx,
         settlementFromJson
     ));
+
     obj->setUnits(objectListFromJson<core::Unit>(
         jobj["units"].toArray(),
         this->ctx,
@@ -504,6 +521,22 @@ core::MapNode * mapNodeFromJson(const QJsonObject &jobj, Context &ctx)
     ));
 
     return obj.release();
+}
+
+void mapNodeConnectionFromJson(const QJsonValue &jobj, core::Map *map, Context &ctx)
+{
+    const QJsonArray &jconn = jobj.toArray();
+    core::MapNode *mn0 = resolveReference<core::MapNode>(
+        ctx,
+        jconn[0].toString()
+    );
+    core::MapNode *mn1 = resolveReference<core::MapNode>(
+        ctx,
+        jconn[1].toString()
+    );
+    core::Axis a = core::str2axis(jconn[2].toString());
+
+    map->addMapNodeConnection(mn0, mn1, a);
 }
 
 core::Player * playerFromJson(const QJsonObject &jobj, Context &ctx)

@@ -288,6 +288,14 @@ QPair<core::Map *, QJsonObject> makeMap()
     m->setMapNodes({mn0, mn1});
     jm["mapNodes"] = QJsonArray({jmn0, jmn1});
 
+    // MapNode connections
+    m->addMapNodeConnection(mn0, mn1, core::Axis::West_East);
+    QJsonArray jMapNodeConn;
+    jMapNodeConn << mn0->objectName();
+    jMapNodeConn << mn1->objectName();
+    jMapNodeConn << core::axis2str(core::Axis::West_East);
+    jm["mapNodeConnections"] = QJsonArray({jMapNodeConn});
+
     // Players
     core::Player *p0 = new core::Player(m);
     QJsonObject jp0;

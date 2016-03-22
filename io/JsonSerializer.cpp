@@ -31,6 +31,7 @@ QJsonObject damageTypeToJson(const core::DamageType *obj);
 QJsonObject factionToJson(const core::Faction *obj);
 QJsonObject mapToJson(const core::Map *obj);
 QJsonObject mapNodeToJson(const core::MapNode *obj);
+QJsonArray mapNodeConnectionToJson(const core::MapNodeConnection &connection);
 QJsonObject playerToJson(const core::Player *obj);
 QJsonObject settlementToJson(const core::Settlement *obj);
 QJsonObject settlementTypeToJson(const core::SettlementType *obj);
@@ -276,6 +277,10 @@ QJsonObject mapToJson(const core::Map *obj)
         obj->getMapNodes(),
         mapNodeToJson
     );
+    jobj["mapNodeConnections"] = toQJsonArray(
+        obj->getMapNodeConnections(),
+        mapNodeConnectionToJson
+    );
     jobj["players"] = toQJsonArray(
         obj->getPlayers(),
         playerToJson
@@ -299,6 +304,16 @@ QJsonObject mapNodeToJson(const core::MapNode *obj)
     jobj["terrainType"] = obj->getTerrainType()->objectName();
 
     return jobj;
+}
+
+QJsonArray mapNodeConnectionToJson(const core::MapNodeConnection &connection)
+{
+    core::MapNode *mn0, *mn1;
+    core::Axis a;
+
+    std::tie(mn0, mn1, a) = connection;
+
+    return QJsonArray({mn0->objectName(), mn1->objectName(), core::axis2str(a)});
 }
 
 QJsonObject playerToJson(const core::Player *obj)

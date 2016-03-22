@@ -1,4 +1,5 @@
 #include <memory>
+#include <tuple>
 
 #include <QJsonDocument>
 
@@ -135,6 +136,32 @@ TEST_CASE("Map can be serialized to JSON", "[JsonSerializer]")
                 REQUIRE(jmn["objectName"].toString() == mn->objectName());
                 REQUIRE(jmn["displayName"].toString() == mn->getDisplayName());
                 REQUIRE(jmn["terrainType"].toString() == mn->getTerrainType()->objectName());
+            }
+
+            REQUIRE(jobj["mapNodeConnections"].isArray());
+
+            std::vector<core::MapNodeConnection> conns = m->getMapNodeConnections();
+            QJsonArray jconns = jobj["mapNodeConnections"].toArray();
+
+            REQUIRE(conns.size() == jconns.size());
+            for (size_t i = 0; i < conns.size(); i++)
+            {
+                core::MapNode *mn0, *mn1;
+                core::Axis axis;
+                std::tie(mn0, mn1, axis) = conns[i];
+
+                REQUIRE(jconns[i].isArray()); // this is in fact a tuple
+                QJsonArray jconn = jconns[i].toArray();
+                REQUIRE(jconn.size() == 3);
+                REQUIRE(jconn[0].isString() == true);
+                REQUIRE(jconn[1].isString() == true);
+                REQUIRE(jconn[2].isString() == true);
+
+                REQUIRE(mn0->objectName() == jconn[0].toString());
+                REQUIRE(mn1->objectName() == jconn[1].toString());
+                QString axisName = jconn[2].toString();
+                REQUIRE_NOTHROW(core::str2axis(axisName));
+                REQUIRE(axis == core::str2axis(axisName));
             }
         }
 

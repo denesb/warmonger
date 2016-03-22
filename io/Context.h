@@ -62,10 +62,7 @@ public:
     }
 
 private:
-    QObject * getObject(
-        const QString &className,
-        const QString &objectName
-    ) const;
+    QObject * getObject(const QString &className, const QString &objectName) const;
 
     std::function<void (const QString &, const QString &, Context &)> injectFn;
     QMap<QString, QMap<QString, QObject *>> objectsByType;

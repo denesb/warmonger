@@ -1,6 +1,6 @@
-#include "core/Map.h"
 #include "core/QVariantUtil.h"
 #include "core/Settlement.h"
+#include "core/UnitType.h"
 
 using namespace warmonger::core;
 

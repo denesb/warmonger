@@ -1,4 +1,3 @@
-#include "core/Map.h"
 #include "core/Unit.h"
 
 using namespace warmonger::core;

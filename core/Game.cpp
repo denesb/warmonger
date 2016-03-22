@@ -202,7 +202,8 @@ void Game::reachableMapNodes(
     double mp
 ) const
 {
-    QHash<MapNode::Direction, MapNode *> neighbours = node->getNeighbours();
+    /*
+    QHash<Map::Direction, MapNode *> neighbours = node->getNeighbours();
     for (MapNode *neighbour : neighbours)
     {
         if (neighbour == nullptr)
@@ -220,6 +221,7 @@ void Game::reachableMapNodes(
             );
         }
     }
+    */
 }
 
 QString Game::checkUnitRecruitmentRules(
@@ -279,7 +281,8 @@ QMap<MapNode *, MapNode *> dijkstraPath(
         if (currentDistance == infinity)
             break;
 
-        QHash<MapNode::Direction, MapNode *> neighbours = node->getNeighbours();
+        /*
+        QHash<Map::Direction, MapNode *> neighbours = node->getNeighbours();
         for (MapNode *neighbour : neighbours)
         {
             if (neighbour == nullptr || !unvisited.contains(neighbour))
@@ -292,6 +295,7 @@ QMap<MapNode *, MapNode *> dijkstraPath(
                 paths[neighbour] = node;
             }
         }
+        */
     }
 
     return paths;

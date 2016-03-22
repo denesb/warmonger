@@ -299,6 +299,24 @@ TEST_CASE("Map can be unserialized from JSON", "[JsonUnserializer]")
                 REQUIRE(mn->getDisplayName() == jmn["displayName"].toString());
                 REQUIRE(mn->getTerrainType()->objectName() == jmn["terrainType"].toString());
             }
+
+            std::vector<core::MapNodeConnection> conns = m->getMapNodeConnections();
+            QJsonArray jconns = jobj["mapNodeConnections"].toArray();
+
+            REQUIRE(conns.size() == jconns.size());
+            for (size_t i = 0; i < conns.size(); i++)
+            {
+                core::MapNode *mn0, *mn1;
+                core::Axis axis;
+                std::tie(mn0, mn1, axis) = conns[i];
+
+                QJsonArray jconn = jconns[i].toArray();
+
+                REQUIRE(mn0->objectName() == jconn[0].toString());
+                REQUIRE(mn1->objectName() == jconn[1].toString());
+                QString axisName = jconn[2].toString();
+                REQUIRE(axis == core::str2axis(axisName));
+            }
         }
 
         SECTION("unserializing players")

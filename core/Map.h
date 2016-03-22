@@ -1,6 +1,9 @@
 #ifndef CORE_MAP_H
 #define CORE_MAP_H
 
+#include <map>
+#include <tuple>
+
 #include <QList>
 #include <QObject>
 #include <QString>
@@ -16,6 +19,82 @@
 namespace warmonger {
 namespace core {
 
+/*
+ *  NW  /\  NE
+ *    /    \
+ * W |      | E
+ *   |      |
+ *    \    /
+ *  SW  \/  SE
+ */
+enum class Direction
+{
+    West,
+    NorthWest,
+    NorthEast,
+    East,
+    SouthEast,
+    SouthWest
+};
+
+/**
+ * Converts Directions to QString.
+ */
+QString direction2str(Direction d);
+
+/**
+ * Converts QString to Direction.
+ *
+ * Will throw a ValueError if str is not a valid direction name.
+ */
+Direction str2direction(const QString &str);
+
+/**
+ * Return the opposite direction of d.
+ */
+Direction oppositeDirection(Direction d);
+
+/*
+ *   SW_NE
+ *  /
+ * /
+ * ---> W_E
+ * \
+ *  \
+ *   NW_SE
+ */
+enum class Axis
+{
+    West_East,
+    SouthWest_NorthEast,
+    NorthWest_SouthEast
+};
+
+/**
+ * Converts Axis to QString.
+ */
+QString axis2str(Axis a);
+
+/**
+ * Converts QString to Axis.
+ *
+ * Throws a ValueError if str is not a valid axis name.
+ */
+Axis str2axis(const QString &str);
+
+/**
+ * Return the pair of directions for the axis.
+ */
+std::tuple<Direction, Direction> axisDirections(Axis a);
+
+/**
+ * Return the Axis for the Direction.
+ */
+Axis directionAxis(Direction d);
+
+
+typedef std::tuple<MapNode *, MapNode *, Axis> MapNodeConnection;
+
 class Map :
     public QObject
 {
@@ -28,10 +107,6 @@ class Map :
     Q_PROPERTY(QVariantList settlements READ readSettlements NOTIFY settlementsChanged)
 
 public:
-    static const QString mapNodeNameTemplate;
-    static const QString settlementNameTemplate;
-    static const QString unitNameTemplate;
-
     explicit Map(QObject *parent=nullptr);
 
     QString getDisplayName() const;
@@ -56,6 +131,12 @@ public:
     void setMapNodes(const QList<MapNode *> &mapNodes);
     QVariantList readMapNodes() const;
 
+    std::vector<MapNodeConnection> getMapNodeConnections() const;
+    void setMapNodeConnections(const std::vector<MapNodeConnection> &mapNodeConnections);
+
+    void addMapNodeConnection(const MapNodeConnection &mapNodeConnection);
+    void addMapNodeConnection(MapNode *mn0, MapNode *mn1, Axis axis);
+
     QList<Player *> getPlayers() const;
     void setPlayers(const QList<Player *> &units);
     QVariantList readPlayers() const;
@@ -76,7 +157,7 @@ public:
 
     void createMapNode(
         TerrainType *terrainType,
-        const QHash<MapNode::Direction, MapNode *> &neighbours
+        const QMap<Direction, MapNode *> &neighbours
     );
     void createSettlement(
         SettlementType *settlementType,
@@ -140,7 +221,8 @@ protected:
     QList<Player *> players;
     QList<Settlement *> settlements;
     QList<Unit *> units;
-    QHash<const MapNode *, QPair<Settlement *, Unit *>> mapContent;
+    QMap<const MapNode *, QPair<Settlement *, Unit *>> mapContent;
+    std::map<std::tuple<MapNode *, Direction>, MapNode *> mapNodesNeighbours;
 };
 
 } // namespace core

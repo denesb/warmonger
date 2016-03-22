@@ -1,5 +1,7 @@
+#include <algorithm>
+#include <set>
+
 #include <QMetaMethod>
-#include <QSet>
 
 #include "core/Map.h"
 #include "core/QVariantUtil.h"
@@ -9,11 +11,123 @@
 
 using namespace warmonger::core;
 
-static const QString loggerName{"core.Map"};
+const QString loggerName{"core.Map"};
 
-const QString Map::mapNodeNameTemplate{"mapNode%1"};
-const QString Map::settlementNameTemplate{"settlement%1"};
-const QString Map::unitNameTemplate{"unit%1"};
+
+namespace warmonger {
+namespace core {
+
+QString direction2str(Direction d)
+{
+    static const std::map<Direction, QString> dir2str{
+        std::make_pair(Direction::West, "West"),
+        std::make_pair(Direction::NorthWest, "NorthWest"),
+        std::make_pair(Direction::NorthEast, "NorthEast"),
+        std::make_pair(Direction::East, "East"),
+        std::make_pair(Direction::SouthEast, "SouthEast"),
+        std::make_pair(Direction::SouthWest, "SouthWest")
+    };
+    return dir2str.at(d);
+}
+
+Direction str2direction(const QString &str)
+{
+    static const std::map<QString, Direction> str2dir{
+        std::make_pair("West", Direction::West),
+        std::make_pair("NorthWest", Direction::NorthWest),
+        std::make_pair("NorthEast", Direction::NorthEast),
+        std::make_pair("East", Direction::East),
+        std::make_pair("SouthEast", Direction::SouthEast),
+        std::make_pair("SouthWest", Direction::SouthWest)
+    };
+
+    if (str2dir.find(str) == str2dir.end())
+    {
+        throw ValueError(str + " is not a valid direction");
+    }
+
+    return str2dir.at(str);
+}
+
+Direction oppositeDirection(Direction d)
+{
+    static const std::map<Direction, Direction> oppositeDirs{
+        std::make_pair(Direction::West, Direction::East),
+        std::make_pair(Direction::NorthWest, Direction::SouthEast),
+        std::make_pair(Direction::NorthEast, Direction::SouthWest),
+        std::make_pair(Direction::East, Direction::West),
+        std::make_pair(Direction::SouthEast, Direction::NorthWest),
+        std::make_pair(Direction::SouthWest, Direction::NorthEast)
+    };
+
+    return oppositeDirs.at(d);
+}
+
+QString axis2str(Axis a)
+{
+    static const std::map<Axis, QString> axis2strMap{
+        std::make_pair(Axis::West_East, "West_East"),
+        std::make_pair(Axis::SouthWest_NorthEast, "SouthWest_NorthEast"),
+        std::make_pair(Axis::NorthWest_SouthEast, "NorthWest_SouthEast")
+    };
+
+    return axis2strMap.at(a);
+}
+
+Axis str2axis(const QString &str)
+{
+    static const std::map<QString, Axis> str2axisMap{
+        std::make_pair("West_East", Axis::West_East),
+        std::make_pair("SouthWest_NorthEast", Axis::SouthWest_NorthEast),
+        std::make_pair("NorthWest_SouthEast", Axis::NorthWest_SouthEast)
+    };
+
+    if (str2axisMap.find(str) == str2axisMap.end())
+    {
+        throw ValueError(str + " is not a valid axis");
+    }
+
+    return str2axisMap.at(str);
+}
+
+std::tuple<Direction, Direction> axisDirections(Axis a)
+{
+    static const std::map<Axis, std::tuple<Direction, Direction>> axisDirectionsMap{
+        std::make_pair(
+            Axis::West_East,
+            std::make_tuple(Direction::West, Direction::East)
+        ),
+        std::make_pair(
+            Axis::SouthWest_NorthEast,
+            std::make_tuple(Direction::SouthWest, Direction::NorthEast)
+        ),
+        std::make_pair(
+            Axis::NorthWest_SouthEast,
+            std::make_tuple(Direction::NorthWest, Direction::SouthEast)
+        )
+    };
+    return axisDirectionsMap.at(a);
+}
+
+Axis directionAxis(Direction d)
+{
+    static const std::map<Direction, Axis> directionAxisMap{
+        std::make_pair(Direction::West, Axis::West_East),
+        std::make_pair(Direction::East, Axis::West_East),
+        std::make_pair(Direction::SouthWest, Axis::SouthWest_NorthEast),
+        std::make_pair(Direction::NorthEast, Axis::SouthWest_NorthEast),
+        std::make_pair(Direction::NorthWest, Axis::NorthWest_SouthEast),
+        std::make_pair(Direction::SouthEast, Axis::NorthWest_SouthEast)
+    };
+    return directionAxisMap.at(d);
+}
+
+}
+}
+
+const QString mapNodeNameTemplate{"mapNode%1"};
+const QString settlementNameTemplate{"settlement%1"};
+const QString unitNameTemplate{"unit%1"};
 
 Map::Map(QObject *parent) :
     QObject(parent),
@@ -135,6 +249,59 @@ QVariantList Map::readMapNodes() const
     return toQVariantList(this->mapNodes);
 }
 
+std::vector<MapNodeConnection> Map::getMapNodeConnections() const
+{
+    std::set<MapNodeConnection> connections;
+
+    for (const auto &neighbours : this->mapNodesNeighbours)
+    {
+        MapNode *mn0, *mn1;
+        Direction d;
+        std::tie(mn0, d) = std::get<0>(neighbours);
+        mn1 = std::get<1>(neighbours);
+
+        Axis axis = directionAxis(d);
+
+        // create the two possible connection variations from the neighbours
+        MapNodeConnection conn0 = std::make_tuple(mn0, mn1, axis);
+        MapNodeConnection conn1 = std::make_tuple(mn1, mn0, axis);
+
+        if (connections.find(conn0) == connections.end() &&
+                connections.find(conn1) == connections.end())
+        {
+            connections.insert(conn0);
+        }
+    }
+
+    std::vector<MapNodeConnection> connectionList(connections.cbegin(), connections.cend());
+
+    return connectionList;
+}
+
+void Map::setMapNodeConnections(const std::vector<MapNodeConnection> &mapNodeConnections)
+{
+    for (const MapNodeConnection& conn : mapNodeConnections)
+    {
+        this->addMapNodeConnection(conn);
+    }
+}
+
+void Map::addMapNodeConnection(const MapNodeConnection &mapNodeConnection)
+{
+    MapNode *mn0, *mn1;
+    Axis axis;
+    std::tie(mn0, mn1, axis) = mapNodeConnection;
+    this->addMapNodeConnection(mn0, mn1, axis);
+}
+
+void Map::addMapNodeConnection(MapNode *mn0, MapNode *mn1, Axis axis)
+{
+    Direction d0, d1;
+    std::tie(d0, d1) = axisDirections(axis);
+    this->mapNodesNeighbours[std::make_tuple(mn0, d0)] = mn1;
+    this->mapNodesNeighbours[std::make_tuple(mn1, d1)] = mn0;
+}
+
 void Map::addSettlement(Settlement *settlement)
 {
     settlement->setParent(this);
@@ -230,7 +397,7 @@ QVariantList Map::readPlayers() const
 
 void Map::createMapNode(
     TerrainType *terrainType,
-    const QHash<MapNode::Direction, MapNode *> &neighbours
+    const QMap<Direction, MapNode *> &neighbours
 )
 {
     if (neighbours.empty())
@@ -240,9 +407,9 @@ void Map::createMapNode(
     }
 
     MapNode *newMapNode = new MapNode(this);
-    newMapNode->setObjectName(Map::mapNodeNameTemplate.arg(++this->mapNodeIndex));
+    newMapNode->setObjectName(mapNodeNameTemplate.arg(++this->mapNodeIndex));
     newMapNode->setTerrainType(terrainType);
-    newMapNode->setNeighbours(neighbours);
+    //newMapNode->setNeighbours(neighbours);
 
     this->addMapNode(newMapNode);
 }
@@ -255,7 +422,7 @@ void Map::createSettlement(
 {
     Settlement * newSettlement = new Settlement(this);
     newSettlement->setObjectName(
-        Map::settlementNameTemplate.arg(++this->settlementIndex)
+        settlementNameTemplate.arg(++this->settlementIndex)
     );
     newSettlement->setType(settlementType);
     newSettlement->setMapNode(mapNode);
@@ -268,7 +435,7 @@ Unit * Map::createUnit(UnitType *unitType, MapNode *mapNode, Player *owner)
 {
     Unit * newUnit = new Unit(this);
     newUnit->setObjectName(
-        Map::unitNameTemplate.arg(++this->unitIndex)
+        unitNameTemplate.arg(++this->unitIndex)
     );
     newUnit->setType(unitType);
     newUnit->setMapNode(mapNode);

@@ -64,12 +64,12 @@ void Unit::setMapNode(MapNode *mapNode)
     }
 }
 
-Player * Unit::getOwner() const
+Faction * Unit::getOwner() const
 {
     return this->owner;
 }
 
-void Unit::setOwner(Player *owner)
+void Unit::setOwner(Faction *owner)
 {
     if (this->owner != owner)
     {

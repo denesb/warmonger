@@ -1,54 +1,50 @@
 #ifndef CORE_FACTION_H
 #define CORE_FACTION_H
 
-#include <map>
-#include <vector>
-
+#include <QColor>
 #include <QObject>
-#include <QVariant>
+#include <QString>
+
+#include "core/Civilization.h"
 
 namespace warmonger {
 namespace core {
-
-class UnitType;
-class SettlementType;
 
 class Faction :
     public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
-    Q_PROPERTY(QVariantList unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
-    Q_PROPERTY(QVariantMap recruits READ readRecruits NOTIFY recruitsChanged)
+    Q_PROPERTY(QColor color READ getColor WRITE setColor NOTIFY colorChanged)
+    Q_PROPERTY(int goldBalance READ getGoldBalance WRITE setGoldBalance NOTIFY goldBalanceChanged)
+    Q_PROPERTY(Civilization *civilization READ getCivilization WRITE setCivilization NOTIFY civilizationChanged)
 
 public:
     explicit Faction(QObject *parent=nullptr);
-    ~Faction();
 
     QString getDisplayName() const;
     void setDisplayName(const QString &displayName);
 
-    std::vector<UnitType *> getUnitTypes() const;
-    QVariantList readUnitTypes() const;
-    void setUnitTypes(const std::vector<UnitType *> &unitTypes);
-    void addUnitType(UnitType *unitType);
+    QColor getColor() const;
+    void setColor(const QColor &color);
 
-    std::map<SettlementType *, std::vector<UnitType *>> getRecruits() const;
-    QVariantMap readRecruits() const;
-    void setRecruits(const std::map<SettlementType *, std::vector<UnitType *>> &recruits);
+    int getGoldBalance() const;
+    void setGoldBalance(int goldBalance);
 
-    std::vector<UnitType *> getRecruitsFor(SettlementType *settlementType) const;
-    bool canRecruitFrom(SettlementType *settlemntType, UnitType *unitType) const;
+    Civilization * getCivilization() const;
+    void setCivilization(Civilization *civilization);
 
 signals:
     void displayNameChanged();
-    void unitTypesChanged();
-    void recruitsChanged();
+    void colorChanged();
+    void goldBalanceChanged();
+    void civilizationChanged();
 
 private:
     QString displayName;
-    std::vector<UnitType *> unitTypes;
-    std::map<SettlementType *, std::vector<UnitType *>> recruits;
+    QColor color;
+    int goldBalance;
+    Civilization *civilization;
 };
 
 } // namespace core

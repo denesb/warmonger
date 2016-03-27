@@ -24,7 +24,7 @@ CampaignMap::CampaignMap(QObject *parent) :
     settlementIndex(0),
     unitIndex(0),
     mapNodes(),
-    players(),
+    factions(),
     settlements(),
     units()
 {
@@ -224,23 +224,23 @@ QVariantList CampaignMap::readUnits() const
     return toQVariantList(this->units);
 }
 
-std::vector<Player *> CampaignMap::getPlayers() const
+std::vector<Faction *> CampaignMap::getFactions() const
 {
-    return this->players;
+    return this->factions;
 }
 
-void CampaignMap::setPlayers(const std::vector<Player *> &players)
+void CampaignMap::setFactions(const std::vector<Faction *> &factions)
 {
-    if (this->players != players)
+    if (this->factions != factions)
     {
-        this->players = players;
-        emit playersChanged();
+        this->factions = factions;
+        emit factionsChanged();
     }
 }
 
-QVariantList CampaignMap::readPlayers() const
+QVariantList CampaignMap::readFactions() const
 {
-    return toQVariantList(this->players);
+    return toQVariantList(this->factions);
 }
 
 void CampaignMap::createMapNode(
@@ -265,7 +265,7 @@ void CampaignMap::createMapNode(
 void CampaignMap::createSettlement(
     SettlementType *settlementType,
     MapNode *mapNode,
-    Player *owner
+    Faction *owner
 )
 {
     Settlement * newSettlement = new Settlement(this);
@@ -279,7 +279,7 @@ void CampaignMap::createSettlement(
     this->addSettlement(newSettlement);
 }
 
-Unit * CampaignMap::createUnit(UnitType *unitType, MapNode *mapNode, Player *owner)
+Unit * CampaignMap::createUnit(UnitType *unitType, MapNode *mapNode, Faction *owner)
 {
     Unit * newUnit = new Unit(this);
     newUnit->setObjectName(

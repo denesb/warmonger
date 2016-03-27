@@ -9,7 +9,7 @@
 #include <QVariant>
 
 #include "core/MapNode.h"
-#include "core/Player.h"
+#include "core/Faction.h"
 #include "core/Settlement.h"
 #include "core/SettlementType.h"
 #include "core/World.h"
@@ -26,7 +26,7 @@ class CampaignMap :
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(World * world READ getWorld WRITE setWorld NOTIFY worldChanged)
     Q_PROPERTY(QVariantList mapNodes READ readMapNodes NOTIFY mapNodesChanged)
-    Q_PROPERTY(QVariantList players READ readPlayers NOTIFY playersChanged)
+    Q_PROPERTY(QVariantList factions READ readFactions NOTIFY factionsChanged)
     Q_PROPERTY(QVariantList units READ readUnits)
     Q_PROPERTY(QVariantList settlements READ readSettlements NOTIFY settlementsChanged)
 
@@ -55,9 +55,9 @@ public:
     void setMapNodes(const std::vector<MapNode *> &mapNodes);
     QVariantList readMapNodes() const;
 
-    std::vector<Player *> getPlayers() const;
-    void setPlayers(const std::vector<Player *> &units);
-    QVariantList readPlayers() const;
+    std::vector<Faction *> getFactions() const;
+    void setFactions(const std::vector<Faction *> &units);
+    QVariantList readFactions() const;
 
     void addSettlement(Settlement *settlement);
     void removeSettlement(Settlement *settlement);
@@ -80,9 +80,9 @@ public:
     void createSettlement(
         SettlementType *settlementType,
         MapNode *mapNode,
-        Player *owner
+        Faction *owner
     );
-    Unit * createUnit(UnitType *unitType, MapNode *mapNode, Player *owner);
+    Unit * createUnit(UnitType *unitType, MapNode *mapNode, Faction *owner);
 
 signals:
     void displayNameChanged();
@@ -102,7 +102,7 @@ signals:
     void unitsChanged();
     void unitAdded(Unit *unit);
     void unitRemoved(Unit *unit);
-    void playersChanged();
+    void factionsChanged();
 
 private:
     QString displayName;
@@ -111,7 +111,7 @@ private:
     int settlementIndex;
     int unitIndex;
     std::vector<MapNode *> mapNodes;
-    std::vector<Player *> players;
+    std::vector<Faction *> factions;
     std::vector<Settlement *> settlements;
     std::vector<Unit *> units;
 };

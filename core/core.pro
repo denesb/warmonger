@@ -7,12 +7,12 @@ CONFIG += staticlib
 HEADERS += \
     Armor.h \
     CampaignMap.h \
+    Civilization.h \
     DamageType.h \
     Exception.h \
     Faction.h \
     Game.h \
     MapNode.h \
-    Player.h \
     QVariantUtil.h \
     Settlement.h \
     SettlementType.h \
@@ -28,12 +28,12 @@ HEADERS += \
 SOURCES += \
     Armor.cpp \
     CampaignMap.cpp \
+    Civilization.cpp \
     DamageType.cpp \
     Exception.cpp \
     Faction.cpp \
     Game.cpp \
     MapNode.cpp \
-    Player.cpp \
     Settlement.cpp \
     SettlementType.cpp \
     TerrainType.cpp \

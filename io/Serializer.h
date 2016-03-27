@@ -8,10 +8,10 @@ namespace warmonger {
 namespace core {
     class Armor;
     class CampaignMap;
+    class Civilization;
     class DamageType;
     class Faction;
     class MapNode;
-    class Player;
     class Settlement;
     class SettlementType;
     class TerrainType;
@@ -31,10 +31,10 @@ class Serializer
 public:
     virtual QByteArray serializeArmor(const core::Armor *obj) = 0;
     virtual QByteArray serializeCampaignMap(const core::CampaignMap *obj) = 0;
+    virtual QByteArray serializeCivilization(const core::Civilization *obj) = 0;
     virtual QByteArray serializeDamageType(const core::DamageType *obj) = 0;
     virtual QByteArray serializeFaction(const core::Faction *obj) = 0;
     virtual QByteArray serializeMapNode(const core::MapNode *obj) = 0;
-    virtual QByteArray serializePlayer(const core::Player *obj) = 0;
     virtual QByteArray serializeSettlement(const core::Settlement *obj) = 0;
     virtual QByteArray serializeSettlementType(const core::SettlementType *obj) = 0;
     virtual QByteArray serializeTerrainType(const core::TerrainType *obj) = 0;

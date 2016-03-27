@@ -9,10 +9,10 @@
 
 #include "core/Armor.h"
 #include "core/CampaignMap.h"
+#include "core/Civilization.h"
 #include "core/DamageType.h"
 #include "core/Faction.h"
 #include "core/MapNode.h"
-#include "core/Player.h"
 #include "core/Settlement.h"
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
@@ -31,11 +31,11 @@ using namespace warmonger::io;
 QJsonDocument parseJson(const QByteArray &json);
 
 core::Armor * armorFromJson(const QJsonObject &jobj, Context &ctx);
+core::Civilization * civilizationsFromJson(const QJsonObject &jobj, Context &ctx);
 core::DamageType * damageTypeFromJson(const QJsonObject &jobj);
-core::Faction * factionsFromJson(const QJsonObject &jobj, Context &ctx);
+core::Faction * factionFromJson(const QJsonObject &jobj, Context &ctx);
 core::MapNode * mapNodeFromJson(const QJsonObject &jobj, Context &ctx);
 std::vector<core::MapNode *> mapNodesFromJson(const QJsonArray &jarr, Context &ctx);
-core::Player * playerFromJson(const QJsonObject &jobj, Context &ctx);
 core::Settlement * settlementFromJson(const QJsonObject &jobj, Context &ctx);
 core::SettlementType * settlementTypeFromJson(const QJsonObject &jobj, Context &ctx);
 core::TerrainType * terrainTypeFromJson(const QJsonObject &jobj);
@@ -225,10 +225,10 @@ core::CampaignMap * JsonUnserializer::unserializeCampaignMap(const QByteArray &d
 
     obj->setMapNodes(mapNodesFromJson(jobj["mapNodes"].toArray(), this->ctx));
 
-    obj->setPlayers(objectListFromJson<core::Player>(
-        jobj["players"].toArray(),
+    obj->setFactions(objectListFromJson<core::Faction>(
+        jobj["factions"].toArray(),
         this->ctx,
-        playerFromJson
+        factionFromJson
     ));
 
     obj->setSettlements(objectListFromJson<core::Settlement>(
@@ -252,10 +252,10 @@ core::DamageType * JsonUnserializer::unserializeDamageType(const QByteArray &dat
     return damageTypeFromJson(jdoc.object());
 }
 
-core::Faction * JsonUnserializer::unserializeFaction(const QByteArray &data)
+core::Civilization * JsonUnserializer::unserializeCivilization(const QByteArray &data)
 {
     QJsonDocument jdoc(parseJson(data));
-    return factionsFromJson(jdoc.object(), this->ctx);
+    return civilizationsFromJson(jdoc.object(), this->ctx);
 }
 
 core::MapNode * JsonUnserializer::unserializeMapNode(const QByteArray &data)
@@ -264,10 +264,10 @@ core::MapNode * JsonUnserializer::unserializeMapNode(const QByteArray &data)
     return mapNodeFromJson(jdoc.object(), this->ctx);
 }
 
-core::Player * JsonUnserializer::unserializePlayer(const QByteArray &data)
+core::Faction * JsonUnserializer::unserializeFaction(const QByteArray &data)
 {
     QJsonDocument jdoc(parseJson(data));
-    return playerFromJson(jdoc.object(), this->ctx);
+    return factionFromJson(jdoc.object(), this->ctx);
 }
 
 core::Settlement * JsonUnserializer::unserializeSettlement(const QByteArray &data)
@@ -372,10 +372,10 @@ core::World * JsonUnserializer::unserializeWorld(const QByteArray &data)
         this->ctx,
         settlementTypeFromJson
     ));
-    obj->setFactions(objectListFromJson<core::Faction>(
-        jobj["factions"].toArray(),
+    obj->setCivilizations(objectListFromJson<core::Civilization>(
+        jobj["civilizations"].toArray(),
         this->ctx,
-        factionsFromJson
+        civilizationsFromJson
     ));
 
     return obj.release();
@@ -425,20 +425,11 @@ core::Armor * armorFromJson(const QJsonObject &jobj, Context &ctx)
     return obj.release();
 }
 
-core::DamageType * damageTypeFromJson(const QJsonObject &jobj)
-{
-    std::unique_ptr<core::DamageType> obj(new core::DamageType());
-    obj->setObjectName(jobj["objectName"].toString());
-    obj->setDisplayName(jobj["displayName"].toString());
-
-    return obj.release();
-}
-
-core::Faction * factionsFromJson(const QJsonObject &jobj, Context &ctx)
+core::Civilization * civilizationsFromJson(const QJsonObject &jobj, Context &ctx)
 {
     ReferenceResolver<core::UnitType> unitTypeRefResolver(ctx);
 
-    std::unique_ptr<core::Faction> obj(new core::Faction());
+    std::unique_ptr<core::Civilization> obj(new core::Civilization());
     obj->setObjectName(jobj["objectName"].toString());
     obj->setDisplayName(jobj["displayName"].toString());
     obj->setUnitTypes(fromQJsonArray<std::vector<core::UnitType *>>(
@@ -458,6 +449,30 @@ core::Faction * factionsFromJson(const QJsonObject &jobj, Context &ctx)
             }
         )
     );
+
+    return obj.release();
+}
+
+core::DamageType * damageTypeFromJson(const QJsonObject &jobj)
+{
+    std::unique_ptr<core::DamageType> obj(new core::DamageType());
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+
+    return obj.release();
+}
+
+core::Faction * factionFromJson(const QJsonObject &jobj, Context &ctx)
+{
+    std::unique_ptr<core::Faction> obj(new core::Faction());
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+    obj->setColor(QColor(jobj["color"].toString()));
+    obj->setGoldBalance(jobj["goldBalance"].toInt());
+    obj->setCivilization(resolveReference<core::Civilization>(
+        ctx,
+        jobj["civilization"].toString()
+    ));
 
     return obj.release();
 }
@@ -517,21 +532,6 @@ std::vector<core::MapNode *> mapNodesFromJson(const QJsonArray &jarr, Context &c
     return mapNodes;
 }
 
-core::Player * playerFromJson(const QJsonObject &jobj, Context &ctx)
-{
-    std::unique_ptr<core::Player> obj(new core::Player());
-    obj->setObjectName(jobj["objectName"].toString());
-    obj->setDisplayName(jobj["displayName"].toString());
-    obj->setColor(QColor(jobj["color"].toString()));
-    obj->setGoldBalance(jobj["goldBalance"].toInt());
-    obj->setFaction(resolveReference<core::Faction>(
-        ctx,
-        jobj["faction"].toString()
-    ));
-
-    return obj.release();
-}
-
 core::Settlement * settlementFromJson(
     const QJsonObject &jobj,
     Context &ctx
@@ -548,7 +548,7 @@ core::Settlement * settlementFromJson(
         ctx,
         jobj["mapNode"].toString()
     ));
-    obj->setOwner(resolveReference<core::Player>(
+    obj->setOwner(resolveReference<core::Faction>(
         ctx,
         jobj["owner"].toString()
     ));
@@ -595,7 +595,7 @@ core::Unit * unitFromJson(const QJsonObject &jobj, Context &ctx)
         ctx,
         jobj["mapNode"].toString()
     ));
-    obj->setOwner(resolveReference<core::Player>(
+    obj->setOwner(resolveReference<core::Faction>(
         ctx,
         jobj["owner"].toString()
     ));

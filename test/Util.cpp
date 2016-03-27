@@ -1,8 +1,8 @@
 #include "core/Armor.h"
+#include "core/Civilization.h"
 #include "core/DamageType.h"
-#include "core/Faction.h"
+#include "core/Civilization.h"
 #include "core/MapNode.h"
-#include "core/Player.h"
 #include "core/Settlement.h"
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
@@ -221,23 +221,23 @@ std::pair<core::World *, QJsonObject> makeWorld()
     w->setSettlementTypes({st0});
     jw["settlementTypes"] = QJsonArray({jst0});
 
-    // Faction
-    core::Faction *f0 = new core::Faction(w);
-    QJsonObject jf0;
-    setNames(f0, jf0, 0);
+    // Civilization
+    core::Civilization *c0 = new core::Civilization(w);
+    QJsonObject jc0;
+    setNames(c0, jc0, 0);
 
-    f0->setUnitTypes({ut0});
-    jf0["unitTypes"] = QJsonArray({ut0->objectName()});
+    c0->setUnitTypes({ut0});
+    jc0["unitTypes"] = QJsonArray({ut0->objectName()});
 
     std::map<core::SettlementType *, std::vector<core::UnitType *>> recruits;
     recruits[st0] = std::vector<core::UnitType *>({ut0});
-    f0->setRecruits(recruits);
-    jf0["recruits"] = QJsonObject({
-        qMakePair(st0->objectName(), QJsonArray({ut0->objectName()}))
+    c0->setRecruits(recruits);
+    jc0["recruits"] = QJsonObject({
+        {st0->objectName(), QJsonArray({ut0->objectName()})}
     });
 
-    w->setFactions({f0});
-    jw["factions"] = QJsonArray({jf0});
+    w->setCivilizations({c0});
+    jw["civilizations"] = QJsonArray({jc0});
 
     return std::make_pair(w, jw);
 }
@@ -306,26 +306,26 @@ std::pair<core::CampaignMap *, QJsonObject> makeMap()
     m->setMapNodes({mn0, mn1});
     jm["mapNodes"] = QJsonArray({jmn0, jmn1});
 
-    // Players
-    core::Player *p0 = new core::Player(m);
-    QJsonObject jp0;
+    // Factions
+    core::Faction *f0 = new core::Faction(m);
+    QJsonObject jf0;
 
-    setNames(p0, jp0, 0);
+    setNames(f0, jf0, 0);
 
     QColor color("red");
-    p0->setColor(color);
-    jp0["color"] = color.name();
+    f0->setColor(color);
+    jf0["color"] = color.name();
 
-    p0->setGoldBalance(142);
-    jp0["goldBalance"] = 142;
+    f0->setGoldBalance(142);
+    jf0["goldBalance"] = 142;
 
-    core::Faction *f0 = w->getFactions()[0];
+    core::Civilization *c0 = w->getCivilizations()[0];
 
-    p0->setFaction(f0);
-    jp0["faction"] = f0->objectName();
+    f0->setCivilization(c0);
+    jf0["civilization"] = c0->objectName();
 
-    m->setPlayers({p0});
-    jm["players"] = QJsonArray({jp0});
+    m->setFactions({f0});
+    jm["factions"] = QJsonArray({jf0});
 
     // Settlements
     core::Settlement *s0 = new core::Settlement(m);
@@ -341,8 +341,8 @@ std::pair<core::CampaignMap *, QJsonObject> makeMap()
     s0->setMapNode(mn0);
     js0["mapNode"] = mn0->objectName();
 
-    s0->setOwner(p0);
-    js0["owner"] = p0->objectName();
+    s0->setOwner(f0);
+    js0["owner"] = f0->objectName();
 
     m->setSettlements({s0});
     jm["settlements"] = QJsonArray({js0});
@@ -361,8 +361,8 @@ std::pair<core::CampaignMap *, QJsonObject> makeMap()
     u0->setMapNode(mn1);
     ju0["mapNode"] = mn1->objectName();
 
-    u0->setOwner(p0);
-    ju0["owner"] = p0->objectName();
+    u0->setOwner(f0);
+    ju0["owner"] = f0->objectName();
 
     u0->setExperiencePoints(100.0);
     ju0["experiencePoints"] = 100.0;

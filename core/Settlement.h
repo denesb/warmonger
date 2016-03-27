@@ -6,7 +6,7 @@
 #include <QObject>
 
 #include "core/MapNode.h"
-#include "core/Player.h"
+#include "core/Faction.h"
 #include "core/SettlementType.h"
 
 namespace warmonger {
@@ -19,7 +19,7 @@ class Settlement :
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(SettlementType *type READ getType WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(MapNode *mapNode READ getMapNode WRITE setMapNode NOTIFY mapNodeChanged)
-    Q_PROPERTY(Player *owner READ getOwner WRITE setOwner NOTIFY ownerChanged)
+    Q_PROPERTY(Faction *owner READ getOwner WRITE setOwner NOTIFY ownerChanged)
     Q_PROPERTY(QVariantList recruits READ readRecruits NOTIFY recruitsChanged);
 
 public:
@@ -35,8 +35,8 @@ public:
     MapNode * getMapNode() const;
     void setMapNode(MapNode *mapNode);
 
-    Player * getOwner() const;
-    void setOwner(Player *owner);
+    Faction * getOwner() const;
+    void setOwner(Faction *owner);
 
     /**
      * Convenience method to get all recruitable unit-types.
@@ -61,7 +61,7 @@ private:
     QString displayName;
     SettlementType *type;
     MapNode *mapNode;
-    Player *owner;
+    Faction *owner;
 };
 
 } // namespace core

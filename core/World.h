@@ -8,7 +8,7 @@
 
 #include "core/Armor.h"
 #include "core/DamageType.h"
-#include "core/Faction.h"
+#include "core/Civilization.h"
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
 #include "core/UnitClass.h"
@@ -26,7 +26,7 @@ class World :
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(WorldSurface *surface READ getSurface NOTIFY surfaceChanged)
-    Q_PROPERTY(QVariantList factions READ readFactions NOTIFY factionsChanged)
+    Q_PROPERTY(QVariantList civilizations READ readCivilizations NOTIFY civilizationsChanged)
     Q_PROPERTY(QVariantList settlementTypes READ readSettlementTypes NOTIFY settlementTypesChanged)
     Q_PROPERTY(QVariantList terrainTypes READ readTerrainTypes NOTIFY terrainTypesChanged)
     Q_PROPERTY(QVariantList unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
@@ -46,9 +46,9 @@ public:
     std::vector<DamageType *> getDamageTypes() const;
     void setDamageTypes(const std::vector<DamageType *> &damageTypes);
 
-    std::vector<Faction *> getFactions() const;
-    void setFactions(const std::vector<Faction *> &factions);
-    QVariantList readFactions() const;
+    std::vector<Civilization *> getCivilizations() const;
+    void setCivilizations(const std::vector<Civilization *> &civilizations);
+    QVariantList readCivilizations() const;
 
     std::vector<SettlementType *> getSettlementTypes() const;
     void setSettlementTypes(const std::vector<SettlementType *> &settlementTypes);
@@ -74,7 +74,7 @@ public:
 
 signals:
     void displayNameChanged();
-    void factionsChanged();
+    void civilizationsChanged();
     void surfaceChanged();
     void settlementTypesChanged();
     void terrainTypesChanged();
@@ -93,7 +93,7 @@ private:
     std::vector<UnitLevel *> unitLevels;
     std::vector<UnitType *> unitTypes;
     std::vector<SettlementType *> settlementTypes;
-    std::vector<Faction *> factions;
+    std::vector<Civilization *> civilizations;
 };
 
 } // namespace core

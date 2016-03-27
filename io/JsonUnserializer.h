@@ -14,10 +14,10 @@ public:
 
     core::Armor * unserializeArmor(const QByteArray &data) override;
     core::CampaignMap * unserializeCampaignMap(const QByteArray &data) override;
+    core::Civilization * unserializeCivilization(const QByteArray &data) override;
     core::DamageType * unserializeDamageType(const QByteArray &data) override;
     core::Faction * unserializeFaction(const QByteArray &data) override;
     core::MapNode * unserializeMapNode(const QByteArray &data) override;
-    core::Player * unserializePlayer(const QByteArray &data) override;
     core::Settlement * unserializeSettlement(const QByteArray &data) override;
     core::SettlementType * unserializeSettlementType(const QByteArray &data) override;
     core::TerrainType * unserializeTerrainType(const QByteArray &data) override;

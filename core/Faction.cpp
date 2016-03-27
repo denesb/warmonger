@@ -1,18 +1,18 @@
-#include <functional>
-
+#include "core/Civilization.h"
 #include "core/Faction.h"
-#include "core/SettlementType.h"
-#include "core/QVariantUtil.h"
-#include "core/UnitType.h"
+#include "core/Settlement.h"
+#include "core/World.h"
+#include "core/Unit.h"
 
 using namespace warmonger::core;
 
-Faction::Faction(QObject *parent) :
-    QObject(parent)
-{
-}
+static const QString loggerName{"core.Faction"};
 
-Faction::~Faction()
+Faction::Faction(QObject *parent) :
+    QObject(parent),
+    color(),
+    goldBalance(0),
+    civilization(nullptr)
 {
 }
 
@@ -30,61 +30,44 @@ void Faction::setDisplayName(const QString &displayName)
     }
 }
 
-std::vector<UnitType *> Faction::getUnitTypes() const
+QColor Faction::getColor() const
 {
-    return this->unitTypes;
+    return this->color;
 }
 
-QVariantList Faction::readUnitTypes() const
+void Faction::setColor(const QColor &color)
 {
-    return toQVariantList(this->unitTypes);
-}
-
-void Faction::setUnitTypes(const std::vector<UnitType *> &unitTypes)
-{
-    if (this->unitTypes != unitTypes)
+    if (this->color != color)
     {
-        this->unitTypes = unitTypes;
-        emit unitTypesChanged();
+        this->color = color;
+        emit colorChanged();
     }
 }
 
-void Faction::addUnitType(UnitType *unitType)
+int Faction::getGoldBalance() const
 {
-    this->unitTypes.push_back(unitType);
-    emit unitTypesChanged();
+    return this->goldBalance;
 }
 
-std::map<SettlementType *, std::vector<UnitType *>> Faction::getRecruits() const
+void Faction::setGoldBalance(int goldBalance)
 {
-    return this->recruits;
-}
-
-QVariantMap Faction::readRecruits() const
-{
-    return toQVariantMap(
-        this->recruits,
-        std::bind(&QObject::objectName, std::placeholders::_1),
-        containerToQVariant<std::vector<UnitType *>>
-    );
-}
-
-void Faction::setRecruits(const std::map<SettlementType *, std::vector<UnitType *>> &recruits)
-{
-    if (this->recruits != recruits)
+    if (this->goldBalance != goldBalance)
     {
-        this->recruits = recruits;
-        emit recruitsChanged();
+        this->goldBalance = goldBalance;
+        emit goldBalanceChanged();
     }
 }
 
-std::vector<UnitType *> Faction::getRecruitsFor(SettlementType *settlementType) const
+Civilization * Faction::getCivilization() const
 {
-    return this->recruits.at(settlementType);
+    return this->civilization;
 }
 
-bool Faction::canRecruitFrom(SettlementType *settlementType, UnitType *unitType) const
+void Faction::setCivilization(Civilization *civilization)
 {
-    const std::vector<UnitType *> rs = this->recruits.at(settlementType);
-    return std::find(rs.cbegin(), rs.cend(), unitType) != rs.end();
+    if (this->civilization != civilization)
+    {
+        this->civilization = civilization;
+        emit civilizationChanged();
+    }
 }

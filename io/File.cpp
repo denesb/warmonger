@@ -29,7 +29,7 @@ core::World * readWorld(const QString &path, io::Unserializer *unserializer)
     return unserializer->unserializeWorld(data);
 }
 
-void writeMap(const core::CampaignMap *map, const QString &path, io::Serializer *serializer)
+void writeCampaignMap(const core::CampaignMap *campaignMap, const QString &path, io::Serializer *serializer)
 {
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly))
@@ -37,10 +37,10 @@ void writeMap(const core::CampaignMap *map, const QString &path, io::Serializer 
         throw FileIOError(QString("Failed to open %1 for writing").arg(path));
     }
 
-    file.write(serializer->serializeCampaignMap(map));
+    file.write(serializer->serializeCampaignMap(campaignMap));
 }
 
-core::CampaignMap * readMap(const QString &path, io::Unserializer *unserializer)
+core::CampaignMap * readCampaignMap(const QString &path, io::Unserializer *unserializer)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly))

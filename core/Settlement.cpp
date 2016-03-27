@@ -86,18 +86,18 @@ void Settlement::setMapNode(MapNode *mapNode)
     }
 }
 
-Player * Settlement::getOwner() const
+Faction * Settlement::getOwner() const
 {
     return this->owner;
 }
 
-void Settlement::setOwner(Player *owner)
+void Settlement::setOwner(Faction *owner)
 {
     if (this->owner != owner)
     {
         if (this->owner != nullptr)
         {
-            this->owner->getFaction()->disconnect(this);
+            this->owner->getCivilization()->disconnect(this);
         }
 
         this->owner = owner;
@@ -105,8 +105,8 @@ void Settlement::setOwner(Player *owner)
         if (this->owner != nullptr)
         {
             QObject::connect(
-                this->owner->getFaction(),
-                &Faction::recruitsChanged,
+                this->owner->getCivilization(),
+                &Civilization::recruitsChanged,
                 this,
                 &Settlement::recruitsChanged
             );
@@ -122,8 +122,8 @@ std::vector<UnitType *> Settlement::getRecruits() const
 
     if (this->owner != nullptr)
     {
-        const std::vector<UnitType *> frs(this->owner->getFaction()->getRecruitsFor(this->type));
-        std::copy(frs.cbegin(), frs.cend(), std::back_inserter(recruits));
+        const std::vector<UnitType *> crs(this->owner->getCivilization()->getRecruitsFor(this->type));
+        std::copy(crs.cbegin(), crs.cend(), std::back_inserter(recruits));
     }
 
     const std::vector<UnitType *> srs{this->type->getRecruits()};

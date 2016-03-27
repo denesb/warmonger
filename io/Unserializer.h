@@ -8,10 +8,10 @@ namespace warmonger {
 namespace core {
     class Armor;
     class CampaignMap;
+    class Civilization;
     class DamageType;
     class Faction;
     class MapNode;
-    class Player;
     class Settlement;
     class SettlementType;
     class TerrainType;
@@ -35,11 +35,11 @@ public:
     }
 
     virtual core::Armor * unserializeArmor(const QByteArray &data) = 0;
+    virtual core::CampaignMap * unserializeCampaignMap(const QByteArray &data) = 0;
+    virtual core::Civilization * unserializeCivilization(const QByteArray &data) = 0;
     virtual core::DamageType * unserializeDamageType(const QByteArray &data) = 0;
     virtual core::Faction * unserializeFaction(const QByteArray &data) = 0;
-    virtual core::CampaignMap * unserializeCampaignMap(const QByteArray &data) = 0;
     virtual core::MapNode * unserializeMapNode(const QByteArray &data) = 0;
-    virtual core::Player * unserializePlayer(const QByteArray &data) = 0;
     virtual core::Settlement * unserializeSettlement(const QByteArray &data) = 0;
     virtual core::SettlementType * unserializeSettlementType(const QByteArray &data) = 0;
     virtual core::TerrainType * unserializeTerrainType(const QByteArray &data) = 0;

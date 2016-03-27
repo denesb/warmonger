@@ -4,7 +4,7 @@
 #include <QObject>
 
 #include "core/MapNode.h"
-#include "core/Player.h"
+#include "core/Faction.h"
 #include "core/UnitType.h"
 
 namespace warmonger {
@@ -17,7 +17,7 @@ class Unit :
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(UnitType *type READ getType WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(MapNode *mapNode READ getMapNode WRITE setMapNode NOTIFY mapNodeChanged)
-    Q_PROPERTY(Player *owner READ getOwner WRITE setOwner NOTIFY ownerChanged)
+    Q_PROPERTY(Faction *owner READ getOwner WRITE setOwner NOTIFY ownerChanged)
     Q_PROPERTY(int experiencePoints READ getExperiencePoints WRITE setExperiencePoints NOTIFY experiencePointsChanged)
     Q_PROPERTY(int hitPoints READ getHitPoints WRITE setHitPoints NOTIFY hitPointsChanged)
     Q_PROPERTY(int movementPoints READ getMovementPoints WRITE setMovementPoints NOTIFY movementPointsChanged)
@@ -35,8 +35,8 @@ public:
     MapNode * getMapNode() const;
     void setMapNode(MapNode *mapNode);
 
-    Player * getOwner() const;
-    void setOwner(Player *owner);
+    Faction * getOwner() const;
+    void setOwner(Faction *owner);
 
     int getExperiencePoints() const;
     void setExperiencePoints(int experiencePoints);
@@ -62,7 +62,7 @@ private:
     QString displayName;
     UnitType *type;
     MapNode *mapNode;
-    Player *owner;
+    Faction *owner;
     int experiencePoints;
     int hitPoints;
     int movementPoints;

@@ -6,9 +6,9 @@
 #include "core/Armor.h"
 #include "core/CampaignMap.h"
 #include "core/DamageType.h"
-#include "core/Faction.h"
+#include "core/Civilization.h"
 #include "core/MapNode.h"
-#include "core/Player.h"
+#include "core/Faction.h"
 #include "core/Settlement.h"
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
@@ -106,23 +106,23 @@ TEST_CASE("CampaignMap can be serialized to JSON", "[JsonSerializer]")
             }
         }
 
-        REQUIRE(jobj["players"].isArray() == true);
-        SECTION("serializing Players")
+        REQUIRE(jobj["factions"].isArray() == true);
+        SECTION("serializing Factions")
         {
-            const QJsonArray jps(jobj["players"].toArray());
-            const std::vector<core::Player *> ps(m->getPlayers());
+            const QJsonArray jps(jobj["factions"].toArray());
+            const std::vector<core::Faction *> ps(m->getFactions());
 
             REQUIRE(ps.size() == jps.size());
             for (size_t i = 0; i < ps.size(); i++)
             {
                 REQUIRE(jps[i].isObject() == true);
                 const QJsonObject jp(jps[i].toObject());
-                const core::Player *p = ps[i];
+                const core::Faction *p = ps[i];
                 REQUIRE(jp["objectName"].toString() == p->objectName());
                 REQUIRE(jp["displayName"].toString() == p->getDisplayName());
                 REQUIRE(jp["color"].toString() == p->getColor().name());
                 REQUIRE(jp["goldBalance"].toInt() == p->getGoldBalance());
-                REQUIRE(jp["faction"].toString() == p->getFaction()->objectName());
+                REQUIRE(jp["civilization"].toString() == p->getCivilization()->objectName());
             }
         }
 
@@ -190,17 +190,17 @@ TEST_CASE("DamageType can be serialized to JSON", "[JsonSerializer]")
     }
 }
 
-TEST_CASE("Faction can be serialized to JSON", "[JsonSerializer]")
+TEST_CASE("Civilization can be serialized to JSON", "[JsonSerializer]")
 {
     const std::pair<core::World *, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
-    core::Faction *f = world->getFactions()[0];
+    core::Civilization *f = world->getCivilizations()[0];
 
-    SECTION("serializing Faction")
+    SECTION("serializing Civilization")
     {
         io::JsonSerializer serializer;
-        QByteArray json(serializer.serializeFaction(f));
+        QByteArray json(serializer.serializeCivilization(f));
         const QJsonDocument jdoc(QJsonDocument::fromJson(json));
         const QJsonObject jobj(jdoc.object());
 
@@ -247,27 +247,27 @@ TEST_CASE("MapNode can be serialized to JSON", "[JsonSerializer]")
     }
 }
 
-TEST_CASE("Player can be serialized to JSON", "[JsonSerializer]")
+TEST_CASE("Faction can be serialized to JSON", "[JsonSerializer]")
 {
     const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jobj{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
 
-    const core::Player *p = map->getPlayers()[0];
+    const core::Faction *f = map->getFactions()[0];
 
-    SECTION("serializing Player")
+    SECTION("serializing Faction")
     {
         io::JsonSerializer serializer;
-        QByteArray json(serializer.serializePlayer(p));
+        QByteArray json(serializer.serializeFaction(f));
         const QJsonDocument jdoc(QJsonDocument::fromJson(json));
         const QJsonObject jobj(jdoc.object());
 
-        REQUIRE(jobj["objectName"].toString() == p->objectName());
-        REQUIRE(jobj["displayName"].toString() == p->getDisplayName());
-        REQUIRE(jobj["color"].toString() == p->getColor().name());
-        REQUIRE(jobj["goldBalance"].toInt() == p->getGoldBalance());
-        REQUIRE(jobj["faction"].toString() == p->getFaction()->objectName());
+        REQUIRE(jobj["objectName"].toString() == f->objectName());
+        REQUIRE(jobj["displayName"].toString() == f->getDisplayName());
+        REQUIRE(jobj["color"].toString() == f->getColor().name());
+        REQUIRE(jobj["goldBalance"].toInt() == f->getGoldBalance());
+        REQUIRE(jobj["civilization"].toString() == f->getCivilization()->objectName());
     }
 }
 
@@ -655,27 +655,26 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
             }
         }
 
-        REQUIRE(jobj["factions"].isArray() == true);
-        SECTION("serializing Factions")
+        REQUIRE(jobj["civilizations"].isArray() == true);
+        SECTION("serializing Civilizations")
         {
-            const QJsonArray jfs(jobj["factions"].toArray());
-            const std::vector<core::Faction *> fs(world->getFactions());
+            const QJsonArray jcs(jobj["civilizations"].toArray());
+            const std::vector<core::Civilization *> cs(world->getCivilizations());
 
-            REQUIRE(fs.size() == jfs.size());
-            for (size_t i = 0; i < fs.size(); i++)
+            REQUIRE(cs.size() == jcs.size());
+            for (size_t i = 0; i < cs.size(); i++)
             {
-                REQUIRE(jfs[i].isObject() == true);
-                const QJsonObject jf(jfs[i].toObject());
-                const core::Faction *f = fs[i];
-                REQUIRE(jf["objectName"].toString() == f->objectName());
-                REQUIRE(jf["displayName"].toString() == f->getDisplayName());
-                REQUIRE(jf["unitTypes"].isArray() == true);
-                arrayEqualsList(jf["unitTypes"].toArray(), f->getUnitTypes());
+                REQUIRE(jcs[i].isObject() == true);
+                const QJsonObject jc(jcs[i].toObject());
+                const core::Civilization *c = cs[i];
+                REQUIRE(jc["objectName"].toString() == c->objectName());
+                REQUIRE(jc["displayName"].toString() == c->getDisplayName());
+                REQUIRE(jc["unitTypes"].isArray());
+                arrayEqualsList(jc["unitTypes"].toArray(), c->getUnitTypes());
 
-                REQUIRE(jf["recruits"].isObject() == true);
-                const QJsonObject jrs(jf["recruits"].toObject());
-                const std::map<core::SettlementType *, std::vector<core::UnitType *>> rs =
-                    f->getRecruits();
+                REQUIRE(jc["recruits"].isObject());
+                const QJsonObject jrs(jc["recruits"].toObject());
+                const std::map<core::SettlementType *, std::vector<core::UnitType *>> rs = c->getRecruits();
 
                 REQUIRE(rs.size() == jrs.size());
                 for (const auto& e : rs)

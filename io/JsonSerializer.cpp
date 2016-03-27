@@ -8,12 +8,12 @@
 
 #include "core/Armor.h"
 #include "core/CampaignMap.h"
+#include "core/Civilization.h"
 #include "core/DamageType.h"
 #include "core/Faction.h"
 #include "core/MapNode.h"
 #include "core/Settlement.h"
 #include "core/SettlementType.h"
-#include "core/Player.h"
 #include "core/TerrainType.h"
 #include "core/Unit.h"
 #include "core/UnitClass.h"
@@ -27,11 +27,11 @@ using namespace warmonger;
 using namespace warmonger::io;
 
 QJsonObject armorToJson(const core::Armor *obj);
+QJsonObject campaignMapToJson(const core::CampaignMap *obj);
+QJsonObject civilizationToJson(const core::Civilization *obj);
 QJsonObject damageTypeToJson(const core::DamageType *obj);
 QJsonObject factionToJson(const core::Faction *obj);
-QJsonObject mapToJson(const core::CampaignMap *obj);
 QJsonObject mapNodeToJson(const core::MapNode *obj);
-QJsonObject playerToJson(const core::Player *obj);
 QJsonObject settlementToJson(const core::Settlement *obj);
 QJsonObject settlementTypeToJson(const core::SettlementType *obj);
 QJsonObject terrainTypeToJson(const core::TerrainType *obj);
@@ -56,7 +56,13 @@ QByteArray JsonSerializer::serializeArmor(const core::Armor *obj)
 
 QByteArray JsonSerializer::serializeCampaignMap(const core::CampaignMap *obj)
 {
-    QJsonDocument jdoc(mapToJson(obj));
+    QJsonDocument jdoc(campaignMapToJson(obj));
+    return jdoc.toJson(this->format);
+}
+
+QByteArray JsonSerializer::serializeCivilization(const core::Civilization *obj)
+{
+    QJsonDocument jdoc(civilizationToJson(obj));
     return jdoc.toJson(this->format);
 }
 
@@ -75,12 +81,6 @@ QByteArray JsonSerializer::serializeFaction(const core::Faction *obj)
 QByteArray JsonSerializer::serializeMapNode(const core::MapNode *obj)
 {
     QJsonDocument jdoc(mapNodeToJson(obj));
-    return jdoc.toJson(this->format);
-}
-
-QByteArray JsonSerializer::serializePlayer(const core::Player *obj)
-{
-    QJsonDocument jdoc(playerToJson(obj));
     return jdoc.toJson(this->format);
 }
 
@@ -241,12 +241,35 @@ QJsonObject armorToJson(const core::Armor *obj)
     return jobj;
 }
 
-QJsonObject damageTypeToJson(const core::DamageType *obj)
+QJsonObject campaignMapToJson(const core::CampaignMap *obj)
 {
-    return namesToJson(obj);
+    QJsonObject jobj(namesToJson(obj));
+
+    jobj["world"] = obj->getWorld()->objectName();
+    jobj["mapNodeIndex"] = obj->getMapNodeIndex();
+    jobj["settlementIndex"] = obj->getSettlementIndex();
+    jobj["unitIndex"] = obj->getUnitIndex();
+    jobj["mapNodes"] = toQJsonArray(
+        obj->getMapNodes(),
+        mapNodeToJson
+    );
+    jobj["factions"] = toQJsonArray(
+        obj->getFactions(),
+        factionToJson
+    );
+    jobj["settlements"] = toQJsonArray(
+        obj->getSettlements(),
+        settlementToJson
+    );
+    jobj["units"] = toQJsonArray(
+        obj->getUnits(),
+        unitToJson
+    );
+
+    return jobj;
 }
 
-QJsonObject factionToJson(const core::Faction *obj)
+QJsonObject civilizationToJson(const core::Civilization *obj)
 {
     QJsonObject jobj(namesToJson(obj));
 
@@ -264,30 +287,18 @@ QJsonObject factionToJson(const core::Faction *obj)
     return jobj;
 }
 
-QJsonObject mapToJson(const core::CampaignMap *obj)
+QJsonObject damageTypeToJson(const core::DamageType *obj)
+{
+    return namesToJson(obj);
+}
+
+QJsonObject factionToJson(const core::Faction *obj)
 {
     QJsonObject jobj(namesToJson(obj));
 
-    jobj["world"] = obj->getWorld()->objectName();
-    jobj["mapNodeIndex"] = obj->getMapNodeIndex();
-    jobj["settlementIndex"] = obj->getSettlementIndex();
-    jobj["unitIndex"] = obj->getUnitIndex();
-    jobj["mapNodes"] = toQJsonArray(
-        obj->getMapNodes(),
-        mapNodeToJson
-    );
-    jobj["players"] = toQJsonArray(
-        obj->getPlayers(),
-        playerToJson
-    );
-    jobj["settlements"] = toQJsonArray(
-        obj->getSettlements(),
-        settlementToJson
-    );
-    jobj["units"] = toQJsonArray(
-        obj->getUnits(),
-        unitToJson
-    );
+    jobj["color"] = obj->getColor().name();
+    jobj["goldBalance"] = obj->getGoldBalance();
+    jobj["civilization"] = obj->getCivilization()->objectName();
 
     return jobj;
 }
@@ -311,17 +322,6 @@ QJsonObject mapNodeToJson(const core::MapNode *obj)
     }
 
     jobj["neighbours"] = jneighbours;
-
-    return jobj;
-}
-
-QJsonObject playerToJson(const core::Player *obj)
-{
-    QJsonObject jobj(namesToJson(obj));
-
-    jobj["color"] = obj->getColor().name();
-    jobj["goldBalance"] = obj->getGoldBalance();
-    jobj["faction"] = obj->getFaction()->objectName();
 
     return jobj;
 }
@@ -466,9 +466,9 @@ QJsonObject worldToJson(const core::World *obj)
         obj->getSettlementTypes(),
         settlementTypeToJson
     );
-    jobj["factions"] = toQJsonArray(
-        obj->getFactions(),
-        factionToJson
+    jobj["civilizations"] = toQJsonArray(
+        obj->getCivilizations(),
+        civilizationToJson
     );
 
     return jobj;

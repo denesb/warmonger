@@ -16,7 +16,7 @@ World::World(QObject *parent) :
     unitLevels(),
     unitTypes(),
     settlementTypes(),
-    factions()
+    civilizations()
 {
 }
 
@@ -68,19 +68,19 @@ void World::setDamageTypes(const std::vector<DamageType *> &damageTypes)
     this->damageTypes = damageTypes;
 }
 
-std::vector<Faction *> World::getFactions() const
+std::vector<Civilization *> World::getCivilizations() const
 {
-    return this->factions;
+    return this->civilizations;
 }
 
-void World::setFactions(const std::vector<Faction *> &factions)
+void World::setCivilizations(const std::vector<Civilization *> &civilizations)
 {
-    this->factions = factions;
+    this->civilizations = civilizations;
 }
 
-QVariantList World::readFactions() const
+QVariantList World::readCivilizations() const
 {
-    return toQVariantList(this->factions);
+    return toQVariantList(this->civilizations);
 }
 
 std::vector<SettlementType *> World::getSettlementTypes() const

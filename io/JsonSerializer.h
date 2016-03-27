@@ -16,10 +16,10 @@ public:
 
     QByteArray serializeArmor(const core::Armor *obj) override;
     QByteArray serializeCampaignMap(const core::CampaignMap *obj) override;
+    QByteArray serializeCivilization(const core::Civilization *obj) override;
     QByteArray serializeDamageType(const core::DamageType *obj) override;
     QByteArray serializeFaction(const core::Faction *obj) override;
     QByteArray serializeMapNode(const core::MapNode *obj) override;
-    QByteArray serializePlayer(const core::Player *obj) override;
     QByteArray serializeSettlement(const core::Settlement *obj) override;
     QByteArray serializeSettlementType(const core::SettlementType *obj) override;
     QByteArray serializeTerrainType(const core::TerrainType *obj) override;

@@ -19,17 +19,17 @@ void createWorldFile(const QString &path)
     file.write(serializer.serializeWorld(world.get()));
 }
 
-void createMapFile(const QString &path)
+void createCampaignMapFile(const QString &path)
 {
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
-    const std::unique_ptr<core::CampaignMap> map{maps.first};
+    const std::pair<core::CampaignMap *, QJsonObject> campaignMaps = makeMap();
+    const std::unique_ptr<core::CampaignMap> campaignMap{campaignMaps.first};
 
     io::JsonSerializer serializer;
 
     QFile file(path);
     file.open(QIODevice::WriteOnly);
 
-    file.write(serializer.serializeCampaignMap(map.get()));
+    file.write(serializer.serializeCampaignMap(campaignMap.get()));
 }
 
 TEST_CASE("World can be written to file", "[File]")
@@ -72,15 +72,15 @@ TEST_CASE("World can be read from file", "[File]")
 
 TEST_CASE("Map can be written to file", "[File]")
 {
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
-    const std::unique_ptr<core::CampaignMap> map{maps.first};
+    const std::pair<core::CampaignMap *, QJsonObject> campaignMaps = makeMap();
+    const std::unique_ptr<core::CampaignMap> campaignMap{campaignMaps.first};
 
-    const QString path("./write_map.json");
+    const QString path("./write_campaignmap.json");
     io::JsonSerializer serializer;
 
     SECTION("writing Map")
     {
-        io::writeMap(map.get(), path, &serializer);
+        io::writeCampaignMap(campaignMap.get(), path, &serializer);
 
         QFile file(path);
         REQUIRE(file.exists() == true);
@@ -108,11 +108,11 @@ void loadWorld(
             tts.cend(),
             [&](core::TerrainType *o){ctx.add(o);}
         );
-        const std::vector<core::Faction *> fs = world->getFactions();
+        const std::vector<core::Civilization *> cs = world->getCivilizations();
         std::for_each(
-            fs.cbegin(),
-            fs.cend(),
-            [&](core::Faction *o){ctx.add(o);}
+            cs.cbegin(),
+            cs.cend(),
+            [&](core::Civilization *o){ctx.add(o);}
         );
         const std::vector<core::SettlementType *> sts = world->getSettlementTypes();
         std::for_each(
@@ -132,17 +132,17 @@ void loadWorld(
 TEST_CASE("Map can be read from file", "[File]")
 {
     io::Context ctx(loadWorld);
-    const QString path("./read_map.json");
+    const QString path("./read_campaignmap.json");
     io::JsonUnserializer unserializer(ctx);
 
-    createMapFile(path);
+    createCampaignMapFile(path);
 
     SECTION("reading CampaignMap")
     {
-        core::CampaignMap *map = io::readMap(path, &unserializer);
+        core::CampaignMap *campaignMap = io::readCampaignMap(path, &unserializer);
 
-        REQUIRE(map != nullptr);
-        REQUIRE(map->getWorld() != nullptr);
+        REQUIRE(campaignMap != nullptr);
+        REQUIRE(campaignMap->getWorld() != nullptr);
     }
 
     QFile file(path);

@@ -48,8 +48,8 @@ public:
     int getUnitIndex() const;
     void setUnitIndex(int unitIndex);
 
-    void addMapNode(MapNode *mapNode);
-    void removeMapNode(MapNode *mapNode);
+    int getArmyIndex() const;
+    void setArmyIndex(int armyIndex);
 
     std::vector<MapNode *> getMapNodes() const;
     void setMapNodes(const std::vector<MapNode *> &mapNodes);
@@ -59,30 +59,22 @@ public:
     void setFactions(const std::vector<Faction *> &units);
     QVariantList readFactions() const;
 
-    void addSettlement(Settlement *settlement);
-    void removeSettlement(Settlement *settlement);
-
     std::vector<Settlement *> getSettlements() const;
     void setSettlements(const std::vector<Settlement *> &settlements);
     QVariantList readSettlements() const;
-
-    void addUnit(Unit *unit);
-    void removeUnit(Unit *unit);
 
     std::vector<Unit *> getUnits() const;
     void setUnits(const std::vector<Unit *> &units);
     QVariantList readUnits() const;
 
-    void createMapNode(
-        TerrainType *terrainType,
-        const std::map<Direction, MapNode *> &neighbours
-    );
-    void createSettlement(
-        SettlementType *settlementType,
-        MapNode *mapNode,
-        Faction *owner
-    );
-    Unit * createUnit(UnitType *unitType, MapNode *mapNode, Faction *owner);
+    void addMapNode(MapNode *mapNode);
+    void removeMapNode(MapNode *mapNode);
+
+    void addSettlement(Settlement *settlement);
+    void removeSettlement(Settlement *settlement);
+
+    void addUnit(Unit *unit);
+    void removeUnit(Unit *unit);
 
 signals:
     void displayNameChanged();
@@ -90,17 +82,10 @@ signals:
     void mapNodeIndexChanged();
     void settlementIndexChanged();
     void unitIndexChanged();
-    void mapNodesAboutToChange();
+    void armyIndexChanged();
     void mapNodesChanged();
-    void mapNodeAdded(QObject *mapNode);
-    void mapNodeRemoved(QObject *mapNode);
-    void settlementsAboutToChange();
     void settlementsChanged();
-    void settlementAdded(QObject *settlement);
-    void settlementRemoved(QObject *settlement);
-    void unitsAboutToChange();
     void unitsChanged();
-    void unitAdded(Unit *unit);
     void unitRemoved(Unit *unit);
     void factionsChanged();
 
@@ -110,6 +95,7 @@ private:
     int mapNodeIndex;
     int settlementIndex;
     int unitIndex;
+    int armyIndex;
     std::vector<MapNode *> mapNodes;
     std::vector<Faction *> factions;
     std::vector<Settlement *> settlements;

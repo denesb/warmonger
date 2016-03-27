@@ -6,6 +6,7 @@ CONFIG += staticlib
 
 HEADERS += \
     Armor.h \
+    Army.h \
     CampaignMap.h \
     Civilization.h \
     DamageType.h \
@@ -27,6 +28,7 @@ HEADERS += \
 
 SOURCES += \
     Armor.cpp \
+    Army.cpp \
     CampaignMap.cpp \
     Civilization.cpp \
     DamageType.cpp \

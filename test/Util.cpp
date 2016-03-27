@@ -1,3 +1,4 @@
+#include "core/Army.h"
 #include "core/Armor.h"
 #include "core/Civilization.h"
 #include "core/DamageType.h"
@@ -264,6 +265,9 @@ std::pair<core::CampaignMap *, QJsonObject> makeMap()
     m->setUnitIndex(1);
     jm["unitIndex"] = 1;
 
+    m->setArmyIndex(1);
+    jm["armyIndex"] = 1;
+
     // MapNodes
     core::MapNode *mn0 = new core::MapNode(m);
     QJsonObject jmn0;
@@ -375,6 +379,26 @@ std::pair<core::CampaignMap *, QJsonObject> makeMap()
 
     m->setUnits({u0});
     jm["units"] = QJsonArray({ju0});
+
+    // Armies
+    core::Army *a0 = new core::Army(m);
+    QJsonObject ja0;
+
+    setNames(a0, ja0, 0);
+
+    a0->setMapNode(mn1);
+    ja0["mapNode"] = mn1->objectName();
+
+    a0->setOwner(f0);
+    ja0["owner"] = f0->objectName();
+
+    /*
+    m->setArmies({a0});
+    jm["armies"] = QJsonArray({ja0});
+    */
+
+    a0->setUnits({u0});
+    ja0["units"] = QJsonArray({ju0});
 
     return std::make_pair(m, jm);
 }

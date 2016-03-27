@@ -13,4 +13,5 @@ SOURCES += \
     Util.cpp \
     Main.cpp
 
+include(core/core.pri)
 include(io/io.pri)

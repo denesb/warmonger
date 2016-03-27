@@ -1,0 +1,2 @@
+SOURCES += \
+    core/MapNode.cpp

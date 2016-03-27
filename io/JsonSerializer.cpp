@@ -7,9 +7,9 @@
 #include "io/JsonSerializer.h"
 
 #include "core/Armor.h"
+#include "core/CampaignMap.h"
 #include "core/DamageType.h"
 #include "core/Faction.h"
-#include "core/Map.h"
 #include "core/MapNode.h"
 #include "core/Settlement.h"
 #include "core/SettlementType.h"
@@ -29,9 +29,8 @@ using namespace warmonger::io;
 QJsonObject armorToJson(const core::Armor *obj);
 QJsonObject damageTypeToJson(const core::DamageType *obj);
 QJsonObject factionToJson(const core::Faction *obj);
-QJsonObject mapToJson(const core::Map *obj);
+QJsonObject mapToJson(const core::CampaignMap *obj);
 QJsonObject mapNodeToJson(const core::MapNode *obj);
-QJsonArray mapNodeConnectionToJson(const core::MapNodeConnection &connection);
 QJsonObject playerToJson(const core::Player *obj);
 QJsonObject settlementToJson(const core::Settlement *obj);
 QJsonObject settlementTypeToJson(const core::SettlementType *obj);
@@ -55,6 +54,12 @@ QByteArray JsonSerializer::serializeArmor(const core::Armor *obj)
     return jdoc.toJson(this->format);
 }
 
+QByteArray JsonSerializer::serializeCampaignMap(const core::CampaignMap *obj)
+{
+    QJsonDocument jdoc(mapToJson(obj));
+    return jdoc.toJson(this->format);
+}
+
 QByteArray JsonSerializer::serializeDamageType(const core::DamageType *obj)
 {
     QJsonDocument jdoc(damageTypeToJson(obj));
@@ -64,12 +69,6 @@ QByteArray JsonSerializer::serializeDamageType(const core::DamageType *obj)
 QByteArray JsonSerializer::serializeFaction(const core::Faction *obj)
 {
     QJsonDocument jdoc(factionToJson(obj));
-    return jdoc.toJson(this->format);
-}
-
-QByteArray JsonSerializer::serializeMap(const core::Map *obj)
-{
-    QJsonDocument jdoc(mapToJson(obj));
     return jdoc.toJson(this->format);
 }
 
@@ -265,7 +264,7 @@ QJsonObject factionToJson(const core::Faction *obj)
     return jobj;
 }
 
-QJsonObject mapToJson(const core::Map *obj)
+QJsonObject mapToJson(const core::CampaignMap *obj)
 {
     QJsonObject jobj(namesToJson(obj));
 
@@ -276,10 +275,6 @@ QJsonObject mapToJson(const core::Map *obj)
     jobj["mapNodes"] = toQJsonArray(
         obj->getMapNodes(),
         mapNodeToJson
-    );
-    jobj["mapNodeConnections"] = toQJsonArray(
-        obj->getMapNodeConnections(),
-        mapNodeConnectionToJson
     );
     jobj["players"] = toQJsonArray(
         obj->getPlayers(),
@@ -303,17 +298,21 @@ QJsonObject mapNodeToJson(const core::MapNode *obj)
 
     jobj["terrainType"] = obj->getTerrainType()->objectName();
 
+    QJsonObject jneighbours;
+    for (const auto& neighbour : obj->getNeighbours())
+    {
+        QString neighbourName{""};
+        if (neighbour.second != nullptr)
+        {
+            neighbourName = neighbour.second->objectName();
+        }
+
+        jneighbours[core::direction2str(neighbour.first)] = neighbourName;
+    }
+
+    jobj["neighbours"] = jneighbours;
+
     return jobj;
-}
-
-QJsonArray mapNodeConnectionToJson(const core::MapNodeConnection &connection)
-{
-    core::MapNode *mn0, *mn1;
-    core::Axis a;
-
-    std::tie(mn0, mn1, a) = connection;
-
-    return QJsonArray({mn0->objectName(), mn1->objectName(), core::axis2str(a)});
 }
 
 QJsonObject playerToJson(const core::Player *obj)

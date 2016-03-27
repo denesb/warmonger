@@ -53,7 +53,7 @@ void Settlement::setType(SettlementType *type)
 {
     if (this->type != type)
     {
-        QObject::disconnect(this->type, nullptr, this, nullptr);
+        this->type->disconnect(this);
 
         this->type = type;
 
@@ -92,22 +92,21 @@ void Settlement::setOwner(Player *owner)
     if (this->owner != owner)
     {
         if (this->owner != nullptr)
-            QObject::disconnect(
-                this->owner->getFaction(),
-                nullptr,
-                this,
-                nullptr
-            );
+        {
+            this->owner->getFaction()->disconnect(this);
+        }
 
         this->owner = owner;
 
         if (this->owner != nullptr)
+        {
             QObject::connect(
                 this->owner->getFaction(),
                 &Faction::recruitsChanged,
                 this,
                 &Settlement::recruitsChanged
             );
+        }
 
         emit ownerChanged();
     }

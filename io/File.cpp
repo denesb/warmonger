@@ -6,11 +6,7 @@
 namespace warmonger {
 namespace io {
 
-void writeWorld(
-    const core::World *world,
-    const QString &path,
-    io::Serializer *serializer
-)
+void writeWorld(const core::World *world, const QString &path, io::Serializer *serializer)
 {
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly))
@@ -21,10 +17,7 @@ void writeWorld(
     file.write(serializer->serializeWorld(world));
 }
 
-core::World * readWorld(
-    const QString &path,
-    io::Unserializer *unserializer
-)
+core::World * readWorld(const QString &path, io::Unserializer *unserializer)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly))
@@ -36,11 +29,7 @@ core::World * readWorld(
     return unserializer->unserializeWorld(data);
 }
 
-void writeMap(
-    const core::Map *map,
-    const QString &path,
-    io::Serializer *serializer
-)
+void writeMap(const core::CampaignMap *map, const QString &path, io::Serializer *serializer)
 {
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly))
@@ -48,13 +37,10 @@ void writeMap(
         throw FileIOError(QString("Failed to open %1 for writing").arg(path));
     }
 
-    file.write(serializer->serializeMap(map));
+    file.write(serializer->serializeCampaignMap(map));
 }
 
-core::Map * readMap(
-    const QString &path,
-    io::Unserializer *unserializer
-)
+core::CampaignMap * readMap(const QString &path, io::Unserializer *unserializer)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly))
@@ -63,7 +49,7 @@ core::Map * readMap(
     }
 
     const QByteArray data = file.readAll();
-    return unserializer->unserializeMap(data);
+    return unserializer->unserializeCampaignMap(data);
 }
 
 } // namespace warmonger

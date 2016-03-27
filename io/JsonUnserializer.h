@@ -12,22 +12,22 @@ class JsonUnserializer :
 public:
     JsonUnserializer(Context &ctx);
 
-    core::Armor * unserializeArmor(const QByteArray &data);
-    core::DamageType * unserializeDamageType(const QByteArray &data);
-    core::Faction * unserializeFaction(const QByteArray &data);
-    core::Map * unserializeMap(const QByteArray &data);
-    core::MapNode * unserializeMapNode(const QByteArray &data);
-    core::Player * unserializePlayer(const QByteArray &data);
-    core::Settlement * unserializeSettlement(const QByteArray &data);
-    core::SettlementType * unserializeSettlementType(const QByteArray &data);
-    core::TerrainType * unserializeTerrainType(const QByteArray &data);
-    core::Unit * unserializeUnit(const QByteArray &data);
-    core::UnitClass * unserializeUnitClass(const QByteArray &data);
-    core::UnitLevel * unserializeUnitLevel(const QByteArray &data);
-    core::UnitType * unserializeUnitType(const QByteArray &data);
-    core::Weapon * unserializeWeapon(const QByteArray &data);
-    core::World * unserializeWorld(const QByteArray &data);
-    core::WorldSurface * unserializeWorldSurface(const QByteArray &data);
+    core::Armor * unserializeArmor(const QByteArray &data) override;
+    core::CampaignMap * unserializeCampaignMap(const QByteArray &data) override;
+    core::DamageType * unserializeDamageType(const QByteArray &data) override;
+    core::Faction * unserializeFaction(const QByteArray &data) override;
+    core::MapNode * unserializeMapNode(const QByteArray &data) override;
+    core::Player * unserializePlayer(const QByteArray &data) override;
+    core::Settlement * unserializeSettlement(const QByteArray &data) override;
+    core::SettlementType * unserializeSettlementType(const QByteArray &data) override;
+    core::TerrainType * unserializeTerrainType(const QByteArray &data) override;
+    core::Unit * unserializeUnit(const QByteArray &data) override;
+    core::UnitClass * unserializeUnitClass(const QByteArray &data) override;
+    core::UnitLevel * unserializeUnitLevel(const QByteArray &data) override;
+    core::UnitType * unserializeUnitType(const QByteArray &data) override;
+    core::Weapon * unserializeWeapon(const QByteArray &data) override;
+    core::World * unserializeWorld(const QByteArray &data) override;
+    core::WorldSurface * unserializeWorldSurface(const QByteArray &data) override;
 };
 
 } // namespace warmonger

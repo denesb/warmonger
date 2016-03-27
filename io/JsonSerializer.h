@@ -14,22 +14,22 @@ class JsonSerializer :
 public:
     JsonSerializer(QJsonDocument::JsonFormat format = QJsonDocument::Indented);
 
-    virtual QByteArray serializeArmor(const core::Armor *obj);
-    virtual QByteArray serializeDamageType(const core::DamageType *obj);
-    virtual QByteArray serializeFaction(const core::Faction *obj);
-    virtual QByteArray serializeMap(const core::Map *obj);
-    virtual QByteArray serializeMapNode(const core::MapNode *obj);
-    virtual QByteArray serializePlayer(const core::Player *obj);
-    virtual QByteArray serializeSettlement(const core::Settlement *obj);
-    virtual QByteArray serializeSettlementType(const core::SettlementType *obj);
-    virtual QByteArray serializeTerrainType(const core::TerrainType *obj);
-    virtual QByteArray serializeUnit(const core::Unit *obj);
-    virtual QByteArray serializeUnitClass(const core::UnitClass *obj);
-    virtual QByteArray serializeUnitLevel(const core::UnitLevel *obj);
-    virtual QByteArray serializeUnitType(const core::UnitType *obj);
-    virtual QByteArray serializeWeapon(const core::Weapon *obj);
-    virtual QByteArray serializeWorld(const core::World *obj);
-    virtual QByteArray serializeWorldSurface(const core::WorldSurface *obj);
+    QByteArray serializeArmor(const core::Armor *obj) override;
+    QByteArray serializeCampaignMap(const core::CampaignMap *obj) override;
+    QByteArray serializeDamageType(const core::DamageType *obj) override;
+    QByteArray serializeFaction(const core::Faction *obj) override;
+    QByteArray serializeMapNode(const core::MapNode *obj) override;
+    QByteArray serializePlayer(const core::Player *obj) override;
+    QByteArray serializeSettlement(const core::Settlement *obj) override;
+    QByteArray serializeSettlementType(const core::SettlementType *obj) override;
+    QByteArray serializeTerrainType(const core::TerrainType *obj) override;
+    QByteArray serializeUnit(const core::Unit *obj) override;
+    QByteArray serializeUnitClass(const core::UnitClass *obj) override;
+    QByteArray serializeUnitLevel(const core::UnitLevel *obj) override;
+    QByteArray serializeUnitType(const core::UnitType *obj) override;
+    QByteArray serializeWeapon(const core::Weapon *obj) override;
+    QByteArray serializeWorld(const core::World *obj) override;
+    QByteArray serializeWorldSurface(const core::WorldSurface *obj) override;
 
 private:
     QJsonDocument::JsonFormat format;

@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "core/Map.h"
+#include "core/CampaignMap.h"
 
 namespace warmonger {
 namespace core {
@@ -16,20 +16,20 @@ class Game :
     Q_PROPERTY(int turn READ getTurn WRITE setTurn NOTIFY turnChanged)
 
 public:
-    Game(QObject *parent=nullptr);
+    explicit Game(QObject *parent=nullptr);
 
-    Map * getMap() const;
-    void setMap(Map *map);
+    CampaignMap * getCampaignMap() const;
+    void setCampaignMap(CampaignMap *campaignMap);
 
     int getTurn() const;
     void setTurn(int turn);
 
 signals:
-    void mapChanged();
+    void campaignMapChanged();
     void turnChanged();
 
 private:
-    Map *map;
+    CampaignMap *campaignMap;
     int turn;
 };
 

@@ -1,7 +1,6 @@
 #include "core/Armor.h"
 #include "core/DamageType.h"
 #include "core/Faction.h"
-#include "core/Map.h"
 #include "core/MapNode.h"
 #include "core/Player.h"
 #include "core/Settlement.h"
@@ -12,7 +11,6 @@
 #include "core/UnitLevel.h"
 #include "core/UnitType.h"
 #include "core/Weapon.h"
-#include "core/World.h"
 #include "core/WorldSurface.h"
 #include "test/Util.h"
 
@@ -244,9 +242,9 @@ QPair<core::World *, QJsonObject> makeWorld()
     return qMakePair(w, jw);
 }
 
-QPair<core::Map *, QJsonObject> makeMap()
+QPair<core::CampaignMap *, QJsonObject> makeMap()
 {
-    core::Map *m(new core::Map());
+    core::CampaignMap *m(new core::CampaignMap());
     QJsonObject jm;
 
     setNames(m, jm, 0);
@@ -285,16 +283,28 @@ QPair<core::Map *, QJsonObject> makeMap()
     mn1->setTerrainType(tt0);
     jmn1["terrainType"] = tt0->objectName();
 
+    // MapNode neighbours
+    mn0->setNeighbour(core::Direction::West, mn1);
+    mn1->setNeighbour(core::Direction::East, mn0);
+    jmn0["neighbours"] = QJsonObject{
+        {"West", mn1->objectName()},
+        {"NorthWest", ""},
+        {"NorthEast", ""},
+        {"SouthEast", ""},
+        {"SouthWest", ""},
+        {"East", ""}
+    };
+    jmn1["neighbours"] = QJsonObject{
+        {"West", ""},
+        {"NorthWest", ""},
+        {"NorthEast", ""},
+        {"SouthEast", ""},
+        {"SouthWest", ""},
+        {"East", mn0->objectName()}
+    };
+
     m->setMapNodes({mn0, mn1});
     jm["mapNodes"] = QJsonArray({jmn0, jmn1});
-
-    // MapNode connections
-    m->addMapNodeConnection(mn0, mn1, core::Axis::West_East);
-    QJsonArray jMapNodeConn;
-    jMapNodeConn << mn0->objectName();
-    jMapNodeConn << mn1->objectName();
-    jMapNodeConn << core::axis2str(core::Axis::West_East);
-    jm["mapNodeConnections"] = QJsonArray({jMapNodeConn});
 
     // Players
     core::Player *p0 = new core::Player(m);

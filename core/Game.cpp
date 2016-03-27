@@ -5,10 +5,6 @@
 
 #include "core/Exception.h"
 #include "core/Game.h"
-#include "core/MapNode.h"
-#include "core/UnitClass.h"
-#include "core/UnitType.h"
-#include "core/Unit.h"
 
 using namespace warmonger::core;
 
@@ -16,22 +12,22 @@ static const QString loggerName{"core.Game"};
 
 Game::Game(QObject *parent) :
     QObject(parent),
-    map(nullptr),
+    campaignMap(nullptr),
     turn(0)
 {
 }
 
-Map * Game::getMap() const
+CampaignMap * Game::getCampaignMap() const
 {
-    return this->map;
+    return this->campaignMap;
 }
 
-void Game::setMap(Map *map)
+void Game::setCampaignMap(CampaignMap *campaignMap)
 {
-    if (this->map != map)
+    if (this->campaignMap != campaignMap)
     {
-        this->map = map;
-        emit mapChanged();
+        this->campaignMap = campaignMap;
+        emit campaignMapChanged();
     }
 }
 

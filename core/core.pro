@@ -6,11 +6,11 @@ CONFIG += staticlib
 
 HEADERS += \
     Armor.h \
+    CampaignMap.h \
     DamageType.h \
     Exception.h \
     Faction.h \
     Game.h \
-    Map.h \
     MapNode.h \
     Player.h \
     QVariantUtil.h \
@@ -27,11 +27,11 @@ HEADERS += \
 
 SOURCES += \
     Armor.cpp \
+    CampaignMap.cpp \
     DamageType.cpp \
     Exception.cpp \
     Faction.cpp \
     Game.cpp \
-    Map.cpp \
     MapNode.cpp \
     Player.cpp \
     Settlement.cpp \

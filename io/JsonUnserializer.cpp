@@ -1,15 +1,16 @@
 #include <algorithm>
 #include <functional>
 #include <memory>
+#include <vector>
 
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 
 #include "core/Armor.h"
+#include "core/CampaignMap.h"
 #include "core/DamageType.h"
 #include "core/Faction.h"
-#include "core/Map.h"
 #include "core/MapNode.h"
 #include "core/Player.h"
 #include "core/Settlement.h"
@@ -33,22 +34,13 @@ core::Armor * armorFromJson(const QJsonObject &jobj, Context &ctx);
 core::DamageType * damageTypeFromJson(const QJsonObject &jobj);
 core::Faction * factionsFromJson(const QJsonObject &jobj, Context &ctx);
 core::MapNode * mapNodeFromJson(const QJsonObject &jobj, Context &ctx);
-void mapNodeConnectionFromJson(const QJsonValue &jobj, core::Map *map, Context &ctx);
+std::vector<core::MapNode *> mapNodesFromJson(const QJsonArray &jarr, Context &ctx);
 core::Player * playerFromJson(const QJsonObject &jobj, Context &ctx);
-core::Settlement * settlementFromJson(
-    const QJsonObject &jobj,
-    Context &ctx
-);
-core::SettlementType * settlementTypeFromJson(
-    const QJsonObject &jobj,
-    Context &ctx
-);
+core::Settlement * settlementFromJson(const QJsonObject &jobj, Context &ctx);
+core::SettlementType * settlementTypeFromJson(const QJsonObject &jobj, Context &ctx);
 core::TerrainType * terrainTypeFromJson(const QJsonObject &jobj);
 core::Unit * unitFromJson(const QJsonObject &jobj, Context &ctx);
-core::UnitClass * unitClassFromJson(
-    const QJsonObject &jobj,
-    Context &ctx
-);
+core::UnitClass * unitClassFromJson(const QJsonObject &jobj, Context &ctx);
 core::UnitLevel * unitLevelFromJson(const QJsonObject &jobj);
 core::UnitType * unitTypeFromJson(const QJsonObject &jobj, Context &ctx);
 core::Weapon * weaponFromJson(const QJsonObject &jobj, Context &ctx);
@@ -210,30 +202,12 @@ core::Armor * JsonUnserializer::unserializeArmor(
     return armorFromJson(jdoc.object(), this->ctx);
 }
 
-core::DamageType * JsonUnserializer::unserializeDamageType(
-    const QByteArray &data
-)
-{
-    QJsonDocument jdoc(parseJson(data));
-    return damageTypeFromJson(jdoc.object());
-}
-
-core::Faction * JsonUnserializer::unserializeFaction(
-    const QByteArray &data
-)
-{
-    QJsonDocument jdoc(parseJson(data));
-    return factionsFromJson(jdoc.object(), this->ctx);
-}
-
-core::Map * JsonUnserializer::unserializeMap(
-    const QByteArray &data
-)
+core::CampaignMap * JsonUnserializer::unserializeCampaignMap(const QByteArray &data)
 {
     QJsonDocument jdoc(parseJson(data));
     QJsonObject jobj = jdoc.object();
 
-    std::unique_ptr<core::Map> obj(new core::Map());
+    std::unique_ptr<core::CampaignMap> obj(new core::CampaignMap());
 
     obj->setObjectName(jobj["objectName"].toString());
 
@@ -249,17 +223,7 @@ core::Map * JsonUnserializer::unserializeMap(
 
     obj->setUnitIndex(jobj["unitIndex"].toInt());
 
-    obj->setMapNodes(objectListFromJson<core::MapNode>(
-        jobj["mapNodes"].toArray(),
-        this->ctx,
-        mapNodeFromJson
-    ));
-    QJsonArray jMapNodeConnections = jobj["mapNodeConnections"].toArray();
-    std::for_each(
-        jMapNodeConnections.constBegin(),
-        jMapNodeConnections.constEnd(),
-        std::bind(mapNodeConnectionFromJson, std::placeholders::_1, obj.get(), this->ctx)
-    );
+    obj->setMapNodes(mapNodesFromJson(jobj["mapNodes"].toArray(), this->ctx));
 
     obj->setPlayers(objectListFromJson<core::Player>(
         jobj["players"].toArray(),
@@ -282,89 +246,79 @@ core::Map * JsonUnserializer::unserializeMap(
     return obj.release();
 }
 
-core::MapNode * JsonUnserializer::unserializeMapNode(
-    const QByteArray &data
-)
+core::DamageType * JsonUnserializer::unserializeDamageType(const QByteArray &data)
+{
+    QJsonDocument jdoc(parseJson(data));
+    return damageTypeFromJson(jdoc.object());
+}
+
+core::Faction * JsonUnserializer::unserializeFaction(const QByteArray &data)
+{
+    QJsonDocument jdoc(parseJson(data));
+    return factionsFromJson(jdoc.object(), this->ctx);
+}
+
+core::MapNode * JsonUnserializer::unserializeMapNode(const QByteArray &data)
 {
     QJsonDocument jdoc(parseJson(data));
     return mapNodeFromJson(jdoc.object(), this->ctx);
 }
 
-core::Player * JsonUnserializer::unserializePlayer(
-    const QByteArray &data
-)
+core::Player * JsonUnserializer::unserializePlayer(const QByteArray &data)
 {
     QJsonDocument jdoc(parseJson(data));
     return playerFromJson(jdoc.object(), this->ctx);
 }
 
-core::Settlement * JsonUnserializer::unserializeSettlement(
-    const QByteArray &data
-)
+core::Settlement * JsonUnserializer::unserializeSettlement(const QByteArray &data)
 {
     QJsonDocument jdoc(parseJson(data));
     return settlementFromJson(jdoc.object(), this->ctx);
 }
 
-core::SettlementType * JsonUnserializer::unserializeSettlementType(
-    const QByteArray &data
-)
+core::SettlementType * JsonUnserializer::unserializeSettlementType(const QByteArray &data)
 {
     QJsonDocument jdoc(parseJson(data));
     return settlementTypeFromJson(jdoc.object(), this->ctx);
 }
 
-core::TerrainType * JsonUnserializer::unserializeTerrainType(
-    const QByteArray &data
-)
+core::TerrainType * JsonUnserializer::unserializeTerrainType(const QByteArray &data)
 {
     QJsonDocument jdoc(parseJson(data));
     return terrainTypeFromJson(jdoc.object());
 }
 
-core::Unit * JsonUnserializer::unserializeUnit(
-    const QByteArray &data
-)
+core::Unit * JsonUnserializer::unserializeUnit(const QByteArray &data)
 {
     QJsonDocument jdoc(parseJson(data));
     return unitFromJson(jdoc.object(), this->ctx);
 }
 
-core::UnitClass * JsonUnserializer::unserializeUnitClass(
-    const QByteArray &data
-)
+core::UnitClass * JsonUnserializer::unserializeUnitClass(const QByteArray &data)
 {
     QJsonDocument jdoc(parseJson(data));
     return unitClassFromJson(jdoc.object(), this->ctx);
 }
 
-core::UnitLevel * JsonUnserializer::unserializeUnitLevel(
-    const QByteArray &data
-)
+core::UnitLevel * JsonUnserializer::unserializeUnitLevel(const QByteArray &data)
 {
     QJsonDocument jdoc(parseJson(data));
     return unitLevelFromJson(jdoc.object());
 }
 
-core::UnitType * JsonUnserializer::unserializeUnitType(
-    const QByteArray &data
-)
+core::UnitType * JsonUnserializer::unserializeUnitType(const QByteArray &data)
 {
     QJsonDocument jdoc(parseJson(data));
     return unitTypeFromJson(jdoc.object(), this->ctx);
 }
 
-core::Weapon * JsonUnserializer::unserializeWeapon(
-    const QByteArray &data
-)
+core::Weapon * JsonUnserializer::unserializeWeapon(const QByteArray &data)
 {
     QJsonDocument jdoc(parseJson(data));
     return weaponFromJson(jdoc.object(), this->ctx);
 }
 
-core::World * JsonUnserializer::unserializeWorld(
-    const QByteArray &data
-)
+core::World * JsonUnserializer::unserializeWorld(const QByteArray &data)
 {
     QJsonDocument jdoc(parseJson(data));
     QJsonObject jobj = jdoc.object();
@@ -427,9 +381,7 @@ core::World * JsonUnserializer::unserializeWorld(
     return obj.release();
 }
 
-core::WorldSurface * JsonUnserializer::unserializeWorldSurface(
-    const QByteArray &data
-)
+core::WorldSurface * JsonUnserializer::unserializeWorldSurface(const QByteArray &data)
 {
     QJsonDocument jdoc(parseJson(data));
     QJsonObject jobj = jdoc.object();
@@ -523,20 +475,46 @@ core::MapNode * mapNodeFromJson(const QJsonObject &jobj, Context &ctx)
     return obj.release();
 }
 
-void mapNodeConnectionFromJson(const QJsonValue &jobj, core::Map *map, Context &ctx)
+std::vector<core::MapNode *> mapNodesFromJson(const QJsonArray &jarr, Context &ctx)
 {
-    const QJsonArray &jconn = jobj.toArray();
-    core::MapNode *mn0 = resolveReference<core::MapNode>(
-        ctx,
-        jconn[0].toString()
-    );
-    core::MapNode *mn1 = resolveReference<core::MapNode>(
-        ctx,
-        jconn[1].toString()
-    );
-    core::Axis a = core::str2axis(jconn[2].toString());
+    std::vector<core::MapNode *> mapNodes;
+    std::vector<std::tuple<core::MapNode *, core::Direction, QString>> neighbours;
 
-    map->addMapNodeConnection(mn0, mn1, a);
+    for (QJsonValue jval : jarr)
+    {
+        QJsonObject jobj = jval.toObject();
+        core::MapNode *mn = mapNodeFromJson(jobj, ctx);
+
+        mapNodes.push_back(mn);
+        ctx.add(mn);
+
+        // for now just store the references to the neighbours
+        // they will be resolved after all mapnodes have been processed
+        const QJsonObject jneighbours = jobj["neighbours"].toObject();
+        for (auto it = jneighbours.constBegin(); it != jneighbours.constEnd(); it++)
+        {
+            core::Direction d = core::str2direction(it.key());
+            neighbours.push_back(std::make_tuple(mn, d, it.value().toString()));
+        }
+    }
+
+    core::MapNode *mn;
+    core::Direction d;
+    QString neighbourName;
+    for (const auto& neighbour : neighbours)
+    {
+        std::tie(mn, d, neighbourName) = neighbour;
+        if (neighbourName.isEmpty())
+        {
+            mn->setNeighbour(d, nullptr);
+        }
+        else
+        {
+            mn->setNeighbour(d, resolveReference<core::MapNode>(ctx, neighbourName));
+        }
+    }
+
+    return mapNodes;
 }
 
 core::Player * playerFromJson(const QJsonObject &jobj, Context &ctx)

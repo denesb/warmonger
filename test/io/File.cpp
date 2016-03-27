@@ -21,15 +21,15 @@ void createWorldFile(const QString &path)
 
 void createMapFile(const QString &path)
 {
-    const QPair<core::Map *, QJsonObject> maps = makeMap();
-    const std::unique_ptr<core::Map> map{maps.first};
+    const QPair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::unique_ptr<core::CampaignMap> map{maps.first};
 
     io::JsonSerializer serializer;
 
     QFile file(path);
     file.open(QIODevice::WriteOnly);
 
-    file.write(serializer.serializeMap(map.get()));
+    file.write(serializer.serializeCampaignMap(map.get()));
 }
 
 TEST_CASE("World can be written to file", "[File]")
@@ -72,8 +72,8 @@ TEST_CASE("World can be read from file", "[File]")
 
 TEST_CASE("Map can be written to file", "[File]")
 {
-    const QPair<core::Map *, QJsonObject> maps = makeMap();
-    const std::unique_ptr<core::Map> map{maps.first};
+    const QPair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::unique_ptr<core::CampaignMap> map{maps.first};
 
     const QString path("./write_map.json");
     io::JsonSerializer serializer;
@@ -137,14 +137,14 @@ TEST_CASE("Map can be read from file", "[File]")
 
     createMapFile(path);
 
-    SECTION("reading Map")
+    SECTION("reading CampaignMap")
     {
-        core::Map *map = io::readMap(path, &unserializer);
+        core::CampaignMap *map = io::readMap(path, &unserializer);
 
         REQUIRE(map != nullptr);
         REQUIRE(map->getWorld() != nullptr);
     }
 
     QFile file(path);
-    file.remove();
+    //file.remove();
 }

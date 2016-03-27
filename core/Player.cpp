@@ -1,5 +1,4 @@
 #include "core/Faction.h"
-#include "core/Map.h"
 #include "core/Player.h"
 #include "core/Settlement.h"
 #include "core/World.h"

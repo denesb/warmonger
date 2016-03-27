@@ -1,6 +1,9 @@
 #ifndef CORE_FACTION_H
 #define CORE_FACTION_H
 
+#include <map>
+#include <vector>
+
 #include <QObject>
 #include <QVariant>
 
@@ -25,22 +28,17 @@ public:
     QString getDisplayName() const;
     void setDisplayName(const QString &displayName);
 
-    QList<UnitType *> getUnitTypes() const;
+    std::vector<UnitType *> getUnitTypes() const;
     QVariantList readUnitTypes() const;
-    void setUnitTypes(const QList<UnitType *> &unitTypes);
+    void setUnitTypes(const std::vector<UnitType *> &unitTypes);
     void addUnitType(UnitType *unitType);
 
-    QMap<SettlementType *, QList<UnitType *>> getRecruits() const;
+    std::map<SettlementType *, std::vector<UnitType *>> getRecruits() const;
     QVariantMap readRecruits() const;
-    void setRecruits(const QMap<SettlementType *, QList<UnitType *>> &recruits);
+    void setRecruits(const std::map<SettlementType *, std::vector<UnitType *>> &recruits);
 
-    QList<UnitType *> getRecruitsFor(
-        SettlementType *settlementType
-    ) const;
-    bool canRecruitFrom(
-        SettlementType *settlemntType,
-        UnitType *unitType
-    ) const;
+    std::vector<UnitType *> getRecruitsFor(SettlementType *settlementType) const;
+    bool canRecruitFrom(SettlementType *settlemntType, UnitType *unitType) const;
 
 signals:
     void displayNameChanged();
@@ -49,8 +47,8 @@ signals:
 
 private:
     QString displayName;
-    QList<UnitType *> unitTypes;
-    QMap<SettlementType *, QList<UnitType *>> recruits;
+    std::vector<UnitType *> unitTypes;
+    std::map<SettlementType *, std::vector<UnitType *>> recruits;
 };
 
 } // namespace core

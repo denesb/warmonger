@@ -120,12 +120,12 @@ void UnitType::setArmor(Armor *armor)
     }
 }
 
-QList<Weapon *> UnitType::getWeapons() const
+std::vector<Weapon *> UnitType::getWeapons() const
 {
     return this->weapons;
 }
 
-void UnitType::setWeapons(const QList<Weapon *> &weapons)
+void UnitType::setWeapons(const std::vector<Weapon *> &weapons)
 {
     if (this->weapons != weapons)
     {
@@ -139,12 +139,12 @@ QVariantList UnitType::readWeapons() const
     return toQVariantList(this->weapons);
 }
 
-QList<UnitType *> UnitType::getUpgrades() const
+std::vector<UnitType *> UnitType::getUpgrades() const
 {
     return this->upgrades;
 }
 
-void UnitType::setUpgrades(const QList<UnitType *> &upgrades)
+void UnitType::setUpgrades(const std::vector<UnitType *> &upgrades)
 {
     if (this->upgrades != upgrades)
     {

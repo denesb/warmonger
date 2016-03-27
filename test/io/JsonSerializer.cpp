@@ -26,7 +26,7 @@ using namespace warmonger;
 
 TEST_CASE("Armor can be serialized to JSON", "[JsonSerializer]")
 {
-    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
     core::Armor *a = world->getArmors()[0];
@@ -47,7 +47,7 @@ TEST_CASE("Armor can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("CampaignMap can be serialized to JSON", "[JsonSerializer]")
 {
-    const QPair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> m{maps.first};
     const QJsonObject jobj{maps.second};
     const std::unique_ptr<core::World> world{m->getWorld()};
@@ -110,10 +110,10 @@ TEST_CASE("CampaignMap can be serialized to JSON", "[JsonSerializer]")
         SECTION("serializing Players")
         {
             const QJsonArray jps(jobj["players"].toArray());
-            const QList<core::Player *> ps(m->getPlayers());
+            const std::vector<core::Player *> ps(m->getPlayers());
 
             REQUIRE(ps.size() == jps.size());
-            for (int i = 0; i < ps.size(); i++)
+            for (size_t i = 0; i < ps.size(); i++)
             {
                 REQUIRE(jps[i].isObject() == true);
                 const QJsonObject jp(jps[i].toObject());
@@ -130,10 +130,10 @@ TEST_CASE("CampaignMap can be serialized to JSON", "[JsonSerializer]")
         SECTION("serializing Settlements")
         {
             const QJsonArray jss(jobj["settlements"].toArray());
-            const QList<core::Settlement *> ss(m->getSettlements());
+            const std::vector<core::Settlement *> ss(m->getSettlements());
 
             REQUIRE(ss.size() == jss.size());
-            for (int i = 0; i < ss.size(); i++)
+            for (size_t i = 0; i < ss.size(); i++)
             {
                 REQUIRE(jss[i].isObject() == true);
                 const QJsonObject js(jss[i].toObject());
@@ -150,10 +150,10 @@ TEST_CASE("CampaignMap can be serialized to JSON", "[JsonSerializer]")
         SECTION("serializing Units")
         {
             const QJsonArray jus(jobj["units"].toArray());
-            const QList<core::Unit *> us(m->getUnits());
+            const std::vector<core::Unit *> us(m->getUnits());
 
             REQUIRE(us.size() == jus.size());
-            for (int i = 0; i < us.size(); i++)
+            for (size_t i = 0; i < us.size(); i++)
             {
                 REQUIRE(jus[i].isObject() == true);
                 const QJsonObject ju(jus[i].toObject());
@@ -173,7 +173,7 @@ TEST_CASE("CampaignMap can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("DamageType can be serialized to JSON", "[JsonSerializer]")
 {
-    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
     core::DamageType *dt = world->getDamageTypes()[0];
@@ -192,7 +192,7 @@ TEST_CASE("DamageType can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("Faction can be serialized to JSON", "[JsonSerializer]")
 {
-    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
     core::Faction *f = world->getFactions()[0];
@@ -212,22 +212,22 @@ TEST_CASE("Faction can be serialized to JSON", "[JsonSerializer]")
         REQUIRE(jobj["recruits"].isObject() == true);
 
         const QJsonObject jrecruits = jobj["recruits"].toObject();
-        const QMap<core::SettlementType *, QList<core::UnitType *>> recruits =
+        const std::map<core::SettlementType *, std::vector<core::UnitType *>> recruits =
             f->getRecruits();
 
         REQUIRE(jrecruits.size() == recruits.size());
 
-        for (core::SettlementType *st : recruits.keys())
+        for (const auto& e : recruits)
         {
-            REQUIRE(jrecruits[st->objectName()].isArray() == true);
-            arrayEqualsList(jrecruits[st->objectName()].toArray(), recruits[st]);
+            REQUIRE(jrecruits[e.first->objectName()].isArray() == true);
+            arrayEqualsList(jrecruits[e.first->objectName()].toArray(), e.second);
         }
     }
 }
 
 TEST_CASE("MapNode can be serialized to JSON", "[JsonSerializer]")
 {
-    const QPair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jobj{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
@@ -249,7 +249,7 @@ TEST_CASE("MapNode can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("Player can be serialized to JSON", "[JsonSerializer]")
 {
-    const QPair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jobj{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
@@ -273,7 +273,7 @@ TEST_CASE("Player can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("Settlement can be serialized to JSON", "[JsonSerializer]")
 {
-    const QPair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jobj{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
@@ -297,7 +297,7 @@ TEST_CASE("Settlement can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("SettlementType can be serialized to JSON", "[JsonSerializer]")
 {
-    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
     core::SettlementType *st = world->getSettlementTypes()[0];
@@ -321,7 +321,7 @@ TEST_CASE("SettlementType can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("TerrainType can be serialized to JSON", "[JsonSerializer]")
 {
-    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
     core::TerrainType *tt = world->getTerrainTypes()[0];
@@ -340,7 +340,7 @@ TEST_CASE("TerrainType can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("Unit can be serialized to JSON", "[JsonSerializer]")
 {
-    const QPair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jobj{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
@@ -367,7 +367,7 @@ TEST_CASE("Unit can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("UnitClass can be serialized to JSON", "[JsonSerializer]")
 {
-    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
     core::UnitClass *uc = world->getUnitClasses()[0];
@@ -399,7 +399,7 @@ TEST_CASE("UnitClass can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("UnitLevel can be serialized to JSON", "[JsonSerializer]")
 {
-    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
     core::UnitLevel *ul = world->getUnitLevels()[0];
@@ -420,7 +420,7 @@ TEST_CASE("UnitLevel can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("UnitType can be serialized to JSON", "[JsonSerializer]")
 {
-    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
     core::UnitType *ut = world->getUnitTypes()[0];
@@ -453,7 +453,7 @@ TEST_CASE("UnitType can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("Weapon can be serialized to JSON", "[JsonSerializer]")
 {
-    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
     core::Weapon *w = world->getWeapons()[0];
@@ -477,7 +477,7 @@ TEST_CASE("Weapon can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
 {
-    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
     SECTION("serializing World")
@@ -494,10 +494,10 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
         SECTION("serializing DamageTypes")
         {
             const QJsonArray jdts(jobj["damageTypes"].toArray());
-            const QList<core::DamageType *> dts(world->getDamageTypes());
+            const std::vector<core::DamageType *> dts(world->getDamageTypes());
 
             REQUIRE(dts.size() == jdts.size());
-            for (int i = 0; i < dts.size(); i++)
+            for (size_t i = 0; i < dts.size(); i++)
             {
                 REQUIRE(jdts[i].isObject() == true);
                 const QJsonObject jdt(jdts[i].toObject());
@@ -511,10 +511,10 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
         SECTION("serializing Armors")
         {
             const QJsonArray jas(jobj["armors"].toArray());
-            const QList<core::Armor *> as(world->getArmors());
+            const std::vector<core::Armor *> as(world->getArmors());
 
             REQUIRE(as.size() == jas.size());
-            for (int i = 0; i < as.size(); i++)
+            for (size_t i = 0; i < as.size(); i++)
             {
                 REQUIRE(jas[i].isObject() == true);
                 const QJsonObject ja(jas[i].toObject());
@@ -530,10 +530,10 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
         SECTION("serializing Weapons")
         {
             const QJsonArray jws(jobj["weapons"].toArray());
-            const QList<core::Weapon *> ws(world->getWeapons());
+            const std::vector<core::Weapon *> ws(world->getWeapons());
 
             REQUIRE(ws.size() == jws.size());
-            for (int i = 0; i < ws.size(); i++)
+            for (size_t i = 0; i < ws.size(); i++)
             {
                 REQUIRE(jws[i].isObject() == true);
                 const QJsonObject jw(jws[i].toObject());
@@ -550,10 +550,10 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
         SECTION("serializing TerrainTypes")
         {
             const QJsonArray jtts(jobj["terrainTypes"].toArray());
-            const QList<core::TerrainType *> tts(world->getTerrainTypes());
+            const std::vector<core::TerrainType *> tts(world->getTerrainTypes());
 
             REQUIRE(tts.size() == jtts.size());
-            for (int i = 0; i < tts.size(); i++)
+            for (size_t i = 0; i < tts.size(); i++)
             {
                 REQUIRE(jtts[i].isObject() == true);
                 const QJsonObject jtt(jtts[i].toObject());
@@ -567,10 +567,10 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
         SECTION("serializing UnitClasses")
         {
             const QJsonArray jucs(jobj["unitClasses"].toArray());
-            const QList<core::UnitClass *> ucs(world->getUnitClasses());
+            const std::vector<core::UnitClass *> ucs(world->getUnitClasses());
 
             REQUIRE(ucs.size() == jucs.size());
-            for (int i = 0; i < ucs.size(); i++)
+            for (size_t i = 0; i < ucs.size(); i++)
             {
                 REQUIRE(jucs[i].isObject() == true);
                 const QJsonObject juc(jucs[i].toObject());
@@ -593,10 +593,10 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
         SECTION("serializing UnitLevels")
         {
             const QJsonArray juls(jobj["unitLevels"].toArray());
-            const QList<core::UnitLevel *> uls(world->getUnitLevels());
+            const std::vector<core::UnitLevel *> uls(world->getUnitLevels());
 
             REQUIRE(uls.size() == juls.size());
-            for (int i = 0; i < uls.size(); i++)
+            for (size_t i = 0; i < uls.size(); i++)
             {
                 REQUIRE(juls[i].isObject() == true);
                 const QJsonObject jul(juls[i].toObject());
@@ -612,10 +612,10 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
         SECTION("serializing UnitTypes")
         {
             const QJsonArray juts(jobj["unitTypes"].toArray());
-            const QList<core::UnitType *> uts(world->getUnitTypes());
+            const std::vector<core::UnitType *> uts(world->getUnitTypes());
 
             REQUIRE(uts.size() == juts.size());
-            for (int i = 0; i < uts.size(); i++)
+            for (size_t i = 0; i < uts.size(); i++)
             {
                 REQUIRE(juts[i].isObject() == true);
                 const QJsonObject jut(juts[i].toObject());
@@ -639,10 +639,10 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
         SECTION("serializing SettlementTypes")
         {
             const QJsonArray jsts(jobj["settlementTypes"].toArray());
-            const QList<core::SettlementType *> sts(world->getSettlementTypes());
+            const std::vector<core::SettlementType *> sts(world->getSettlementTypes());
 
             REQUIRE(sts.size() == jsts.size());
-            for (int i = 0; i < sts.size(); i++)
+            for (size_t i = 0; i < sts.size(); i++)
             {
                 REQUIRE(jsts[i].isObject() == true);
                 const QJsonObject jst(jsts[i].toObject());
@@ -659,10 +659,10 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
         SECTION("serializing Factions")
         {
             const QJsonArray jfs(jobj["factions"].toArray());
-            const QList<core::Faction *> fs(world->getFactions());
+            const std::vector<core::Faction *> fs(world->getFactions());
 
             REQUIRE(fs.size() == jfs.size());
-            for (int i = 0; i < fs.size(); i++)
+            for (size_t i = 0; i < fs.size(); i++)
             {
                 REQUIRE(jfs[i].isObject() == true);
                 const QJsonObject jf(jfs[i].toObject());
@@ -674,14 +674,14 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
 
                 REQUIRE(jf["recruits"].isObject() == true);
                 const QJsonObject jrs(jf["recruits"].toObject());
-                const QMap<core::SettlementType *, QList<core::UnitType *>> rs =
+                const std::map<core::SettlementType *, std::vector<core::UnitType *>> rs =
                     f->getRecruits();
 
                 REQUIRE(rs.size() == jrs.size());
-                for (core::SettlementType *st : rs.keys())
+                for (const auto& e : rs)
                 {
-                    REQUIRE(jrs[st->objectName()].isArray() == true);
-                    arrayEqualsList(jrs[st->objectName()].toArray(), rs[st]);
+                    REQUIRE(jrs[e.first->objectName()].isArray() == true);
+                    arrayEqualsList(jrs[e.first->objectName()].toArray(), e.second);
                 }
             }
         }

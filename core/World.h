@@ -1,6 +1,8 @@
 #ifndef CORE_WORLD_H
 #define CORE_WORLD_H
 
+#include <vector>
+
 #include <QObject>
 #include <QVariant>
 
@@ -38,37 +40,37 @@ public:
     WorldSurface * getSurface() const;
     void setSurface(WorldSurface *surface);
 
-    QList<Armor *> getArmors() const;
-    void setArmors(const QList<Armor *> &armors);
+    std::vector<Armor *> getArmors() const;
+    void setArmors(const std::vector<Armor *> &armors);
 
-    QList<DamageType *> getDamageTypes() const;
-    void setDamageTypes(const QList<DamageType *> &damageTypes);
+    std::vector<DamageType *> getDamageTypes() const;
+    void setDamageTypes(const std::vector<DamageType *> &damageTypes);
 
-    QList<Faction *> getFactions() const;
-    void setFactions(const QList<Faction *> &factions);
+    std::vector<Faction *> getFactions() const;
+    void setFactions(const std::vector<Faction *> &factions);
     QVariantList readFactions() const;
 
-    QList<SettlementType *> getSettlementTypes() const;
-    void setSettlementTypes(const QList<SettlementType *> &settlementTypes);
+    std::vector<SettlementType *> getSettlementTypes() const;
+    void setSettlementTypes(const std::vector<SettlementType *> &settlementTypes);
     QVariantList readSettlementTypes() const;
 
-    QList<TerrainType *> getTerrainTypes() const;
-    void setTerrainTypes(const QList<TerrainType *> &terrainTypes);
+    std::vector<TerrainType *> getTerrainTypes() const;
+    void setTerrainTypes(const std::vector<TerrainType *> &terrainTypes);
     QVariantList readTerrainTypes() const;
 
-    QList<UnitClass *> getUnitClasses() const;
-    void setUnitClasses(const QList<UnitClass *> &unitClasses);
+    std::vector<UnitClass *> getUnitClasses() const;
+    void setUnitClasses(const std::vector<UnitClass *> &unitClasses);
 
-    QList<UnitLevel *> getUnitLevels() const;
-    void setUnitLevels(const QList<UnitLevel *> &unitLevels);
+    std::vector<UnitLevel *> getUnitLevels() const;
+    void setUnitLevels(const std::vector<UnitLevel *> &unitLevels);
     QVariantList readUnitLevels() const;
 
-    QList<UnitType *> getUnitTypes() const;
-    void setUnitTypes(const QList<UnitType *> &unitTypes);
+    std::vector<UnitType *> getUnitTypes() const;
+    void setUnitTypes(const std::vector<UnitType *> &unitTypes);
     QVariantList readUnitTypes() const;
 
-    QList<Weapon *> getWeapons() const;
-    void setWeapons(const QList<Weapon *> &weapons);
+    std::vector<Weapon *> getWeapons() const;
+    void setWeapons(const std::vector<Weapon *> &weapons);
 
 signals:
     void displayNameChanged();
@@ -83,15 +85,15 @@ signals:
 private:
     QString displayName;
     WorldSurface *surface;
-    QList<DamageType *> damageTypes;
-    QList<Armor *> armors;
-    QList<Weapon *> weapons;
-    QList<TerrainType *> terrainTypes;
-    QList<UnitClass *> unitClasses;
-    QList<UnitLevel *> unitLevels;
-    QList<UnitType *> unitTypes;
-    QList<SettlementType *> settlementTypes;
-    QList<Faction *> factions;
+    std::vector<DamageType *> damageTypes;
+    std::vector<Armor *> armors;
+    std::vector<Weapon *> weapons;
+    std::vector<TerrainType *> terrainTypes;
+    std::vector<UnitClass *> unitClasses;
+    std::vector<UnitLevel *> unitLevels;
+    std::vector<UnitType *> unitTypes;
+    std::vector<SettlementType *> settlementTypes;
+    std::vector<Faction *> factions;
 };
 
 } // namespace core

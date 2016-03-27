@@ -1,6 +1,8 @@
 #ifndef CORE_SETTLEMENT_H
 #define CORE_SETTLEMENT_H
 
+#include <vector>
+
 #include <QObject>
 
 #include "core/MapNode.h"
@@ -45,7 +47,7 @@ public:
      * If it has no owner only the settlement-type's recruits will be
      * returned.
      */
-    QList<UnitType *> getRecruits() const;
+    std::vector<UnitType *> getRecruits() const;
     QVariantList readRecruits() const;
 
 signals:

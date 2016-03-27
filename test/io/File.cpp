@@ -8,7 +8,7 @@
 
 void createWorldFile(const QString &path)
 {
-    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
     io::JsonSerializer serializer;
@@ -21,7 +21,7 @@ void createWorldFile(const QString &path)
 
 void createMapFile(const QString &path)
 {
-    const QPair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
 
     io::JsonSerializer serializer;
@@ -34,7 +34,7 @@ void createMapFile(const QString &path)
 
 TEST_CASE("World can be written to file", "[File]")
 {
-    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
     const QString path("./write_world.json");
@@ -72,7 +72,7 @@ TEST_CASE("World can be read from file", "[File]")
 
 TEST_CASE("Map can be written to file", "[File]")
 {
-    const QPair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
 
     const QString path("./write_map.json");
@@ -95,32 +95,32 @@ void loadWorld(
     io::Context &ctx
 )
 {
-    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
     core::World *world{worlds.first};
 
     if (className == world->metaObject()->className() ||
             objectName == world->objectName())
     {
         ctx.add(world);
-        QList<core::TerrainType *> tts = world->getTerrainTypes();
+        const std::vector<core::TerrainType *> tts = world->getTerrainTypes();
         std::for_each(
             tts.cbegin(),
             tts.cend(),
             [&](core::TerrainType *o){ctx.add(o);}
         );
-        QList<core::Faction *> fs = world->getFactions();
+        const std::vector<core::Faction *> fs = world->getFactions();
         std::for_each(
             fs.cbegin(),
             fs.cend(),
             [&](core::Faction *o){ctx.add(o);}
         );
-        QList<core::SettlementType *> sts = world->getSettlementTypes();
+        const std::vector<core::SettlementType *> sts = world->getSettlementTypes();
         std::for_each(
             sts.cbegin(),
             sts.cend(),
             [&](core::SettlementType *o){ctx.add(o);}
         );
-        QList<core::UnitType *> uts = world->getUnitTypes();
+        const std::vector<core::UnitType *> uts = world->getUnitTypes();
         std::for_each(
             uts.cbegin(),
             uts.cend(),
@@ -146,5 +146,5 @@ TEST_CASE("Map can be read from file", "[File]")
     }
 
     QFile file(path);
-    //file.remove();
+    file.remove();
 }

@@ -1,7 +1,4 @@
 #include <algorithm>
-#include <set>
-
-#include <QMetaMethod>
 
 #include "core/CampaignMap.h"
 #include "core/QVariantUtil.h"
@@ -146,7 +143,7 @@ QVariantList CampaignMap::readMapNodes() const
 void CampaignMap::addSettlement(Settlement *settlement)
 {
     settlement->setParent(this);
-    this->settlements << settlement;
+    this->settlements.push_back(settlement);
 
     emit settlementAdded(settlement);
 }
@@ -154,17 +151,22 @@ void CampaignMap::addSettlement(Settlement *settlement)
 void CampaignMap::removeSettlement(Settlement *settlement)
 {
     settlement->setParent(nullptr);
-    this->settlements.removeOne(settlement);
+
+    auto it = std::find(this->settlements.cbegin(), this->settlements.cend(), settlement);
+    if (it != this->settlements.end())
+    {
+        this->settlements.erase(it);
+    }
 
     emit settlementRemoved(settlement);
 }
 
-QList<Settlement *> CampaignMap::getSettlements() const
+std::vector<Settlement *> CampaignMap::getSettlements() const
 {
     return this->settlements;
 }
 
-void CampaignMap::setSettlements(const QList<Settlement *> &settlements)
+void CampaignMap::setSettlements(const std::vector<Settlement *> &settlements)
 {
     if (this->settlements != settlements)
     {
@@ -182,7 +184,7 @@ QVariantList CampaignMap::readSettlements() const
 void CampaignMap::addUnit(Unit *unit)
 {
     unit->setParent(this);
-    this->units << unit;
+    this->units.push_back(unit);
 
     wInfo(loggerName) << "Added unit " << unit;
 
@@ -192,17 +194,22 @@ void CampaignMap::addUnit(Unit *unit)
 void CampaignMap::removeUnit(Unit *unit)
 {
     unit->setParent(nullptr);
-    this->units.removeOne(unit);
+
+    auto it = std::find(this->units.cbegin(), this->units.cend(), unit);
+    if (it != this->units.end())
+    {
+        this->units.erase(it);
+    }
 
     emit unitRemoved(unit);
 }
 
-QList<Unit *> CampaignMap::getUnits() const
+std::vector<Unit *> CampaignMap::getUnits() const
 {
     return this->units;
 }
 
-void CampaignMap::setUnits(const QList<Unit *> &units)
+void CampaignMap::setUnits(const std::vector<Unit *> &units)
 {
     if (this->units != units)
     {
@@ -217,12 +224,12 @@ QVariantList CampaignMap::readUnits() const
     return toQVariantList(this->units);
 }
 
-QList<Player *> CampaignMap::getPlayers() const
+std::vector<Player *> CampaignMap::getPlayers() const
 {
     return this->players;
 }
 
-void CampaignMap::setPlayers(const QList<Player *> &players)
+void CampaignMap::setPlayers(const std::vector<Player *> &players)
 {
     if (this->players != players)
     {

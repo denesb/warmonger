@@ -4,9 +4,9 @@
 #include <map>
 #include <vector>
 
-#include <QList>
 #include <QObject>
 #include <QString>
+#include <QVariant>
 
 #include "core/MapNode.h"
 #include "core/Player.h"
@@ -55,22 +55,22 @@ public:
     void setMapNodes(const std::vector<MapNode *> &mapNodes);
     QVariantList readMapNodes() const;
 
-    QList<Player *> getPlayers() const;
-    void setPlayers(const QList<Player *> &units);
+    std::vector<Player *> getPlayers() const;
+    void setPlayers(const std::vector<Player *> &units);
     QVariantList readPlayers() const;
 
     void addSettlement(Settlement *settlement);
     void removeSettlement(Settlement *settlement);
 
-    QList<Settlement *> getSettlements() const;
-    void setSettlements(const QList<Settlement *> &settlements);
+    std::vector<Settlement *> getSettlements() const;
+    void setSettlements(const std::vector<Settlement *> &settlements);
     QVariantList readSettlements() const;
 
     void addUnit(Unit *unit);
     void removeUnit(Unit *unit);
 
-    QList<Unit *> getUnits() const;
-    void setUnits(const QList<Unit *> &units);
+    std::vector<Unit *> getUnits() const;
+    void setUnits(const std::vector<Unit *> &units);
     QVariantList readUnits() const;
 
     void createMapNode(
@@ -111,9 +111,9 @@ private:
     int settlementIndex;
     int unitIndex;
     std::vector<MapNode *> mapNodes;
-    QList<Player *> players;
-    QList<Settlement *> settlements;
-    QList<Unit *> units;
+    std::vector<Player *> players;
+    std::vector<Settlement *> settlements;
+    std::vector<Unit *> units;
 };
 
 } // namespace core

@@ -1,3 +1,7 @@
+#include <iterator>
+#include <algorithm>
+#include <vector>
+
 #include "core/QVariantUtil.h"
 #include "core/Settlement.h"
 #include "core/UnitType.h"
@@ -112,14 +116,18 @@ void Settlement::setOwner(Player *owner)
     }
 }
 
-QList<UnitType *> Settlement::getRecruits() const
+std::vector<UnitType *> Settlement::getRecruits() const
 {
-    QList<UnitType *> recruits;
+    std::vector<UnitType *> recruits;
 
     if (this->owner != nullptr)
-        recruits << this->owner->getFaction()->getRecruitsFor(this->type);
+    {
+        const std::vector<UnitType *> frs(this->owner->getFaction()->getRecruitsFor(this->type));
+        std::copy(frs.cbegin(), frs.cend(), std::back_inserter(recruits));
+    }
 
-    recruits << this->type->getRecruits();
+    const std::vector<UnitType *> srs{this->type->getRecruits()};
+    std::copy(srs.cbegin(), srs.cend(), std::back_inserter(recruits));
 
     return recruits;
 }

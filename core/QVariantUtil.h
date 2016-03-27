@@ -93,28 +93,22 @@ T verbatim(const T &v)
 }
 
 /**
- * Convert a Qt-style mapping-type Container to QVariantMap.
+ * Convert a mapping-type Container to QVariantMap.
  *
- * Qt-style means that the iterator has a key() and value() member
- * returning the key and value respectively.
  * For the conversion a `convertKey` and a `convertValue` function must
  * be supplied, where `convertKey` converts from Container::key_type to
  * QString and `convertValue converts from Container::mapping_type to
  * QVariant.
  */
 template<typename Container, typename ConvertKeyFunc, typename ConvertValueFunc>
-QVariantMap toQVariantMap(
-    Container container,
-    ConvertKeyFunc convertKey,
-    ConvertValueFunc convertValue
-)
+QVariantMap toQVariantMap(Container container, ConvertKeyFunc convertKey, ConvertValueFunc convertValue)
 {
     QVariantMap map;
 
-    for (auto it = container.cbegin(); it != container.cend(); it++)
+    for (const auto &element : container)
     {
-        QString key = convertKey(it.key());
-        QVariant value = convertValue(it.value());
+        QString key = convertKey(element.first);
+        QVariant value = convertValue(element.second);
         map[key] = value;
     }
 

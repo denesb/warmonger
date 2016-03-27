@@ -99,15 +99,6 @@ QString WorldSurface::getImagePath(const QString &key) const
     return this->imagePaths[key];
 }
 
-QVariantMap WorldSurface::readImagePaths() const
-{
-    return toQVariantMap(
-        this->imagePaths,
-        verbatim<QString>,
-        QVariant::fromValue<QString>
-    );
-}
-
 QImage WorldSurface::getImage(const QString &key) const
 {
     return this->images[key];
@@ -121,15 +112,6 @@ QMap<QString, QString> WorldSurface::getColorNames() const
 QString WorldSurface::getColorName(const QString &key) const
 {
     return this->colorNames[key];
-}
-
-QVariantMap WorldSurface::readColorNames() const
-{
-    return toQVariantMap(
-        this->colorNames,
-        verbatim<QString>,
-        QVariant::fromValue<QString>
-    );
 }
 
 QColor WorldSurface::getColor(const QString &key) const

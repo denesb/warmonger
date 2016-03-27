@@ -39,12 +39,12 @@ void SettlementType::setGoldPerTurn(int goldPerTurn)
     this->goldPerTurn = goldPerTurn;
 }
 
-QList<UnitType *> SettlementType::getRecruits() const
+std::vector<UnitType *> SettlementType::getRecruits() const
 {
     return this->recruits;
 }
 
-void SettlementType::setRecruits(const QList<UnitType *> &recruits)
+void SettlementType::setRecruits(const std::vector<UnitType *> &recruits)
 {
     if (this->recruits != recruits)
     {
@@ -60,6 +60,6 @@ QVariantList SettlementType::readRecruits() const
 
 void SettlementType::writeRecruits(QVariantList recruits)
 {
-    QList<UnitType *> r = fromQVariantList<QList<UnitType *>>(recruits);
+    std::vector<UnitType *> r = fromQVariantList<std::vector<UnitType *>>(recruits);
     this->setRecruits(r);
 }

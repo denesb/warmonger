@@ -217,10 +217,10 @@ QJsonObject toQJsonObject(
 {
     QJsonObject object;
 
-    for(auto it = container.cbegin(); it != container.cend(); it++)
+    for(const auto& element : container)
     {
-        QString key = convertKey(it.key());
-        QJsonValue value = convertValue(it.value());
+        QString key = convertKey(element.first);
+        QJsonValue value = convertValue(element.second);
 
         object[key] = value;
     }
@@ -255,7 +255,7 @@ QJsonObject factionToJson(const core::Faction *obj)
         obj->getRecruits(),
         qObjectName,
         std::bind(
-            toQJsonArray<QList<core::UnitType *>, std::function<QString(core::UnitType *)>>,
+            toQJsonArray<std::vector<core::UnitType *>, std::function<QString(core::UnitType *)>>,
             std::placeholders::_1,
             qObjectName
         )

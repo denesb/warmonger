@@ -34,19 +34,19 @@ void Weapon::setRange(int range)
     this->range = range;
 }
 
-QMap<const DamageType *, int> Weapon::getDamages() const
+std::map<const DamageType *, int> Weapon::getDamages() const
 {
     return this->damages;
 }
 
-void Weapon::setDamages(const QMap<const DamageType *, int> &damages)
+void Weapon::setDamages(const std::map<const DamageType *, int> &damages)
 {
     this->damages = damages;
 }
 
 int Weapon::getDamage(const DamageType * const damageType) const
 {
-    return this->damages[damageType];
+    return this->damages.at(damageType);
 }
 
 void Weapon::setDamage(const DamageType *const damageType, int damage)

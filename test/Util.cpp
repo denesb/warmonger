@@ -40,7 +40,7 @@ void setNames(GameObject obj, QJsonObject &jobj, int i=0)
     jobj["displayName"] = displayName;
 }
 
-QPair<core::World *, QJsonObject> makeWorld()
+std::pair<core::World *, QJsonObject> makeWorld()
 {
     core::World *w(new core::World());
     QJsonObject jw;
@@ -229,8 +229,8 @@ QPair<core::World *, QJsonObject> makeWorld()
     f0->setUnitTypes({ut0});
     jf0["unitTypes"] = QJsonArray({ut0->objectName()});
 
-    QMap<core::SettlementType *, QList<core::UnitType *>> recruits;
-    recruits[st0] = QList<core::UnitType *>({ut0});
+    std::map<core::SettlementType *, std::vector<core::UnitType *>> recruits;
+    recruits[st0] = std::vector<core::UnitType *>({ut0});
     f0->setRecruits(recruits);
     jf0["recruits"] = QJsonObject({
         qMakePair(st0->objectName(), QJsonArray({ut0->objectName()}))
@@ -239,17 +239,17 @@ QPair<core::World *, QJsonObject> makeWorld()
     w->setFactions({f0});
     jw["factions"] = QJsonArray({jf0});
 
-    return qMakePair(w, jw);
+    return std::make_pair(w, jw);
 }
 
-QPair<core::CampaignMap *, QJsonObject> makeMap()
+std::pair<core::CampaignMap *, QJsonObject> makeMap()
 {
     core::CampaignMap *m(new core::CampaignMap());
     QJsonObject jm;
 
     setNames(m, jm, 0);
 
-    const QPair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
     core::World *w = worlds.first;
 
     m->setWorld(w);
@@ -376,5 +376,5 @@ QPair<core::CampaignMap *, QJsonObject> makeMap()
     m->setUnits({u0});
     jm["units"] = QJsonArray({ju0});
 
-    return qMakePair(m, jm);
+    return std::make_pair(m, jm);
 }

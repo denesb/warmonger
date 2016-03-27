@@ -3,7 +3,6 @@
 
 #include <QColor>
 #include <QObject>
-#include <QList>
 #include <QString>
 
 #include "core/Faction.h"

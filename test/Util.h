@@ -16,8 +16,8 @@ using namespace warmonger;
 
 std::ostream &operator<<(std::ostream &os, const QString &s);
 
-QPair<core::World *, QJsonObject> makeWorld();
-QPair<core::CampaignMap *, QJsonObject> makeMap();
+std::pair<core::World *, QJsonObject> makeWorld();
+std::pair<core::CampaignMap *, QJsonObject> makeMap();
 
 /**
  * Compare a QJsonObject to a map.
@@ -27,10 +27,10 @@ QPair<core::CampaignMap *, QJsonObject> makeMap();
  */
 #define objectEqualsMap(object, map) \
     REQUIRE(object.size() == map.size()); \
-    for (auto key : map.keys()) \
+    for (const auto& element : map) \
     { \
-        REQUIRE(key != nullptr); \
-        REQUIRE(object[key->objectName()] == map[key]); \
+        REQUIRE(element.first != nullptr); \
+        REQUIRE(object[element.first->objectName()] == element.second); \
     }
 
 /**
@@ -41,7 +41,7 @@ QPair<core::CampaignMap *, QJsonObject> makeMap();
  */
 #define arrayEqualsList(array, list) \
     REQUIRE(array.size() == list.size()); \
-    for (int i = 0; i < list.size(); i++) \
+    for (size_t i = 0; i < list.size(); i++) \
     { \
         REQUIRE(list[i] != nullptr); \
         REQUIRE(array[i] == list[i]->objectName()); \

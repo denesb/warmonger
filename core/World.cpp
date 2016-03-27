@@ -48,32 +48,32 @@ void World::setSurface(WorldSurface *surface)
     }
 }
 
-QList<Armor *> World::getArmors() const
+std::vector<Armor *> World::getArmors() const
 {
     return this->armors;
 }
 
-void World::setArmors(const QList<Armor *> &armors)
+void World::setArmors(const std::vector<Armor *> &armors)
 {
     this->armors = armors;
 }
 
-QList<DamageType *> World::getDamageTypes() const
+std::vector<DamageType *> World::getDamageTypes() const
 {
     return this->damageTypes;
 }
 
-void World::setDamageTypes(const QList<DamageType *> &damageTypes)
+void World::setDamageTypes(const std::vector<DamageType *> &damageTypes)
 {
     this->damageTypes = damageTypes;
 }
 
-QList<Faction *> World::getFactions() const
+std::vector<Faction *> World::getFactions() const
 {
     return this->factions;
 }
 
-void World::setFactions(const QList<Faction *> &factions)
+void World::setFactions(const std::vector<Faction *> &factions)
 {
     this->factions = factions;
 }
@@ -83,12 +83,12 @@ QVariantList World::readFactions() const
     return toQVariantList(this->factions);
 }
 
-QList<SettlementType *> World::getSettlementTypes() const
+std::vector<SettlementType *> World::getSettlementTypes() const
 {
     return this->settlementTypes;
 }
 
-void World::setSettlementTypes(const QList<SettlementType *> &settlementTypes)
+void World::setSettlementTypes(const std::vector<SettlementType *> &settlementTypes)
 {
     if (this->settlementTypes != settlementTypes)
     {
@@ -102,12 +102,12 @@ QVariantList World::readSettlementTypes() const
     return toQVariantList(this->settlementTypes);
 }
 
-QList<TerrainType *> World::getTerrainTypes() const
+std::vector<TerrainType *> World::getTerrainTypes() const
 {
     return this->terrainTypes;
 }
 
-void World::setTerrainTypes(const QList<TerrainType *> &terrainTypes)
+void World::setTerrainTypes(const std::vector<TerrainType *> &terrainTypes)
 {
     if (this->terrainTypes != terrainTypes)
     {
@@ -121,22 +121,22 @@ QVariantList World::readTerrainTypes() const
     return toQVariantList(this->terrainTypes);
 }
 
-QList<UnitClass *> World::getUnitClasses() const
+std::vector<UnitClass *> World::getUnitClasses() const
 {
     return this->unitClasses;
 }
 
-void World::setUnitClasses(const QList<UnitClass *> &unitClasses)
+void World::setUnitClasses(const std::vector<UnitClass *> &unitClasses)
 {
     this->unitClasses = unitClasses;
 }
 
-QList<UnitLevel *> World::getUnitLevels() const
+std::vector<UnitLevel *> World::getUnitLevels() const
 {
     return this->unitLevels;
 }
 
-void World::setUnitLevels(const QList<UnitLevel *> &unitLevels)
+void World::setUnitLevels(const std::vector<UnitLevel *> &unitLevels)
 {
     if (this->unitLevels != unitLevels)
     {
@@ -145,12 +145,12 @@ void World::setUnitLevels(const QList<UnitLevel *> &unitLevels)
     }
 }
 
-QList<UnitType *> World::getUnitTypes() const
+std::vector<UnitType *> World::getUnitTypes() const
 {
     return this->unitTypes;
 }
 
-void World::setUnitTypes(const QList<UnitType *> &unitTypes)
+void World::setUnitTypes(const std::vector<UnitType *> &unitTypes)
 {
     if (this->unitTypes != unitTypes)
     {
@@ -164,12 +164,12 @@ QVariantList World::readUnitTypes() const
     return toQVariantList(this->unitTypes);
 }
 
-QList<Weapon *> World::getWeapons() const
+std::vector<Weapon *> World::getWeapons() const
 {
     return this->weapons;
 }
 
-void World::setWeapons(const QList<Weapon *> &weapons)
+void World::setWeapons(const std::vector<Weapon *> &weapons)
 {
     this->weapons = weapons;
 }

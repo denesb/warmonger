@@ -1,6 +1,8 @@
 #ifndef CORE_UNIT_TYPE_H
 #define CORE_UNIT_TYPE_H
 
+#include <vector>
+
 #include <QObject>
 #include <QVariant>
 
@@ -50,13 +52,13 @@ public:
     Armor * getArmor() const;
     void setArmor(Armor *armor);
 
-    QList<Weapon *> getWeapons() const;
-    void setWeapons(const QList<Weapon *> &weapons);
+    std::vector<Weapon *> getWeapons() const;
+    void setWeapons(const std::vector<Weapon *> &weapons);
 
     QVariantList readWeapons() const;
 
-    QList<UnitType *> getUpgrades() const;
-    void setUpgrades(const QList<UnitType *> &upgrades);
+    std::vector<UnitType *> getUpgrades() const;
+    void setUpgrades(const std::vector<UnitType *> &upgrades);
 
 signals:
     void displayNameChanged();
@@ -77,8 +79,8 @@ private:
     int recruitmentCost;
     int upkeepCost;
     Armor *armor;
-    QList<Weapon *> weapons;
-    QList<UnitType *> upgrades;
+    std::vector<Weapon *> weapons;
+    std::vector<UnitType *> upgrades;
 };
 
 } // namespace core

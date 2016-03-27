@@ -27,19 +27,19 @@ void Armor::setDisplayName(const QString &displayName)
     }
 }
 
-QMap<const DamageType *, int> Armor::getDefenses() const
+std::map<const DamageType *, int> Armor::getDefenses() const
 {
     return this->defenses;
 }
 
-void Armor::setDefenses(const QMap<const DamageType *, int> &defenses)
+void Armor::setDefenses(const std::map<const DamageType *, int> &defenses)
 {
     this->defenses = defenses;
 }
 
 int Armor::getDefense(const DamageType * const damageType) const
 {
-    return this->defenses[damageType];
+    return this->defenses.at(damageType);
 }
 
 void Armor::setDefense(const DamageType * const damageType, int defense)

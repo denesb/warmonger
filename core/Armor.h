@@ -1,8 +1,9 @@
 #ifndef CORE_ARMOR_H
 #define CORE_ARMOR_H
 
+#include <map>
+
 #include <QObject>
-#include <QMap>
 
 namespace warmonger {
 namespace core {
@@ -22,8 +23,8 @@ public:
     QString getDisplayName() const;
     void setDisplayName(const QString &displayName);
 
-    QMap<const DamageType *, int> getDefenses() const;
-    void setDefenses(const QMap<const DamageType *, int> &damages);
+    std::map<const DamageType *, int> getDefenses() const;
+    void setDefenses(const std::map<const DamageType *, int> &damages);
 
     int getDefense(const DamageType * const damageType) const;
     void setDefense(const DamageType * const damageType, int defense);
@@ -32,7 +33,7 @@ signals:
     void displayNameChanged();
 
 private:
-    QMap<const DamageType *, int> defenses;
+    std::map<const DamageType *, int> defenses;
 
     QString displayName;
 };

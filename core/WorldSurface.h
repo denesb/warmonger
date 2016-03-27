@@ -16,8 +16,6 @@ class WorldSurface :
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(QSize tileSize READ getTileSize NOTIFY tileSizeChanged);
-    Q_PROPERTY(QVariantMap imagePaths READ readImagePaths NOTIFY imagePathsChanged);
-    Q_PROPERTY(QVariantMap colorNames READ readColorNames NOTIFY colorNamesChanged);
 
 public:
     explicit WorldSurface(QObject *parent=nullptr);
@@ -36,13 +34,11 @@ public:
 
     QMap<QString, QString> getImagePaths() const;
     QString getImagePath(const QString &key) const;
-    QVariantMap readImagePaths() const;
 
     QImage getImage(const QString &key) const;
 
     QMap<QString, QString> getColorNames() const;
     QString getColorName(const QString &key) const;
-    QVariantMap readColorNames() const;
 
     QColor getColor(const QString &key) const;
 

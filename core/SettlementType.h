@@ -1,6 +1,8 @@
 #ifndef CORE_SETTLEMENT_TYPE_H
 #define CORE_SETTLEMENT_TYPE_H
 
+#include <vector>
+
 #include <QObject>
 #include <QVariant>
 
@@ -27,8 +29,8 @@ public:
     int getGoldPerTurn() const;
     void setGoldPerTurn(int goldPerTurn);
 
-    QList<UnitType *> getRecruits() const;
-    void setRecruits(const QList<UnitType *> &recruits);
+    std::vector<UnitType *> getRecruits() const;
+    void setRecruits(const std::vector<UnitType *> &recruits);
     QVariantList readRecruits() const;
     void writeRecruits(QVariantList recruits);
 
@@ -40,7 +42,7 @@ signals:
 private:
     QString displayName;
     int goldPerTurn;
-    QList<UnitType *> recruits;
+    std::vector<UnitType *> recruits;
 };
 
 } // namespace core

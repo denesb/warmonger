@@ -1,8 +1,9 @@
 #ifndef CORE_WEAPON_H
 #define CORE_WEAPON_H
 
+#include <map>
+
 #include <QObject>
-#include <QMap>
 
 namespace warmonger {
 namespace core {
@@ -24,8 +25,8 @@ public:
     int getRange() const;
     void setRange(int range);
 
-    QMap<const DamageType *, int> getDamages() const;
-    void setDamages(const QMap<const DamageType *, int> &damages);
+    std::map<const DamageType *, int> getDamages() const;
+    void setDamages(const std::map<const DamageType *, int> &damages);
 
     int getDamage(const DamageType * const damageType) const;
     void setDamage(const DamageType * const damageType, int damage);
@@ -36,7 +37,7 @@ signals:
 private:
     QString displayName;
     int range;
-    QMap<const DamageType *, int> damages;
+    std::map<const DamageType *, int> damages;
 };
 
 } // namespace core

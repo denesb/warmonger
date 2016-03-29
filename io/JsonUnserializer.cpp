@@ -8,6 +8,7 @@
 #include <QJsonObject>
 
 #include "core/Armor.h"
+#include "core/Army.h"
 #include "core/CampaignMap.h"
 #include "core/Civilization.h"
 #include "core/DamageType.h"
@@ -31,6 +32,7 @@ using namespace warmonger::io;
 QJsonDocument parseJson(const QByteArray &json);
 
 core::Armor * armorFromJson(const QJsonObject &jobj, Context &ctx);
+core::Army * armyFromJson(const QJsonObject &jobj, Context &ctx);
 core::Civilization * civilizationsFromJson(const QJsonObject &jobj, Context &ctx);
 core::DamageType * damageTypeFromJson(const QJsonObject &jobj);
 core::Faction * factionFromJson(const QJsonObject &jobj, Context &ctx);
@@ -194,12 +196,16 @@ JsonUnserializer::JsonUnserializer(Context &ctx) :
 {
 }
 
-core::Armor * JsonUnserializer::unserializeArmor(
-    const QByteArray &data
-)
+core::Armor * JsonUnserializer::unserializeArmor(const QByteArray &data)
 {
     QJsonDocument jdoc(parseJson(data));
     return armorFromJson(jdoc.object(), this->ctx);
+}
+
+core::Army * JsonUnserializer::unserializeArmy(const QByteArray &data)
+{
+    QJsonDocument jdoc(parseJson(data));
+    return armyFromJson(jdoc.object(), this->ctx);
 }
 
 core::CampaignMap * JsonUnserializer::unserializeCampaignMap(const QByteArray &data)
@@ -213,9 +219,7 @@ core::CampaignMap * JsonUnserializer::unserializeCampaignMap(const QByteArray &d
 
     obj->setDisplayName(jobj["displayName"].toString());
 
-    obj->setWorld(
-        resolveReference<core::World>(this->ctx, jobj["world"].toString())
-    );
+    obj->setWorld(resolveReference<core::World>(this->ctx, jobj["world"].toString()));
 
     obj->setMapNodeIndex(jobj["mapNodeIndex"].toInt());
 
@@ -241,6 +245,12 @@ core::CampaignMap * JsonUnserializer::unserializeCampaignMap(const QByteArray &d
         jobj["units"].toArray(),
         this->ctx,
         unitFromJson
+    ));
+
+    obj->setArmies(objectListFromJson<core::Army>(
+        jobj["armies"].toArray(),
+        this->ctx,
+        armyFromJson
     ));
 
     return obj.release();
@@ -420,6 +430,27 @@ core::Armor * armorFromJson(const QJsonObject &jobj, Context &ctx)
         jobj["defenses"].toObject(),
         ReferenceResolver<core::DamageType>(ctx),
         qJsonValueToInt
+    ));
+
+    return obj.release();
+}
+
+core::Army * armyFromJson(const QJsonObject &jobj, Context &ctx)
+{
+    std::unique_ptr<core::Army> obj(new core::Army());
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+    obj->setMapNode(resolveReference<core::MapNode>(
+        ctx,
+        jobj["mapNode"].toString()
+    ));
+    obj->setOwner(resolveReference<core::Faction>(
+        ctx,
+        jobj["owner"].toString()
+    ));
+    obj->setUnits(fromQJsonArray<std::vector<core::Unit *>>(
+        jobj["units"].toArray(),
+        ReferenceResolver<core::Unit>(ctx)
     ));
 
     return obj.release();

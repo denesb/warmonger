@@ -82,6 +82,156 @@ TEST_CASE("Armor can't be unserialized from JSON", "[JsonUnserializer]")
     }
 }
 
+TEST_CASE("Army can be unserialized from JSON", "[JsonUnserializer]")
+{
+    io::Context ctx;
+
+    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::unique_ptr<core::CampaignMap> map{maps.first};
+    const QJsonObject jmap{maps.second};
+    const std::unique_ptr<core::World> world{map->getWorld()};
+
+    const std::vector<core::Faction *> fs = map->getFactions();
+    std::for_each(
+        fs.cbegin(),
+        fs.cend(),
+        [&](core::Faction *o){ctx.add(o);}
+    );
+
+    const std::vector<core::MapNode *> mns = map->getMapNodes();
+    std::for_each(
+        mns.cbegin(),
+        mns.cend(),
+        [&](core::MapNode *o){ctx.add(o);}
+    );
+
+    const std::vector<core::Unit *> us = map->getUnits();
+    std::for_each(
+        us.cbegin(),
+        us.cend(),
+        [&](core::Unit *o){ctx.add(o);}
+    );
+
+    const QJsonObject jobj = jmap["armies"].toArray()[0].toObject();
+
+    SECTION("unserializing Army")
+    {
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        const std::unique_ptr<core::Army> a(
+            unserializer.unserializeArmy(jdoc.toJson())
+        );
+
+        REQUIRE(a->objectName() == jobj["objectName"].toString());
+        REQUIRE(a->getDisplayName() == jobj["displayName"].toString());
+        REQUIRE(a->getMapNode()->objectName() == jobj["mapNode"].toString());
+        REQUIRE(a->getOwner()->objectName() == jobj["owner"].toString());
+        arrayEqualsList(jobj["units"].toArray(), a->getUnits());
+    }
+}
+
+TEST_CASE("Army can't be unserialized from JSON", "[JsonUnserializer]")
+{
+    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::unique_ptr<core::CampaignMap> map{maps.first};
+    const QJsonObject jmap{maps.second};
+    const std::unique_ptr<core::World> world{map->getWorld()};
+
+    const QJsonObject jobj = jmap["armies"].toArray()[0].toObject();
+
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeArmy(invalidJson),
+            io::JsonParseError
+        );
+    }
+
+    SECTION("unserializing Army, no units")
+    {
+        io::Context ctx;
+
+        const std::vector<core::MapNode *> mns = map->getMapNodes();
+        std::for_each(
+            mns.cbegin(),
+            mns.cend(),
+            [&](core::MapNode *o){ctx.add(o);}
+        );
+
+        const std::vector<core::Faction *> fs = map->getFactions();
+        std::for_each(
+            fs.cbegin(),
+            fs.cend(),
+            [&](core::Faction *o){ctx.add(o);}
+        );
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeArmy(jdoc.toJson()),
+            io::UnresolvedReferenceError
+        );
+    }
+
+    SECTION("unserializing Army, no mapNodes")
+    {
+        io::Context ctx;
+
+        const std::vector<core::Unit *> us = map->getUnits();
+        std::for_each(
+            us.cbegin(),
+            us.cend(),
+            [&](core::Unit *o){ctx.add(o);}
+        );
+
+        const std::vector<core::Faction *> fs = map->getFactions();
+        std::for_each(
+            fs.cbegin(),
+            fs.cend(),
+            [&](core::Faction *o){ctx.add(o);}
+        );
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeArmy(jdoc.toJson()),
+            io::UnresolvedReferenceError
+        );
+    }
+
+    SECTION("unserializing Army, no factions")
+    {
+        io::Context ctx;
+
+        const std::vector<core::Unit *> us = map->getUnits();
+        std::for_each(
+            us.cbegin(),
+            us.cend(),
+            [&](core::Unit *o){ctx.add(o);}
+        );
+
+        const std::vector<core::MapNode *> mns = map->getMapNodes();
+        std::for_each(
+            mns.cbegin(),
+            mns.cend(),
+            [&](core::MapNode *o){ctx.add(o);}
+        );
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeArmy(jdoc.toJson()),
+            io::UnresolvedReferenceError
+        );
+    }
+}
+
 TEST_CASE("CampaignMap can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
@@ -224,6 +374,25 @@ TEST_CASE("CampaignMap can be unserialized from JSON", "[JsonUnserializer]")
                 REQUIRE(u->getType()->objectName() == js["type"].toString());
                 REQUIRE(u->getMapNode()->objectName() == js["mapNode"].toString());
                 REQUIRE(u->getOwner()->objectName() == js["owner"].toString());
+            }
+        }
+
+        SECTION("unserializing armies")
+        {
+            const std::vector<core::Army *> as(m->getArmies());
+            const QJsonArray jas(jobj["armies"].toArray());
+
+            REQUIRE(jas.size() == as.size());
+
+            for (size_t i = 0; i < as.size(); i++)
+            {
+                core::Army *a{as[i]};
+                const QJsonObject js(jas[i].toObject());
+                REQUIRE(a->objectName() == js["objectName"].toString());
+                REQUIRE(a->getDisplayName() == js["displayName"].toString());
+                REQUIRE(a->getMapNode()->objectName() == js["mapNode"].toString());
+                REQUIRE(a->getOwner()->objectName() == js["owner"].toString());
+                arrayEqualsList(js["units"].toArray(), a->getUnits());
             }
         }
     }

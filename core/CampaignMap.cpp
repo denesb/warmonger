@@ -13,7 +13,7 @@ const QString loggerName{"core.Map"};
 const QString mapNodeNameTemplate{"mapNode%1"};
 const QString settlementNameTemplate{"settlement%1"};
 const QString unitNameTemplate{"unit%1"};
-const QString armyNameTemplate{"unit%1"};
+const QString armyNameTemplate{"army%1"};
 
 namespace warmonger {
 namespace core {
@@ -25,10 +25,11 @@ CampaignMap::CampaignMap(QObject *parent) :
     settlementIndex(0),
     unitIndex(0),
     armyIndex(0),
-    mapNodes(),
     factions(),
+    mapNodes(),
     settlements(),
-    units()
+    units(),
+    armies()
 {
 }
 
@@ -173,6 +174,25 @@ QVariantList CampaignMap::readUnits() const
     return toQVariantList(this->units);
 }
 
+std::vector<Army *> CampaignMap::getArmies() const
+{
+    return this->armies;
+}
+
+void CampaignMap::setArmies(const std::vector<Army *> &armies)
+{
+    if (this->armies != armies)
+    {
+        this->armies = armies;
+        emit armiesChanged();
+    }
+}
+
+QVariantList CampaignMap::readArmies() const
+{
+    return toQVariantList(this->armies);
+}
+
 std::vector<Faction *> CampaignMap::getFactions() const
 {
     return this->factions;
@@ -249,6 +269,26 @@ void CampaignMap::removeUnit(Unit *unit)
         unit->setParent(nullptr);
 
         emit unitsChanged();
+    }
+}
+
+void CampaignMap::addArmy(Army *army)
+{
+    army->setParent(this);
+    this->armies.push_back(army);
+
+    emit armiesChanged();
+}
+
+void CampaignMap::removeArmy(Army *army)
+{
+    auto it = std::find(this->armies.cbegin(), this->armies.cend(), army);
+    if (it != this->armies.end())
+    {
+        this->armies.erase(it);
+        army->setParent(nullptr);
+
+        emit armiesChanged();
     }
 }
 

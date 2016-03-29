@@ -15,6 +15,7 @@ public:
     JsonSerializer(QJsonDocument::JsonFormat format = QJsonDocument::Indented);
 
     QByteArray serializeArmor(const core::Armor *obj) override;
+    QByteArray serializeArmy(const core::Army *obj) override;
     QByteArray serializeCampaignMap(const core::CampaignMap *obj) override;
     QByteArray serializeCivilization(const core::Civilization *obj) override;
     QByteArray serializeDamageType(const core::DamageType *obj) override;

@@ -392,13 +392,11 @@ std::pair<core::CampaignMap *, QJsonObject> makeMap()
     a0->setOwner(f0);
     ja0["owner"] = f0->objectName();
 
-    /*
+    a0->setUnits({u0});
+    ja0["units"] = QJsonArray({u0->objectName()});
+
     m->setArmies({a0});
     jm["armies"] = QJsonArray({ja0});
-    */
-
-    a0->setUnits({u0});
-    ja0["units"] = QJsonArray({ju0});
 
     return std::make_pair(m, jm);
 }

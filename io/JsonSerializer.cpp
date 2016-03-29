@@ -6,6 +6,7 @@
 
 #include "io/JsonSerializer.h"
 
+#include "core/Army.h"
 #include "core/Armor.h"
 #include "core/CampaignMap.h"
 #include "core/Civilization.h"
@@ -27,6 +28,7 @@ using namespace warmonger;
 using namespace warmonger::io;
 
 QJsonObject armorToJson(const core::Armor *obj);
+QJsonObject armyToJson(const core::Army *obj);
 QJsonObject campaignMapToJson(const core::CampaignMap *obj);
 QJsonObject civilizationToJson(const core::Civilization *obj);
 QJsonObject damageTypeToJson(const core::DamageType *obj);
@@ -51,6 +53,12 @@ JsonSerializer::JsonSerializer(QJsonDocument::JsonFormat format) :
 QByteArray JsonSerializer::serializeArmor(const core::Armor *obj)
 {
     QJsonDocument jdoc(armorToJson(obj));
+    return jdoc.toJson(this->format);
+}
+
+QByteArray JsonSerializer::serializeArmy(const core::Army *obj)
+{
+    QJsonDocument jdoc(armyToJson(obj));
     return jdoc.toJson(this->format);
 }
 
@@ -241,6 +249,20 @@ QJsonObject armorToJson(const core::Armor *obj)
     return jobj;
 }
 
+QJsonObject armyToJson(const core::Army *obj)
+{
+    QJsonObject jobj(namesToJson(obj));
+
+    jobj["mapNode"] = obj->getMapNode()->objectName();
+    jobj["owner"] = obj->getOwner()->objectName();
+    jobj["units"] = toQJsonArray(
+        obj->getUnits(),
+        qObjectName
+    );
+
+    return jobj;
+}
+
 QJsonObject campaignMapToJson(const core::CampaignMap *obj)
 {
     QJsonObject jobj(namesToJson(obj));
@@ -264,6 +286,10 @@ QJsonObject campaignMapToJson(const core::CampaignMap *obj)
     jobj["units"] = toQJsonArray(
         obj->getUnits(),
         unitToJson
+    );
+    jobj["armies"] = toQJsonArray(
+        obj->getArmies(),
+        armyToJson
     );
 
     return jobj;

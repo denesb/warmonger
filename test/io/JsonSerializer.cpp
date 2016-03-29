@@ -45,6 +45,31 @@ TEST_CASE("Armor can be serialized to JSON", "[JsonSerializer]")
     }
 }
 
+TEST_CASE("Army can be serialized to JSON", "[JsonSerializer]")
+{
+    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::unique_ptr<core::CampaignMap> map{maps.first};
+    const QJsonObject jobj{maps.second};
+    const std::unique_ptr<core::World> world{map->getWorld()};
+
+    const core::Army *a = map->getArmies()[0];
+
+    SECTION("serializing Army")
+    {
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeArmy(a));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
+
+        REQUIRE(jobj["objectName"].toString() == a->objectName());
+        REQUIRE(jobj["displayName"].toString() == a->getDisplayName());
+        REQUIRE(jobj["mapNode"].toString() == a->getMapNode()->objectName());
+        REQUIRE(jobj["owner"].toString() == a->getOwner()->objectName());
+        REQUIRE(jobj["units"].isArray());
+        arrayEqualsList(jobj["units"].toArray(), a->getUnits());
+    }
+}
+
 TEST_CASE("CampaignMap can be serialized to JSON", "[JsonSerializer]")
 {
     const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
@@ -166,6 +191,27 @@ TEST_CASE("CampaignMap can be serialized to JSON", "[JsonSerializer]")
                 REQUIRE(ju["experiencePoints"].toInt() == u->getExperiencePoints());
                 REQUIRE(ju["hitPoints"].toDouble() == u->getHitPoints());
                 REQUIRE(ju["movementPoints"].toDouble() == u->getMovementPoints());
+            }
+        }
+
+        REQUIRE(jobj["armies"].isArray() == true);
+        SECTION("serializing Armies")
+        {
+            const QJsonArray jas(jobj["armies"].toArray());
+            const std::vector<core::Army *> as(m->getArmies());
+
+            REQUIRE(as.size() == jas.size());
+            for (size_t i = 0; i < as.size(); i++)
+            {
+                REQUIRE(jas[i].isObject() == true);
+                const QJsonObject ja(jas[i].toObject());
+                const core::Army *a = as[i];
+                REQUIRE(ja["objectName"].toString() == a->objectName());
+                REQUIRE(ja["displayName"].toString() == a->getDisplayName());
+                REQUIRE(ja["mapNode"].toString() == a->getMapNode()->objectName());
+                REQUIRE(ja["owner"].toString() == a->getOwner()->objectName());
+                REQUIRE(ja["units"].isArray());
+                arrayEqualsList(ja["units"].toArray(), a->getUnits());
             }
         }
     }

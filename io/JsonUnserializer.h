@@ -13,6 +13,7 @@ public:
     JsonUnserializer(Context &ctx);
 
     core::Armor * unserializeArmor(const QByteArray &data) override;
+    core::Army * unserializeArmy(const QByteArray &data) override;
     core::CampaignMap * unserializeCampaignMap(const QByteArray &data) override;
     core::Civilization * unserializeCivilization(const QByteArray &data) override;
     core::DamageType * unserializeDamageType(const QByteArray &data) override;

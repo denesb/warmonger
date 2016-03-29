@@ -8,8 +8,9 @@
 #include <QString>
 #include <QVariant>
 
-#include "core/MapNode.h"
+#include "core/Army.h"
 #include "core/Faction.h"
+#include "core/MapNode.h"
 #include "core/Settlement.h"
 #include "core/SettlementType.h"
 #include "core/World.h"
@@ -67,6 +68,10 @@ public:
     void setUnits(const std::vector<Unit *> &units);
     QVariantList readUnits() const;
 
+    std::vector<Army *> getArmies() const;
+    void setArmies(const std::vector<Army *> &armies);
+    QVariantList readArmies() const;
+
     void addMapNode(MapNode *mapNode);
     void removeMapNode(MapNode *mapNode);
 
@@ -76,6 +81,9 @@ public:
     void addUnit(Unit *unit);
     void removeUnit(Unit *unit);
 
+    void addArmy(Army *army);
+    void removeArmy(Army *army);
+
 signals:
     void displayNameChanged();
     void worldChanged();
@@ -83,11 +91,11 @@ signals:
     void settlementIndexChanged();
     void unitIndexChanged();
     void armyIndexChanged();
+    void factionsChanged();
     void mapNodesChanged();
     void settlementsChanged();
     void unitsChanged();
-    void unitRemoved(Unit *unit);
-    void factionsChanged();
+    void armiesChanged();
 
 private:
     QString displayName;
@@ -96,10 +104,11 @@ private:
     int settlementIndex;
     int unitIndex;
     int armyIndex;
-    std::vector<MapNode *> mapNodes;
     std::vector<Faction *> factions;
+    std::vector<MapNode *> mapNodes;
     std::vector<Settlement *> settlements;
     std::vector<Unit *> units;
+    std::vector<Army *> armies;
 };
 
 } // namespace core

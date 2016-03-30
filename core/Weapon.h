@@ -5,10 +5,11 @@
 
 #include <QObject>
 
+#include "core/DamageType.h"
+#include "core/WeaponType.h"
+
 namespace warmonger {
 namespace core {
-
-class DamageType;
 
 class Weapon :
     public QObject
@@ -31,13 +32,18 @@ public:
     int getDamage(const DamageType * const damageType) const;
     void setDamage(const DamageType * const damageType, int damage);
 
+    WeaponType * getType() const;
+    void setType(WeaponType *type);
+
 signals:
     void displayNameChanged();
+    void typeChanged();
 
 private:
     QString displayName;
     int range;
     std::map<const DamageType *, int> damages;
+    WeaponType *type;
 };
 
 } // namespace core

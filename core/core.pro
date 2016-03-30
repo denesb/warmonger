@@ -23,6 +23,8 @@ HEADERS += \
     UnitLevel.h \
     UnitType.h \
     Weapon.h \
+    WeaponClass.h \
+    WeaponType.h \
     World.h \
     WorldSurface.h
 
@@ -44,5 +46,7 @@ SOURCES += \
     UnitLevel.cpp \
     UnitType.cpp \
     Weapon.cpp \
+    WeaponClass.cpp \
+    WeaponType.cpp \
     World.cpp \
     WorldSurface.cpp

@@ -1,4 +1,3 @@
-#include "core/DamageType.h"
 #include "core/Weapon.h"
 
 using namespace warmonger::core;
@@ -52,4 +51,18 @@ int Weapon::getDamage(const DamageType * const damageType) const
 void Weapon::setDamage(const DamageType *const damageType, int damage)
 {
     this->damages[damageType] = damage;
+}
+
+WeaponType * Weapon::getType() const
+{
+    return this->type;
+}
+
+void Weapon::setType(WeaponType *type)
+{
+    if (this->type != type)
+    {
+        this->type = type;
+        emit typeChanged();
+    }
 }

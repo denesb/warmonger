@@ -14,11 +14,9 @@ UnitType::UnitType(QObject *parent) :
     upkeepCost(0),
     armor(nullptr),
     weapons(),
+    attackSkills(),
+    defenseSkills(),
     upgrades()
-{
-}
-
-UnitType::~UnitType()
 {
 }
 
@@ -137,6 +135,60 @@ void UnitType::setWeapons(const std::vector<Weapon *> &weapons)
 QVariantList UnitType::readWeapons() const
 {
     return toQVariantList(this->weapons);
+}
+
+std::map<WeaponType *, int> UnitType::getAttackSkills() const
+{
+    return this->attackSkills;
+}
+
+void UnitType::setAttackSkills(const std::map<WeaponType *, int> &attackSkills)
+{
+    if (this->attackSkills != attackSkills)
+    {
+        this->attackSkills = attackSkills;
+        emit attackSkillsChanged();
+    }
+}
+
+int UnitType::getAttackSkill(WeaponType *weaponType) const
+{
+    const auto& it = this->attackSkills.find(weaponType);
+    int attackSkill{0};
+
+    if (it != this->attackSkills.end())
+    {
+        attackSkill = it->second;
+    }
+
+    return attackSkill;
+}
+
+std::map<WeaponClass *, int> UnitType::getDefenseSkills() const
+{
+    return this->defenseSkills;
+}
+
+void UnitType::setDefenseSkills(const std::map<WeaponClass *, int> &defenseSkills)
+{
+    if (this->defenseSkills != defenseSkills)
+    {
+        this->defenseSkills = defenseSkills;
+        emit defenseSkillsChanged();
+    }
+}
+
+int UnitType::getDefenseSkill(WeaponClass *weaponClass) const
+{
+    const auto& it = this->defenseSkills.find(weaponClass);
+    int defenseSkill{0};
+
+    if (it != this->defenseSkills.end())
+    {
+        defenseSkill = it->second;
+    }
+
+    return defenseSkill;
 }
 
 std::vector<UnitType *> UnitType::getUpgrades() const

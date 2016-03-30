@@ -1,6 +1,7 @@
 #ifndef CORE_UNIT_TYPE_H
 #define CORE_UNIT_TYPE_H
 
+#include <map>
 #include <vector>
 
 #include <QObject>
@@ -29,7 +30,6 @@ class UnitType :
 
 public:
     explicit UnitType(QObject *parent=nullptr);
-    ~UnitType();
 
     QString getDisplayName() const;
     void setDisplayName(const QString &displayName);
@@ -57,6 +57,16 @@ public:
 
     QVariantList readWeapons() const;
 
+    std::map<WeaponType *, int> getAttackSkills() const;
+    void setAttackSkills(const std::map<WeaponType *, int> &attackSkills);
+
+    int getAttackSkill(WeaponType *weaponType) const;
+
+    std::map<WeaponClass *, int> getDefenseSkills() const;
+    void setDefenseSkills(const std::map<WeaponClass *, int> &defenseSkills);
+
+    int getDefenseSkill(WeaponClass *weaponClass) const;
+
     std::vector<UnitType *> getUpgrades() const;
     void setUpgrades(const std::vector<UnitType *> &upgrades);
 
@@ -69,6 +79,8 @@ signals:
     void upkeepCostChanged();
     void armorChanged();
     void weaponsChanged();
+    void attackSkillsChanged();
+    void defenseSkillsChanged();
     void upgradesChanged();
 
 private:
@@ -80,6 +92,8 @@ private:
     int upkeepCost;
     Armor *armor;
     std::vector<Weapon *> weapons;
+    std::map<WeaponType *, int> attackSkills;
+    std::map<WeaponClass *, int> defenseSkills;
     std::vector<UnitType *> upgrades;
 };
 

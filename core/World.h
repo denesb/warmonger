@@ -69,24 +69,37 @@ public:
     void setUnitTypes(const std::vector<UnitType *> &unitTypes);
     QVariantList readUnitTypes() const;
 
+    std::vector<WeaponClass *> getWeaponClasses() const;
+    void setWeaponClasses(const std::vector<WeaponClass *> &weaponClasses);
+
+    std::vector<WeaponType *> getWeaponTypes() const;
+    void setWeaponTypes(const std::vector<WeaponType *> &weaponTypes);
+
     std::vector<Weapon *> getWeapons() const;
     void setWeapons(const std::vector<Weapon *> &weapons);
 
 signals:
     void displayNameChanged();
-    void civilizationsChanged();
     void surfaceChanged();
-    void settlementTypesChanged();
+    void damageTypesChanged();
+    void armorsChanged();
+    void weaponClassesChanged();
+    void weaponTypesChanged();
+    void weaponsChanged();
     void terrainTypesChanged();
     void unitClassesChanged();
     void unitLevelsChanged();
     void unitTypesChanged();
+    void settlementTypesChanged();
+    void civilizationsChanged();
 
 private:
     QString displayName;
     WorldSurface *surface;
     std::vector<DamageType *> damageTypes;
     std::vector<Armor *> armors;
+    std::vector<WeaponClass *> weaponClasses;
+    std::vector<WeaponType *> weaponTypes;
     std::vector<Weapon *> weapons;
     std::vector<TerrainType *> terrainTypes;
     std::vector<UnitClass *> unitClasses;

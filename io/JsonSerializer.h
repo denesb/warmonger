@@ -29,6 +29,8 @@ public:
     QByteArray serializeUnitLevel(const core::UnitLevel *obj) override;
     QByteArray serializeUnitType(const core::UnitType *obj) override;
     QByteArray serializeWeapon(const core::Weapon *obj) override;
+    QByteArray serializeWeaponClass(const core::WeaponClass *obj) override;
+    QByteArray serializeWeaponType(const core::WeaponType *obj) override;
     QByteArray serializeWorld(const core::World *obj) override;
     QByteArray serializeWorldSurface(const core::WorldSurface *obj) override;
 

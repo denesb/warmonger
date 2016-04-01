@@ -21,6 +21,8 @@ namespace core {
     class UnitLevel;
     class UnitType;
     class Weapon;
+    class WeaponClass;
+    class WeaponType;
     class World;
     class WorldSurface;
 }
@@ -45,6 +47,8 @@ public:
     virtual QByteArray serializeUnitLevel(const core::UnitLevel *obj) = 0;
     virtual QByteArray serializeUnitType(const core::UnitType *obj) = 0;
     virtual QByteArray serializeWeapon(const core::Weapon *obj) = 0;
+    virtual QByteArray serializeWeaponClass(const core::WeaponClass *obj) = 0;
+    virtual QByteArray serializeWeaponType(const core::WeaponType *obj) = 0;
     virtual QByteArray serializeWorld(const core::World *obj) = 0;
     virtual QByteArray serializeWorldSurface(const core::WorldSurface *obj) = 0;
 };

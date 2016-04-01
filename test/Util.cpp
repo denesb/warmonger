@@ -12,6 +12,8 @@
 #include "core/UnitLevel.h"
 #include "core/UnitType.h"
 #include "core/Weapon.h"
+#include "core/WeaponClass.h"
+#include "core/WeaponType.h"
 #include "core/WorldSurface.h"
 #include "test/Util.h"
 
@@ -73,6 +75,25 @@ std::pair<core::World *, QJsonObject> makeWorld()
     w->setArmors({a0});
     jw["armors"] = QJsonArray({ja0});
 
+    // WeaponClass
+    core::WeaponClass *wc0 = new core::WeaponClass(w);
+    QJsonObject jwc0;
+    setNames(wc0, jwc0, 0);
+
+    w->setWeaponClasses({wc0});
+    jwc0["weaponClasses"] = QJsonArray({jwc0});
+
+    // WeaponType
+    core::WeaponType *wt0 = new core::WeaponType(w);
+    QJsonObject jwt0;
+    setNames(wt0, jwt0, 0);
+
+    wt0->setClass(wc0);
+    jwt0["class"] = wc0->objectName();
+
+    w->setWeaponTypes({wt0});
+    jw["weaponTypes"] = QJsonArray({jwt0});
+
     // Weapon
     core::Weapon *w0 = new core::Weapon(w);
     QJsonObject jw0;
@@ -88,6 +109,9 @@ std::pair<core::World *, QJsonObject> makeWorld()
         qMakePair(dt1->objectName(), 5)
     });
 
+    w0->setType(wt0);
+    jw0["type"] = wt0->objectName();
+
     core::Weapon *w1 = new core::Weapon(w);
     QJsonObject jw1;
     setNames(w1, jw1, 1);
@@ -99,6 +123,9 @@ std::pair<core::World *, QJsonObject> makeWorld()
     jw1["damages"] = QJsonObject({
         qMakePair(dt1->objectName(), 9)
     });
+
+    w1->setType(wt0);
+    jw1["type"] = wt0->objectName();
 
     w->setWeapons({w0, w1});
     jw["weapons"] = QJsonArray({jw0, jw1});
@@ -173,6 +200,20 @@ std::pair<core::World *, QJsonObject> makeWorld()
 
     ut0->setWeapons({w0, w1});
     jut0["weapons"] = QJsonArray({w0->objectName(), w1->objectName()});
+
+    ut0->setAttackSkills({
+        {wt0, 20}
+    });
+    jut0["attackSkills"] = QJsonObject({
+        {wt0->objectName(), 20}
+    });
+
+    ut0->setDefenseSkills({
+        {wc0, 25}
+    });
+    jut0["defenseSkills"] = QJsonObject({
+        {wc0->objectName(), 25}
+    });
 
     ut0->setUpgrades({});
     jut0["upgrades"] = QJsonArray({});

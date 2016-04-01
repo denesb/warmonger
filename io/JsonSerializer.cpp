@@ -21,6 +21,8 @@
 #include "core/UnitLevel.h"
 #include "core/UnitType.h"
 #include "core/Weapon.h"
+#include "core/WeaponClass.h"
+#include "core/WeaponType.h"
 #include "core/World.h"
 #include "core/WorldSurface.h"
 
@@ -42,6 +44,8 @@ QJsonObject unitClassToJson(const core::UnitClass *obj);
 QJsonObject unitLevelToJson(const core::UnitLevel *obj);
 QJsonObject unitTypeToJson(const core::UnitType *obj);
 QJsonObject weaponToJson(const core::Weapon *obj);
+QJsonObject weaponClassToJson(const core::WeaponClass *obj);
+QJsonObject weaponTypeToJson(const core::WeaponType *obj);
 QJsonObject worldToJson(const core::World *obj);
 QJsonObject worldSurfaceToJson(const core::WorldSurface *obj);
 
@@ -139,6 +143,18 @@ QByteArray JsonSerializer::serializeUnitType(const core::UnitType *obj)
 QByteArray JsonSerializer::serializeWeapon(const core::Weapon *obj)
 {
     QJsonDocument jdoc(weaponToJson(obj));
+    return jdoc.toJson(this->format);
+}
+
+QByteArray JsonSerializer::serializeWeaponClass(const core::WeaponClass *obj)
+{
+    QJsonDocument jdoc(weaponClassToJson(obj));
+    return jdoc.toJson(this->format);
+}
+
+QByteArray JsonSerializer::serializeWeaponType(const core::WeaponType *obj)
+{
+    QJsonDocument jdoc(weaponTypeToJson(obj));
     return jdoc.toJson(this->format);
 }
 
@@ -437,6 +453,16 @@ QJsonObject unitTypeToJson(const core::UnitType *obj)
     jobj["upkeepCost"] = obj->getUpkeepCost();
     jobj["armor"] = obj->getArmor()->objectName();
     jobj["weapons"] = toQJsonArray(obj->getWeapons(), qObjectName);
+    jobj["attackSkills"] = toQJsonObject(
+        obj->getAttackSkills(),
+        qObjectName,
+        constructQJsonValue<int>
+    );
+    jobj["defenseSkills"] = toQJsonObject(
+        obj->getDefenseSkills(),
+        qObjectName,
+        constructQJsonValue<int>
+    );
     jobj["upgrades"] = toQJsonArray(obj->getUpgrades(), qObjectName);
 
     return jobj;
@@ -452,6 +478,23 @@ QJsonObject weaponToJson(const core::Weapon *obj)
         qObjectName,
         constructQJsonValue<int>
     );
+    jobj["type"] = obj->getType()->objectName();
+
+    return jobj;
+}
+
+QJsonObject weaponClassToJson(const core::WeaponClass *obj)
+{
+    QJsonObject jobj(namesToJson(obj));
+
+    return jobj;
+}
+
+QJsonObject weaponTypeToJson(const core::WeaponType *obj)
+{
+    QJsonObject jobj(namesToJson(obj));
+
+    jobj["class"] = obj->getClass()->objectName();
 
     return jobj;
 }
@@ -467,6 +510,14 @@ QJsonObject worldToJson(const core::World *obj)
     jobj["armors"] = toQJsonArray(
         obj->getArmors(),
         armorToJson
+    );
+    jobj["weaponClasses"] = toQJsonArray(
+        obj->getWeaponClasses(),
+        weaponClassToJson
+    );
+    jobj["weaponTypes"] = toQJsonArray(
+        obj->getWeaponTypes(),
+        weaponTypeToJson
     );
     jobj["weapons"] = toQJsonArray(
         obj->getWeapons(),

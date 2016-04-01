@@ -164,6 +164,34 @@ QVariantList World::readUnitTypes() const
     return toQVariantList(this->unitTypes);
 }
 
+std::vector<WeaponClass *> World::getWeaponClasses() const
+{
+    return this->weaponClasses;
+}
+
+void World::setWeaponClasses(const std::vector<WeaponClass *> &weaponClasses)
+{
+    if (this->weaponClasses != weaponClasses)
+    {
+        this->weaponClasses = weaponClasses;
+        emit weaponClassesChanged();
+    }
+}
+
+std::vector<WeaponType *> World::getWeaponTypes() const
+{
+    return this->weaponTypes;
+}
+
+void World::setWeaponTypes(const std::vector<WeaponType *> &weaponTypes)
+{
+    if (this->weaponTypes != weaponTypes)
+    {
+        this->weaponTypes = weaponTypes;
+        emit weaponTypesChanged();
+    }
+}
+
 std::vector<Weapon *> World::getWeapons() const
 {
     return this->weapons;
@@ -171,5 +199,9 @@ std::vector<Weapon *> World::getWeapons() const
 
 void World::setWeapons(const std::vector<Weapon *> &weapons)
 {
-    this->weapons = weapons;
+    if (this->weapons != weapons)
+    {
+        this->weapons = weapons;
+        emit weaponsChanged();
+    }
 }

@@ -3,21 +3,6 @@
 
 #include <QJsonDocument>
 
-#include "core/Armor.h"
-#include "core/CampaignMap.h"
-#include "core/DamageType.h"
-#include "core/Civilization.h"
-#include "core/MapNode.h"
-#include "core/Faction.h"
-#include "core/Settlement.h"
-#include "core/SettlementType.h"
-#include "core/TerrainType.h"
-#include "core/Unit.h"
-#include "core/UnitClass.h"
-#include "core/UnitLevel.h"
-#include "core/UnitType.h"
-#include "core/Weapon.h"
-#include "core/WorldSurface.h"
 #include "io/JsonSerializer.h"
 #include "test/catch.hpp"
 #include "test/Util.h"
@@ -486,14 +471,61 @@ TEST_CASE("UnitType can be serialized to JSON", "[JsonSerializer]")
         REQUIRE(jobj["recruitmentCost"].toInt() == ut->getRecruitmentCost());
         REQUIRE(jobj["upkeepCost"].toInt() == ut->getUpkeepCost());
         REQUIRE(jobj["armor"].toString() == ut->getArmor()->objectName());
-        REQUIRE(jobj["weapons"].isArray() == true);
-        REQUIRE(jobj["upgrades"].isArray() == true);
+        REQUIRE(jobj["weapons"].isArray());
+        REQUIRE(jobj["attackSkills"].isObject());
+        REQUIRE(jobj["defenseSkills"].isObject());
+        REQUIRE(jobj["upgrades"].isArray());
 
         const QJsonArray weapons(jobj["weapons"].toArray());
         arrayEqualsList(weapons, ut->getWeapons());
 
+        const QJsonObject attackSkills(jobj["attackSkills"].toObject());
+        objectEqualsMap(attackSkills, ut->getAttackSkills());
+
+        const QJsonObject defenseSkills(jobj["defenseSkills"].toObject());
+        objectEqualsMap(defenseSkills, ut->getDefenseSkills());
+
         const QJsonArray upgrades(jobj["upgrades"].toArray());
         arrayEqualsList(upgrades, ut->getUpgrades());
+    }
+}
+
+TEST_CASE("WeaponClass can be serialized to JSON", "[JsonSerializer]")
+{
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+
+    core::WeaponClass *wc = world->getWeaponClasses()[0];
+
+    SECTION("serializing WeaponClass")
+    {
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeWeaponClass(wc));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
+
+        REQUIRE(jobj["objectName"].toString() == wc->objectName());
+        REQUIRE(jobj["displayName"].toString() == wc->getDisplayName());
+    }
+}
+
+TEST_CASE("WeaponType can be serialized to JSON", "[JsonSerializer]")
+{
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+
+    core::WeaponType *wt = world->getWeaponTypes()[0];
+
+    SECTION("serializing WeaponType")
+    {
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeWeaponType(wt));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
+
+        REQUIRE(jobj["objectName"].toString() == wt->objectName());
+        REQUIRE(jobj["displayName"].toString() == wt->getDisplayName());
+        REQUIRE(jobj["class"].toString() == wt->getClass()->objectName());
     }
 }
 
@@ -515,6 +547,7 @@ TEST_CASE("Weapon can be serialized to JSON", "[JsonSerializer]")
         REQUIRE(jobj["displayName"].toString() == w->getDisplayName());
         REQUIRE(jobj["range"].toInt() == w->getRange());
         REQUIRE(jobj["damages"].isObject() == true);
+        REQUIRE(jobj["type"].toString() == w->getType()->objectName());
 
         const QJsonObject damages(jobj["damages"].toObject());
         objectEqualsMap(damages, w->getDamages());
@@ -572,6 +605,41 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
             }
         }
 
+        REQUIRE(jobj["weaponClasses"].isArray() == true);
+        SECTION("serializing WeaponClasses")
+        {
+            const QJsonArray jwcs(jobj["weaponClasses"].toArray());
+            const std::vector<core::WeaponClass *> wcs(world->getWeaponClasses());
+
+            REQUIRE(wcs.size() == jwcs.size());
+            for (size_t i = 0; i < wcs.size(); i++)
+            {
+                REQUIRE(jwcs[i].isObject() == true);
+                const QJsonObject jwc(jwcs[i].toObject());
+                const core::WeaponClass *wc = wcs[i];
+                REQUIRE(jwc["objectName"].toString() == wc->objectName());
+                REQUIRE(jwc["displayName"].toString() == wc->getDisplayName());
+            }
+        }
+
+        REQUIRE(jobj["weaponTypes"].isArray() == true);
+        SECTION("serializing WeaponTypes")
+        {
+            const QJsonArray jwts(jobj["weaponTypes"].toArray());
+            const std::vector<core::WeaponType *> wts(world->getWeaponTypes());
+
+            REQUIRE(wts.size() == jwts.size());
+            for (size_t i = 0; i < wts.size(); i++)
+            {
+                REQUIRE(jwts[i].isObject() == true);
+                const QJsonObject jwt(jwts[i].toObject());
+                const core::WeaponType *wt = wts[i];
+                REQUIRE(jwt["objectName"].toString() == wt->objectName());
+                REQUIRE(jwt["displayName"].toString() == wt->getDisplayName());
+                REQUIRE(jwt["class"].toString() == wt->getClass()->objectName());
+            }
+        }
+
         REQUIRE(jobj["weapons"].isArray() == true);
         SECTION("serializing Weapons")
         {
@@ -589,6 +657,7 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
                 REQUIRE(jw["range"].toInt() == w->getRange());
                 REQUIRE(jw["damages"].isObject() == true);
                 objectEqualsMap(jw["damages"].toObject(), w->getDamages());
+                REQUIRE(jw["type"].toString() == w->getType()->objectName());
             }
         }
 
@@ -674,9 +743,13 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
                 REQUIRE(jut["recruitmentCost"].toInt() == ut->getRecruitmentCost());
                 REQUIRE(jut["upkeepCost"].toInt() == ut->getUpkeepCost());
                 REQUIRE(jut["armor"].toString() == ut->getArmor()->objectName());
-                REQUIRE(jut["weapons"].isArray() == true);
+                REQUIRE(jut["weapons"].isArray());
                 arrayEqualsList(jut["weapons"].toArray(), ut->getWeapons());
-                REQUIRE(jut["upgrades"].isArray() == true);
+                REQUIRE(jut["attackSkills"].isObject());
+                objectEqualsMap(jut["attackSkills"].toObject(), ut->getAttackSkills());
+                REQUIRE(jut["defenseSkills"].isObject());
+                objectEqualsMap(jut["defenseSkills"].toObject(), ut->getDefenseSkills());
+                REQUIRE(jut["upgrades"].isArray());
                 arrayEqualsList(jut["upgrades"].toArray(), ut->getUpgrades());
             }
         }

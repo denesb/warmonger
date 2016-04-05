@@ -21,6 +21,8 @@
 #include "core/UnitClass.h"
 #include "core/UnitLevel.h"
 #include "core/Weapon.h"
+#include "core/WeaponClass.h"
+#include "core/WeaponType.h"
 #include "core/World.h"
 #include "core/WorldSurface.h"
 #include "io/Exception.h"
@@ -46,6 +48,9 @@ core::UnitClass * unitClassFromJson(const QJsonObject &jobj, Context &ctx);
 core::UnitLevel * unitLevelFromJson(const QJsonObject &jobj);
 core::UnitType * unitTypeFromJson(const QJsonObject &jobj, Context &ctx);
 core::Weapon * weaponFromJson(const QJsonObject &jobj, Context &ctx);
+core::WeaponClass * weaponClassFromJson(const QJsonObject &jobj, Context &ctx);
+core::WeaponType * weaponTypeFromJson(const QJsonObject &jobj, Context &ctx);
+
 
 /**
  * Resolve reference `name` to `Type`.
@@ -328,6 +333,18 @@ core::Weapon * JsonUnserializer::unserializeWeapon(const QByteArray &data)
     return weaponFromJson(jdoc.object(), this->ctx);
 }
 
+core::WeaponClass * JsonUnserializer::unserializeWeaponClass(const QByteArray &data)
+{
+    QJsonDocument jdoc(parseJson(data));
+    return weaponClassFromJson(jdoc.object(), this->ctx);
+}
+
+core::WeaponType * JsonUnserializer::unserializeWeaponType(const QByteArray &data)
+{
+    QJsonDocument jdoc(parseJson(data));
+    return weaponTypeFromJson(jdoc.object(), this->ctx);
+}
+
 core::World * JsonUnserializer::unserializeWorld(const QByteArray &data)
 {
     QJsonDocument jdoc(parseJson(data));
@@ -345,6 +362,16 @@ core::World * JsonUnserializer::unserializeWorld(const QByteArray &data)
         jobj["armors"].toArray(),
         this->ctx,
         armorFromJson
+    ));
+    obj->setWeaponClasses(objectListFromJson<core::WeaponClass>(
+        jobj["weaponClasses"].toArray(),
+        this->ctx,
+        weaponClassFromJson
+    ));
+    obj->setWeaponTypes(objectListFromJson<core::WeaponType>(
+        jobj["weaponTypes"].toArray(),
+        this->ctx,
+        weaponTypeFromJson
     ));
     obj->setWeapons(objectListFromJson<core::Weapon>(
         jobj["weapons"].toArray(),
@@ -698,6 +725,16 @@ core::UnitType * unitTypeFromJson(const QJsonObject &jobj, Context &ctx)
         jobj["upgrades"].toArray(),
         ReferenceResolver<core::UnitType>(ctx)
     ));
+    obj->setAttackSkills(fromQJsonObject<std::map<core::WeaponType *, int>>(
+        jobj["attackSkills"].toObject(),
+        ReferenceResolver<core::WeaponType>(ctx),
+        qJsonValueToInt
+    ));
+    obj->setDefenseSkills(fromQJsonObject<std::map<core::WeaponClass *, int>>(
+        jobj["defenseSkills"].toObject(),
+        ReferenceResolver<core::WeaponClass>(ctx),
+        qJsonValueToInt
+    ));
 
     return obj.release();
 }
@@ -712,6 +749,32 @@ core::Weapon * weaponFromJson(const QJsonObject &jobj, Context &ctx)
         jobj["damages"].toObject(),
         ReferenceResolver<core::DamageType>(ctx),
         qJsonValueToInt
+    ));
+    obj->setType(resolveReference<core::WeaponType>(
+        ctx,
+        jobj["type"].toString()
+    ));
+
+    return obj.release();
+}
+
+core::WeaponClass * weaponClassFromJson(const QJsonObject &jobj, Context &/*ctx*/)
+{
+    std::unique_ptr<core::WeaponClass> obj(new core::WeaponClass());
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+
+    return obj.release();
+}
+
+core::WeaponType * weaponTypeFromJson(const QJsonObject &jobj, Context &ctx)
+{
+    std::unique_ptr<core::WeaponType> obj(new core::WeaponType());
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+    obj->setClass(resolveReference<core::WeaponClass>(
+        ctx,
+        jobj["class"].toString()
     ));
 
     return obj.release();

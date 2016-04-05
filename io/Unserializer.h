@@ -21,6 +21,8 @@ namespace core {
     class UnitLevel;
     class UnitType;
     class Weapon;
+    class WeaponClass;
+    class WeaponType;
     class World;
     class WorldSurface;
 }
@@ -50,6 +52,8 @@ public:
     virtual core::UnitLevel * unserializeUnitLevel(const QByteArray &data) = 0;
     virtual core::UnitType * unserializeUnitType(const QByteArray &data) = 0;
     virtual core::Weapon * unserializeWeapon(const QByteArray &data) = 0;
+    virtual core::WeaponClass * unserializeWeaponClass(const QByteArray &data) = 0;
+    virtual core::WeaponType * unserializeWeaponType(const QByteArray &data) = 0;
     virtual core::World * unserializeWorld(const QByteArray &data) = 0;
     virtual core::WorldSurface * unserializeWorldSurface(const QByteArray &data) = 0;
 

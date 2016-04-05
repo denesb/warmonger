@@ -1414,6 +1414,18 @@ TEST_CASE("UnitType can be unserialized from JSON", "[JsonUnserializer]")
         uts.cend(),
         [&](core::UnitType *o){ctx.add(o);}
     );
+    const std::vector<core::WeaponType *> wts = world->getWeaponTypes();
+    std::for_each(
+        wts.cbegin(),
+        wts.cend(),
+        [&](core::WeaponType *o){ctx.add(o);}
+    );
+    const std::vector<core::WeaponClass *> wcs = world->getWeaponClasses();
+    std::for_each(
+        wcs.cbegin(),
+        wcs.cend(),
+        [&](core::WeaponClass *o){ctx.add(o);}
+    );
 
     const QJsonObject jobj = jworld["unitTypes"].toArray()[0].toObject();
 
@@ -1434,6 +1446,8 @@ TEST_CASE("UnitType can be unserialized from JSON", "[JsonUnserializer]")
         REQUIRE(ut->getArmor()->objectName() == jobj["armor"].toString());
         arrayEqualsList(jobj["weapons"].toArray(), ut->getWeapons());
         arrayEqualsList(jobj["upgrades"].toArray(), ut->getUpgrades());
+        objectEqualsMap(jobj["attackSkills"].toObject(), ut->getAttackSkills());
+        objectEqualsMap(jobj["defenseSkills"].toObject(), ut->getDefenseSkills());
     }
 }
 
@@ -1484,6 +1498,18 @@ TEST_CASE("UnitType can't be unserialized from JSON", "[JsonUnserializer]")
             uts.cend(),
             [&](core::UnitType *o){ctx.add(o);}
         );
+        const std::vector<core::WeaponType *> wts = world->getWeaponTypes();
+        std::for_each(
+            wts.cbegin(),
+            wts.cend(),
+            [&](core::WeaponType *o){ctx.add(o);}
+        );
+        const std::vector<core::WeaponClass *> wcs = world->getWeaponClasses();
+        std::for_each(
+            wcs.cbegin(),
+            wcs.cend(),
+            [&](core::WeaponClass *o){ctx.add(o);}
+        );
 
         io::JsonUnserializer unserializer(ctx);
         QJsonDocument jdoc(jobj);
@@ -1521,6 +1547,18 @@ TEST_CASE("UnitType can't be unserialized from JSON", "[JsonUnserializer]")
             uts.cbegin(),
             uts.cend(),
             [&](core::UnitType *o){ctx.add(o);}
+        );
+        const std::vector<core::WeaponType *> wts = world->getWeaponTypes();
+        std::for_each(
+            wts.cbegin(),
+            wts.cend(),
+            [&](core::WeaponType *o){ctx.add(o);}
+        );
+        const std::vector<core::WeaponClass *> wcs = world->getWeaponClasses();
+        std::for_each(
+            wcs.cbegin(),
+            wcs.cend(),
+            [&](core::WeaponClass *o){ctx.add(o);}
         );
 
         io::JsonUnserializer unserializer(ctx);
@@ -1560,6 +1598,18 @@ TEST_CASE("UnitType can't be unserialized from JSON", "[JsonUnserializer]")
             uts.cend(),
             [&](core::UnitType *o){ctx.add(o);}
         );
+        const std::vector<core::WeaponType *> wts = world->getWeaponTypes();
+        std::for_each(
+            wts.cbegin(),
+            wts.cend(),
+            [&](core::WeaponType *o){ctx.add(o);}
+        );
+        const std::vector<core::WeaponClass *> wcs = world->getWeaponClasses();
+        std::for_each(
+            wcs.cbegin(),
+            wcs.cend(),
+            [&](core::WeaponClass *o){ctx.add(o);}
+        );
 
         io::JsonUnserializer unserializer(ctx);
         QJsonDocument jdoc(jobj);
@@ -1597,6 +1647,18 @@ TEST_CASE("UnitType can't be unserialized from JSON", "[JsonUnserializer]")
             uts.cbegin(),
             uts.cend(),
             [&](core::UnitType *o){ctx.add(o);}
+        );
+        const std::vector<core::WeaponType *> wts = world->getWeaponTypes();
+        std::for_each(
+            wts.cbegin(),
+            wts.cend(),
+            [&](core::WeaponType *o){ctx.add(o);}
+        );
+        const std::vector<core::WeaponClass *> wcs = world->getWeaponClasses();
+        std::for_each(
+            wcs.cbegin(),
+            wcs.cend(),
+            [&](core::WeaponClass *o){ctx.add(o);}
         );
 
         io::JsonUnserializer unserializer(ctx);
@@ -1636,6 +1698,118 @@ TEST_CASE("UnitType can't be unserialized from JSON", "[JsonUnserializer]")
             ws.cend(),
             [&](core::Weapon *o){ctx.add(o);}
         );
+        const std::vector<core::WeaponType *> wts = world->getWeaponTypes();
+        std::for_each(
+            wts.cbegin(),
+            wts.cend(),
+            [&](core::WeaponType *o){ctx.add(o);}
+        );
+        const std::vector<core::WeaponClass *> wcs = world->getWeaponClasses();
+        std::for_each(
+            wcs.cbegin(),
+            wcs.cend(),
+            [&](core::WeaponClass *o){ctx.add(o);}
+        );
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeUnitType(jdoc.toJson()),
+            io::UnresolvedReferenceError
+        );
+    }
+
+    SECTION("unserializing UnitType, no weaponTypes")
+    {
+        io::Context ctx;
+
+        const std::vector<core::UnitClass *> ucs = world->getUnitClasses();
+        std::for_each(
+            ucs.cbegin(),
+            ucs.cend(),
+            [&](core::UnitClass *o){ctx.add(o);}
+        );
+        const std::vector<core::UnitLevel *> uls = world->getUnitLevels();
+        std::for_each(
+            uls.cbegin(),
+            uls.cend(),
+            [&](core::UnitLevel *o){ctx.add(o);}
+        );
+        const std::vector<core::Armor *> as = world->getArmors();
+        std::for_each(
+            as.cbegin(),
+            as.cend(),
+            [&](core::Armor *o){ctx.add(o);}
+        );
+        const std::vector<core::Weapon *> ws = world->getWeapons();
+        std::for_each(
+            ws.cbegin(),
+            ws.cend(),
+            [&](core::Weapon *o){ctx.add(o);}
+        );
+        const std::vector<core::UnitType *> uts = world->getUnitTypes();
+        std::for_each(
+            uts.cbegin(),
+            uts.cend(),
+            [&](core::UnitType *o){ctx.add(o);}
+        );
+        const std::vector<core::WeaponClass *> wcs = world->getWeaponClasses();
+        std::for_each(
+            wcs.cbegin(),
+            wcs.cend(),
+            [&](core::WeaponClass *o){ctx.add(o);}
+        );
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeUnitType(jdoc.toJson()),
+            io::UnresolvedReferenceError
+        );
+    }
+
+    SECTION("unserializing UnitType, no weaponClasses")
+    {
+        io::Context ctx;
+
+        const std::vector<core::UnitClass *> ucs = world->getUnitClasses();
+        std::for_each(
+            ucs.cbegin(),
+            ucs.cend(),
+            [&](core::UnitClass *o){ctx.add(o);}
+        );
+        const std::vector<core::UnitLevel *> uls = world->getUnitLevels();
+        std::for_each(
+            uls.cbegin(),
+            uls.cend(),
+            [&](core::UnitLevel *o){ctx.add(o);}
+        );
+        const std::vector<core::Armor *> as = world->getArmors();
+        std::for_each(
+            as.cbegin(),
+            as.cend(),
+            [&](core::Armor *o){ctx.add(o);}
+        );
+        const std::vector<core::Weapon *> ws = world->getWeapons();
+        std::for_each(
+            ws.cbegin(),
+            ws.cend(),
+            [&](core::Weapon *o){ctx.add(o);}
+        );
+        const std::vector<core::UnitType *> uts = world->getUnitTypes();
+        std::for_each(
+            uts.cbegin(),
+            uts.cend(),
+            [&](core::UnitType *o){ctx.add(o);}
+        );
+        const std::vector<core::WeaponType *> wts = world->getWeaponTypes();
+        std::for_each(
+            wts.cbegin(),
+            wts.cend(),
+            [&](core::WeaponType *o){ctx.add(o);}
+        );
 
         io::JsonUnserializer unserializer(ctx);
         QJsonDocument jdoc(jobj);
@@ -1662,6 +1836,13 @@ TEST_CASE("Weapon can be unserialized from JSON", "[JsonUnserializer]")
         [&](core::DamageType *o){ctx.add(o);}
     );
 
+    const std::vector<core::WeaponType *> wts = world->getWeaponTypes();
+    std::for_each(
+        wts.cbegin(),
+        wts.cend(),
+        [&](core::WeaponType *o){ctx.add(o);}
+    );
+
     const QJsonObject jobj = jworld["weapons"].toArray()[0].toObject();
 
     SECTION("unserializing Weapon")
@@ -1675,6 +1856,7 @@ TEST_CASE("Weapon can be unserialized from JSON", "[JsonUnserializer]")
         REQUIRE(w->objectName() == jobj["objectName"].toString());
         REQUIRE(w->getDisplayName() == jobj["displayName"].toString());
         REQUIRE(w->getRange() == jobj["range"].toInt());
+        REQUIRE(w->getType()->objectName() == jobj["type"].toString());
         objectEqualsMap(jobj["damages"].toObject(), w->getDamages());
     }
 }
@@ -1698,14 +1880,146 @@ TEST_CASE("Weapon can't be unserialized from JSON", "[JsonUnserializer]")
         );
     }
 
-    SECTION("unserializing Weapon")
+    SECTION("unserializing Weapon, no DamageType")
+    {
+        io::Context ctx;
+
+        const std::vector<core::WeaponType *> wts = world->getWeaponTypes();
+        std::for_each(
+            wts.cbegin(),
+            wts.cend(),
+            [&](core::WeaponType *o){ctx.add(o);}
+        );
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeWeapon(jdoc.toJson()),
+            io::UnresolvedReferenceError
+        );
+    }
+
+    SECTION("unserializing Weapon, no WeaponType")
+    {
+        io::Context ctx;
+
+        const std::vector<core::DamageType *> dts = world->getDamageTypes();
+        std::for_each(
+            dts.cbegin(),
+            dts.cend(),
+            [&](core::DamageType *o){ctx.add(o);}
+        );
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeWeapon(jdoc.toJson()),
+            io::UnresolvedReferenceError
+        );
+    }
+}
+
+TEST_CASE("WeaponClass can be unserialized from JSON", "[JsonUnserializer]")
+{
+    io::Context ctx;
+
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+    const QJsonObject jworld{worlds.second};
+
+    const QJsonObject jobj = jworld["weaponClasses"].toArray()[0].toObject();
+
+    SECTION("unserializing WeaponClass")
+    {
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        const std::unique_ptr<core::WeaponClass> wc(
+            unserializer.unserializeWeaponClass(jdoc.toJson())
+        );
+
+        REQUIRE(wc->objectName() == jobj["objectName"].toString());
+        REQUIRE(wc->getDisplayName() == jobj["displayName"].toString());
+    }
+}
+
+TEST_CASE("WeaponClass can't be unserialized from JSON", "[JsonUnserializer]")
+{
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+    const QJsonObject jworld{worlds.second};
+
+    const QJsonObject jobj = jworld["weaponClasses"].toArray()[0].toObject();
+
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeWeaponClass(invalidJson),
+            io::JsonParseError
+        );
+    }
+}
+
+TEST_CASE("WeaponType can be unserialized from JSON", "[JsonUnserializer]")
+{
+    io::Context ctx;
+
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+    const QJsonObject jworld{worlds.second};
+
+    const std::vector<core::WeaponClass *> dts = world->getWeaponClasses();
+    std::for_each(
+        dts.cbegin(),
+        dts.cend(),
+        [&](core::WeaponClass *o){ctx.add(o);}
+    );
+
+    const QJsonObject jobj = jworld["weaponTypes"].toArray()[0].toObject();
+
+    SECTION("unserializing WeaponType")
+    {
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        const std::unique_ptr<core::WeaponType> wt(
+            unserializer.unserializeWeaponType(jdoc.toJson())
+        );
+
+        REQUIRE(wt->objectName() == jobj["objectName"].toString());
+        REQUIRE(wt->getDisplayName() == jobj["displayName"].toString());
+        REQUIRE(wt->getClass()->objectName() == jobj["class"].toString());
+    }
+}
+
+TEST_CASE("WeaponType can't be unserialized from JSON", "[JsonUnserializer]")
+{
+    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+    const QJsonObject jworld{worlds.second};
+
+    const QJsonObject jobj = jworld["weapons"].toArray()[0].toObject();
+
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeWeaponType(invalidJson),
+            io::JsonParseError
+        );
+    }
+
+    SECTION("unserializing WeaponType, no WeaponClass")
     {
         io::Context ctx;
 
         io::JsonUnserializer unserializer(ctx);
         QJsonDocument jdoc(jobj);
         REQUIRE_THROWS_AS(
-            unserializer.unserializeWeapon(jdoc.toJson()),
+            unserializer.unserializeWeaponType(jdoc.toJson()),
             io::UnresolvedReferenceError
         );
     }
@@ -1763,6 +2077,39 @@ TEST_CASE("World can be unserialized from JSON", "[JsonUnserializer]")
             }
         }
 
+        SECTION("unserializing weaponClasses")
+        {
+            const std::vector<core::WeaponClass *> wcs{world->getWeaponClasses()};
+            const QJsonArray jwcs(jobj["weaponClasses"].toArray());
+
+            REQUIRE(jwcs.size() == wcs.size());
+
+            for (size_t i = 0; i < wcs.size(); i++)
+            {
+                core::WeaponClass *wc{wcs[i]};
+                const QJsonObject jwc(jwcs[i].toObject());
+                REQUIRE(wc->objectName() == jwc["objectName"].toString());
+                REQUIRE(wc->getDisplayName() == jwc["displayName"].toString());
+            }
+        }
+
+        SECTION("unserializing weaponTypes")
+        {
+            const std::vector<core::WeaponType *> wts{world->getWeaponTypes()};
+            const QJsonArray jwts(jobj["weaponTypes"].toArray());
+
+            REQUIRE(jwts.size() == wts.size());
+
+            for (size_t i = 0; i < wts.size(); i++)
+            {
+                core::WeaponType *wt{wts[i]};
+                const QJsonObject jwt(jwts[i].toObject());
+                REQUIRE(wt->objectName() == jwt["objectName"].toString());
+                REQUIRE(wt->getDisplayName() == jwt["displayName"].toString());
+                REQUIRE(wt->getClass()->objectName() == jwt["class"].toString());
+            }
+        }
+
         SECTION("unserializing weapons")
         {
             const std::vector<core::Weapon *> ws{world->getWeapons()};
@@ -1777,6 +2124,7 @@ TEST_CASE("World can be unserialized from JSON", "[JsonUnserializer]")
                 REQUIRE(w->objectName() == jw["objectName"].toString());
                 REQUIRE(w->getDisplayName() == jw["displayName"].toString());
                 REQUIRE(w->getRange() == jw["range"].toInt());
+                REQUIRE(w->getType()->objectName() == jw["type"].toString());
                 objectEqualsMap(jw["damages"].toObject(), w->getDamages());
             }
         }
@@ -1856,6 +2204,8 @@ TEST_CASE("World can be unserialized from JSON", "[JsonUnserializer]")
                 REQUIRE(ut->getArmor()->objectName() == jut["armor"].toString());
                 arrayEqualsList(jut["weapons"].toArray(), ut->getWeapons());
                 arrayEqualsList(jut["upgrades"].toArray(), ut->getUpgrades());
+                objectEqualsMap(jut["attackSkills"].toObject(), ut->getAttackSkills());
+                objectEqualsMap(jut["defenseSkills"].toObject(), ut->getDefenseSkills());
             }
         }
 

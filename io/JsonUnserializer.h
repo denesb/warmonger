@@ -27,6 +27,8 @@ public:
     core::UnitLevel * unserializeUnitLevel(const QByteArray &data) override;
     core::UnitType * unserializeUnitType(const QByteArray &data) override;
     core::Weapon * unserializeWeapon(const QByteArray &data) override;
+    core::WeaponClass * unserializeWeaponClass(const QByteArray &data) override;
+    core::WeaponType * unserializeWeaponType(const QByteArray &data) override;
     core::World * unserializeWorld(const QByteArray &data) override;
     core::WorldSurface * unserializeWorldSurface(const QByteArray &data) override;
 };

@@ -1,0 +1,181 @@
+{
+    "objectName": "the_dark_age",
+    "displayName": "The Dark Age",
+    "description": "The Dark Age is set in the early mediaval era, in the 9th century Europe.",
+
+    "terrainTypes": [
+        {
+            "objectName": "plains",
+            "displayName": "Plains"
+        },
+        {
+            "objectName": "hills",
+            "displayName": "Hills"
+        },
+        {
+            "objectName": "mountains",
+            "displayName": "Mountains"
+        },
+        {
+            "objectName": "forest",
+            "displayName": "Forest"
+        }
+    ],
+
+    "unitLevels": [
+        {
+            "objectName": "level0",
+            "displayName": "Levy",
+            "index": 0,
+            "experiencePoints": 20
+        },
+        {
+            "objectName": "level1",
+            "displayName": "Recruit",
+            "index": 1,
+            "experiencePoints": 50
+        },
+        {
+            "objectName": "level2",
+            "displayName": "Experienced",
+            "index": 2,
+            "experiencePoints": 100
+        },
+        {
+            "objectName": "level3",
+            "displayName": "Veteran",
+            "index": 3,
+            "experiencePoints": 200
+        }
+    ],
+
+    "unitClasses": [
+        {
+            "objectName": "infantry",
+            "displayName": "Infantry",
+            "movementPoints": 50,
+            "terrainMovementCosts": {
+                "plains": 13,
+                "hills": 16,
+                "mountains": -1,
+                "forest": 20
+            },
+            "terrainAttacks": {},
+            "terrainDefenses": {
+                "forest": 10,
+                "hills": 10
+            }
+        },
+        {
+            "objectName": "missile",
+            "displayName": "Missile",
+            "movementPoints": 50,
+            "terrainMovementCosts": {
+                "plains": 13,
+                "hills": 16,
+                "mountains": -1,
+                "forest": 20
+            },
+            "terrainAttacks": {
+                "hills": 20,
+                "forest": -10
+            },
+            "terrainDefenses": {
+            }
+        },
+        {
+            "objectName": "cavalry",
+            "displayName": "Cavalry",
+            "movementPoints": 80,
+            "terrainMovementCosts": {
+                "plains": 13,
+                "hills": 16,
+                "mountains": -1,
+                "forest": 20
+            },
+            "terrainAttacks": {
+                "forest": -20
+            },
+            "terrainDefenses": {
+                "forest": -20
+            }
+        }
+    ],
+
+    "damageTypes": [
+        {
+            "objectName": "cut",
+            "displayName": "Cut"
+        },
+        {
+            "objectName": "pierce",
+            "displayName": "Pierce"
+        },
+        {
+            "objectName": "crush",
+            "displayName": "Crush"
+        }
+    ],
+
+    "weapons": [
+        {
+            "objectName": "spear",
+            "displayName": "Spear",
+            "range": 0,
+            "damages": {
+                "pierce": 10
+            }
+        }
+    ],
+
+    "armors": [
+        {
+            "objectName": "leather",
+            "displayName": "Leather",
+            "defenses": {
+                "cut": 10,
+                "pierce": 5,
+                "crush": 5
+            }
+        }
+    ],
+
+    "unitTypes": [
+        {
+            "objectName": "frankish_footman",
+            "displayName": "Frankish Footman",
+            "recruitmentCost": 20,
+            "upkeepCost": 2,
+            "hitPoints": 300,
+            "class": "infantry",
+            "level": "level1",
+            "armor": "leather",
+            "weapons": ["spear"],
+            "upgrades": []
+        }
+    ],
+
+    "settlementTypes": [
+        {
+            "objectName": "town",
+            "displayName": "Town",
+            "goldPerTurn": 4,
+            "recruits": []
+        }
+    ],
+
+    "civilizations": [
+        {
+            "objectName": "frankish",
+            "displayName": "Frankish",
+            "unitTypes": [
+                "frankish_footman"
+            ],
+            "recruits": {
+                "town": [
+                    "frankish_footman"
+                ]
+            }
+        }
+    ]
+}

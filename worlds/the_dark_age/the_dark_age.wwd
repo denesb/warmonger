@@ -166,8 +166,8 @@
 
     "civilizations": [
         {
-            "objectName": "frankish",
-            "displayName": "Frankish",
+            "objectName": "franks",
+            "displayName": "Franks",
             "unitTypes": [
                 "frankish_footman"
             ],

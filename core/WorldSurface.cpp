@@ -1,28 +1,23 @@
-#include <QDir>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QResource>
 
-#include "core/QVariantUtil.h"
+#include "core/Exception.h"
 #include "core/WorldSurface.h"
 
 using namespace warmonger::core;
-
-static QHash<QString, QImage> loadImages(
-    const QMap<QString, QString> &imagePaths
-);
-
-static QHash<QString, QColor> createColors(
-    const QMap<QString, QString> &colorNames
-);
 
 static const QString loggerName{"core.WorldSurface"};
 
 WorldSurface::WorldSurface(QObject *parent) :
     QObject(parent),
+    displayName(),
+    description(),
     tileWidth(0),
     tileHeight(0),
-    images(),
-    imagePaths(),
-    colors(),
-    colorNames()
+    normalGridColor(),
+    focusGridColor()
 {
 }
 
@@ -37,6 +32,20 @@ void WorldSurface::setDisplayName(const QString &displayName)
     {
         this->displayName = displayName;
         emit displayNameChanged();
+    }
+}
+
+QString WorldSurface::getDescription() const
+{
+    return this->description;
+}
+
+void WorldSurface::setDescription(const QString &description)
+{
+    if (this->description != description)
+    {
+        this->description = description;
+        emit descriptionChanged();
     }
 }
 
@@ -89,34 +98,32 @@ void WorldSurface::setTileSize(const QSize &tileSize)
     }
 }
 
-QMap<QString, QString> WorldSurface::getImagePaths() const
+QColor WorldSurface::getNormalGridColor() const
 {
-    return this->imagePaths;
+    return this->normalGridColor;
 }
 
-QString WorldSurface::getImagePath(const QString &key) const
+void WorldSurface::setNormalGridColor(const QColor &color)
 {
-    return this->imagePaths[key];
+    if (this->normalGridColor != color)
+    {
+        this->normalGridColor = color;
+        emit normalGridColorChanged();
+    }
 }
 
-QImage WorldSurface::getImage(const QString &key) const
+QColor WorldSurface::getFocusGridColor() const
 {
-    return this->images[key];
+    return this->focusGridColor;
 }
 
-QMap<QString, QString> WorldSurface::getColorNames() const
+void WorldSurface::setFocusGridColor(const QColor &color)
 {
-    return this->colorNames;
-}
-
-QString WorldSurface::getColorName(const QString &key) const
-{
-    return this->colorNames[key];
-}
-
-QColor WorldSurface::getColor(const QString &key) const
-{
-    return this->colors[key];
+    if (this->focusGridColor != color)
+    {
+        this->focusGridColor = color;
+        emit focusGridColorChanged();
+    }
 }
 
 bool WorldSurface::hexContains(const QPoint &p) const
@@ -155,31 +162,24 @@ bool WorldSurface::hexContains(const QPointF &p) const
     return (pixelc == 0xffffffff || pixelf == 0xffffffff);
 }
 
-QHash<QString, QColor> createColors(
-    const QMap<QString, QString> &colorNames
-)
+void WorldSurface::load(const QString &path)
 {
-    QHash<QString, QColor> colors;
-    QMap<QString, QString>::ConstIterator it;
-    for (it = colorNames.constBegin(); it != colorNames.constEnd(); it++)
+    if (!QResource::registerResource(path))
     {
-        colors.insert(it.key(), QColor(it.value()));
+        throw Exception("Failed to load resource from " + path);
     }
 
-    return colors;
-}
+    QFile jfile("qrc::///default.wsd");
+    jfile.open(QIODevice::ReadOnly);
 
-QHash<QString, QImage> loadImages(
-    const QMap<QString, QString> &imagePaths
-)
-{
-    QHash<QString, QImage> images;
-    QMap<QString, QString>::ConstIterator it;
-    for (it = imagePaths.constBegin(); it != imagePaths.constEnd(); it++)
-    {
-        QImage image(it.value());
-        images.insert(it.key(), image);
-    }
+    QJsonDocument jdoc(QJsonDocument::fromJson(jfile.readAll()));
+    QJsonObject jobj = jdoc.object();
 
-    return images;
+    this->setObjectName(jobj["objectName"].toString());
+    this->setDisplayName(jobj["displayName"].toString());
+    this->setDescription(jobj["description"].toString());
+    this->setTileWidth(jobj["tileWidth"].toInt());
+    this->setTileHeight(jobj["tileHeight"].toInt());
+    this->setNormalGridColor(QColor(jobj["normalGridColor"].toString()));
+    this->setFocusGridColor(QColor(jobj["focusGridColor"].toString()));
 }

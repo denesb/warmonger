@@ -30,7 +30,6 @@ public:
     core::WeaponClass * unserializeWeaponClass(const QByteArray &data) override;
     core::WeaponType * unserializeWeaponType(const QByteArray &data) override;
     core::World * unserializeWorld(const QByteArray &data) override;
-    core::WorldSurface * unserializeWorldSurface(const QByteArray &data) override;
 };
 
 } // namespace warmonger

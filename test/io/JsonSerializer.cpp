@@ -805,24 +805,3 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
         }
     }
 }
-
-TEST_CASE("WorldSurface can be serialized to JSON", "[JsonSerializer]")
-{
-    core::WorldSurface ws(nullptr);
-    ws.setObjectName("worldSurface1");
-    ws.setDisplayName("WorldSurface 1");
-    ws.setTileSize(QSize(118, 128));
-
-    SECTION("serializing WorldSurface")
-    {
-        io::JsonSerializer serializer;
-        QByteArray json(serializer.serializeWorldSurface(&ws));
-        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
-        const QJsonObject jobj(jdoc.object());
-
-        REQUIRE(jobj["objectName"].toString() == ws.objectName());
-        REQUIRE(jobj["displayName"].toString() == ws.getDisplayName());
-        REQUIRE(jobj["tileWidth"].toInt() == ws.getTileWidth());
-        REQUIRE(jobj["tileHeight"].toInt() == ws.getTileHeight());
-    }
-}

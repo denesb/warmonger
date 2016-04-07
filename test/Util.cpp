@@ -14,7 +14,6 @@
 #include "core/Weapon.h"
 #include "core/WeaponClass.h"
 #include "core/WeaponType.h"
-#include "core/WorldSurface.h"
 #include "test/Util.h"
 
 using namespace warmonger;

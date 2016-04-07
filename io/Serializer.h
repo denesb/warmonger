@@ -24,7 +24,6 @@ namespace core {
     class WeaponClass;
     class WeaponType;
     class World;
-    class WorldSurface;
 }
 
 namespace io {
@@ -50,7 +49,6 @@ public:
     virtual QByteArray serializeWeaponClass(const core::WeaponClass *obj) = 0;
     virtual QByteArray serializeWeaponType(const core::WeaponType *obj) = 0;
     virtual QByteArray serializeWorld(const core::World *obj) = 0;
-    virtual QByteArray serializeWorldSurface(const core::WorldSurface *obj) = 0;
 };
 
 } // namespace warmonger

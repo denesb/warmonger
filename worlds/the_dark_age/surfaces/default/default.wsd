@@ -3,45 +3,8 @@
     "displayName": "Default",
     "description": "Default surface for the Iron age world",
 
-    "colors": {
-        "plains": "#39661e",
-        "forest": "#173504",
-        "hills": "#cbce16",
-        "mountains": "#ce7516",
-
-        "grid": "#000000",
-        "focusOutline": "#d59037",
-        "noOwner": "#222222"
-    },
-
-    "images": {
-        "plains": "terrainTypes/plains.png",
-        "hills": "terrainTypes/hills.png",
-        "forest": "terrainTypes/forest.png",
-        "mountains": "terrainTypes/mountains.png",
-
-        "village": "settlementTypes/village.png",
-        "castle": "settlementTypes/castle.png",
-        "city": "settlementTypes/city.png",
-
-        "levy_spearman": "unitTypes/levy_spearman.png",
-        "spearman1": "unitTypes/spearman1.png",
-        "spearman2": "unitTypes/spearman2.png",
-        "veteran_spearman": "unitTypes/veteran_spearman.png",
-        "sergeant_spearman": "unitTypes/sergeant_spearman.png",
-        "levy_bowman": "unitTypes/levy_bowman.png",
-        "bowman1": "unitTypes/bowman1.png",
-        "bowman2": "unitTypes/bowman2.png",
-        "veteran_bowman": "unitTypes/veteran_bowman.png",
-        "marksman": "unitTypes/marksman.png",
-        "crossbowman1": "unitTypes/crossbowman1.png",
-        "crossbowman2": "unitTypes/crossbowman2.png",
-        "veteran_crossbowman": "unitTypes/veteran_crossbowman.png",
-        "sergeant_crossbowman": "unitTypes/sergeant_crossbowman.png",
-        "knight1": "unitTypes/knight1.png",
-        "knight2": "unitTypes/knight2.png",
-        "knight3": "unitTypes/knight3.png"
-    },
+    "focusGridColor": "#d59037",
+    "normalGridColor": "#000000",
 
     "tileHeight": 128,
     "tileWidth": 110

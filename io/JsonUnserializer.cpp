@@ -24,7 +24,6 @@
 #include "core/WeaponClass.h"
 #include "core/WeaponType.h"
 #include "core/World.h"
-#include "core/WorldSurface.h"
 #include "io/Exception.h"
 #include "io/JsonUnserializer.h"
 
@@ -416,20 +415,6 @@ core::World * JsonUnserializer::unserializeWorld(const QByteArray &data)
     ));
 
     return obj.release();
-}
-
-core::WorldSurface * JsonUnserializer::unserializeWorldSurface(const QByteArray &data)
-{
-    QJsonDocument jdoc(parseJson(data));
-    QJsonObject jobj = jdoc.object();
-
-    core::WorldSurface *obj = new core::WorldSurface();
-    obj->setObjectName(jobj["objectName"].toString());
-    obj->setDisplayName(jobj["displayName"].toString());
-    obj->setTileWidth(jobj["tileWidth"].toInt());
-    obj->setTileHeight(jobj["tileHeight"].toInt());
-
-    return obj;
 }
 
 QJsonDocument parseJson(const QByteArray &json)

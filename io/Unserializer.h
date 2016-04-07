@@ -24,7 +24,6 @@ namespace core {
     class WeaponClass;
     class WeaponType;
     class World;
-    class WorldSurface;
 }
 
 namespace io {
@@ -55,7 +54,6 @@ public:
     virtual core::WeaponClass * unserializeWeaponClass(const QByteArray &data) = 0;
     virtual core::WeaponType * unserializeWeaponType(const QByteArray &data) = 0;
     virtual core::World * unserializeWorld(const QByteArray &data) = 0;
-    virtual core::WorldSurface * unserializeWorldSurface(const QByteArray &data) = 0;
 
 protected:
     Context ctx;

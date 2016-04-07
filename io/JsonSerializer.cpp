@@ -24,7 +24,6 @@
 #include "core/WeaponClass.h"
 #include "core/WeaponType.h"
 #include "core/World.h"
-#include "core/WorldSurface.h"
 
 using namespace warmonger;
 using namespace warmonger::io;
@@ -47,7 +46,6 @@ QJsonObject weaponToJson(const core::Weapon *obj);
 QJsonObject weaponClassToJson(const core::WeaponClass *obj);
 QJsonObject weaponTypeToJson(const core::WeaponType *obj);
 QJsonObject worldToJson(const core::World *obj);
-QJsonObject worldSurfaceToJson(const core::WorldSurface *obj);
 
 JsonSerializer::JsonSerializer(QJsonDocument::JsonFormat format) :
     format(format)
@@ -161,12 +159,6 @@ QByteArray JsonSerializer::serializeWeaponType(const core::WeaponType *obj)
 QByteArray JsonSerializer::serializeWorld(const core::World *obj)
 {
     QJsonDocument jdoc(worldToJson(obj));
-    return jdoc.toJson(this->format);
-}
-
-QByteArray JsonSerializer::serializeWorldSurface(const core::WorldSurface *obj)
-{
-    QJsonDocument jdoc(worldSurfaceToJson(obj));
     return jdoc.toJson(this->format);
 }
 
@@ -547,16 +539,6 @@ QJsonObject worldToJson(const core::World *obj)
         obj->getCivilizations(),
         civilizationToJson
     );
-
-    return jobj;
-}
-
-QJsonObject worldSurfaceToJson(const core::WorldSurface *obj)
-{
-    QJsonObject jobj(namesToJson(obj));
-
-	jobj["tileWidth"] = obj->getTileWidth();
-	jobj["tileHeight"] = obj->getTileHeight();
 
     return jobj;
 }

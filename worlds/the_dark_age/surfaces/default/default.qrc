@@ -1,3 +1,5 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
 <qresource>
     <file>default.wsd</file>
     <file alias="hexagonMask">hexagon_mask.xpm</file>
@@ -10,3 +12,4 @@
     <file>settlementTypes/city.png</file>
     <file>unitTypes/frankish_footman.png</file>
 </qresource>
+</RCC>

@@ -1,17 +1,12 @@
 #ifndef IO_EXCEPTION_H
 #define IO_EXCEPTION_H
 
-#include <ostream>
-
-#include <QMap>
 #include <QString>
-#include <QStringList>
 
 #include "core/Exception.h"
 
 namespace warmonger {
 namespace io {
-
 
 /**
  * Error resolving a refrence to a game-object.

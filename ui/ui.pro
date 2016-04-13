@@ -15,22 +15,14 @@ SOURCES += \
 HEADERS += \
     qtquick2applicationviewer.h \
     ApplicationContext.h \
-    GameMap.h \
     MiniMap.h \
-    MapDrawer.h \
-    MapPreview.h \
-    MapUtil.h \
-    UnitRecruit.h
+    MapUtil.h
 
 SOURCES += \
     qtquick2applicationviewer.cpp \
     ApplicationContext.cpp \
-    GameMap.cpp \
-    MapDrawer.cpp \
     MiniMap.cpp \
-    MapPreview.cpp \
-    MapUtil.cpp \
-    UnitRecruit.cpp
+    MapUtil.cpp
 
 OTHER_FILES += \
     qml/EditableMap.qml \

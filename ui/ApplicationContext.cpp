@@ -3,7 +3,6 @@
 #include <QStringList>
 
 #include "core/WorldSurface.h"
-#include "core/EntityManager.h"
 #include "core/QVariantUtil.h"
 #include "ui/ApplicationContext.h"
 
@@ -15,9 +14,7 @@ static const QString loggerName{"ui.ApplicationContext"};
 ApplicationContext::ApplicationContext(QObject *parent) :
     QObject(parent),
     maps(),
-    map(nullptr),
-    game(nullptr),
-    world(nullptr)
+    game(nullptr)
 {
 }
 
@@ -30,24 +27,14 @@ QVariantList ApplicationContext::readMaps() const
     return core::toQVariantList(this->maps);
 }
 
-core::Map * ApplicationContext::getMap() const
-{
-    return this->map;
-}
-
 core::Game * ApplicationContext::getGame() const
 {
     return this->game;
 }
 
-core::World * ApplicationContext::getWorld() const
-{
-    return this->world;
-}
-
 void ApplicationContext::loadMaps()
 {
-    QStringList nameFilters;
+    /*
     nameFilters << "*.wmd";
 
     QFlags<QDir::Filter> filters = QDir::Files | QDir::Readable;
@@ -61,10 +48,10 @@ void ApplicationContext::loadMaps()
         for (QString mapFile : mapsDir.entryList(nameFilters, filters))
         {
             const QString mapPath = mapsDir.absoluteFilePath(mapFile);
-            core::Map *map{nullptr};
+            core::CampaignMap *map{nullptr};
             try
             {
-                map = em->loadEntityAs<core::Map>(mapPath);
+                map = em->loadEntityAs<core::CampaignMap>(mapPath);
             }
             catch (core::JsonParseError &e)
             {
@@ -88,13 +75,14 @@ void ApplicationContext::loadMaps()
             this->maps << map;
         }
     }
+    */
 
     emit mapsChanged();
 }
 
 void ApplicationContext::closeMaps()
 {
-    for (core::Map *map : this->maps)
+    for (core::CampaignMap *map : this->maps)
     {
         delete map;
     }
@@ -103,79 +91,12 @@ void ApplicationContext::closeMaps()
     emit mapsChanged();
 }
 
-void ApplicationContext::newMap()
-{
-    if (this->map != nullptr)
-    {
-        delete this->map;
-    }
-    this->closeGame();
-
-    this->map = new core::Map(core::EntityManager::getInstance());
-
-    emit this->mapChanged();
-}
-
-void ApplicationContext::loadMap(QString objectName)
-{
-    if (this->map != nullptr)
-    {
-        delete this->map;
-    }
-    this->closeGame();
-
-    core::EntityManager *em = core::EntityManager::getInstance();
-    this->map = em->loadEntity<core::Map>(objectName);
-
-    this->setWorld(this->map->getWorld());
-
-    emit mapChanged();
-}
-
-void ApplicationContext::loadMapFromPath(QString path)
-{
-    if (this->map != nullptr)
-    {
-        delete this->map;
-    }
-    this->closeGame();
-
-    core::EntityManager *em = core::EntityManager::getInstance();
-
-    this->map = em->loadEntityAs<core::Map>(path);
-
-    this->setWorld(this->map->getWorld());
-
-    emit mapChanged();
-}
-
-void ApplicationContext::loadMapFromUrl(QUrl url)
-{
-    this->loadMapFromPath(url.toLocalFile());
-}
-
-void ApplicationContext::closeMap()
-{
-    if (this->map == nullptr) return;
-
-    delete this->map;
-    this->map = nullptr;
-
-    emit mapChanged();
-}
-
-void ApplicationContext::newGame(warmonger::core::Map *map)
+void ApplicationContext::newGame(warmonger::core::CampaignMap *map)
 {
     if (this->game != nullptr)
     {
         delete this->game;
     }
-    this->closeMap();
-
-    this->game = new core::Game(core::EntityManager::getInstance());
-    this->game->fromMapJson(map->toJson());
-
-    this->setWorld(this->game->getWorld());
 
     emit gameChanged();
 }
@@ -186,36 +107,8 @@ void ApplicationContext::loadGame(QString objectName)
     {
         delete this->game;
     }
-    this->closeMap();
-
-    core::EntityManager *em = core::EntityManager::getInstance();
-    this->game = em->loadEntity<core::Game>(objectName);
-
-    this->setWorld(this->game->getWorld());
 
     emit gameChanged();
-}
-
-void ApplicationContext::loadGameFromPath(QString path)
-{
-    if (this->game != nullptr)
-    {
-        delete this->game;
-    }
-    this->closeMap();
-
-    core::EntityManager *em = core::EntityManager::getInstance();
-
-    this->game = em->loadEntityAs<core::Game>(path);
-
-    this->setWorld(this->game->getWorld());
-
-    emit gameChanged();
-}
-
-void ApplicationContext::loadGameFromUrl(QUrl url)
-{
-    this->loadGameFromPath(url.toLocalFile());
 }
 
 void ApplicationContext::closeGame()
@@ -226,18 +119,4 @@ void ApplicationContext::closeGame()
     this->game = nullptr;
 
     emit gameChanged();
-}
-
-void ApplicationContext::setWorld(core::World *world)
-{
-    if (this->world == world) return;
-
-    this->world = world;
-
-    if (this->world->getSurface() == nullptr)
-    {
-        this->world->setSurface("default");
-    }
-
-    emit worldChanged();
 }

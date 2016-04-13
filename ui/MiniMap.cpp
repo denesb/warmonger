@@ -5,13 +5,14 @@
 #include <QColor>
 #include <QPainter>
 
-#include "core/Player.h"
+#include "core/Faction.h"
 #include "core/Settlement.h"
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
 #include "core/Unit.h"
 #include "core/WorldSurface.h"
 #include "ui/MiniMap.h"
+#include "log/LogStream.h"
 
 static const QString loggerName{"ui.MiniMap"};
 
@@ -54,12 +55,12 @@ MiniMap::~MiniMap()
 {
 }
 
-core::Map * MiniMap::getMap() const
+core::CampaignMap * MiniMap::getMap() const
 {
     return this->map;
 }
 
-void MiniMap::setMap(core::Map *map)
+void MiniMap::setMap(core::CampaignMap *map)
 {
     if (this->map != map)
     {
@@ -79,9 +80,9 @@ void MiniMap::setMap(core::Map *map)
 
         QObject::connect(
             this->map,
-            &core::Map::unitAdded,
+            &core::CampaignMap::unitsChanged,
             this,
-            &MiniMap::onUnitAdded
+            &QQuickItem::update
         );
 
         emit mapChanged();
@@ -137,8 +138,8 @@ void MiniMap::paint(QPainter *painter)
     painter->scale(this->scale, this->scale);
     painter->translate(this->translate);
 
-    auto cbegin = this->nodes.constBegin();
-    auto cend = this->nodes.constEnd();
+    auto cbegin = this->nodes.cbegin();
+    auto cend = this->nodes.cend();
     std::function<void(const core::MapNode *)> drawNodeFunc = std::bind(
         &MiniMap::drawNode,
         this,
@@ -173,12 +174,6 @@ void MiniMap::mouseMoveEvent(QMouseEvent *event)
         QPointF pos(this->mapToMap(event->pos()));
         this->centerWindow(pos.toPoint());
     }
-}
-
-void MiniMap::onUnitAdded(const core::Unit *unit)
-{
-    Q_UNUSED(unit);
-    this->update();
 }
 
 void MiniMap::setupMap()
@@ -218,7 +213,7 @@ void MiniMap::updateWindowPosRect()
 
 void MiniMap::updateTransform()
 {
-    QPair<qreal, QPointF> transform = centerIn(
+    std::pair<qreal, QPointF> transform = centerIn(
         this->boundingRect,
         this->contentsBoundingRect()
     );
@@ -235,6 +230,7 @@ QPointF MiniMap::mapToMap(const QPointF &p)
 
 void MiniMap::drawNode(QPainter *painter, const core::MapNode *node)
 {
+    /*
     const QString terrainTypeName = node->getTerrainType()->objectName();
     const core::Settlement *settlement = this->map->getSettlementOn(node);
     const core::Unit *unit = this->map->getUnitOn(node);
@@ -253,7 +249,7 @@ void MiniMap::drawNode(QPainter *painter, const core::MapNode *node)
         const int size = w/2 - w/10;
         const QRect sr(w/20, h/2 - size/2, size, size);
 
-        const core::Player *owner = settlement->getOwner();
+        const core::Faction *owner = settlement->getOwner();
         QColor sc;
         if (owner == nullptr)
             sc= this->surface->getColorName("noOwner");
@@ -268,7 +264,7 @@ void MiniMap::drawNode(QPainter *painter, const core::MapNode *node)
         const int size = w/4;
         const QRect ur(w/2 + w/5, h/2 - size/2, size, size);
 
-        const core::Player *owner = unit->getOwner();
+        const core::Faction *owner = unit->getOwner();
         QColor uc;
         if (owner == nullptr)
             uc= this->surface->getColorName("noOwner");
@@ -279,4 +275,5 @@ void MiniMap::drawNode(QPainter *painter, const core::MapNode *node)
     }
 
     painter->restore();
+    */
 }

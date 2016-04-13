@@ -1,11 +1,11 @@
 #ifndef UI_MAP_UTIL_H
 #define UI_MAP_UTIL_H
 
-#include <QHash>
+#include <map>
+
 #include <QPainterPath>
 #include <QPoint>
 #include <QRect>
-#include <QSet>
 
 #include "core/MapNode.h"
 
@@ -19,21 +19,11 @@ namespace core {
 
 namespace ui {
 
-QPoint neighbourPos(
-    const QPoint &pos,
-    core::MapNode::Direction dir,
-    const QSize &tileSize
-);
+QPoint neighbourPos(const QPoint &pos, core::Direction dir, const QSize &tileSize);
 
-QHash<const core::MapNode *, QPoint> positionNodes(
-    core::MapNode * startNode,
-    const QSize &tileSize
-);
+std::map<const core::MapNode *, QPoint> positionNodes(core::MapNode * startNode, const QSize &tileSize);
 
-QRect calculateBoundingRect(
-    QHash<const core::MapNode *, QPoint> &nodesPos,
-    const QSize &tileSize
-);
+QRect calculateBoundingRect(std::map<const core::MapNode *, QPoint> &nodesPos, const QSize &tileSize);
 
 QPainterPath hexagonPath(const QSize &tileSize);
 
@@ -49,7 +39,7 @@ QPoint project(const QPoint &p, const QRect &r);
  * The scale and translate values are ment to be used to scale and
  * translate a graphic scene (first scale and then translate!).
  */
-QPair<qreal, QPointF> centerIn(const QRectF &content, const QRectF &frame);
+std::pair<qreal, QPointF> centerIn(const QRectF &content, const QRectF &frame);
 
 } // namespace ui
 } // namespace warmonger

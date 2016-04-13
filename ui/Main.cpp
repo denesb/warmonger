@@ -3,10 +3,9 @@
 #include <QQmlContext>
 
 #include "ui/ApplicationContext.h"
-#include "ui/GameMap.h"
+//#include "ui/GameMap.h"
 #include "ui/MiniMap.h"
-#include "ui/MapPreview.h"
-#include "ui/UnitRecruit.h"
+//#include "ui/MapPreview.h"
 #include "ui/qtquick2applicationviewer.h"
 #include "log/LogStream.h"
 #include "log/ConsoleHandler.h"
@@ -62,10 +61,9 @@ void initUi(
     warmonger::ui::ApplicationContext &ctx
 )
 {
-    qmlRegisterType<warmonger::ui::GameMap>("Warmonger", 1, 0, "GameMap");
+    //qmlRegisterType<warmonger::ui::GameMap>("Warmonger", 1, 0, "GameMap");
     qmlRegisterType<warmonger::ui::MiniMap>("Warmonger", 1, 0, "MiniMap");
-    qmlRegisterType<warmonger::ui::MapPreview>("Warmonger", 1, 0, "MapPreview");
-    qmlRegisterType<warmonger::ui::UnitRecruit>("Warmonger", 1, 0, "UnitRecruit");
+    //qmlRegisterType<warmonger::ui::MapPreview>("Warmonger", 1, 0, "MapPreview");
 
     viewer.rootContext()->setContextProperty("W", &ctx);
 

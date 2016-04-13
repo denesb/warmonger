@@ -1,4 +1,3 @@
-#include <QSize>
 
 #include "ui/MapUtil.h"
 #include "core/WorldSurface.h"
@@ -6,41 +5,33 @@
 namespace warmonger {
 namespace ui {
 
-static void positionNode(
-    core::MapNode *node,
-    QHash<const core::MapNode *, QPoint> &nodesPos,
-    const QSize &tileSize
-);
+void positionNode(core::MapNode *node, std::map<const core::MapNode *, QPoint> &nodesPos, const QSize &tileSize);
 
-QPoint neighbourPos(
-    const QPoint &pos,
-    core::MapNode::Direction dir,
-    const QSize &tileSize
-)
+QPoint neighbourPos(const QPoint &pos, core::Direction dir, const QSize &tileSize)
 {
     QSize displacement(0, 0);
 
     switch(dir)
     {
-    case core::MapNode::West:
+    case core::Direction::West:
         displacement.setWidth(-tileSize.width());
         break;
-    case core::MapNode::NorthWest:
+    case core::Direction::NorthWest:
         displacement.setWidth(-tileSize.width()/2);
         displacement.setHeight(-tileSize.height() * 3/4);
         break;
-    case core::MapNode::NorthEast:
+    case core::Direction::NorthEast:
         displacement.setWidth(tileSize.width()/2);
         displacement.setHeight(-tileSize.height() * 3/4);
         break;
-    case core::MapNode::East:
+    case core::Direction::East:
         displacement.setWidth(tileSize.width());
         break;
-    case core::MapNode::SouthEast:
+    case core::Direction::SouthEast:
         displacement.setWidth(tileSize.width()/2);
         displacement.setHeight(tileSize.height() * 3/4);
         break;
-    case core::MapNode::SouthWest:
+    case core::Direction::SouthWest:
         displacement.setWidth(-tileSize.width()/2);
         displacement.setHeight(tileSize.height() * 3/4);
         break;
@@ -52,57 +43,47 @@ QPoint neighbourPos(
     );
 }
 
-QHash<const core::MapNode *, QPoint> positionNodes(
-    core::MapNode * startNode,
-    const QSize &tileSize
-)
+std::map<const core::MapNode *, QPoint> positionNodes(core::MapNode * startNode, const QSize &tileSize)
 {
-    QHash<const core::MapNode *, QPoint> nodesPos;
+    std::map<const core::MapNode *, QPoint> nodesPos;
 
-    nodesPos.insert(startNode, QPoint(0, 0));
+    nodesPos.insert(std::make_pair(startNode, QPoint(0, 0)));
 
     positionNode(startNode, nodesPos, tileSize);
 
     return nodesPos;
 }
 
-void positionNode(
-    core::MapNode *node,
-    QHash<const core::MapNode *, QPoint> &nodesPos,
-    const QSize &tileSize
-)
+void positionNode(core::MapNode *node, std::map<const core::MapNode *, QPoint> &nodesPos, const QSize &tileSize)
 {
     QPoint pos = nodesPos[node];
-    QHash<core::MapNode::Direction, core::MapNode *> neighbours =
-        node->getNeighbours();
-    for (auto it = neighbours.constBegin(); it != neighbours.constEnd(); it++)
+    std::map<core::Direction, core::MapNode *> neighbours = node->getNeighbours();
+    for (const auto &element :  neighbours)
     {
-        core::MapNode *neighbour = it.value();
-        core::MapNode::Direction dir = it.key();
+        core::Direction dir = element.first;
+        core::MapNode *neighbour = element.second;
 
-        if (neighbour == nullptr || nodesPos.contains(neighbour))
+        if (neighbour == nullptr || nodesPos.find(neighbour) != nodesPos.end())
             continue;
 
-        nodesPos.insert(neighbour, neighbourPos(pos, dir, tileSize));
+        nodesPos.insert(std::make_pair(neighbour, neighbourPos(pos, dir, tileSize)));
 
         positionNode(neighbour, nodesPos, tileSize);
     }
 }
 
-QRect calculateBoundingRect(
-    QHash<const core::MapNode *, QPoint> &nodesPos,
-    const QSize &tileSize
-)
+QRect calculateBoundingRect(std::map<const core::MapNode *, QPoint> &nodesPos, const QSize &tileSize)
 {
     if (nodesPos.size() == 0)
         return QRect(0, 0, 0, 0);
 
-    QPoint bpos = *(nodesPos.begin());
+    QPoint bpos = nodesPos.begin()->second;
     QPoint topLeft = bpos;
     QPoint bottomRight = bpos;
 
-    for (const QPoint pos : nodesPos)
+    for (const auto &element : nodesPos)
     {
+        QPoint pos = element.second;
         topLeft.setX(std::min(pos.x(), topLeft.x()));
         bottomRight.setX(std::max(pos.x(), bottomRight.x()));
 
@@ -159,7 +140,7 @@ QPoint project(const QPoint &p, const QRect &r)
     return pp;
 }
 
-QPair<qreal, QPointF> centerIn(const QRectF &content, const QRectF &frame)
+std::pair<qreal, QPointF> centerIn(const QRectF &content, const QRectF &frame)
 {
     const qreal contentSize = std::max(content.width(), content.height());
     const qreal frameSize = std::min(frame.width(), frame.height());
@@ -174,7 +155,7 @@ QPair<qreal, QPointF> centerIn(const QRectF &content, const QRectF &frame)
     QPointF translate = QPointF(-content.topLeft());
     translate += (QPointF(dx, dy) * (1 / scale));
 
-    return QPair<qreal, QPointF>(scale, translate);
+    return std::pair<qreal, QPointF>(scale, translate);
 }
 
 } // namespace ui

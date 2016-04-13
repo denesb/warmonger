@@ -22,11 +22,13 @@ Rectangle {
                     properties: {stack: stack}
                 });
             }
+            enabled: false
         }
 
         Button {
             width: 128
             text: "Saved Game"
+            enabled: false
         }
 
         Button {

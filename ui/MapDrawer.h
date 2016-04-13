@@ -42,41 +42,22 @@ struct DrawingInfo
 class MapDrawer
 {
 public:
-    MapDrawer(
-        core::Map *map,
-        const QHash<const core::MapNode *, QPoint> &nodesPos
-    );
+    MapDrawer(core::Map *map, const QHash<const core::MapNode *, QPoint> &nodesPos);
     ~MapDrawer();
 
-    void drawMap(
-        QPainter *painter,
-        const QList<core::MapNode *> &nodes,
-        const DrawingInfo &drawingInfo
-    ) const;
+    void drawMap(QPainter *painter, const QList<core::MapNode *> &nodes, const DrawingInfo &drawingInfo) const;
 
 private:
-    void drawNodes(
-        QPainter *painter,
-        const QList<core::MapNode *> &nodes
-    ) const;
+    void drawNodes(QPainter *painter, const QList<core::MapNode *> &nodes) const;
     void drawNode(QPainter *painter, const core::MapNode *node) const;
 
-    void drawNodesGrid(
-        QPainter *painter,
-        const QList<core::MapNode *> &nodes
-    ) const;
+    void drawNodesGrid(QPainter *painter, const QList<core::MapNode *> &nodes) const;
     void drawNodeGrid(QPainter *painter, const core::MapNode *node) const;
 
     void drawFocusMark(QPainter *painter, const core::MapNode *node) const;
 
-    void drawNodesSettlements(
-        QPainter *painter,
-        const QList<core::MapNode *> &nodes
-    ) const;
-    void drawSettlement(
-        QPainter *painter,
-        const core::Settlement *settlement
-    ) const;
+    void drawNodesSettlements(QPainter *painter, const QList<core::MapNode *> &nodes) const;
+    void drawSettlement(QPainter *painter, const core::Settlement *settlement) const;
 
     void drawOverlays(
         QPainter *painter,

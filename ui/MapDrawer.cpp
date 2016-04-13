@@ -6,7 +6,7 @@
 #include <QColor>
 #include <QRect>
 
-#include "core/Map.h"
+#include "core/CampaignMap.h"
 #include "core/Settlement.h"
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
@@ -20,7 +20,7 @@ using namespace warmonger;
 using namespace warmonger::ui;
 
 MapDrawer::MapDrawer(
-    core::Map *map,
+    core::CampaignMap *map,
     const QHash<const core::MapNode *, QPoint> &nodesPos
 ) :
     map(map),

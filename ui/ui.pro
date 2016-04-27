@@ -16,12 +16,14 @@ HEADERS += \
     qtquick2applicationviewer.h \
     ApplicationContext.h \
     MiniMap.h \
+    MapWindow.h \
     MapUtil.h
 
 SOURCES += \
     qtquick2applicationviewer.cpp \
     ApplicationContext.cpp \
     MiniMap.cpp \
+    MapWindow.cpp \
     MapUtil.cpp
 
 OTHER_FILES += \

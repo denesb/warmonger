@@ -6,4 +6,5 @@ SUBDIRS = \
     log \
     core \
     io \
+    ui \
     test

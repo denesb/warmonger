@@ -1,32 +1,33 @@
 #include <QDir>
 #include <QGuiApplication>
 #include <QQmlContext>
+#include <QQuickView>
 
 #include "ui/ApplicationContext.h"
 //#include "ui/GameMap.h"
 #include "ui/MiniMap.h"
 //#include "ui/MapPreview.h"
-#include "ui/qtquick2applicationviewer.h"
 #include "log/LogStream.h"
 #include "log/ConsoleHandler.h"
 #include "log/Formatter.h"
 
-static void readSettings();
-static void initLogger();
-static void initUi(
-    QtQuick2ApplicationViewer &viewer,
-    warmonger::ui::ApplicationContext &ctx
-);
+using namespace warmonger;
+
+void readSettings();
+void initLogger();
+void initUi(std::unique_ptr<QQuickView> &view, std::unique_ptr<ui::ApplicationContext> &ctx);
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
-    QtQuick2ApplicationViewer viewer;
-    warmonger::ui::ApplicationContext ctx;
 
     readSettings();
     initLogger();
-    initUi(viewer, ctx);
+
+    std::unique_ptr<QQuickView> view{new QQuickView};
+    std::unique_ptr<ui::ApplicationContext> ctx{new ui::ApplicationContext()};
+
+    initUi(view, ctx);
 
     return app.exec();
 }
@@ -39,34 +40,32 @@ void readSettings()
 
 void initLogger()
 {
-    warmonger::log::Logger::init();
+    log::Logger::init();
 
     const QString formatStr("%{level} {%{name}} %{message}");
-    std::shared_ptr<warmonger::log::Formatter> formatter(
-        new warmonger::log::Formatter(formatStr)
+    std::shared_ptr<log::Formatter> formatter(
+        new log::Formatter(formatStr)
     );
 
-    std::shared_ptr<warmonger::log::ConsoleHandler> consoleHandler(
-        new warmonger::log::ConsoleHandler()
+    std::shared_ptr<log::ConsoleHandler> consoleHandler(
+        new log::ConsoleHandler()
     );
-    consoleHandler->setLevel(warmonger::log::Debug);
+    consoleHandler->setLevel(log::Debug);
     consoleHandler->setFormatter(formatter);
 
-    warmonger::log::Logger *rootLogger = warmonger::log::Logger::get("root");
+    log::Logger *rootLogger = log::Logger::get("root");
     rootLogger->addHandler(consoleHandler);
 }
 
-void initUi(
-    QtQuick2ApplicationViewer &viewer,
-    warmonger::ui::ApplicationContext &ctx
-)
+void initUi(std::unique_ptr<QQuickView> &view, std::unique_ptr<ui::ApplicationContext> &ctx)
 {
-    //qmlRegisterType<warmonger::ui::GameMap>("Warmonger", 1, 0, "GameMap");
-    qmlRegisterType<warmonger::ui::MiniMap>("Warmonger", 1, 0, "MiniMap");
-    //qmlRegisterType<warmonger::ui::MapPreview>("Warmonger", 1, 0, "MapPreview");
 
-    viewer.rootContext()->setContextProperty("W", &ctx);
+    //qmlRegisterType<ui::GameMap>("Warmonger", 1, 0, "GameMap");
+    qmlRegisterType<ui::MiniMap>("Warmonger", 1, 0, "MiniMap");
+    //qmlRegisterType<ui::MapPreview>("Warmonger", 1, 0, "MapPreview");
 
-    viewer.setMainQmlFile(QStringLiteral("qml/Main.qml"));
-    viewer.showExpanded();
+    view->rootContext()->setContextProperty("W", ctx.get());
+    view->setSource(QUrl("qrc:/qml/Main.qml"));
+    view->show();
+    //viewer.showExpanded();
 }

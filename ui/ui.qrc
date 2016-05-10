@@ -1,0 +1,28 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+<qresource>
+    <file>qml/EditableMap.qml</file>
+    <file>qml/Game.qml</file>
+    <file>qml/GameItemInfo.qml</file>
+    <file>qml/GameSetup.qml</file>
+    <file>qml/InfoBar.qml</file>
+    <file>qml/ListEditGroup.qml</file>
+    <file>qml/Main.qml</file>
+    <file>qml/MainMenu.qml</file>
+    <file>qml/MapDetails.qml</file>
+    <file>qml/MapEditor.qml</file>
+    <file>qml/MapItemSelector.qml</file>
+    <file>qml/MapItemsInfo.qml</file>
+    <file>qml/MapList.qml</file>
+    <file>qml/MapNodeEdit.qml</file>
+    <file>qml/NewGame.qml</file>
+    <file>qml/Palette.js</file>
+    <file>qml/PointBar.qml</file>
+    <file>qml/RecruitUnits.qml</file>
+    <file>qml/SettlementEdit.qml</file>
+    <file>qml/TextEditGroup.qml</file>
+    <file>qml/UnitEdit.qml</file>
+    <file>qml/UnitTypeDetails.qml</file>
+    <file>qml/UnitTypeSelector.qml</file>
+</qresource>
+</RCC>

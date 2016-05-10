@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>

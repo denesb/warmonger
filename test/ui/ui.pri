@@ -1,2 +1,0 @@
-SOURCES += \
-    ui/MapWindow.cpp

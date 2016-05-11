@@ -2,6 +2,7 @@
 #include <QGuiApplication>
 #include <QQmlContext>
 #include <QQuickView>
+#include <QtQml/QQmlEngine>
 
 #include "ui/ApplicationContext.h"
 //#include "ui/GameMap.h"
@@ -28,6 +29,8 @@ int main(int argc, char *argv[])
     std::unique_ptr<ui::ApplicationContext> ctx{new ui::ApplicationContext()};
 
     initUi(view, ctx);
+
+    QObject::connect(view->engine(), &QQmlEngine::quit, view.get(), &QQuickView::close);
 
     return app.exec();
 }
@@ -67,5 +70,4 @@ void initUi(std::unique_ptr<QQuickView> &view, std::unique_ptr<ui::ApplicationCo
     view->rootContext()->setContextProperty("W", ctx.get());
     view->setSource(QUrl("qrc:/qml/Main.qml"));
     view->show();
-    //viewer.showExpanded();
 }

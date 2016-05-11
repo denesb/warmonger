@@ -27,8 +27,8 @@
 *.out
 *.app
 
-# Qt temp files
-*.pro.user
+# Qt files
+*.rcc
 
 # Other
 build/

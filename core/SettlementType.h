@@ -14,7 +14,7 @@ class UnitType;
 class SettlementType :
     public QObject
 {
-    Q_OBJECT;
+    Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(int goldPerTurn READ getGoldPerTurn WRITE setGoldPerTurn NOTIFY goldPerTurnChanged)
     Q_PROPERTY(QVariantList recruits READ readRecruits WRITE writeRecruits NOTIFY recruitsChanged)

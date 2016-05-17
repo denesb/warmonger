@@ -44,7 +44,7 @@ public:
     QSize getWindowSize() const;
     void setWindowSize(const QSize& windowSize);
 
-    void paint(QPainter *painter);
+    void paint(QPainter *painter) override;
 
 signals:
     void mapChanged();
@@ -52,8 +52,8 @@ signals:
     void windowSizeChanged();
 
 protected:
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
     void setupMap();

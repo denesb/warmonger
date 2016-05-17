@@ -15,7 +15,7 @@ public:
     virtual ~ConsoleHandler();
 
 private:
-    virtual void handle(const QString &msg);
+    void handle(const QString &msg) override;
 
     QTextStream stream;
 };

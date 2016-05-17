@@ -18,7 +18,7 @@ namespace core {
 class UnitType :
     public QObject
 {
-    Q_OBJECT;
+    Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(UnitClass *klass READ getClass WRITE setClass NOTIFY classChanged)
     Q_PROPERTY(UnitLevel *level READ getLevel WRITE setLevel NOTIFY levelChanged)

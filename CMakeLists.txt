@@ -6,7 +6,18 @@ option(BUILD_TESTS "Build unit test suite")
 
 include_directories(${PROJECT_SOURCE_DIR})
 
-add_compile_options(-std=c++14)
+add_compile_options(
+    -std=c++14
+    -Werror
+    -Wpedantic
+    -Wall
+    -Wextra
+    -Wchar-subscripts
+    -Wcomment
+    -Wreturn-type
+    -Wswitch
+    -Wsuggest-override
+)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)

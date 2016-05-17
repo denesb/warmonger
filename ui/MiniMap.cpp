@@ -228,7 +228,7 @@ QPointF MiniMap::mapToMap(const QPointF &p)
     return p * rscale - this->translate;
 }
 
-void MiniMap::drawNode(QPainter *painter, const core::MapNode *node)
+void MiniMap::drawNode(QPainter *, const core::MapNode *)
 {
     /*
     const QString terrainTypeName = node->getTerrainType()->objectName();

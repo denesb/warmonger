@@ -20,7 +20,7 @@ class Settlement :
     Q_PROPERTY(SettlementType *type READ getType WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(MapNode *mapNode READ getMapNode WRITE setMapNode NOTIFY mapNodeChanged)
     Q_PROPERTY(Faction *owner READ getOwner WRITE setOwner NOTIFY ownerChanged)
-    Q_PROPERTY(QVariantList recruits READ readRecruits NOTIFY recruitsChanged);
+    Q_PROPERTY(QVariantList recruits READ readRecruits NOTIFY recruitsChanged)
 
 public:
     explicit Settlement(QObject *parent=nullptr);

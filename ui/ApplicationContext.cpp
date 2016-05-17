@@ -91,7 +91,7 @@ void ApplicationContext::closeMaps()
     emit mapsChanged();
 }
 
-void ApplicationContext::newGame(warmonger::core::CampaignMap *map)
+void ApplicationContext::newGame(warmonger::core::CampaignMap *)
 {
     if (this->game != nullptr)
     {
@@ -101,7 +101,7 @@ void ApplicationContext::newGame(warmonger::core::CampaignMap *map)
     emit gameChanged();
 }
 
-void ApplicationContext::loadGame(QString objectName)
+void ApplicationContext::loadGame(QString)
 {
     if (this->game != nullptr)
     {

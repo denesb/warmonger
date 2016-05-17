@@ -49,7 +49,7 @@ public:
     Mode getMode() const;
     void setMode(Mode mode);
 
-    void paint(QPainter *painter);
+    void paint(QPainter *painter) override;
 
 signals:
     void currentMapNodeChanged();
@@ -64,9 +64,9 @@ signals:
     void windowSizeChanged();
 
 protected:
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void hoverMoveEvent(QHoverEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void hoverMoveEvent(QHoverEvent *event) override;
 
 private slots:
     void onUnitAdded(const core::Unit *unit);

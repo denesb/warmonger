@@ -14,7 +14,7 @@ class WorldSurface :
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(QString description READ getDescription WRITE setDescription NOTIFY descriptionChanged)
-    Q_PROPERTY(QSize tileSize READ getTileSize NOTIFY tileSizeChanged);
+    Q_PROPERTY(QSize tileSize READ getTileSize NOTIFY tileSizeChanged)
     Q_PROPERTY(QColor normalGridColor READ getNormalGridColor WRITE setNormalGridColor NOTIFY normalGridColorChanged)
     Q_PROPERTY(QColor focusGridColor READ getFocusGridColor WRITE setFocusGridColor NOTIFY focusGridColorChanged)
 

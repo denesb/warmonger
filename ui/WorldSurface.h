@@ -1,12 +1,12 @@
-#ifndef CORE_WORLD_SURFACE_H
-#define CORE_WORLD_SURFACE_H
+#ifndef UI_WORLD_SURFACE_H
+#define UI_WORLD_SURFACE_H
 
 #include <QColor>
 #include <QImage>
 #include <QSize>
 
 namespace warmonger {
-namespace core {
+namespace ui {
 
 class WorldSurface :
     public QObject
@@ -19,7 +19,7 @@ class WorldSurface :
     Q_PROPERTY(QColor focusGridColor READ getFocusGridColor WRITE setFocusGridColor NOTIFY focusGridColorChanged)
 
 public:
-    explicit WorldSurface(QObject *parent=nullptr);
+    explicit WorldSurface(const QString& path, QObject *parent=nullptr);
 
     QString getDisplayName() const;
     void setDisplayName(const QString &displayName);
@@ -53,7 +53,8 @@ public:
      * This method relies on the resource file being correct! Missing data may
      * cause silent failures!
      */
-    void load(const QString &path);
+    void activate();
+    void deactivate();
 
 signals:
     void displayNameChanged();
@@ -65,17 +66,20 @@ signals:
     void focusGridColorChanged();
 
 private:
+    void readHeader(const QString& header);
+
+    const QString path;
     QString displayName;
     QString description;
+
     int tileWidth;
     int tileHeight;
     QColor normalGridColor;
     QColor focusGridColor;
-
     QImage hexMask;
 };
 
-} // namespace core
+} // namespace ui
 } // namespace warmonger
 
-#endif // CORE_WORLD_SURFACE_H
+#endif // UI_WORLD_SURFACE_H

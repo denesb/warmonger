@@ -6,21 +6,32 @@
 #include <QResource>
 
 #include "core/Exception.h"
-#include "core/WorldSurface.h"
+#include "io/Exception.h"
+#include "ui/WorldSurface.h"
 
 using namespace warmonger::core;
 
 static const QString loggerName{"core.WorldSurface"};
 
-WorldSurface::WorldSurface(QObject *parent) :
+WorldSurface::WorldSurface(const QString& path, QObject *parent) :
     QObject(parent),
-    displayName(),
-    description(),
-    tileWidth(0),
-    tileHeight(0),
-    normalGridColor(),
-    focusGridColor()
+    path(path),
 {
+    QFile packageFile(path);
+    if (!packageFile.open(QIODevice::ReadOnly))
+    {
+        throw io::FileIOError(
+            "Failed to open resource package " + path + ". Open returned code " + QString::number(packageFile.error())
+        );
+    }
+
+    size_t headerSize;
+    QTextStream stream(&packageFile);
+
+    stream >> headerSize;
+
+    QString header = stream.read(headerSize);
+    this->readHeader(header);
 }
 
 QString WorldSurface::getDisplayName() const
@@ -164,8 +175,9 @@ bool WorldSurface::hexContains(const QPointF &p) const
     return (pixelc == 0xffffffff || pixelf == 0xffffffff);
 }
 
-void WorldSurface::load(const QString &path)
+void WorldSurface::readHeader(const QString &header)
 {
+    /*
     if (!QResource::registerResource(path))
     {
         throw Exception("Failed to load resource from " + path);
@@ -173,15 +185,27 @@ void WorldSurface::load(const QString &path)
 
     QFile jfile("qrc::///default.wsd");
     jfile.open(QIODevice::ReadOnly);
+    */
 
-    QJsonDocument jdoc(QJsonDocument::fromJson(jfile.readAll()));
+    QJsonParseError parseError;
+    QJsonDocument jdoc(header.toUtf8(), &parseError);
+
+    if (parseError.error != QJsonParseError::NoError)
+    {
+        throw JsonParseError(
+            parseError.errorString() + " at " + parseError.offset
+        );
+    }
+
     QJsonObject jobj = jdoc.object();
 
     this->setObjectName(jobj["objectName"].toString());
     this->setDisplayName(jobj["displayName"].toString());
     this->setDescription(jobj["description"].toString());
+    /*
     this->setTileWidth(jobj["tileWidth"].toInt());
     this->setTileHeight(jobj["tileHeight"].toInt());
     this->setNormalGridColor(QColor(jobj["normalGridColor"].toString()));
     this->setFocusGridColor(QColor(jobj["focusGridColor"].toString()));
+    */
 }

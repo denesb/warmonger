@@ -15,7 +15,6 @@
 #include "core/UnitType.h"
 #include "core/UnitLevel.h"
 #include "core/Weapon.h"
-#include "core/WorldSurface.h"
 
 namespace warmonger {
 namespace core {
@@ -25,7 +24,6 @@ class World :
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
-    Q_PROPERTY(WorldSurface *surface READ getSurface NOTIFY surfaceChanged)
     Q_PROPERTY(QVariantList civilizations READ readCivilizations NOTIFY civilizationsChanged)
     Q_PROPERTY(QVariantList settlementTypes READ readSettlementTypes NOTIFY settlementTypesChanged)
     Q_PROPERTY(QVariantList terrainTypes READ readTerrainTypes NOTIFY terrainTypesChanged)
@@ -36,9 +34,6 @@ public:
 
     QString getDisplayName() const;
     void setDisplayName(const QString &displayName);
-
-    WorldSurface * getSurface() const;
-    void setSurface(WorldSurface *surface);
 
     std::vector<Armor *> getArmors() const;
     void setArmors(const std::vector<Armor *> &armors);
@@ -95,7 +90,6 @@ signals:
 
 private:
     QString displayName;
-    WorldSurface *surface;
     std::vector<DamageType *> damageTypes;
     std::vector<Armor *> armors;
     std::vector<WeaponClass *> weaponClasses;

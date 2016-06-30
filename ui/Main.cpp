@@ -6,8 +6,9 @@
 
 #include "ui/ApplicationContext.h"
 //#include "ui/GameMap.h"
-#include "ui/MiniMap.h"
+//#include "ui/MiniMap.h"
 //#include "ui/MapPreview.h"
+#include "ui/CampaignMapEditor.h"
 #include "log/LogStream.h"
 #include "log/ConsoleHandler.h"
 #include "log/Formatter.h"
@@ -64,8 +65,9 @@ void initUi(std::unique_ptr<QQuickView> &view, std::unique_ptr<ui::ApplicationCo
 {
 
     //qmlRegisterType<ui::GameMap>("Warmonger", 1, 0, "GameMap");
-    qmlRegisterType<ui::MiniMap>("Warmonger", 1, 0, "MiniMap");
+    //qmlRegisterType<ui::MiniMap>("Warmonger", 1, 0, "MiniMap");
     //qmlRegisterType<ui::MapPreview>("Warmonger", 1, 0, "MapPreview");
+    qmlRegisterType<ui::CampaignMapEditor>("Warmonger", 1, 0, "CampaignMapEditor");
 
     view->rootContext()->setContextProperty("W", ctx.get());
     view->setSource(QUrl("qrc:/qml/Main.qml"));

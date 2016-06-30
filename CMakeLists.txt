@@ -45,7 +45,6 @@ set(
     core/WeaponClass.cpp
     core/WeaponType.cpp
     core/World.cpp
-    core/WorldSurface.cpp
     io/Context.cpp
     io/File.cpp
     io/JsonSerializer.cpp
@@ -58,9 +57,11 @@ set(
     log/LogStream.cpp
     log/Logger.cpp
     ui/ApplicationContext.cpp
+    ui/CampaignMapEditor.cpp
     ui/MapUtil.cpp
     ui/MapWindow.cpp
     ui/MiniMap.cpp
+    ui/WorldSurface.cpp
 )
 
 find_package(Qt5Core REQUIRED)

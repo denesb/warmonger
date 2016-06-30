@@ -7,16 +7,6 @@ static const QString loggerName{"core.World"};
 
 World::World(QObject *parent) :
     QObject(parent),
-    surface(nullptr),
-    damageTypes(),
-    armors(),
-    weapons(),
-    terrainTypes(),
-    unitClasses(),
-    unitLevels(),
-    unitTypes(),
-    settlementTypes(),
-    civilizations()
 {
 }
 
@@ -31,20 +21,6 @@ void World::setDisplayName(const QString &displayName)
     {
         this->displayName = displayName;
         emit displayNameChanged();
-    }
-}
-
-WorldSurface * World::getSurface() const
-{
-    return this->surface;
-}
-
-void World::setSurface(WorldSurface *surface)
-{
-    if (this->surface != surface)
-    {
-        this->surface = surface;
-        emit surfaceChanged();
     }
 }
 

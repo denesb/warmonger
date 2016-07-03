@@ -12,9 +12,10 @@
 namespace warmonger {
 
 namespace core {
-    class Settlement;
-    class Unit;
-    class WorldSurface;
+
+class Settlement;
+class Unit;
+
 }
 
 namespace ui {

@@ -13,6 +13,6 @@ TEST_CASE("Can move the window around", "[MapWindow]")
         REQUIRE(mw.getWindowSize() == QSize(10, 10));
 
         mw.setMapWidth(20);
-        REQUIRE(mw.getWindowSize() == QSize(20, 10));
+        REQUIRE(mw.getMapSize() == QSize(20, 100));
     }
 }

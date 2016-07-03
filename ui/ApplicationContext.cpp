@@ -2,9 +2,9 @@
 #include <QDir>
 #include <QStringList>
 
-#include "core/WorldSurface.h"
 #include "core/QVariantUtil.h"
 #include "ui/ApplicationContext.h"
+#include "ui/WorldSurface.h"
 
 using namespace warmonger;
 using namespace warmonger::ui;
@@ -13,7 +13,6 @@ static const QString loggerName{"ui.ApplicationContext"};
 
 ApplicationContext::ApplicationContext(QObject *parent) :
     QObject(parent),
-    maps(),
     game(nullptr)
 {
 }

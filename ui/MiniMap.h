@@ -11,13 +11,13 @@
 
 #include "core/CampaignMap.h"
 #include "ui/MapUtil.h"
+#include "ui/WorldSurface.h"
 
 namespace warmonger {
 
 namespace core {
     class MapNode;
     class World;
-    class WorldSurface;
 }
 
 namespace ui {
@@ -28,14 +28,18 @@ class MiniMap :
     Q_OBJECT
 
     Q_PROPERTY(warmonger::core::CampaignMap *map READ getMap WRITE setMap NOTIFY mapChanged)
+    Q_PROPERTY(warmonger::ui::WorldSurface *surface READ getSurface WRITE setSurface NOTIFY surfaceChanged)
     Q_PROPERTY(QPoint windowPos READ getWindowPos WRITE setWindowPos NOTIFY windowPosChanged)
     Q_PROPERTY(QSize windowSize READ getWindowSize WRITE setWindowSize NOTIFY windowSizeChanged)
 public:
     MiniMap(QQuickItem *parent = nullptr);
     ~MiniMap();
 
-    core::CampaignMap *getMap() const;
+    core::CampaignMap * getMap() const;
     void setMap(core::CampaignMap *map);
+
+    WorldSurface * getSurface() const;
+    void setSurface(WorldSurface *surface);
 
     QPoint getWindowPos() const;
     void setWindowPos(const QPoint &windowPos);
@@ -48,6 +52,7 @@ public:
 
 signals:
     void mapChanged();
+    void surfaceChanged();
     void windowPosChanged();
     void windowSizeChanged();
 
@@ -68,7 +73,7 @@ private:
 
     std::vector<core::MapNode *> nodes;
     core::World *world;
-    core::WorldSurface *surface;
+    WorldSurface *surface;
     QSize tileSize;
 
     core::CampaignMap *map;

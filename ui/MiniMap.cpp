@@ -10,7 +10,6 @@
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
 #include "core/Unit.h"
-#include "core/WorldSurface.h"
 #include "ui/MiniMap.h"
 #include "log/LogStream.h"
 
@@ -21,14 +20,10 @@ using namespace warmonger::ui;
 
 MiniMap::MiniMap(QQuickItem *parent) :
     QQuickPaintedItem(parent),
-    nodes(),
     world(nullptr),
     surface(nullptr),
     tileSize(),
     map(nullptr),
-    nodesPos(),
-    boundingRect(),
-    hexagonPainterPath(),
     windowPos(0, 0),
     windowSize(0, 0),
     scale(1.0),
@@ -86,6 +81,22 @@ void MiniMap::setMap(core::CampaignMap *map)
         );
 
         emit mapChanged();
+    }
+}
+
+WorldSurface * MiniMap::getSurface() const
+{
+    return this->surface;
+}
+
+void MiniMap::setSurface(WorldSurface *surface)
+{
+    if(this->surface != surface)
+    {
+        this->surface = surface;
+        this->setupMap();
+
+        emit surfaceChanged();
     }
 }
 
@@ -178,10 +189,15 @@ void MiniMap::mouseMoveEvent(QMouseEvent *event)
 
 void MiniMap::setupMap()
 {
+    if (this->surface == nullptr || this->map == nullptr)
+    {
+        return;
+    }
+
     // these are used a lot
     this->nodes = this->map->getMapNodes();
     this->world = this->map->getWorld();
-    this->surface = this->world->getSurface();
+
     this->tileSize = this->surface->getTileSize();
 
     this->hexagonPainterPath = hexagonPath(this->tileSize);

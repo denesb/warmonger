@@ -1,6 +1,5 @@
-
 #include "ui/MapUtil.h"
-#include "core/WorldSurface.h"
+#include "ui/WorldSurface.h"
 
 namespace warmonger {
 namespace ui {

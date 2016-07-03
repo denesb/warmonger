@@ -17,6 +17,7 @@ add_compile_options(
     -Wreturn-type
     -Wswitch
     -Wsuggest-override
+    -Wfatal-errors
 )
 
 set(CMAKE_AUTOMOC ON)

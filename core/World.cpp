@@ -6,7 +6,7 @@ using namespace warmonger::core;
 static const QString loggerName{"core.World"};
 
 World::World(QObject *parent) :
-    QObject(parent),
+    QObject(parent)
 {
 }
 

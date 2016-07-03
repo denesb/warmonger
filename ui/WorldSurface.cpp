@@ -9,14 +9,15 @@
 #include "io/Exception.h"
 #include "ui/WorldSurface.h"
 
-using namespace warmonger::core;
+using namespace warmonger::ui;
 
 static const QString loggerName{"core.WorldSurface"};
 
 WorldSurface::WorldSurface(const QString& path, QObject *parent) :
     QObject(parent),
-    path(path),
+    path(path)
 {
+    /*
     QFile packageFile(path);
     if (!packageFile.open(QIODevice::ReadOnly))
     {
@@ -24,14 +25,9 @@ WorldSurface::WorldSurface(const QString& path, QObject *parent) :
             "Failed to open resource package " + path + ". Open returned code " + QString::number(packageFile.error())
         );
     }
+    */
 
-    size_t headerSize;
-    QTextStream stream(&packageFile);
-
-    stream >> headerSize;
-
-    QString header = stream.read(headerSize);
-    this->readHeader(header);
+    //this->readHeader(header);
 }
 
 QString WorldSurface::getDisplayName() const
@@ -188,11 +184,11 @@ void WorldSurface::readHeader(const QString &header)
     */
 
     QJsonParseError parseError;
-    QJsonDocument jdoc(header.toUtf8(), &parseError);
+    QJsonDocument jdoc = QJsonDocument::fromJson(header.toUtf8(), &parseError);
 
     if (parseError.error != QJsonParseError::NoError)
     {
-        throw JsonParseError(
+        throw io::JsonParseError(
             parseError.errorString() + " at " + parseError.offset
         );
     }

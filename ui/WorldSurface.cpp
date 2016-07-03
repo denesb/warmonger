@@ -10,6 +10,7 @@
 #include "core/Constants.h"
 #include "core/Exception.h"
 #include "io/Exception.h"
+#include "log/LogStream.h"
 #include "ui/WorldSurface.h"
 
 using namespace warmonger::ui;
@@ -20,11 +21,11 @@ WorldSurface::WorldSurface(const QString& path, QObject *parent) :
     QObject(parent),
     path(path)
 {
-    KTar package(path);
+    KTar package(this->path);
     if (!package.open(QIODevice::ReadOnly))
     {
         throw io::FileIOError(
-            "Failed to open surface package " + path + ". " + package.device()->errorString()
+            "Failed to open surface package " + this->path + ". " + package.device()->errorString()
         );
     }
 
@@ -38,18 +39,30 @@ WorldSurface::WorldSurface(const QString& path, QObject *parent) :
 
     if (it == entries.cend())
     {
-        throw io::FileIOError("No metadata file found in surface package " + path);
+        throw io::FileIOError("No metadata file found in surface package " + this->path);
     }
 
     const KArchiveEntry *headerEntry = rootDir->entry(*it);
     if (headerEntry->isDirectory())
     {
-        throw io::FileIOError("Metadata file is not a file in surface package " + path);
+        throw io::FileIOError("Metadata file is not a file in surface package " + this->path);
     }
 
     const KArchiveFile *headerFile = dynamic_cast<const KArchiveFile *>(headerEntry);
 
     this->parseHeader(headerFile->data());
+}
+
+WorldSurface::~WorldSurface()
+{
+    try
+    {
+        this->deactivate();
+    }
+    catch(...)
+    {
+        // ignore all exceptions
+    }
 }
 
 QString WorldSurface::getDisplayName() const
@@ -193,25 +206,92 @@ bool WorldSurface::hexContains(const QPointF &p) const
     return (pixelc == 0xffffffff || pixelf == 0xffffffff);
 }
 
-void WorldSurface::parseHeader(const QByteArray &header)
+void WorldSurface::activate()
 {
-    /*
-    if (!QResource::registerResource(path))
+    KTar package(this->path);
+    if (!package.open(QIODevice::ReadOnly))
     {
-        throw Exception("Failed to load resource from " + path);
+        throw io::FileIOError(
+            "Failed to open surface package " + this->path + ". " + package.device()->errorString()
+        );
+    }
+    const KArchiveDirectory *rootDir = package.directory();
+    const QStringList entries = rootDir->entries();
+    const QString rccEntryName = this->objectName() + "." + core::fileExtensions::QResourceData;
+
+    if (std::find(entries.cbegin(), entries.cend(), rccEntryName) == entries.cend())
+    {
+        throw io::FileIOError("No rcc file found in surface package " + this->path);
     }
 
-    QFile jfile("qrc::///default.wsd");
-    jfile.open(QIODevice::ReadOnly);
-    */
+    const KArchiveEntry *rccEntry = rootDir->entry(rccEntryName);
+    if (rccEntry->isDirectory())
+    {
+        throw io::FileIOError("rcc file is not a file in surface package " + this->path);
+    }
 
+    const KArchiveFile *rccFile = dynamic_cast<const KArchiveFile *>(rccEntry);
+    this->resourceData = rccFile->data();
+
+    const unsigned char * data = reinterpret_cast<const uchar *>(this->resourceData.data());
+    if (!QResource::registerResource(data))
+    {
+        throw io::FileIOError("Failed to register  " + this->path);
+    }
+
+    QFile jfile(":/surface/" + this->objectName() + "." + core::fileExtensions::SurfaceDefinition);
+    if (!jfile.open(QIODevice::ReadOnly))
+    {
+        throw io::FileIOError("Failed to open surface definition from package " + this->path + ". " + jfile.errorString());
+    }
+
+    QJsonParseError parseError;
+    const QJsonDocument jdoc = QJsonDocument::fromJson(jfile.readAll(), &parseError);
+
+    if (parseError.error != QJsonParseError::NoError)
+    {
+        throw io::JsonParseError(
+            "Error parsing surface definition file from surface package " + this->path + ". "
+            + parseError.errorString() + " at " + parseError.offset
+        );
+    }
+
+    const QJsonObject jobj = jdoc.object();
+
+    this->setTileWidth(jobj["tileWidth"].toInt());
+    this->setTileHeight(jobj["tileHeight"].toInt());
+    this->setNormalGridColor(QColor(jobj["normalGridColor"].toString()));
+    this->setFocusGridColor(QColor(jobj["focusGridColor"].toString()));
+
+    if (!this->hexMask.load(":/surface/hexagonMask.xpm"))
+    {
+        throw io::FileIOError("Hexagon mask not found in surface package " + this->path);
+    }
+
+    wInfo(loggerName) << "Succesfully activated surface " << this->objectName();
+}
+
+void WorldSurface::deactivate()
+{
+    const unsigned char * data = reinterpret_cast<const uchar *>(this->resourceData.data());
+    if (!QResource::unregisterResource(data))
+    {
+        throw io::FileIOError("Failed to unregister  " + this->path);
+    }
+
+    wInfo(loggerName) << "Succesfully deactivated surface " << this->objectName();
+}
+
+void WorldSurface::parseHeader(const QByteArray &header)
+{
     QJsonParseError parseError;
     QJsonDocument jdoc = QJsonDocument::fromJson(header, &parseError);
 
     if (parseError.error != QJsonParseError::NoError)
     {
         throw io::JsonParseError(
-            parseError.errorString() + " at " + parseError.offset
+            "Error parsing surface meta file from surface package " + this->path + ". "
+            + parseError.errorString() + " at " + parseError.offset
         );
     }
 
@@ -220,10 +300,4 @@ void WorldSurface::parseHeader(const QByteArray &header)
     this->setObjectName(jobj["objectName"].toString());
     this->setDisplayName(jobj["displayName"].toString());
     this->setDescription(jobj["description"].toString());
-    /*
-    this->setTileWidth(jobj["tileWidth"].toInt());
-    this->setTileHeight(jobj["tileHeight"].toInt());
-    this->setNormalGridColor(QColor(jobj["normalGridColor"].toString()));
-    this->setFocusGridColor(QColor(jobj["focusGridColor"].toString()));
-    */
 }

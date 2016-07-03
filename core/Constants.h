@@ -1,3 +1,6 @@
+#ifndef CORE_CONSTANTS_H
+#define CORE_CONSTANTS_H
+
 #include <QString>
 
 namespace warmonger {
@@ -15,7 +18,7 @@ const QString WorldDefinition{"wwd"};
 const QString MapDefinition{"wmd"};
 
 // Warmonger Surface Definition
-const QString SurfaceDefinition{"wwd"};
+const QString SurfaceDefinition{"wsd"};
 
 // Warmonger Surface Package
 const QString SurfacePackage{"wsp"};
@@ -33,3 +36,5 @@ const QString QResourceData{"rcc"};
 
 } // namespace warmonger
 } // namespace warmonger
+
+#endif // CORE_CONSTANTS_H

@@ -1,5 +1,7 @@
 #include <memory>
 
+#include <QFile>
+
 #include "test/catch.hpp"
 
 #include "io/Exception.h"
@@ -37,9 +39,71 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
             io::FileIOError
         );
     }
+
+    SECTION("Metadata file not valid JSON")
+    {
+        REQUIRE_THROWS_AS(
+            createWorldSurface("./dev_metainvalidjson.wsp"),
+            io::JsonParseError
+        );
+    }
+
+    SECTION("No resource file")
+    {
+        ui::WorldSurface s("./dev_norcc.wsp");
+        REQUIRE_THROWS_AS(
+            s.activate(),
+            io::FileIOError
+        );
+    }
+
+    SECTION("Resource file is not a file")
+    {
+        ui::WorldSurface s("./dev_rccdir.wsp");
+        REQUIRE_THROWS_AS(
+            s.activate(),
+            io::FileIOError
+        );
+    }
+
+    SECTION("Resource file is invalid")
+    {
+        ui::WorldSurface s("./dev_rccinvalid.wsp");
+        REQUIRE_THROWS_AS(
+            s.activate(),
+            io::FileIOError
+        );
+    }
+
+    SECTION("Resource file, missing definition file")
+    {
+        ui::WorldSurface s("./dev_rccnodefinition.wsp");
+        REQUIRE_THROWS_AS(
+            s.activate(),
+            io::FileIOError
+        );
+    }
+
+    SECTION("Resource file, definition file - invalid json")
+    {
+        ui::WorldSurface s("./dev_rccdefinitioninvalidjson.wsp");
+        REQUIRE_THROWS_AS(
+            s.activate(),
+            io::JsonParseError
+        );
+    }
+
+    SECTION("Resource file, no hexmask")
+    {
+        ui::WorldSurface s("./dev_rccnohexmask.wsp");
+        REQUIRE_THROWS_AS(
+            s.activate(),
+            io::FileIOError
+        );
+    }
 }
 
-TEST_CASE("Can load Surface metadata", "[WorldSurface]")
+TEST_CASE("Can use Surface", "[WorldSurface]")
 {
     ui::WorldSurface s("./dev.wsp");
 
@@ -48,5 +112,23 @@ TEST_CASE("Can load Surface metadata", "[WorldSurface]")
         REQUIRE(s.objectName() == "dev");
         REQUIRE(s.getDisplayName() == "Development surface");
         REQUIRE(s.getDescription() == "Surface used for development");
+    }
+
+    SECTION("Resources not yet loaded")
+    {
+        QFile f(":/surface/dev.wsd");
+        REQUIRE(f.open(QIODevice::ReadOnly) == false);
+    }
+
+    SECTION("Surface activated")
+    {
+        s.activate();
+
+        QFile f(":/surface/dev.wsd");
+        REQUIRE(f.open(QIODevice::ReadOnly) == true);
+        REQUIRE(s.getTileWidth() == 110);
+        REQUIRE(s.getTileHeight() == 128);
+        REQUIRE(s.getNormalGridColor().name() == "#000000");
+        REQUIRE(s.getFocusGridColor().name() == "#d59037");
     }
 }

@@ -20,6 +20,7 @@ class WorldSurface :
 
 public:
     explicit WorldSurface(const QString& path, QObject *parent=nullptr);
+    ~WorldSurface();
 
     QString getDisplayName() const;
     void setDisplayName(const QString &displayName);
@@ -46,14 +47,21 @@ public:
     bool hexContains(const QPointF &p) const;
 
     /**
-     * Load the WorldSurface from path `path`
+     * Activate the this surface
      *
      * Loads the resource file and registers it with Qts resource system. This
      * will overwrite any previosly loaded surface possibly.
      * This method relies on the resource file being correct! Missing data may
-     * cause silent failures!
+     * possibly cause silent failures!
      */
     void activate();
+
+    /**
+     * Deactivate the this surface
+     *
+     * Unregisters the resources associated witht this surface from the Qt
+     * resource system.
+     */
     void deactivate();
 
 signals:
@@ -71,6 +79,8 @@ private:
     const QString path;
     QString displayName;
     QString description;
+
+    QByteArray resourceData;
 
     int tileWidth;
     int tileHeight;

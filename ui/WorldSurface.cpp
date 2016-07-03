@@ -5,6 +5,9 @@
 #include <QJsonObject>
 #include <QResource>
 
+#include <ktar.h>
+
+#include "core/Constants.h"
 #include "core/Exception.h"
 #include "io/Exception.h"
 #include "ui/WorldSurface.h"
@@ -17,17 +20,36 @@ WorldSurface::WorldSurface(const QString& path, QObject *parent) :
     QObject(parent),
     path(path)
 {
-    /*
-    QFile packageFile(path);
-    if (!packageFile.open(QIODevice::ReadOnly))
+    KTar package(path);
+    if (!package.open(QIODevice::ReadOnly))
     {
         throw io::FileIOError(
-            "Failed to open resource package " + path + ". Open returned code " + QString::number(packageFile.error())
+            "Failed to open surface package " + path + ". " + package.device()->errorString()
         );
     }
-    */
 
-    //this->readHeader(header);
+    const KArchiveDirectory *rootDir = package.directory();
+    const QStringList entries = rootDir->entries();
+    const auto& it = std::find_if(
+        entries.cbegin(),
+        entries.cend(),
+        [](const QString& s){return s.endsWith("." + core::fileExtensions::SurfaceMetadata);}
+    );
+
+    if (it == entries.cend())
+    {
+        throw io::FileIOError("No metadata file found in surface package " + path);
+    }
+
+    const KArchiveEntry *headerEntry = rootDir->entry(*it);
+    if (headerEntry->isDirectory())
+    {
+        throw io::FileIOError("Metadata file is not a file in surface package " + path);
+    }
+
+    const KArchiveFile *headerFile = dynamic_cast<const KArchiveFile *>(headerEntry);
+
+    this->parseHeader(headerFile->data());
 }
 
 QString WorldSurface::getDisplayName() const
@@ -171,7 +193,7 @@ bool WorldSurface::hexContains(const QPointF &p) const
     return (pixelc == 0xffffffff || pixelf == 0xffffffff);
 }
 
-void WorldSurface::readHeader(const QString &header)
+void WorldSurface::parseHeader(const QByteArray &header)
 {
     /*
     if (!QResource::registerResource(path))
@@ -184,7 +206,7 @@ void WorldSurface::readHeader(const QString &header)
     */
 
     QJsonParseError parseError;
-    QJsonDocument jdoc = QJsonDocument::fromJson(header.toUtf8(), &parseError);
+    QJsonDocument jdoc = QJsonDocument::fromJson(header, &parseError);
 
     if (parseError.error != QJsonParseError::NoError)
     {

@@ -67,13 +67,20 @@ set(
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Quick REQUIRED)
+find_package(KF5Archive REQUIRED)
 
 add_executable(warmonger ${SRC_FILES} ui/Main.cpp ui/ui.qrc)
 
-target_link_libraries(
-    warmonger
+set(
+    WARMONGER_LIBS
     Qt5::Core
     Qt5::Quick
+    KF5::Archive
+)
+
+target_link_libraries(
+    warmonger
+    ${WARMONGER_LIBS}
 )
 
 if(BUILD_TESTS)
@@ -88,13 +95,18 @@ if(BUILD_TESTS)
         test/io/JsonSerializer.cpp
         test/io/JsonUnserializer.cpp
         test/ui/MapWindow.cpp
+        test/ui/WorldSurface.cpp
     )
 
     add_executable(test_warmonger ${TEST_SRC_FILES})
 
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/data/dev.wsp ${CMAKE_BINARY_DIR})
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/data/dev_nometafile.wsp ${CMAKE_BINARY_DIR})
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/data/dev_metadir.wsp ${CMAKE_BINARY_DIR})
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/data/dev_norcc.wsp ${CMAKE_BINARY_DIR})
+
     target_link_libraries(
         test_warmonger
-        Qt5::Core
-        Qt5::Quick
+        ${WARMONGER_LIBS}
     )
 endif()

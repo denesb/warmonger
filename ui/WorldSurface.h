@@ -66,7 +66,7 @@ signals:
     void focusGridColorChanged();
 
 private:
-    void readHeader(const QString& header);
+    void parseHeader(const QByteArray& header);
 
     const QString path;
     QString displayName;

@@ -47,19 +47,18 @@ public:
     bool hexContains(const QPointF &p) const;
 
     /**
-     * Activate the this surface
+     * Activate this surface
      *
-     * Loads the resource file and registers it with Qts resource system. This
-     * will overwrite any previosly loaded surface possibly.
-     * This method relies on the resource file being correct! Missing data may
-     * possibly cause silent failures!
+     * Loads the resource file and registers it with the Qt resource system.
+     * This will possibly overwrite any previosly loaded surface. Make sure
+     * you call deactivate on the previously activated surface.
      */
     void activate();
 
     /**
-     * Deactivate the this surface
+     * Deactivate this surface
      *
-     * Unregisters the resources associated witht this surface from the Qt
+     * Unregisters the resources associated with this surface from the Qt
      * resource system.
      */
     void deactivate();

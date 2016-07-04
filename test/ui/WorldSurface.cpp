@@ -130,5 +130,17 @@ TEST_CASE("Can use Surface", "[WorldSurface]")
         REQUIRE(s.getTileHeight() == 128);
         REQUIRE(s.getNormalGridColor().name() == "#000000");
         REQUIRE(s.getFocusGridColor().name() == "#d59037");
+        REQUIRE(s.hexContains(QPoint(0, 0)) == false);
+        REQUIRE(s.hexContains(QPoint(109, 127)) == false);
+        REQUIRE(s.hexContains(QPoint(55, 64)) == true);
+    }
+
+    SECTION("Resources unloaded")
+    {
+        s.activate();
+        s.deactivate();
+
+        QFile f(":/surface/dev.wsd");
+        REQUIRE(f.open(QIODevice::ReadOnly) == false);
     }
 }

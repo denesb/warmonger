@@ -24,8 +24,8 @@
 #include "core/WeaponClass.h"
 #include "core/WeaponType.h"
 #include "core/World.h"
-#include "io/Exception.h"
 #include "io/JsonUnserializer.h"
+#include "Exception.h"
 
 using namespace warmonger;
 using namespace warmonger::io;
@@ -61,7 +61,7 @@ Type * resolveReference(Context &ctx, const QString &name)
     if (obj == nullptr)
     {
         QString className(Type::staticMetaObject.className());
-        throw UnresolvedReferenceError(
+        throw ValueError(
             QString("Unable to resolve reference %1 to %2")
                 .arg(name)
                 .arg(className)
@@ -420,9 +420,7 @@ QJsonDocument parseJson(const QByteArray &json)
 
     if (parseError.error != QJsonParseError::NoError)
     {
-        throw JsonParseError(
-            parseError.errorString() + " at " + parseError.offset
-        );
+        throw ValueError(parseError.errorString() + " at " + parseError.offset);
     }
 
     return doc;

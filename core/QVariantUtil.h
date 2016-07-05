@@ -7,7 +7,7 @@
 #include <QString>
 #include <QVariant>
 
-#include "core/Exception.h"
+#include "Exception.h"
 
 namespace warmonger {
 namespace core {
@@ -46,14 +46,14 @@ QVariant containerToQVariant(Container container)
 /**
  * Convert QVariant to T.
  *
- * If the enclosed value has a different type, QVariantTypeError will
+ * If the enclosed value has a different type, ValueError will
  * be thrown.
  */
 template<typename T>
 T fromQVariant(const QVariant &v)
 {
     if (v.canConvert<T>())
-        throw QVariantTypeError();
+        throw ValueError();
 
     return v.value<T>();
 }
@@ -63,7 +63,7 @@ T fromQVariant(const QVariant &v)
  *
  * Container must be an STL-compatible container having a push_back
  * method. The elements in the QVariantList must be convartable to
- * Container::value_type, otherwise QVariantTypeError will be thrown!
+ * Container::value_type, otherwise ValueError will be thrown!
  */
 template<typename Container>
 Container fromQVariantList(QVariantList list)

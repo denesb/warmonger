@@ -51,9 +51,9 @@ void ApplicationContext::loadMaps()
         {
             world = io::readWorld(worldPath, &worldUnserializer);
         }
-        catch(...)
+        catch(const Exception &error)
         {
-            wError(loggerName) << "Error opening world file " << worldPath;
+            wError(loggerName) << "Error loading world " << worldPath << ", " << error.getMessage();
             continue;
         }
 
@@ -81,9 +81,9 @@ void ApplicationContext::loadMaps()
             {
                 map = io::readCampaignMap(mapPath, &mapUnserializer);
             }
-            catch (...)
+            catch (const Exception &error)
             {
-                wError(loggerName) << "Error reading map " << mapPath;
+                wError(loggerName) << "Error loading map " << mapPath << ", " << error.getMessage();
                 continue;
             }
 

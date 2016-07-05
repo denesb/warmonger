@@ -3,8 +3,8 @@
 #include <limits>
 #include <typeinfo>
 
-#include "core/Exception.h"
 #include "core/Game.h"
+#include "Exception.h"
 
 using namespace warmonger::core;
 

@@ -31,7 +31,6 @@ set(
     core/CampaignMap.cpp
     core/Civilization.cpp
     core/DamageType.cpp
-    core/Exception.cpp
     core/Faction.cpp
     core/Game.cpp
     core/MapNode.cpp

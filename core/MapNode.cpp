@@ -1,5 +1,5 @@
-#include "core/Exception.h"
 #include "core/MapNode.h"
+#include "Exception.h"
 
 static const QString loggerName{"core.MapNode"};
 

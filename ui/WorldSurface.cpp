@@ -7,11 +7,10 @@
 
 #include <ktar.h>
 
-#include "core/Exception.h"
-#include "io/Exception.h"
 #include "log/LogStream.h"
 #include "ui/WorldSurface.h"
 #include "Constants.h"
+#include "Exception.h"
 
 using namespace warmonger::ui;
 
@@ -24,7 +23,7 @@ WorldSurface::WorldSurface(const QString& path, QObject *parent) :
     KTar package(this->path);
     if (!package.open(QIODevice::ReadOnly))
     {
-        throw io::FileIOError(
+        throw IOError(
             "Failed to open surface package " + this->path + ". " + package.device()->errorString()
         );
     }
@@ -39,13 +38,13 @@ WorldSurface::WorldSurface(const QString& path, QObject *parent) :
 
     if (it == entries.cend())
     {
-        throw io::FileIOError("No metadata file found in surface package " + this->path);
+        throw IOError("No metadata file found in surface package " + this->path);
     }
 
     const KArchiveEntry *headerEntry = rootDir->entry(*it);
     if (headerEntry->isDirectory())
     {
-        throw io::FileIOError("Metadata file is not a file in surface package " + this->path);
+        throw IOError("Metadata file is not a file in surface package " + this->path);
     }
 
     const KArchiveFile *headerFile = dynamic_cast<const KArchiveFile *>(headerEntry);
@@ -211,7 +210,7 @@ void WorldSurface::activate()
     KTar package(this->path);
     if (!package.open(QIODevice::ReadOnly))
     {
-        throw io::FileIOError(
+        throw IOError(
             "Failed to open surface package " + this->path + ". " + package.device()->errorString()
         );
     }
@@ -221,13 +220,13 @@ void WorldSurface::activate()
 
     if (std::find(entries.cbegin(), entries.cend(), rccEntryName) == entries.cend())
     {
-        throw io::FileIOError("No rcc file found in surface package " + this->path);
+        throw IOError("No rcc file found in surface package " + this->path);
     }
 
     const KArchiveEntry *rccEntry = rootDir->entry(rccEntryName);
     if (rccEntry->isDirectory())
     {
-        throw io::FileIOError("rcc file is not a file in surface package " + this->path);
+        throw IOError("rcc file is not a file in surface package " + this->path);
     }
 
     const KArchiveFile *rccFile = dynamic_cast<const KArchiveFile *>(rccEntry);
@@ -236,13 +235,13 @@ void WorldSurface::activate()
     const unsigned char * data = reinterpret_cast<const uchar *>(this->resourceData.data());
     if (!QResource::registerResource(data))
     {
-        throw io::FileIOError("Failed to register  " + this->path);
+        throw IOError("Failed to register  " + this->path);
     }
 
     QFile jfile(":/surface/" + this->objectName() + "." + fileExtensions::surfaceDefinition);
     if (!jfile.open(QIODevice::ReadOnly))
     {
-        throw io::FileIOError("Failed to open surface definition from package " + this->path + ". " + jfile.errorString());
+        throw IOError("Failed to open surface definition from package " + this->path + ". " + jfile.errorString());
     }
 
     QJsonParseError parseError;
@@ -250,7 +249,7 @@ void WorldSurface::activate()
 
     if (parseError.error != QJsonParseError::NoError)
     {
-        throw io::JsonParseError(
+        throw ValueError(
             "Error parsing surface definition file from surface package " + this->path + ". "
             + parseError.errorString() + " at " + parseError.offset
         );
@@ -265,7 +264,7 @@ void WorldSurface::activate()
 
     if (!this->hexMask.load(":/surface/hexagonMask.xpm"))
     {
-        throw io::FileIOError("Hexagon mask not found in surface package " + this->path);
+        throw IOError("Hexagon mask not found in surface package " + this->path);
     }
 
     wInfo(loggerName) << "Succesfully activated surface " << this->objectName();
@@ -276,7 +275,7 @@ void WorldSurface::deactivate()
     const unsigned char * data = reinterpret_cast<const uchar *>(this->resourceData.data());
     if (!QResource::unregisterResource(data))
     {
-        throw io::FileIOError("Failed to unregister  " + this->path);
+        throw IOError("Failed to unregister  " + this->path);
     }
 
     wInfo(loggerName) << "Succesfully deactivated surface " << this->objectName();
@@ -289,7 +288,7 @@ void WorldSurface::parseHeader(const QByteArray &header)
 
     if (parseError.error != QJsonParseError::NoError)
     {
-        throw io::JsonParseError(
+        throw ValueError(
             "Error parsing surface meta file from surface package " + this->path + ". "
             + parseError.errorString() + " at " + parseError.offset
         );

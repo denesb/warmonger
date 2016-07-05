@@ -5,14 +5,14 @@
 #include <QJsonObject>
 
 #include "io/Context.h"
-#include "io/Exception.h"
 #include "io/JsonUnserializer.h"
 #include "test/catch.hpp"
 #include "test/Util.h"
+#include "Exception.h"
 
 using namespace warmonger;
 
-CATCH_TRANSLATE_EXCEPTION(io::UnresolvedReferenceError& e) {
+CATCH_TRANSLATE_EXCEPTION(ValueError& e) {
     return e.getMessage().toStdString();
 }
 
@@ -66,7 +66,7 @@ TEST_CASE("Armor can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeArmor(invalidJson),
-            io::JsonParseError
+            ValueError
         );
     }
 
@@ -77,7 +77,7 @@ TEST_CASE("Armor can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeArmor(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 }
@@ -146,7 +146,7 @@ TEST_CASE("Army can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeArmy(invalidJson),
-            io::JsonParseError
+            ValueError
         );
     }
 
@@ -173,7 +173,7 @@ TEST_CASE("Army can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeArmy(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 
@@ -200,7 +200,7 @@ TEST_CASE("Army can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeArmy(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 
@@ -227,7 +227,7 @@ TEST_CASE("Army can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeArmy(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 }
@@ -412,7 +412,7 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeCampaignMap(invalidJson),
-            io::JsonParseError
+            ValueError
         );
     }
 
@@ -450,7 +450,7 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeCampaignMap(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 
@@ -484,7 +484,7 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeCampaignMap(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 
@@ -518,7 +518,7 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeCampaignMap(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 
@@ -552,7 +552,7 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeCampaignMap(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 
@@ -586,7 +586,7 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeCampaignMap(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 }
@@ -624,7 +624,7 @@ TEST_CASE("DamageType can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeDamageType(invalidJson),
-            io::JsonParseError
+            ValueError
         );
     }
 }
@@ -691,7 +691,7 @@ TEST_CASE("Civilization can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeCivilization(invalidJson),
-            io::JsonParseError
+            ValueError
         );
     }
 
@@ -711,7 +711,7 @@ TEST_CASE("Civilization can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeCivilization(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 
@@ -731,7 +731,7 @@ TEST_CASE("Civilization can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeCivilization(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 }
@@ -784,7 +784,7 @@ TEST_CASE("MapNode can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeMapNode(invalidJson),
-            io::JsonParseError
+            ValueError
         );
     }
 
@@ -797,7 +797,7 @@ TEST_CASE("MapNode can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeMapNode(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 }
@@ -852,7 +852,7 @@ TEST_CASE("Faction can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeFaction(invalidJson),
-            io::JsonParseError
+            ValueError
         );
     }
 
@@ -865,7 +865,7 @@ TEST_CASE("Faction can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeFaction(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 }
@@ -934,7 +934,7 @@ TEST_CASE("Settlement can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeSettlement(invalidJson),
-            io::JsonParseError
+            ValueError
         );
     }
 
@@ -960,7 +960,7 @@ TEST_CASE("Settlement can't be unserialized from JSON", "[JsonUnserializer]")
         io::JsonUnserializer unserializer(ctx);
         REQUIRE_THROWS_AS(
             unserializer.unserializeSettlement(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 
@@ -986,7 +986,7 @@ TEST_CASE("Settlement can't be unserialized from JSON", "[JsonUnserializer]")
         io::JsonUnserializer unserializer(ctx);
         REQUIRE_THROWS_AS(
             unserializer.unserializeSettlement(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 
@@ -1012,7 +1012,7 @@ TEST_CASE("Settlement can't be unserialized from JSON", "[JsonUnserializer]")
         io::JsonUnserializer unserializer(ctx);
         REQUIRE_THROWS_AS(
             unserializer.unserializeSettlement(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 }
@@ -1064,7 +1064,7 @@ TEST_CASE("SettlementType can't be unserialized from JSON", "[JsonUnserializer]"
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeSettlementType(invalidJson),
-            io::JsonParseError
+            ValueError
         );
     }
 
@@ -1076,7 +1076,7 @@ TEST_CASE("SettlementType can't be unserialized from JSON", "[JsonUnserializer]"
         QJsonDocument jdoc(jobj);
         REQUIRE_THROWS_AS(
             unserializer.unserializeSettlementType(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 }
@@ -1113,7 +1113,7 @@ TEST_CASE("TerrainType can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeTerrainType(invalidJson),
-            io::JsonParseError
+            ValueError
         );
     }
 }
@@ -1182,7 +1182,7 @@ TEST_CASE("Unit can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeUnit(invalidJson),
-            io::JsonParseError
+            ValueError
         );
     }
 
@@ -1209,7 +1209,7 @@ TEST_CASE("Unit can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeUnit(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 
@@ -1236,7 +1236,7 @@ TEST_CASE("Unit can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeUnit(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 
@@ -1263,7 +1263,7 @@ TEST_CASE("Unit can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeUnit(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 }
@@ -1320,7 +1320,7 @@ TEST_CASE("UnitClass can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeUnitClass(invalidJson),
-            io::JsonParseError
+            ValueError
         );
     }
 
@@ -1332,7 +1332,7 @@ TEST_CASE("UnitClass can't be unserialized from JSON", "[JsonUnserializer]")
         QJsonDocument jdoc(jobj);
         REQUIRE_THROWS_AS(
             unserializer.unserializeUnitClass(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 }
@@ -1371,7 +1371,7 @@ TEST_CASE("UnitLevel can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeUnitLevel(invalidJson),
-            io::JsonParseError
+            ValueError
         );
     }
 }
@@ -1466,7 +1466,7 @@ TEST_CASE("UnitType can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeUnitType(invalidJson),
-            io::JsonParseError
+            ValueError
         );
     }
 
@@ -1516,7 +1516,7 @@ TEST_CASE("UnitType can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeUnitType(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 
@@ -1566,7 +1566,7 @@ TEST_CASE("UnitType can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeUnitType(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 
@@ -1616,7 +1616,7 @@ TEST_CASE("UnitType can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeUnitType(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 
@@ -1666,7 +1666,7 @@ TEST_CASE("UnitType can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeUnitType(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 
@@ -1716,7 +1716,7 @@ TEST_CASE("UnitType can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeUnitType(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 
@@ -1766,7 +1766,7 @@ TEST_CASE("UnitType can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeUnitType(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 
@@ -1816,7 +1816,7 @@ TEST_CASE("UnitType can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeUnitType(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 }
@@ -1876,7 +1876,7 @@ TEST_CASE("Weapon can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeWeapon(invalidJson),
-            io::JsonParseError
+            ValueError
         );
     }
 
@@ -1895,7 +1895,7 @@ TEST_CASE("Weapon can't be unserialized from JSON", "[JsonUnserializer]")
         QJsonDocument jdoc(jobj);
         REQUIRE_THROWS_AS(
             unserializer.unserializeWeapon(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 
@@ -1914,7 +1914,7 @@ TEST_CASE("Weapon can't be unserialized from JSON", "[JsonUnserializer]")
         QJsonDocument jdoc(jobj);
         REQUIRE_THROWS_AS(
             unserializer.unserializeWeapon(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 }
@@ -1957,7 +1957,7 @@ TEST_CASE("WeaponClass can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeWeaponClass(invalidJson),
-            io::JsonParseError
+            ValueError
         );
     }
 }
@@ -2008,7 +2008,7 @@ TEST_CASE("WeaponType can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeWeaponType(invalidJson),
-            io::JsonParseError
+            ValueError
         );
     }
 
@@ -2020,7 +2020,7 @@ TEST_CASE("WeaponType can't be unserialized from JSON", "[JsonUnserializer]")
         QJsonDocument jdoc(jobj);
         REQUIRE_THROWS_AS(
             unserializer.unserializeWeaponType(jdoc.toJson()),
-            io::UnresolvedReferenceError
+            ValueError
         );
     }
 }
@@ -2265,7 +2265,7 @@ TEST_CASE("World can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeWorld(invalidJson),
-            io::JsonParseError
+            ValueError
         );
     }
 }

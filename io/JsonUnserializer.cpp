@@ -195,11 +195,6 @@ std::vector<T *> objectListFromJson(
     return objectListFromJson<T>(array, ctx, func);
 }
 
-JsonUnserializer::JsonUnserializer(Context &ctx) :
-    Unserializer(ctx)
-{
-}
-
 core::Armor * JsonUnserializer::unserializeArmor(const QByteArray &data)
 {
     QJsonDocument jdoc(parseJson(data));

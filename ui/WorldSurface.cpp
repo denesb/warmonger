@@ -7,11 +7,11 @@
 
 #include <ktar.h>
 
-#include "core/Constants.h"
 #include "core/Exception.h"
 #include "io/Exception.h"
 #include "log/LogStream.h"
 #include "ui/WorldSurface.h"
+#include "Constants.h"
 
 using namespace warmonger::ui;
 
@@ -34,7 +34,7 @@ WorldSurface::WorldSurface(const QString& path, QObject *parent) :
     const auto& it = std::find_if(
         entries.cbegin(),
         entries.cend(),
-        [](const QString& s){return s.endsWith("." + core::fileExtensions::SurfaceMetadata);}
+        [](const QString& s){return s.endsWith("." + fileExtensions::surfaceMetadata);}
     );
 
     if (it == entries.cend())
@@ -217,7 +217,7 @@ void WorldSurface::activate()
     }
     const KArchiveDirectory *rootDir = package.directory();
     const QStringList entries = rootDir->entries();
-    const QString rccEntryName = this->objectName() + "." + core::fileExtensions::QResourceData;
+    const QString rccEntryName = this->objectName() + "." + fileExtensions::qResourceData;
 
     if (std::find(entries.cbegin(), entries.cend(), rccEntryName) == entries.cend())
     {
@@ -239,7 +239,7 @@ void WorldSurface::activate()
         throw io::FileIOError("Failed to register  " + this->path);
     }
 
-    QFile jfile(":/surface/" + this->objectName() + "." + core::fileExtensions::SurfaceDefinition);
+    QFile jfile(":/surface/" + this->objectName() + "." + fileExtensions::surfaceDefinition);
     if (!jfile.open(QIODevice::ReadOnly))
     {
         throw io::FileIOError("Failed to open surface definition from package " + this->path + ". " + jfile.errorString());

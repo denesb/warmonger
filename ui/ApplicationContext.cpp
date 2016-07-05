@@ -3,8 +3,11 @@
 #include <QStringList>
 
 #include "core/QVariantUtil.h"
+#include "io/File.h"
+#include "io/JsonUnserializer.h"
 #include "ui/ApplicationContext.h"
 #include "ui/WorldSurface.h"
+#include "Constants.h"
 
 using namespace warmonger;
 using namespace warmonger::ui;
@@ -33,48 +36,62 @@ core::Game * ApplicationContext::getGame() const
 
 void ApplicationContext::loadMaps()
 {
-    /*
-    nameFilters << "*.wmd";
+    QStringList nameFilters;
+    nameFilters << "*." + fileExtensions::mapDefinition;
 
-    QFlags<QDir::Filter> filters = QDir::Files | QDir::Readable;
+    const QFlags<QDir::Filter> filters = QDir::Files | QDir::Readable;
 
-    core::EntityManager *em = core::EntityManager::getInstance();
+    io::JsonUnserializer worldUnserializer;
 
-    for (QString path : QDir::searchPaths("Map"))
+    for (QString worldPath : QDir::searchPaths("Worlds"))
     {
-        QDir mapsDir(path);
+        core::World *world{nullptr};
 
-        for (QString mapFile : mapsDir.entryList(nameFilters, filters))
+        try
+        {
+            world = io::readWorld(worldPath, &worldUnserializer);
+        }
+        catch(...)
+        {
+            wError(loggerName) << "Error opening world file " << worldPath;
+            continue;
+        }
+
+        world->setParent(this);
+
+        io::Context worldContext;
+        worldContext.add(world);
+
+        QDir mapsDir(worldPath + "/" + paths::maps);
+        if (!mapsDir.exists())
+        {
+            wInfo(loggerName) << "World " << world->objectName() << " does not have a maps directory";
+            continue;
+        }
+
+        io::JsonUnserializer mapUnserializer(worldContext);
+
+        const QStringList mapEntries = mapsDir.entryList(nameFilters, filters);
+        for (const QString &mapFile : mapEntries)
         {
             const QString mapPath = mapsDir.absoluteFilePath(mapFile);
+
             core::CampaignMap *map{nullptr};
             try
             {
-                map = em->loadEntityAs<core::CampaignMap>(mapPath);
+                map = io::readCampaignMap(mapPath, &mapUnserializer);
             }
-            catch (core::JsonParseError &e)
+            catch (...)
             {
-                wError(loggerName) << "Caught " << e
-                    << " while loading map " << mapPath;
+                wError(loggerName) << "Error reading map " << mapPath;
                 continue;
             }
-            catch (core::ValueError &e)
-            {
-                wError(loggerName) << "Caught " << e
-                    << " while loading map from " << mapPath;
-                continue;
-            }
-            catch (core::UnresolvedReferenceError &e)
-            {
-                wError(loggerName) << "Caught " << e
-                    << " while loading map " << mapPath;
-                continue;
-            }
+
+            map->setParent(this);
 
             this->maps << map;
         }
     }
-    */
 
     emit mapsChanged();
 }

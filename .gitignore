@@ -29,6 +29,7 @@
 
 # Qt files
 *.rcc
+*.user
 
 # Other
 build/

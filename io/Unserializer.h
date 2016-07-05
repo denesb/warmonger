@@ -31,10 +31,17 @@ namespace io {
 class Unserializer
 {
 public:
-    Unserializer(Context ctx) :
-        ctx(ctx)
-    {
-    }
+    Unserializer()
+    {}
+
+    Unserializer(const Context& ctx) : ctx(ctx)
+    {}
+
+    Unserializer(const Context&& ctx) : ctx(std::move(ctx))
+    {}
+
+    virtual ~Unserializer()
+    {}
 
     virtual core::Armor * unserializeArmor(const QByteArray &data) = 0;
     virtual core::Army * unserializeArmy(const QByteArray &data) = 0;

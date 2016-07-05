@@ -3,7 +3,6 @@
 #include <QQmlContext>
 #include <QQuickView>
 #include <QSettings>
-#include <QStringList>
 #include <QtQml/QQmlEngine>
 
 #include "ui/ApplicationContext.h"
@@ -14,6 +13,7 @@
 #include "log/LogStream.h"
 #include "log/ConsoleHandler.h"
 #include "log/Formatter.h"
+#include "Constants.h"
 
 namespace warmonger {
 
@@ -76,8 +76,8 @@ void setSearchPaths()
 
         worldSearchPath.append(worldPath);
 
-        addSubdirToSearchPath(worldPath, "surfaces", surfaceSearchPath);
-        addSubdirToSearchPath(worldPath, "maps", mapSearchPath);
+        addSubdirToSearchPath(worldPath, paths::surfaces, surfaceSearchPath);
+        addSubdirToSearchPath(worldPath, paths::maps, mapSearchPath);
 
         wInfo(loggerName) << "Added world " << worldPath << " to world search path";
     }

@@ -10,7 +10,7 @@ class JsonUnserializer :
     public Unserializer
 {
 public:
-    JsonUnserializer(Context &ctx);
+    using Unserializer::Unserializer;
 
     core::Armor * unserializeArmor(const QByteArray &data) override;
     core::Army * unserializeArmy(const QByteArray &data) override;

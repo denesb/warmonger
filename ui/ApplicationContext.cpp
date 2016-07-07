@@ -21,6 +21,7 @@ ApplicationContext::ApplicationContext(QObject *parent) :
     campaignMap(nullptr),
     game(nullptr)
 {
+    loadWorlds();
 }
 
 core::World * ApplicationContext::getWorld() const
@@ -150,19 +151,24 @@ void ApplicationContext::loadWorlds()
 {
     io::JsonUnserializer worldUnserializer;
 
-    for (QString worldPath : QDir::searchPaths("Worlds"))
+    for (QString worldPath : QDir::searchPaths(searchPaths::world))
     {
+        QFileInfo fileInfo(worldPath);
+        const QString worldDefinitionPath = worldPath + "/" + fileInfo.baseName() + "."
+            + fileExtensions::worldDefinition;
         core::World *world{nullptr};
 
         try
         {
-            world = io::readWorld(worldPath, worldUnserializer);
+            world = io::readWorld(worldDefinitionPath, worldUnserializer);
         }
         catch(const Exception &error)
         {
-            wError(loggerName) << "Error loading world " << worldPath << ", " << error.getMessage();
+            wError(loggerName) << "Error loading world " << worldDefinitionPath << ", " << error.getMessage();
             continue;
         }
+
+        wInfo(loggerName) << "Loaded world " << worldDefinitionPath;
 
         world->setParent(this);
         this->worlds.push_back(world);
@@ -173,7 +179,7 @@ void ApplicationContext::loadWorlds()
         QDir mapsDir(worldPath + "/" + paths::maps);
         if (!mapsDir.exists())
         {
-            wInfo(loggerName) << "World " << world->objectName() << " does not have a maps directory";
+            wInfo(loggerName) << "World " << worldPath << " does not have a maps directory";
             continue;
         }
 
@@ -184,7 +190,7 @@ void ApplicationContext::loadWorlds()
         QDir surfacesDir(worldPath + "/" + paths::surfaces);
         if (!surfacesDir.exists())
         {
-            wInfo(loggerName) << "World " << world->objectName() << " does not have a surfaces directory";
+            wInfo(loggerName) << "World " << worldPath << " does not have a surfaces directory";
             continue;
         }
 
@@ -203,6 +209,7 @@ void ApplicationContext::loadMapsFromDir(const QDir &mapsDir, io::Unserializer &
 
     const QFlags<QDir::Filter> filters = QDir::Files | QDir::Readable;
 
+    std::size_t n{0};
     const QStringList mapEntries = mapsDir.entryList(nameFilters, filters);
     for (const QString &mapFile : mapEntries)
     {
@@ -222,7 +229,10 @@ void ApplicationContext::loadMapsFromDir(const QDir &mapsDir, io::Unserializer &
         map->setParent(this);
 
         this->campaignMaps.push_back(map);
+        ++n;
     }
+
+    wInfo(loggerName) << "Loaded " << n << " maps for world " << world->objectName();
 }
 
 void ApplicationContext::loadSurfacesFromDir(const QDir &surfacesDir, core::World *world)
@@ -231,6 +241,7 @@ void ApplicationContext::loadSurfacesFromDir(const QDir &surfacesDir, core::Worl
     nameFilters.append("*." + fileExtensions::surfacePackage);
 
     const QFlags<QDir::Filter> filters = QDir::Files | QDir::Readable;
+    std::size_t n{0};
 
     const QStringList surfaceEntries = surfacesDir.entryList(nameFilters, filters);
     for (const QString &surfaceFile : surfaceEntries)
@@ -249,5 +260,8 @@ void ApplicationContext::loadSurfacesFromDir(const QDir &surfacesDir, core::Worl
         }
 
         this->worldSurfaces[world].push_back(surface);
+        ++n;
     }
+
+    wInfo(loggerName) << "Loaded " << n << " surfaces for world " << world->objectName();
 }

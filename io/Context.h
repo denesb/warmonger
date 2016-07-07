@@ -45,8 +45,8 @@ public:
         const QMetaObject metaObject = Class::staticMetaObject;
         const QString className = metaObject.className();
 
-        wDebug("io.Context") << "Looking up object "
-            << className << " with objectName " << objectName;
+        wDebug("io.Context") << "Looking up object `"
+            << className << "' with objectName `" << objectName << "'";
 
         QObject *object = this->getObject(className, objectName);
         if (object == nullptr && this->injectFn)

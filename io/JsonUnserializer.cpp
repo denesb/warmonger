@@ -62,7 +62,7 @@ Type * resolveReference(Context &ctx, const QString &name)
     {
         QString className(Type::staticMetaObject.className());
         throw ValueError(
-            QString("Unable to resolve reference %1 to %2")
+            QString("Unable to resolve reference `%1' to `%2'")
                 .arg(name)
                 .arg(className)
         );

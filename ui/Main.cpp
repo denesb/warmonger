@@ -27,7 +27,7 @@ using namespace warmonger;
 
 namespace {
 
-const QString loggerName{"Main"};
+const QString loggerName{"ui.Main"};
 
 void setSearchPaths();
 void addSubdirToSearchPath(const QString&worldPath, const QString &subdirName, QStringList &searchPath);
@@ -90,9 +90,9 @@ void setSearchPaths()
         wInfo(loggerName) << "Added world " << worldPath << " to world search path";
     }
 
-    QDir::setSearchPaths("World", worldSearchPath);
-    QDir::setSearchPaths("WorldSurface", surfaceSearchPath);
-    QDir::setSearchPaths("Map", mapSearchPath);
+    QDir::setSearchPaths(searchPaths::world, worldSearchPath);
+    QDir::setSearchPaths(searchPaths::worldSurface, surfaceSearchPath);
+    QDir::setSearchPaths(searchPaths::campaignMap, mapSearchPath);
 }
 
 void addSubdirToSearchPath(const QString&worldPath, const QString &subdirName, QStringList &searchPath)

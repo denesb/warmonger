@@ -22,7 +22,7 @@ void Context::add(QObject *object)
     const QMetaObject *metaObject = object->metaObject();
     const QString className = metaObject->className();
 
-    wDebug("io.Context") << "Added " << className << " object " << object;
+    wDebug("io.Context") << "Added `" << className << "' object `" << object << "'";
 
     QMap<QString, QObject *> &objects = this->objectsByType[className];
     objects[object->objectName()] = object;

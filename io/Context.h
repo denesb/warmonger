@@ -22,10 +22,7 @@ class Context
 {
 public:
     Context();
-
-    Context(
-        std::function<void (const QString &, const QString &, Context &)> injectFn
-    );
+    Context(std::function<void (const QString &, const QString &, Context &)> injectFn);
 
     /**
      * Add object to the context.
@@ -37,9 +34,9 @@ public:
      * from the context. If the object is not found, nullptr is
      * returned. If there was an `injectFn` set it will be used
      * to inject new objects into the context. This is useful when
-     * some dependencies of an object are not now at the point when the
-     * context is created. Retriveing an object from the context does
-     * not remove it from the context.
+     * some dependencies of an object are not known at the point when
+     * the context is created. Retriveing an object from the context
+     * does not remove it from the context.
      */
     template <typename T>
     T get(const QString &objectName)

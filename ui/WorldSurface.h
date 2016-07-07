@@ -12,6 +12,7 @@ class WorldSurface :
     public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString prefix READ getPrefix NOTIFY prefixChanged)
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(QString description READ getDescription WRITE setDescription NOTIFY descriptionChanged)
     Q_PROPERTY(QSize tileSize READ getTileSize NOTIFY tileSizeChanged)
@@ -21,6 +22,12 @@ class WorldSurface :
 public:
     explicit WorldSurface(const QString& path, QObject *parent=nullptr);
     ~WorldSurface();
+
+    /**
+     * Common path prefix of all paths to surface resources.
+     * The prefix contains a trailing /.
+     */
+    QString getPrefix() const;
 
     QString getDisplayName() const;
     void setDisplayName(const QString &displayName);
@@ -64,6 +71,7 @@ public:
     void deactivate();
 
 signals:
+    void prefixChanged();
     void displayNameChanged();
     void descriptionChanged();
     void tileWidthChanged();

@@ -62,9 +62,17 @@ namespace {
 void setSearchPaths()
 {
     const QSettings settings;
-    const QString worldsDirPath = settings.value("worldsDir").toString();
+    const QVariant worldsDirVal = settings.value("worldsDir");
 
-    wInfo(loggerName) << "World dir is " << worldsDirPath;
+    if (worldsDirVal.isNull())
+    {
+        wError(loggerName) << "worldsDir not found in settings, search paths will not be set";
+        return;
+    }
+
+    const QString worldsDirPath = worldsDirVal.toString();
+
+    wDebug(loggerName) << "World dir is " << worldsDirPath;
 
     QStringList worldSearchPath, mapSearchPath, surfaceSearchPath;
 
@@ -94,6 +102,8 @@ void addSubdirToSearchPath(const QString&worldPath, const QString &subdirName, Q
 
     if (subdirDirInfo.exists() && subdirDirInfo.isDir())
         searchPath.append(subdirDirInfo.canonicalFilePath());
+
+    wInfo(loggerName) << "Added " << subdirPath << " to " << subdirName << " search path";
 }
 
 void initLogger()

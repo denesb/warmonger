@@ -1,6 +1,5 @@
-#include <QColor>
-#include <QDir>
 #include <QStringList>
+#include <QSettings>
 
 #include "core/QVariantUtil.h"
 #include "io/File.h"
@@ -8,6 +7,7 @@
 #include "ui/ApplicationContext.h"
 #include "ui/WorldSurface.h"
 #include "Constants.h"
+#include "Utils.h"
 
 using namespace warmonger;
 using namespace warmonger::ui;
@@ -16,17 +16,26 @@ static const QString loggerName{"ui.ApplicationContext"};
 
 ApplicationContext::ApplicationContext(QObject *parent) :
     QObject(parent),
+    world(nullptr),
+    worldSurface(nullptr),
+    campaignMap(nullptr),
     game(nullptr)
 {
 }
 
-ApplicationContext::~ApplicationContext()
+core::World * ApplicationContext::getWorld() const
 {
+    return this->world;
 }
 
-QVariantList ApplicationContext::readMaps() const
+ui::WorldSurface * ApplicationContext::getWorldSurface() const
 {
-    return core::toQVariantList(this->maps);
+    return this->worldSurface;
+}
+
+core::CampaignMap * ApplicationContext::getCampaignMap() const
+{
+    return this->campaignMap;
 }
 
 core::Game * ApplicationContext::getGame() const
@@ -34,13 +43,111 @@ core::Game * ApplicationContext::getGame() const
     return this->game;
 }
 
-void ApplicationContext::loadMaps()
+QVariantList ApplicationContext::readWorlds() const
 {
-    QStringList nameFilters;
-    nameFilters << "*." + fileExtensions::mapDefinition;
+    return core::toQVariantList(this->worlds);
+}
 
-    const QFlags<QDir::Filter> filters = QDir::Files | QDir::Readable;
+QVariantList ApplicationContext::readWorldSurfaces() const
+{
+    const auto it = this->worldSurfaces.find(this->world);
+    if (it == this->worldSurfaces.end())
+    {
+        return QVariantList();
+    }
+    else
+    {
+        return core::toQVariantList(it->second);
+    }
+}
 
+QVariantList ApplicationContext::readCampaignMaps() const
+{
+    return core::toQVariantList(this->campaignMaps);
+}
+
+void ApplicationContext::newMap(warmonger::core::World *world)
+{
+    this->campaignMap = new core::CampaignMap(this);
+    this->campaignMap->setWorld(world);
+}
+
+void ApplicationContext::setWorld(core::World *world)
+{
+    if (this->world != world)
+    {
+        this->world = world;
+
+        emit worldChanged();
+        emit worldSurfacesChanged();
+
+        QSettings settings;
+        const QString key(this->world->objectName() + "/surface");
+        const QVariant surfaceVal = settings.value(key);
+        const std::vector<WorldSurface *>& surfaces = this->worldSurfaces[this->world];
+
+        if (surfaceVal.isNull())
+        {
+            this->setDefaultWorldSurface();
+        }
+        else
+        {
+            const QString surfaceName = surfaceVal.toString();
+            const auto it = std::find_if(surfaces.cbegin(), surfaces.cend(), QObjectFinder(surfaceName));
+
+            if (it == surfaces.cend())
+            {
+                this->setDefaultWorldSurface();
+            }
+            else
+            {
+                this->setWorldSurface(*it);
+            }
+        }
+    }
+}
+
+void ApplicationContext::setWorldSurface(ui::WorldSurface *worldSurface)
+{
+    if (this->worldSurface != worldSurface)
+    {
+        this->worldSurface = worldSurface;
+        emit worldSurfaceChanged();
+
+        if (this->worldSurface != nullptr)
+        {
+            QSettings settings;
+            settings.setValue(this->world->objectName() + "/surface", this->worldSurface->objectName());
+        }
+    }
+}
+
+void ApplicationContext::setDefaultWorldSurface()
+{
+    const std::vector<WorldSurface *>& surfaces = this->worldSurfaces[this->world];
+    if (surfaces.empty())
+    {
+        this->setWorldSurface(nullptr);
+    }
+    else
+    {
+        this->setWorldSurface(surfaces.front());
+    }
+}
+
+void ApplicationContext::setMapCampaign(core::CampaignMap *campaignMap)
+{
+    if (this->campaignMap != campaignMap)
+    {
+        this->campaignMap = campaignMap;
+        this->setWorld(this->campaignMap->getWorld());
+
+        emit campaignMapChanged();
+    }
+}
+
+void ApplicationContext::loadWorlds()
+{
     io::JsonUnserializer worldUnserializer;
 
     for (QString worldPath : QDir::searchPaths("Worlds"))
@@ -49,7 +156,7 @@ void ApplicationContext::loadMaps()
 
         try
         {
-            world = io::readWorld(worldPath, &worldUnserializer);
+            world = io::readWorld(worldPath, worldUnserializer);
         }
         catch(const Exception &error)
         {
@@ -58,6 +165,7 @@ void ApplicationContext::loadMaps()
         }
 
         world->setParent(this);
+        this->worlds.push_back(world);
 
         io::Context worldContext;
         worldContext.add(world);
@@ -71,68 +179,75 @@ void ApplicationContext::loadMaps()
 
         io::JsonUnserializer mapUnserializer(worldContext);
 
-        const QStringList mapEntries = mapsDir.entryList(nameFilters, filters);
-        for (const QString &mapFile : mapEntries)
+        this->loadMapsFromDir(mapsDir, mapUnserializer);
+
+        QDir surfacesDir(worldPath + "/" + paths::surfaces);
+        if (!surfacesDir.exists())
         {
-            const QString mapPath = mapsDir.absoluteFilePath(mapFile);
-
-            core::CampaignMap *map{nullptr};
-            try
-            {
-                map = io::readCampaignMap(mapPath, &mapUnserializer);
-            }
-            catch (const Exception &error)
-            {
-                wError(loggerName) << "Error loading map " << mapPath << ", " << error.getMessage();
-                continue;
-            }
-
-            map->setParent(this);
-
-            this->maps << map;
+            wInfo(loggerName) << "World " << world->objectName() << " does not have a surfaces directory";
+            continue;
         }
+
+        this->loadSurfacesFromDir(surfacesDir, world);
     }
 
-    emit mapsChanged();
+    emit worldsChanged();
+    emit worldSurfacesChanged();
+    emit campaignMapsChanged();
 }
 
-void ApplicationContext::closeMaps()
+void ApplicationContext::loadMapsFromDir(const QDir &mapsDir, io::Unserializer &mapUnserializer)
 {
-    for (core::CampaignMap *map : this->maps)
+    QStringList nameFilters;
+    nameFilters.append("*." + fileExtensions::mapDefinition);
+
+    const QFlags<QDir::Filter> filters = QDir::Files | QDir::Readable;
+
+    const QStringList mapEntries = mapsDir.entryList(nameFilters, filters);
+    for (const QString &mapFile : mapEntries)
     {
-        delete map;
-    }
-    this->maps.clear();
+        const QString mapPath = mapsDir.absoluteFilePath(mapFile);
 
-    emit mapsChanged();
+        core::CampaignMap *map{nullptr};
+        try
+        {
+            map = io::readCampaignMap(mapPath, mapUnserializer);
+        }
+        catch (const Exception &error)
+        {
+            wError(loggerName) << "Error loading map " << mapPath << ", " << error.getMessage();
+            continue;
+        }
+
+        map->setParent(this);
+
+        this->campaignMaps.push_back(map);
+    }
 }
 
-void ApplicationContext::newGame(warmonger::core::CampaignMap *)
+void ApplicationContext::loadSurfacesFromDir(const QDir &surfacesDir, core::World *world)
 {
-    if (this->game != nullptr)
+    QStringList nameFilters;
+    nameFilters.append("*." + fileExtensions::surfacePackage);
+
+    const QFlags<QDir::Filter> filters = QDir::Files | QDir::Readable;
+
+    const QStringList surfaceEntries = surfacesDir.entryList(nameFilters, filters);
+    for (const QString &surfaceFile : surfaceEntries)
     {
-        delete this->game;
+        const QString surfacePath = surfacesDir.absoluteFilePath(surfaceFile);
+
+        ui::WorldSurface *surface{nullptr};
+        try
+        {
+            surface = new WorldSurface(surfacePath, this);
+        }
+        catch (const Exception &error)
+        {
+            wError(loggerName) << "Error loading surface " << surfacePath << ", " << error.getMessage();
+            continue;
+        }
+
+        this->worldSurfaces[world].push_back(surface);
     }
-
-    emit gameChanged();
-}
-
-void ApplicationContext::loadGame(QString)
-{
-    if (this->game != nullptr)
-    {
-        delete this->game;
-    }
-
-    emit gameChanged();
-}
-
-void ApplicationContext::closeGame()
-{
-    if (this->game == nullptr) return;
-
-    delete this->game;
-    this->game = nullptr;
-
-    emit gameChanged();
 }

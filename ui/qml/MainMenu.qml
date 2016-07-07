@@ -36,6 +36,7 @@ Rectangle {
             text: "Map Editor"
 
             onClicked: {
+                W.selectNewMap();
                 mainMenu.stack.push({
                     item: Qt.createComponent("MapEditor.qml"),
                     properties: {stack: stack}

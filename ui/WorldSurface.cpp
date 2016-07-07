@@ -15,6 +15,7 @@
 using namespace warmonger::ui;
 
 static const QString loggerName{"core.WorldSurface"};
+static const QString surfacePrefix{":/surface/"};
 
 WorldSurface::WorldSurface(const QString& path, QObject *parent) :
     QObject(parent),
@@ -62,6 +63,11 @@ WorldSurface::~WorldSurface()
     {
         // ignore all exceptions
     }
+}
+
+QString WorldSurface::getPrefix() const
+{
+    return surfacePrefix;
 }
 
 QString WorldSurface::getDisplayName() const
@@ -238,7 +244,7 @@ void WorldSurface::activate()
         throw IOError("Failed to register  " + this->path);
     }
 
-    QFile jfile(":/surface/" + this->objectName() + "." + fileExtensions::surfaceDefinition);
+    QFile jfile(surfacePrefix + this->objectName() + "." + fileExtensions::surfaceDefinition);
     if (!jfile.open(QIODevice::ReadOnly))
     {
         throw IOError("Failed to open surface definition from package " + this->path + ". " + jfile.errorString());
@@ -262,7 +268,7 @@ void WorldSurface::activate()
     this->setNormalGridColor(QColor(jobj["normalGridColor"].toString()));
     this->setFocusGridColor(QColor(jobj["focusGridColor"].toString()));
 
-    if (!this->hexMask.load(":/surface/hexagonMask.xpm"))
+    if (!this->hexMask.load(surfacePrefix + "hexagonMask.xpm"))
     {
         throw IOError("Hexagon mask not found in surface package " + this->path);
     }

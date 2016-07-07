@@ -9,6 +9,10 @@
 
 using namespace warmonger;
 
+CATCH_TRANSLATE_EXCEPTION(Exception& e) {
+    return e.getMessage().toStdString();
+}
+
 std::unique_ptr<ui::WorldSurface> createWorldSurface(const QString& path)
 {
     return std::unique_ptr<ui::WorldSurface>(new ui::WorldSurface(path));
@@ -116,7 +120,7 @@ TEST_CASE("Can use Surface", "[WorldSurface]")
 
     SECTION("Resources not yet loaded")
     {
-        QFile f(":/surface/dev.wsd");
+        QFile f(s.getPrefix() + "dev.wsd");
         REQUIRE(f.open(QIODevice::ReadOnly) == false);
     }
 
@@ -124,7 +128,7 @@ TEST_CASE("Can use Surface", "[WorldSurface]")
     {
         s.activate();
 
-        QFile f(":/surface/dev.wsd");
+        QFile f(s.getPrefix() + "dev.wsd");
         REQUIRE(f.open(QIODevice::ReadOnly) == true);
         REQUIRE(s.getTileWidth() == 110);
         REQUIRE(s.getTileHeight() == 128);
@@ -140,7 +144,7 @@ TEST_CASE("Can use Surface", "[WorldSurface]")
         s.activate();
         s.deactivate();
 
-        QFile f(":/surface/dev.wsd");
+        QFile f(s.getPrefix() + "dev.wsd");
         REQUIRE(f.open(QIODevice::ReadOnly) == false);
     }
 }

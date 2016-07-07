@@ -42,7 +42,7 @@ TEST_CASE("World can be written to file", "[File]")
 
     SECTION("writing World")
     {
-        io::writeWorld(world.get(), path, &serializer);
+        io::writeWorld(world.get(), path, serializer);
 
         QFile file(path);
         REQUIRE(file.exists() == true);
@@ -61,7 +61,7 @@ TEST_CASE("World can be read from file", "[File]")
 
     SECTION("reading World")
     {
-        core::World *world = io::readWorld(path, &unserializer);
+        core::World *world = io::readWorld(path, unserializer);
 
         REQUIRE(world != nullptr);
     }
@@ -80,7 +80,7 @@ TEST_CASE("Map can be written to file", "[File]")
 
     SECTION("writing Map")
     {
-        io::writeCampaignMap(campaignMap.get(), path, &serializer);
+        io::writeCampaignMap(campaignMap.get(), path, serializer);
 
         QFile file(path);
         REQUIRE(file.exists() == true);
@@ -139,7 +139,7 @@ TEST_CASE("Map can be read from file", "[File]")
 
     SECTION("reading CampaignMap")
     {
-        core::CampaignMap *campaignMap = io::readCampaignMap(path, &unserializer);
+        core::CampaignMap *campaignMap = io::readCampaignMap(path, unserializer);
 
         REQUIRE(campaignMap != nullptr);
         REQUIRE(campaignMap->getWorld() != nullptr);

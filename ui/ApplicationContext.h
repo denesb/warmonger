@@ -57,7 +57,7 @@ private:
     void setWorld(core::World *world);
     void setWorldSurface(ui::WorldSurface *worldSurface);
     void setDefaultWorldSurface();
-    void setMapCampaign(core::CampaignMap *campaignMap);
+    void setCampaignMap(core::CampaignMap *campaignMap);
     void loadWorlds();
     void loadMapsFromDir(const QDir& mapsDir, core::World *world);
     void loadSurfacesFromDir(const QDir& surfacesDir, core::World *world);

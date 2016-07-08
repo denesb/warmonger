@@ -69,14 +69,20 @@ QVariantList ApplicationContext::readCampaignMaps() const
 
 void ApplicationContext::newMap(warmonger::core::World *world)
 {
-    this->campaignMap = new core::CampaignMap(this);
-    this->campaignMap->setWorld(world);
+    core::CampaignMap *map = new core::CampaignMap(this);
+    map->setObjectName("newMap");
+    map->setWorld(world);
+
+    this->setWorld(world);
+    this->setCampaignMap(map);
 }
 
 void ApplicationContext::setWorld(core::World *world)
 {
     if (this->world != world)
     {
+        wInfo(loggerName) << "world: `" << this->world << "' -> `" << world << "'";
+
         this->world = world;
 
         emit worldChanged();
@@ -112,6 +118,8 @@ void ApplicationContext::setWorldSurface(ui::WorldSurface *worldSurface)
 {
     if (this->worldSurface != worldSurface)
     {
+        wInfo(loggerName) << "worldSurface: `" << this->worldSurface << "' -> `" << worldSurface << "'";
+
         this->worldSurface = worldSurface;
         emit worldSurfaceChanged();
 
@@ -136,10 +144,12 @@ void ApplicationContext::setDefaultWorldSurface()
     }
 }
 
-void ApplicationContext::setMapCampaign(core::CampaignMap *campaignMap)
+void ApplicationContext::setCampaignMap(core::CampaignMap *campaignMap)
 {
     if (this->campaignMap != campaignMap)
     {
+        wInfo(loggerName) << "campaignMap: `" << this->campaignMap << "' -> `" << campaignMap << "'";
+
         this->campaignMap = campaignMap;
         this->setWorld(this->campaignMap->getWorld());
 

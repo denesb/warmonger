@@ -36,7 +36,12 @@ Rectangle {
             text: "Map Editor"
 
             onClicked: {
-                W.selectNewMap();
+                var worlds = W.worlds;
+                if (worlds.length > 0)
+                    W.newMap(worlds[0]);
+                else
+                    console.info("No world available, not creating new map");
+
                 mainMenu.stack.push({
                     item: Qt.createComponent("MapEditor.qml"),
                     properties: {stack: stack}

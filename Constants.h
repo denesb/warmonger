@@ -44,10 +44,12 @@ const QString surfaces{"surfaces"};
 } // namespace paths
 
 namespace searchPaths {
+
 const QString world{"World"};
 const QString campaignMap{"CampaignMap"};
 const QString worldSurface{"WorldSurface"};
-}
+
+} // namespace searchPaths
 
 } // namespace warmonger
 

@@ -173,9 +173,6 @@ void ApplicationContext::loadWorlds()
         world->setParent(this);
         this->worlds.push_back(world);
 
-        io::Context worldContext;
-        worldContext.add(world);
-
         QDir mapsDir(worldPath + "/" + paths::maps);
         if (!mapsDir.exists())
         {
@@ -183,9 +180,7 @@ void ApplicationContext::loadWorlds()
             continue;
         }
 
-        io::JsonUnserializer mapUnserializer(worldContext);
-
-        this->loadMapsFromDir(mapsDir, mapUnserializer);
+        this->loadMapsFromDir(mapsDir, world);
 
         QDir surfacesDir(worldPath + "/" + paths::surfaces);
         if (!surfacesDir.exists())
@@ -202,7 +197,7 @@ void ApplicationContext::loadWorlds()
     emit campaignMapsChanged();
 }
 
-void ApplicationContext::loadMapsFromDir(const QDir &mapsDir, io::Unserializer &mapUnserializer)
+void ApplicationContext::loadMapsFromDir(const QDir &mapsDir, core::World *world)
 {
     QStringList nameFilters;
     nameFilters.append("*." + fileExtensions::mapDefinition);
@@ -214,6 +209,10 @@ void ApplicationContext::loadMapsFromDir(const QDir &mapsDir, io::Unserializer &
     for (const QString &mapFile : mapEntries)
     {
         const QString mapPath = mapsDir.absoluteFilePath(mapFile);
+
+        io::Context worldContext;
+        worldContext.add(world);
+        io::JsonUnserializer mapUnserializer(worldContext);
 
         core::CampaignMap *map{nullptr};
         try
@@ -232,7 +231,7 @@ void ApplicationContext::loadMapsFromDir(const QDir &mapsDir, io::Unserializer &
         ++n;
     }
 
-    wInfo(loggerName) << "Loaded " << n << " maps for world " << world->objectName();
+    wInfo(loggerName) << "Loaded " << n << " maps for world `" << world->objectName() << "'";
 }
 
 void ApplicationContext::loadSurfacesFromDir(const QDir &surfacesDir, core::World *world)
@@ -263,5 +262,5 @@ void ApplicationContext::loadSurfacesFromDir(const QDir &surfacesDir, core::Worl
         ++n;
     }
 
-    wInfo(loggerName) << "Loaded " << n << " surfaces for world " << world->objectName();
+    wInfo(loggerName) << "Loaded " << n << " surfaces for world `" << world->objectName() << "'";
 }

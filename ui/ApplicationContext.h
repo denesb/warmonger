@@ -7,7 +7,6 @@
 #include "core/CampaignMap.h"
 #include "core/Game.h"
 #include "core/World.h"
-#include "io/Unserializer.h"
 #include "ui/WorldSurface.h"
 
 namespace warmonger {
@@ -60,7 +59,7 @@ private:
     void setDefaultWorldSurface();
     void setMapCampaign(core::CampaignMap *campaignMap);
     void loadWorlds();
-    void loadMapsFromDir(const QDir& mapsDir, io::Unserializer& mapUnserializer);
+    void loadMapsFromDir(const QDir& mapsDir, core::World *world);
     void loadSurfacesFromDir(const QDir& surfacesDir, core::World *world);
 
     core::World *world;

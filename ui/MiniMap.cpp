@@ -3,7 +3,7 @@
 #include <iterator>
 
 #include <QColor>
-#include <QPainter>
+#include <QSGSimpleRectNode>
 
 #include "core/Faction.h"
 #include "core/Settlement.h"
@@ -19,18 +19,19 @@ using namespace warmonger;
 using namespace warmonger::ui;
 
 MiniMap::MiniMap(QQuickItem *parent) :
-    QQuickPaintedItem(parent),
+    QQuickItem(parent),
     world(nullptr),
-    surface(nullptr),
+    worldSurface(nullptr),
     tileSize(),
-    map(nullptr),
+    campaignMap(nullptr),
     windowPos(0, 0),
     windowSize(0, 0),
     scale(1.0),
     translate(0.0, 0.0)
 {
-    this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
+    //this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
 
+    /*
     QObject::connect(
         this,
         &MiniMap::widthChanged,
@@ -44,59 +45,61 @@ MiniMap::MiniMap(QQuickItem *parent) :
         this,
         &MiniMap::updateTransform
     );
+    */
 }
 
-MiniMap::~MiniMap()
+core::CampaignMap * MiniMap::getCampaignMap() const
 {
+    return this->campaignMap;
 }
 
-core::CampaignMap * MiniMap::getMap() const
+void MiniMap::setCampaignMap(core::CampaignMap *campaignMap)
 {
-    return this->map;
-}
-
-void MiniMap::setMap(core::CampaignMap *map)
-{
-    if (this->map != map)
+    if (this->campaignMap != campaignMap)
     {
-        if (this->map != nullptr)
+        /*
+        if (this->campaignMap != nullptr)
             QObject::disconnect(
-                this->map,
+                this->campaignMap,
                 nullptr,
                 this,
                 nullptr
             );
+            */
 
-        wInfo(loggerName) << "Map changed " << this->map
-            << " -> " << map;
+        wInfo(loggerName) << "Map `" << this->campaignMap << "' -> `" << campaignMap << "'";
 
-        this->map = map;
+        this->campaignMap = campaignMap;
         this->setupMap();
 
+        /*
         QObject::connect(
-            this->map,
+            this->campaignMap,
             &core::CampaignMap::unitsChanged,
             this,
             &QQuickItem::update
         );
+        */
 
-        emit mapChanged();
+        this->updateContent();
+        emit campaignMapChanged();
     }
 }
 
-WorldSurface * MiniMap::getSurface() const
+WorldSurface * MiniMap::getWorldSurface() const
 {
-    return this->surface;
+    return this->worldSurface;
 }
 
-void MiniMap::setSurface(WorldSurface *surface)
+void MiniMap::setWorldSurface(WorldSurface *worldSurface)
 {
-    if(this->surface != surface)
+    if(this->worldSurface != worldSurface)
     {
-        this->surface = surface;
+        this->worldSurface = worldSurface;
         this->setupMap();
 
-        emit surfaceChanged();
+        this->updateContent();
+        emit worldSurfaceChanged();
     }
 }
 
@@ -134,47 +137,30 @@ void MiniMap::setWindowSize(const QSize &windowSize)
     if (this->windowSize != windowSize)
     {
         this->windowSize = windowSize;
-        this->updateWindowPosRect();
+        //this->updateWindowPosRect();
 
         emit windowSizeChanged();
     }
 }
 
-void MiniMap::paint(QPainter *painter)
+QSGNode * MiniMap::updatePaintNode(QSGNode *, UpdatePaintNodeData *)
 {
-    painter->save();
+    wDebug(loggerName) << "updatePaintNode";
+    QSGSimpleRectNode *n = new QSGSimpleRectNode();
+    n->setColor(Qt::red);
+    n->setRect(QRect(QPoint(0, 0), this->worldSurface->getTileSize()));
+    return n;
 
-    painter->setRenderHint(QPainter::Antialiasing, true);
-
+    /*
     painter->scale(this->scale, this->scale);
     painter->translate(this->translate);
-
-    auto cbegin = this->nodes.cbegin();
-    auto cend = this->nodes.cend();
-    std::function<void(const core::MapNode *)> drawNodeFunc = std::bind(
-        &MiniMap::drawNode,
-        this,
-        painter,
-        std::placeholders::_1
-    );
-
-    std::for_each(cbegin, cend, drawNodeFunc);
-
-    const QColor windowColor("black");
-    QPen pen(windowColor);
-    pen.setWidthF(1 / this->scale);
-
-    const QRect window(this->windowPos, this->windowSize);
-
-    painter->setPen(pen);
-    painter->drawRect(window);
-
-    painter->restore();
+    */
 }
 
+/*
 void MiniMap::mousePressEvent(QMouseEvent *event)
 {
-    QPointF pos(this->mapToMap(event->pos()));
+    QPointF pos(this->campaignMapToMap(event->pos()));
     this->centerWindow(pos.toPoint());
 }
 
@@ -182,30 +168,47 @@ void MiniMap::mouseMoveEvent(QMouseEvent *event)
 {
     if (event->buttons() & Qt::LeftButton)
     {
-        QPointF pos(this->mapToMap(event->pos()));
+        QPointF pos(this->campaignMapToMap(event->pos()));
         this->centerWindow(pos.toPoint());
+    }
+}
+*/
+
+void MiniMap::updateContent()
+{
+    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty())
+    {
+        wDebug(loggerName) << "doesn't has contents";
+        this->setFlags(0);
+    }
+    else
+    {
+        wDebug(loggerName) << "has contents";
+        this->setFlags(QQuickItem::ItemHasContents);
+        this->update();
     }
 }
 
 void MiniMap::setupMap()
 {
-    if (this->surface == nullptr || this->map == nullptr)
+    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->nodes.empty())
     {
         return;
     }
 
     // these are used a lot
-    this->nodes = this->map->getMapNodes();
-    this->world = this->map->getWorld();
+    this->nodes = this->campaignMap->getMapNodes();
+    this->world = this->campaignMap->getWorld();
 
-    this->tileSize = this->surface->getTileSize();
+    this->tileSize = this->worldSurface->getTileSize();
 
-    this->hexagonPainterPath = hexagonPath(this->tileSize);
+    //this->hexagonPainterPath = hexagonPath(this->tileSize);
     this->nodesPos = positionNodes(this->nodes[0], this->tileSize);
 
-    this->updateGeometry();
+    //this->updateGeometry();
 }
 
+/*
 void MiniMap::updateGeometry()
 {
     this->boundingRect = calculateBoundingRect(
@@ -243,18 +246,19 @@ QPointF MiniMap::mapToMap(const QPointF &p)
     const qreal rscale = 1 / this->scale;
     return p * rscale - this->translate;
 }
+*/
 
+/*
 void MiniMap::drawNode(QPainter *, const core::MapNode *)
 {
-    /*
     const QString terrainTypeName = node->getTerrainType()->objectName();
-    const core::Settlement *settlement = this->map->getSettlementOn(node);
-    const core::Unit *unit = this->map->getUnitOn(node);
+    const core::Settlement *settlement = this->campaignMap->getSettlementOn(node);
+    const core::Unit *unit = this->campaignMap->getUnitOn(node);
 
     painter->save();
     painter->translate(this->nodesPos[node]);
 
-    const QColor color = this->surface->getColor(terrainTypeName);
+    const QColor color = this->worldSurface->getColor(terrainTypeName);
     painter->fillPath(this->hexagonPainterPath, color);
 
     const int w = this->tileSize.width();
@@ -268,7 +272,7 @@ void MiniMap::drawNode(QPainter *, const core::MapNode *)
         const core::Faction *owner = settlement->getOwner();
         QColor sc;
         if (owner == nullptr)
-            sc= this->surface->getColorName("noOwner");
+            sc= this->worldSurface->getColorName("noOwner");
         else
             sc = owner->getColor();
 
@@ -283,7 +287,7 @@ void MiniMap::drawNode(QPainter *, const core::MapNode *)
         const core::Faction *owner = unit->getOwner();
         QColor uc;
         if (owner == nullptr)
-            uc= this->surface->getColorName("noOwner");
+            uc= this->worldSurface->getColorName("noOwner");
         else
             uc = owner->getColor();
 
@@ -291,5 +295,5 @@ void MiniMap::drawNode(QPainter *, const core::MapNode *)
     }
 
     painter->restore();
-    */
 }
+    */

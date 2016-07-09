@@ -4,10 +4,9 @@
 #include <map>
 #include <vector>
 
-#include <QPainterPath>
 #include <QRect>
 #include <QSize>
-#include <QtQuick/QQuickPaintedItem>
+#include <QtQuick/QQuickItem>
 
 #include "core/CampaignMap.h"
 #include "ui/MapUtil.h"
@@ -23,23 +22,22 @@ namespace core {
 namespace ui {
 
 class MiniMap :
-    public QQuickPaintedItem
+    public QQuickItem
 {
     Q_OBJECT
 
-    Q_PROPERTY(warmonger::core::CampaignMap *map READ getMap WRITE setMap NOTIFY mapChanged)
-    Q_PROPERTY(warmonger::ui::WorldSurface *surface READ getSurface WRITE setSurface NOTIFY surfaceChanged)
+    Q_PROPERTY(warmonger::core::CampaignMap *campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
+    Q_PROPERTY(warmonger::ui::WorldSurface *worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
     Q_PROPERTY(QPoint windowPos READ getWindowPos WRITE setWindowPos NOTIFY windowPosChanged)
     Q_PROPERTY(QSize windowSize READ getWindowSize WRITE setWindowSize NOTIFY windowSizeChanged)
 public:
     MiniMap(QQuickItem *parent = nullptr);
-    ~MiniMap();
 
-    core::CampaignMap * getMap() const;
-    void setMap(core::CampaignMap *map);
+    core::CampaignMap * getCampaignMap() const;
+    void setCampaignMap(core::CampaignMap *campaignMap);
 
-    WorldSurface * getSurface() const;
-    void setSurface(WorldSurface *surface);
+    WorldSurface * getWorldSurface() const;
+    void setWorldSurface(WorldSurface *worldSurface);
 
     QPoint getWindowPos() const;
     void setWindowPos(const QPoint &windowPos);
@@ -48,20 +46,24 @@ public:
     QSize getWindowSize() const;
     void setWindowSize(const QSize& windowSize);
 
-    void paint(QPainter *painter) override;
+    QSGNode * updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *data) override;
 
 signals:
-    void mapChanged();
-    void surfaceChanged();
+    void campaignMapChanged();
+    void worldSurfaceChanged();
     void windowPosChanged();
     void windowSizeChanged();
 
 protected:
+    void updateContent();
+    /*
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    */
 
 private:
     void setupMap();
+    /*
     void updateGeometry();
     void updateWindowPosRect();
     void updateTransform();
@@ -70,15 +72,16 @@ private:
 
     void drawNode(QPainter *painter, const core::MapNode *node);
     void drawContent(QPainter *painter, const core::MapNode *node);
+    */
 
     std::vector<core::MapNode *> nodes;
     core::World *world;
-    WorldSurface *surface;
+    WorldSurface *worldSurface;
     QSize tileSize;
 
-    core::CampaignMap *map;
+    core::CampaignMap *campaignMap;
     std::map<const core::MapNode *, QPoint> nodesPos;
-    QRect boundingRect;
+    //QRect boundingRect;
     QPainterPath hexagonPainterPath;
     QRect windowPosRect;
     QPoint windowPos;

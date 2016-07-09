@@ -68,13 +68,22 @@ QVariantList Context::readCampaignMaps() const
     return core::toQVariantList(this->campaignMaps);
 }
 
-void Context::newMap(warmonger::core::World *world)
+void Context::newCampaignMap(warmonger::core::World *world)
 {
     core::CampaignMap *map = new core::CampaignMap(this);
     map->setObjectName("newMap");
     map->setWorld(world);
 
-    this->setWorld(world);
+    // Add a single mapNode to the map, so there is something to display
+    const std::vector<core::TerrainType *> terrainTypes = map->getWorld()->getTerrainTypes();
+    if (!terrainTypes.empty())
+    {
+        core::MapNode *mapNode = new core::MapNode(map);
+        mapNode->setTerrainType(terrainTypes.front());
+
+        map->addMapNode(mapNode);
+    }
+
     this->setCampaignMap(map);
 }
 
@@ -121,14 +130,19 @@ void Context::setWorldSurface(ui::WorldSurface *worldSurface)
     {
         wInfo(loggerName) << "worldSurface: `" << this->worldSurface << "' -> `" << worldSurface << "'";
 
+        emit aboutToChangeWorldSurface();
+
         this->worldSurface = worldSurface;
-        emit worldSurfaceChanged();
 
         if (this->worldSurface != nullptr)
         {
             QSettings settings;
             settings.setValue(this->world->objectName() + "/surface", this->worldSurface->objectName());
         }
+
+        this->worldSurface->activate();
+
+        emit worldSurfaceChanged();
     }
 }
 

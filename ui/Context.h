@@ -43,10 +43,11 @@ public slots:
      * The map will be set as the current map and the world as the
      * current world.
      */
-    void newMap(warmonger::core::World *world);
+    void newCampaignMap(warmonger::core::World *world);
 
 signals:
     void worldChanged();
+    void aboutToChangeWorldSurface();
     void worldSurfaceChanged();
     void campaignMapChanged();
     void gameChanged();

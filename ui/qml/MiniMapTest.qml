@@ -7,19 +7,30 @@ Rectangle {
     anchors.fill: parent
 
     Component.onCompleted: {
-        W.newMap();
+        W.newCampaignMap(W.worlds[0]);
     }
 
-    MiniMap {
-        id: miniMap
-
-        map: W.map
-        windowPos: map.windowPos
-        windowSize: map.windowSize
-
+    Rectangle {
         anchors {
             fill: parent
             margins: 1
+        }
+        border {
+            width: 1
+            color: "black"
+        }
+        color: "green"
+
+        MiniMap {
+            id: miniMap
+
+            campaignMap: W.campaignMap
+            worldSurface: W.worldSurface
+
+            anchors {
+                fill: parent
+                margins: 1
+            }
         }
     }
 }

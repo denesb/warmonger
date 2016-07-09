@@ -360,6 +360,8 @@ void WorldSurface::uploadTextures()
     {
         this->uploadTexture(resourcePaths::unitTypes, unitType);
     }
+
+    wInfo(loggerName) << "Surface tetxtures uploaded to GPU";
 }
 
 void WorldSurface::uploadTexture(const QString &pathPrefix, const QObject *object)

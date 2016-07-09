@@ -4,6 +4,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QResource>
+#include <QSGTexture>
 
 #include <ktar.h>
 
@@ -12,15 +13,24 @@
 #include "Constants.h"
 #include "Exception.h"
 
-using namespace warmonger::ui;
+using namespace warmonger;
 
 static const QString loggerName{"core.WorldSurface"};
-static const QString surfacePrefix{":/surface/"};
 
-WorldSurface::WorldSurface(const QString& path, QObject *parent) :
+namespace warmonger {
+namespace ui {
+
+WorldSurface::WorldSurface(const QString& path, core::World *world, QQuickWindow *window, QObject *parent) :
     QObject(parent),
-    path(path)
+    path(path),
+    world(world),
+    window(window),
+    isTextureSyncOn(window->isSceneGraphInitialized()),
+    isTextureSyncPending(false)
 {
+    QObject::connect(window, &QQuickWindow::sceneGraphInitialized, this, &WorldSurface::turnTextureSyncOn);
+    QObject::connect(window, &QQuickWindow::sceneGraphInvalidated, this, &WorldSurface::turnTextureSyncOff);
+
     KTar package(this->path);
     if (!package.open(QIODevice::ReadOnly))
     {
@@ -67,7 +77,8 @@ WorldSurface::~WorldSurface()
 
 QString WorldSurface::getPrefix() const
 {
-    return surfacePrefix;
+    static const QString prefix = resourcePaths::surface + "/";
+    return prefix;
 }
 
 QString WorldSurface::getDisplayName() const
@@ -244,7 +255,7 @@ void WorldSurface::activate()
         throw IOError("Failed to register  " + this->path);
     }
 
-    QFile jfile(surfacePrefix + this->objectName() + "." + fileExtensions::surfaceDefinition);
+    QFile jfile(this->getPrefix() + this->objectName() + "." + fileExtensions::surfaceDefinition);
     if (!jfile.open(QIODevice::ReadOnly))
     {
         throw IOError("Failed to open surface definition from package " + this->path + ". " + jfile.errorString());
@@ -268,12 +279,17 @@ void WorldSurface::activate()
     this->setNormalGridColor(QColor(jobj["normalGridColor"].toString()));
     this->setFocusGridColor(QColor(jobj["focusGridColor"].toString()));
 
-    if (!this->hexMask.load(surfacePrefix + "hexagonMask.xpm"))
+    if (!this->hexMask.load(this->getPrefix() + "hexagonMask.xpm"))
     {
         throw IOError("Hexagon mask not found in surface package " + this->path);
     }
 
     wInfo(loggerName) << "Succesfully activated surface " << this->objectName();
+
+    if (this->isTextureSyncOn)
+        this->uploadTextures();
+    else
+        this->isTextureSyncPending = true;
 }
 
 void WorldSurface::deactivate()
@@ -285,6 +301,22 @@ void WorldSurface::deactivate()
     }
 
     wInfo(loggerName) << "Succesfully deactivated surface " << this->objectName();
+}
+
+void WorldSurface::turnTextureSyncOn()
+{
+    this->isTextureSyncOn = true;
+
+    if (this->isTextureSyncPending)
+    {
+        this->uploadTextures();
+        this->isTextureSyncPending = false;
+    }
+}
+
+void WorldSurface::turnTextureSyncOff()
+{
+    this->isTextureSyncOn = false;
 }
 
 void WorldSurface::parseHeader(const QByteArray &header)
@@ -306,3 +338,43 @@ void WorldSurface::parseHeader(const QByteArray &header)
     this->setDisplayName(jobj["displayName"].toString());
     this->setDescription(jobj["description"].toString());
 }
+
+void WorldSurface::uploadTextures()
+{
+    this->textures.clear();
+
+    const auto terrainTypes = this->world->getTerrainTypes();
+    for (const auto& terrainType : terrainTypes)
+    {
+        this->uploadTexture(resourcePaths::terrainTypes, terrainType);
+    }
+
+    const auto settlementTypes = this->world->getTerrainTypes();
+    for (const auto& settlementType : settlementTypes)
+    {
+        this->uploadTexture(resourcePaths::settlementTypes, settlementType);
+    }
+
+    const auto unitTypes = this->world->getTerrainTypes();
+    for (const auto& unitType : unitTypes)
+    {
+        this->uploadTexture(resourcePaths::unitTypes, unitType);
+    }
+}
+
+void WorldSurface::uploadTexture(const QString &pathPrefix, const QObject *object)
+{
+    const QString path = pathPrefix + "/" + object->objectName() + "." + resourcePaths::fileExtension;
+    QImage image(path);
+
+    if (image.isNull())
+    {
+        wWarning(loggerName) << "Cannot find texture for " << object;
+        return;
+    }
+
+    this->textures[path] = std::unique_ptr<QSGTexture>(this->window->createTextureFromImage(image));
+}
+
+} // namespace ui
+} // namespace warmonger

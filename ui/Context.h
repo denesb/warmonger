@@ -1,7 +1,8 @@
-#ifndef UI_APPLICATION_CONTEXT_H
-#define UI_APPLICATION_CONTEXT_H
+#ifndef W_UI_CONTEXT_H
+#define W_UI_CONTEXT_H
 
 #include <QDir>
+#include <QQuickWindow>
 #include <QVariant>
 
 #include "core/CampaignMap.h"
@@ -12,7 +13,7 @@
 namespace warmonger {
 namespace ui {
 
-class ApplicationContext :
+class Context :
     public QObject
 {
     Q_OBJECT
@@ -25,7 +26,7 @@ class ApplicationContext :
     Q_PROPERTY(QVariantList campaignMaps READ readCampaignMaps NOTIFY campaignMapsChanged)
 
 public:
-    ApplicationContext(QObject *parent=nullptr);
+    Context(QQuickWindow *window, QObject *parent=nullptr);
 
     core::World * getWorld() const;
     ui::WorldSurface * getWorldSurface() const;
@@ -62,6 +63,7 @@ private:
     void loadMapsFromDir(const QDir& mapsDir, core::World *world);
     void loadSurfacesFromDir(const QDir& surfacesDir, core::World *world);
 
+    QQuickWindow *window;
     core::World *world;
     ui::WorldSurface *worldSurface;
     core::CampaignMap *campaignMap;
@@ -74,4 +76,4 @@ private:
 } // namespace ui
 } // namespace warmonger
 
-#endif // UI_APPLICATION_CONTEXT_H
+#endif // W_UI_CONTEXT_H

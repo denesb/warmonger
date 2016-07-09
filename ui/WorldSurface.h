@@ -1,9 +1,14 @@
-#ifndef UI_WORLD_SURFACE_H
-#define UI_WORLD_SURFACE_H
+#ifndef W_UI_WORLD_SURFACE_H
+#define W_UI_WORLD_SURFACE_H
+
+#include <memory>
 
 #include <QColor>
 #include <QImage>
+#include <QQuickWindow>
 #include <QSize>
+
+#include "core/World.h"
 
 namespace warmonger {
 namespace ui {
@@ -20,7 +25,7 @@ class WorldSurface :
     Q_PROPERTY(QColor focusGridColor READ getFocusGridColor WRITE setFocusGridColor NOTIFY focusGridColorChanged)
 
 public:
-    explicit WorldSurface(const QString& path, QObject *parent=nullptr);
+    WorldSurface(const QString& path, core::World *world, QQuickWindow *window, QObject *parent=nullptr);
     ~WorldSurface();
 
     /**
@@ -70,6 +75,8 @@ public:
      */
     void deactivate();
 
+    QSGTexture * getTexture(const QString& path) const;
+
 signals:
     void prefixChanged();
     void displayNameChanged();
@@ -80,14 +87,26 @@ signals:
     void normalGridColorChanged();
     void focusGridColorChanged();
 
+private slots:
+    void turnTextureSyncOn();
+    void turnTextureSyncOff();
+
 private:
     void parseHeader(const QByteArray& header);
+    void uploadTextures();
+    void uploadTexture(const QString &pathPrefix, const QObject *object);
+    void cleanTextures();
 
     const QString path;
     QString displayName;
     QString description;
+    core::World *world;
 
     QByteArray resourceData;
+    QQuickWindow *window;
+    std::map<QString, std::unique_ptr<QSGTexture>> textures;
+    bool isTextureSyncOn;
+    bool isTextureSyncPending;
 
     int tileWidth;
     int tileHeight;
@@ -99,4 +118,4 @@ private:
 } // namespace ui
 } // namespace warmonger
 
-#endif // UI_WORLD_SURFACE_H
+#endif // W_UI_WORLD_SURFACE_H

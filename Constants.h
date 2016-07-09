@@ -7,7 +7,7 @@ namespace warmonger {
 
 /*
  * file extension constants
- */ 
+ */
 namespace fileExtensions {
 
 // Warmonger World Definition
@@ -42,6 +42,17 @@ const QString maps{"maps"};
 const QString surfaces{"surfaces"};
 
 } // namespace paths
+
+namespace resourcePaths {
+
+const QString surface{":/surface"};
+const QString terrainTypes{surface + "/terrainTypes"};
+const QString settlementTypes{surface + "/settlementTypes"};
+const QString unitTypes{surface + "/unitTypes"};
+
+const QString fileExtension{"png"};
+
+} // namespace resourcePaths
 
 namespace searchPaths {
 

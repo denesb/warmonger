@@ -15,6 +15,7 @@
     <file>qml/MapItemsInfo.qml</file>
     <file>qml/MapList.qml</file>
     <file>qml/MapNodeEdit.qml</file>
+    <file>qml/MiniMapTest.qml</file>
     <file>qml/NewGame.qml</file>
     <file>qml/Palette.js</file>
     <file>qml/PointBar.qml</file>

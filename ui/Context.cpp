@@ -4,7 +4,7 @@
 #include "core/QVariantUtil.h"
 #include "io/File.h"
 #include "io/JsonUnserializer.h"
-#include "ui/ApplicationContext.h"
+#include "ui/Context.h"
 #include "ui/WorldSurface.h"
 #include "Constants.h"
 #include "Utils.h"
@@ -12,10 +12,11 @@
 using namespace warmonger;
 using namespace warmonger::ui;
 
-static const QString loggerName{"ui.ApplicationContext"};
+static const QString loggerName{"ui.Context"};
 
-ApplicationContext::ApplicationContext(QObject *parent) :
+Context::Context(QQuickWindow *window, QObject *parent) :
     QObject(parent),
+    window(window),
     world(nullptr),
     worldSurface(nullptr),
     campaignMap(nullptr),
@@ -24,32 +25,32 @@ ApplicationContext::ApplicationContext(QObject *parent) :
     loadWorlds();
 }
 
-core::World * ApplicationContext::getWorld() const
+core::World * Context::getWorld() const
 {
     return this->world;
 }
 
-ui::WorldSurface * ApplicationContext::getWorldSurface() const
+ui::WorldSurface * Context::getWorldSurface() const
 {
     return this->worldSurface;
 }
 
-core::CampaignMap * ApplicationContext::getCampaignMap() const
+core::CampaignMap * Context::getCampaignMap() const
 {
     return this->campaignMap;
 }
 
-core::Game * ApplicationContext::getGame() const
+core::Game * Context::getGame() const
 {
     return this->game;
 }
 
-QVariantList ApplicationContext::readWorlds() const
+QVariantList Context::readWorlds() const
 {
     return core::toQVariantList(this->worlds);
 }
 
-QVariantList ApplicationContext::readWorldSurfaces() const
+QVariantList Context::readWorldSurfaces() const
 {
     const auto it = this->worldSurfaces.find(this->world);
     if (it == this->worldSurfaces.end())
@@ -62,12 +63,12 @@ QVariantList ApplicationContext::readWorldSurfaces() const
     }
 }
 
-QVariantList ApplicationContext::readCampaignMaps() const
+QVariantList Context::readCampaignMaps() const
 {
     return core::toQVariantList(this->campaignMaps);
 }
 
-void ApplicationContext::newMap(warmonger::core::World *world)
+void Context::newMap(warmonger::core::World *world)
 {
     core::CampaignMap *map = new core::CampaignMap(this);
     map->setObjectName("newMap");
@@ -77,7 +78,7 @@ void ApplicationContext::newMap(warmonger::core::World *world)
     this->setCampaignMap(map);
 }
 
-void ApplicationContext::setWorld(core::World *world)
+void Context::setWorld(core::World *world)
 {
     if (this->world != world)
     {
@@ -114,7 +115,7 @@ void ApplicationContext::setWorld(core::World *world)
     }
 }
 
-void ApplicationContext::setWorldSurface(ui::WorldSurface *worldSurface)
+void Context::setWorldSurface(ui::WorldSurface *worldSurface)
 {
     if (this->worldSurface != worldSurface)
     {
@@ -131,7 +132,7 @@ void ApplicationContext::setWorldSurface(ui::WorldSurface *worldSurface)
     }
 }
 
-void ApplicationContext::setDefaultWorldSurface()
+void Context::setDefaultWorldSurface()
 {
     const std::vector<WorldSurface *>& surfaces = this->worldSurfaces[this->world];
     if (surfaces.empty())
@@ -144,7 +145,7 @@ void ApplicationContext::setDefaultWorldSurface()
     }
 }
 
-void ApplicationContext::setCampaignMap(core::CampaignMap *campaignMap)
+void Context::setCampaignMap(core::CampaignMap *campaignMap)
 {
     if (this->campaignMap != campaignMap)
     {
@@ -157,7 +158,7 @@ void ApplicationContext::setCampaignMap(core::CampaignMap *campaignMap)
     }
 }
 
-void ApplicationContext::loadWorlds()
+void Context::loadWorlds()
 {
     io::JsonUnserializer worldUnserializer;
 
@@ -207,7 +208,7 @@ void ApplicationContext::loadWorlds()
     emit campaignMapsChanged();
 }
 
-void ApplicationContext::loadMapsFromDir(const QDir &mapsDir, core::World *world)
+void Context::loadMapsFromDir(const QDir &mapsDir, core::World *world)
 {
     QStringList nameFilters;
     nameFilters.append("*." + fileExtensions::mapDefinition);
@@ -244,7 +245,7 @@ void ApplicationContext::loadMapsFromDir(const QDir &mapsDir, core::World *world
     wInfo(loggerName) << "Loaded " << n << " maps for world `" << world->objectName() << "'";
 }
 
-void ApplicationContext::loadSurfacesFromDir(const QDir &surfacesDir, core::World *world)
+void Context::loadSurfacesFromDir(const QDir &surfacesDir, core::World *world)
 {
     QStringList nameFilters;
     nameFilters.append("*." + fileExtensions::surfacePackage);
@@ -260,7 +261,7 @@ void ApplicationContext::loadSurfacesFromDir(const QDir &surfacesDir, core::Worl
         ui::WorldSurface *surface{nullptr};
         try
         {
-            surface = new WorldSurface(surfacePath, this);
+            surface = new WorldSurface(surfacePath, world, window, this);
         }
         catch (const Exception &error)
         {

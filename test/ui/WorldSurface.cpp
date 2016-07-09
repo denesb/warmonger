@@ -1,6 +1,7 @@
 #include <memory>
 
 #include <QFile>
+#include <QGuiApplication>
 
 #include "test/catch.hpp"
 
@@ -13,17 +14,19 @@ CATCH_TRANSLATE_EXCEPTION(Exception& e) {
     return e.getMessage().toStdString();
 }
 
-std::unique_ptr<ui::WorldSurface> createWorldSurface(const QString& path)
-{
-    return std::unique_ptr<ui::WorldSurface>(new ui::WorldSurface(path));
-}
-
 TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
 {
+    core::World world;
+
+    int argc = 0;
+    char **argv = nullptr;
+    QGuiApplication app(argc, argv);
+    QQuickWindow window;
+
     SECTION("No package file")
     {
         REQUIRE_THROWS_AS(
-            createWorldSurface("./dev_nonexistent.wsp"),
+            ui::WorldSurface("./dev_nonexistent.wsp", &world, &window),
             IOError
         );
     }
@@ -31,7 +34,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
     SECTION("No metadata file in package")
     {
         REQUIRE_THROWS_AS(
-            createWorldSurface("./dev_nometafile.wsp"),
+            ui::WorldSurface("./dev_nometafile.wsp", &world, &window),
             IOError
         );
     }
@@ -39,7 +42,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
     SECTION("Metadata file is not a file")
     {
         REQUIRE_THROWS_AS(
-            createWorldSurface("./dev_metadir.wsp"),
+            ui::WorldSurface("./dev_metadir.wsp", &world, &window),
             IOError
         );
     }
@@ -47,14 +50,14 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
     SECTION("Metadata file not valid JSON")
     {
         REQUIRE_THROWS_AS(
-            createWorldSurface("./dev_metainvalidjson.wsp"),
+            ui::WorldSurface("./dev_metainvalidjson.wsp", &world, &window),
             ValueError
         );
     }
 
     SECTION("No resource file")
     {
-        ui::WorldSurface s("./dev_norcc.wsp");
+        ui::WorldSurface s("./dev_norcc.wsp", &world, &window);
         REQUIRE_THROWS_AS(
             s.activate(),
             IOError
@@ -63,7 +66,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
 
     SECTION("Resource file is not a file")
     {
-        ui::WorldSurface s("./dev_rccdir.wsp");
+        ui::WorldSurface s("./dev_rccdir.wsp", &world, &window);
         REQUIRE_THROWS_AS(
             s.activate(),
             IOError
@@ -72,7 +75,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
 
     SECTION("Resource file is invalid")
     {
-        ui::WorldSurface s("./dev_rccinvalid.wsp");
+        ui::WorldSurface s("./dev_rccinvalid.wsp", &world, &window);
         REQUIRE_THROWS_AS(
             s.activate(),
             IOError
@@ -81,7 +84,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
 
     SECTION("Resource file, missing definition file")
     {
-        ui::WorldSurface s("./dev_rccnodefinition.wsp");
+        ui::WorldSurface s("./dev_rccnodefinition.wsp", &world, &window);
         REQUIRE_THROWS_AS(
             s.activate(),
             IOError
@@ -90,7 +93,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
 
     SECTION("Resource file, definition file - invalid json")
     {
-        ui::WorldSurface s("./dev_rccdefinitioninvalidjson.wsp");
+        ui::WorldSurface s("./dev_rccdefinitioninvalidjson.wsp", &world, &window);
         REQUIRE_THROWS_AS(
             s.activate(),
             ValueError
@@ -99,7 +102,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
 
     SECTION("Resource file, no hexmask")
     {
-        ui::WorldSurface s("./dev_rccnohexmask.wsp");
+        ui::WorldSurface s("./dev_rccnohexmask.wsp", &world, &window);
         REQUIRE_THROWS_AS(
             s.activate(),
             IOError
@@ -109,7 +112,14 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
 
 TEST_CASE("Can use Surface", "[WorldSurface]")
 {
-    ui::WorldSurface s("./dev.wsp");
+    core::World world;
+
+    int argc = 0;
+    char **argv = nullptr;
+    QGuiApplication app(argc, argv);
+    QQuickWindow window;
+
+    ui::WorldSurface s("./dev.wsp", &world, &window);
 
     SECTION("Can read metadata")
     {

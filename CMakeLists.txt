@@ -56,8 +56,8 @@ set(
     log/LogRecord.cpp
     log/LogStream.cpp
     log/Logger.cpp
-    ui/ApplicationContext.cpp
     ui/CampaignMapEditor.cpp
+    ui/Context.cpp
     ui/MapUtil.cpp
     ui/MapWindow.cpp
     ui/MiniMap.cpp

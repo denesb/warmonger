@@ -5,9 +5,9 @@
 #include <QSettings>
 #include <QtQml/QQmlEngine>
 
-#include "ui/ApplicationContext.h"
+#include "ui/Context.h"
 //#include "ui/GameMap.h"
-//#include "ui/MiniMap.h"
+#include "ui/MiniMap.h"
 //#include "ui/MapPreview.h"
 #include "ui/CampaignMapEditor.h"
 #include "log/LogStream.h"
@@ -32,7 +32,7 @@ const QString loggerName{"ui.Main"};
 void setSearchPaths();
 void addSubdirToSearchPath(const QString&worldPath, const QString &subdirName, QStringList &searchPath);
 void initLogger();
-void initUi(std::unique_ptr<QQuickView> &view, std::unique_ptr<ui::ApplicationContext> &ctx);
+void initUi(QQuickView *view, ui::Context *ctx);
 
 }
 
@@ -47,12 +47,13 @@ int main(int argc, char *argv[])
     initLogger();
     setSearchPaths();
 
-    std::unique_ptr<QQuickView> view{new QQuickView};
-    std::unique_ptr<ui::ApplicationContext> ctx{new ui::ApplicationContext()};
+    QQuickView view;
 
-    initUi(view, ctx);
+    ui::Context *ctx = new ui::Context(&view, &view);
 
-    QObject::connect(view->engine(), &QQmlEngine::quit, view.get(), &QQuickView::close);
+    initUi(&view, ctx);
+
+    QObject::connect(view.engine(), &QQmlEngine::quit, &view, &QQuickView::close);
 
     return app.exec();
 }
@@ -125,16 +126,16 @@ void initLogger()
     rootLogger->addHandler(consoleHandler);
 }
 
-void initUi(std::unique_ptr<QQuickView> &view, std::unique_ptr<ui::ApplicationContext> &ctx)
+void initUi(QQuickView *view, ui::Context *ctx)
 {
 
     //qmlRegisterType<ui::GameMap>("Warmonger", 1, 0, "GameMap");
-    //qmlRegisterType<ui::MiniMap>("Warmonger", 1, 0, "MiniMap");
+    qmlRegisterType<ui::MiniMap>("Warmonger", 1, 0, "MiniMap");
     //qmlRegisterType<ui::MapPreview>("Warmonger", 1, 0, "MapPreview");
     qmlRegisterType<ui::CampaignMapEditor>("Warmonger", 1, 0, "CampaignMapEditor");
 
-    view->rootContext()->setContextProperty("W", ctx.get());
-    view->setSource(QUrl("qrc:/qml/Main.qml"));
+    view->rootContext()->setContextProperty("W", ctx);
+    view->setSource(QUrl("qrc:/qml/MiniMapTest.qml"));
     view->show();
 }
 

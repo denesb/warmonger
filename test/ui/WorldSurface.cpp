@@ -6,11 +6,11 @@
 #include "test/catch.hpp"
 
 #include "ui/WorldSurface.h"
-#include "Exception.h"
+#include "utils/Exception.h"
 
 using namespace warmonger;
 
-CATCH_TRANSLATE_EXCEPTION(Exception& e) {
+CATCH_TRANSLATE_EXCEPTION(utils::Exception& e) {
     return e.getMessage().toStdString();
 }
 
@@ -27,7 +27,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
     {
         REQUIRE_THROWS_AS(
             ui::WorldSurface("./dev_nonexistent.wsp", &world, &window),
-            IOError
+            utils::IOError
         );
     }
 
@@ -35,7 +35,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
     {
         REQUIRE_THROWS_AS(
             ui::WorldSurface("./dev_nometafile.wsp", &world, &window),
-            IOError
+            utils::IOError
         );
     }
 
@@ -43,7 +43,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
     {
         REQUIRE_THROWS_AS(
             ui::WorldSurface("./dev_metadir.wsp", &world, &window),
-            IOError
+            utils::IOError
         );
     }
 
@@ -51,7 +51,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
     {
         REQUIRE_THROWS_AS(
             ui::WorldSurface("./dev_metainvalidjson.wsp", &world, &window),
-            ValueError
+            utils::ValueError
         );
     }
 
@@ -60,7 +60,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
         ui::WorldSurface s("./dev_norcc.wsp", &world, &window);
         REQUIRE_THROWS_AS(
             s.activate(),
-            IOError
+            utils::IOError
         );
     }
 
@@ -69,7 +69,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
         ui::WorldSurface s("./dev_rccdir.wsp", &world, &window);
         REQUIRE_THROWS_AS(
             s.activate(),
-            IOError
+            utils::IOError
         );
     }
 
@@ -78,7 +78,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
         ui::WorldSurface s("./dev_rccinvalid.wsp", &world, &window);
         REQUIRE_THROWS_AS(
             s.activate(),
-            IOError
+            utils::IOError
         );
     }
 
@@ -87,7 +87,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
         ui::WorldSurface s("./dev_rccnodefinition.wsp", &world, &window);
         REQUIRE_THROWS_AS(
             s.activate(),
-            IOError
+            utils::IOError
         );
     }
 
@@ -96,7 +96,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
         ui::WorldSurface s("./dev_rccdefinitioninvalidjson.wsp", &world, &window);
         REQUIRE_THROWS_AS(
             s.activate(),
-            ValueError
+            utils::ValueError
         );
     }
 
@@ -105,7 +105,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
         ui::WorldSurface s("./dev_rccnohexmask.wsp", &world, &window);
         REQUIRE_THROWS_AS(
             s.activate(),
-            IOError
+            utils::IOError
         );
     }
 }

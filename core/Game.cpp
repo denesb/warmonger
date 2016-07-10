@@ -1,14 +1,9 @@
-#include <algorithm>
-#include <functional>
-#include <limits>
-#include <typeinfo>
-
 #include "core/Game.h"
-#include "Exception.h"
-
-using namespace warmonger::core;
 
 static const QString loggerName{"core.Game"};
+
+namespace warmonger {
+namespace core {
 
 Game::Game(QObject *parent) :
     QObject(parent),
@@ -44,3 +39,6 @@ void Game::setTurn(int turn)
         emit turnChanged();
     }
 }
+
+} // namespace core
+} // namespace warmonger

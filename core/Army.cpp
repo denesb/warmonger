@@ -1,5 +1,5 @@
 #include "core/Army.h"
-#include "core/QVariantUtil.h"
+#include "utils/QVariantUtils.h"
 
 const QString loggerName{"core.Army"};
 
@@ -70,7 +70,7 @@ void Army::setUnits(const std::vector<Unit *> &units)
 
 QVariantList Army::readUnits() const
 {
-    return toQVariantList(this->units);
+    return utils::toQVariantList(this->units);
 }
 
 } // namespace core

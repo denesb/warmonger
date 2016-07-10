@@ -1,9 +1,9 @@
 #include <algorithm>
 
 #include "core/CampaignMap.h"
-#include "core/QVariantUtil.h"
 #include "core/TerrainType.h"
 #include "core/UnitClass.h"
+#include "utils/QVariantUtils.h"
 
 using namespace warmonger::core;
 
@@ -132,7 +132,7 @@ void CampaignMap::setMapNodes(const std::vector<MapNode *> &mapNodes)
 
 QVariantList CampaignMap::readMapNodes() const
 {
-    return toQVariantList(this->mapNodes);
+    return utils::toQVariantList(this->mapNodes);
 }
 
 std::vector<Settlement *> CampaignMap::getSettlements() const
@@ -151,7 +151,7 @@ void CampaignMap::setSettlements(const std::vector<Settlement *> &settlements)
 
 QVariantList CampaignMap::readSettlements() const
 {
-    return toQVariantList(this->settlements);
+    return utils::toQVariantList(this->settlements);
 }
 
 std::vector<Unit *> CampaignMap::getUnits() const
@@ -170,7 +170,7 @@ void CampaignMap::setUnits(const std::vector<Unit *> &units)
 
 QVariantList CampaignMap::readUnits() const
 {
-    return toQVariantList(this->units);
+    return utils::toQVariantList(this->units);
 }
 
 std::vector<Army *> CampaignMap::getArmies() const
@@ -189,7 +189,7 @@ void CampaignMap::setArmies(const std::vector<Army *> &armies)
 
 QVariantList CampaignMap::readArmies() const
 {
-    return toQVariantList(this->armies);
+    return utils::toQVariantList(this->armies);
 }
 
 std::vector<Faction *> CampaignMap::getFactions() const
@@ -208,7 +208,7 @@ void CampaignMap::setFactions(const std::vector<Faction *> &factions)
 
 QVariantList CampaignMap::readFactions() const
 {
-    return toQVariantList(this->factions);
+    return utils::toQVariantList(this->factions);
 }
 
 void CampaignMap::addMapNode(MapNode *mapNode)

@@ -1,9 +1,10 @@
-#ifndef EXCEPTION_H
-#define EXCEPTION_H
+#ifndef W_UTILS_EXCEPTION_H
+#define W_UTILS_EXCEPTION_H
 
 #include <QString>
 
 namespace warmonger {
+namespace utils {
 
 /**
  * Generic Exception, the father of all exceptions.
@@ -63,6 +64,7 @@ public:
     using Exception::Exception;
 };
 
+} // utils
 } // warmonger
 
-#endif // EXCEPTION_H
+#endif // W_UTILS_EXCEPTION_H

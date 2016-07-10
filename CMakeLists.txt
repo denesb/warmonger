@@ -62,6 +62,7 @@ set(
     ui/MapWindow.cpp
     ui/MiniMap.cpp
     ui/WorldSurface.cpp
+    utils/MapGenerator.cpp
 )
 
 find_package(Qt5Core REQUIRED)

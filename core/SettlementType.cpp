@@ -1,8 +1,9 @@
-#include "core/QVariantUtil.h"
 #include "core/SettlementType.h"
 #include "core/UnitType.h"
+#include "utils/QVariantUtils.h"
 
-using namespace warmonger::core;
+namespace warmonger {
+namespace core {
 
 SettlementType::SettlementType(QObject *parent) :
     QObject(parent),
@@ -55,11 +56,14 @@ void SettlementType::setRecruits(const std::vector<UnitType *> &recruits)
 
 QVariantList SettlementType::readRecruits() const
 {
-    return toQVariantList(this->recruits);
+    return utils::toQVariantList(this->recruits);
 }
 
 void SettlementType::writeRecruits(QVariantList recruits)
 {
-    std::vector<UnitType *> r = fromQVariantList<std::vector<UnitType *>>(recruits);
+    std::vector<UnitType *> r = utils::fromQVariantList<std::vector<UnitType *>>(recruits);
     this->setRecruits(r);
 }
+
+} // namespace core
+} // namespace warmonger

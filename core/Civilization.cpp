@@ -2,8 +2,8 @@
 
 #include "core/Civilization.h"
 #include "core/SettlementType.h"
-#include "core/QVariantUtil.h"
 #include "core/UnitType.h"
+#include "utils/QVariantUtils.h"
 
 using namespace warmonger::core;
 
@@ -33,7 +33,7 @@ std::vector<UnitType *> Civilization::getUnitTypes() const
 
 QVariantList Civilization::readUnitTypes() const
 {
-    return toQVariantList(this->unitTypes);
+    return utils::toQVariantList(this->unitTypes);
 }
 
 void Civilization::setUnitTypes(const std::vector<UnitType *> &unitTypes)
@@ -58,10 +58,10 @@ std::map<SettlementType *, std::vector<UnitType *>> Civilization::getRecruits() 
 
 QVariantMap Civilization::readRecruits() const
 {
-    return toQVariantMap(
+    return utils::toQVariantMap(
         this->recruits,
         std::bind(&QObject::objectName, std::placeholders::_1),
-        containerToQVariant<std::vector<UnitType *>>
+        utils::containerToQVariant<std::vector<UnitType *>>
     );
 }
 

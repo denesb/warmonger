@@ -1,9 +1,10 @@
-#include "core/QVariantUtil.h"
 #include "core/World.h"
-
-using namespace warmonger::core;
+#include "utils/QVariantUtils.h"
 
 static const QString loggerName{"core.World"};
+
+namespace warmonger {
+namespace core {
 
 World::World(QObject *parent) :
     QObject(parent)
@@ -56,7 +57,7 @@ void World::setCivilizations(const std::vector<Civilization *> &civilizations)
 
 QVariantList World::readCivilizations() const
 {
-    return toQVariantList(this->civilizations);
+    return utils::toQVariantList(this->civilizations);
 }
 
 std::vector<SettlementType *> World::getSettlementTypes() const
@@ -75,7 +76,7 @@ void World::setSettlementTypes(const std::vector<SettlementType *> &settlementTy
 
 QVariantList World::readSettlementTypes() const
 {
-    return toQVariantList(this->settlementTypes);
+    return utils::toQVariantList(this->settlementTypes);
 }
 
 std::vector<TerrainType *> World::getTerrainTypes() const
@@ -94,7 +95,7 @@ void World::setTerrainTypes(const std::vector<TerrainType *> &terrainTypes)
 
 QVariantList World::readTerrainTypes() const
 {
-    return toQVariantList(this->terrainTypes);
+    return utils::toQVariantList(this->terrainTypes);
 }
 
 std::vector<UnitClass *> World::getUnitClasses() const
@@ -137,7 +138,7 @@ void World::setUnitTypes(const std::vector<UnitType *> &unitTypes)
 
 QVariantList World::readUnitTypes() const
 {
-    return toQVariantList(this->unitTypes);
+    return utils::toQVariantList(this->unitTypes);
 }
 
 std::vector<WeaponClass *> World::getWeaponClasses() const
@@ -181,3 +182,6 @@ void World::setWeapons(const std::vector<Weapon *> &weapons)
         emit weaponsChanged();
     }
 }
+
+} // namespace core
+} // namespace warmonger

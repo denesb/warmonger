@@ -1,18 +1,19 @@
 #include <QStringList>
 #include <QSettings>
 
-#include "core/QVariantUtil.h"
 #include "io/File.h"
 #include "io/JsonUnserializer.h"
 #include "ui/Context.h"
 #include "ui/WorldSurface.h"
-#include "Constants.h"
-#include "Utils.h"
-
-using namespace warmonger;
-using namespace warmonger::ui;
+#include "utils/Constants.h"
+#include "utils/MapGenerator.h"
+#include "utils/QVariantUtils.h"
+#include "utils/Utils.h"
 
 static const QString loggerName{"ui.Context"};
+
+namespace warmonger {
+namespace ui {
 
 Context::Context(QQuickWindow *window, QObject *parent) :
     QObject(parent),
@@ -47,7 +48,7 @@ core::Game * Context::getGame() const
 
 QVariantList Context::readWorlds() const
 {
-    return core::toQVariantList(this->worlds);
+    return utils::toQVariantList(this->worlds);
 }
 
 QVariantList Context::readWorldSurfaces() const
@@ -59,13 +60,13 @@ QVariantList Context::readWorldSurfaces() const
     }
     else
     {
-        return core::toQVariantList(it->second);
+        return utils::toQVariantList(it->second);
     }
 }
 
 QVariantList Context::readCampaignMaps() const
 {
-    return core::toQVariantList(this->campaignMaps);
+    return utils::toQVariantList(this->campaignMaps);
 }
 
 void Context::newCampaignMap(warmonger::core::World *world)
@@ -74,15 +75,7 @@ void Context::newCampaignMap(warmonger::core::World *world)
     map->setObjectName("newMap");
     map->setWorld(world);
 
-    // Add a single mapNode to the map, so there is something to display
-    const std::vector<core::TerrainType *> terrainTypes = map->getWorld()->getTerrainTypes();
-    if (!terrainTypes.empty())
-    {
-        core::MapNode *mapNode = new core::MapNode(map);
-        mapNode->setTerrainType(terrainTypes.front());
-
-        map->addMapNode(mapNode);
-    }
+    utils::generateNodes(map->getWorld(), 20);
 
     this->setCampaignMap(map);
 }
@@ -176,18 +169,18 @@ void Context::loadWorlds()
 {
     io::JsonUnserializer worldUnserializer;
 
-    for (QString worldPath : QDir::searchPaths(searchPaths::world))
+    for (QString worldPath : QDir::searchPaths(utils::searchPaths::world))
     {
         QFileInfo fileInfo(worldPath);
         const QString worldDefinitionPath = worldPath + "/" + fileInfo.baseName() + "."
-            + fileExtensions::worldDefinition;
+            + utils::fileExtensions::worldDefinition;
         core::World *world{nullptr};
 
         try
         {
             world = io::readWorld(worldDefinitionPath, worldUnserializer);
         }
-        catch(const Exception &error)
+        catch(const utils::Exception &error)
         {
             wError(loggerName) << "Error loading world " << worldDefinitionPath << ", " << error.getMessage();
             continue;
@@ -198,7 +191,7 @@ void Context::loadWorlds()
         world->setParent(this);
         this->worlds.push_back(world);
 
-        QDir mapsDir(worldPath + "/" + paths::maps);
+        QDir mapsDir(worldPath + "/" + utils::paths::maps);
         if (!mapsDir.exists())
         {
             wInfo(loggerName) << "World " << worldPath << " does not have a maps directory";
@@ -207,7 +200,7 @@ void Context::loadWorlds()
 
         this->loadMapsFromDir(mapsDir, world);
 
-        QDir surfacesDir(worldPath + "/" + paths::surfaces);
+        QDir surfacesDir(worldPath + "/" + utils::paths::surfaces);
         if (!surfacesDir.exists())
         {
             wInfo(loggerName) << "World " << worldPath << " does not have a surfaces directory";
@@ -225,7 +218,7 @@ void Context::loadWorlds()
 void Context::loadMapsFromDir(const QDir &mapsDir, core::World *world)
 {
     QStringList nameFilters;
-    nameFilters.append("*." + fileExtensions::mapDefinition);
+    nameFilters.append("*." + utils::fileExtensions::mapDefinition);
 
     const QFlags<QDir::Filter> filters = QDir::Files | QDir::Readable;
 
@@ -244,7 +237,7 @@ void Context::loadMapsFromDir(const QDir &mapsDir, core::World *world)
         {
             map = io::readCampaignMap(mapPath, mapUnserializer);
         }
-        catch (const Exception &error)
+        catch (const utils::Exception &error)
         {
             wError(loggerName) << "Error loading map " << mapPath << ", " << error.getMessage();
             continue;
@@ -262,7 +255,7 @@ void Context::loadMapsFromDir(const QDir &mapsDir, core::World *world)
 void Context::loadSurfacesFromDir(const QDir &surfacesDir, core::World *world)
 {
     QStringList nameFilters;
-    nameFilters.append("*." + fileExtensions::surfacePackage);
+    nameFilters.append("*." + utils::fileExtensions::surfacePackage);
 
     const QFlags<QDir::Filter> filters = QDir::Files | QDir::Readable;
     std::size_t n{0};
@@ -277,7 +270,7 @@ void Context::loadSurfacesFromDir(const QDir &surfacesDir, core::World *world)
         {
             surface = new WorldSurface(surfacePath, world, window, this);
         }
-        catch (const Exception &error)
+        catch (const utils::Exception &error)
         {
             wError(loggerName) << "Error loading surface " << surfacePath << ", " << error.getMessage();
             continue;
@@ -289,3 +282,6 @@ void Context::loadSurfacesFromDir(const QDir &surfacesDir, core::World *world)
 
     wInfo(loggerName) << "Loaded " << n << " surfaces for world `" << world->objectName() << "'";
 }
+
+} // namespace ui
+} // namespace warmonger

@@ -1,9 +1,10 @@
-#include "core/QVariantUtil.h"
 #include "core/UnitType.h"
-
-using namespace warmonger::core;
+#include "utils/QVariantUtils.h"
 
 static const QString loggerName{"core.UnitType"};
+
+namespace warmonger {
+namespace core {
 
 UnitType::UnitType(QObject *parent) :
     QObject(parent),
@@ -134,7 +135,7 @@ void UnitType::setWeapons(const std::vector<Weapon *> &weapons)
 
 QVariantList UnitType::readWeapons() const
 {
-    return toQVariantList(this->weapons);
+    return utils::toQVariantList(this->weapons);
 }
 
 std::map<WeaponType *, int> UnitType::getAttackSkills() const
@@ -204,3 +205,6 @@ void UnitType::setUpgrades(const std::vector<UnitType *> &upgrades)
         emit upgradesChanged();
     }
 }
+
+} // namespace core
+} // namespace warmonger

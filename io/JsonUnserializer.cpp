@@ -7,28 +7,13 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-#include "core/Armor.h"
-#include "core/Army.h"
 #include "core/CampaignMap.h"
-#include "core/Civilization.h"
-#include "core/DamageType.h"
-#include "core/Faction.h"
-#include "core/MapNode.h"
-#include "core/Settlement.h"
-#include "core/SettlementType.h"
-#include "core/TerrainType.h"
-#include "core/Unit.h"
-#include "core/UnitClass.h"
-#include "core/UnitLevel.h"
-#include "core/Weapon.h"
-#include "core/WeaponClass.h"
-#include "core/WeaponType.h"
 #include "core/World.h"
 #include "io/JsonUnserializer.h"
-#include "Exception.h"
+#include "utils/Exception.h"
 
-using namespace warmonger;
-using namespace warmonger::io;
+namespace warmonger {
+namespace io {
 
 QJsonDocument parseJson(const QByteArray &json);
 
@@ -61,7 +46,7 @@ Type * resolveReference(Context &ctx, const QString &name)
     if (obj == nullptr)
     {
         QString className(Type::staticMetaObject.className());
-        throw ValueError(
+        throw utils::ValueError(
             QString("Unable to resolve reference `%1' to `%2'")
                 .arg(name)
                 .arg(className)
@@ -420,7 +405,7 @@ QJsonDocument parseJson(const QByteArray &json)
 
     if (parseError.error != QJsonParseError::NoError)
     {
-        throw ValueError(parseError.errorString() + " at " + parseError.offset);
+        throw utils::ValueError(parseError.errorString() + " at " + parseError.offset);
     }
 
     return doc;
@@ -757,3 +742,6 @@ core::WeaponType * weaponTypeFromJson(const QJsonObject &jobj, Context &ctx)
 
     return obj.release();
 }
+
+} // namespace io
+} // namespace warmonger

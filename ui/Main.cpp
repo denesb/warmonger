@@ -5,15 +5,15 @@
 #include <QSettings>
 #include <QtQml/QQmlEngine>
 
+#include "log/LogStream.h"
+#include "log/ConsoleHandler.h"
+#include "log/Formatter.h"
 #include "ui/Context.h"
 //#include "ui/GameMap.h"
 #include "ui/MiniMap.h"
 //#include "ui/MapPreview.h"
 #include "ui/CampaignMapEditor.h"
-#include "log/LogStream.h"
-#include "log/ConsoleHandler.h"
-#include "log/Formatter.h"
-#include "Constants.h"
+#include "utils/Constants.h"
 
 namespace warmonger {
 
@@ -85,15 +85,15 @@ void setSearchPaths()
 
         worldSearchPath.append(worldPath);
 
-        addSubdirToSearchPath(worldPath, paths::surfaces, surfaceSearchPath);
-        addSubdirToSearchPath(worldPath, paths::maps, mapSearchPath);
+        addSubdirToSearchPath(worldPath, utils::paths::surfaces, surfaceSearchPath);
+        addSubdirToSearchPath(worldPath, utils::paths::maps, mapSearchPath);
 
         wInfo(loggerName) << "Added world " << worldPath << " to world search path";
     }
 
-    QDir::setSearchPaths(searchPaths::world, worldSearchPath);
-    QDir::setSearchPaths(searchPaths::worldSurface, surfaceSearchPath);
-    QDir::setSearchPaths(searchPaths::campaignMap, mapSearchPath);
+    QDir::setSearchPaths(utils::searchPaths::world, worldSearchPath);
+    QDir::setSearchPaths(utils::searchPaths::worldSurface, surfaceSearchPath);
+    QDir::setSearchPaths(utils::searchPaths::campaignMap, mapSearchPath);
 }
 
 void addSubdirToSearchPath(const QString&worldPath, const QString &subdirName, QStringList &searchPath)

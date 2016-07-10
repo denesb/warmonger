@@ -7,10 +7,10 @@
 #include <QString>
 #include <QVariant>
 
-#include "Exception.h"
+#include "utils/Exception.h"
 
 namespace warmonger {
-namespace core {
+namespace utils {
 
 /**
  * Convert a Container to a QVariantList.
@@ -143,7 +143,7 @@ Container fromQVariantMap(
     return container;
 }
 
-} // namespace core
+} // namespace utils
 } // namespace warmonger
 
 #endif // CORE_QVARIANT_UTIL_H

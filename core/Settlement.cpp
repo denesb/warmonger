@@ -2,13 +2,14 @@
 #include <algorithm>
 #include <vector>
 
-#include "core/QVariantUtil.h"
 #include "core/Settlement.h"
 #include "core/UnitType.h"
-
-using namespace warmonger::core;
+#include "utils/QVariantUtils.h"
 
 static const QString loggerName{"core.Settlement"};
+
+namespace warmonger {
+namespace core {
 
 Settlement::Settlement(QObject *parent) :
     QObject(parent),
@@ -134,5 +135,8 @@ std::vector<UnitType *> Settlement::getRecruits() const
 
 QVariantList Settlement::readRecruits() const
 {
-    return toQVariantList(this->getRecruits());
+    return utils::toQVariantList(this->getRecruits());
 }
+
+} // namespace core
+} // namespace warmonger

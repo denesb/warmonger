@@ -4,6 +4,7 @@
 #include <QString>
 
 namespace warmonger {
+namespace utils {
 
 /*
  * file extension constants
@@ -62,6 +63,7 @@ const QString worldSurface{"WorldSurface"};
 
 } // namespace searchPaths
 
+} // namespace utils
 } // namespace warmonger
 
 #endif // CORE_CONSTANTS_H

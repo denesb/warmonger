@@ -10,8 +10,8 @@
 
 #include "log/LogStream.h"
 #include "ui/WorldSurface.h"
-#include "Constants.h"
-#include "Exception.h"
+#include "utils/Constants.h"
+#include "utils/Exception.h"
 
 using namespace warmonger;
 
@@ -36,7 +36,7 @@ WorldSurface::WorldSurface(const QString& path, core::World *world, QQuickWindow
     KTar package(this->path);
     if (!package.open(QIODevice::ReadOnly))
     {
-        throw IOError(
+        throw utils::IOError(
             "Failed to open surface package " + this->path + ". " + package.device()->errorString()
         );
     }
@@ -46,18 +46,18 @@ WorldSurface::WorldSurface(const QString& path, core::World *world, QQuickWindow
     const auto& it = std::find_if(
         entries.cbegin(),
         entries.cend(),
-        [](const QString& s){return s.endsWith("." + fileExtensions::surfaceMetadata);}
+        [](const QString& s){return s.endsWith("." + utils::fileExtensions::surfaceMetadata);}
     );
 
     if (it == entries.cend())
     {
-        throw IOError("No metadata file found in surface package " + this->path);
+        throw utils::IOError("No metadata file found in surface package " + this->path);
     }
 
     const KArchiveEntry *headerEntry = rootDir->entry(*it);
     if (headerEntry->isDirectory())
     {
-        throw IOError("Metadata file is not a file in surface package " + this->path);
+        throw utils::IOError("Metadata file is not a file in surface package " + this->path);
     }
 
     const KArchiveFile *headerFile = dynamic_cast<const KArchiveFile *>(headerEntry);
@@ -79,7 +79,7 @@ WorldSurface::~WorldSurface()
 
 QString WorldSurface::getPrefix() const
 {
-    static const QString prefix = resourcePaths::surface + "/";
+    static const QString prefix = utils::resourcePaths::surface + "/";
     return prefix;
 }
 
@@ -229,23 +229,23 @@ void WorldSurface::activate()
     KTar package(this->path);
     if (!package.open(QIODevice::ReadOnly))
     {
-        throw IOError(
+        throw utils::IOError(
             "Failed to open surface package " + this->path + ". " + package.device()->errorString()
         );
     }
     const KArchiveDirectory *rootDir = package.directory();
     const QStringList entries = rootDir->entries();
-    const QString rccEntryName = this->objectName() + "." + fileExtensions::qResourceData;
+    const QString rccEntryName = this->objectName() + "." + utils::fileExtensions::qResourceData;
 
     if (std::find(entries.cbegin(), entries.cend(), rccEntryName) == entries.cend())
     {
-        throw IOError("No rcc file found in surface package " + this->path);
+        throw utils::IOError("No rcc file found in surface package " + this->path);
     }
 
     const KArchiveEntry *rccEntry = rootDir->entry(rccEntryName);
     if (rccEntry->isDirectory())
     {
-        throw IOError("rcc file is not a file in surface package " + this->path);
+        throw utils::IOError("rcc file is not a file in surface package " + this->path);
     }
 
     const KArchiveFile *rccFile = dynamic_cast<const KArchiveFile *>(rccEntry);
@@ -254,13 +254,13 @@ void WorldSurface::activate()
     const unsigned char * data = reinterpret_cast<const uchar *>(this->resourceData.data());
     if (!QResource::registerResource(data))
     {
-        throw IOError("Failed to register  " + this->path);
+        throw utils::IOError("Failed to register  " + this->path);
     }
 
-    QFile jfile(this->getPrefix() + this->objectName() + "." + fileExtensions::surfaceDefinition);
+    QFile jfile(this->getPrefix() + this->objectName() + "." + utils::fileExtensions::surfaceDefinition);
     if (!jfile.open(QIODevice::ReadOnly))
     {
-        throw IOError("Failed to open surface definition from package " + this->path + ". " + jfile.errorString());
+        throw utils::IOError("Failed to open surface definition from package " + this->path + ". " + jfile.errorString());
     }
 
     QJsonParseError parseError;
@@ -268,7 +268,7 @@ void WorldSurface::activate()
 
     if (parseError.error != QJsonParseError::NoError)
     {
-        throw ValueError(
+        throw utils::ValueError(
             "Error parsing surface definition file from surface package " + this->path + ". "
             + parseError.errorString() + " at " + parseError.offset
         );
@@ -283,7 +283,7 @@ void WorldSurface::activate()
 
     if (!this->hexMask.load(this->getPrefix() + "hexagonMask.xpm"))
     {
-        throw IOError("Hexagon mask not found in surface package " + this->path);
+        throw utils::IOError("Hexagon mask not found in surface package " + this->path);
     }
 
     wInfo(loggerName) << "Succesfully activated surface " << this->objectName();
@@ -299,7 +299,7 @@ void WorldSurface::deactivate()
     const unsigned char * data = reinterpret_cast<const uchar *>(this->resourceData.data());
     if (!QResource::unregisterResource(data))
     {
-        throw IOError("Failed to unregister  " + this->path);
+        throw utils::IOError("Failed to unregister  " + this->path);
     }
 
     wInfo(loggerName) << "Succesfully deactivated surface " << this->objectName();
@@ -341,7 +341,7 @@ void WorldSurface::parseHeader(const QByteArray &header)
 
     if (parseError.error != QJsonParseError::NoError)
     {
-        throw ValueError(
+        throw utils::ValueError(
             "Error parsing surface meta file from surface package " + this->path + ". "
             + parseError.errorString() + " at " + parseError.offset
         );
@@ -361,19 +361,19 @@ void WorldSurface::uploadTextures()
     const auto terrainTypes = this->world->getTerrainTypes();
     for (const auto& terrainType : terrainTypes)
     {
-        this->uploadTexture(resourcePaths::terrainTypes, terrainType);
+        this->uploadTexture(utils::resourcePaths::terrainTypes, terrainType);
     }
 
     const auto settlementTypes = this->world->getTerrainTypes();
     for (const auto& settlementType : settlementTypes)
     {
-        this->uploadTexture(resourcePaths::settlementTypes, settlementType);
+        this->uploadTexture(utils::resourcePaths::settlementTypes, settlementType);
     }
 
     const auto unitTypes = this->world->getTerrainTypes();
     for (const auto& unitType : unitTypes)
     {
-        this->uploadTexture(resourcePaths::unitTypes, unitType);
+        this->uploadTexture(utils::resourcePaths::unitTypes, unitType);
     }
 
     wInfo(loggerName) << "Surface tetxtures uploaded to GPU";
@@ -381,7 +381,7 @@ void WorldSurface::uploadTextures()
 
 void WorldSurface::uploadTexture(const QString &pathPrefix, const QObject *object)
 {
-    const QString path = pathPrefix + "/" + object->objectName() + "." + resourcePaths::fileExtension;
+    const QString path = pathPrefix + "/" + object->objectName() + "." + utils::resourcePaths::fileExtension;
     QImage image(path);
 
     if (image.isNull())

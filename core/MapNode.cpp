@@ -1,5 +1,5 @@
 #include "core/MapNode.h"
-#include "Exception.h"
+#include "utils/Exception.h"
 
 static const QString loggerName{"core.MapNode"};
 
@@ -47,7 +47,7 @@ Direction str2direction(const QString &str)
 
     if (str2dir.find(str) == str2dir.end())
     {
-        throw ValueError(str + " is not a valid direction");
+        throw utils::ValueError(str + " is not a valid direction");
     }
 
     return str2dir.at(str);

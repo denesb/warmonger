@@ -1,7 +1,7 @@
 #include <QFile>
 
 #include "io/File.h"
-#include "Exception.h"
+#include "utils/Exception.h"
 
 namespace warmonger {
 namespace io {
@@ -11,7 +11,7 @@ void writeWorld(const core::World *world, const QString &path, io::Serializer &s
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly))
     {
-        throw IOError(QString("Failed to open %1 for writing").arg(path));
+        throw utils::IOError(QString("Failed to open %1 for writing").arg(path));
     }
 
     file.write(serializer.serializeWorld(world));
@@ -22,7 +22,7 @@ core::World * readWorld(const QString &path, io::Unserializer &unserializer)
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly))
     {
-        throw IOError(QString("Failed to open %1 for reading").arg(path));
+        throw utils::IOError(QString("Failed to open %1 for reading").arg(path));
     }
 
     const QByteArray data = file.readAll();
@@ -34,7 +34,7 @@ void writeCampaignMap(const core::CampaignMap *campaignMap, const QString &path,
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly))
     {
-        throw IOError(QString("Failed to open %1 for writing").arg(path));
+        throw utils::IOError(QString("Failed to open %1 for writing").arg(path));
     }
 
     file.write(serializer.serializeCampaignMap(campaignMap));
@@ -45,7 +45,7 @@ core::CampaignMap * readCampaignMap(const QString &path, io::Unserializer &unser
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly))
     {
-        throw IOError(QString("Failed to open %1 for reading").arg(path));
+        throw utils::IOError(QString("Failed to open %1 for reading").arg(path));
     }
 
     const QByteArray data = file.readAll();

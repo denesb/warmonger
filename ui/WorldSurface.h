@@ -75,7 +75,7 @@ public:
      */
     void deactivate();
 
-    QSGTexture * getTexture(const QString& path) const;
+    QSGTexture * getTexture(const QObject *object) const;
 
 signals:
     void prefixChanged();

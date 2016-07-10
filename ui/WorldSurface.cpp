@@ -17,6 +17,8 @@ using namespace warmonger;
 
 static const QString loggerName{"core.WorldSurface"};
 
+static QString key(const QObject *object);
+
 namespace warmonger {
 namespace ui {
 
@@ -303,6 +305,19 @@ void WorldSurface::deactivate()
     wInfo(loggerName) << "Succesfully deactivated surface " << this->objectName();
 }
 
+QSGTexture * WorldSurface::getTexture(const QObject *object) const
+{
+    const auto it = this->textures.find(key(object));
+    if (it == this->textures.end())
+    {
+        return nullptr;
+    }
+    else
+    {
+        return it->second.get();
+    }
+}
+
 void WorldSurface::turnTextureSyncOn()
 {
     this->isTextureSyncOn = true;
@@ -375,8 +390,13 @@ void WorldSurface::uploadTexture(const QString &pathPrefix, const QObject *objec
         return;
     }
 
-    this->textures[path] = std::unique_ptr<QSGTexture>(this->window->createTextureFromImage(image));
+    this->textures[key(object)] = std::unique_ptr<QSGTexture>(this->window->createTextureFromImage(image));
 }
 
 } // namespace ui
 } // namespace warmonger
+
+static QString key(const QObject *object)
+{
+    return QString(object->metaObject()->className()) + "/" + object->objectName();
+}

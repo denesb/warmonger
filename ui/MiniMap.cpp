@@ -4,6 +4,7 @@
 
 #include <QColor>
 #include <QSGSimpleRectNode>
+#include <QSGSimpleTextureNode>
 
 #include "core/Faction.h"
 #include "core/Settlement.h"
@@ -57,29 +58,9 @@ void MiniMap::setCampaignMap(core::CampaignMap *campaignMap)
 {
     if (this->campaignMap != campaignMap)
     {
-        /*
-        if (this->campaignMap != nullptr)
-            QObject::disconnect(
-                this->campaignMap,
-                nullptr,
-                this,
-                nullptr
-            );
-            */
-
-        wInfo(loggerName) << "Map `" << this->campaignMap << "' -> `" << campaignMap << "'";
+        wInfo(loggerName) << "campaignMap `" << this->campaignMap << "' -> `" << campaignMap << "'";
 
         this->campaignMap = campaignMap;
-        this->setupMap();
-
-        /*
-        QObject::connect(
-            this->campaignMap,
-            &core::CampaignMap::unitsChanged,
-            this,
-            &QQuickItem::update
-        );
-        */
 
         this->updateContent();
         emit campaignMapChanged();
@@ -96,7 +77,6 @@ void MiniMap::setWorldSurface(WorldSurface *worldSurface)
     if(this->worldSurface != worldSurface)
     {
         this->worldSurface = worldSurface;
-        this->setupMap();
 
         this->updateContent();
         emit worldSurfaceChanged();
@@ -146,15 +126,23 @@ void MiniMap::setWindowSize(const QSize &windowSize)
 QSGNode * MiniMap::updatePaintNode(QSGNode *, UpdatePaintNodeData *)
 {
     wDebug(loggerName) << "updatePaintNode";
+
+    QSGSimpleTextureNode *n = new QSGSimpleTextureNode();
+    n->setOwnsTexture(false);
+    n->setRect(QRect(QPoint(0, 0), this->worldSurface->getTileSize()));
+    n->setTexture(this->worldSurface->getTexture(this->nodes[0]->getTerrainType()));
+    /*
     QSGSimpleRectNode *n = new QSGSimpleRectNode();
     n->setColor(Qt::red);
     n->setRect(QRect(QPoint(0, 0), this->worldSurface->getTileSize()));
-    return n;
+    */
 
     /*
-    painter->scale(this->scale, this->scale);
-    painter->translate(this->translate);
+    for (const MapNode *node : nodes)
+    {
+    }
     */
+    return n;
 }
 
 /*
@@ -180,20 +168,13 @@ void MiniMap::updateContent()
     {
         wDebug(loggerName) << "doesn't has contents";
         this->setFlags(0);
+        return;
     }
     else
     {
         wDebug(loggerName) << "has contents";
         this->setFlags(QQuickItem::ItemHasContents);
-        this->update();
-    }
-}
-
-void MiniMap::setupMap()
-{
-    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->nodes.empty())
-    {
-        return;
+        //this->update();
     }
 
     // these are used a lot
@@ -202,7 +183,6 @@ void MiniMap::setupMap()
 
     this->tileSize = this->worldSurface->getTileSize();
 
-    //this->hexagonPainterPath = hexagonPath(this->tileSize);
     this->nodesPos = positionNodes(this->nodes[0], this->tileSize);
 
     //this->updateGeometry();

@@ -10,6 +10,8 @@ namespace utils {
 
 std::vector<core::MapNode *> generateNodes(unsigned int radius);
 
+void generateNodeNames(const std::vector<core::MapNode *> &nodes);
+
 } // namespace utils
 } // namespace warmonger
 

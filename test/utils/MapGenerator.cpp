@@ -1,7 +1,5 @@
 #include "test/catch.hpp"
 
-#include <iostream>
-
 #include "utils/MapGenerator.h"
 
 using namespace warmonger;
@@ -46,6 +44,36 @@ TEST_CASE("Generate nodes with different radiuses", "[MapGenerator]")
 
         REQUIRE(nodes.size() == 37);
         REQUIRE(numberOfConnections(nodes) == 180);
+    }
+}
+
+TEST_CASE("Generate nodes names", "[MapGenerator]")
+{
+    SECTION("All nodes have a non-empty name")
+    {
+        const std::vector<core::MapNode *> nodes = utils::generateNodes(2);
+
+        utils::generateNodeNames(nodes);
+
+        for (const core::MapNode *node : nodes)
+        {
+            REQUIRE(node->objectName().isEmpty() == false);
+        }
+    }
+
+    SECTION("All nodes have a unique name")
+    {
+        const std::vector<core::MapNode *> nodes = utils::generateNodes(3);
+
+        utils::generateNodeNames(nodes);
+
+        std::set<QString> names;
+
+        for (const core::MapNode *node : nodes)
+        {
+            names.insert(node->objectName());
+        }
+        REQUIRE(names.size() == nodes.size());
     }
 }
 

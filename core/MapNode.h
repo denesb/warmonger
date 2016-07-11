@@ -1,49 +1,13 @@
-#ifndef CORE_MAP_NODE_H
-#define CORE_MAP_NODE_H
+#ifndef W_CORE_MAP_NODE_H
+#define W_CORE_MAP_NODE_H
 
 #include <map>
 
-#include <QObject>
-
 #include "core/TerrainType.h"
+#include "utils/Hexagon.h"
 
 namespace warmonger {
 namespace core {
-
-/*
- *  NW  /\  NE
- *    /    \
- * W |      | E
- *   |      |
- *    \    /
- *  SW  \/  SE
- */
-enum class Direction
-{
-    West,
-    NorthWest,
-    NorthEast,
-    East,
-    SouthEast,
-    SouthWest
-};
-
-/**
- * Converts Directions to QString.
- */
-QString direction2str(Direction d);
-
-/**
- * Converts QString to Direction.
- *
- * Will throw a ValueError if str is not a valid direction name.
- */
-Direction str2direction(const QString &str);
-
-/**
- * Return the opposite direction of d.
- */
-Direction oppositeDirection(Direction d);
 
 class MapNode :
     public QObject
@@ -61,12 +25,12 @@ public:
     TerrainType * getTerrainType() const;
     void setTerrainType(TerrainType *terrainType);
 
-    std::map<Direction, MapNode *> getNeighbours() const;
-    void setNeighbours(const std::map<Direction, MapNode *> &neighbours);
-    void setNeighbours(std::map<Direction, MapNode *> &&neighbours);
+    std::map<utils::Direction, MapNode *> getNeighbours() const;
+    void setNeighbours(const std::map<utils::Direction, MapNode *> &neighbours);
+    void setNeighbours(std::map<utils::Direction, MapNode *> &&neighbours);
 
-    MapNode * getNeighbour(Direction direction) const;
-    void setNeighbour(Direction direction, MapNode *mapNode);
+    MapNode * getNeighbour(utils::Direction direction) const;
+    void setNeighbour(utils::Direction direction, MapNode *mapNode);
 
 signals:
     void displayNameChanged();
@@ -77,10 +41,10 @@ private:
     QString displayName;
 
     TerrainType *terrainType;
-    std::map<Direction, MapNode *> neighbours;
+    std::map<utils::Direction, MapNode *> neighbours;
 };
 
 } // namespace core
 } // namespace warmonger
 
-#endif // CORE_MAP_NODE_H
+#endif // W_CORE_MAP_NODE_H

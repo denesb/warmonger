@@ -20,7 +20,7 @@ class Unit;
 
 namespace ui {
 
-QPoint neighbourPos(const QPoint &pos, core::Direction dir, const QSize &tileSize);
+QPoint neighbourPos(const QPoint &pos, utils::Direction dir, const QSize &tileSize);
 
 std::map<const core::MapNode *, QPoint> positionNodes(core::MapNode * startNode, const QSize &tileSize);
 

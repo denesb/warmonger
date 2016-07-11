@@ -24,13 +24,13 @@ TEST_CASE("MapNode neighbours", "[MapNode]")
     {
         std::unique_ptr<core::MapNode> mn(new core::MapNode);
 
-        const std::map<core::Direction, core::MapNode *> ns{
-            {core::Direction::West, new core::MapNode(mn.get())},
-            {core::Direction::NorthWest, new core::MapNode(mn.get())},
-            {core::Direction::NorthEast, new core::MapNode(mn.get())},
-            {core::Direction::East, new core::MapNode(mn.get())},
-            {core::Direction::SouthEast, new core::MapNode(mn.get())},
-            {core::Direction::SouthWest, new core::MapNode(mn.get())}
+        const std::map<utils::Direction, core::MapNode *> ns{
+            {utils::Direction::West, new core::MapNode(mn.get())},
+            {utils::Direction::NorthWest, new core::MapNode(mn.get())},
+            {utils::Direction::NorthEast, new core::MapNode(mn.get())},
+            {utils::Direction::East, new core::MapNode(mn.get())},
+            {utils::Direction::SouthEast, new core::MapNode(mn.get())},
+            {utils::Direction::SouthWest, new core::MapNode(mn.get())}
         };
         mn->setNeighbours(ns);
 
@@ -41,11 +41,11 @@ TEST_CASE("MapNode neighbours", "[MapNode]")
     {
         std::unique_ptr<core::MapNode> mn(new core::MapNode);
 
-        const std::map<core::Direction, core::MapNode *> ns{
-            {core::Direction::West, new core::MapNode(mn.get())},
-            {core::Direction::East, new core::MapNode(mn.get())},
-            {core::Direction::SouthEast, new core::MapNode(mn.get())},
-            {core::Direction::SouthWest, new core::MapNode(mn.get())}
+        const std::map<utils::Direction, core::MapNode *> ns{
+            {utils::Direction::West, new core::MapNode(mn.get())},
+            {utils::Direction::East, new core::MapNode(mn.get())},
+            {utils::Direction::SouthEast, new core::MapNode(mn.get())},
+            {utils::Direction::SouthWest, new core::MapNode(mn.get())}
         };
         mn->setNeighbours(ns);
 
@@ -68,13 +68,13 @@ TEST_CASE("MapNode neighbours", "[MapNode]")
     {
         std::unique_ptr<core::MapNode> mn(new core::MapNode);
 
-        const std::map<core::Direction, core::MapNode *> ns{
-            {core::Direction::West, new core::MapNode(mn.get())},
-            {core::Direction::NorthWest, new core::MapNode(mn.get())},
-            {core::Direction::NorthEast, new core::MapNode(mn.get())},
-            {core::Direction::East, new core::MapNode(mn.get())},
-            {core::Direction::SouthEast, new core::MapNode(mn.get())},
-            {core::Direction::SouthWest, new core::MapNode(mn.get())}
+        const std::map<utils::Direction, core::MapNode *> ns{
+            {utils::Direction::West, new core::MapNode(mn.get())},
+            {utils::Direction::NorthWest, new core::MapNode(mn.get())},
+            {utils::Direction::NorthEast, new core::MapNode(mn.get())},
+            {utils::Direction::East, new core::MapNode(mn.get())},
+            {utils::Direction::SouthEast, new core::MapNode(mn.get())},
+            {utils::Direction::SouthWest, new core::MapNode(mn.get())}
         };
         mn->setNeighbours(ns);
 
@@ -82,13 +82,13 @@ TEST_CASE("MapNode neighbours", "[MapNode]")
         REQUIRE(ns == mn->getNeighbours());
 
         core::MapNode *nn = new core::MapNode(mn.get());
-        mn->setNeighbour(core::Direction::West, nn);
+        mn->setNeighbour(utils::Direction::West, nn);
 
-        REQUIRE(mn->getNeighbours().at(core::Direction::West) == nn);
+        REQUIRE(mn->getNeighbours().at(utils::Direction::West) == nn);
 
         for (const auto& n : mn->getNeighbours())
         {
-            if (n.first != core::Direction::West)
+            if (n.first != utils::Direction::West)
             {
                 REQUIRE(n.second == ns.at(n.first));
             }

@@ -75,7 +75,7 @@ void Context::newCampaignMap(warmonger::core::World *world)
     map->setObjectName("newMap");
     map->setWorld(world);
 
-    utils::generateNodes(map->getWorld(), 20);
+    utils::generateNodes(20);
 
     this->setCampaignMap(map);
 }

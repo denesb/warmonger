@@ -6,31 +6,31 @@ namespace ui {
 
 void positionNode(core::MapNode *node, std::map<const core::MapNode *, QPoint> &nodesPos, const QSize &tileSize);
 
-QPoint neighbourPos(const QPoint &pos, core::Direction dir, const QSize &tileSize)
+QPoint neighbourPos(const QPoint &pos, utils::Direction dir, const QSize &tileSize)
 {
     QSize displacement(0, 0);
 
     switch(dir)
     {
-    case core::Direction::West:
+    case utils::Direction::West:
         displacement.setWidth(-tileSize.width());
         break;
-    case core::Direction::NorthWest:
+    case utils::Direction::NorthWest:
         displacement.setWidth(-tileSize.width()/2);
         displacement.setHeight(-tileSize.height() * 3/4);
         break;
-    case core::Direction::NorthEast:
+    case utils::Direction::NorthEast:
         displacement.setWidth(tileSize.width()/2);
         displacement.setHeight(-tileSize.height() * 3/4);
         break;
-    case core::Direction::East:
+    case utils::Direction::East:
         displacement.setWidth(tileSize.width());
         break;
-    case core::Direction::SouthEast:
+    case utils::Direction::SouthEast:
         displacement.setWidth(tileSize.width()/2);
         displacement.setHeight(tileSize.height() * 3/4);
         break;
-    case core::Direction::SouthWest:
+    case utils::Direction::SouthWest:
         displacement.setWidth(-tileSize.width()/2);
         displacement.setHeight(tileSize.height() * 3/4);
         break;
@@ -56,10 +56,10 @@ std::map<const core::MapNode *, QPoint> positionNodes(core::MapNode * startNode,
 void positionNode(core::MapNode *node, std::map<const core::MapNode *, QPoint> &nodesPos, const QSize &tileSize)
 {
     QPoint pos = nodesPos[node];
-    std::map<core::Direction, core::MapNode *> neighbours = node->getNeighbours();
+    std::map<utils::Direction, core::MapNode *> neighbours = node->getNeighbours();
     for (const auto &element :  neighbours)
     {
-        core::Direction dir = element.first;
+        utils::Direction dir = element.first;
         core::MapNode *neighbour = element.second;
 
         if (neighbour == nullptr || nodesPos.find(neighbour) != nodesPos.end())

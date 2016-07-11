@@ -1,5 +1,3 @@
-#include <memory>
-
 #include <QFile>
 #include <QGuiApplication>
 

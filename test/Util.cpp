@@ -15,6 +15,7 @@
 #include "core/WeaponClass.h"
 #include "core/WeaponType.h"
 #include "test/Util.h"
+#include "utils/Hexagon.h"
 
 using namespace warmonger;
 
@@ -342,8 +343,8 @@ std::pair<core::CampaignMap *, QJsonObject> makeMap()
     jmn1["terrainType"] = tt0->objectName();
 
     // MapNode neighbours
-    mn0->setNeighbour(core::Direction::West, mn1);
-    mn1->setNeighbour(core::Direction::East, mn0);
+    mn0->setNeighbour(utils::Direction::West, mn1);
+    mn1->setNeighbour(utils::Direction::East, mn0);
     jmn0["neighbours"] = QJsonObject{
         {"West", mn1->objectName()},
         {"NorthWest", ""},

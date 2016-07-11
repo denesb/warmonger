@@ -6,24 +6,9 @@
 
 #include "io/JsonSerializer.h"
 
-#include "core/Army.h"
-#include "core/Armor.h"
 #include "core/CampaignMap.h"
-#include "core/Civilization.h"
-#include "core/DamageType.h"
-#include "core/Faction.h"
-#include "core/MapNode.h"
-#include "core/Settlement.h"
-#include "core/SettlementType.h"
-#include "core/TerrainType.h"
-#include "core/Unit.h"
-#include "core/UnitClass.h"
-#include "core/UnitLevel.h"
-#include "core/UnitType.h"
-#include "core/Weapon.h"
-#include "core/WeaponClass.h"
-#include "core/WeaponType.h"
 #include "core/World.h"
+#include "utils/Hexagon.h"
 
 using namespace warmonger;
 using namespace warmonger::io;
@@ -352,7 +337,7 @@ QJsonObject mapNodeToJson(const core::MapNode *obj)
             neighbourName = neighbour.second->objectName();
         }
 
-        jneighbours[core::direction2str(neighbour.first)] = neighbourName;
+        jneighbours[utils::direction2str(neighbour.first)] = neighbourName;
     }
 
     jobj["neighbours"] = jneighbours;

@@ -11,6 +11,7 @@
 #include "core/World.h"
 #include "io/JsonUnserializer.h"
 #include "utils/Exception.h"
+#include "utils/Hexagon.h"
 
 namespace warmonger {
 namespace io {
@@ -514,7 +515,7 @@ core::MapNode * mapNodeFromJson(const QJsonObject &jobj, Context &ctx)
 std::vector<core::MapNode *> mapNodesFromJson(const QJsonArray &jarr, Context &ctx)
 {
     std::vector<core::MapNode *> mapNodes;
-    std::vector<std::tuple<core::MapNode *, core::Direction, QString>> neighbours;
+    std::vector<std::tuple<core::MapNode *, utils::Direction, QString>> neighbours;
 
     for (QJsonValue jval : jarr)
     {
@@ -529,13 +530,13 @@ std::vector<core::MapNode *> mapNodesFromJson(const QJsonArray &jarr, Context &c
         const QJsonObject jneighbours = jobj["neighbours"].toObject();
         for (auto it = jneighbours.constBegin(); it != jneighbours.constEnd(); it++)
         {
-            core::Direction d = core::str2direction(it.key());
+            utils::Direction d = utils::str2direction(it.key());
             neighbours.push_back(std::make_tuple(mn, d, it.value().toString()));
         }
     }
 
     core::MapNode *mn;
-    core::Direction d;
+    utils::Direction d;
     QString neighbourName;
     for (const auto& neighbour : neighbours)
     {

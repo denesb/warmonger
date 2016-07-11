@@ -3,80 +3,29 @@
 
 static const QString loggerName{"core.MapNode"};
 
-using namespace warmonger;
-using namespace core;
-
-static const std::vector<Direction> directions{
-    Direction::West,
-    Direction::NorthWest,
-    Direction::NorthEast,
-    Direction::East,
-    Direction::SouthEast,
-    Direction::SouthWest
-};
-
-void fillNeighbours(std::map<Direction, MapNode *> &neighbours);
-bool neighboursAreEquivalent(const std::map<Direction, MapNode *> &n1, const std::map<Direction, MapNode *> &n2);
-
 namespace warmonger {
 namespace core {
 
-QString direction2str(Direction d)
-{
-    static const std::map<Direction, QString> dir2str{
-        {Direction::West, "West"},
-        {Direction::NorthWest, "NorthWest"},
-        {Direction::NorthEast, "NorthEast"},
-        {Direction::East, "East"},
-        {Direction::SouthEast, "SouthEast"},
-        {Direction::SouthWest, "SouthWest"}
-    };
-    return dir2str.at(d);
-}
+namespace {
 
-Direction str2direction(const QString &str)
-{
-    static const std::map<QString, Direction> str2dir{
-        {"West", Direction::West},
-        {"NorthWest", Direction::NorthWest},
-        {"NorthEast", Direction::NorthEast},
-        {"East", Direction::East},
-        {"SouthEast", Direction::SouthEast},
-        {"SouthWest", Direction::SouthWest}
-    };
+void fillNeighbours(std::map<utils::Direction, MapNode *> &neighbours);
+bool neighboursAreEquivalent(
+        const std::map<utils::Direction, MapNode *> &n1,
+        const std::map<utils::Direction, MapNode *> &n2
+    );
 
-    if (str2dir.find(str) == str2dir.end())
-    {
-        throw utils::ValueError(str + " is not a valid direction");
-    }
-
-    return str2dir.at(str);
-}
-
-Direction oppositeDirection(Direction d)
-{
-    static const std::map<Direction, Direction> oppositeDirs{
-        {Direction::West, Direction::East},
-        {Direction::NorthWest, Direction::SouthEast},
-        {Direction::NorthEast, Direction::SouthWest},
-        {Direction::East, Direction::West},
-        {Direction::SouthEast, Direction::NorthWest},
-        {Direction::SouthWest, Direction::NorthEast}
-    };
-
-    return oppositeDirs.at(d);
 }
 
 MapNode::MapNode(QObject *parent) :
     QObject(parent),
     terrainType(nullptr),
     neighbours{
-        {Direction::West, nullptr},
-        {Direction::NorthWest, nullptr},
-        {Direction::NorthEast, nullptr},
-        {Direction::East, nullptr},
-        {Direction::SouthEast, nullptr},
-        {Direction::SouthWest, nullptr}
+        {utils::Direction::West, nullptr},
+        {utils::Direction::NorthWest, nullptr},
+        {utils::Direction::NorthEast, nullptr},
+        {utils::Direction::East, nullptr},
+        {utils::Direction::SouthEast, nullptr},
+        {utils::Direction::SouthWest, nullptr}
     }
 {
 }
@@ -109,12 +58,12 @@ void MapNode::setTerrainType(TerrainType *terrainType)
     }
 }
 
-std::map<Direction, MapNode *> MapNode::getNeighbours() const
+std::map<utils::Direction, MapNode *> MapNode::getNeighbours() const
 {
     return this->neighbours;
 }
 
-void MapNode::setNeighbours(const std::map<Direction, MapNode *> &neighbours)
+void MapNode::setNeighbours(const std::map<utils::Direction, MapNode *> &neighbours)
 {
     if (!neighboursAreEquivalent(this->neighbours, neighbours))
     {
@@ -125,7 +74,7 @@ void MapNode::setNeighbours(const std::map<Direction, MapNode *> &neighbours)
     }
 }
 
-void MapNode::setNeighbours(std::map<Direction, MapNode *> &&neighbours)
+void MapNode::setNeighbours(std::map<utils::Direction, MapNode *> &&neighbours)
 {
     if (!neighboursAreEquivalent(this->neighbours, neighbours))
     {
@@ -136,12 +85,12 @@ void MapNode::setNeighbours(std::map<Direction, MapNode *> &&neighbours)
     }
 }
 
-MapNode * MapNode::getNeighbour(Direction direction) const
+MapNode * MapNode::getNeighbour(utils::Direction direction) const
 {
     return this->neighbours.at(direction);
 }
 
-void MapNode::setNeighbour(Direction direction, MapNode *mapNode)
+void MapNode::setNeighbour(utils::Direction direction, MapNode *mapNode)
 {
     if (this->neighbours[direction] != mapNode)
     {
@@ -150,12 +99,11 @@ void MapNode::setNeighbour(Direction direction, MapNode *mapNode)
     }
 }
 
-} // namespace core
-} // namespace warmonger
+namespace {
 
-void fillNeighbours(std::map<Direction, MapNode *> &neighbours)
+void fillNeighbours(std::map<utils::Direction, MapNode *> &neighbours)
 {
-    for (Direction d : directions)
+    for (utils::Direction d : utils::directions)
     {
         auto it = neighbours.find(d);
         if (it == neighbours.end())
@@ -165,11 +113,14 @@ void fillNeighbours(std::map<Direction, MapNode *> &neighbours)
     }
 }
 
-bool neighboursAreEquivalent(const std::map<Direction, MapNode *> &n1, const std::map<Direction, MapNode *> &n2)
+bool neighboursAreEquivalent(
+        const std::map<utils::Direction, MapNode *> &n1,
+        const std::map<utils::Direction, MapNode *> &n2
+    )
 {
     bool equivalent{true};
 
-    for (Direction d : directions)
+    for (utils::Direction d : utils::directions)
     {
         auto it1 = n1.find(d);
         auto it2 = n2.find(d);
@@ -191,3 +142,8 @@ bool neighboursAreEquivalent(const std::map<Direction, MapNode *> &n1, const std
 
     return equivalent;
 }
+
+}
+
+} // namespace core
+} // namespace warmonger

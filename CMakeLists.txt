@@ -62,6 +62,7 @@ set(
     ui/MapWindow.cpp
     ui/MiniMap.cpp
     ui/WorldSurface.cpp
+    utils/Hexagon.cpp
     utils/MapGenerator.cpp
 )
 
@@ -96,6 +97,7 @@ if(BUILD_TESTS)
         test/io/JsonUnserializer.cpp
         test/ui/MapWindow.cpp
         test/ui/WorldSurface.cpp
+        test/utils/MapGenerator.cpp
     )
 
     add_executable(test_warmonger ${TEST_SRC_FILES})

@@ -126,6 +126,12 @@ void CampaignMap::setMapNodes(const std::vector<MapNode *> &mapNodes)
     if (this->mapNodes != mapNodes)
     {
         this->mapNodes = mapNodes;
+
+        for (MapNode *node : mapNodes)
+        {
+            node->setParent(this);
+        }
+
         emit mapNodesChanged();
     }
 }

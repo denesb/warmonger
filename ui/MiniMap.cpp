@@ -127,22 +127,27 @@ QSGNode * MiniMap::updatePaintNode(QSGNode *, UpdatePaintNodeData *)
 {
     wDebug(loggerName) << "updatePaintNode";
 
-    QSGSimpleTextureNode *n = new QSGSimpleTextureNode();
-    n->setOwnsTexture(false);
-    n->setRect(QRect(QPoint(0, 0), this->worldSurface->getTileSize()));
-    n->setTexture(this->worldSurface->getTexture(this->nodes[0]->getTerrainType()));
-    /*
+    QSGNode *rootNode = new QSGNode();
+
+    const std::vector<core::MapNode *> nodes = this->campaignMap->getMapNodes();
+    for (core::MapNode *node : nodes)
+    {
+        QSGSimpleTextureNode *n = new QSGSimpleTextureNode();
+        n->setOwnsTexture(false);
+
+        n->setRect(QRect(this->nodesPos[node], this->worldSurface->getTileSize()));
+        n->setTexture(this->worldSurface->getTexture(node->getTerrainType()));
+
+        rootNode->appendChildNode(n);
+    }
+
+        /*
     QSGSimpleRectNode *n = new QSGSimpleRectNode();
     n->setColor(Qt::red);
     n->setRect(QRect(QPoint(0, 0), this->worldSurface->getTileSize()));
     */
 
-    /*
-    for (const MapNode *node : nodes)
-    {
-    }
-    */
-    return n;
+    return rootNode;
 }
 
 /*

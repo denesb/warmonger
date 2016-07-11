@@ -64,6 +64,7 @@ set(
     ui/WorldSurface.cpp
     utils/Hexagon.cpp
     utils/MapGenerator.cpp
+    utils/ToString.cpp
 )
 
 find_package(Qt5Core REQUIRED)

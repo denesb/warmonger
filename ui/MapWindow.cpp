@@ -57,7 +57,7 @@ QPoint MapWindow::getWindowPos() const
 
 void MapWindow::setWindowPos(const QPoint &windowPos)
 {
-    this->windowPos = windowPos;
+    this->windowPos = this->adjustWindowPosition(windowPos);
 }
 
 QRect MapWindow::getWindowRect() const
@@ -68,13 +68,14 @@ QRect MapWindow::getWindowRect() const
 void MapWindow::centerWindow(const QPoint &pos)
 {
     QPoint ws(this->windowSize.width(), this->windowSize.height());
-    this->setWindowPos(pos - ws / 2);
+
+    this->setWindowPos(this->adjustWindowPosition(pos - ws / 2));
 }
 
 void MapWindow::moveWindowBy(const QPoint &diff)
 {
     const QPoint newPos(this->windowPos + diff);
-    this->setWindowPos(newPos);
+    this->setWindowPos(this->adjustWindowPosition(newPos));
 }
 
 QPoint MapWindow::mapToMap(const QPoint &p)
@@ -82,5 +83,27 @@ QPoint MapWindow::mapToMap(const QPoint &p)
     return p + this->windowPos;
 }
 
+QPoint MapWindow::adjustWindowPosition(const QPoint &p)
+{
+    QPoint newPos(p);
+
+    if (newPos.x() < 0)
+        newPos.setX(0);
+
+    if (newPos.y() < 0)
+        newPos.setY(0);
+
+    const int maxX = this->mapSize.width() - this->windowSize.width() - 1;
+    const int maxY = this->mapSize.height() - this->windowSize.height() - 1;
+
+    if (newPos.x() > maxX)
+        newPos.setX(maxY);
+
+    if (newPos.y() > maxY )
+        newPos.setY(maxY);
+
+    return newPos;
 }
-}
+
+} // namespace ui
+} // namespace warmonger

@@ -16,14 +16,9 @@
 #include "core/WeaponType.h"
 #include "test/Util.h"
 #include "utils/Hexagon.h"
+#include "utils/ToString.h"
 
 using namespace warmonger;
-
-std::ostream &operator<<(std::ostream &os, const QString &s)
-{
-    os << s.toStdString();
-    return os;
-}
 
 template <class GameObject>
 void setNames(GameObject obj, QJsonObject &jobj, int i=0)

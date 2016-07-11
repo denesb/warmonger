@@ -42,6 +42,9 @@ public:
     QPoint mapToMap(const QPoint &p);
 
 private:
+    QPoint adjustWindowPosition(const QPoint &p);
+    QSize adjustWindoSize(const QSize &s);
+
     QSize mapSize;
     QSize windowSize;
     QPoint windowPos;

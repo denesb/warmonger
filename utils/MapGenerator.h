@@ -12,6 +12,11 @@ std::vector<core::MapNode *> generateNodes(unsigned int radius);
 
 void generateNodeNames(const std::vector<core::MapNode *> &nodes);
 
+void generateNodeTerrainTypes(
+        const std::vector<core::MapNode *> &nodes,
+        const std::vector<core::TerrainType *> &terrainTypes
+    );
+
 } // namespace utils
 } // namespace warmonger
 

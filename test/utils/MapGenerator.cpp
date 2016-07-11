@@ -6,7 +6,7 @@ using namespace warmonger;
 
 unsigned int numberOfConnections(const std::vector<core::MapNode *> &nodes);
 
-TEST_CASE("Generate nodes with different radiuses", "[MapGenerator]")
+TEST_CASE("generateNodes", "[MapGenerator]")
 {
     SECTION("radius == 0")
     {
@@ -26,8 +26,7 @@ TEST_CASE("Generate nodes with different radiuses", "[MapGenerator]")
     {
         const std::vector<core::MapNode *> nodes = utils::generateNodes(2);
 
-        REQUIRE(nodes.size() == 7);
-        REQUIRE(numberOfConnections(nodes) == 24);
+        REQUIRE(nodes.size() == 7); REQUIRE(numberOfConnections(nodes) == 24);
     }
 
     SECTION("radius == 3")
@@ -47,7 +46,7 @@ TEST_CASE("Generate nodes with different radiuses", "[MapGenerator]")
     }
 }
 
-TEST_CASE("Generate nodes names", "[MapGenerator]")
+TEST_CASE("generateNodesNames", "[MapGenerator]")
 {
     SECTION("All nodes have a non-empty name")
     {
@@ -74,6 +73,66 @@ TEST_CASE("Generate nodes names", "[MapGenerator]")
             names.insert(node->objectName());
         }
         REQUIRE(names.size() == nodes.size());
+    }
+}
+
+TEST_CASE("generateNodeTerrainTypes - happy flow", "[MapGenerator]")
+{
+    core::TerrainType tt1;
+    tt1.setObjectName("tt1");
+
+    core::TerrainType tt2;
+    tt1.setObjectName("tt2");
+
+    const std::vector<core::TerrainType *> terrainTypes{&tt1, &tt2};
+
+    const std::vector<core::MapNode *> nodes = utils::generateNodes(3);
+
+    utils::generateNodeNames(nodes);
+    utils::generateNodeTerrainTypes(nodes, terrainTypes);
+
+    SECTION("All nodes have terrainType")
+    {
+        for (const core::MapNode *node : nodes)
+        {
+            REQUIRE(node->getTerrainType() != nullptr);
+        }
+    }
+
+    SECTION("Only available terrain types are used")
+    {
+        for (const core::MapNode *node : nodes)
+        {
+            REQUIRE(std::find(terrainTypes.begin(), terrainTypes.end(), node->getTerrainType()) != terrainTypes.end());
+        }
+    }
+
+    SECTION("All available terrain types are used")
+    {
+        std::set<const core::TerrainType *> terrainSet;
+
+        for (const core::MapNode *node : nodes)
+        {
+            terrainSet.insert(node->getTerrainType());
+        }
+
+        REQUIRE(terrainSet.size() == terrainTypes.size());
+    }
+}
+
+TEST_CASE("generateNodeTerrainTypes - error flow", "[MapGenerator]")
+{
+    const std::vector<core::MapNode *> nodes = utils::generateNodes(2);
+
+    utils::generateNodeNames(nodes);
+    utils::generateNodeTerrainTypes(nodes, std::vector<core::TerrainType *>());
+
+    SECTION("Don't generate anything if there are no terrainTypes")
+    {
+        for (const core::MapNode *node : nodes)
+        {
+            REQUIRE(node->getTerrainType() == nullptr);
+        }
     }
 }
 

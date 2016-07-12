@@ -10,6 +10,7 @@
 
 #include "core/CampaignMap.h"
 #include "ui/MapUtil.h"
+#include "ui/MapWindow.h"
 #include "ui/WorldSurface.h"
 
 namespace warmonger {
@@ -63,12 +64,10 @@ protected:
 
 private:
     void setupMap();
-    /*
     void updateGeometry();
+    /*
     void updateWindowPosRect();
     void updateTransform();
-
-    QPointF mapToMap(const QPointF &p);
 
     void drawNode(QPainter *painter, const core::MapNode *node);
     void drawContent(QPainter *painter, const core::MapNode *node);
@@ -81,14 +80,7 @@ private:
 
     core::CampaignMap *campaignMap;
     std::map<const core::MapNode *, QPoint> nodesPos;
-    //QRect boundingRect;
-    QPainterPath hexagonPainterPath;
-    QRect windowPosRect;
-    QPoint windowPos;
-    QSize windowSize;
-
-    qreal scale;
-    QPointF translate;
+    MapWindow mapWindow;
 };
 
 } // namespace ui

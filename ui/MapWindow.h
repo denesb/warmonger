@@ -1,6 +1,7 @@
 #ifndef UI_MAP_WINDOW_H
 #define UI_MAP_WINDOW_H
 
+#include <QObject>
 #include <QPoint>
 #include <QSize>
 #include <QRect>
@@ -16,20 +17,19 @@ namespace ui {
  * provides related functionality like coordinate system mapping
  * from view to map.
  */
-class MapWindow
+class MapWindow : public QObject
 {
+    Q_OBJECT
+
 public:
-    MapWindow(const QSize &mapSize, const QSize &windowSize);
+    MapWindow(const QRect &mapRect, const QSize &windowSize);
 
     QSize getMapSize() const;
-    void setMapSize(const QSize &mapSize);
-    void setMapWidth(int width);
-    void setMapHeight(int height);
+    QRect getMapRect() const;
+    void setMapRect(const QRect &mapRect);
 
     QSize getWindowSize() const;
     void setWindowSize(const QSize &windowSize);
-    void setWindowWidth(int width);
-    void setWindowHeight(int height);
 
     QPoint getWindowPos() const;
     void setWindowPos(const QPoint &windowPos);
@@ -41,13 +41,15 @@ public:
 
     QPoint mapToMap(const QPoint &p);
 
+signals:
+    void windowPosChanged();
+    void windowSizeChanged();
+
 private:
     QPoint adjustWindowPosition(const QPoint &p);
-    QSize adjustWindoSize(const QSize &s);
 
-    QSize mapSize;
-    QSize windowSize;
-    QPoint windowPos;
+    QRect mapRect;
+    QRect windowRect;
 };
 
 } // namespace ui

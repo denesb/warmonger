@@ -3,103 +3,98 @@
 namespace warmonger {
 namespace ui {
 
-MapWindow::MapWindow(const QSize &mapSize, const QSize &windowSize) :
-    mapSize(mapSize),
-    windowSize(windowSize),
-    windowPos(0, 0)
+MapWindow::MapWindow(const QRect &mapRect, const QSize &windowSize) :
+    mapRect(mapRect),
+    windowRect(QPoint(0, 0), windowSize)
 {
 }
 
 QSize MapWindow::getMapSize() const
 {
-    return this->mapSize;
+    return this->mapRect.size();
 }
 
-void MapWindow::setMapSize(const QSize &mapSize)
+QRect MapWindow::getMapRect() const
 {
-    this->mapSize = mapSize;
+    return this->mapRect;
 }
 
-void MapWindow::setMapWidth(int width)
+void MapWindow::setMapRect(const QRect &mapRect)
 {
-    this->mapSize.setWidth(width);
-}
-
-void MapWindow::setMapHeight(int height)
-{
-    this->mapSize.setHeight(height);
+    this->mapRect = mapRect;
 }
 
 QSize MapWindow::getWindowSize() const
 {
-    return this->windowSize;
+    return this->windowRect.size();
 }
 
 void MapWindow::setWindowSize(const QSize &windowSize)
 {
-    this->windowSize = windowSize;
-}
-
-void MapWindow::setWindowWidth(int width)
-{
-    this->windowSize.setWidth(width);
-}
-
-void MapWindow::setWindowHeight(int height)
-{
-    this->windowSize.setHeight(height);
+    if (this->windowRect.size() != windowSize)
+    {
+        this->windowRect.setSize(windowSize);
+        emit windowSizeChanged();
+    }
 }
 
 QPoint MapWindow::getWindowPos() const
 {
-    return this->windowPos;
+    return this->windowRect.topLeft();
 }
 
 void MapWindow::setWindowPos(const QPoint &windowPos)
 {
-    this->windowPos = this->adjustWindowPosition(windowPos);
+    const QPoint newPos = this->adjustWindowPosition(windowPos);
+    if (this->windowRect.topLeft() != newPos)
+    {
+        this->windowRect.moveTopLeft(newPos);
+        emit windowPosChanged();
+    }
 }
 
 QRect MapWindow::getWindowRect() const
 {
-    return QRect(this->windowPos, this->windowSize);
+    return this->windowRect;
 }
 
 void MapWindow::centerWindow(const QPoint &pos)
 {
-    QPoint ws(this->windowSize.width(), this->windowSize.height());
+    QPoint ws(this->windowRect.width(), this->windowRect.height());
 
     this->setWindowPos(this->adjustWindowPosition(pos - ws / 2));
 }
 
 void MapWindow::moveWindowBy(const QPoint &diff)
 {
-    const QPoint newPos(this->windowPos + diff);
+    const QPoint newPos(this->getWindowPos() + diff);
     this->setWindowPos(this->adjustWindowPosition(newPos));
 }
 
 QPoint MapWindow::mapToMap(const QPoint &p)
 {
-    return p + this->windowPos;
+    return p + this->getWindowPos();
 }
 
 QPoint MapWindow::adjustWindowPosition(const QPoint &p)
 {
     QPoint newPos(p);
 
-    if (newPos.x() < 0)
-        newPos.setX(0);
+    const int minX = this->mapRect.x();
+    const int minY = this->mapRect.y();
+    const int maxX = this->mapRect.bottomRight().x() - this->windowRect.width();
+    const int maxY = this->mapRect.bottomRight().y() - this->windowRect.height();
 
-    if (newPos.y() < 0)
-        newPos.setY(0);
+    if (newPos.x() < minX)
+        newPos.setX(minX);
 
-    const int maxX = this->mapSize.width() - this->windowSize.width() - 1;
-    const int maxY = this->mapSize.height() - this->windowSize.height() - 1;
+    if (newPos.y() < minY)
+        newPos.setY(minY);
 
     if (newPos.x() > maxX)
-        newPos.setX(maxY);
+        newPos.setX(maxX);
 
-    if (newPos.y() > maxY )
+    if (newPos.y() > maxY)
         newPos.setY(maxY);
 
     return newPos;

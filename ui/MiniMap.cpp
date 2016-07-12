@@ -23,12 +23,8 @@ MiniMap::MiniMap(QQuickItem *parent) :
     QQuickItem(parent),
     world(nullptr),
     worldSurface(nullptr),
-    tileSize(),
     campaignMap(nullptr),
-    windowPos(0, 0),
-    windowSize(0, 0),
-    scale(1.0),
-    translate(0.0, 0.0)
+    mapWindow(QRect(), QSize())
 {
     //this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
 
@@ -47,6 +43,11 @@ MiniMap::MiniMap(QQuickItem *parent) :
         &MiniMap::updateTransform
     );
     */
+
+    QObject::connect(&this->mapWindow, &MapWindow::windowPosChanged, this, &QQuickItem::update);
+    QObject::connect(&this->mapWindow, &MapWindow::windowPosChanged, this, &MiniMap::windowPosChanged);
+    QObject::connect(&this->mapWindow, &MapWindow::windowSizeChanged, this, &QQuickItem::update);
+    QObject::connect(&this->mapWindow, &MapWindow::windowSizeChanged, this, &MiniMap::windowSizeChanged);
 }
 
 core::CampaignMap * MiniMap::getCampaignMap() const
@@ -85,42 +86,27 @@ void MiniMap::setWorldSurface(WorldSurface *worldSurface)
 
 QPoint MiniMap::getWindowPos() const
 {
-    return this->windowPos;
+    return this->mapWindow.getWindowPos();
 }
 
 void MiniMap::setWindowPos(const QPoint &windowPos)
 {
-    QPoint wp(project(windowPos, this->windowPosRect));
-
-    if (this->windowPos != wp)
-    {
-        this->windowPos = wp;
-        this->update();
-        emit windowPosChanged();
-    }
+    this->mapWindow.setWindowPos(windowPos);
 }
 
 void MiniMap::centerWindow(const QPoint &pos)
 {
-    QPointF p(pos);
-    p -= QPointF(this->windowSize.width(), this->windowSize.height()) / 2.0;
-    this->setWindowPos(p.toPoint());
+    this->mapWindow.centerWindow(pos);
 }
 
 QSize MiniMap::getWindowSize() const
 {
-    return this->windowSize;
+    return this->mapWindow.getWindowSize();
 }
 
 void MiniMap::setWindowSize(const QSize &windowSize)
 {
-    if (this->windowSize != windowSize)
-    {
-        this->windowSize = windowSize;
-        //this->updateWindowPosRect();
-
-        emit windowSizeChanged();
-    }
+    this->mapWindow.setWindowSize(windowSize);
 }
 
 QSGNode * MiniMap::updatePaintNode(QSGNode *, UpdatePaintNodeData *)
@@ -190,21 +176,18 @@ void MiniMap::updateContent()
 
     this->nodesPos = positionNodes(this->nodes[0], this->tileSize);
 
-    //this->updateGeometry();
+    this->updateGeometry();
+}
+
+void MiniMap::updateGeometry()
+{
+    //this->mapWindow.setMapSize(calculateBoundingRect(this->nodesPos, this->tileSize));
+
+    //this->updateWindowPosRect();
+    //this->setWindowPos(this->boundingRect.topLeft());
 }
 
 /*
-void MiniMap::updateGeometry()
-{
-    this->boundingRect = calculateBoundingRect(
-        this->nodesPos,
-        this->tileSize
-    );
-
-    this->updateWindowPosRect();
-    this->setWindowPos(this->boundingRect.topLeft());
-}
-
 void MiniMap::updateWindowPosRect()
 {
     this->windowPosRect = QRect(

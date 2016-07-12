@@ -28,13 +28,13 @@ std::ostream& operator<<(std::ostream &s, const void *ptr)
 
 std::ostream& operator<<(std::ostream &s, const QPoint &point)
 {
-    s << "<QPoint (" << point.x() << "," << point.y() << ")";
+    s << "<QPoint (" << point.x() << "," << point.y() << ")>";
     return s;
 }
 
 std::ostream& operator<<(std::ostream &s, const QPointF &point)
 {
-    s << "<QPointF (" << point.x() << "," << point.y() << ")";
+    s << "<QPointF (" << point.x() << "," << point.y() << ")>";
     return s;
 }
 

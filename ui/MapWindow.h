@@ -47,6 +47,7 @@ signals:
 
 private:
     QPoint adjustWindowPosition(const QPoint &p);
+    int adjustAxis(const int n, const int minN, const int mapLength, const int windowLength);
 
     QRect mapRect;
     QRect windowRect;

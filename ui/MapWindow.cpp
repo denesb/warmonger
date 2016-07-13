@@ -5,8 +5,9 @@ namespace ui {
 
 MapWindow::MapWindow(const QRect &mapRect, const QSize &windowSize) :
     mapRect(mapRect),
-    windowRect(QPoint(0, 0), windowSize)
+    windowRect(this->mapRect.topLeft(), windowSize)
 {
+    this->windowRect.moveTopLeft(this->adjustWindowPosition(this->windowRect.topLeft()));
 }
 
 QSize MapWindow::getMapSize() const
@@ -78,26 +79,34 @@ QPoint MapWindow::mapToMap(const QPoint &p)
 
 QPoint MapWindow::adjustWindowPosition(const QPoint &p)
 {
-    QPoint newPos(p);
+    const int x = this->adjustAxis(p.x(), this->mapRect.x(), this->mapRect.width(), this->windowRect.width());
+    const int y = this->adjustAxis(p.y(), this->mapRect.y(), this->mapRect.height(), this->windowRect.height());
 
-    const int minX = this->mapRect.x();
-    const int minY = this->mapRect.y();
-    const int maxX = this->mapRect.bottomRight().x() - this->windowRect.width();
-    const int maxY = this->mapRect.bottomRight().y() - this->windowRect.height();
+    return QPoint(x, y);
+}
 
-    if (newPos.x() < minX)
-        newPos.setX(minX);
+int MapWindow::adjustAxis(const int n, const int minN, const int mapLength, const int windowLength)
+{
+    if (mapLength == windowLength)
+    {
+        return minN;
+    }
+    else if (mapLength < windowLength)
+    {
+        const int diff = windowLength - mapLength;
+        return minN - diff / 2;
+    }
+    else
+    {
+        const int maxN = minN + mapLength - windowLength - 1;
 
-    if (newPos.y() < minY)
-        newPos.setY(minY);
-
-    if (newPos.x() > maxX)
-        newPos.setX(maxX);
-
-    if (newPos.y() > maxY)
-        newPos.setY(maxY);
-
-    return newPos;
+        if (n < minN)
+            return minN;
+        else if (n > maxN)
+            return maxN;
+        else
+            return n;
+    }
 }
 
 } // namespace ui

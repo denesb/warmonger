@@ -139,12 +139,16 @@ QPoint project(const QPoint &p, const QRect &r)
     return pp;
 }
 
-std::pair<qreal, QPointF> centerIn(const QRectF &content, const QRectF &frame)
+QMatrix4x4 centerIn(const QRectF &content, const QRectF &frame)
 {
     const qreal contentSize = std::max(content.width(), content.height());
     const qreal frameSize = std::min(frame.width(), frame.height());
 
-    const qreal scale = frameSize / contentSize;
+    qreal scale{1};
+    if (frameSize < contentSize)
+    {
+        scale = frameSize / contentSize;
+    }
 
     const QSizeF scaledContentSize = QSizeF(content.size()) * scale;
 
@@ -154,7 +158,11 @@ std::pair<qreal, QPointF> centerIn(const QRectF &content, const QRectF &frame)
     QPointF translate = QPointF(-content.topLeft());
     translate += (QPointF(dx, dy) * (1 / scale));
 
-    return std::pair<qreal, QPointF>(scale, translate);
+    QMatrix4x4 matrix;
+    matrix.scale(scale);
+    matrix.translate(translate.x(), translate.y());
+
+    return matrix;
 }
 
 } // namespace ui

@@ -5,6 +5,7 @@
 #include <QColor>
 #include <QSGSimpleRectNode>
 #include <QSGSimpleTextureNode>
+#include <QSGTransformNode>
 
 #include "core/Faction.h"
 #include "core/Settlement.h"
@@ -28,7 +29,6 @@ MiniMap::MiniMap(QQuickItem *parent) :
 {
     //this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
 
-    /*
     QObject::connect(
         this,
         &MiniMap::widthChanged,
@@ -42,7 +42,6 @@ MiniMap::MiniMap(QQuickItem *parent) :
         this,
         &MiniMap::updateTransform
     );
-    */
 
     QObject::connect(&this->mapWindow, &MapWindow::windowPosChanged, this, &QQuickItem::update);
     QObject::connect(&this->mapWindow, &MapWindow::windowPosChanged, this, &MiniMap::windowPosChanged);
@@ -113,7 +112,13 @@ QSGNode * MiniMap::updatePaintNode(QSGNode *, UpdatePaintNodeData *)
 {
     wDebug(loggerName) << "updatePaintNode";
 
-    QSGNode *rootNode = new QSGNode();
+    QSGTransformNode *rootNode = new QSGTransformNode();
+
+    const QRectF frame(0.0, 0.0, this->width(), this->height());
+    QMatrix4x4 transform = centerIn(this->mapWindow.getMapRect(), frame);
+    //transform.scale(0.31);
+    //transform.translate(275, 1096);
+    rootNode->setMatrix(transform);
 
     const std::vector<core::MapNode *> nodes = this->campaignMap->getMapNodes();
     for (core::MapNode *node : nodes)
@@ -181,7 +186,9 @@ void MiniMap::updateContent()
 
 void MiniMap::updateGeometry()
 {
-    //this->mapWindow.setMapSize(calculateBoundingRect(this->nodesPos, this->tileSize));
+    this->mapWindow.setMapRect(calculateBoundingRect(this->nodesPos, this->tileSize));
+
+    this->updateTransform();
 
     //this->updateWindowPosRect();
     //this->setWindowPos(this->boundingRect.topLeft());
@@ -197,18 +204,22 @@ void MiniMap::updateWindowPosRect()
         this->boundingRect.height() - this->windowSize.height()
     );
 }
+*/
 
 void MiniMap::updateTransform()
 {
-    std::pair<qreal, QPointF> transform = centerIn(
-        this->boundingRect,
-        this->contentsBoundingRect()
-    );
-    this->scale = transform.first;
-    this->translate = transform.second;
+    if (this->height() <= 0 || this->width() <= 0)
+        return;
+
+    const QRectF frame(0.0, 0.0, this->width(), this->height());
+
+    wDebug(loggerName) << "Update tansform: \n";// << frame << std::endl << this->mapWindow.getMapRect();
+
+    this->transform = centerIn(this->mapWindow.getMapRect(), frame);
+    this->update();
 }
 
-
+/*
 QPointF MiniMap::mapToMap(const QPointF &p)
 {
     const qreal rscale = 1 / this->scale;

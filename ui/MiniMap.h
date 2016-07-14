@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 
+#include <QMatrix4x4>
 #include <QRect>
 #include <QSize>
 #include <QtQuick/QQuickItem>
@@ -65,6 +66,7 @@ protected:
 private:
     void setupMap();
     void updateGeometry();
+    void updateTransform();
     /*
     void updateWindowPosRect();
     void updateTransform();
@@ -81,6 +83,7 @@ private:
     core::CampaignMap *campaignMap;
     std::map<const core::MapNode *, QPoint> nodesPos;
     MapWindow mapWindow;
+    QMatrix4x4 transform;
 };
 
 } // namespace ui

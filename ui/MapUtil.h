@@ -3,6 +3,7 @@
 
 #include <map>
 
+#include <QMatrix4x4>
 #include <QPainterPath>
 #include <QPoint>
 #include <QRect>
@@ -33,14 +34,13 @@ QPoint project(const QPoint &p, const QRect &r);
 /**
  * Center content in frame.
  *
- * Calculate the translation and scaling necessary to centralize
+ * Calculate the translation matrix necessary to centralize
  * content in frame, where content is the bounding rectangle of some
  * content to be draw and frame is the bounding rect of the drawing
- * area.
- * The scale and translate values are ment to be used to scale and
- * translate a graphic scene (first scale and then translate!).
+ * area. If content is larger than frame than it will be shrinked to fit
+ * (maintaining the aspect ratio) and then centralized in the frame.
  */
-std::pair<qreal, QPointF> centerIn(const QRectF &content, const QRectF &frame);
+QMatrix4x4 centerIn(const QRectF &content, const QRectF &frame);
 
 } // namespace ui
 } // namespace warmonger

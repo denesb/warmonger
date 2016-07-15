@@ -52,7 +52,8 @@ public:
     int getArmyIndex() const;
     void setArmyIndex(int armyIndex);
 
-    std::vector<MapNode *> getMapNodes() const;
+    const std::vector<MapNode *>& getMapNodes() const;
+    std::vector<MapNode *>& getMapNodes();
     void setMapNodes(const std::vector<MapNode *> &mapNodes);
     QVariantList readMapNodes() const;
 

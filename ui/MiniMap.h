@@ -30,8 +30,7 @@ class MiniMap :
 
     Q_PROPERTY(warmonger::core::CampaignMap *campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
     Q_PROPERTY(warmonger::ui::WorldSurface *worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
-    Q_PROPERTY(QPoint windowPos READ getWindowPos WRITE setWindowPos NOTIFY windowPosChanged)
-    Q_PROPERTY(QSize windowSize READ getWindowSize WRITE setWindowSize NOTIFY windowSizeChanged)
+    Q_PROPERTY(QRect windowRect READ getWindowRect WRITE setWindowRect NOTIFY windowRectChanged)
 public:
     MiniMap(QQuickItem *parent = nullptr);
 
@@ -41,20 +40,15 @@ public:
     WorldSurface * getWorldSurface() const;
     void setWorldSurface(WorldSurface *worldSurface);
 
-    QPoint getWindowPos() const;
-    void setWindowPos(const QPoint &windowPos);
-    void centerWindow(const QPoint &pos);
-
-    QSize getWindowSize() const;
-    void setWindowSize(const QSize& windowSize);
+    QRect getWindowRect() const;
+    void setWindowRect(const QRect &windowPos);
 
     QSGNode * updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *data) override;
 
 signals:
     void campaignMapChanged();
     void worldSurfaceChanged();
-    void windowPosChanged();
-    void windowSizeChanged();
+    void windowRectChanged();
 
 protected:
     void updateContent();
@@ -68,11 +62,7 @@ private:
     void updateGeometry();
     void updateTransform();
     /*
-    void updateWindowPosRect();
-    void updateTransform();
-
-    void drawNode(QPainter *painter, const core::MapNode *node);
-    void drawContent(QPainter *painter, const core::MapNode *node);
+    void updateWindowRectRect();
     */
 
     std::vector<core::MapNode *> nodes;

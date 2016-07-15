@@ -116,7 +116,12 @@ void CampaignMap::setArmyIndex(int armyIndex)
     }
 }
 
-std::vector<MapNode *> CampaignMap::getMapNodes() const
+const std::vector<MapNode*>& CampaignMap::getMapNodes() const
+{
+    return this->mapNodes;
+}
+
+std::vector<MapNode*>& CampaignMap::getMapNodes()
 {
     return this->mapNodes;
 }

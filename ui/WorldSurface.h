@@ -18,14 +18,14 @@ class WorldSurface :
 {
     Q_OBJECT
     Q_PROPERTY(QString prefix READ getPrefix NOTIFY prefixChanged)
-    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
-    Q_PROPERTY(QString description READ getDescription WRITE setDescription NOTIFY descriptionChanged)
+    Q_PROPERTY(QString displayName READ getDisplayName NOTIFY displayNameChanged)
+    Q_PROPERTY(QString description READ getDescription NOTIFY descriptionChanged)
     Q_PROPERTY(QSize tileSize READ getTileSize NOTIFY tileSizeChanged)
-    Q_PROPERTY(QColor normalGridColor READ getNormalGridColor WRITE setNormalGridColor NOTIFY normalGridColorChanged)
-    Q_PROPERTY(QColor focusGridColor READ getFocusGridColor WRITE setFocusGridColor NOTIFY focusGridColorChanged)
+    Q_PROPERTY(QColor normalGridColor READ getNormalGridColor NOTIFY normalGridColorChanged)
+    Q_PROPERTY(QColor focusGridColor READ getFocusGridColor NOTIFY focusGridColorChanged)
 
 public:
-    WorldSurface(const QString& path, core::World *world, QQuickWindow *window, QObject *parent=nullptr);
+    WorldSurface(const QString& path, core::World* world, QQuickWindow *window, QObject *parent=nullptr);
     ~WorldSurface();
 
     /**
@@ -34,29 +34,24 @@ public:
      */
     QString getPrefix() const;
 
+    core::World* getWorld() const;
+
     QString getDisplayName() const;
-    void setDisplayName(const QString &displayName);
 
     QString getDescription() const;
-    void setDescription(const QString &description);
 
     int getTileWidth() const;
-    void setTileWidth(int width);
 
     int getTileHeight() const;
-    void setTileHeight(int height);
 
     QSize getTileSize() const;
-    void setTileSize(const QSize &tileSize);
 
     QColor getNormalGridColor() const;
-    void setNormalGridColor(const QColor &color);
 
     QColor getFocusGridColor() const;
-    void setFocusGridColor(const QColor &color);
 
-    bool hexContains(const QPoint &p) const;
-    bool hexContains(const QPointF &p) const;
+    bool hexContains(const QPoint& p) const;
+    bool hexContains(const QPointF& p) const;
 
     /**
      * Activate this surface
@@ -75,7 +70,7 @@ public:
      */
     void deactivate();
 
-    QSGTexture * getTexture(const QObject *object) const;
+    QSGTexture* getTexture(const QObject* object) const;
 
 signals:
     void prefixChanged();
@@ -100,10 +95,10 @@ private:
     const QString path;
     QString displayName;
     QString description;
-    core::World *world;
+    core::World* world;
 
     QByteArray resourceData;
-    QQuickWindow *window;
+    QQuickWindow* window;
     std::map<QString, std::unique_ptr<QSGTexture>> textures;
     bool isTextureSyncOn;
     bool isTextureSyncPending;

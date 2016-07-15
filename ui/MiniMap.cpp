@@ -31,24 +31,11 @@ MiniMap::MiniMap(QQuickItem *parent) :
 {
     //this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
 
-    QObject::connect(
-        this,
-        &MiniMap::widthChanged,
-        this,
-        &MiniMap::updateTransform
-    );
+    QObject::connect(this, &MiniMap::widthChanged, this, &MiniMap::updateTransform);
+    QObject::connect(this, &MiniMap::heightChanged, this, &MiniMap::updateTransform);
 
-    QObject::connect(
-        this,
-        &MiniMap::heightChanged,
-        this,
-        &MiniMap::updateTransform
-    );
-
-    QObject::connect(&this->mapWindow, &MapWindow::windowPosChanged, this, &QQuickItem::update);
-    QObject::connect(&this->mapWindow, &MapWindow::windowPosChanged, this, &MiniMap::windowPosChanged);
-    QObject::connect(&this->mapWindow, &MapWindow::windowSizeChanged, this, &QQuickItem::update);
-    QObject::connect(&this->mapWindow, &MapWindow::windowSizeChanged, this, &MiniMap::windowSizeChanged);
+    QObject::connect(&this->mapWindow, &MapWindow::windowRectChanged, this, &QQuickItem::update);
+    QObject::connect(&this->mapWindow, &MapWindow::windowRectChanged, this, &MiniMap::windowRectChanged);
 }
 
 core::CampaignMap * MiniMap::getCampaignMap() const
@@ -85,29 +72,14 @@ void MiniMap::setWorldSurface(WorldSurface *worldSurface)
     }
 }
 
-QPoint MiniMap::getWindowPos() const
+QRect MiniMap::getWindowRect() const
 {
-    return this->mapWindow.getWindowPos();
+    return this->mapWindow.getWindowRect();
 }
 
-void MiniMap::setWindowPos(const QPoint &windowPos)
+void MiniMap::setWindowRect(const QRect &windowPos)
 {
-    this->mapWindow.setWindowPos(windowPos);
-}
-
-void MiniMap::centerWindow(const QPoint &pos)
-{
-    this->mapWindow.centerWindow(pos);
-}
-
-QSize MiniMap::getWindowSize() const
-{
-    return this->mapWindow.getWindowSize();
-}
-
-void MiniMap::setWindowSize(const QSize &windowSize)
-{
-    this->mapWindow.setWindowSize(windowSize);
+    this->mapWindow.setWindowRect(windowPos);
 }
 
 QSGNode * MiniMap::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
@@ -213,12 +185,12 @@ void MiniMap::updateGeometry()
 
     this->updateTransform();
 
-    //this->updateWindowPosRect();
-    //this->setWindowPos(this->boundingRect.topLeft());
+    //this->updateWindowRectRect();
+    //this->setWindowRect(this->boundingRect.topLeft());
 }
 
 /*
-void MiniMap::updateWindowPosRect()
+void MiniMap::updateWindowRectRect()
 {
     this->windowPosRect = QRect(
         this->boundingRect.x(),

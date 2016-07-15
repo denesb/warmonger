@@ -77,6 +77,11 @@ WorldSurface::~WorldSurface()
     }
 }
 
+core::World*  WorldSurface::getWorld() const
+{
+    return this->world;
+}
+
 QString WorldSurface::getPrefix() const
 {
     static const QString prefix = utils::resourcePaths::surface + "/";
@@ -88,27 +93,9 @@ QString WorldSurface::getDisplayName() const
     return this->displayName;
 }
 
-void WorldSurface::setDisplayName(const QString &displayName)
-{
-    if (this->displayName != displayName)
-    {
-        this->displayName = displayName;
-        emit displayNameChanged();
-    }
-}
-
 QString WorldSurface::getDescription() const
 {
     return this->description;
-}
-
-void WorldSurface::setDescription(const QString &description)
-{
-    if (this->description != description)
-    {
-        this->description = description;
-        emit descriptionChanged();
-    }
 }
 
 int WorldSurface::getTileWidth() const
@@ -116,30 +103,9 @@ int WorldSurface::getTileWidth() const
     return this->tileWidth;
 }
 
-void WorldSurface::setTileWidth(int width)
-{
-    if (this->tileWidth != width)
-    {
-        this->tileWidth = width;
-        emit tileWidthChanged();
-        emit tileSizeChanged();
-    }
-}
-
 int WorldSurface::getTileHeight() const
 {
     return this->tileHeight;
-}
-
-void WorldSurface::setTileHeight(int height)
-{
-    if (this->tileHeight != height)
-    {
-        this->tileHeight = height;
-        emit tileHeightChanged();
-        emit tileSizeChanged();
-    }
-
 }
 
 QSize WorldSurface::getTileSize() const
@@ -147,45 +113,14 @@ QSize WorldSurface::getTileSize() const
     return QSize(this->tileWidth, this->tileHeight);
 }
 
-void WorldSurface::setTileSize(const QSize &tileSize)
-{
-    if (this->tileWidth != tileSize.width() ||
-        this->tileHeight != tileSize.height())
-    {
-        this->tileWidth = tileSize.width();
-        this->tileHeight = tileSize.height();
-        emit tileWidthChanged();
-        emit tileHeightChanged();
-        emit tileSizeChanged();
-    }
-}
-
 QColor WorldSurface::getNormalGridColor() const
 {
     return this->normalGridColor;
 }
 
-void WorldSurface::setNormalGridColor(const QColor &color)
-{
-    if (this->normalGridColor != color)
-    {
-        this->normalGridColor = color;
-        emit normalGridColorChanged();
-    }
-}
-
 QColor WorldSurface::getFocusGridColor() const
 {
     return this->focusGridColor;
-}
-
-void WorldSurface::setFocusGridColor(const QColor &color)
-{
-    if (this->focusGridColor != color)
-    {
-        this->focusGridColor = color;
-        emit focusGridColorChanged();
-    }
 }
 
 bool WorldSurface::hexContains(const QPoint &p) const
@@ -276,10 +211,16 @@ void WorldSurface::activate()
 
     const QJsonObject jobj = jdoc.object();
 
-    this->setTileWidth(jobj["tileWidth"].toInt());
-    this->setTileHeight(jobj["tileHeight"].toInt());
-    this->setNormalGridColor(QColor(jobj["normalGridColor"].toString()));
-    this->setFocusGridColor(QColor(jobj["focusGridColor"].toString()));
+    this->tileWidth = jobj["tileWidth"].toInt();
+    this->tileHeight = jobj["tileHeight"].toInt();
+    this->normalGridColor = QColor(jobj["normalGridColor"].toString());
+    this->focusGridColor = QColor(jobj["focusGridColor"].toString());
+
+    emit tileWidthChanged();
+    emit tileHeightChanged();
+    emit tileSizeChanged();
+    emit normalGridColorChanged();
+    emit focusGridColorChanged();
 
     if (!this->hexMask.load(this->getPrefix() + "hexagonMask.xpm"))
     {
@@ -350,8 +291,12 @@ void WorldSurface::parseHeader(const QByteArray &header)
     QJsonObject jobj = jdoc.object();
 
     this->setObjectName(jobj["objectName"].toString());
-    this->setDisplayName(jobj["displayName"].toString());
-    this->setDescription(jobj["description"].toString());
+
+    this->displayName = jobj["displayName"].toString();
+    this->description = jobj["description"].toString();
+
+    emit displayNameChanged();
+    emit descriptionChanged();
 }
 
 void WorldSurface::uploadTextures()

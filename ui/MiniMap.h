@@ -84,6 +84,8 @@ private:
     std::map<const core::MapNode *, QPoint> nodesPos;
     MapWindow mapWindow;
     QMatrix4x4 transform;
+    bool transformChanged;
+    bool contentChanged;
 };
 
 } // namespace ui

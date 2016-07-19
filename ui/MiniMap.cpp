@@ -13,12 +13,10 @@
 #include "core/TerrainType.h"
 #include "core/Unit.h"
 #include "ui/MiniMap.h"
-#include "log/LogStream.h"
+#include "utils/Logging.h"
 
-static const QString loggerName{"ui.MiniMap"};
-
-using namespace warmonger;
-using namespace warmonger::ui;
+namespace warmonger {
+namespace ui {
 
 MiniMap::MiniMap(QQuickItem *parent) :
     QQuickItem(parent),
@@ -47,7 +45,7 @@ void MiniMap::setCampaignMap(core::CampaignMap *campaignMap)
 {
     if (this->campaignMap != campaignMap)
     {
-        wInfo(loggerName) << "campaignMap `" << this->campaignMap << "' -> `" << campaignMap << "'";
+        wInfo << "campaignMap `" << this->campaignMap << "' -> `" << campaignMap << "'";
 
         this->campaignMap = campaignMap;
 
@@ -84,7 +82,7 @@ void MiniMap::setWindowRect(const QRect &windowPos)
 
 QSGNode * MiniMap::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
-    wDebug(loggerName) << "updatePaintNode";
+    wDebug << "updatePaintNode";
 
     QSGTransformNode *rootNode;
     if (oldNode != nullptr)
@@ -92,7 +90,7 @@ QSGNode * MiniMap::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
     else
         rootNode = new QSGTransformNode();
 
-    wDebug(loggerName) << "RootNode " << rootNode;
+    //wDebug << "RootNode " << rootNode;
 
     if (this->transformChanged)
     {
@@ -152,13 +150,13 @@ void MiniMap::updateContent()
 {
     if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty())
     {
-        wDebug(loggerName) << "doesn't has contents";
+        wDebug << "doesn't has contents";
         this->setFlags(0);
         return;
     }
     else
     {
-        wDebug(loggerName) << "has contents";
+        wDebug << "has contents";
         this->setFlags(QQuickItem::ItemHasContents);
         //this->update();
     }
@@ -176,7 +174,7 @@ void MiniMap::updateContent()
     this->updateGeometry();
     this->update();
 
-    wDebug(loggerName) << "Content changed, schedule redraw";
+    wDebug << "Content changed, schedule redraw";
 }
 
 void MiniMap::updateGeometry()
@@ -212,7 +210,7 @@ void MiniMap::updateTransform()
 
     this->transformChanged = true;
 
-    wDebug(loggerName) << "Transformation matrix changed, schedule redraw";
+    wDebug << "Transformation matrix changed, schedule redraw";
 
     this->update();
 }
@@ -274,3 +272,6 @@ void MiniMap::drawNode(QPainter *, const core::MapNode *)
     painter->restore();
 }
     */
+
+} // namespace ui
+} // namespace warmonger

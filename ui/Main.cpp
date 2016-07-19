@@ -5,15 +5,13 @@
 #include <QSettings>
 #include <QtQml/QQmlEngine>
 
-#include "log/LogStream.h"
-#include "log/ConsoleHandler.h"
-#include "log/Formatter.h"
 #include "ui/Context.h"
 //#include "ui/GameMap.h"
 #include "ui/MiniMap.h"
 //#include "ui/MapPreview.h"
 #include "ui/CampaignMapEditor.h"
 #include "utils/Constants.h"
+#include "utils/Logging.h"
 
 namespace warmonger {
 
@@ -31,7 +29,6 @@ const QString loggerName{"ui.Main"};
 
 void setSearchPaths();
 void addSubdirToSearchPath(const QString&worldPath, const QString &subdirName, QStringList &searchPath);
-void initLogger();
 void initUi(QQuickView *view, ui::Context *ctx);
 
 }
@@ -44,7 +41,8 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain(OrganizationDomain);
     QCoreApplication::setApplicationName(ApplicationName);
 
-    initLogger();
+    utils::initLogging();
+
     setSearchPaths();
 
     QQuickView view;
@@ -67,13 +65,13 @@ void setSearchPaths()
 
     if (worldsDirVal.isNull())
     {
-        wError(loggerName) << "worldsDir not found in settings, search paths will not be set";
+        wError << "worldsDir not found in settings, search paths will not be set";
         return;
     }
 
     const QString worldsDirPath = worldsDirVal.toString();
 
-    wDebug(loggerName) << "World dir is " << worldsDirPath;
+    wDebug << "World dir is " << worldsDirPath;
 
     QStringList worldSearchPath, mapSearchPath, surfaceSearchPath;
 
@@ -88,7 +86,7 @@ void setSearchPaths()
         addSubdirToSearchPath(worldPath, utils::paths::surfaces, surfaceSearchPath);
         addSubdirToSearchPath(worldPath, utils::paths::maps, mapSearchPath);
 
-        wInfo(loggerName) << "Added world " << worldPath << " to world search path";
+        wInfo << "Added world " << worldPath << " to world search path";
     }
 
     QDir::setSearchPaths(utils::searchPaths::world, worldSearchPath);
@@ -104,26 +102,7 @@ void addSubdirToSearchPath(const QString&worldPath, const QString &subdirName, Q
     if (subdirDirInfo.exists() && subdirDirInfo.isDir())
         searchPath.append(subdirDirInfo.canonicalFilePath());
 
-    wInfo(loggerName) << "Added " << subdirPath << " to " << subdirName << " search path";
-}
-
-void initLogger()
-{
-    log::Logger::init();
-
-    const QString formatStr("%{level} {%{name}} %{message}");
-    std::shared_ptr<log::Formatter> formatter(
-        new log::Formatter(formatStr)
-    );
-
-    std::shared_ptr<log::ConsoleHandler> consoleHandler(
-        new log::ConsoleHandler()
-    );
-    consoleHandler->setLevel(log::Debug);
-    consoleHandler->setFormatter(formatter);
-
-    log::Logger *rootLogger = log::Logger::get("root");
-    rootLogger->addHandler(consoleHandler);
+    wInfo << "Added " << subdirPath << " to " << subdirName << " search path";
 }
 
 void initUi(QQuickView *view, ui::Context *ctx)

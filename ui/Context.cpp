@@ -10,8 +10,6 @@
 #include "utils/QVariantUtils.h"
 #include "utils/Utils.h"
 
-static const QString loggerName{"ui.Context"};
-
 namespace warmonger {
 namespace ui {
 
@@ -92,7 +90,7 @@ void Context::setWorld(core::World *world)
 {
     if (this->world != world)
     {
-        wInfo(loggerName) << "world: `" << this->world << "' -> `" << world << "'";
+        wInfo << "world: `" << this->world << "' -> `" << world << "'";
 
         this->world = world;
 
@@ -129,7 +127,7 @@ void Context::setWorldSurface(ui::WorldSurface *worldSurface)
 {
     if (this->worldSurface != worldSurface)
     {
-        wInfo(loggerName) << "worldSurface: `" << this->worldSurface << "' -> `" << worldSurface << "'";
+        wInfo << "worldSurface: `" << this->worldSurface << "' -> `" << worldSurface << "'";
 
         emit aboutToChangeWorldSurface();
 
@@ -164,7 +162,7 @@ void Context::setCampaignMap(core::CampaignMap *campaignMap)
 {
     if (this->campaignMap != campaignMap)
     {
-        wInfo(loggerName) << "campaignMap: `" << this->campaignMap << "' -> `" << campaignMap << "'";
+        wInfo << "campaignMap: `" << this->campaignMap << "' -> `" << campaignMap << "'";
 
         this->campaignMap = campaignMap;
         this->setWorld(this->campaignMap->getWorld());
@@ -190,11 +188,11 @@ void Context::loadWorlds()
         }
         catch(const utils::Exception &error)
         {
-            wError(loggerName) << "Error loading world " << worldDefinitionPath << ", " << error.getMessage();
+            wError << "Error loading world " << worldDefinitionPath << ", " << error.getMessage();
             continue;
         }
 
-        wInfo(loggerName) << "Loaded world " << worldDefinitionPath;
+        wInfo << "Loaded world " << worldDefinitionPath;
 
         world->setParent(this);
         this->worlds.push_back(world);
@@ -202,7 +200,7 @@ void Context::loadWorlds()
         QDir mapsDir(worldPath + "/" + utils::paths::maps);
         if (!mapsDir.exists())
         {
-            wInfo(loggerName) << "World " << worldPath << " does not have a maps directory";
+            wInfo << "World " << worldPath << " does not have a maps directory";
             continue;
         }
 
@@ -211,7 +209,7 @@ void Context::loadWorlds()
         QDir surfacesDir(worldPath + "/" + utils::paths::surfaces);
         if (!surfacesDir.exists())
         {
-            wInfo(loggerName) << "World " << worldPath << " does not have a surfaces directory";
+            wInfo << "World " << worldPath << " does not have a surfaces directory";
             continue;
         }
 
@@ -247,7 +245,7 @@ void Context::loadMapsFromDir(const QDir &mapsDir, core::World *world)
         }
         catch (const utils::Exception &error)
         {
-            wError(loggerName) << "Error loading map " << mapPath << ", " << error.getMessage();
+            wError << "Error loading map " << mapPath << ", " << error.getMessage();
             continue;
         }
 
@@ -257,7 +255,7 @@ void Context::loadMapsFromDir(const QDir &mapsDir, core::World *world)
         ++n;
     }
 
-    wInfo(loggerName) << "Loaded " << n << " maps for world `" << world->objectName() << "'";
+    wInfo << "Loaded " << n << " maps for world `" << world->objectName() << "'";
 }
 
 void Context::loadSurfacesFromDir(const QDir &surfacesDir, core::World *world)
@@ -280,7 +278,7 @@ void Context::loadSurfacesFromDir(const QDir &surfacesDir, core::World *world)
         }
         catch (const utils::Exception &error)
         {
-            wError(loggerName) << "Error loading surface " << surfacePath << ", " << error.getMessage();
+            wError << "Error loading surface " << surfacePath << ", " << error.getMessage();
             continue;
         }
 
@@ -288,7 +286,7 @@ void Context::loadSurfacesFromDir(const QDir &surfacesDir, core::World *world)
         ++n;
     }
 
-    wInfo(loggerName) << "Loaded " << n << " surfaces for world `" << world->objectName() << "'";
+    wInfo << "Loaded " << n << " surfaces for world `" << world->objectName() << "'";
 }
 
 } // namespace ui

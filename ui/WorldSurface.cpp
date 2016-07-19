@@ -8,14 +8,12 @@
 
 #include <ktar.h>
 
-#include "log/LogStream.h"
+#include "utils/Logging.h"
 #include "ui/WorldSurface.h"
 #include "utils/Constants.h"
 #include "utils/Exception.h"
 
 using namespace warmonger;
-
-static const QString loggerName{"core.WorldSurface"};
 
 static QString key(const QObject *object);
 
@@ -227,7 +225,7 @@ void WorldSurface::activate()
         throw utils::IOError("Hexagon mask not found in surface package " + this->path);
     }
 
-    wInfo(loggerName) << "Succesfully activated surface " << this->objectName();
+    wInfo << "Succesfully activated surface " << this->objectName();
 
     if (this->isTextureSyncOn)
         this->uploadTextures();
@@ -243,7 +241,7 @@ void WorldSurface::deactivate()
         throw utils::IOError("Failed to unregister  " + this->path);
     }
 
-    wInfo(loggerName) << "Succesfully deactivated surface " << this->objectName();
+    wInfo << "Succesfully deactivated surface " << this->objectName();
 }
 
 QSGTexture * WorldSurface::getTexture(const QObject *object) const
@@ -321,7 +319,7 @@ void WorldSurface::uploadTextures()
         this->uploadTexture(utils::resourcePaths::unitTypes, unitType);
     }
 
-    wInfo(loggerName) << "Surface tetxtures uploaded to GPU";
+    wInfo << "Surface tetxtures uploaded to GPU";
 }
 
 void WorldSurface::uploadTexture(const QString &pathPrefix, const QObject *object)
@@ -331,7 +329,7 @@ void WorldSurface::uploadTexture(const QString &pathPrefix, const QObject *objec
 
     if (image.isNull())
     {
-        wWarning(loggerName) << "Cannot find texture for " << object;
+        wWarning << "Cannot find texture for " << object;
         return;
     }
 

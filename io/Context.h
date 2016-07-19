@@ -6,7 +6,7 @@
 #include <QObject>
 #include <QMap>
 
-#include "log/LogStream.h"
+#include "utils/Logging.h"
 
 namespace warmonger {
 namespace io {
@@ -45,7 +45,7 @@ public:
         const QMetaObject metaObject = Class::staticMetaObject;
         const QString className = metaObject.className();
 
-        wDebug("io.Context") << "Looking up object `"
+        wDebug << "Looking up object `"
             << className << "' with objectName `" << objectName << "'";
 
         QObject *object = this->getObject(className, objectName);

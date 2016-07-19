@@ -49,13 +49,6 @@ set(
     io/File.cpp
     io/JsonSerializer.cpp
     io/JsonUnserializer.cpp
-    log/ConsoleHandler.cpp
-    log/Filter.cpp
-    log/Formatter.cpp
-    log/Handler.cpp
-    log/LogRecord.cpp
-    log/LogStream.cpp
-    log/Logger.cpp
     ui/CampaignMapEditor.cpp
     ui/Context.cpp
     ui/MapUtil.cpp
@@ -63,21 +56,26 @@ set(
     ui/MiniMap.cpp
     ui/WorldSurface.cpp
     utils/Hexagon.cpp
+    utils/Logging.cpp
     utils/MapGenerator.cpp
     utils/ToString.cpp
 )
 
+set(Boost_USE_STATIC_LIBS ON)
+
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Quick REQUIRED)
 find_package(KF5Archive REQUIRED)
+find_package(Boost REQUIRED COMPONENTS log)
 
 add_executable(warmonger ${SRC_FILES} ui/Main.cpp ui/ui.qrc)
 
 set(
     WARMONGER_LIBS
-    Qt5::Core
-    Qt5::Quick
     KF5::Archive
+    Qt5::Quick
+    Qt5::Core
+    Boost::log
 )
 
 target_link_libraries(

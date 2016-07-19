@@ -4,7 +4,7 @@ project(Warmonger)
 
 option(BUILD_TESTS "Build unit test suite" OFF)
 
-include_directories(${PROJECT_SOURCE_DIR})
+include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR})
 
 add_compile_options(
     -std=c++14
@@ -60,6 +60,8 @@ set(
     utils/MapGenerator.cpp
     utils/ToString.cpp
 )
+
+configure_file(Version.h.in Version.h @ONLY)
 
 set(Boost_USE_STATIC_LIBS ON)
 

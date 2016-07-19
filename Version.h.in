@@ -1,0 +1,6 @@
+#ifndef W_VERSION_H
+#define W_VERSION_H
+
+const std::string basePath{"@PROJECT_SOURCE_DIR@"};
+
+#endif // W_VERSION_H

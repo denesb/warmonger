@@ -1,13 +1,22 @@
 #include <map>
 
+#include "Version.h"
 #include "utils/Logging.h"
 
 namespace warmonger {
 namespace utils {
 
-std::string trim(const char * fileName)
+std::string trimSrcFilePath(const char* fileName)
 {
-    return std::string(fileName);
+    const std::string path(fileName);
+    if (path.compare(0, basePath.size(), basePath) == 0)
+    {
+        return path.substr(basePath.size() + 1);
+    }
+    else
+    {
+        return path;
+    }
 }
 
 static void qtMessageHandler(QtMsgType type, const QMessageLogContext &ctx, const QString &msg);
@@ -22,23 +31,23 @@ static void qtMessageHandler(QtMsgType type, const QMessageLogContext &ctx, cons
     switch(type)
     {
         case QtDebugMsg:
-            BOOST_LOG_TRIVIAL(debug) << trim(ctx.file) << ":" << ctx.line << " " << msg.toStdString();
+            BOOST_LOG_TRIVIAL(debug) << trimSrcFilePath(ctx.file) << ":" << ctx.line << " " << msg.toStdString();
             break;
 
         case QtInfoMsg:
-            BOOST_LOG_TRIVIAL(info) << trim(ctx.file) << ":" << ctx.line << " " << msg.toStdString();
+            BOOST_LOG_TRIVIAL(info) << trimSrcFilePath(ctx.file) << ":" << ctx.line << " " << msg.toStdString();
             break;
 
         case QtWarningMsg:
-            BOOST_LOG_TRIVIAL(warning) << trim(ctx.file) << ":" << ctx.line << " " << msg.toStdString();
+            BOOST_LOG_TRIVIAL(warning) << trimSrcFilePath(ctx.file) << ":" << ctx.line << " " << msg.toStdString();
             break;
 
         case QtCriticalMsg:
-            BOOST_LOG_TRIVIAL(error) << trim(ctx.file) << ":" << ctx.line << " " << msg.toStdString();
+            BOOST_LOG_TRIVIAL(error) << trimSrcFilePath(ctx.file) << ":" << ctx.line << " " << msg.toStdString();
             break;
 
         case QtFatalMsg:
-            BOOST_LOG_TRIVIAL(fatal) << trim(ctx.file) << ":" << ctx.line << " " << msg.toStdString();
+            BOOST_LOG_TRIVIAL(fatal) << trimSrcFilePath(ctx.file) << ":" << ctx.line << " " << msg.toStdString();
             break;
     }
 }

@@ -42,6 +42,8 @@ private:
     void updateContent();
     void updateGeometry();
 
+    QSGNode* drawNode(QSGNode* old, const core::MapNode* mapNode) const;
+
     core::CampaignMap *campaignMap;
     WorldSurface *worldSurface;
 

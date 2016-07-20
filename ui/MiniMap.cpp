@@ -90,8 +90,6 @@ QSGNode * MiniMap::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
     else
         rootNode = new QSGTransformNode();
 
-    //wDebug << "RootNode " << rootNode;
-
     if (this->transformChanged)
     {
         rootNode->setMatrix(this->transform);

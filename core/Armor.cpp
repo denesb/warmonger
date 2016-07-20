@@ -1,7 +1,8 @@
 #include "core/Armor.h"
 #include "core/DamageType.h"
 
-using namespace warmonger::core;
+namespace warmonger {
+namespace core {
 
 Armor::Armor(QObject *parent) :
     QObject(parent),
@@ -46,3 +47,6 @@ void Armor::setDefense(const DamageType * const damageType, int defense)
 {
     this->defenses[damageType] = defense;
 }
+
+} // namespace core
+} // namespace warmonger

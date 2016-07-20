@@ -11,10 +11,40 @@ Rectangle {
     }
 
     Rectangle {
+        id: mapEditorWrap
         anchors {
-            fill: parent
-            margins: 1
+            top: parent.top
+            bottom: parent.bottom
+            left: parent.left
+            right:  miniMapWrap.left
         }
+        border {
+            width: 1
+            color: "black"
+        }
+        color: "yellow"
+
+        CampaignMapEditor {
+            id: mapEditor
+
+            campaignMap: W.campaignMap
+            worldSurface: W.worldSurface
+
+            anchors {
+                fill: parent
+                margins: 1
+            }
+        }
+    }
+
+    Rectangle {
+        id: miniMapWrap
+        anchors {
+            top: parent.top
+            bottom: parent.bottom
+            right:  parent.right
+        }
+        width: 400
         border {
             width: 1
             color: "black"

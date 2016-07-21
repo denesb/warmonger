@@ -23,7 +23,6 @@ MiniMap::MiniMap(QQuickItem *parent) :
     world(nullptr),
     worldSurface(nullptr),
     campaignMap(nullptr),
-    mapWindow(QRect(), QSize()),
     transformChanged(true),
     contentChanged(true)
 {
@@ -36,12 +35,12 @@ MiniMap::MiniMap(QQuickItem *parent) :
     QObject::connect(&this->mapWindow, &MapWindow::windowRectChanged, this, &MiniMap::windowRectChanged);
 }
 
-core::CampaignMap * MiniMap::getCampaignMap() const
+core::CampaignMap* MiniMap::getCampaignMap() const
 {
     return this->campaignMap;
 }
 
-void MiniMap::setCampaignMap(core::CampaignMap *campaignMap)
+void MiniMap::setCampaignMap(core::CampaignMap* campaignMap)
 {
     if (this->campaignMap != campaignMap)
     {
@@ -54,12 +53,12 @@ void MiniMap::setCampaignMap(core::CampaignMap *campaignMap)
     }
 }
 
-WorldSurface * MiniMap::getWorldSurface() const
+WorldSurface* MiniMap::getWorldSurface() const
 {
     return this->worldSurface;
 }
 
-void MiniMap::setWorldSurface(WorldSurface *worldSurface)
+void MiniMap::setWorldSurface(WorldSurface* worldSurface)
 {
     if(this->worldSurface != worldSurface)
     {
@@ -75,16 +74,14 @@ QRect MiniMap::getWindowRect() const
     return this->mapWindow.getWindowRect();
 }
 
-void MiniMap::setWindowRect(const QRect &windowPos)
+void MiniMap::setWindowRect(const QRect& windowPos)
 {
     this->mapWindow.setWindowRect(windowPos);
 }
 
-QSGNode * MiniMap::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
+QSGNode* MiniMap::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*)
 {
-    wDebug << "updatePaintNode";
-
-    QSGTransformNode *rootNode;
+    QSGTransformNode* rootNode;
     if (oldNode != nullptr)
         rootNode = dynamic_cast<QSGTransformNode*>(oldNode);
     else
@@ -101,17 +98,17 @@ QSGNode * MiniMap::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
         this->contentChanged = false;
         rootNode->removeAllChildNodes();
 
-        const std::vector<core::MapNode *> nodes = this->campaignMap->getMapNodes();
+        const std::vector<core::MapNode*> nodes = this->campaignMap->getMapNodes();
         for (core::MapNode *node : nodes)
         {
-            QSGTexture *texture = this->worldSurface->getTexture(node->getTerrainType());
+            QSGTexture* texture = this->worldSurface->getTexture(node->getTerrainType());
             if (texture == nullptr)
                 continue;
 
             QSGSimpleTextureNode *n = new QSGSimpleTextureNode();
             n->setOwnsTexture(false);
 
-            n->setRect(QRect(this->nodesPos[node], this->worldSurface->getTileSize()));
+            n->setRect(QRect(this->mapNodesPos[node], this->worldSurface->getTileSize()));
             n->setTexture(texture);
 
             rootNode->appendChildNode(n);
@@ -128,13 +125,13 @@ QSGNode * MiniMap::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 }
 
 /*
-void MiniMap::mousePressEvent(QMouseEvent *event)
+void MiniMap::mousePressEvent(QMouseEvent* event)
 {
     QPointF pos(this->campaignMapToMap(event->pos()));
     this->centerWindow(pos.toPoint());
 }
 
-void MiniMap::mouseMoveEvent(QMouseEvent *event)
+void MiniMap::mouseMoveEvent(QMouseEvent* event)
 {
     if (event->buttons() & Qt::LeftButton)
     {
@@ -165,7 +162,7 @@ void MiniMap::updateContent()
 
     this->tileSize = this->worldSurface->getTileSize();
 
-    this->nodesPos = positionMapNodes(this->nodes[0], this->tileSize);
+    this->mapNodesPos = positionMapNodes(this->nodes[0], this->tileSize);
 
     this->contentChanged = true;
 
@@ -177,7 +174,7 @@ void MiniMap::updateContent()
 
 void MiniMap::updateGeometry()
 {
-    this->mapWindow.setMapRect(calculateBoundingRect(this->nodesPos, this->tileSize));
+    this->mapWindow.setMapRect(calculateBoundingRect(this->mapNodesPos, this->tileSize));
 
     this->updateTransform();
 
@@ -229,7 +226,7 @@ void MiniMap::drawNode(QPainter *, const core::MapNode *)
     const core::Unit *unit = this->campaignMap->getUnitOn(node);
 
     painter->save();
-    painter->translate(this->nodesPos[node]);
+    painter->translate(this->mapNodesPos[node]);
 
     const QColor color = this->worldSurface->getColor(terrainTypeName);
     painter->fillPath(this->hexagonPainterPath, color);

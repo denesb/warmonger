@@ -48,7 +48,7 @@ private:
     WorldSurface *worldSurface;
 
     MapWindow mapWindow;
-    std::map<const core::MapNode*, QPoint> nodesPos;
+    std::map<const core::MapNode*, QPoint> mapNodesPos;
 };
 
 } // namespace ui

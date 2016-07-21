@@ -65,7 +65,11 @@ QSGNode* CampaignMapEditor::updatePaintNode(QSGNode *oldRoot, UpdatePaintNodeDat
         root = oldRoot;
     }
 
-    const std::vector<core::MapNode*>& mapNodes = this->campaignMap->getMapNodes();
+    const std::vector<const core::MapNode*> mapNodes = visibleMapNodes(
+            this->mapNodesPos,
+            this->worldSurface->getTileSize(),
+            this->mapWindow.getWindowRect());
+
     const int mapNodesSize = static_cast<int>(mapNodes.size());
     const int nodesCount = root->childCount();
 
@@ -109,7 +113,7 @@ void CampaignMapEditor::updateContent()
     else
     {
         this->setFlags(QQuickItem::ItemHasContents);
-        this->nodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->worldSurface->getTileSize());
+        this->mapNodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->worldSurface->getTileSize());
         this->update();
         wDebug << "Content";
     }
@@ -149,7 +153,7 @@ QSGNode* CampaignMapEditor::drawNode(QSGNode* oldNode, const core::MapNode* mapN
         node->setTexture(texture);
     }
 
-    const QRect nodeRect(this->nodesPos.at(mapNode), this->worldSurface->getTileSize());
+    const QRect nodeRect(this->mapNodesPos.at(mapNode), this->worldSurface->getTileSize());
     if (node->rect() != nodeRect)
     {
         node->setRect(nodeRect);

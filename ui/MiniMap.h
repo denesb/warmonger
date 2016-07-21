@@ -28,22 +28,22 @@ class MiniMap :
 {
     Q_OBJECT
 
-    Q_PROPERTY(warmonger::core::CampaignMap *campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
-    Q_PROPERTY(warmonger::ui::WorldSurface *worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
+    Q_PROPERTY(warmonger::core::CampaignMap* campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
+    Q_PROPERTY(warmonger::ui::WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
     Q_PROPERTY(QRect windowRect READ getWindowRect WRITE setWindowRect NOTIFY windowRectChanged)
 public:
-    MiniMap(QQuickItem *parent = nullptr);
+    MiniMap(QQuickItem* parent = nullptr);
 
-    core::CampaignMap * getCampaignMap() const;
-    void setCampaignMap(core::CampaignMap *campaignMap);
+    core::CampaignMap* getCampaignMap() const;
+    void setCampaignMap(core::CampaignMap* campaignMap);
 
-    WorldSurface * getWorldSurface() const;
-    void setWorldSurface(WorldSurface *worldSurface);
+    WorldSurface* getWorldSurface() const;
+    void setWorldSurface(WorldSurface* worldSurface);
 
     QRect getWindowRect() const;
-    void setWindowRect(const QRect &windowPos);
+    void setWindowRect(const QRect& windowPos);
 
-    QSGNode * updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *data) override;
+    QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* data) override;
 
 signals:
     void campaignMapChanged();
@@ -53,8 +53,8 @@ signals:
 protected:
     void updateContent();
     /*
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
     */
 
 private:
@@ -65,13 +65,13 @@ private:
     void updateWindowRectRect();
     */
 
-    std::vector<core::MapNode *> nodes;
-    core::World *world;
-    WorldSurface *worldSurface;
+    std::vector<core::MapNode*> nodes;
+    core::World* world;
+    WorldSurface* worldSurface;
     QSize tileSize;
 
-    core::CampaignMap *campaignMap;
-    std::map<const core::MapNode *, QPoint> nodesPos;
+    core::CampaignMap* campaignMap;
+    std::map<const core::MapNode*, QPoint> mapNodesPos;
     MapWindow mapWindow;
     QMatrix4x4 transform;
     bool transformChanged;

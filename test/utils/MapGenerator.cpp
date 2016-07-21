@@ -6,32 +6,32 @@ using namespace warmonger;
 
 unsigned int numberOfConnections(const std::vector<core::MapNode *> &nodes);
 
-TEST_CASE("generateNodes", "[MapGenerator]")
+TEST_CASE("generateMapNodes", "[MapGenerator]")
 {
     SECTION("radius == 0")
     {
-        const std::vector<core::MapNode *> nodes = utils::generateNodes(0);
+        const std::vector<core::MapNode *> nodes = utils::generateMapNodes(0);
 
         REQUIRE(nodes.size() == 0);
     }
 
     SECTION("radius == 1")
     {
-        const std::vector<core::MapNode *> nodes = utils::generateNodes(1);
+        const std::vector<core::MapNode *> nodes = utils::generateMapNodes(1);
 
         REQUIRE(nodes.size() == 1);
     }
 
     SECTION("radius == 2")
     {
-        const std::vector<core::MapNode *> nodes = utils::generateNodes(2);
+        const std::vector<core::MapNode *> nodes = utils::generateMapNodes(2);
 
         REQUIRE(nodes.size() == 7); REQUIRE(numberOfConnections(nodes) == 24);
     }
 
     SECTION("radius == 3")
     {
-        const std::vector<core::MapNode *> nodes = utils::generateNodes(3);
+        const std::vector<core::MapNode *> nodes = utils::generateMapNodes(3);
 
         REQUIRE(nodes.size() == 19);
         REQUIRE(numberOfConnections(nodes) == 84);
@@ -39,20 +39,20 @@ TEST_CASE("generateNodes", "[MapGenerator]")
 
     SECTION("radius == 4")
     {
-        const std::vector<core::MapNode *> nodes = utils::generateNodes(4);
+        const std::vector<core::MapNode *> nodes = utils::generateMapNodes(4);
 
         REQUIRE(nodes.size() == 37);
         REQUIRE(numberOfConnections(nodes) == 180);
     }
 }
 
-TEST_CASE("generateNodesNames", "[MapGenerator]")
+TEST_CASE("generateMapNodesNames", "[MapGenerator]")
 {
     SECTION("All nodes have a non-empty name")
     {
-        const std::vector<core::MapNode *> nodes = utils::generateNodes(2);
+        const std::vector<core::MapNode *> nodes = utils::generateMapNodes(2);
 
-        utils::generateNodeNames(nodes);
+        utils::generateMapNodeNames(nodes);
 
         for (const core::MapNode *node : nodes)
         {
@@ -62,9 +62,9 @@ TEST_CASE("generateNodesNames", "[MapGenerator]")
 
     SECTION("All nodes have a unique name")
     {
-        const std::vector<core::MapNode *> nodes = utils::generateNodes(3);
+        const std::vector<core::MapNode *> nodes = utils::generateMapNodes(3);
 
-        utils::generateNodeNames(nodes);
+        utils::generateMapNodeNames(nodes);
 
         std::set<QString> names;
 
@@ -76,7 +76,7 @@ TEST_CASE("generateNodesNames", "[MapGenerator]")
     }
 }
 
-TEST_CASE("generateNodeTerrainTypes - happy flow", "[MapGenerator]")
+TEST_CASE("generateMapNodeTerrainTypes - happy flow", "[MapGenerator]")
 {
     core::TerrainType tt1;
     tt1.setObjectName("tt1");
@@ -86,10 +86,10 @@ TEST_CASE("generateNodeTerrainTypes - happy flow", "[MapGenerator]")
 
     const std::vector<core::TerrainType *> terrainTypes{&tt1, &tt2};
 
-    const std::vector<core::MapNode *> nodes = utils::generateNodes(3);
+    const std::vector<core::MapNode *> nodes = utils::generateMapNodes(3);
 
-    utils::generateNodeNames(nodes);
-    utils::generateNodeTerrainTypes(nodes, terrainTypes);
+    utils::generateMapNodeNames(nodes);
+    utils::generateMapNodeTerrainTypes(nodes, terrainTypes);
 
     SECTION("All nodes have terrainType")
     {
@@ -120,12 +120,12 @@ TEST_CASE("generateNodeTerrainTypes - happy flow", "[MapGenerator]")
     }
 }
 
-TEST_CASE("generateNodeTerrainTypes - error flow", "[MapGenerator]")
+TEST_CASE("generateMapNodeTerrainTypes - error flow", "[MapGenerator]")
 {
-    const std::vector<core::MapNode *> nodes = utils::generateNodes(2);
+    const std::vector<core::MapNode *> nodes = utils::generateMapNodes(2);
 
-    utils::generateNodeNames(nodes);
-    utils::generateNodeTerrainTypes(nodes, std::vector<core::TerrainType *>());
+    utils::generateMapNodeNames(nodes);
+    utils::generateMapNodeTerrainTypes(nodes, std::vector<core::TerrainType *>());
 
     SECTION("Don't generate anything if there are no terrainTypes")
     {

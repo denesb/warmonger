@@ -8,13 +8,13 @@
 namespace warmonger {
 namespace utils {
 
-std::vector<core::MapNode *> generateNodes(unsigned int radius);
+std::vector<core::MapNode*> generateMapNodes(unsigned int radius);
 
-void generateNodeNames(const std::vector<core::MapNode *> &nodes);
+void generateMapNodeNames(const std::vector<core::MapNode*> &nodes);
 
-void generateNodeTerrainTypes(
-        const std::vector<core::MapNode *> &nodes,
-        const std::vector<core::TerrainType *> &terrainTypes
+void generateMapNodeTerrainTypes(
+        const std::vector<core::MapNode*>& nodes,
+        const std::vector<core::TerrainType*>& terrainTypes
     );
 
 } // namespace utils

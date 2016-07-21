@@ -4,9 +4,9 @@
 namespace warmonger {
 namespace ui {
 
-void positionNode(core::MapNode *node, std::map<const core::MapNode *, QPoint> &nodesPos, const QSize &tileSize);
+void positionMapNode(const core::MapNode* node, std::map<const core::MapNode*, QPoint>& nodesPos, const QSize& tileSize);
 
-QPoint neighbourPos(const QPoint &pos, utils::Direction dir, const QSize &tileSize)
+QPoint neighbourPos(const QPoint& pos, utils::Direction dir, const QSize& tileSize)
 {
     QSize displacement(0, 0);
 
@@ -42,36 +42,36 @@ QPoint neighbourPos(const QPoint &pos, utils::Direction dir, const QSize &tileSi
     );
 }
 
-std::map<const core::MapNode *, QPoint> positionNodes(core::MapNode * startNode, const QSize &tileSize)
+std::map<const core::MapNode*, QPoint> positionMapNodes(const core::MapNode* startNode, const QSize& tileSize)
 {
-    std::map<const core::MapNode *, QPoint> nodesPos;
+    std::map<const core::MapNode*, QPoint> nodesPos;
 
     nodesPos.insert(std::make_pair(startNode, QPoint(0, 0)));
 
-    positionNode(startNode, nodesPos, tileSize);
+    positionMapNode(startNode, nodesPos, tileSize);
 
     return nodesPos;
 }
 
-void positionNode(core::MapNode *node, std::map<const core::MapNode *, QPoint> &nodesPos, const QSize &tileSize)
+void positionMapNode(const core::MapNode* node, std::map<const core::MapNode*, QPoint>& nodesPos, const QSize& tileSize)
 {
     QPoint pos = nodesPos[node];
-    std::map<utils::Direction, core::MapNode *> neighbours = node->getNeighbours();
-    for (const auto &element :  neighbours)
+    std::map<utils::Direction, core::MapNode*> neighbours = node->getNeighbours();
+    for (const auto& element :  neighbours)
     {
         utils::Direction dir = element.first;
-        core::MapNode *neighbour = element.second;
+        core::MapNode* neighbour = element.second;
 
         if (neighbour == nullptr || nodesPos.find(neighbour) != nodesPos.end())
             continue;
 
         nodesPos.insert(std::make_pair(neighbour, neighbourPos(pos, dir, tileSize)));
 
-        positionNode(neighbour, nodesPos, tileSize);
+        positionMapNode(neighbour, nodesPos, tileSize);
     }
 }
 
-QRect calculateBoundingRect(std::map<const core::MapNode *, QPoint> &nodesPos, const QSize &tileSize)
+QRect calculateBoundingRect(const std::map<const core::MapNode *, QPoint> &nodesPos, const QSize &tileSize)
 {
     if (nodesPos.size() == 0)
         return QRect(0, 0, 0, 0);
@@ -100,6 +100,25 @@ QRect calculateBoundingRect(std::map<const core::MapNode *, QPoint> &nodesPos, c
     bottomRight += padding;
 
     return QRect(topLeft, bottomRight);
+}
+
+std::vector<const core::MapNode*> visibleMapNodes(
+        const std::map<const core::MapNode*, QPoint>& mapNodesPos,
+        const QSize& tileSize,
+        const QRect& window)
+{
+    std::vector<const core::MapNode*> visibleNodes;
+    QRect nodeRect(0, 0, tileSize.width(), tileSize.height());
+
+    for (const auto& mapNodePos : mapNodesPos)
+    {
+        nodeRect.moveTopLeft(mapNodePos.second);
+
+        if (window.intersects(nodeRect))
+            visibleNodes.push_back(mapNodePos.first);
+    }
+
+    return visibleNodes;
 }
 
 QPainterPath hexagonPath(const QSize &tileSize)

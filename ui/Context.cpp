@@ -76,9 +76,9 @@ void Context::newCampaignMap(warmonger::core::World *world)
     const std::vector<core::TerrainType *> terrainTypes = world->getTerrainTypes();
     if (!terrainTypes.empty())
     {
-        const std::vector<core::MapNode *> nodes = utils::generateNodes(10);
-        utils::generateNodeNames(nodes);
-        utils::generateNodeTerrainTypes(nodes, terrainTypes);
+        const std::vector<core::MapNode *> nodes = utils::generateMapNodes(10);
+        utils::generateMapNodeNames(nodes);
+        utils::generateMapNodeTerrainTypes(nodes, terrainTypes);
 
         map->setMapNodes(nodes);
     }

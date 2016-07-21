@@ -21,15 +21,20 @@ class Unit;
 
 namespace ui {
 
-QPoint neighbourPos(const QPoint &pos, utils::Direction dir, const QSize &tileSize);
+QPoint neighbourPos(const QPoint& pos, utils::Direction dir, const QSize& tileSize);
 
-std::map<const core::MapNode *, QPoint> positionNodes(core::MapNode * startNode, const QSize &tileSize);
+std::map<const core::MapNode*, QPoint> positionMapNodes(const core::MapNode* startNode, const QSize& tileSize);
 
-QRect calculateBoundingRect(std::map<const core::MapNode *, QPoint> &nodesPos, const QSize &tileSize);
+QRect calculateBoundingRect(const std::map<const core::MapNode*, QPoint>& nodesPos, const QSize& tileSize);
 
-QPainterPath hexagonPath(const QSize &tileSize);
+std::vector<const core::MapNode*> visibleMapNodes(
+        const std::map<const core::MapNode*, QPoint>& mapNodesPos,
+        const QSize& tileSize,
+        const QRect& window);
 
-QPoint project(const QPoint &p, const QRect &r);
+QPainterPath hexagonPath(const QSize& tileSize);
+
+QPoint project(const QPoint& p, const QRect& r);
 
 /**
  * Center content in frame.
@@ -40,7 +45,7 @@ QPoint project(const QPoint &p, const QRect &r);
  * area. If content is larger than frame than it will be shrinked to fit
  * (maintaining the aspect ratio) and then centralized in the frame.
  */
-QMatrix4x4 centerIn(const QRectF &content, const QRectF &frame);
+QMatrix4x4 centerIn(const QRectF& content, const QRectF& frame);
 
 } // namespace ui
 } // namespace warmonger

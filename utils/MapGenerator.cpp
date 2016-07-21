@@ -11,38 +11,38 @@ namespace utils {
 
 namespace {
 
-void addNodeRing(std::vector<core::MapNode *>& nodes);
-core::MapNode * createNeighbour(core::MapNode *node, const utils::Direction direction);
+void addMapNodeRing(std::vector<core::MapNode*> &nodes);
+core::MapNode* createNeighbour(core::MapNode* node, const utils::Direction direction);
 void connectWithCommonNeighbour(
-        core::MapNode *n1,
-        core::MapNode *n2,
+        core::MapNode* n1,
+        core::MapNode* n2,
         const utils::Direction dn1n2,
         const utils::Direction dn1n3
     );
 
 }
 
-std::vector<core::MapNode *> generateNodes(unsigned int radius)
+std::vector<core::MapNode*> generateMapNodes(unsigned int radius)
 {
-    std::vector<core::MapNode *> nodes;
+    std::vector<core::MapNode*> nodes;
 
     if (radius == 0)
     {
         return nodes;
     }
 
-    core::MapNode *mapNode = new core::MapNode();
+    core::MapNode* mapNode = new core::MapNode();
     nodes.push_back(mapNode);
 
     for (unsigned i = 1; i < radius; ++i)
     {
-        addNodeRing(nodes);
+        addMapNodeRing(nodes);
     }
 
     return nodes;
 }
 
-void generateNodeNames(const std::vector<core::MapNode *> &nodes)
+void generateMapNodeNames(const std::vector<core::MapNode*>& nodes)
 {
     for (std::size_t i = 0; i < nodes.size(); ++i)
     {
@@ -50,9 +50,9 @@ void generateNodeNames(const std::vector<core::MapNode *> &nodes)
     }
 }
 
-void generateNodeTerrainTypes(
-        const std::vector<core::MapNode *> &nodes,
-        const std::vector<core::TerrainType *> &terrainTypes
+void generateMapNodeTerrainTypes(
+        const std::vector<core::MapNode*>& nodes,
+        const std::vector<core::TerrainType*>& terrainTypes
     )
 {
     if (terrainTypes.empty())
@@ -61,7 +61,7 @@ void generateNodeTerrainTypes(
     std::srand(std::time(0));
     const std::size_t range = terrainTypes.size();
 
-    for (core::MapNode *node : nodes)
+    for (core::MapNode* node : nodes)
     {
         const std::size_t index = std::rand() % range;
         node->setTerrainType(terrainTypes[index]);
@@ -70,11 +70,11 @@ void generateNodeTerrainTypes(
 
 namespace {
 
-void addNodeRing(std::vector<core::MapNode *>& nodes)
+void addMapNodeRing(std::vector<core::MapNode*> &nodes)
 {
-    std::vector<core::MapNode *> newNodes;
+    std::vector<core::MapNode*> newNodes;
 
-    for (core::MapNode *node : nodes)
+    for (core::MapNode* node : nodes)
     {
         for (utils::Direction direction : utils::directions)
         {
@@ -86,9 +86,9 @@ void addNodeRing(std::vector<core::MapNode *>& nodes)
     std::copy(newNodes.begin(), newNodes.end(), std::back_inserter(nodes));
 }
 
-core::MapNode * createNeighbour(core::MapNode *node, const utils::Direction direction)
+core::MapNode* createNeighbour(core::MapNode* node, const utils::Direction direction)
 {
-    core::MapNode *newNode = new core::MapNode();
+    core::MapNode* newNode = new core::MapNode();
 
     node->setNeighbour(direction, newNode);
     newNode->setNeighbour(utils::oppositeDirection(direction), node);
@@ -102,13 +102,13 @@ core::MapNode * createNeighbour(core::MapNode *node, const utils::Direction dire
 }
 
 void connectWithCommonNeighbour(
-        core::MapNode *n1,
-        core::MapNode *n2,
+        core::MapNode* n1,
+        core::MapNode* n2,
         const utils::Direction dn1n2,
         const utils::Direction dn1n3
     )
 {
-    core::MapNode *n3 = n1->getNeighbour(dn1n3);
+    core::MapNode* n3 = n1->getNeighbour(dn1n3);
 
     if (n3 == nullptr)
         return;

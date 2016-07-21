@@ -109,7 +109,7 @@ void CampaignMapEditor::updateContent()
     else
     {
         this->setFlags(QQuickItem::ItemHasContents);
-        this->nodesPos = positionNodes(this->campaignMap->getMapNodes()[0], this->worldSurface->getTileSize());
+        this->nodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->worldSurface->getTileSize());
         this->update();
         wDebug << "Content";
     }

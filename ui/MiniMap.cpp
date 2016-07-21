@@ -165,7 +165,7 @@ void MiniMap::updateContent()
 
     this->tileSize = this->worldSurface->getTileSize();
 
-    this->nodesPos = positionNodes(this->nodes[0], this->tileSize);
+    this->nodesPos = positionMapNodes(this->nodes[0], this->tileSize);
 
     this->contentChanged = true;
 

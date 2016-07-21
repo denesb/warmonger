@@ -1,6 +1,7 @@
 #include "test/catch.hpp"
 
 #include "ui/MapUtil.h"
+#include "utils/MapGenerator.h"
 #include "utils/ToString.h"
 
 using namespace warmonger;
@@ -8,7 +9,7 @@ using namespace warmonger;
 std::pair<float, float> getScaleFactor(const QMatrix4x4 &matrix);
 std::pair<float, float> getTranslation(const QMatrix4x4 &matrix);
 
-TEST_CASE("Scaling, equal sided frame, content is larger than frame", "[MapWindow]")
+TEST_CASE("Scaling, equal sided frame, content is larger than frame", "[centerIn]")
 {
     QRectF frame(0.0, 0.0, 100, 100);
 
@@ -33,7 +34,7 @@ TEST_CASE("Scaling, equal sided frame, content is larger than frame", "[MapWindo
     }
 }
 
-TEST_CASE("Scaling, unequal sided frame, content is larger than frame", "[MapWindow]")
+TEST_CASE("Scaling, unequal sided frame, content is larger than frame", "[centerIn]")
 {
     QRectF frame(0.0, 0.0, 200, 100);
 
@@ -58,7 +59,7 @@ TEST_CASE("Scaling, unequal sided frame, content is larger than frame", "[MapWin
     }
 }
 
-TEST_CASE("No scaling if content is smaller than frame", "[MapWindow]")
+TEST_CASE("No scaling if content is smaller than frame", "[centerIn]")
 {
     QRectF frame(0.0, 0.0, 200, 200);
 
@@ -83,7 +84,7 @@ TEST_CASE("No scaling if content is smaller than frame", "[MapWindow]")
     }
 }
 
-TEST_CASE("Translation", "[MapWindow]")
+TEST_CASE("Translation", "[centerIn]")
 {
     QRectF frame(0.0, 0.0, 200, 200);
 
@@ -134,6 +135,62 @@ TEST_CASE("Translation", "[MapWindow]")
         REQUIRE(std::get<0>(translation) == 100);
         REQUIRE(std::get<1>(translation) == -45);
     }
+}
+
+TEST_CASE("Visibility test", "[visibleMapNodes]")
+{
+    std::vector<core::MapNode*> mapNodes = utils::generateMapNodes(2);
+    utils::generateMapNodeNames(mapNodes);
+
+    const QSize tileSize(10, 10);
+    const std::map<const core::MapNode*, QPoint> mapNodesPos = ui::positionMapNodes(mapNodes.front(), tileSize);
+
+    SECTION("All nodes are visible")
+    {
+        QRect window(-100, -100, 200, 200);
+
+        std::vector<const core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
+
+        REQUIRE(visibleMapNodes.size() == mapNodes.size());
+    }
+
+    SECTION("One node is visible")
+    {
+        QRect window(4, 4, 2, 2);
+
+        std::vector<const core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
+
+        REQUIRE(visibleMapNodes.size() == 1);
+        REQUIRE(visibleMapNodes.front()->objectName() == mapNodes.front()->objectName());
+    }
+
+    SECTION("Half of the map is visible")
+    {
+        QRect window(6, -100, 200, 200);
+
+        std::vector<const core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
+
+        REQUIRE(visibleMapNodes.size() == 4);
+    }
+
+    SECTION("Quarter of the map is visible")
+    {
+        QRect window(6, 6, 200, 200);
+
+        std::vector<const core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
+
+        REQUIRE(visibleMapNodes.size() == 3);
+    }
+
+    SECTION("No nodes is visible")
+    {
+        QRect window(100, 100, 200, 200);
+
+        std::vector<const core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
+
+        REQUIRE(visibleMapNodes.empty() == true);
+    }
+
 }
 
 std::pair<float, float> getScaleFactor(const QMatrix4x4 &matrix)

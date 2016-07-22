@@ -1,5 +1,5 @@
-#ifndef UI_MINI_MAP_H
-#define UI_MINI_MAP_H
+#ifndef W_UI_MINI_MAP_H
+#define W_UI_MINI_MAP_H
 
 #include <map>
 #include <vector>
@@ -10,6 +10,7 @@
 #include <QtQuick/QQuickItem>
 
 #include "core/CampaignMap.h"
+#include "ui/MapDrawer.h"
 #include "ui/MapUtil.h"
 #include "ui/MapWindow.h"
 #include "ui/WorldSurface.h"
@@ -24,7 +25,8 @@ namespace core {
 namespace ui {
 
 class MiniMap :
-    public QQuickItem
+    public QQuickItem,
+    public MapDrawer
 {
     Q_OBJECT
 
@@ -44,6 +46,8 @@ public:
     void setWindowRect(const QRect& windowPos);
 
     QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* data) override;
+
+    QSGNode* drawMapNodeAndContents(const core::MapNode* mapNode, QSGNode* oldNode) override;
 
 signals:
     void campaignMapChanged();
@@ -65,7 +69,6 @@ private:
     void updateWindowRectRect();
     */
 
-    std::vector<core::MapNode*> nodes;
     core::World* world;
     WorldSurface* worldSurface;
     QSize tileSize;
@@ -82,4 +85,4 @@ private:
 } // namespace ui
 } // namespace warmonger
 
-#endif // UI_MINI_MAP_H
+#endif // W_UI_MINI_MAP_H

@@ -53,16 +53,16 @@ QRect CampaignMapEditor::getWindowRect() const
     return this->mapWindow.getWindowRect();
 }
 
-QSGNode* CampaignMapEditor::updatePaintNode(QSGNode *oldRoot, UpdatePaintNodeData *)
+QSGNode* CampaignMapEditor::updatePaintNode(QSGNode *oldRootNode, UpdatePaintNodeData *)
 {
-    QSGNode* root;
-    if (oldRoot == nullptr)
+    QSGNode* rootNode;
+    if (oldRootNode == nullptr)
     {
-        root = new QSGNode();
+        rootNode = new QSGNode();
     }
     else
     {
-        root = oldRoot;
+        rootNode = oldRootNode;
     }
 
     const std::vector<const core::MapNode*> mapNodes = visibleMapNodes(
@@ -70,9 +70,9 @@ QSGNode* CampaignMapEditor::updatePaintNode(QSGNode *oldRoot, UpdatePaintNodeDat
             this->worldSurface->getTileSize(),
             this->mapWindow.getWindowRect());
 
-    drawMapNodes(mapNodes, root, *this);
+    drawMapNodes(mapNodes, rootNode, *this);
 
-    return root;
+    return rootNode;
 }
 
 QSGNode* CampaignMapEditor::drawMapNodeAndContents(const core::MapNode* mapNode, QSGNode* oldNode)

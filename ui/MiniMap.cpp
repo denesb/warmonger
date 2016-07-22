@@ -81,42 +81,27 @@ void MiniMap::setWindowRect(const QRect& windowPos)
     this->mapWindow.setWindowRect(windowPos);
 }
 
-QSGNode* MiniMap::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*)
+QSGNode* MiniMap::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
 {
     QSGTransformNode* rootNode;
-    if (oldNode != nullptr)
-        rootNode = dynamic_cast<QSGTransformNode*>(oldNode);
+    if (oldRootNode != nullptr)
+        rootNode = static_cast<QSGTransformNode*>(oldRootNode);
     else
         rootNode = new QSGTransformNode();
 
-    if (this->transformChanged)
+    if (this->transform != rootNode->matrix())
     {
         rootNode->setMatrix(this->transform);
-        this->transformChanged = false;
     }
 
-    if (this->contentChanged)
-    {
-        this->contentChanged = false;
-        rootNode->removeAllChildNodes();
+    // ugh
+    const std::vector<core::MapNode*> mapNodes = this->campaignMap->getMapNodes();
+    std::vector<const core::MapNode*> visibleMapNodes;
+    std::copy(mapNodes.cbegin(), mapNodes.cend(), std::back_inserter(visibleMapNodes));
 
-        const std::vector<core::MapNode*> nodes = this->campaignMap->getMapNodes();
-        for (core::MapNode *node : nodes)
-        {
-            QSGTexture* texture = this->worldSurface->getTexture(node->getTerrainType());
-            if (texture == nullptr)
-                continue;
+    drawMapNodes(visibleMapNodes, rootNode, *this);
 
-            QSGSimpleTextureNode *n = new QSGSimpleTextureNode();
-            n->setOwnsTexture(false);
-
-            n->setRect(QRect(this->mapNodesPos[node], this->worldSurface->getTileSize()));
-            n->setTexture(texture);
-
-            rootNode->appendChildNode(n);
-        }
-    }
-
+    /*
     QSGGeometry* geometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), 4);
     geometry->setDrawingMode(GL_LINES);
     geometry->setLineWidth(3);
@@ -133,14 +118,14 @@ QSGNode* MiniMap::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*)
     node->setFlag(QSGNode::OwnsGeometry);
     node->setMaterial(material);
     node->setFlag(QSGNode::OwnsMaterial);
-
-        /*
-    QSGSimpleRectNode *n = new QSGSimpleRectNode();
-    n->setColor(Qt::red);
-    n->setRect(QRect(QPoint(0, 0), this->worldSurface->getTileSize()));
     */
 
     return rootNode;
+}
+
+QSGNode* MiniMap::drawMapNodeAndContents(const core::MapNode* mapNode, QSGNode* oldNode)
+{
+    return drawMapNode(mapNode, this->worldSurface, this->mapNodesPos.at(mapNode), oldNode);
 }
 
 /*
@@ -166,29 +151,22 @@ void MiniMap::updateContent()
     {
         wDebug << "doesn't has contents";
         this->setFlags(0);
-        return;
     }
     else
     {
         wDebug << "has contents";
         this->setFlags(QQuickItem::ItemHasContents);
-        //this->update();
+
+        // these are used a lot
+        this->world = this->campaignMap->getWorld();
+
+        this->tileSize = this->worldSurface->getTileSize();
+
+        this->mapNodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->tileSize);
+
+        this->updateGeometry();
+        this->update();
     }
-
-    // these are used a lot
-    this->nodes = this->campaignMap->getMapNodes();
-    this->world = this->campaignMap->getWorld();
-
-    this->tileSize = this->worldSurface->getTileSize();
-
-    this->mapNodesPos = positionMapNodes(this->nodes[0], this->tileSize);
-
-    this->contentChanged = true;
-
-    this->updateGeometry();
-    this->update();
-
-    wDebug << "Content changed, schedule redraw";
 }
 
 void MiniMap::updateGeometry()
@@ -221,8 +199,6 @@ void MiniMap::updateTransform()
     const QRectF frame(0.0, 0.0, this->width(), this->height());
 
     this->transform = centerIn(this->mapWindow.getMapRect(), frame);
-
-    this->transformChanged = true;
 
     wDebug << "Transformation matrix changed, schedule redraw";
 

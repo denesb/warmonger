@@ -1,8 +1,6 @@
 #include "core/MapNode.h"
 #include "utils/Exception.h"
 
-static const QString loggerName{"core.MapNode"};
-
 namespace warmonger {
 namespace core {
 

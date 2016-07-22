@@ -2,8 +2,6 @@
 
 using namespace warmonger::core;
 
-static const QString loggerName{"core.UnitLevel"};
-
 UnitLevel::UnitLevel(QObject *parent) :
     QObject(parent),
     experiencePoints(0),

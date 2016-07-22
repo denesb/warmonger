@@ -6,8 +6,6 @@
 
 using namespace warmonger::core;
 
-static const QString loggerName{"core.Faction"};
-
 Faction::Faction(QObject *parent) :
     QObject(parent),
     color(),

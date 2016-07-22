@@ -1,7 +1,10 @@
+#include <QSGSimpleTextureNode>
+
 #include "core/MapNode.h"
 #include "ui/MapUtil.h"
 #include "ui/WorldSurface.h"
-#include "ui/MapNodeDrawer.h"
+#include "ui/MapDrawer.h"
+#include "utils/Logging.h"
 
 namespace warmonger {
 namespace ui {
@@ -186,7 +189,7 @@ QMatrix4x4 centerIn(const QRectF &content, const QRectF &frame)
     return matrix;
 }
 
-void drawMapNodes(const std::vector<const core::MapNode*>& mapNodes, QSGNode* rootNode, MapNodeDrawer& mapNodeDrawer)
+void drawMapNodes(const std::vector<const core::MapNode*>& mapNodes, QSGNode* rootNode, MapDrawer& mapNodeDrawer)
 {
     const int mapNodesSize = static_cast<int>(mapNodes.size());
     const int nodesCount = rootNode->childCount();
@@ -198,7 +201,7 @@ void drawMapNodes(const std::vector<const core::MapNode*>& mapNodes, QSGNode* ro
         QSGNode* oldNode = rootNode->childAtIndex(i);
 
         // returned node ignored, since it will always be oldNode
-        mapNodeDrawer.drawMapNode(mapNodes[i], oldNode);
+        mapNodeDrawer.drawMapNodeAndContents(mapNodes[i], oldNode);
     }
 
     if (mapNodesSize < nodesCount)
@@ -212,10 +215,51 @@ void drawMapNodes(const std::vector<const core::MapNode*>& mapNodes, QSGNode* ro
     {
         for (int i = nodesCount; i < mapNodesSize; ++i)
         {
-            QSGNode* newNode = mapNodeDrawer.drawMapNode(mapNodes[i], nullptr);
+            QSGNode* newNode = mapNodeDrawer.drawMapNodeAndContents(mapNodes[i], nullptr);
             rootNode->appendChildNode(newNode);
         }
     }
+}
+
+QSGNode* drawMapNode(
+        const core::MapNode* mapNode,
+        const ui::WorldSurface* worldSurface,
+        const QPoint& pos,
+        QSGNode* oldNode)
+{
+    QSGSimpleTextureNode *node;
+    if (oldNode == nullptr)
+    {
+        node = new QSGSimpleTextureNode();
+        node->setOwnsTexture(false);
+    }
+    else
+    {
+        // if not nullptr, it can only be a texture node
+        node = static_cast<QSGSimpleTextureNode*>(oldNode);
+    }
+
+    QSGTexture* texture = worldSurface->getTexture(mapNode->getTerrainType());
+    if (texture == nullptr)
+    {
+        wError << "No texture found for " << mapNode->getTerrainType();
+        //FIXME: Use the unknown texture here
+    }
+
+    QSGTexture* currentTexture = node->texture();
+
+    if (currentTexture == nullptr || currentTexture->textureId() != texture->textureId())
+    {
+        node->setTexture(texture);
+    }
+
+    const QRect nodeRect(pos, worldSurface->getTileSize());
+    if (node->rect() != nodeRect)
+    {
+        node->setRect(nodeRect);
+    }
+
+    return node;
 }
 
 } // namespace ui

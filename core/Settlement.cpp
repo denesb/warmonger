@@ -6,8 +6,6 @@
 #include "core/UnitType.h"
 #include "utils/QVariantUtils.h"
 
-static const QString loggerName{"core.Settlement"};
-
 namespace warmonger {
 namespace core {
 

@@ -2,8 +2,6 @@
 
 using namespace warmonger::core;
 
-static const QString loggerName{"core.Unit"};
-
 Unit::Unit(QObject *parent) :
     QObject(parent),
     type(nullptr),

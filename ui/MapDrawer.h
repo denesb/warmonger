@@ -1,100 +1,28 @@
-#ifndef UI_MAP_DRAWER_H
-#define UI_MAP_DRAWER_H
+#ifndef W_UI_MAP_DRAWER_H
+#define W_UI_MAP_DRAWER_H
 
-#include <QHash>
-#include <QPainter>
-#include <QPainterPath>
-#include <QPoint>
+#include <QSGNode>
 
-#include "ui/MapUtil.h"
+#include "core/MapNode.h"
 
 namespace warmonger {
-
-namespace core {
-    class Map;
-    class MapNode;
-    class Unit;
-    class World;
-    class WorldSurface;
-}
-
 namespace ui {
-
-struct DrawingInfo
-{
-    struct Overlay
-    {
-        QSet<core::MapNode *> nodes;
-        QColor color;
-    };
-
-    DrawingInfo() :
-        focusedNode(nullptr),
-        overlays(),
-        movingUnits()
-    {}
-
-    core::MapNode *focusedNode;
-    QList<Overlay> overlays;
-    QHash<const core::Unit *, QPoint> movingUnits;
-};
 
 class MapDrawer
 {
 public:
-    MapDrawer(core::Map *map, const QHash<const core::MapNode *, QPoint> &nodesPos);
-    ~MapDrawer();
 
-    void drawMap(QPainter *painter, const QList<core::MapNode *> &nodes, const DrawingInfo &drawingInfo) const;
-
-private:
-    void drawNodes(QPainter *painter, const QList<core::MapNode *> &nodes) const;
-    void drawNode(QPainter *painter, const core::MapNode *node) const;
-
-    void drawNodesGrid(QPainter *painter, const QList<core::MapNode *> &nodes) const;
-    void drawNodeGrid(QPainter *painter, const core::MapNode *node) const;
-
-    void drawFocusMark(QPainter *painter, const core::MapNode *node) const;
-
-    void drawNodesSettlements(QPainter *painter, const QList<core::MapNode *> &nodes) const;
-    void drawSettlement(QPainter *painter, const core::Settlement *settlement) const;
-
-    void drawOverlays(
-        QPainter *painter,
-        const QList<core::MapNode *> &nodes,
-        const QList<DrawingInfo::Overlay> &overlays
-    ) const;
-    void drawOverlay(
-        QPainter *painter,
-        const QList<core::MapNode *> &nodes,
-        const DrawingInfo::Overlay &overlay
-    ) const;
-    void drawNodeOverlay(
-        QPainter *painter,
-        QColor color,
-        const core::MapNode *node
-    ) const;
-
-    void drawUnits(
-        QPainter *painter,
-        const QList<core::MapNode *> &nodes,
-        QHash<const core::Unit *, QPoint> movingUnits
-    ) const;
-    void drawUnit(
-        QPainter *painter,
-        const QPoint &pos,
-        const core::Unit *unit
-    ) const;
-
-    core::Map *map;
-    core::World *world;
-    core::WorldSurface *surface;
-    QSize tileSize;
-    QHash<const core::MapNode *, QPoint> nodesPos;
-    QPainterPath hexagonPainterPath;
+    /**
+     * Draw a map-node and all content on it
+     * @param[in] mapNode the map-node to draw
+     * @param[in] oldNode a QSGNode that can be reused while drawing, if this
+     * is not nullptr try to make as few modifications as possible.
+     * @returns QSGNode* the result scene-graph node
+     */
+    virtual QSGNode* drawMapNodeAndContents(const core::MapNode* mapNode, QSGNode* oldNode) = 0;
 };
 
 } // namespace ui
 } // namespace warmonger
 
-#endif // UI_MAP_DRAWER_H
+#endif // W_UI_MAP_DRAWER_H

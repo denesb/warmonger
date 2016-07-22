@@ -1,7 +1,5 @@
 #include "core/WeaponClass.h"
 
-const QString loggerName{"core.WeaponClass"};
-
 namespace warmonger {
 namespace core {
 

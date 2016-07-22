@@ -1,8 +1,6 @@
 #include "core/UnitType.h"
 #include "utils/QVariantUtils.h"
 
-static const QString loggerName{"core.UnitType"};
-
 namespace warmonger {
 namespace core {
 
@@ -13,11 +11,7 @@ UnitType::UnitType(QObject *parent) :
     hitPoints(0),
     recruitmentCost(0),
     upkeepCost(0),
-    armor(nullptr),
-    weapons(),
-    attackSkills(),
-    defenseSkills(),
-    upgrades()
+    armor(nullptr)
 {
 }
 

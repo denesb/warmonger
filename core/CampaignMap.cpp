@@ -7,8 +7,6 @@
 
 using namespace warmonger::core;
 
-const QString loggerName{"core.Map"};
-
 const QString mapNodeNameTemplate{"mapNode%1"};
 const QString settlementNameTemplate{"settlement%1"};
 const QString unitNameTemplate{"unit%1"};

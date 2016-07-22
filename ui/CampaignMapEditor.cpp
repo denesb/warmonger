@@ -75,41 +75,9 @@ QSGNode* CampaignMapEditor::updatePaintNode(QSGNode *oldRoot, UpdatePaintNodeDat
     return root;
 }
 
-QSGNode* CampaignMapEditor::drawMapNode(const core::MapNode* mapNode, QSGNode* oldNode)
+QSGNode* CampaignMapEditor::drawMapNodeAndContents(const core::MapNode* mapNode, QSGNode* oldNode)
 {
-    QSGSimpleTextureNode *node;
-    if (oldNode == nullptr)
-    {
-        node = new QSGSimpleTextureNode();
-        node->setOwnsTexture(false);
-    }
-    else
-    {
-        // if not nullptr, it can only be a texture node
-        node = static_cast<QSGSimpleTextureNode*>(oldNode);
-    }
-
-    QSGTexture* texture = this->worldSurface->getTexture(mapNode->getTerrainType());
-    if (texture == nullptr)
-    {
-        wError << "No texture found for " << mapNode->getTerrainType();
-        //FIXME: Use the unknown texture here
-    }
-
-    QSGTexture* currentTexture = node->texture();
-
-    if (currentTexture == nullptr || currentTexture->textureId() != texture->textureId())
-    {
-        node->setTexture(texture);
-    }
-
-    const QRect nodeRect(this->mapNodesPos.at(mapNode), this->worldSurface->getTileSize());
-    if (node->rect() != nodeRect)
-    {
-        node->setRect(nodeRect);
-    }
-
-    return node;
+    return drawMapNode(mapNode, this->worldSurface, this->mapNodesPos.at(mapNode), oldNode);
 }
 
 void CampaignMapEditor::updateContent()

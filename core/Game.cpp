@@ -1,7 +1,5 @@
 #include "core/Game.h"
 
-static const QString loggerName{"core.Game"};
-
 namespace warmonger {
 namespace core {
 

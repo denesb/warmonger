@@ -1,8 +1,6 @@
 #include "core/Army.h"
 #include "utils/QVariantUtils.h"
 
-const QString loggerName{"core.Army"};
-
 namespace warmonger {
 namespace core {
 

@@ -24,7 +24,8 @@ class Unit;
 
 namespace ui {
 
-class MapNodeDrawer;
+class MapDrawer;
+class WorldSurface;
 
 QPoint neighbourPos(const QPoint& pos, utils::Direction dir, const QSize& tileSize);
 
@@ -52,7 +53,13 @@ QPoint project(const QPoint& p, const QRect& r);
  */
 QMatrix4x4 centerIn(const QRectF& content, const QRectF& frame);
 
-void drawMapNodes(const std::vector<const core::MapNode*>& mapNodes, QSGNode* rootNode, MapNodeDrawer& mapNodeDrawer);
+void drawMapNodes(const std::vector<const core::MapNode*>& mapNodes, QSGNode* rootNode, MapDrawer& mapNodeDrawer);
+
+QSGNode* drawMapNode(
+        const core::MapNode* mapNode,
+        const ui::WorldSurface* worldSurface,
+        const QPoint& pos,
+        QSGNode* oldNode);
 
 } // namespace ui
 } // namespace warmonger

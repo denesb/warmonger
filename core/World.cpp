@@ -1,8 +1,6 @@
 #include "core/World.h"
 #include "utils/QVariantUtils.h"
 
-static const QString loggerName{"core.World"};
-
 namespace warmonger {
 namespace core {
 

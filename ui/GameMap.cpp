@@ -9,8 +9,6 @@
 #include "ui/GameMap.h"
 #include "ui/MapUtil.h"
 
-static const QString loggerName{"ui.GameMap"};
-
 namespace warmonger {
 namespace ui {
 
@@ -127,7 +125,7 @@ void GameMap::setGame(core::Game *game)
                 nullptr
             );
 
-        wInfo(loggerName) << "Game changed " << this->game
+        wInfo << "Game changed " << this->game
             << " -> " << game;
 
         this->game = game;

@@ -13,8 +13,6 @@
 #include "core/WorldSurface.h"
 #include "ui/MapPreview.h"
 
-static const QString loggerName{"ui.MapPreview"};
-
 using namespace warmonger;
 using namespace warmonger::ui;
 

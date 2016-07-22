@@ -25,8 +25,6 @@ using namespace warmonger;
 
 namespace {
 
-const QString loggerName{"ui.Main"};
-
 void setSearchPaths();
 void addSubdirToSearchPath(const QString&worldPath, const QString &subdirName, QStringList &searchPath);
 void initUi(QQuickView *view, ui::Context *ctx);

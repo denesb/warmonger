@@ -76,6 +76,7 @@ private:
     QMatrix4x4 transform;
     bool transformChanged;
     bool contentChanged;
+    QRect viewRect;
 };
 
 } // namespace ui

@@ -8,18 +8,23 @@
 #include <QPoint>
 #include <QRect>
 
-#include "core/MapNode.h"
+#include "utils/Hexagon.h"
+
+class QSGNode;
 
 namespace warmonger {
 
 namespace core {
 
+class MapNode;
 class Settlement;
 class Unit;
 
 }
 
 namespace ui {
+
+class MapNodeDrawer;
 
 QPoint neighbourPos(const QPoint& pos, utils::Direction dir, const QSize& tileSize);
 
@@ -46,6 +51,8 @@ QPoint project(const QPoint& p, const QRect& r);
  * (maintaining the aspect ratio) and then centralized in the frame.
  */
 QMatrix4x4 centerIn(const QRectF& content, const QRectF& frame);
+
+void drawMapNodes(const std::vector<const core::MapNode*>& mapNodes, QSGNode* rootNode, MapNodeDrawer& mapNodeDrawer);
 
 } // namespace ui
 } // namespace warmonger

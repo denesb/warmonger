@@ -1,5 +1,7 @@
+#include "core/MapNode.h"
 #include "ui/MapUtil.h"
 #include "ui/WorldSurface.h"
+#include "ui/MapNodeDrawer.h"
 
 namespace warmonger {
 namespace ui {
@@ -182,6 +184,38 @@ QMatrix4x4 centerIn(const QRectF &content, const QRectF &frame)
     matrix.translate(translate.x(), translate.y());
 
     return matrix;
+}
+
+void drawMapNodes(const std::vector<const core::MapNode*>& mapNodes, QSGNode* rootNode, MapNodeDrawer& mapNodeDrawer)
+{
+    const int mapNodesSize = static_cast<int>(mapNodes.size());
+    const int nodesCount = rootNode->childCount();
+
+    const int n = std::min(mapNodesSize, nodesCount);
+
+    for (int i = 0; i < n; ++i)
+    {
+        QSGNode* oldNode = rootNode->childAtIndex(i);
+
+        // returned node ignored, since it will always be oldNode
+        mapNodeDrawer.drawMapNode(mapNodes[i], oldNode);
+    }
+
+    if (mapNodesSize < nodesCount)
+    {
+        for (int i = mapNodesSize; i < nodesCount; ++i)
+        {
+            rootNode->removeChildNode(rootNode->childAtIndex(i));
+        }
+    }
+    else if (mapNodesSize > nodesCount)
+    {
+        for (int i = nodesCount; i < mapNodesSize; ++i)
+        {
+            QSGNode* newNode = mapNodeDrawer.drawMapNode(mapNodes[i], nullptr);
+            rootNode->appendChildNode(newNode);
+        }
+    }
 }
 
 } // namespace ui

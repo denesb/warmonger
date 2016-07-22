@@ -18,6 +18,8 @@
 namespace warmonger {
 namespace ui {
 
+const QColor viewRectColor("black");
+
 MiniMap::MiniMap(QQuickItem *parent) :
     QQuickItem(parent),
     world(nullptr),
@@ -114,6 +116,23 @@ QSGNode* MiniMap::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*)
             rootNode->appendChildNode(n);
         }
     }
+
+    QSGGeometry* geometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), 4);
+    geometry->setDrawingMode(GL_LINES);
+    geometry->setLineWidth(3);
+    geometry->vertexDataAsPoint2D()[0].set(this->viewRect.topLeft().x(), this->viewRect.topLeft().y());
+    geometry->vertexDataAsPoint2D()[1].set(this->viewRect.topRight().x(), this->viewRect.topRight().y());
+    geometry->vertexDataAsPoint2D()[3].set(this->viewRect.bottomRight().x(), this->viewRect.bottomRight().y());
+    geometry->vertexDataAsPoint2D()[2].set(this->viewRect.bottomLeft().x(), this->viewRect.bottomLeft().y());
+
+    QSGFlatColorMaterial* material = new QSGFlatColorMaterial;
+    material->setColor(viewRectColor);
+
+    QSGGeometryNode* node = new QSGGeometryNode;
+    node->setGeometry(geometry);
+    node->setFlag(QSGNode::OwnsGeometry);
+    node->setMaterial(material);
+    node->setFlag(QSGNode::OwnsMaterial);
 
         /*
     QSGSimpleRectNode *n = new QSGSimpleRectNode();

@@ -7,6 +7,7 @@
 #include <QPoint>
 
 #include "core/CampaignMap.h"
+#include "ui/MapNodeDrawer.h"
 #include "ui/MapWindow.h"
 #include "ui/WorldSurface.h"
 
@@ -14,7 +15,8 @@ namespace warmonger {
 namespace ui {
 
 class CampaignMapEditor :
-    public QQuickItem
+    public QQuickItem,
+    public MapNodeDrawer
 {
     Q_OBJECT
     Q_PROPERTY(warmonger::core::CampaignMap* campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
@@ -33,6 +35,8 @@ public:
 
     QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* oldNodeData) override;
 
+    QSGNode* drawMapNode(const core::MapNode* mapNode, QSGNode* oldNode) override;
+
 signals:
     void campaignMapChanged();
     void worldSurfaceChanged();
@@ -41,8 +45,6 @@ signals:
 private:
     void updateContent();
     void updateGeometry();
-
-    QSGNode* drawNode(QSGNode* old, const core::MapNode* mapNode) const;
 
     core::CampaignMap *campaignMap;
     WorldSurface *worldSurface;

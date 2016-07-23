@@ -96,7 +96,7 @@ if(BUILD_TESTS)
         test/io/File.cpp
         test/io/JsonSerializer.cpp
         test/io/JsonUnserializer.cpp
-        test/ui/MapWindow.cpp
+        test/ui/BasicMap.cpp
         test/ui/MapUtil.cpp
         test/ui/WorldSurface.cpp
         test/utils/MapGenerator.cpp

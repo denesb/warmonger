@@ -8,6 +8,8 @@ BasicMap::BasicMap(QQuickItem* parent) :
 {
     QObject::connect(this, &BasicMap::widthChanged, this, &BasicMap::updateWindow);
     QObject::connect(this, &BasicMap::heightChanged, this, &BasicMap::updateWindow);
+    QObject::connect(this, &BasicMap::mapRectChanged, this, &BasicMap::update);
+    QObject::connect(this, &BasicMap::windowRectChanged, this, &BasicMap::update);
 }
 
 const QRect BasicMap::getMapRect() const
@@ -17,32 +19,28 @@ const QRect BasicMap::getMapRect() const
 
 const QRect BasicMap::getWindowRect() const
 {
-    return this->windowRect;
+    return QRect(this->windowPos, QSize(this->width(), this->height()));
 }
 
 void BasicMap::setWindowPos(const QPoint &pos)
 {
     const QPoint newPos = this->adjustWindowPosition(pos);
 
-    if (this->windowRect.topLeft() != newPos)
+    if (this->windowPos != newPos)
     {
-        this->windowRect.moveTopLeft(newPos);
+        this->windowPos = newPos;
         emit windowRectChanged();
     }
 }
 
 void BasicMap::centerWindow(const QPoint &pos)
 {
-    const QPoint ws(this->windowRect.width(), this->windowRect.height());
-
-    this->windowRect.moveTopLeft(pos - ws / 2);
+    this->setWindowPos(pos - QPoint(this->width(), this->height()) / 2);
 }
 
 void BasicMap::moveWindowBy(const QPoint &diff)
 {
-    const QPoint newPos(this->windowRect.topLeft() + diff);
-
-    this->windowRect.moveTopLeft(newPos);
+    this->setWindowPos(this->windowPos + diff);
 }
 
 void BasicMap::setMapRect(const QRect &mapRect)
@@ -50,37 +48,24 @@ void BasicMap::setMapRect(const QRect &mapRect)
     if (this->mapRect != mapRect)
     {
         this->mapRect = mapRect;
-        this->windowRect = QRect(this->adjustWindowPosition(this->windowRect.topLeft()), this->windowRect.size());
-    }
-}
-
-void BasicMap::setWindowSize(const QSize &size)
-{
-    if (this->windowRect.size() != size)
-    {
-        this->windowRect.setSize(size);
-        emit windowRectChanged();
+        this->windowPos = this->adjustWindowPosition(this->windowPos);
     }
 }
 
 QPoint BasicMap::mapToMap(const QPoint &p)
 {
-    return p + this->windowRect.topLeft();
+    return p + this->windowPos;
 }
 
 void BasicMap::updateWindow()
 {
-    this->windowRect.setWidth(this->width());
-    this->windowRect.setHeight(this->height());
-
-    this->windowRect.moveTopLeft(this->adjustWindowPosition(this->windowRect.topLeft()));
-    this->update();
+    this->setWindowPos(this->windowPos);
 }
 
 QPoint BasicMap::adjustWindowPosition(const QPoint &p)
 {
-    const int x = this->adjustAxis(p.x(), this->mapRect.x(), this->mapRect.width(), this->windowRect.width());
-    const int y = this->adjustAxis(p.y(), this->mapRect.y(), this->mapRect.height(), this->windowRect.height());
+    const int x = this->adjustAxis(p.x(), this->mapRect.x(), this->mapRect.width(), this->width());
+    const int y = this->adjustAxis(p.y(), this->mapRect.y(), this->mapRect.height(), this->height());
 
     return QPoint(x, y);
 }

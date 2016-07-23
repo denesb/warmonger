@@ -28,7 +28,6 @@ public slots:
 
 protected:
     void setMapRect(const QRect &mapRect);
-    void setWindowSize(const QSize &size);
 
     QPoint mapToMap(const QPoint &p);
 
@@ -42,7 +41,7 @@ private:
     int adjustAxis(const int n, const int minN, const int mapLength, const int windowLength);
 
     QRect mapRect;
-    QRect windowRect;
+    QPoint windowPos;
 };
 
 } // namespace ui

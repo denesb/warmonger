@@ -175,6 +175,15 @@ QMatrix4x4 centerIn(const QRectF &content, const QRectF &frame)
     return matrix;
 }
 
+QMatrix4x4 moveTo(const QPoint& point, const QPoint& refPoint)
+{
+    QMatrix4x4 matrix;
+
+    matrix.translate(refPoint.x() - point.x(), refPoint.y() - point.y());
+
+    return matrix;
+}
+
 void drawMapNodes(const std::vector<const core::MapNode*>& mapNodes, QSGNode* rootNode, MapDrawer& mapNodeDrawer)
 {
     const int mapNodesSize = static_cast<int>(mapNodes.size());

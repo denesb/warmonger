@@ -46,14 +46,21 @@ void CampaignMapEditor::setWorldSurface(WorldSurface* worldSurface)
 
 QSGNode* CampaignMapEditor::updatePaintNode(QSGNode *oldRootNode, UpdatePaintNodeData *)
 {
-    QSGNode* rootNode;
+    const QMatrix4x4 transform = ui::moveTo(this->getWindowRect().topLeft(), QPoint(0, 0));
+
+    QSGTransformNode* rootNode;
     if (oldRootNode == nullptr)
     {
-        rootNode = new QSGNode();
+        rootNode = new QSGTransformNode();
+        rootNode->setMatrix(transform);
     }
     else
     {
-        rootNode = oldRootNode;
+        rootNode = static_cast<QSGTransformNode*>(oldRootNode);
+        if (transform != rootNode->matrix())
+        {
+            rootNode->setMatrix(transform);
+        }
     }
 
     const std::vector<const core::MapNode*> mapNodes = visibleMapNodes(

@@ -137,6 +137,69 @@ TEST_CASE("Translation", "[centerIn]")
     }
 }
 
+TEST_CASE("Move tests", "[moveTo]")
+{
+    QPoint p1(0, 0), p2(0, 0);
+
+    SECTION("Points are at the same position")
+    {
+        const std::pair<float, float> translation = getTranslation(ui::moveTo(p1, p2));
+
+        REQUIRE(std::get<0>(translation) == std::get<1>(translation));
+        REQUIRE(std::get<0>(translation) == 0);
+    }
+
+    SECTION("Points are not at the same position, reference point is (0, 0)")
+    {
+        p1.setX(10);
+
+        std::pair<float, float> t = getTranslation(ui::moveTo(p1, p2));
+
+        REQUIRE(std::get<0>(t) == -10);
+        REQUIRE(std::get<1>(t) == 0);
+
+        p1.setY(20);
+
+        t = getTranslation(ui::moveTo(p1, p2));
+
+        REQUIRE(std::get<0>(t) == -10);
+        REQUIRE(std::get<1>(t) == -20);
+
+        p1.setY(-31);
+
+        t = getTranslation(ui::moveTo(p1, p2));
+
+        REQUIRE(std::get<0>(t) == -10);
+        REQUIRE(std::get<1>(t) == 31);
+
+        p1.setX(-301);
+
+        t = getTranslation(ui::moveTo(p1, p2));
+
+        REQUIRE(std::get<0>(t) == 301);
+        REQUIRE(std::get<1>(t) == 31);
+    }
+
+    SECTION("Points are not at the same position, reference point is not (0, 0)")
+    {
+        p2.setX(-11);
+        p2.setY(-22);
+
+        std::pair<float, float> t = getTranslation(ui::moveTo(p1, p2));
+
+        REQUIRE(std::get<0>(t) == -11);
+        REQUIRE(std::get<1>(t) == -22);
+
+        p1.setX(11);
+        p1.setY(40);
+
+        t = getTranslation(ui::moveTo(p1, p2));
+
+        REQUIRE(std::get<0>(t) == -22);
+        REQUIRE(std::get<1>(t) == -62);
+    }
+}
+
 TEST_CASE("Visibility test", "[visibleMapNodes]")
 {
     std::vector<core::MapNode*> mapNodes = utils::generateMapNodes(2);

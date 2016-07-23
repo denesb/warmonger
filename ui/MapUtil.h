@@ -68,6 +68,16 @@ QPoint project(const QPoint& p, const QRect& r);
 QMatrix4x4 centerIn(const QRectF& content, const QRectF& frame);
 
 /**
+ * Compute the translation matrix necessary to move point p1 to point p2.
+ *
+ * @param[in] QPoint point the point to move
+ * @param[in] QPoint refPoint the reference point
+ *
+ * @returns QMatrix4x4 the translation matrix
+ */
+QMatrix4x4 moveTo(const QPoint& point, const QPoint& refPoint);
+
+/**
  * Draw map-nodes
  *
  * @param[in] mapNodes list of map-nodes to be drawn

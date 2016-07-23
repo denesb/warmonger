@@ -50,6 +50,7 @@ set(
     io/JsonSerializer.cpp
     io/JsonUnserializer.cpp
     ui/BasicMap.cpp
+    ui/BasicMiniMap.cpp
     ui/CampaignMapEditor.cpp
     ui/CampaignMiniMap.cpp
     ui/Context.cpp
@@ -97,6 +98,7 @@ if(BUILD_TESTS)
         test/io/JsonSerializer.cpp
         test/io/JsonUnserializer.cpp
         test/ui/BasicMap.cpp
+        test/ui/BasicMiniMap.cpp
         test/ui/MapUtil.cpp
         test/ui/WorldSurface.cpp
         test/utils/MapGenerator.cpp

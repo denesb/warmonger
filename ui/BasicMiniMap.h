@@ -1,5 +1,5 @@
-#ifndef W_UI_BASIC_MAP_H
-#define W_UI_BASIC_MAP_H
+#ifndef W_UI_BASIC_MINI_MAP_H
+#define W_UI_BASIC_MINI_MAP_H
 
 #include <QtQuick/QQuickItem>
 #include <QPoint>
@@ -9,20 +9,19 @@
 namespace warmonger {
 namespace ui {
 
-class BasicMap
+class BasicMiniMap
     : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(QRect windowRect READ getWindowRect NOTIFY windowRectChanged)
 
 public:
-    BasicMap(QQuickItem* parent = nullptr);
+    BasicMiniMap(QQuickItem* parent = nullptr);
 
     const QRect getWindowRect() const;
-    const QRect getMapRect() const;
 
 public slots:
-    void setWindowPos(const QPoint& pos);
+    void setWindowRect(const QRect& rect);
     void centerWindow(const QPoint& pos);
     void moveWindowBy(const QPoint& diff);
 
@@ -37,14 +36,15 @@ signals:
 
 private:
     void updateWindow();
+    void setWindowPos(const QPoint& pos);
     QPoint adjustWindowPosition(const QPoint& p);
-    int adjustAxis(const int n, const int minN, const int mapLength, const int windowLength);
+    int adjustAxis(const int n, const int windowLength, const int frameLength);
 
     QRect mapRect;
-    QPoint windowPos;
+    QRect windowRect;
 };
 
 } // namespace ui
 } // namespace warmonger
 
-#endif // W_UI_BASIC_MAP_H
+#endif // W_UI_BASIC_MINI_MAP_H

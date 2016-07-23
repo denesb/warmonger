@@ -22,7 +22,7 @@ const QRect BasicMap::getWindowRect() const
     return QRect(this->windowPos, QSize(this->width(), this->height()));
 }
 
-void BasicMap::setWindowPos(const QPoint &pos)
+void BasicMap::setWindowPos(const QPoint& pos)
 {
     const QPoint newPos = this->adjustWindowPosition(pos);
 
@@ -33,26 +33,26 @@ void BasicMap::setWindowPos(const QPoint &pos)
     }
 }
 
-void BasicMap::centerWindow(const QPoint &pos)
+void BasicMap::centerWindow(const QPoint& pos)
 {
     this->setWindowPos(pos - QPoint(this->width(), this->height()) / 2);
 }
 
-void BasicMap::moveWindowBy(const QPoint &diff)
+void BasicMap::moveWindowBy(const QPoint& diff)
 {
     this->setWindowPos(this->windowPos + diff);
 }
 
-void BasicMap::setMapRect(const QRect &mapRect)
+void BasicMap::setMapRect(const QRect& mapRect)
 {
     if (this->mapRect != mapRect)
     {
         this->mapRect = mapRect;
-        this->windowPos = this->adjustWindowPosition(this->windowPos);
+        this->setWindowPos(this->windowPos);
     }
 }
 
-QPoint BasicMap::mapToMap(const QPoint &p)
+QPoint BasicMap::mapToMap(const QPoint& p)
 {
     return p + this->windowPos;
 }
@@ -62,7 +62,7 @@ void BasicMap::updateWindow()
     this->setWindowPos(this->windowPos);
 }
 
-QPoint BasicMap::adjustWindowPosition(const QPoint &p)
+QPoint BasicMap::adjustWindowPosition(const QPoint& p)
 {
     const int x = this->adjustAxis(p.x(), this->mapRect.x(), this->mapRect.width(), this->width());
     const int y = this->adjustAxis(p.y(), this->mapRect.y(), this->mapRect.height(), this->height());

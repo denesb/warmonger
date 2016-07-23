@@ -89,6 +89,20 @@ void CampaignMapEditor::updateContent()
     {
         this->setFlags(QQuickItem::ItemHasContents);
         this->mapNodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->worldSurface->getTileSize());
+        this->updateMapRect();
+    }
+}
+
+void CampaignMapEditor::updateMapRect()
+{
+    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty()
+            || this->worldSurface->getWorld() != this->campaignMap->getWorld())
+    {
+        this->setMapRect(QRect(0, 0, 0, 0));
+    }
+    else
+    {
+        this->setMapRect(calculateBoundingRect(this->mapNodesPos, this->worldSurface->getTileSize()));
         this->update();
     }
 }

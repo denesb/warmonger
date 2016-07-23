@@ -20,8 +20,8 @@ class BasicMap
 public:
     BasicMap(QQuickItem* parent = nullptr);
 
-    const QRect getWindowRect() const;
-    const QRect getMapRect() const;
+    QRect getWindowRect() const;
+    QRect getMapRect() const;
 
 public slots:
     void setWindowPos(const QPoint& pos);
@@ -30,6 +30,9 @@ public slots:
 
 protected:
     void setMapRect(const QRect& mapRect);
+
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
 
 signals:
     void mapRectChanged();

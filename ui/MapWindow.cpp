@@ -1,4 +1,5 @@
 #include "ui/MapWindow.h"
+#include "utils/Logging.h"
 
 namespace warmonger {
 namespace ui {
@@ -86,9 +87,9 @@ void MapWindow::moveWindowBy(const QPoint& diff)
     this->setWindowPos(this->windowRect.topLeft() + diff);
 }
 
-QPoint MapWindow::mapToMap(const QPoint& p)
+QPoint MapWindow::windowPosToMapPos(const QPoint& pos)
 {
-    return p + this->windowRect.topLeft();
+    return pos + this->windowRect.topLeft();
 }
 
 QPoint MapWindow::adjustWindowPosition(const QPoint& p)

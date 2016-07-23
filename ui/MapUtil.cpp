@@ -203,7 +203,7 @@ void drawMapNodes(const std::vector<const core::MapNode*>& mapNodes, QSGNode* ro
     {
         for (int i = mapNodesSize; i < nodesCount; ++i)
         {
-            rootNode->removeChildNode(rootNode->childAtIndex(i));
+            rootNode->removeChildNode(rootNode->lastChild());
         }
     }
     else if (mapNodesSize > nodesCount)
@@ -292,6 +292,8 @@ QSGNode* drawRect(const QRect& rect, QSGNode* oldNode)
     geometry->vertexDataAsPoint2D()[5].set(rect.bottomLeft().x(), rect.bottomLeft().y());
     geometry->vertexDataAsPoint2D()[6].set(rect.bottomLeft().x(), rect.bottomLeft().y());
     geometry->vertexDataAsPoint2D()[7].set(rect.topLeft().x(), rect.topLeft().y());
+
+    node->markDirty(QSGNode::DirtyGeometry);
 
     return node;
 }

@@ -1,5 +1,7 @@
 #include "ui/BasicMap.h"
 
+#include "utils/Logging.h"
+
 namespace warmonger {
 namespace ui {
 
@@ -12,14 +14,16 @@ BasicMap::BasicMap(QQuickItem* parent) :
     QObject::connect(this, &BasicMap::windowRectChanged, this, &BasicMap::update);
     QObject::connect(&this->mapWindow, &MapWindow::mapRectChanged, this, &BasicMap::mapRectChanged);
     QObject::connect(&this->mapWindow, &MapWindow::windowRectChanged, this, &BasicMap::windowRectChanged);
+
+    this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
 }
 
-const QRect BasicMap::getMapRect() const
+QRect BasicMap::getMapRect() const
 {
     return this->mapWindow.getMapRect();
 }
 
-const QRect BasicMap::getWindowRect() const
+QRect BasicMap::getWindowRect() const
 {
     return this->mapWindow.getWindowRect();
 }
@@ -42,6 +46,21 @@ void BasicMap::moveWindowBy(const QPoint& diff)
 void BasicMap::setMapRect(const QRect& mapRect)
 {
     this->mapWindow.setMapRect(mapRect);
+}
+
+void BasicMap::mousePressEvent(QMouseEvent* event)
+{
+    QPointF pos(this->mapWindow.windowPosToMapPos(event->pos()));
+    this->centerWindow(pos.toPoint());
+}
+
+void BasicMap::mouseMoveEvent(QMouseEvent* event)
+{
+    if (event->buttons() & Qt::LeftButton)
+    {
+        QPointF pos(this->mapWindow.windowPosToMapPos(event->pos()));
+        this->centerWindow(pos.toPoint());
+    }
 }
 
 void BasicMap::updateWindow()

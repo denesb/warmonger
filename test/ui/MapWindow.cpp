@@ -11,6 +11,14 @@ TEST_CASE("Window size is smaller than map size", "[MapWindow]")
 
     REQUIRE(mw.getWindowRect().topLeft() == QPoint(-100, -50));
 
+    SECTION("windowPosToMapPos")
+    {
+        REQUIRE(mw.windowPosToMapPos(QPoint(0, 0)) == mw.getWindowRect().topLeft());
+        REQUIRE(mw.windowPosToMapPos(QPoint(10, 0)) == mw.getWindowRect().topLeft() + QPoint(10, 0));
+        REQUIRE(mw.windowPosToMapPos(QPoint(10, -10)) == mw.getWindowRect().topLeft() + QPoint(10, -10));
+        REQUIRE(mw.windowPosToMapPos(QPoint(-10, 20)) == mw.getWindowRect().topLeft() + QPoint(-10, 20));
+    }
+
     SECTION("setWindowRect correctly updates position")
     {
         mw.setWindowRect(QRect(-20, 80, 30, 30));

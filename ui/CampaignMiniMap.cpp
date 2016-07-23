@@ -1,7 +1,3 @@
-#include <algorithm>
-#include <functional>
-#include <iterator>
-
 #include <QColor>
 #include <QSGTransformNode>
 
@@ -18,16 +14,10 @@ namespace warmonger {
 namespace ui {
 
 CampaignMiniMap::CampaignMiniMap(QQuickItem *parent) :
-    QQuickItem(parent),
+    BasicMiniMap(parent),
     worldSurface(nullptr),
     campaignMap(nullptr)
 {
-    //this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
-
-    QObject::connect(this, &CampaignMiniMap::widthChanged, this, &CampaignMiniMap::updateTransform);
-    QObject::connect(this, &CampaignMiniMap::heightChanged, this, &CampaignMiniMap::updateTransform);
-
-    //QObject::connect(&this->mapWindow, &MapWindow::windowRectChanged, this, &QQuickItem::update);
 }
 
 core::CampaignMap* CampaignMiniMap::getCampaignMap() const
@@ -64,22 +54,6 @@ void CampaignMiniMap::setWorldSurface(WorldSurface* worldSurface)
     }
 }
 
-QRect CampaignMiniMap::getWindowRect() const
-{
-    return this->viewWindowRect;
-}
-
-void CampaignMiniMap::setWindowRect(const QRect& windowRect)
-{
-    if (this->viewWindowRect != windowRect)
-    {
-        this->viewWindowRect = windowRect;
-        emit windowRectChanged();
-
-        this->update();
-    }
-}
-
 QSGNode* CampaignMiniMap::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
 {
     QSGTransformNode* rootNode;
@@ -90,7 +64,7 @@ QSGNode* CampaignMiniMap::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeD
         rootNode = static_cast<QSGTransformNode*>(oldRootNode);
         mapRootNode = rootNode->firstChild();
 
-        drawRect(this->viewWindowRect, rootNode->lastChild());
+        drawRect(this->getWindowRect(), rootNode->lastChild());
     }
     else
     {
@@ -98,15 +72,14 @@ QSGNode* CampaignMiniMap::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeD
         mapRootNode = new QSGNode;
 
         rootNode->appendChildNode(mapRootNode);
-        rootNode->appendChildNode(drawRect(this->viewWindowRect, nullptr));
+        rootNode->appendChildNode(drawRect(this->getWindowRect(), nullptr));
     }
 
-    if (this->transform != rootNode->matrix())
+    const QMatrix4x4& transform = this->getTransformMatrix();
+    if (transform != rootNode->matrix())
     {
-        rootNode->setMatrix(this->transform);
+        rootNode->setMatrix(transform);
     }
-
-    wDebug << this->viewWindowRect;
 
     // ugh
     const std::vector<core::MapNode*> mapNodes = this->campaignMap->getMapNodes();
@@ -123,26 +96,10 @@ QSGNode* CampaignMiniMap::drawMapNodeAndContents(const core::MapNode* mapNode, Q
     return drawMapNode(mapNode, this->worldSurface, this->mapNodesPos.at(mapNode), oldNode);
 }
 
-/*
-void CampaignMiniMap::mousePressEvent(QMouseEvent* event)
-{
-    QPointF pos(this->campaignMapToMap(event->pos()));
-    this->centerWindow(pos.toPoint());
-}
-
-void CampaignMiniMap::mouseMoveEvent(QMouseEvent* event)
-{
-    if (event->buttons() & Qt::LeftButton)
-    {
-        QPointF pos(this->campaignMapToMap(event->pos()));
-        this->centerWindow(pos.toPoint());
-    }
-}
-*/
-
 void CampaignMiniMap::updateContent()
 {
-    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty())
+    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty()
+            || this->worldSurface->getWorld() != this->campaignMap->getWorld())
     {
         this->setFlags(0);
     }
@@ -152,48 +109,25 @@ void CampaignMiniMap::updateContent()
 
         this->mapNodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->worldSurface->getTileSize());
 
-        this->updateTransform();
+        this->updateMapRect();
 
         this->update();
     }
 }
 
-/*
-void CampaignMiniMap::updateWindowRectRect()
+void CampaignMiniMap::updateMapRect()
 {
-    this->windowPosRect = QRect(
-        this->boundingRect.x(),
-        this->boundingRect.y(),
-        this->boundingRect.width() - this->windowSize.width(),
-        this->boundingRect.height() - this->windowSize.height()
-    );
+    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty()
+            || this->worldSurface->getWorld() != this->campaignMap->getWorld())
+    {
+        this->setMapRect(QRect(0, 0, 0, 0));
+    }
+    else
+    {
+        this->setMapRect(calculateBoundingRect(this->mapNodesPos, this->worldSurface->getTileSize()));
+        this->update();
+    }
 }
-*/
-
-void CampaignMiniMap::updateTransform()
-{
-    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty())
-        return;
-
-    const QRect boundingRect = calculateBoundingRect(this->mapNodesPos, this->worldSurface->getTileSize());
-
-    if (this->height() <= 0 || this->width() <= 0)
-        return;
-
-    const QRectF frame(0.0, 0.0, this->width(), this->height());
-
-    this->transform = centerIn(boundingRect, frame);
-
-    this->update();
-}
-
-/*
-QPointF CampaignMiniMap::mapToMap(const QPointF &p)
-{
-    const qreal rscale = 1 / this->scale;
-    return p * rscale - this->translate;
-}
-*/
 
 /*
 void CampaignMiniMap::drawNode(QPainter *, const core::MapNode *)
@@ -243,7 +177,7 @@ void CampaignMiniMap::drawNode(QPainter *, const core::MapNode *)
 
     painter->restore();
 }
-    */
+*/
 
 } // namespace ui
 } // namespace warmonger

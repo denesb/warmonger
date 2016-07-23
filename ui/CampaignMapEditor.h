@@ -38,6 +38,7 @@ signals:
 
 private:
     void updateContent();
+    void updateMapRect();
 
     core::CampaignMap *campaignMap;
     WorldSurface *worldSurface;

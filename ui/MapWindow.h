@@ -23,27 +23,27 @@ class MapWindow : public QObject
 
 public:
     MapWindow();
-    MapWindow(const QRect &mapRect, const QSize &windowSize);
+    MapWindow(const QRect& mapRect, const QSize& windowSize);
 
     const QRect& getMapRect() const;
-    void setMapRect(const QRect &mapRect);
+    void setMapRect(const QRect& mapRect);
 
     const QRect& getWindowRect() const;
-    void setWindowRect(const QRect &windowRect);
-    void setWindowPos(const QPoint &windowPos);
-    void setWindowSize(const QSize &windowSize);
+    void setWindowRect(const QRect& windowRect);
+    void setWindowPos(const QPoint& windowPos);
+    void setWindowSize(const QSize& windowSize);
 
-    void centerWindow(const QPoint &pos);
-    void moveWindowBy(const QPoint &diff);
+    void centerWindow(const QPoint& pos);
+    void moveWindowBy(const QPoint& diff);
 
-    QPoint mapToMap(const QPoint &p);
+    QPoint windowPosToMapPos(const QPoint& pos);
 
 signals:
     void mapRectChanged();
     void windowRectChanged();
 
 private:
-    QPoint adjustWindowPosition(const QPoint &p);
+    QPoint adjustWindowPosition(const QPoint& p);
 
     QRect mapRect;
     QRect windowRect;

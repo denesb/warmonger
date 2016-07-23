@@ -3,25 +3,21 @@
 
 #include <map>
 
-#include <QtQuick/QQuickItem>
-#include <QPoint>
-
 #include "core/CampaignMap.h"
+#include "ui/BasicMap.h"
 #include "ui/MapDrawer.h"
-#include "ui/MapWindow.h"
 #include "ui/WorldSurface.h"
 
 namespace warmonger {
 namespace ui {
 
 class CampaignMapEditor :
-    public QQuickItem,
+    public BasicMap,
     public MapDrawer
 {
     Q_OBJECT
     Q_PROPERTY(warmonger::core::CampaignMap* campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
     Q_PROPERTY(warmonger::ui::WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
-    Q_PROPERTY(QRect windowRect READ getWindowRect NOTIFY windowRectChanged)
 
 public:
     CampaignMapEditor(QQuickItem *parent = nullptr);
@@ -32,8 +28,6 @@ public:
     WorldSurface* getWorldSurface() const;
     void setWorldSurface(WorldSurface* worldSurface);
 
-    QRect getWindowRect() const;
-
     QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* oldNodeData) override;
 
     QSGNode* drawMapNodeAndContents(const core::MapNode* mapNode, QSGNode* oldNode) override;
@@ -41,16 +35,12 @@ public:
 signals:
     void campaignMapChanged();
     void worldSurfaceChanged();
-    void windowRectChanged();
 
 private:
     void updateContent();
-    void updateGeometry();
 
     core::CampaignMap *campaignMap;
     WorldSurface *worldSurface;
-
-    MapWindow mapWindow;
     std::map<const core::MapNode*, QPoint> mapNodesPos;
 };
 

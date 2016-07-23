@@ -6,12 +6,10 @@ namespace warmonger {
 namespace ui {
 
 CampaignMapEditor::CampaignMapEditor(QQuickItem *parent) :
-    QQuickItem(parent),
-    campaignMap(nullptr)
+    BasicMap(parent),
+    campaignMap(nullptr),
+    worldSurface(nullptr)
 {
-    QObject::connect(this, &CampaignMapEditor::widthChanged, this, &CampaignMapEditor::updateGeometry);
-    QObject::connect(this, &CampaignMapEditor::heightChanged, this, &CampaignMapEditor::updateGeometry);
-    QObject::connect(&this->mapWindow, &MapWindow::windowRectChanged, this, &CampaignMapEditor::windowRectChanged);
 }
 
 core::CampaignMap* CampaignMapEditor::getCampaignMap() const
@@ -46,11 +44,6 @@ void CampaignMapEditor::setWorldSurface(WorldSurface* worldSurface)
     }
 }
 
-QRect CampaignMapEditor::getWindowRect() const
-{
-    return this->mapWindow.getWindowRect();
-}
-
 QSGNode* CampaignMapEditor::updatePaintNode(QSGNode *oldRootNode, UpdatePaintNodeData *)
 {
     QSGNode* rootNode;
@@ -66,7 +59,7 @@ QSGNode* CampaignMapEditor::updatePaintNode(QSGNode *oldRootNode, UpdatePaintNod
     const std::vector<const core::MapNode*> mapNodes = visibleMapNodes(
             this->mapNodesPos,
             this->worldSurface->getTileSize(),
-            this->mapWindow.getWindowRect());
+            this->getWindowRect());
 
     drawMapNodes(mapNodes, rootNode, *this);
 
@@ -91,13 +84,6 @@ void CampaignMapEditor::updateContent()
         this->mapNodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->worldSurface->getTileSize());
         this->update();
     }
-}
-
-void CampaignMapEditor::updateGeometry()
-{
-    const QPoint topLeft = this->mapWindow.getWindowRect().topLeft();
-    this->mapWindow.setWindowRect(QRect(topLeft.x(), topLeft.y(), this->width(), this->height()));
-    wDebug << this->mapWindow.getWindowRect();
 }
 
 } // namespace ui

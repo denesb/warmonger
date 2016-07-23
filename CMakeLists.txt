@@ -49,11 +49,11 @@ set(
     io/File.cpp
     io/JsonSerializer.cpp
     io/JsonUnserializer.cpp
+    ui/BasicMap.cpp
     ui/CampaignMapEditor.cpp
     ui/CampaignMiniMap.cpp
     ui/Context.cpp
     ui/MapUtil.cpp
-    ui/MapWindow.cpp
     ui/WorldSurface.cpp
     utils/Hexagon.cpp
     utils/Logging.cpp

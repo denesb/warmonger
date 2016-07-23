@@ -27,7 +27,7 @@ CampaignMiniMap::CampaignMiniMap(QQuickItem *parent) :
     QObject::connect(this, &CampaignMiniMap::widthChanged, this, &CampaignMiniMap::updateTransform);
     QObject::connect(this, &CampaignMiniMap::heightChanged, this, &CampaignMiniMap::updateTransform);
 
-    QObject::connect(&this->mapWindow, &MapWindow::windowRectChanged, this, &QQuickItem::update);
+    //QObject::connect(&this->mapWindow, &MapWindow::windowRectChanged, this, &QQuickItem::update);
 }
 
 core::CampaignMap* CampaignMiniMap::getCampaignMap() const
@@ -175,14 +175,14 @@ void CampaignMiniMap::updateTransform()
     if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty())
         return;
 
-    this->mapWindow.setMapRect(calculateBoundingRect(this->mapNodesPos, this->worldSurface->getTileSize()));
+    const QRect boundingRect = calculateBoundingRect(this->mapNodesPos, this->worldSurface->getTileSize());
 
     if (this->height() <= 0 || this->width() <= 0)
         return;
 
     const QRectF frame(0.0, 0.0, this->width(), this->height());
 
-    this->transform = centerIn(this->mapWindow.getMapRect(), frame);
+    this->transform = centerIn(boundingRect, frame);
 
     this->update();
 }

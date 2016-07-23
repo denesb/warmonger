@@ -67,8 +67,6 @@ QPoint project(const QPoint& p, const QRect& r);
  */
 QMatrix4x4 centerIn(const QRectF& content, const QRectF& frame);
 
-//QMatrix4x4 
-
 /**
  * Draw map-nodes
  *

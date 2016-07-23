@@ -11,7 +11,6 @@
 
 #include "core/CampaignMap.h"
 #include "ui/MapDrawer.h"
-#include "ui/MapWindow.h"
 #include "ui/WorldSurface.h"
 
 namespace warmonger {
@@ -72,7 +71,6 @@ private:
 
     std::map<const core::MapNode*, QPoint> mapNodesPos;
     QMatrix4x4 transform;
-    MapWindow mapWindow;
     QRect viewWindowRect;
 };
 

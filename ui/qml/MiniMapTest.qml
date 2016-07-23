@@ -51,7 +51,7 @@ Rectangle {
         }
         color: "green"
 
-        MiniMap {
+        CampaignMiniMap {
             id: miniMap
 
             campaignMap: W.campaignMap

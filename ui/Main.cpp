@@ -7,9 +7,9 @@
 
 #include "ui/Context.h"
 //#include "ui/GameMap.h"
-#include "ui/MiniMap.h"
 //#include "ui/MapPreview.h"
 #include "ui/CampaignMapEditor.h"
+#include "ui/CampaignMiniMap.h"
 #include "utils/Constants.h"
 #include "utils/Logging.h"
 
@@ -107,7 +107,7 @@ void initUi(QQuickView *view, ui::Context *ctx)
 {
 
     //qmlRegisterType<ui::GameMap>("Warmonger", 1, 0, "GameMap");
-    qmlRegisterType<ui::MiniMap>("Warmonger", 1, 0, "MiniMap");
+    qmlRegisterType<ui::CampaignMiniMap>("Warmonger", 1, 0, "CampaignMiniMap");
     //qmlRegisterType<ui::MapPreview>("Warmonger", 1, 0, "MapPreview");
     qmlRegisterType<ui::CampaignMapEditor>("Warmonger", 1, 0, "CampaignMapEditor");
 

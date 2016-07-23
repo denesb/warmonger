@@ -1,5 +1,5 @@
-#ifndef W_UI_MINI_MAP_H
-#define W_UI_MINI_MAP_H
+#ifndef W_UI_CAMPAIGN_MINI_MAP_H
+#define W_UI_CAMPAIGN_MINI_MAP_H
 
 #include <map>
 #include <vector>
@@ -11,7 +11,6 @@
 
 #include "core/CampaignMap.h"
 #include "ui/MapDrawer.h"
-#include "ui/MapUtil.h"
 #include "ui/MapWindow.h"
 #include "ui/WorldSurface.h"
 
@@ -24,7 +23,7 @@ namespace core {
 
 namespace ui {
 
-class MiniMap :
+class CampaignMiniMap :
     public QQuickItem,
     public MapDrawer
 {
@@ -34,7 +33,7 @@ class MiniMap :
     Q_PROPERTY(warmonger::ui::WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
     Q_PROPERTY(QRect windowRect READ getWindowRect WRITE setWindowRect NOTIFY windowRectChanged)
 public:
-    MiniMap(QQuickItem* parent = nullptr);
+    CampaignMiniMap(QQuickItem* parent = nullptr);
 
     core::CampaignMap* getCampaignMap() const;
     void setCampaignMap(core::CampaignMap* campaignMap);
@@ -80,4 +79,4 @@ private:
 } // namespace ui
 } // namespace warmonger
 
-#endif // W_UI_MINI_MAP_H
+#endif // W_UI_CAMPAIGN_MINI_MAP_H

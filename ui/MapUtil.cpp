@@ -248,7 +248,7 @@ QSGNode* drawMapNode(
     return node;
 }
 
-QSGNode* drawViewWindowRect(const QRect& windowRect, QSGNode* oldNode)
+QSGNode* drawRect(const QRect& rect, QSGNode* oldNode)
 {
     QSGGeometryNode* node;
     if (oldNode == nullptr)
@@ -274,14 +274,15 @@ QSGNode* drawViewWindowRect(const QRect& windowRect, QSGNode* oldNode)
 
     QSGGeometry* geometry = node->geometry();
 
-    geometry->vertexDataAsPoint2D()[0].set(windowRect.topLeft().x(), windowRect.topLeft().y());
-    geometry->vertexDataAsPoint2D()[1].set(windowRect.topRight().x(), windowRect.topRight().y());
-    geometry->vertexDataAsPoint2D()[2].set(windowRect.topRight().x(), windowRect.topRight().y());
-    geometry->vertexDataAsPoint2D()[3].set(windowRect.bottomRight().x(), windowRect.bottomRight().y());
-    geometry->vertexDataAsPoint2D()[4].set(windowRect.bottomRight().x(), windowRect.bottomRight().y());
-    geometry->vertexDataAsPoint2D()[5].set(windowRect.bottomLeft().x(), windowRect.bottomLeft().y());
-    geometry->vertexDataAsPoint2D()[6].set(windowRect.bottomLeft().x(), windowRect.bottomLeft().y());
-    geometry->vertexDataAsPoint2D()[7].set(windowRect.topLeft().x(), windowRect.topLeft().y());
+    //FIXME: check if these really have to be updated
+    geometry->vertexDataAsPoint2D()[0].set(rect.topLeft().x(), rect.topLeft().y());
+    geometry->vertexDataAsPoint2D()[1].set(rect.topRight().x(), rect.topRight().y());
+    geometry->vertexDataAsPoint2D()[2].set(rect.topRight().x(), rect.topRight().y());
+    geometry->vertexDataAsPoint2D()[3].set(rect.bottomRight().x(), rect.bottomRight().y());
+    geometry->vertexDataAsPoint2D()[4].set(rect.bottomRight().x(), rect.bottomRight().y());
+    geometry->vertexDataAsPoint2D()[5].set(rect.bottomLeft().x(), rect.bottomLeft().y());
+    geometry->vertexDataAsPoint2D()[6].set(rect.bottomLeft().x(), rect.bottomLeft().y());
+    geometry->vertexDataAsPoint2D()[7].set(rect.topLeft().x(), rect.topLeft().y());
 
     return node;
 }

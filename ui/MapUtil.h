@@ -27,18 +27,32 @@ namespace ui {
 class MapDrawer;
 class WorldSurface;
 
+/**
+ * The position of the neighbour map-node in the specified direction
+ *
+ * @param[in] pos the position of the map-node
+ * @param[in] dir the direction of the neighbour
+ * @param[in] tileSize the size of the map-nodes
+ */
 QPoint neighbourPos(const QPoint& pos, utils::Direction dir, const QSize& tileSize);
 
 std::map<const core::MapNode*, QPoint> positionMapNodes(const core::MapNode* startNode, const QSize& tileSize);
 
 QRect calculateBoundingRect(const std::map<const core::MapNode*, QPoint>& nodesPos, const QSize& tileSize);
 
+/**
+ * The visible map-nodes in the window
+ *
+ * @param[in] mapNodePos map with the map-nodes and their positions
+ * @param[in] tileSize the size of the map-nodes
+ * @param[in] window the window
+ *
+ * @returns std::vector<const core::MapNode*> the list of visible map-nodes
+ */
 std::vector<const core::MapNode*> visibleMapNodes(
         const std::map<const core::MapNode*, QPoint>& mapNodesPos,
         const QSize& tileSize,
         const QRect& window);
-
-QPainterPath hexagonPath(const QSize& tileSize);
 
 QPoint project(const QPoint& p, const QRect& r);
 
@@ -53,15 +67,42 @@ QPoint project(const QPoint& p, const QRect& r);
  */
 QMatrix4x4 centerIn(const QRectF& content, const QRectF& frame);
 
+//QMatrix4x4 
+
+/**
+ * Draw map-nodes
+ *
+ * @param[in] mapNodes list of map-nodes to be drawn
+ * @param[in] rootNode the root-node of the subtree to be built
+ * @param[in] mapNodeDrawer the object which will do the actual drawing
+ */
 void drawMapNodes(const std::vector<const core::MapNode*>& mapNodes, QSGNode* rootNode, MapDrawer& mapNodeDrawer);
 
+/**
+ * Draw a map-node
+ *
+ * @param[in] mapNode the map-node to be drawn
+ * @param[in] worldSurface the actual world surface (contains the textures)
+ * @param[in] pos the position of the node
+ * @param[in] oldNode the result of the previous draw call if any or nullptr
+ *
+ * @returns QSGNode* the resulting scene-graph node
+ */
 QSGNode* drawMapNode(
         const core::MapNode* mapNode,
         const ui::WorldSurface* worldSurface,
         const QPoint& pos,
         QSGNode* oldNode);
 
-QSGNode* drawViewWindowRect(const QRect& windowRect, QSGNode* oldNode);
+/**
+ * Draw a rectangle
+ *
+ * @param[in] rect the rectangle to be drawn
+ * @param[in] oldNode the result of the previous draw call if any or nullptr
+ *
+ * @returns QSGNode* the resulting scene-graph node
+ */
+QSGNode* drawRect(const QRect& rect, QSGNode* oldNode);
 
 } // namespace ui
 } // namespace warmonger

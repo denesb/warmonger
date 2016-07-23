@@ -10,31 +10,32 @@
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
 #include "core/Unit.h"
-#include "ui/MiniMap.h"
+#include "ui/CampaignMiniMap.h"
+#include "ui/MapUtil.h"
 #include "utils/Logging.h"
 
 namespace warmonger {
 namespace ui {
 
-MiniMap::MiniMap(QQuickItem *parent) :
+CampaignMiniMap::CampaignMiniMap(QQuickItem *parent) :
     QQuickItem(parent),
     worldSurface(nullptr),
     campaignMap(nullptr)
 {
     //this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
 
-    QObject::connect(this, &MiniMap::widthChanged, this, &MiniMap::updateTransform);
-    QObject::connect(this, &MiniMap::heightChanged, this, &MiniMap::updateTransform);
+    QObject::connect(this, &CampaignMiniMap::widthChanged, this, &CampaignMiniMap::updateTransform);
+    QObject::connect(this, &CampaignMiniMap::heightChanged, this, &CampaignMiniMap::updateTransform);
 
     QObject::connect(&this->mapWindow, &MapWindow::windowRectChanged, this, &QQuickItem::update);
 }
 
-core::CampaignMap* MiniMap::getCampaignMap() const
+core::CampaignMap* CampaignMiniMap::getCampaignMap() const
 {
     return this->campaignMap;
 }
 
-void MiniMap::setCampaignMap(core::CampaignMap* campaignMap)
+void CampaignMiniMap::setCampaignMap(core::CampaignMap* campaignMap)
 {
     if (this->campaignMap != campaignMap)
     {
@@ -47,12 +48,12 @@ void MiniMap::setCampaignMap(core::CampaignMap* campaignMap)
     }
 }
 
-WorldSurface* MiniMap::getWorldSurface() const
+WorldSurface* CampaignMiniMap::getWorldSurface() const
 {
     return this->worldSurface;
 }
 
-void MiniMap::setWorldSurface(WorldSurface* worldSurface)
+void CampaignMiniMap::setWorldSurface(WorldSurface* worldSurface)
 {
     if(this->worldSurface != worldSurface)
     {
@@ -63,12 +64,12 @@ void MiniMap::setWorldSurface(WorldSurface* worldSurface)
     }
 }
 
-QRect MiniMap::getWindowRect() const
+QRect CampaignMiniMap::getWindowRect() const
 {
     return this->viewWindowRect;
 }
 
-void MiniMap::setWindowRect(const QRect& windowRect)
+void CampaignMiniMap::setWindowRect(const QRect& windowRect)
 {
     if (this->viewWindowRect != windowRect)
     {
@@ -79,7 +80,7 @@ void MiniMap::setWindowRect(const QRect& windowRect)
     }
 }
 
-QSGNode* MiniMap::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
+QSGNode* CampaignMiniMap::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
 {
     QSGTransformNode* rootNode;
     QSGNode* mapRootNode;
@@ -89,7 +90,7 @@ QSGNode* MiniMap::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
         rootNode = static_cast<QSGTransformNode*>(oldRootNode);
         mapRootNode = rootNode->firstChild();
 
-        drawViewWindowRect(this->viewWindowRect, rootNode->lastChild());
+        drawRect(this->viewWindowRect, rootNode->lastChild());
     }
     else
     {
@@ -97,7 +98,7 @@ QSGNode* MiniMap::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
         mapRootNode = new QSGNode;
 
         rootNode->appendChildNode(mapRootNode);
-        rootNode->appendChildNode(drawViewWindowRect(this->viewWindowRect, nullptr));
+        rootNode->appendChildNode(drawRect(this->viewWindowRect, nullptr));
     }
 
     if (this->transform != rootNode->matrix())
@@ -117,19 +118,19 @@ QSGNode* MiniMap::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
     return rootNode;
 }
 
-QSGNode* MiniMap::drawMapNodeAndContents(const core::MapNode* mapNode, QSGNode* oldNode)
+QSGNode* CampaignMiniMap::drawMapNodeAndContents(const core::MapNode* mapNode, QSGNode* oldNode)
 {
     return drawMapNode(mapNode, this->worldSurface, this->mapNodesPos.at(mapNode), oldNode);
 }
 
 /*
-void MiniMap::mousePressEvent(QMouseEvent* event)
+void CampaignMiniMap::mousePressEvent(QMouseEvent* event)
 {
     QPointF pos(this->campaignMapToMap(event->pos()));
     this->centerWindow(pos.toPoint());
 }
 
-void MiniMap::mouseMoveEvent(QMouseEvent* event)
+void CampaignMiniMap::mouseMoveEvent(QMouseEvent* event)
 {
     if (event->buttons() & Qt::LeftButton)
     {
@@ -139,7 +140,7 @@ void MiniMap::mouseMoveEvent(QMouseEvent* event)
 }
 */
 
-void MiniMap::updateContent()
+void CampaignMiniMap::updateContent()
 {
     if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty())
     {
@@ -158,7 +159,7 @@ void MiniMap::updateContent()
 }
 
 /*
-void MiniMap::updateWindowRectRect()
+void CampaignMiniMap::updateWindowRectRect()
 {
     this->windowPosRect = QRect(
         this->boundingRect.x(),
@@ -169,7 +170,7 @@ void MiniMap::updateWindowRectRect()
 }
 */
 
-void MiniMap::updateTransform()
+void CampaignMiniMap::updateTransform()
 {
     if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty())
         return;
@@ -187,7 +188,7 @@ void MiniMap::updateTransform()
 }
 
 /*
-QPointF MiniMap::mapToMap(const QPointF &p)
+QPointF CampaignMiniMap::mapToMap(const QPointF &p)
 {
     const qreal rscale = 1 / this->scale;
     return p * rscale - this->translate;
@@ -195,7 +196,7 @@ QPointF MiniMap::mapToMap(const QPointF &p)
 */
 
 /*
-void MiniMap::drawNode(QPainter *, const core::MapNode *)
+void CampaignMiniMap::drawNode(QPainter *, const core::MapNode *)
 {
     const QString terrainTypeName = node->getTerrainType()->objectName();
     const core::Settlement *settlement = this->campaignMap->getSettlementOn(node);

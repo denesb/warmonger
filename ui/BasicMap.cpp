@@ -28,6 +28,11 @@ QRect BasicMap::getWindowRect() const
     return this->mapWindow.getWindowRect();
 }
 
+QPoint BasicMap::getWindowPos() const
+{
+    return this->mapWindow.getWindowRect().topLeft();
+}
+
 void BasicMap::setWindowPos(const QPoint& pos)
 {
     this->mapWindow.setWindowPos(pos);
@@ -50,16 +55,16 @@ void BasicMap::setMapRect(const QRect& mapRect)
 
 void BasicMap::mousePressEvent(QMouseEvent* event)
 {
-    QPointF pos(this->mapWindow.windowPosToMapPos(event->pos()));
-    this->centerWindow(pos.toPoint());
+    this->lastPos = event->pos();
 }
 
 void BasicMap::mouseMoveEvent(QMouseEvent* event)
 {
     if (event->buttons() & Qt::LeftButton)
     {
-        QPointF pos(this->mapWindow.windowPosToMapPos(event->pos()));
-        this->centerWindow(pos.toPoint());
+        this->moveWindowBy(this->lastPos - event->pos());
+
+        this->lastPos = event->pos();
     }
 }
 

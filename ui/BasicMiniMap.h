@@ -17,17 +17,20 @@ class BasicMiniMap
 {
     Q_OBJECT
     Q_PROPERTY(QRect windowRect READ getWindowRect WRITE setWindowRect NOTIFY windowRectChanged)
+    Q_PROPERTY(QPoint windowPos READ getWindowPos WRITE setWindowPos NOTIFY windowRectChanged)
 
 public:
     BasicMiniMap(QQuickItem* parent = nullptr);
 
     QRect getWindowRect() const;
+    QPoint getWindowPos() const;
     QRect getMapRect() const;
 
     const QMatrix4x4& getTransformMatrix() const;
 
 public slots:
     void setWindowRect(const QRect& rect);
+    void setWindowPos(const QPoint& pos);
     void centerWindow(const QPoint& pos);
     void moveWindowBy(const QPoint& diff);
 
@@ -43,6 +46,7 @@ signals:
 
 private:
     void updateTransform();
+    QPoint centeredPosToPos(const QPoint& pos) const;
 
     QMatrix4x4 transform;
     MapWindow mapWindow;

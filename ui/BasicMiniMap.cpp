@@ -14,11 +14,18 @@ BasicMiniMap::BasicMiniMap(QQuickItem* parent) :
     QObject::connect(&this->mapWindow, &MapWindow::windowRectChanged, this, &BasicMiniMap::windowRectChanged);
     QObject::connect(&this->mapWindow, &MapWindow::mapRectChanged, this, &BasicMiniMap::update);
     QObject::connect(&this->mapWindow, &MapWindow::mapRectChanged, this, &BasicMiniMap::mapRectChanged);
+
+    this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
 }
 
 QRect BasicMiniMap::getWindowRect() const
 {
     return this->mapWindow.getWindowRect();
+}
+
+QPoint BasicMiniMap::getWindowPos() const
+{
+    return this->mapWindow.getWindowRect().topLeft();
 }
 
 QRect BasicMiniMap::getMapRect() const
@@ -36,6 +43,11 @@ void BasicMiniMap::setWindowRect(const QRect& rect)
     this->mapWindow.setWindowRect(rect);
 }
 
+void BasicMiniMap::setWindowPos(const QPoint& pos)
+{
+    this->mapWindow.setWindowPos(pos);
+}
+
 void BasicMiniMap::centerWindow(const QPoint& pos)
 {
     this->mapWindow.centerWindow(pos);
@@ -51,23 +63,17 @@ void BasicMiniMap::setMapRect(const QRect& mapRect)
     this->mapWindow.setMapRect(mapRect);
 }
 
-void BasicMiniMap::mousePressEvent(QMouseEvent*)
+void BasicMiniMap::mousePressEvent(QMouseEvent* event)
 {
-    //QPointF pos(this->campaignMapToMap(event->pos()));
-    //this->centerWindow(pos.toPoint());
+    this->centerWindow(this->centeredPosToPos(event->pos()));
 }
 
-void BasicMiniMap::mouseMoveEvent(QMouseEvent*)
+void BasicMiniMap::mouseMoveEvent(QMouseEvent* event)
 {
-    /*
     if (event->buttons() & Qt::LeftButton)
     {
-        const qreal rscale = 1 / this->scale;
-        return p * rscale - this->translate;
-        QPointF pos(this->windowMapToMap(event->pos()));
-        this->centerWindow(pos.toPoint());
+        this->centerWindow(this->centeredPosToPos(event->pos()));
     }
-    */
 }
 
 void BasicMiniMap::updateTransform()
@@ -77,6 +83,19 @@ void BasicMiniMap::updateTransform()
     this->transform = centerIn(this->mapWindow.getMapRect(), frame);
 
     this->update();
+}
+
+QPoint BasicMiniMap::centeredPosToPos(const QPoint& pos) const
+{
+    const QVector4D firstRow = this->transform.row(0);
+    const QVector4D secondRow = this->transform.row(1);
+
+    const qreal scale = firstRow.x();
+    const QPoint translate(firstRow.w(), secondRow.w());
+
+    const qreal rscale = 1 / scale;
+
+    return (pos - translate) * rscale;
 }
 
 } // namespace ui

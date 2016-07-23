@@ -16,11 +16,13 @@ class BasicMap
 {
     Q_OBJECT
     Q_PROPERTY(QRect windowRect READ getWindowRect NOTIFY windowRectChanged)
+    Q_PROPERTY(QPoint windowPos READ getWindowPos WRITE setWindowPos NOTIFY windowRectChanged)
 
 public:
     BasicMap(QQuickItem* parent = nullptr);
 
     QRect getWindowRect() const;
+    QPoint getWindowPos() const;
     QRect getMapRect() const;
 
 public slots:
@@ -41,6 +43,7 @@ signals:
 private:
     void updateWindow();
 
+    QPoint lastPos;
     MapWindow mapWindow;
 };
 

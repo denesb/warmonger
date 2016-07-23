@@ -29,6 +29,7 @@ Rectangle {
 
             campaignMap: W.campaignMap
             worldSurface: W.worldSurface
+            windowPos: miniMap.windowPos
 
             anchors {
                 fill: parent

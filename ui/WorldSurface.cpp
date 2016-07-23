@@ -307,19 +307,19 @@ void WorldSurface::uploadTextures()
         this->uploadTexture(utils::resourcePaths::terrainTypes, terrainType);
     }
 
-    const auto settlementTypes = this->world->getTerrainTypes();
+    const auto settlementTypes = this->world->getSettlementTypes();
     for (const auto& settlementType : settlementTypes)
     {
         this->uploadTexture(utils::resourcePaths::settlementTypes, settlementType);
     }
 
-    const auto unitTypes = this->world->getTerrainTypes();
+    const auto unitTypes = this->world->getUnitTypes();
     for (const auto& unitType : unitTypes)
     {
         this->uploadTexture(utils::resourcePaths::unitTypes, unitType);
     }
 
-    wInfo << "Surface tetxtures uploaded to GPU";
+    wInfo << "Textures for surface " << this << " uploaded to GPU";
 }
 
 void WorldSurface::uploadTexture(const QString &pathPrefix, const QObject *object)
@@ -329,8 +329,12 @@ void WorldSurface::uploadTexture(const QString &pathPrefix, const QObject *objec
 
     if (image.isNull())
     {
-        wWarning << "Cannot find texture for " << object;
+        wWarning << "Cannot find texture for " << object << " at path " << path;
         return;
+    }
+    else
+    {
+        wInfo << "Successfully loaded image for " << object << " from path " << path;
     }
 
     this->textures[key(object)] = std::unique_ptr<QSGTexture>(this->window->createTextureFromImage(image));

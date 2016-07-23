@@ -21,6 +21,8 @@ void CampaignMapEditor::setCampaignMap(core::CampaignMap* campaignMap)
 {
     if (this->campaignMap != campaignMap)
     {
+        wInfo << "campaignMap `" << this->campaignMap << "' -> `" << campaignMap << "'";
+
         this->campaignMap = campaignMap;
         this->updateContent();
 
@@ -37,6 +39,8 @@ void CampaignMapEditor::setWorldSurface(WorldSurface* worldSurface)
 {
     if (this->worldSurface != worldSurface)
     {
+        wInfo << "worldSurface `" << this->worldSurface << "' -> `" << worldSurface << "'";
+
         this->worldSurface = worldSurface;
         this->updateContent();
 

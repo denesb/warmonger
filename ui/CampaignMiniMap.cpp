@@ -47,6 +47,8 @@ void CampaignMiniMap::setWorldSurface(WorldSurface* worldSurface)
 {
     if(this->worldSurface != worldSurface)
     {
+        wInfo << "worldSurface `" << this->worldSurface << "' -> `" << worldSurface << "'";
+
         this->worldSurface = worldSurface;
 
         this->updateContent();

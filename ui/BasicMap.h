@@ -6,6 +6,8 @@
 #include <QRect>
 #include <QSize>
 
+#include "ui/MapWindow.h"
+
 namespace warmonger {
 namespace ui {
 
@@ -29,19 +31,14 @@ public slots:
 protected:
     void setMapRect(const QRect& mapRect);
 
-    QPoint mapToMap(const QPoint& p);
-
 signals:
     void mapRectChanged();
     void windowRectChanged();
 
 private:
     void updateWindow();
-    QPoint adjustWindowPosition(const QPoint& p);
-    int adjustAxis(const int n, const int minN, const int mapLength, const int windowLength);
 
-    QRect mapRect;
-    QPoint windowPos;
+    MapWindow mapWindow;
 };
 
 } // namespace ui

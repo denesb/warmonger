@@ -3,8 +3,6 @@
 #include <iterator>
 
 #include <QColor>
-#include <QSGSimpleRectNode>
-#include <QSGSimpleTextureNode>
 #include <QSGTransformNode>
 
 #include "core/Faction.h"
@@ -18,15 +16,10 @@
 namespace warmonger {
 namespace ui {
 
-const QColor viewRectColor("black");
-
 MiniMap::MiniMap(QQuickItem *parent) :
     QQuickItem(parent),
-    world(nullptr),
     worldSurface(nullptr),
-    campaignMap(nullptr),
-    transformChanged(true),
-    contentChanged(true)
+    campaignMap(nullptr)
 {
     //this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
 
@@ -34,7 +27,6 @@ MiniMap::MiniMap(QQuickItem *parent) :
     QObject::connect(this, &MiniMap::heightChanged, this, &MiniMap::updateTransform);
 
     QObject::connect(&this->mapWindow, &MapWindow::windowRectChanged, this, &QQuickItem::update);
-    QObject::connect(&this->mapWindow, &MapWindow::windowRectChanged, this, &MiniMap::windowRectChanged);
 }
 
 core::CampaignMap* MiniMap::getCampaignMap() const
@@ -73,52 +65,54 @@ void MiniMap::setWorldSurface(WorldSurface* worldSurface)
 
 QRect MiniMap::getWindowRect() const
 {
-    return this->mapWindow.getWindowRect();
+    return this->viewWindowRect;
 }
 
-void MiniMap::setWindowRect(const QRect& windowPos)
+void MiniMap::setWindowRect(const QRect& windowRect)
 {
-    this->mapWindow.setWindowRect(windowPos);
+    if (this->viewWindowRect != windowRect)
+    {
+        this->viewWindowRect = windowRect;
+        emit windowRectChanged();
+
+        this->update();
+    }
 }
 
 QSGNode* MiniMap::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
 {
     QSGTransformNode* rootNode;
+    QSGNode* mapRootNode;
+
     if (oldRootNode != nullptr)
+    {
         rootNode = static_cast<QSGTransformNode*>(oldRootNode);
+        mapRootNode = rootNode->firstChild();
+
+        drawViewWindowRect(this->viewWindowRect, rootNode->lastChild());
+    }
     else
+    {
         rootNode = new QSGTransformNode();
+        mapRootNode = new QSGNode;
+
+        rootNode->appendChildNode(mapRootNode);
+        rootNode->appendChildNode(drawViewWindowRect(this->viewWindowRect, nullptr));
+    }
 
     if (this->transform != rootNode->matrix())
     {
         rootNode->setMatrix(this->transform);
     }
 
+    wDebug << this->viewWindowRect;
+
     // ugh
     const std::vector<core::MapNode*> mapNodes = this->campaignMap->getMapNodes();
     std::vector<const core::MapNode*> visibleMapNodes;
     std::copy(mapNodes.cbegin(), mapNodes.cend(), std::back_inserter(visibleMapNodes));
 
-    drawMapNodes(visibleMapNodes, rootNode, *this);
-
-    /*
-    QSGGeometry* geometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), 4);
-    geometry->setDrawingMode(GL_LINES);
-    geometry->setLineWidth(3);
-    geometry->vertexDataAsPoint2D()[0].set(this->viewRect.topLeft().x(), this->viewRect.topLeft().y());
-    geometry->vertexDataAsPoint2D()[1].set(this->viewRect.topRight().x(), this->viewRect.topRight().y());
-    geometry->vertexDataAsPoint2D()[3].set(this->viewRect.bottomRight().x(), this->viewRect.bottomRight().y());
-    geometry->vertexDataAsPoint2D()[2].set(this->viewRect.bottomLeft().x(), this->viewRect.bottomLeft().y());
-
-    QSGFlatColorMaterial* material = new QSGFlatColorMaterial;
-    material->setColor(viewRectColor);
-
-    QSGGeometryNode* node = new QSGGeometryNode;
-    node->setGeometry(geometry);
-    node->setFlag(QSGNode::OwnsGeometry);
-    node->setMaterial(material);
-    node->setFlag(QSGNode::OwnsMaterial);
-    */
+    drawMapNodes(visibleMapNodes, mapRootNode, *this);
 
     return rootNode;
 }
@@ -149,34 +143,18 @@ void MiniMap::updateContent()
 {
     if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty())
     {
-        wDebug << "doesn't has contents";
         this->setFlags(0);
     }
     else
     {
-        wDebug << "has contents";
         this->setFlags(QQuickItem::ItemHasContents);
 
-        // these are used a lot
-        this->world = this->campaignMap->getWorld();
+        this->mapNodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->worldSurface->getTileSize());
 
-        this->tileSize = this->worldSurface->getTileSize();
+        this->updateTransform();
 
-        this->mapNodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->tileSize);
-
-        this->updateGeometry();
         this->update();
     }
-}
-
-void MiniMap::updateGeometry()
-{
-    this->mapWindow.setMapRect(calculateBoundingRect(this->mapNodesPos, this->tileSize));
-
-    this->updateTransform();
-
-    //this->updateWindowRectRect();
-    //this->setWindowRect(this->boundingRect.topLeft());
 }
 
 /*
@@ -193,14 +171,17 @@ void MiniMap::updateWindowRectRect()
 
 void MiniMap::updateTransform()
 {
+    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty())
+        return;
+
+    this->mapWindow.setMapRect(calculateBoundingRect(this->mapNodesPos, this->worldSurface->getTileSize()));
+
     if (this->height() <= 0 || this->width() <= 0)
         return;
 
     const QRectF frame(0.0, 0.0, this->width(), this->height());
 
     this->transform = centerIn(this->mapWindow.getMapRect(), frame);
-
-    wDebug << "Transformation matrix changed, schedule redraw";
 
     this->update();
 }

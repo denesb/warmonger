@@ -21,6 +21,7 @@ class CampaignMapEditor :
     Q_OBJECT
     Q_PROPERTY(warmonger::core::CampaignMap* campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
     Q_PROPERTY(warmonger::ui::WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
+    Q_PROPERTY(QRect windowRect READ getWindowRect NOTIFY windowRectChanged)
 
 public:
     CampaignMapEditor(QQuickItem *parent = nullptr);

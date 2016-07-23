@@ -1,5 +1,3 @@
-#include <QSGSimpleTextureNode>
-
 #include "ui/CampaignMapEditor.h"
 #include "ui/MapUtil.h"
 #include "utils/Logging.h"
@@ -86,14 +84,12 @@ void CampaignMapEditor::updateContent()
             || this->worldSurface->getWorld() != this->campaignMap->getWorld())
     {
         this->setFlags(0);
-        wDebug << "No Content";
     }
     else
     {
         this->setFlags(QQuickItem::ItemHasContents);
         this->mapNodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->worldSurface->getTileSize());
         this->update();
-        wDebug << "Content";
     }
 }
 
@@ -101,6 +97,7 @@ void CampaignMapEditor::updateGeometry()
 {
     const QPoint topLeft = this->mapWindow.getWindowRect().topLeft();
     this->mapWindow.setWindowRect(QRect(topLeft.x(), topLeft.y(), this->width(), this->height()));
+    wDebug << this->mapWindow.getWindowRect();
 }
 
 } // namespace ui

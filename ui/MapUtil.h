@@ -61,6 +61,8 @@ QSGNode* drawMapNode(
         const QPoint& pos,
         QSGNode* oldNode);
 
+QSGNode* drawViewWindowRect(const QRect& windowRect, QSGNode* oldNode);
+
 } // namespace ui
 } // namespace warmonger
 

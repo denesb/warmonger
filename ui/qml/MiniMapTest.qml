@@ -25,7 +25,7 @@ Rectangle {
         color: "yellow"
 
         CampaignMapEditor {
-            id: mapEditor
+            id: campaignMapEditor
 
             campaignMap: W.campaignMap
             worldSurface: W.worldSurface
@@ -56,6 +56,7 @@ Rectangle {
 
             campaignMap: W.campaignMap
             worldSurface: W.worldSurface
+            windowRect: campaignMapEditor.windowRect
 
             anchors {
                 fill: parent

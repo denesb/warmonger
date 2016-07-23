@@ -1,4 +1,6 @@
 #include <QSGSimpleTextureNode>
+#include <QSGGeometryNode>
+#include <QSGFlatColorMaterial>
 
 #include "core/MapNode.h"
 #include "ui/MapUtil.h"
@@ -9,7 +11,9 @@
 namespace warmonger {
 namespace ui {
 
-void positionMapNode(const core::MapNode* node, std::map<const core::MapNode*, QPoint>& nodesPos, const QSize& tileSize);
+const QColor viewWindowRectColor("black");
+
+static void positionMapNode(const core::MapNode* node, std::map<const core::MapNode*, QPoint>& nodesPos, const QSize& tileSize);
 
 QPoint neighbourPos(const QPoint& pos, utils::Direction dir, const QSize& tileSize)
 {
@@ -56,24 +60,6 @@ std::map<const core::MapNode*, QPoint> positionMapNodes(const core::MapNode* sta
     positionMapNode(startNode, nodesPos, tileSize);
 
     return nodesPos;
-}
-
-void positionMapNode(const core::MapNode* node, std::map<const core::MapNode*, QPoint>& nodesPos, const QSize& tileSize)
-{
-    QPoint pos = nodesPos[node];
-    std::map<utils::Direction, core::MapNode*> neighbours = node->getNeighbours();
-    for (const auto& element :  neighbours)
-    {
-        utils::Direction dir = element.first;
-        core::MapNode* neighbour = element.second;
-
-        if (neighbour == nullptr || nodesPos.find(neighbour) != nodesPos.end())
-            continue;
-
-        nodesPos.insert(std::make_pair(neighbour, neighbourPos(pos, dir, tileSize)));
-
-        positionMapNode(neighbour, nodesPos, tileSize);
-    }
 }
 
 QRect calculateBoundingRect(const std::map<const core::MapNode *, QPoint> &nodesPos, const QSize &tileSize)
@@ -260,6 +246,62 @@ QSGNode* drawMapNode(
     }
 
     return node;
+}
+
+QSGNode* drawViewWindowRect(const QRect& windowRect, QSGNode* oldNode)
+{
+    QSGGeometryNode* node;
+    if (oldNode == nullptr)
+    {
+        node = new QSGGeometryNode;
+
+        QSGGeometry* geometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), 8);
+        geometry->setDrawingMode(GL_LINES);
+        geometry->setLineWidth(1);
+
+        QSGFlatColorMaterial* material = new QSGFlatColorMaterial;
+        material->setColor(viewWindowRectColor);
+
+        node->setGeometry(geometry);
+        node->setFlag(QSGNode::OwnsGeometry);
+        node->setMaterial(material);
+        node->setFlag(QSGNode::OwnsMaterial);
+    }
+    else
+    {
+        node = static_cast<QSGGeometryNode*>(oldNode);
+    }
+
+    QSGGeometry* geometry = node->geometry();
+
+    geometry->vertexDataAsPoint2D()[0].set(windowRect.topLeft().x(), windowRect.topLeft().y());
+    geometry->vertexDataAsPoint2D()[1].set(windowRect.topRight().x(), windowRect.topRight().y());
+    geometry->vertexDataAsPoint2D()[2].set(windowRect.topRight().x(), windowRect.topRight().y());
+    geometry->vertexDataAsPoint2D()[3].set(windowRect.bottomRight().x(), windowRect.bottomRight().y());
+    geometry->vertexDataAsPoint2D()[4].set(windowRect.bottomRight().x(), windowRect.bottomRight().y());
+    geometry->vertexDataAsPoint2D()[5].set(windowRect.bottomLeft().x(), windowRect.bottomLeft().y());
+    geometry->vertexDataAsPoint2D()[6].set(windowRect.bottomLeft().x(), windowRect.bottomLeft().y());
+    geometry->vertexDataAsPoint2D()[7].set(windowRect.topLeft().x(), windowRect.topLeft().y());
+
+    return node;
+}
+
+static void positionMapNode(const core::MapNode* node, std::map<const core::MapNode*, QPoint>& nodesPos, const QSize& tileSize)
+{
+    QPoint pos = nodesPos[node];
+    std::map<utils::Direction, core::MapNode*> neighbours = node->getNeighbours();
+    for (const auto& element :  neighbours)
+    {
+        utils::Direction dir = element.first;
+        core::MapNode* neighbour = element.second;
+
+        if (neighbour == nullptr || nodesPos.find(neighbour) != nodesPos.end())
+            continue;
+
+        nodesPos.insert(std::make_pair(neighbour, neighbourPos(pos, dir, tileSize)));
+
+        positionMapNode(neighbour, nodesPos, tileSize);
+    }
 }
 
 } // namespace ui

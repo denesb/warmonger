@@ -43,7 +43,7 @@ public:
     void setWorldSurface(WorldSurface* worldSurface);
 
     QRect getWindowRect() const;
-    void setWindowRect(const QRect& windowPos);
+    void setWindowRect(const QRect& windowRect);
 
     QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* data) override;
 
@@ -63,23 +63,18 @@ protected:
 
 private:
     void setupMap();
-    void updateGeometry();
     void updateTransform();
     /*
     void updateWindowRectRect();
     */
 
-    core::World* world;
     WorldSurface* worldSurface;
-    QSize tileSize;
-
     core::CampaignMap* campaignMap;
+
     std::map<const core::MapNode*, QPoint> mapNodesPos;
-    MapWindow mapWindow;
     QMatrix4x4 transform;
-    bool transformChanged;
-    bool contentChanged;
-    QRect viewRect;
+    MapWindow mapWindow;
+    QRect viewWindowRect;
 };
 
 } // namespace ui

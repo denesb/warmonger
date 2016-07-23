@@ -107,7 +107,7 @@ void initUi(QQuickView *view, ui::Context *ctx)
     qmlRegisterType<ui::CampaignMapEditor>("Warmonger", 1, 0, "CampaignMapEditor");
 
     view->rootContext()->setContextProperty("W", ctx);
-    view->setSource(QUrl("qrc:/qml/windows/MainWindow.qml"));
+    view->setSource(QUrl("qrc:/qml/windows/MapEditorWindow.qml"));
     view->show();
 }
 

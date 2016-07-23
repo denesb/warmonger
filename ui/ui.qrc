@@ -1,6 +1,6 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
 <qresource>
-    <file>qml/windows/MainWindow.qml</file>
+    <file>qml/windows/MapEditorWindow.qml</file>
 </qresource>
 </RCC>

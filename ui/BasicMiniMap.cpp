@@ -12,7 +12,7 @@ BasicMiniMap::BasicMiniMap(QQuickItem* parent) :
     QObject::connect(this, &BasicMiniMap::heightChanged, this, &BasicMiniMap::updateTransform);
     QObject::connect(&this->mapWindow, &MapWindow::windowRectChanged, this, &BasicMiniMap::update);
     QObject::connect(&this->mapWindow, &MapWindow::windowRectChanged, this, &BasicMiniMap::windowRectChanged);
-    QObject::connect(&this->mapWindow, &MapWindow::mapRectChanged, this, &BasicMiniMap::update);
+    QObject::connect(&this->mapWindow, &MapWindow::mapRectChanged, this, &BasicMiniMap::updateTransform);
     QObject::connect(&this->mapWindow, &MapWindow::mapRectChanged, this, &BasicMiniMap::mapRectChanged);
 
     this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);

@@ -52,27 +52,37 @@ QSGNode* CampaignMapEditor::updatePaintNode(QSGNode *oldRootNode, UpdatePaintNod
 {
     const QMatrix4x4 transform = ui::moveTo(this->getWindowRect().topLeft(), QPoint(0, 0));
 
-    QSGTransformNode* rootNode;
+    QSGClipNode* rootNode;
+    QSGTransformNode* mapRootNode;
     if (oldRootNode == nullptr)
     {
-        rootNode = new QSGTransformNode();
-        rootNode->setMatrix(transform);
+        rootNode = new QSGClipNode();
+        rootNode->setIsRectangular(true);
+
+        mapRootNode = new QSGTransformNode();
+        mapRootNode->setMatrix(transform);
+
+        rootNode->appendChildNode(mapRootNode);
     }
     else
     {
-        rootNode = static_cast<QSGTransformNode*>(oldRootNode);
-        if (transform != rootNode->matrix())
+        rootNode = static_cast<QSGClipNode*>(oldRootNode);
+
+        mapRootNode = static_cast<QSGTransformNode*>(rootNode->firstChild());
+        if (transform != mapRootNode->matrix())
         {
-            rootNode->setMatrix(transform);
+            mapRootNode->setMatrix(transform);
         }
     }
+
+    rootNode->setClipRect(QRectF(0, 0, this->width(), this->height()));
 
     const std::vector<const core::MapNode*> mapNodes = visibleMapNodes(
             this->mapNodesPos,
             this->worldSurface->getTileSize(),
             this->getWindowRect());
 
-    drawMapNodes(mapNodes, rootNode, *this);
+    drawMapNodes(mapNodes, mapRootNode, *this);
 
     return rootNode;
 }

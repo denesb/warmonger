@@ -6,8 +6,6 @@
 #include <QtQml/QQmlEngine>
 
 #include "ui/Context.h"
-//#include "ui/GameMap.h"
-//#include "ui/MapPreview.h"
 #include "ui/CampaignMapEditor.h"
 #include "ui/CampaignMiniMap.h"
 #include "utils/Constants.h"
@@ -105,14 +103,11 @@ void addSubdirToSearchPath(const QString&worldPath, const QString &subdirName, Q
 
 void initUi(QQuickView *view, ui::Context *ctx)
 {
-
-    //qmlRegisterType<ui::GameMap>("Warmonger", 1, 0, "GameMap");
     qmlRegisterType<ui::CampaignMiniMap>("Warmonger", 1, 0, "CampaignMiniMap");
-    //qmlRegisterType<ui::MapPreview>("Warmonger", 1, 0, "MapPreview");
     qmlRegisterType<ui::CampaignMapEditor>("Warmonger", 1, 0, "CampaignMapEditor");
 
     view->rootContext()->setContextProperty("W", ctx);
-    view->setSource(QUrl("qrc:/qml/MiniMapTest.qml"));
+    view->setSource(QUrl("qrc:/qml/windows/MainWindow.qml"));
     view->show();
 }
 

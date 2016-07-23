@@ -6,8 +6,13 @@
 namespace warmonger {
 namespace utils {
 
+const std::string noFile("-");
+
 std::string trimSrcFilePath(const char* fileName)
 {
+    if (fileName == nullptr)
+        return noFile;
+
     const std::string path(fileName);
     if (path.compare(0, basePath.size(), basePath) == 0)
     {

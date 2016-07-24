@@ -30,9 +30,9 @@ const std::map<SettingsKey, QString> settingsKeyToString{
     {SettingsKey::foregroundColor0, "ui/foregroundColor0"},
     {SettingsKey::foregroundColor1, "ui/foregroundColor1"},
     {SettingsKey::backgroundColor0, "ui/backgroundColor0"},
-    {SettingsKey::backgroundColor0, "ui/backgroundColor1"},
+    {SettingsKey::backgroundColor1, "ui/backgroundColor1"},
     {SettingsKey::focusColor0, "ui/focusColor0"},
-    {SettingsKey::focusColor0, "ui/focusColor0"}
+    {SettingsKey::focusColor1, "ui/focusColor0"}
 };
 
 const std::map<WorldSettingsKey, QString> worldSettingsKeyToString{

@@ -7,11 +7,10 @@
 #include "ui/WorldSurface.h"
 #include "ui/MapDrawer.h"
 #include "utils/Logging.h"
+#include "utils/Settings.h"
 
 namespace warmonger {
 namespace ui {
-
-const QColor viewWindowRectColor("black");
 
 static void positionMapNode(const core::MapNode* node, std::map<const core::MapNode*, QPoint>& nodesPos, const QSize& tileSize);
 
@@ -269,7 +268,7 @@ QSGNode* drawRect(const QRect& rect, QSGNode* oldNode)
         geometry->setLineWidth(1);
 
         QSGFlatColorMaterial* material = new QSGFlatColorMaterial;
-        material->setColor(viewWindowRectColor);
+        material->setColor(QColor(utils::settingsValue(utils::SettingsKey::foregroundColor0).toString()));
 
         node->setGeometry(geometry);
         node->setFlag(QSGNode::OwnsGeometry);

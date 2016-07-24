@@ -24,7 +24,7 @@ class Context :
     Q_PROPERTY(QVariantList worlds READ readWorlds NOTIFY worldsChanged)
     Q_PROPERTY(QVariantList worldSurfaces READ readWorldSurfaces NOTIFY worldSurfacesChanged)
     Q_PROPERTY(QVariantList campaignMaps READ readCampaignMaps NOTIFY campaignMapsChanged)
-    Q_PROPERTY(QObject* colorPalette READ getColorPalette NOTIFY colorPaletteChanged)
+    Q_PROPERTY(QVariantMap colorPalette READ getColorPalette NOTIFY colorPaletteChanged)
 
 public:
     Context(QQuickWindow *window, QObject *parent=nullptr);
@@ -37,7 +37,7 @@ public:
     QVariantList readWorldSurfaces() const;
     QVariantList readCampaignMaps() const;
 
-    QObject* getColorPalette() const;
+    QVariantMap getColorPalette() const;
 
 public slots:
     /**
@@ -76,7 +76,7 @@ private:
     std::vector<core::World *> worlds;
     std::map<core::World *, std::vector<ui::WorldSurface *>> worldSurfaces;
     std::vector<core::CampaignMap *> campaignMaps;
-    QObject* colorPalette;
+    QVariantMap colorPalette;
 };
 
 } // namespace ui

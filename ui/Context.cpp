@@ -19,12 +19,16 @@ Context::Context(QQuickWindow *window, QObject *parent) :
     world(nullptr),
     worldSurface(nullptr),
     campaignMap(nullptr),
-    game(nullptr),
-    colorPalette(new QObject(this))
+    game(nullptr)
 {
     loadWorlds();
 
-    //this->colorPalette->setProperty(
+    this->colorPalette["foregroundColor0"] = utils::settingsValue(utils::SettingsKey::foregroundColor0);
+    this->colorPalette["foregroundColor1"] = utils::settingsValue(utils::SettingsKey::foregroundColor1);
+    this->colorPalette["backgroundColor0"] = utils::settingsValue(utils::SettingsKey::backgroundColor0);
+    this->colorPalette["backgroundColor1"] = utils::settingsValue(utils::SettingsKey::backgroundColor1);
+    this->colorPalette["focusColor0"] = utils::settingsValue(utils::SettingsKey::focusColor0);
+    this->colorPalette["focusColor1"] = utils::settingsValue(utils::SettingsKey::focusColor1);
 }
 
 core::World * Context::getWorld() const
@@ -70,7 +74,7 @@ QVariantList Context::readCampaignMaps() const
     return utils::toQVariantList(this->campaignMaps);
 }
 
-QObject* Context::getColorPalette() const
+QVariantMap Context::getColorPalette() const
 {
     return this->colorPalette;
 }

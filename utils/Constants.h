@@ -6,6 +6,10 @@
 namespace warmonger {
 namespace utils {
 
+const QString applicationName{"Warmonger"};
+const QString organizationName{"Warmonger"};
+const QString organizationDomain{"warmonger.org"};
+
 /*
  * file extension constants
  */

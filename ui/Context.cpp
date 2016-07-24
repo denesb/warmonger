@@ -1,5 +1,4 @@
 #include <QStringList>
-#include <QSettings>
 
 #include "io/File.h"
 #include "io/JsonUnserializer.h"
@@ -9,6 +8,7 @@
 #include "utils/MapGenerator.h"
 #include "utils/QVariantUtils.h"
 #include "utils/Utils.h"
+#include "utils/Settings.h"
 
 namespace warmonger {
 namespace ui {
@@ -19,9 +19,12 @@ Context::Context(QQuickWindow *window, QObject *parent) :
     world(nullptr),
     worldSurface(nullptr),
     campaignMap(nullptr),
-    game(nullptr)
+    game(nullptr),
+    colorPalette(new QObject(this))
 {
     loadWorlds();
+
+    //this->colorPalette->setProperty(
 }
 
 core::World * Context::getWorld() const
@@ -67,6 +70,11 @@ QVariantList Context::readCampaignMaps() const
     return utils::toQVariantList(this->campaignMaps);
 }
 
+QObject* Context::getColorPalette() const
+{
+    return this->colorPalette;
+}
+
 void Context::newCampaignMap(warmonger::core::World *world)
 {
     core::CampaignMap *map = new core::CampaignMap(this);
@@ -97,9 +105,7 @@ void Context::setWorld(core::World *world)
         emit worldChanged();
         emit worldSurfacesChanged();
 
-        QSettings settings;
-        const QString key(this->world->objectName() + "/surface");
-        const QVariant surfaceVal = settings.value(key);
+        const QVariant surfaceVal = settingsValue(this->world, utils::WorldSettingsKey::preferredSurface);
         const std::vector<WorldSurface *>& surfaces = this->worldSurfaces[this->world];
 
         if (surfaceVal.isNull())
@@ -135,8 +141,10 @@ void Context::setWorldSurface(ui::WorldSurface *worldSurface)
 
         if (this->worldSurface != nullptr)
         {
-            QSettings settings;
-            settings.setValue(this->world->objectName() + "/surface", this->worldSurface->objectName());
+            utils::setSettingsValue(
+                this->world,
+                utils::WorldSettingsKey::preferredSurface,
+                this->worldSurface->objectName());
         }
 
         this->worldSurface->activate();

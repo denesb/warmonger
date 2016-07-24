@@ -2,7 +2,6 @@
 #include <QGuiApplication>
 #include <QQmlContext>
 #include <QQuickView>
-#include <QSettings>
 #include <QtQml/QQmlEngine>
 
 #include "ui/Context.h"
@@ -10,14 +9,7 @@
 #include "ui/CampaignMiniMap.h"
 #include "utils/Constants.h"
 #include "utils/Logging.h"
-
-namespace warmonger {
-
-const QString ApplicationName{"Warmonger"};
-const QString OrganizationName{"Warmonger"};
-const QString OrganizationDomain{"warmonger.org"};
-
-} // namespace warmonger
+#include "utils/Settings.h"
 
 using namespace warmonger;
 
@@ -33,10 +25,7 @@ int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
-    QCoreApplication::setOrganizationName(OrganizationName);
-    QCoreApplication::setOrganizationDomain(OrganizationDomain);
-    QCoreApplication::setApplicationName(ApplicationName);
-
+    utils::initSettings();
     utils::initLogging();
 
     setSearchPaths();
@@ -56,8 +45,7 @@ namespace {
 
 void setSearchPaths()
 {
-    const QSettings settings;
-    const QVariant worldsDirVal = settings.value("worldsDir");
+    const QVariant worldsDirVal = utils::settingsValue(utils::SettingsKey::worldsDir);
 
     if (worldsDirVal.isNull())
     {

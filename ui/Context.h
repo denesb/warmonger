@@ -17,13 +17,14 @@ class Context :
     public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(warmonger::core::World *world READ getWorld NOTIFY worldChanged)
-    Q_PROPERTY(warmonger::ui::WorldSurface *worldSurface READ getWorldSurface NOTIFY worldSurfaceChanged)
-    Q_PROPERTY(warmonger::core::CampaignMap *campaignMap READ getCampaignMap NOTIFY campaignMapChanged)
-    Q_PROPERTY(warmonger::core::Game *game READ getGame NOTIFY gameChanged)
+    Q_PROPERTY(warmonger::core::World* world READ getWorld NOTIFY worldChanged)
+    Q_PROPERTY(warmonger::ui::WorldSurface* worldSurface READ getWorldSurface NOTIFY worldSurfaceChanged)
+    Q_PROPERTY(warmonger::core::CampaignMap* campaignMap READ getCampaignMap NOTIFY campaignMapChanged)
+    Q_PROPERTY(warmonger::core::Game* game READ getGame NOTIFY gameChanged)
     Q_PROPERTY(QVariantList worlds READ readWorlds NOTIFY worldsChanged)
     Q_PROPERTY(QVariantList worldSurfaces READ readWorldSurfaces NOTIFY worldSurfacesChanged)
     Q_PROPERTY(QVariantList campaignMaps READ readCampaignMaps NOTIFY campaignMapsChanged)
+    Q_PROPERTY(QObject* colorPalette READ getColorPalette NOTIFY colorPaletteChanged)
 
 public:
     Context(QQuickWindow *window, QObject *parent=nullptr);
@@ -35,6 +36,8 @@ public:
     QVariantList readWorlds() const;
     QVariantList readWorldSurfaces() const;
     QVariantList readCampaignMaps() const;
+
+    QObject* getColorPalette() const;
 
 public slots:
     /**
@@ -54,6 +57,7 @@ signals:
     void worldsChanged();
     void worldSurfacesChanged();
     void campaignMapsChanged();
+    void colorPaletteChanged();
 
 private:
     void setWorld(core::World *world);
@@ -72,6 +76,7 @@ private:
     std::vector<core::World *> worlds;
     std::map<core::World *, std::vector<ui::WorldSurface *>> worldSurfaces;
     std::vector<core::CampaignMap *> campaignMaps;
+    QObject* colorPalette;
 };
 
 } // namespace ui

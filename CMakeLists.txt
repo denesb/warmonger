@@ -60,6 +60,7 @@ set(
     utils/Hexagon.cpp
     utils/Logging.cpp
     utils/MapGenerator.cpp
+    utils/Settings.cpp
     utils/ToString.cpp
 )
 

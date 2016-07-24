@@ -10,13 +10,6 @@ Rectangle {
 
     state: "expanded"
 
-    width: 300
-    height: 300
-    z: 1
-    anchors {
-        top: parent.top
-    }
-
     color: W.colorPalette.backgroundColor1
 
     border {
@@ -36,16 +29,14 @@ Rectangle {
     }
 
     Widgets.Button {
-        id: miniMapTools
+        id: button
 
-        width: 30
-        height: 30
+        height: 20
         anchors {
-            right: root.left
-            margins: -1
+            bottom: root.top
+            left: root.left
+            right: root.right
         }
-
-        text: ">"
 
         onClicked: {
             if (root.state == "expanded") {
@@ -59,13 +50,13 @@ Rectangle {
     states: [
         State {
             name: "expanded"
-            PropertyChanges { target: root; x: parent.x + parent.width - width }
-            PropertyChanges { target: miniMapTools; anchors.margins: -1; text: ">"}
+            PropertyChanges { target: root; y: parent.y + parent.height - root.height }
+            PropertyChanges { target: button; anchors.bottomMargin: -1; text: "⇣"}
         },
         State {
             name: "collapsed"
-            PropertyChanges { target: root; x: parent.x + parent.width + 1}
-            PropertyChanges { target: miniMapTools; anchors.margins: 0; text: "<"}
+            PropertyChanges { target: root; y: parent.y + parent.height + 1}
+            PropertyChanges { target: button; anchors.bottomMargin: 0; text: "⇡"}
         }
     ]
 
@@ -73,12 +64,12 @@ Rectangle {
         Transition {
             from: "expanded"
             to: "collapsed"
-            NumberAnimation { easing.type: Easing.OutCubic; properties: "x"; duration: 200 }
+            NumberAnimation { easing.type: Easing.OutCubic; properties: "y"; duration: 200 }
         },
         Transition {
             from: "collapsed"
             to: "expanded"
-            NumberAnimation { easing.type: Easing.OutCubic; properties: "x"; duration: 200 }
+            NumberAnimation { easing.type: Easing.OutCubic; properties: "y"; duration: 200 }
         }
     ]
 }

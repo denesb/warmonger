@@ -15,19 +15,34 @@ Rectangle {
         id: miniMap
 
         windowRect: mapEditor.windowRect
-    }
 
-    Rectangle {
-        id: statusBar
+        width: 200
+        height: 200
+        z: 1
 
-        color: W.colorPalette.backgroundColor0
+        border {
+            color: W.colorPalette.foregroundColor1
+            width: 1
+        }
 
-        height: 20
         anchors {
-            bottom: parent.bottom
-            left: parent.left
+            right: parent.right
         }
     }
+
+    /*
+    Components.CampaignMapEditorToolkit {
+        id: editingToolkit
+
+        width: 300
+        z: 1
+
+        anchors {
+            top: miniMap.bottom
+            bottom: parent.bottom
+        }
+    }
+    */
 
     Rectangle {
         id: mapWrapper

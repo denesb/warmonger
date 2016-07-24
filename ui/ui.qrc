@@ -2,5 +2,6 @@
 <RCC version="1.0">
 <qresource>
     <file>qml/windows/MapEditorWindow.qml</file>
+    <file>qml/widgets/WButton.qml</file>
 </qresource>
 </RCC>

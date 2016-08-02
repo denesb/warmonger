@@ -1,6 +1,8 @@
 #ifndef W_UTILS_TO_STRING_H
 #define W_UTILS_TO_STRING_H
 
+#include <ostream>
+
 #include <QJsonValue>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -11,23 +13,23 @@
 #include <QRectF>
 #include <QSize>
 #include <QString>
+#include <QUrl>
 
-#include <ostream>
-
-std::ostream& operator<<(std::ostream &s, const QLatin1String &string);
-std::ostream& operator<<(std::ostream &s, const QByteArray &array);
-std::ostream& operator<<(std::ostream &s, const void *ptr);
-std::ostream& operator<<(std::ostream &s, const QPoint &point);
-std::ostream& operator<<(std::ostream &s, const QPointF &point);
-std::ostream& operator<<(std::ostream &s, const QRect &rect);
-std::ostream& operator<<(std::ostream &s, const QRectF &rect);
-std::ostream& operator<<(std::ostream &s, const QSize &size);
-std::ostream& operator<<(std::ostream &s, const QSizeF &size);
-std::ostream& operator<<(std::ostream &s, const QJsonValue &value);
-std::ostream& operator<<(std::ostream &s, const QJsonObject &obj);
-std::ostream& operator<<(std::ostream &s, const QJsonArray &array);
-std::ostream& operator<<(std::ostream &s, const QString &string);
-std::ostream& operator<<(std::ostream &s, const QStringList &list);
-std::ostream& operator<<(std::ostream &s, const QObject * const obj);
+std::ostream& operator<<(std::ostream& s, const QLatin1String& string);
+std::ostream& operator<<(std::ostream& s, const QByteArray& array);
+std::ostream& operator<<(std::ostream& s, const void* ptr);
+std::ostream& operator<<(std::ostream& s, const QPoint& point);
+std::ostream& operator<<(std::ostream& s, const QPointF& point);
+std::ostream& operator<<(std::ostream& s, const QRect& rect);
+std::ostream& operator<<(std::ostream& s, const QRectF& rect);
+std::ostream& operator<<(std::ostream& s, const QSize& size);
+std::ostream& operator<<(std::ostream& s, const QSizeF& size);
+std::ostream& operator<<(std::ostream& s, const QJsonValue& value);
+std::ostream& operator<<(std::ostream& s, const QJsonObject& obj);
+std::ostream& operator<<(std::ostream& s, const QJsonArray& array);
+std::ostream& operator<<(std::ostream& s, const QString& string);
+std::ostream& operator<<(std::ostream& s, const QStringList& list);
+std::ostream& operator<<(std::ostream& s, const QObject* const obj);
+std::ostream& operator<<(std::ostream& s, const QUrl& url);
 
 #endif // W_UTILS_TO_STRING_H

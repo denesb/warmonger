@@ -119,7 +119,7 @@ void Context::setWorld(core::World *world)
         else
         {
             const QString surfaceName = surfaceVal.toString();
-            const auto it = std::find_if(surfaces.cbegin(), surfaces.cend(), QObjectFinder(surfaceName));
+            const auto it = std::find_if(surfaces.cbegin(), surfaces.cend(), utils::QObjectFinder(surfaceName));
 
             if (it == surfaces.cend())
             {

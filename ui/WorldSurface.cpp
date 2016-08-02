@@ -1,4 +1,5 @@
 #include <cmath>
+#include <set>
 
 #include <QFile>
 #include <QJsonDocument>
@@ -12,6 +13,7 @@
 #include "ui/WorldSurface.h"
 #include "utils/Constants.h"
 #include "utils/Exception.h"
+#include "utils/Utils.h"
 
 using namespace warmonger;
 
@@ -19,6 +21,12 @@ static QString key(const QObject *object);
 
 namespace warmonger {
 namespace ui {
+
+const std::set<QString> visualClasses{
+    "warmonger::core::TerrainType",
+    "warmonger::core::SettlementType",
+    "warmonger::core::UnitType"
+};
 
 WorldSurface::WorldSurface(const QString& path, core::World *world, QQuickWindow *window, QObject *parent) :
     QObject(parent),
@@ -220,7 +228,7 @@ void WorldSurface::activate()
     emit normalGridColorChanged();
     emit focusGridColorChanged();
 
-    if (!this->hexMask.load(this->getPrefix() + "hexagonMask.xpm"))
+    if (!this->hexMask.load(utils::resourcePaths::hexagonMask))
     {
         throw utils::IOError("Hexagon mask not found in surface package " + this->path);
     }
@@ -235,7 +243,7 @@ void WorldSurface::activate()
 
 void WorldSurface::deactivate()
 {
-    const unsigned char * data = reinterpret_cast<const uchar *>(this->resourceData.data());
+    const unsigned char* data = reinterpret_cast<const uchar*>(this->resourceData.data());
     if (!QResource::unregisterResource(data))
     {
         throw utils::IOError("Failed to unregister  " + this->path);
@@ -244,7 +252,7 @@ void WorldSurface::deactivate()
     wInfo << "Succesfully deactivated surface " << this->objectName();
 }
 
-QSGTexture * WorldSurface::getTexture(const QObject *object) const
+QSGTexture* WorldSurface::getTexture(const QObject* object) const
 {
     const auto it = this->textures.find(key(object));
     if (it == this->textures.end())
@@ -254,6 +262,23 @@ QSGTexture * WorldSurface::getTexture(const QObject *object) const
     else
     {
         return it->second.get();
+    }
+}
+
+QUrl WorldSurface::getImageUrl(const QObject* object) const
+{
+    const QString fullClassName{object->metaObject()->className()};
+    if (visualClasses.find(fullClassName) == visualClasses.end())
+    {
+        return QUrl();
+    }
+    else
+    {
+        const QString className = fullClassName.section("::", -1);
+        return QUrl(utils::makePath(
+                utils::resourcePaths::surface,
+                className,
+                utils::makeFileName(object->objectName(), utils::resourcePaths::fileExtension)));
     }
 }
 
@@ -304,27 +329,34 @@ void WorldSurface::uploadTextures()
     const auto terrainTypes = this->world->getTerrainTypes();
     for (const auto& terrainType : terrainTypes)
     {
-        this->uploadTexture(utils::resourcePaths::terrainTypes, terrainType);
+        this->uploadTexture(terrainType);
     }
 
     const auto settlementTypes = this->world->getSettlementTypes();
     for (const auto& settlementType : settlementTypes)
     {
-        this->uploadTexture(utils::resourcePaths::settlementTypes, settlementType);
+        this->uploadTexture(settlementType);
     }
 
     const auto unitTypes = this->world->getUnitTypes();
     for (const auto& unitType : unitTypes)
     {
-        this->uploadTexture(utils::resourcePaths::unitTypes, unitType);
+        this->uploadTexture(unitType);
     }
 
     wInfo << "Textures for surface " << this << " uploaded to GPU";
 }
 
-void WorldSurface::uploadTexture(const QString &pathPrefix, const QObject *object)
+void WorldSurface::uploadTexture(const QObject* object)
 {
-    const QString path = pathPrefix + "/" + object->objectName() + "." + utils::resourcePaths::fileExtension;
+    const QString fullClassName{object->metaObject()->className()};
+    const QString className = fullClassName.section("::", -1);
+
+    const QString path = utils::makePath(
+            utils::resourcePaths::surface,
+            className,
+            utils::makeFileName(object->objectName(), utils::resourcePaths::fileExtension));
+
     QImage image(path);
 
     if (image.isNull())

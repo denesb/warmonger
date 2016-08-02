@@ -4,7 +4,10 @@
 #include "test/catch.hpp"
 
 #include "ui/WorldSurface.h"
+#include "utils/Constants.h"
 #include "utils/Exception.h"
+#include "utils/ToString.h"
+#include "utils/Utils.h"
 
 using namespace warmonger;
 
@@ -154,5 +157,31 @@ TEST_CASE("Can use Surface", "[WorldSurface]")
 
         QFile f(s.getPrefix() + "dev.wsd");
         REQUIRE(f.open(QIODevice::ReadOnly) == false);
+    }
+}
+
+TEST_CASE("getImageUrl", "[WorldSurface]")
+{
+    core::World world;
+
+    int argc = 0;
+    char **argv = nullptr;
+    QGuiApplication app(argc, argv);
+    QQuickWindow window;
+
+    ui::WorldSurface s("./dev.wsp", &world, &window);
+
+    SECTION("Happy flow")
+    {
+        core::UnitType unitType;
+        unitType.setObjectName("ut1");
+
+        const QString p = utils::makePath(
+                utils::resourcePaths::surface,
+                QString("UnitType"),
+                utils::makeFileName(unitType.objectName(), utils::resourcePaths::fileExtension));
+        const QUrl url(p);
+
+        REQUIRE(s.getImageUrl(&unitType) == url);
     }
 }

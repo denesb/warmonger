@@ -62,6 +62,7 @@ set(
     utils/MapGenerator.cpp
     utils/Settings.cpp
     utils/ToString.cpp
+    utils/Utils.cpp
 )
 
 configure_file(Version.h.in Version.h @ONLY)

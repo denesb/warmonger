@@ -72,6 +72,8 @@ public:
 
     QSGTexture* getTexture(const QObject* object) const;
 
+    QUrl getImageUrl(const QObject* object) const;
+
 signals:
     void prefixChanged();
     void displayNameChanged();
@@ -89,7 +91,7 @@ private slots:
 private:
     void parseHeader(const QByteArray& header);
     void uploadTextures();
-    void uploadTexture(const QString &pathPrefix, const QObject *object);
+    void uploadTexture(const QObject *object);
     void cleanTextures();
 
     const QString path;

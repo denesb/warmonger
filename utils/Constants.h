@@ -3,6 +3,8 @@
 
 #include <QString>
 
+#include "utils/Utils.h"
+
 namespace warmonger {
 namespace utils {
 
@@ -50,12 +52,12 @@ const QString surfaces{"surfaces"};
 
 namespace resourcePaths {
 
-const QString surface{":/surface"};
-const QString terrainTypes{surface + "/terrainTypes"};
-const QString settlementTypes{surface + "/settlementTypes"};
-const QString unitTypes{surface + "/unitTypes"};
-
 const QString fileExtension{"png"};
+const QString prefix{":"};
+
+const QString surface{makePath(prefix, "surface")};
+
+const QString hexagonMask{makePath(surface, QString("hexagonMask.xpm"))};
 
 } // namespace resourcePaths
 

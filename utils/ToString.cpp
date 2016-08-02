@@ -2,19 +2,19 @@
 
 #include "utils/ToString.h"
 
-std::ostream& operator<<(std::ostream &s, const QLatin1String &string)
+std::ostream& operator<<(std::ostream& s, const QLatin1String& string)
 {
     s << string;
     return s;
 }
 
-std::ostream& operator<<(std::ostream &s, const QByteArray &array)
+std::ostream& operator<<(std::ostream& s, const QByteArray& array)
 {
     s << array;
     return s;
 }
 
-std::ostream& operator<<(std::ostream &s, const void *ptr)
+std::ostream& operator<<(std::ostream& s, const void* ptr)
 {
     const std::ios::fmtflags oldFlags = s.flags();
     s.setf(std::ios::hex);
@@ -26,45 +26,45 @@ std::ostream& operator<<(std::ostream &s, const void *ptr)
     return s;
 }
 
-std::ostream& operator<<(std::ostream &s, const QPoint &point)
+std::ostream& operator<<(std::ostream& s, const QPoint& point)
 {
     s << "<QPoint (" << point.x() << "," << point.y() << ")>";
     return s;
 }
 
-std::ostream& operator<<(std::ostream &s, const QPointF &point)
+std::ostream& operator<<(std::ostream& s, const QPointF& point)
 {
     s << "<QPointF (" << point.x() << "," << point.y() << ")>";
     return s;
 }
 
-std::ostream& operator<<(std::ostream &s, const QRect &rect)
+std::ostream& operator<<(std::ostream& s, const QRect& rect)
 {
     s << "<QRect (" << rect.x() << "," << rect.y() << ") "
         << rect.width() << "x" << rect.height() << ">";
     return s;
 }
 
-std::ostream& operator<<(std::ostream &s, const QRectF &rect)
+std::ostream& operator<<(std::ostream& s, const QRectF& rect)
 {
     s << "<QRectF (" << rect.x() << "," << rect.y() << ") "
         << rect.width() << "x" << rect.height() << ">";
     return s;
 }
 
-std::ostream& operator<<(std::ostream &s, const QSize &size)
+std::ostream& operator<<(std::ostream& s, const QSize& size)
 {
     s << "<QSize " << size.width() << "x" << size.height() << ">";
     return s;
 }
 
-std::ostream& operator<<(std::ostream &s, const QSizeF &size)
+std::ostream& operator<<(std::ostream& s, const QSizeF& size)
 {
     s << "<QSizeF " << size.width() << "x" << size.height() << ">";
     return s;
 }
 
-std::ostream& operator<<(std::ostream &s, const QJsonValue &value)
+std::ostream& operator<<(std::ostream& s, const QJsonValue& value)
 {
     switch(value.type())
     {
@@ -91,7 +91,7 @@ std::ostream& operator<<(std::ostream &s, const QJsonValue &value)
     return s;
 }
 
-std::ostream& operator<<(std::ostream &s, const QJsonObject &obj)
+std::ostream& operator<<(std::ostream& s, const QJsonObject& obj)
 {
     s << "{";
 
@@ -113,7 +113,7 @@ std::ostream& operator<<(std::ostream &s, const QJsonObject &obj)
     return s;
 }
 
-std::ostream& operator<<(std::ostream &s, const QJsonArray &array)
+std::ostream& operator<<(std::ostream& s, const QJsonArray& array)
 {
     s << "[";
     for (int i = 0; i < array.size(); i++)
@@ -130,13 +130,13 @@ std::ostream& operator<<(std::ostream &s, const QJsonArray &array)
     return s;
 }
 
-std::ostream& operator<<(std::ostream &s, const QString &string)
+std::ostream& operator<<(std::ostream& s, const QString& string)
 {
     s << string.toStdString();
     return s;
 }
 
-std::ostream& operator<<(std::ostream &s, const QStringList &list)
+std::ostream& operator<<(std::ostream& s, const QStringList& list)
 {
     s << "[";
     for (int i = 0; i < list.size(); i++)
@@ -153,7 +153,7 @@ std::ostream& operator<<(std::ostream &s, const QStringList &list)
     return s;
 }
 
-std::ostream& operator<<(std::ostream &s, const QObject * const obj)
+std::ostream& operator<<(std::ostream& s, const QObject* const obj)
 {
     if (obj == nullptr)
     {
@@ -163,6 +163,13 @@ std::ostream& operator<<(std::ostream &s, const QObject * const obj)
 
     const QMetaObject *metaObj = obj->metaObject();
     s << metaObj->className() << "<" << obj->objectName() << ">";
+
+    return s;
+}
+
+std::ostream& operator<<(std::ostream& s, const QUrl& url)
+{
+    s << url.path();
 
     return s;
 }

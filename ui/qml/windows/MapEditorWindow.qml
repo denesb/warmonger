@@ -11,38 +11,18 @@ Rectangle {
 
     anchors.fill: parent
 
-    Components.CampaignMiniMap {
-        id: miniMap
+    Components.CampaignMapEditorSideBar {
+        id: sideBar
 
-        windowRect: mapEditor.windowRect
+        miniMapWindowRect: mapEditor.windowRect
 
         width: 200
-        height: 200
-        z: 1
-
-        border {
-            color: W.colorPalette.foregroundColor1
-            width: 1
-        }
-
         anchors {
+            top: parent.top
+            bottom: parent.bottom
             right: parent.right
         }
     }
-
-    /*
-    Components.CampaignMapEditorToolkit {
-        id: editingToolkit
-
-        width: 300
-        z: 1
-
-        anchors {
-            top: miniMap.bottom
-            bottom: parent.bottom
-        }
-    }
-    */
 
     Rectangle {
         id: mapWrapper
@@ -53,7 +33,7 @@ Rectangle {
             top: parent.top
             bottom: parent.bottom
             left: parent.left
-            right: parent.right
+            right: sideBar.left
         }
 
         CampaignMapEditor {
@@ -61,7 +41,7 @@ Rectangle {
 
             campaignMap: W.campaignMap
             worldSurface: W.worldSurface
-            windowPos: miniMap.windowPos
+            windowPos: sideBar.miniMapWindowPos
 
             anchors.fill: parent
             anchors.margins: 1

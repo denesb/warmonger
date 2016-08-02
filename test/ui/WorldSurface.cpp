@@ -180,7 +180,7 @@ TEST_CASE("getImageUrl", "[WorldSurface]")
                 utils::resourcePaths::surface,
                 QString("UnitType"),
                 utils::makeFileName(unitType.objectName(), utils::resourcePaths::fileExtension));
-        const QUrl url(p);
+        const QUrl url(utils::resourcePaths::resourceSchema + p);
 
         REQUIRE(s.getImageUrl(&unitType) == url);
     }

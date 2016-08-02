@@ -265,7 +265,7 @@ QSGTexture* WorldSurface::getTexture(const QObject* object) const
     }
 }
 
-QUrl WorldSurface::getImageUrl(const QObject* object) const
+QUrl WorldSurface::getImageUrl(QObject* object) const
 {
     const QString fullClassName{object->metaObject()->className()};
     if (visualClasses.find(fullClassName) == visualClasses.end())
@@ -275,7 +275,7 @@ QUrl WorldSurface::getImageUrl(const QObject* object) const
     else
     {
         const QString className = fullClassName.section("::", -1);
-        return QUrl(utils::makePath(
+        return QUrl(utils::resourcePaths::resourceSchema + utils::makePath(
                 utils::resourcePaths::surface,
                 className,
                 utils::makeFileName(object->objectName(), utils::resourcePaths::fileExtension)));

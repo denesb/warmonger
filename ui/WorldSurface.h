@@ -72,7 +72,7 @@ public:
 
     QSGTexture* getTexture(const QObject* object) const;
 
-    QUrl getImageUrl(const QObject* object) const;
+    Q_INVOKABLE QUrl getImageUrl(QObject* object) const;
 
 signals:
     void prefixChanged();

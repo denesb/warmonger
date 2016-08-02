@@ -52,6 +52,7 @@ const QString surfaces{"surfaces"};
 
 namespace resourcePaths {
 
+const QString resourceSchema{"qrc"};
 const QString fileExtension{"png"};
 const QString prefix{":"};
 

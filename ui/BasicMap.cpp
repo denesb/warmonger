@@ -15,7 +15,7 @@ BasicMap::BasicMap(QQuickItem* parent) :
     QObject::connect(&this->mapWindow, &MapWindow::mapRectChanged, this, &BasicMap::mapRectChanged);
     QObject::connect(&this->mapWindow, &MapWindow::windowRectChanged, this, &BasicMap::windowRectChanged);
 
-    this->setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
+    this->setAcceptedMouseButtons(Qt::LeftButton);
 }
 
 QRect BasicMap::getMapRect() const

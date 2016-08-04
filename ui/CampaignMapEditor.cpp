@@ -10,6 +10,7 @@ CampaignMapEditor::CampaignMapEditor(QQuickItem *parent) :
     campaignMap(nullptr),
     worldSurface(nullptr)
 {
+    this->setAcceptHoverEvents(true);
 }
 
 core::CampaignMap* CampaignMapEditor::getCampaignMap() const

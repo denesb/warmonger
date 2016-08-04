@@ -344,6 +344,9 @@ void WorldSurface::uploadTextures()
         this->uploadTexture(unitType);
     }
 
+    this->uploadTexture(utils::resourcePaths::notFound, QImage(utils::resourcePaths::notFound));
+    this->uploadTexture(utils::resourcePaths::mapEditor::hoverValid, QImage(utils::resourcePaths::mapEditor::hoverValid));
+
     wInfo << "Textures for surface " << this << " uploaded to GPU";
 }
 
@@ -357,19 +360,26 @@ void WorldSurface::uploadTexture(const QObject* object)
             className,
             utils::makeFileName(object->objectName(), utils::resourcePaths::fileExtension));
 
-    QImage image(path);
+    try
+    {
+        this->uploadTexture(key(object), QImage(path));
+    }
+    catch(const utils::IOError& e)
+    {
+        wWarning << "Failed to upload texture image for " << object << " from path " << path << ": " << e.getMessage();
+    }
 
+    wInfo << "Successfully uploaded texture for " << object << " from path " << path;
+}
+
+void WorldSurface::uploadTexture(const QString& textureKey, const QImage& image)
+{
     if (image.isNull())
     {
-        wWarning << "Cannot find texture for " << object << " at path " << path;
-        return;
-    }
-    else
-    {
-        wInfo << "Successfully loaded image for " << object << " from path " << path;
+        throw utils::IOError("texture image is null");
     }
 
-    this->textures[key(object)] = std::unique_ptr<QSGTexture>(this->window->createTextureFromImage(image));
+    this->textures[textureKey] = std::unique_ptr<QSGTexture>(this->window->createTextureFromImage(image));
 }
 
 } // namespace ui

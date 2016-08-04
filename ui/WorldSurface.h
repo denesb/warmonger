@@ -91,7 +91,8 @@ private slots:
 private:
     void parseHeader(const QByteArray& header);
     void uploadTextures();
-    void uploadTexture(const QObject *object);
+    void uploadTexture(const QObject* object);
+    void uploadTexture(const QString& textureKey, const QImage& image);
     void cleanTextures();
 
     const QString path;

@@ -59,6 +59,15 @@ const QString prefix{":"};
 const QString surface{makePath(prefix, "surface")};
 
 const QString hexagonMask{makePath(surface, QString("hexagonMask.xpm"))};
+const QString notFound{makePath(surface, QString("notFound.png"))};
+
+namespace mapEditor {
+
+const QString mapEditor{makePath(surface, "MapEditor")};
+
+const QString hoverValid{makePath(mapEditor, QString("hoverValid.png"))};
+
+} // namespace mapEditor
 
 } // namespace resourcePaths
 

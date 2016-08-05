@@ -54,6 +54,25 @@ std::vector<const core::MapNode*> visibleMapNodes(
         const QSize& tileSize,
         const QRect& window);
 
+
+/**
+ * Find node at position pos.
+ *
+ * @param[in] const QPoint& pos the position
+ * @param[in] const std::vector<core::MapNode*>& mapNodes the list of map-nodes
+ * @param[in] const std::map<const core::MapNode*, QPoint>& mapNodesPos the
+ *  position of map-nodes
+ * @param[in] const WorldSurface* worldSurface the active worldSurface
+ *
+ * @returns core::MapNode* the map-node or nullptr if no map-node was found at
+ * the position.
+ */
+core::MapNode* mapNodeAtPos(
+        const QPoint& pos,
+        const std::vector<core::MapNode*>& mapNodes,
+        const std::map<const core::MapNode*, QPoint>& mapNodesPos,
+        const WorldSurface* worldSurface);
+
 QPoint project(const QPoint& p, const QRect& r);
 
 /**

@@ -1,6 +1,9 @@
+#include <QGuiApplication>
+
 #include "test/catch.hpp"
 
 #include "ui/MapUtil.h"
+#include "ui/WorldSurface.h"
 #include "utils/MapGenerator.h"
 #include "utils/ToString.h"
 
@@ -254,6 +257,50 @@ TEST_CASE("Visibility test", "[visibleMapNodes]")
         REQUIRE(visibleMapNodes.empty() == true);
     }
 
+}
+
+TEST_CASE("", "[mapNodeAtPos]")
+{
+    std::vector<core::MapNode*> mapNodes = utils::generateMapNodes(2);
+    utils::generateMapNodeNames(mapNodes);
+
+    core::World world;
+
+    int argc = 0;
+    char **argv = nullptr;
+    QGuiApplication app(argc, argv);
+    QQuickWindow window;
+
+    ui::WorldSurface surface("./dev.wsp", &world, &window);
+    surface.activate();
+
+    const std::map<const core::MapNode*, QPoint> nodesPos = ui::positionMapNodes(
+            mapNodes.front(),
+            surface.getTileSize());
+
+    const core::MapNode* n;
+
+    const int w = surface.getTileSize().width();
+    const int h = surface.getTileSize().height();
+
+    n = ui::mapNodeAtPos(QPoint(w / 2, h / 2), mapNodes, nodesPos, &surface);
+    REQUIRE(n != nullptr);
+    REQUIRE(n == mapNodes.front());
+
+    n = ui::mapNodeAtPos(QPoint(0, 0), mapNodes, nodesPos, &surface);
+    REQUIRE(n != nullptr);
+    REQUIRE(n == mapNodes.front()->getNeighbour(utils::Direction::NorthWest));
+
+    n = ui::mapNodeAtPos(QPoint(w, h), mapNodes, nodesPos, &surface);
+    REQUIRE(n != nullptr);
+    REQUIRE(n == mapNodes.front()->getNeighbour(utils::Direction::SouthEast));
+
+    n = ui::mapNodeAtPos(QPoint(-w / 2, h / 2), mapNodes, nodesPos, &surface);
+    REQUIRE(n != nullptr);
+    REQUIRE(n == mapNodes.front()->getNeighbour(utils::Direction::West));
+
+    n = ui::mapNodeAtPos(QPoint(w * 100, h * 100), mapNodes, nodesPos, &surface);
+    REQUIRE(n == nullptr);
 }
 
 std::pair<float, float> getScaleFactor(const QMatrix4x4 &matrix)

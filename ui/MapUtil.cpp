@@ -111,6 +111,23 @@ std::vector<const core::MapNode*> visibleMapNodes(
     return visibleNodes;
 }
 
+core::MapNode* mapNodeAtPos(
+        const QPoint& pos,
+        const std::vector<core::MapNode*>& mapNodes,
+        const std::map<const core::MapNode*, QPoint>& nodesPos,
+        const WorldSurface* worldSurface)
+{
+    for(core::MapNode* n : mapNodes)
+    {
+        const QPoint &nodePos = nodesPos.at(n);
+        const QPoint hexPos = pos - nodePos;
+        if(QRect(nodePos, worldSurface->getTileSize()).contains(pos) && worldSurface->hexContains(hexPos))
+            return n;
+    }
+
+    return nullptr;
+}
+
 QPainterPath hexagonPath(const QSize &tileSize)
 {
     const int w = tileSize.width();

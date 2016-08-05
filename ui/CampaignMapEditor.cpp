@@ -93,6 +93,10 @@ QSGNode* CampaignMapEditor::drawMapNodeAndContents(const core::MapNode* mapNode,
     return drawMapNode(mapNode, this->worldSurface, this->mapNodesPos.at(mapNode), oldNode);
 }
 
+void CampaignMapEditor::hoverMoveEvent(QHoverEvent*)
+{
+}
+
 void CampaignMapEditor::updateContent()
 {
     if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty()

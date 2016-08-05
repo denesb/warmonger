@@ -36,6 +36,9 @@ signals:
     void campaignMapChanged();
     void worldSurfaceChanged();
 
+protected:
+    void hoverMoveEvent(QHoverEvent* event) override;
+
 private:
     void updateContent();
     void updateMapRect();

@@ -15,12 +15,20 @@
 #include "utils/Exception.h"
 #include "utils/Utils.h"
 
-using namespace warmonger;
-
-static QString key(const QObject *object);
-
 namespace warmonger {
 namespace ui {
+
+static QString key(const QObject* const object);
+static QString objectPath(const QObject* const object);
+static void checkMissingImages(const core::World * const world);
+static bool isImageMissing(const QString& key);
+static bool isOptionalImageMissing(const QObject* const object);
+static bool isRequiredImageMissing(const QString& p);
+
+const std::vector<QString> requiredImagePaths{
+    utils::resourcePaths::notFound,
+    utils::resourcePaths::mapEditor::hoverValid
+};
 
 const std::set<QString> visualClasses{
     "warmonger::core::TerrainType",
@@ -233,6 +241,8 @@ void WorldSurface::activate()
         throw utils::IOError("Hexagon mask not found in surface package " + this->path);
     }
 
+    checkMissingImages(this->world);
+
     wInfo << "Succesfully activated surface " << this->objectName();
 
     if (this->isTextureSyncOn)
@@ -254,7 +264,12 @@ void WorldSurface::deactivate()
 
 QSGTexture* WorldSurface::getTexture(const QObject* object) const
 {
-    const auto it = this->textures.find(key(object));
+    return this->getTexture(key(object));
+}
+
+QSGTexture* WorldSurface::getTexture(const QString& key) const
+{
+    const auto it = this->textures.find(key);
     if (it == this->textures.end())
     {
         return nullptr;
@@ -326,66 +341,107 @@ void WorldSurface::uploadTextures()
 {
     this->textures.clear();
 
+    void(WorldSurface::* memFn)(const QObject* const) = &WorldSurface::uploadTexture;
+    const auto uploadTextureFunc = std::bind(memFn, this, std::placeholders::_1);
+
     const auto terrainTypes = this->world->getTerrainTypes();
-    for (const auto& terrainType : terrainTypes)
-    {
-        this->uploadTexture(terrainType);
-    }
+    std::for_each(terrainTypes.cbegin(), terrainTypes.cend(), uploadTextureFunc);
 
     const auto settlementTypes = this->world->getSettlementTypes();
-    for (const auto& settlementType : settlementTypes)
-    {
-        this->uploadTexture(settlementType);
-    }
+    std::for_each(settlementTypes.cbegin(), settlementTypes.cend(), uploadTextureFunc);
 
     const auto unitTypes = this->world->getUnitTypes();
-    for (const auto& unitType : unitTypes)
-    {
-        this->uploadTexture(unitType);
-    }
+    std::for_each(unitTypes.cbegin(), unitTypes.cend(), uploadTextureFunc);
 
-    this->uploadTexture(utils::resourcePaths::notFound, QImage(utils::resourcePaths::notFound));
-    this->uploadTexture(utils::resourcePaths::mapEditor::hoverValid, QImage(utils::resourcePaths::mapEditor::hoverValid));
+    std::for_each(
+            requiredImagePaths.cbegin(),
+            requiredImagePaths.cend(),
+            [&](const QString& p) { this->uploadTexture(p, QImage(p)); });
 
     wInfo << "Textures for surface " << this << " uploaded to GPU";
 }
 
-void WorldSurface::uploadTexture(const QObject* object)
+void WorldSurface::uploadTexture(const QObject* const object)
 {
-    const QString fullClassName{object->metaObject()->className()};
-    const QString className = fullClassName.section("::", -1);
-
-    const QString path = utils::makePath(
-            utils::resourcePaths::surface,
-            className,
-            utils::makeFileName(object->objectName(), utils::resourcePaths::fileExtension));
-
-    try
-    {
-        this->uploadTexture(key(object), QImage(path));
-    }
-    catch(const utils::IOError& e)
-    {
-        wWarning << "Failed to upload texture image for " << object << " from path " << path << ": " << e.getMessage();
-    }
-
-    wInfo << "Successfully uploaded texture for " << object << " from path " << path;
+    this->uploadTexture(key(object), QImage(objectPath(object)));
 }
 
 void WorldSurface::uploadTexture(const QString& textureKey, const QImage& image)
 {
     if (image.isNull())
     {
-        throw utils::IOError("texture image is null");
+        return;
     }
 
     this->textures[textureKey] = std::unique_ptr<QSGTexture>(this->window->createTextureFromImage(image));
+
+    wInfo << "Successfully uploaded texture " << textureKey;
+}
+
+static QString key(const QObject* const object)
+{
+    return QString(object->metaObject()->className()) + "/" + object->objectName();
+}
+
+static QString objectPath(const QObject* const object)
+{
+    const QString fullClassName{object->metaObject()->className()};
+    const QString className = fullClassName.section("::", -1);
+
+    return utils::makePath(
+            utils::resourcePaths::surface,
+            className,
+            utils::makeFileName(object->objectName(), utils::resourcePaths::fileExtension));
+}
+
+static void checkMissingImages(const core::World* const world)
+{
+    const auto terrainTypes = world->getTerrainTypes();
+    std::for_each(terrainTypes.cbegin(), terrainTypes.cend(), isOptionalImageMissing);
+
+    const auto settlementTypes = world->getSettlementTypes();
+    std::for_each(settlementTypes.cbegin(), settlementTypes.cend(), isOptionalImageMissing);
+
+    const auto unitTypes = world->getUnitTypes();
+    std::for_each(unitTypes.cbegin(), unitTypes.cend(), isOptionalImageMissing);
+
+    if (std::any_of(requiredImagePaths.cbegin(), requiredImagePaths.cend(), isRequiredImageMissing))
+    {
+        throw utils::IOError("Failed to find one or more required image resources");
+    }
+}
+
+static bool isImageMissing(const QString& imagePath)
+{
+    return QImage(imagePath).isNull();
+}
+
+static bool isOptionalImageMissing(const QObject* const object)
+{
+    const QString path(objectPath(object));
+    if (isImageMissing(path))
+    {
+        wWarning << "Image " << path << " for " << object << " is missing";
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+static bool isRequiredImageMissing(const QString& path)
+{
+    if (isImageMissing(path))
+    {
+        wError << "Image " << path << " is missing";
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 } // namespace ui
 } // namespace warmonger
-
-static QString key(const QObject *object)
-{
-    return QString(object->metaObject()->className()) + "/" + object->objectName();
-}

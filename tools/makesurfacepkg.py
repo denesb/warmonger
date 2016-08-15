@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python3
 
 # File extensions
 QRC = 'qrc' # Qt resource definition file

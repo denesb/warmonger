@@ -1,5 +1,8 @@
+#include <QSGSimpleTextureNode>
+
 #include "ui/CampaignMapEditor.h"
 #include "ui/MapUtil.h"
+#include "utils/Constants.h"
 #include "utils/Logging.h"
 
 namespace warmonger {
@@ -8,7 +11,8 @@ namespace ui {
 CampaignMapEditor::CampaignMapEditor(QQuickItem *parent) :
     BasicMap(parent),
     campaignMap(nullptr),
-    worldSurface(nullptr)
+    worldSurface(nullptr),
+    currentMapNode(nullptr)
 {
     this->setAcceptHoverEvents(true);
 }
@@ -90,11 +94,44 @@ QSGNode* CampaignMapEditor::updatePaintNode(QSGNode *oldRootNode, UpdatePaintNod
 
 QSGNode* CampaignMapEditor::drawMapNodeAndContents(const core::MapNode* mapNode, QSGNode* oldNode)
 {
-    return drawMapNode(mapNode, this->worldSurface, this->mapNodesPos.at(mapNode), oldNode);
+    QSGNode* mapNodeSGNode = drawMapNode(mapNode, this->worldSurface, this->mapNodesPos.at(mapNode), oldNode);
+    if(this->currentMapNode == mapNode)
+    {
+        if(mapNodeSGNode->firstChild() == nullptr)
+        {
+            QSGSimpleTextureNode* node = new QSGSimpleTextureNode();
+            QSGTexture* texture = worldSurface->getTexture(utils::resourcePaths::mapEditor::hoverValid);
+
+            node->setRect(static_cast<QSGSimpleTextureNode*>(mapNodeSGNode)->rect());
+            node->setTexture(texture);
+
+            mapNodeSGNode->appendChildNode(node);
+        }
+    }
+    else
+    {
+        if(mapNodeSGNode->firstChild() != nullptr)
+        {
+            mapNodeSGNode->removeAllChildNodes();
+        }
+    }
+
+    return mapNodeSGNode;
 }
 
-void CampaignMapEditor::hoverMoveEvent(QHoverEvent*)
+void CampaignMapEditor::hoverMoveEvent(QHoverEvent* event)
 {
+    core::MapNode* nextCurrentMapNode = mapNodeAtPos(
+            event->pos(),
+            this->campaignMap->getMapNodes(),
+            this->mapNodesPos,
+            this->worldSurface);
+
+    if (this->currentMapNode != nextCurrentMapNode)
+    {
+        this->currentMapNode = nextCurrentMapNode;
+        this->update();
+    }
 }
 
 void CampaignMapEditor::updateContent()

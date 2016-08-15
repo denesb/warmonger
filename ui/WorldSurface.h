@@ -71,6 +71,7 @@ public:
     void deactivate();
 
     QSGTexture* getTexture(const QObject* object) const;
+    QSGTexture* getTexture(const QString& key) const;
 
     Q_INVOKABLE QUrl getImageUrl(QObject* object) const;
 
@@ -91,7 +92,7 @@ private slots:
 private:
     void parseHeader(const QByteArray& header);
     void uploadTextures();
-    void uploadTexture(const QObject* object);
+    void uploadTexture(const QObject* const object);
     void uploadTexture(const QString& textureKey, const QImage& image);
     void cleanTextures();
 

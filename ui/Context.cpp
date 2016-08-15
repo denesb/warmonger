@@ -152,7 +152,6 @@ void Context::setWorldSurface(ui::WorldSurface *worldSurface)
         }
 
         this->worldSurface->activate();
-
         emit worldSurfaceChanged();
     }
 }

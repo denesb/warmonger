@@ -111,6 +111,20 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
     }
 }
 
+TEST_CASE("Missing some required images", "[WorldSurface]")
+{
+    core::World world;
+
+    int argc = 0;
+    char **argv = nullptr;
+    QGuiApplication app(argc, argv);
+    QQuickWindow window;
+
+    ui::WorldSurface s("./dev_missingrequiredimages.wsp", &world, &window);
+
+    REQUIRE_THROWS_AS(s.activate(), utils::IOError);
+}
+
 TEST_CASE("Can use Surface", "[WorldSurface]")
 {
     core::World world;

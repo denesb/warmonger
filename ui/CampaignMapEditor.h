@@ -46,6 +46,7 @@ private:
     core::CampaignMap *campaignMap;
     WorldSurface *worldSurface;
     std::map<const core::MapNode*, QPoint> mapNodesPos;
+    core::MapNode* currentMapNode;
 };
 
 } // namespace ui

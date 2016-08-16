@@ -33,6 +33,11 @@ QPoint BasicMap::getWindowPos() const
     return this->mapWindow.getWindowRect().topLeft();
 }
 
+QPoint BasicMap::windowPosToMapPos(const QPoint& pos)
+{
+    return this->mapWindow.windowPosToMapPos(pos);
+}
+
 void BasicMap::setWindowPos(const QPoint& pos)
 {
     this->mapWindow.setWindowPos(pos);

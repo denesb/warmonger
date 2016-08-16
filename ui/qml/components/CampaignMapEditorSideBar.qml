@@ -7,6 +7,7 @@ Rectangle {
 
     property var miniMapWindowRect
     readonly property var miniMapWindowPos: miniMap.windowPos
+    readonly property var objectType: objectTypeSelector.objectType
 
     color: W.colorPalette.backgroundColor0
 
@@ -23,12 +24,11 @@ Rectangle {
         }
 
         Components.ObjectTypeSelector {
+            id: objectTypeSelector
+
             anchors.fill: parent
 
             objectTypes: W.world.terrainTypes
-            onCurrentObjectTypeChanged: {
-                console.log(currentObjectType);
-            }
         }
     }
 

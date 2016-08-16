@@ -12,7 +12,9 @@ CampaignMapEditor::CampaignMapEditor(QQuickItem *parent) :
     BasicMap(parent),
     campaignMap(nullptr),
     worldSurface(nullptr),
-    currentMapNode(nullptr)
+    currentMapNode(nullptr),
+    editingMode(EditingMode::TerrainType),
+    objectType(nullptr)
 {
     this->setAcceptHoverEvents(true);
 }
@@ -50,6 +52,35 @@ void CampaignMapEditor::setWorldSurface(WorldSurface* worldSurface)
         this->updateContent();
 
         emit worldSurfaceChanged();
+    }
+}
+
+CampaignMapEditor::EditingMode CampaignMapEditor::getEditingMode() const
+{
+    return this->editingMode;
+}
+
+void CampaignMapEditor::setEditingMode(EditingMode editingMode)
+{
+    if (this->editingMode != editingMode)
+    {
+        this->editingMode = editingMode;
+        emit editingModeChanged();
+    }
+}
+
+QObject* CampaignMapEditor::getObjectType() const
+{
+    return this->objectType;
+}
+
+void CampaignMapEditor::setObjectType(QObject* objectType)
+{
+    if (this->objectType != objectType)
+    {
+        wDebug << "objectType: `" << this->objectType << "' -> `" << objectType << "'";
+        this->objectType = objectType;
+        emit objectTypeChanged();
     }
 }
 
@@ -122,7 +153,7 @@ QSGNode* CampaignMapEditor::drawMapNodeAndContents(const core::MapNode* mapNode,
 void CampaignMapEditor::hoverMoveEvent(QHoverEvent* event)
 {
     core::MapNode* nextCurrentMapNode = mapNodeAtPos(
-            event->pos(),
+            this->windowPosToMapPos(event->pos()),
             this->campaignMap->getMapNodes(),
             this->mapNodesPos,
             this->worldSurface);
@@ -132,6 +163,13 @@ void CampaignMapEditor::hoverMoveEvent(QHoverEvent* event)
         this->currentMapNode = nextCurrentMapNode;
         this->update();
     }
+}
+
+void CampaignMapEditor::mousePressEvent(QMouseEvent* event)
+{
+    this->doEditingAction(this->windowPosToMapPos(event->pos()));
+
+    BasicMap::mousePressEvent(event);
 }
 
 void CampaignMapEditor::updateContent()
@@ -161,6 +199,50 @@ void CampaignMapEditor::updateMapRect()
         this->setMapRect(calculateBoundingRect(this->mapNodesPos, this->worldSurface->getTileSize()));
         this->update();
     }
+}
+
+void CampaignMapEditor::doEditingAction(const QPoint& pos)
+{
+    switch(this->editingMode)
+    {
+        case EditingMode::TerrainType:
+            this->doTerrainTypeEditingAction(pos);
+            break;
+        case EditingMode::SettlementType:
+            this->doSettlementTypeEditingAction();
+            break;
+    }
+}
+
+void CampaignMapEditor::doTerrainTypeEditingAction(const QPoint&)
+{
+    core::TerrainType* terrainType = qobject_cast<core::TerrainType*>(this->objectType);
+    if(terrainType == nullptr)
+    {
+        wWarning << "objectType has invalid value `" << this->objectType << "' for editing mode `EditingMode::TerrainType'";
+        return;
+    }
+
+    core::MapNode* mapNode{nullptr};
+
+    if(this->currentMapNode != nullptr)
+    {
+        mapNode = this->currentMapNode;
+    }
+    else
+    {
+        //TODO:
+    }
+
+    if(mapNode != nullptr)
+    {
+        mapNode->setTerrainType(terrainType);
+        this->update();
+    }
+}
+
+void CampaignMapEditor::doSettlementTypeEditingAction()
+{
 }
 
 } // namespace ui

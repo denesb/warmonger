@@ -42,6 +42,7 @@ Rectangle {
             campaignMap: W.campaignMap
             worldSurface: W.worldSurface
             windowPos: sideBar.miniMapWindowPos
+            objectType: sideBar.objectType
 
             anchors.fill: parent
             anchors.margins: 1

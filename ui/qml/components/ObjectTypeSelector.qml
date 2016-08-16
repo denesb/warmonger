@@ -4,7 +4,7 @@ Rectangle {
     id: root
 
     property var objectTypes
-    property var currentObjectType
+    property var objectType
 
     color: W.colorPalette.backgroundColor0
 
@@ -45,7 +45,6 @@ Rectangle {
                 onClicked: {
                     frame.GridView.view.currentItem.state = "normal"
                     frame.GridView.view.currentIndex = index
-                    root.currentObjectType = root.objectTypes[index]
                 }
 
                 onEntered: {
@@ -92,7 +91,11 @@ Rectangle {
 
         width: parent.width - parent.width % 88
 
-        currentIndex: -1
+        currentIndex: 0
+        onCurrentIndexChanged: {
+            root.objectType = root.objectTypes[currentIndex]
+        }
+
         model: root.objectTypes
         delegate: objectTypeComponent
     }

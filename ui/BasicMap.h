@@ -25,6 +25,8 @@ public:
     QPoint getWindowPos() const;
     QRect getMapRect() const;
 
+    QPoint windowPosToMapPos(const QPoint& pos);
+
 public slots:
     void setWindowPos(const QPoint& pos);
     void centerWindow(const QPoint& pos);

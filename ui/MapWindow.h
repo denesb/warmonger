@@ -1,5 +1,5 @@
-#ifndef UI_MAP_WINDOW_H
-#define UI_MAP_WINDOW_H
+#ifndef W_UI_MAP_WINDOW_H
+#define W_UI_MAP_WINDOW_H
 
 #include <QObject>
 #include <QPoint>
@@ -52,4 +52,4 @@ private:
 } // namespace ui
 } // namespace warmonger
 
-#endif // UI_MAP_WINDOW_H
+#endif // W_UI_MAP_WINDOW_H

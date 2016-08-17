@@ -52,6 +52,7 @@ set(
     ui/BasicMap.cpp
     ui/BasicMiniMap.cpp
     ui/CampaignMapEditor.cpp
+    ui/CampaignMapWatcher.cpp
     ui/CampaignMiniMap.cpp
     ui/Context.cpp
     ui/MapUtil.cpp

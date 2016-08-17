@@ -11,6 +11,8 @@
 namespace warmonger {
 namespace ui {
 
+class CampaignMapWatcher;
+
 class CampaignMapEditor :
     public BasicMap,
     public MapDrawer
@@ -71,6 +73,8 @@ private:
 
     EditingMode editingMode;
     QObject* objectType;
+
+    CampaignMapWatcher* watcher;
 };
 
 } // namespace ui

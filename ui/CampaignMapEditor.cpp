@@ -1,6 +1,7 @@
 #include <QSGSimpleTextureNode>
 
 #include "ui/CampaignMapEditor.h"
+#include "ui/CampaignMapWatcher.h"
 #include "ui/MapUtil.h"
 #include "utils/Constants.h"
 #include "utils/Logging.h"
@@ -14,7 +15,8 @@ CampaignMapEditor::CampaignMapEditor(QQuickItem *parent) :
     worldSurface(nullptr),
     currentMapNode(nullptr),
     editingMode(EditingMode::TerrainType),
-    objectType(nullptr)
+    objectType(nullptr),
+    watcher(nullptr)
 {
     this->setAcceptHoverEvents(true);
 }
@@ -32,6 +34,10 @@ void CampaignMapEditor::setCampaignMap(core::CampaignMap* campaignMap)
 
         this->campaignMap = campaignMap;
         this->updateContent();
+
+        delete this->watcher;
+        this->watcher = new CampaignMapWatcher(this->campaignMap, this);
+        QObject::connect(this->watcher, &CampaignMapWatcher::changed, this, &CampaignMapEditor::update);
 
         emit campaignMapChanged();
     }
@@ -237,7 +243,6 @@ void CampaignMapEditor::doTerrainTypeEditingAction(const QPoint&)
     if(mapNode != nullptr)
     {
         mapNode->setTerrainType(terrainType);
-        this->update();
     }
 }
 

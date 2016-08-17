@@ -17,6 +17,8 @@ namespace core {
 
 namespace ui {
 
+class CampaignMapWatcher;
+
 class CampaignMiniMap :
     public BasicMiniMap,
     public MapDrawer
@@ -50,6 +52,8 @@ private:
     WorldSurface* worldSurface;
     core::CampaignMap* campaignMap;
     std::map<const core::MapNode*, QPoint> mapNodesPos;
+
+    CampaignMapWatcher* watcher;
 };
 
 } // namespace ui

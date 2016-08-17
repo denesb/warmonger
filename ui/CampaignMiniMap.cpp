@@ -7,6 +7,7 @@
 #include "core/TerrainType.h"
 #include "core/Unit.h"
 #include "ui/CampaignMiniMap.h"
+#include "ui/CampaignMapWatcher.h"
 #include "ui/MapUtil.h"
 #include "utils/Logging.h"
 
@@ -16,7 +17,8 @@ namespace ui {
 CampaignMiniMap::CampaignMiniMap(QQuickItem *parent) :
     BasicMiniMap(parent),
     worldSurface(nullptr),
-    campaignMap(nullptr)
+    campaignMap(nullptr),
+    watcher(nullptr)
 {
 }
 
@@ -34,6 +36,11 @@ void CampaignMiniMap::setCampaignMap(core::CampaignMap* campaignMap)
         this->campaignMap = campaignMap;
 
         this->updateContent();
+
+        delete this->watcher;
+        this->watcher = new CampaignMapWatcher(this->campaignMap, this);
+        QObject::connect(this->watcher, &CampaignMapWatcher::changed, this, &CampaignMiniMap::update);
+
         emit campaignMapChanged();
     }
 }

@@ -171,6 +171,12 @@ void CampaignMapEditor::hoverMoveEvent(QHoverEvent* event)
     }
 }
 
+void CampaignMapEditor::hoverLeaveEvent(QHoverEvent*)
+{
+    this->currentMapNode = nullptr;
+    this->update();
+}
+
 void CampaignMapEditor::mousePressEvent(QMouseEvent* event)
 {
     this->doEditingAction(this->windowPosToMapPos(event->pos()));

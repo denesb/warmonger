@@ -57,6 +57,7 @@ signals:
 
 protected:
     void hoverMoveEvent(QHoverEvent* event) override;
+    void hoverLeaveEvent(QHoverEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
 
 private:

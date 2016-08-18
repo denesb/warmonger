@@ -12,7 +12,7 @@
 namespace warmonger {
 namespace ui {
 
-static void positionMapNode(const core::MapNode* node, std::map<const core::MapNode*, QPoint>& nodesPos, const QSize& tileSize);
+static void positionMapNode(core::MapNode* node, std::map<core::MapNode*, QPoint>& nodesPos, const QSize& tileSize);
 
 QPoint neighbourPos(const QPoint& pos, utils::Direction dir, const QSize& tileSize)
 {
@@ -50,9 +50,27 @@ QPoint neighbourPos(const QPoint& pos, utils::Direction dir, const QSize& tileSi
     );
 }
 
-std::map<const core::MapNode*, QPoint> positionMapNodes(const core::MapNode* startNode, const QSize& tileSize)
+core::MapNodeNeighbours neighboursByPos(
+        const QPoint& pos,
+        const WorldSurface* worldSurface,
+        const std::map<core::MapNode*, QPoint>& mapNodesPos)
 {
-    std::map<const core::MapNode*, QPoint> nodesPos;
+    core::MapNodeNeighbours neighbours;
+
+    const QSize tileSize = worldSurface->getTileSize();
+    for (utils::Direction direction : utils::directions)
+    {
+        QPoint nPos = neighbourPos(pos, direction, tileSize);
+
+        neighbours[direction] = mapNodeAtPos(nPos, mapNodesPos, worldSurface);
+    }
+
+    return neighbours;
+}
+
+std::map<core::MapNode*, QPoint> positionMapNodes(core::MapNode* startNode, const QSize& tileSize)
+{
+    std::map<core::MapNode*, QPoint> nodesPos;
 
     nodesPos.insert(std::make_pair(startNode, QPoint(0, 0)));
 
@@ -61,7 +79,7 @@ std::map<const core::MapNode*, QPoint> positionMapNodes(const core::MapNode* sta
     return nodesPos;
 }
 
-QRect calculateBoundingRect(const std::map<const core::MapNode *, QPoint> &nodesPos, const QSize &tileSize)
+QRect calculateBoundingRect(const std::map<core::MapNode *, QPoint> &nodesPos, const QSize &tileSize)
 {
     if (nodesPos.size() == 0)
         return QRect(0, 0, 0, 0);
@@ -92,12 +110,12 @@ QRect calculateBoundingRect(const std::map<const core::MapNode *, QPoint> &nodes
     return QRect(topLeft, bottomRight);
 }
 
-std::vector<const core::MapNode*> visibleMapNodes(
-        const std::map<const core::MapNode*, QPoint>& mapNodesPos,
+std::vector<core::MapNode*> visibleMapNodes(
+        const std::map<core::MapNode*, QPoint>& mapNodesPos,
         const QSize& tileSize,
         const QRect& window)
 {
-    std::vector<const core::MapNode*> visibleNodes;
+    std::vector<core::MapNode*> visibleNodes;
     QRect nodeRect(0, 0, tileSize.width(), tileSize.height());
 
     for (const auto& mapNodePos : mapNodesPos)
@@ -113,16 +131,16 @@ std::vector<const core::MapNode*> visibleMapNodes(
 
 core::MapNode* mapNodeAtPos(
         const QPoint& pos,
-        const std::vector<core::MapNode*>& mapNodes,
-        const std::map<const core::MapNode*, QPoint>& nodesPos,
+        const std::map<core::MapNode*, QPoint>& nodesPos,
         const WorldSurface* worldSurface)
 {
-    for(core::MapNode* n : mapNodes)
+    const QSize tileSize(worldSurface->getTileSize());
+    for(const std::pair<core::MapNode*, QPoint>& nodePosItem : nodesPos)
     {
-        const QPoint &nodePos = nodesPos.at(n);
+        const QPoint &nodePos = nodePosItem.second;
         const QPoint hexPos = pos - nodePos;
-        if(QRect(nodePos, worldSurface->getTileSize()).contains(pos) && worldSurface->hexContains(hexPos))
-            return n;
+        if(QRect(nodePos, tileSize).contains(pos) && worldSurface->hexContains(hexPos))
+            return nodePosItem.first;
     }
 
     return nullptr;
@@ -200,7 +218,7 @@ QMatrix4x4 moveTo(const QPoint& point, const QPoint& refPoint)
     return matrix;
 }
 
-void drawMapNodes(const std::vector<const core::MapNode*>& mapNodes, QSGNode* rootNode, MapDrawer& mapNodeDrawer)
+void drawMapNodes(const std::vector<core::MapNode*>& mapNodes, QSGNode* rootNode, MapDrawer& mapNodeDrawer)
 {
     const int mapNodesSize = static_cast<int>(mapNodes.size());
     const int nodesCount = rootNode->childCount();
@@ -227,13 +245,14 @@ void drawMapNodes(const std::vector<const core::MapNode*>& mapNodes, QSGNode* ro
         for (int i = nodesCount; i < mapNodesSize; ++i)
         {
             QSGNode* newNode = mapNodeDrawer.drawMapNodeAndContents(mapNodes[i], nullptr);
-            rootNode->appendChildNode(newNode);
+            if (newNode != nullptr)
+                rootNode->appendChildNode(newNode);
         }
     }
 }
 
 QSGNode* drawMapNode(
-        const core::MapNode* mapNode,
+        core::MapNode* mapNode,
         const ui::WorldSurface* worldSurface,
         const QPoint& pos,
         QSGNode* oldNode)
@@ -314,10 +333,10 @@ QSGNode* drawRect(const QRect& rect, QSGNode* oldNode)
     return node;
 }
 
-static void positionMapNode(const core::MapNode* node, std::map<const core::MapNode*, QPoint>& nodesPos, const QSize& tileSize)
+static void positionMapNode(core::MapNode* node, std::map<core::MapNode*, QPoint>& nodesPos, const QSize& tileSize)
 {
     QPoint pos = nodesPos[node];
-    std::map<utils::Direction, core::MapNode*> neighbours = node->getNeighbours();
+    const core::MapNodeNeighbours& neighbours = node->getNeighbours();
     for (const auto& element :  neighbours)
     {
         utils::Direction dir = element.first;

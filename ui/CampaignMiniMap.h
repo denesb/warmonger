@@ -38,7 +38,7 @@ public:
 
     QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* data) override;
 
-    QSGNode* drawMapNodeAndContents(const core::MapNode* mapNode, QSGNode* oldNode) override;
+    QSGNode* drawMapNodeAndContents(core::MapNode* mapNode, QSGNode* oldNode) override;
 
 signals:
     void campaignMapChanged();
@@ -48,10 +48,11 @@ signals:
 private:
     void updateContent();
     void updateMapRect();
+    void onMapNodesChanged();
 
     WorldSurface* worldSurface;
     core::CampaignMap* campaignMap;
-    std::map<const core::MapNode*, QPoint> mapNodesPos;
+    std::map<core::MapNode*, QPoint> mapNodesPos;
 
     CampaignMapWatcher* watcher;
 };

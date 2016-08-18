@@ -24,6 +24,10 @@ signals:
     void changed();
 
 private:
+    void connectSignals();
+    void onMapNodesChanged();
+
+private:
     const core::CampaignMap* const campaignMap;
 };
 

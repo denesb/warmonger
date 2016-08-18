@@ -11,6 +11,7 @@ using namespace warmonger;
 
 std::pair<float, float> getScaleFactor(const QMatrix4x4 &matrix);
 std::pair<float, float> getTranslation(const QMatrix4x4 &matrix);
+std::ostream& operator<<(std::ostream& s, const core::MapNodeNeighbours& n);
 
 TEST_CASE("Scaling, equal sided frame, content is larger than frame", "[centerIn]")
 {
@@ -209,13 +210,13 @@ TEST_CASE("Visibility test", "[visibleMapNodes]")
     utils::generateMapNodeNames(mapNodes);
 
     const QSize tileSize(10, 10);
-    const std::map<const core::MapNode*, QPoint> mapNodesPos = ui::positionMapNodes(mapNodes.front(), tileSize);
+    const std::map<core::MapNode*, QPoint> mapNodesPos = ui::positionMapNodes(mapNodes.front(), tileSize);
 
     SECTION("All nodes are visible")
     {
         QRect window(-100, -100, 200, 200);
 
-        std::vector<const core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
+        std::vector<core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
 
         REQUIRE(visibleMapNodes.size() == mapNodes.size());
     }
@@ -224,7 +225,7 @@ TEST_CASE("Visibility test", "[visibleMapNodes]")
     {
         QRect window(4, 4, 2, 2);
 
-        std::vector<const core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
+        std::vector<core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
 
         REQUIRE(visibleMapNodes.size() == 1);
         REQUIRE(visibleMapNodes.front()->objectName() == mapNodes.front()->objectName());
@@ -234,7 +235,7 @@ TEST_CASE("Visibility test", "[visibleMapNodes]")
     {
         QRect window(6, -100, 200, 200);
 
-        std::vector<const core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
+        std::vector<core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
 
         REQUIRE(visibleMapNodes.size() == 4);
     }
@@ -243,7 +244,7 @@ TEST_CASE("Visibility test", "[visibleMapNodes]")
     {
         QRect window(6, 6, 200, 200);
 
-        std::vector<const core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
+        std::vector<core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
 
         REQUIRE(visibleMapNodes.size() == 3);
     }
@@ -252,7 +253,7 @@ TEST_CASE("Visibility test", "[visibleMapNodes]")
     {
         QRect window(100, 100, 200, 200);
 
-        std::vector<const core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
+        std::vector<core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
 
         REQUIRE(visibleMapNodes.empty() == true);
     }
@@ -274,7 +275,7 @@ TEST_CASE("", "[mapNodeAtPos]")
     ui::WorldSurface surface("./dev.wsp", &world, &window);
     surface.activate();
 
-    const std::map<const core::MapNode*, QPoint> nodesPos = ui::positionMapNodes(
+    const std::map<core::MapNode*, QPoint> nodesPos = ui::positionMapNodes(
             mapNodes.front(),
             surface.getTileSize());
 
@@ -283,24 +284,56 @@ TEST_CASE("", "[mapNodeAtPos]")
     const int w = surface.getTileSize().width();
     const int h = surface.getTileSize().height();
 
-    n = ui::mapNodeAtPos(QPoint(w / 2, h / 2), mapNodes, nodesPos, &surface);
+    n = ui::mapNodeAtPos(QPoint(w / 2, h / 2), nodesPos, &surface);
     REQUIRE(n != nullptr);
     REQUIRE(n == mapNodes.front());
 
-    n = ui::mapNodeAtPos(QPoint(0, 0), mapNodes, nodesPos, &surface);
+    n = ui::mapNodeAtPos(QPoint(0, 0), nodesPos, &surface);
     REQUIRE(n != nullptr);
     REQUIRE(n == mapNodes.front()->getNeighbour(utils::Direction::NorthWest));
 
-    n = ui::mapNodeAtPos(QPoint(w, h), mapNodes, nodesPos, &surface);
+    n = ui::mapNodeAtPos(QPoint(w, h), nodesPos, &surface);
     REQUIRE(n != nullptr);
     REQUIRE(n == mapNodes.front()->getNeighbour(utils::Direction::SouthEast));
 
-    n = ui::mapNodeAtPos(QPoint(-w / 2, h / 2), mapNodes, nodesPos, &surface);
+    n = ui::mapNodeAtPos(QPoint(-w / 2, h / 2), nodesPos, &surface);
     REQUIRE(n != nullptr);
     REQUIRE(n == mapNodes.front()->getNeighbour(utils::Direction::West));
 
-    n = ui::mapNodeAtPos(QPoint(w * 100, h * 100), mapNodes, nodesPos, &surface);
+    n = ui::mapNodeAtPos(QPoint(w * 100, h * 100), nodesPos, &surface);
     REQUIRE(n == nullptr);
+}
+
+#include <iostream>
+TEST_CASE("neighboursByPos", "[MapUtil]")
+{
+    std::vector<core::MapNode*> mapNodes = utils::generateMapNodes(2);
+    utils::generateMapNodeNames(mapNodes);
+
+    core::World world;
+
+    int argc = 0;
+    char **argv = nullptr;
+    QGuiApplication app(argc, argv);
+    QQuickWindow window;
+
+    ui::WorldSurface worldSurface("./dev.wsp", &world, &window);
+    const QSize tileSize = worldSurface.getTileSize();
+
+    worldSurface.activate();
+
+    const std::map<core::MapNode*, QPoint> mapNodesPos = ui::positionMapNodes(mapNodes.front(), tileSize);
+
+    for (const auto& mapNodePos : mapNodesPos)
+    {
+        const core::MapNode* mapNode = mapNodePos.first;
+        const QPoint cornerPos = mapNodePos.second;
+
+        const QPoint middlePos = cornerPos + QPoint(tileSize.width() / 2, tileSize.height() / 2);
+
+        core::MapNodeNeighbours neighbours = ui::neighboursByPos(middlePos, &worldSurface, mapNodesPos);
+        REQUIRE(neighbours == mapNode->getNeighbours());
+    }
 }
 
 std::pair<float, float> getScaleFactor(const QMatrix4x4 &matrix)
@@ -318,4 +351,18 @@ std::pair<float, float> getTranslation(const QMatrix4x4 &matrix)
 
     return std::make_pair(firstRow.w(), secondRow.w());
 
+}
+
+std::ostream& operator<<(std::ostream& s, const core::MapNodeNeighbours& n)
+{
+    s << "{";
+
+    const auto end = --n.cend();
+    auto it = n.cbegin();
+    for(; it != end; ++it)
+        s << '"' << utils::direction2str(it->first) << "\": " << it->second << ", ";
+
+    s << '"' << utils::direction2str(it->first) << "\": " << it->second << "}";
+
+    return s;
 }

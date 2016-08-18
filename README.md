@@ -25,3 +25,10 @@ Warmonger is a hexagon-based wargame, with deterministic battle outcomes with
 both great strategic and tactical challenges (well this is the plan).
 Don't expect anything fancy on the graphics-side, I focus on the content (and
 I am _very_ lame with image editors anyway).
+
+## Dependencies
+* boost 1.58 (boost::log and boost::optional)
+* Qt 5.5 (QtCore and QtQuick)
+* KF5Archive
+
+Version numbers refer to the minimum supported version of each dependency.

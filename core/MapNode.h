@@ -3,6 +3,7 @@
 
 #include <map>
 
+#include "core/MapNodeNeighbours.h"
 #include "core/TerrainType.h"
 #include "utils/Hexagon.h"
 
@@ -14,23 +15,23 @@ class MapNode :
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
-    Q_PROPERTY(TerrainType *terrainType READ getTerrainType WRITE setTerrainType NOTIFY terrainTypeChanged)
+    Q_PROPERTY(TerrainType* terrainType READ getTerrainType WRITE setTerrainType NOTIFY terrainTypeChanged)
 
 public:
     explicit MapNode(QObject *parent=nullptr);
 
     QString getDisplayName() const;
-    void setDisplayName(const QString &displayName);
+    void setDisplayName(const QString& displayName);
 
-    TerrainType * getTerrainType() const;
-    void setTerrainType(TerrainType *terrainType);
+    TerrainType* getTerrainType() const;
+    void setTerrainType(TerrainType* terrainType);
 
-    std::map<utils::Direction, MapNode *> getNeighbours() const;
-    void setNeighbours(const std::map<utils::Direction, MapNode *> &neighbours);
-    void setNeighbours(std::map<utils::Direction, MapNode *> &&neighbours);
+    const MapNodeNeighbours& getNeighbours() const;
+    void setNeighbours(const MapNodeNeighbours& neighbours);
+    void setNeighbours(MapNodeNeighbours&& neighbours);
 
-    MapNode * getNeighbour(utils::Direction direction) const;
-    void setNeighbour(utils::Direction direction, MapNode *mapNode);
+    MapNode* getNeighbour(utils::Direction direction) const;
+    void setNeighbour(utils::Direction direction, MapNode* mapNode);
 
 signals:
     void displayNameChanged();
@@ -40,8 +41,8 @@ signals:
 private:
     QString displayName;
 
-    TerrainType *terrainType;
-    std::map<utils::Direction, MapNode *> neighbours;
+    TerrainType* terrainType;
+    MapNodeNeighbours neighbours;
 };
 
 } // namespace core

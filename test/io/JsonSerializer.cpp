@@ -94,9 +94,7 @@ TEST_CASE("CampaignMap can be serialized to JSON", "[JsonSerializer]")
                 REQUIRE(jmn["neighbours"].isObject());
 
                 const QJsonObject jneighbours = jmn["neighbours"].toObject();
-                const std::map<utils::Direction, core::MapNode *> neighbours = mn->getNeighbours();
-
-                REQUIRE(jneighbours.size() == neighbours.size());
+                const core::MapNodeNeighbours& neighbours = mn->getNeighbours();
 
                 for (auto it = jneighbours.constBegin(); it != jneighbours.constEnd(); it++)
                 {

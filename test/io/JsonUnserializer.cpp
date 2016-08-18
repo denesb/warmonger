@@ -302,9 +302,7 @@ TEST_CASE("CampaignMap can be unserialized from JSON", "[JsonUnserializer]")
                 REQUIRE(mn->getTerrainType()->objectName() == jmn["terrainType"].toString());
 
                 const QJsonObject jneighbours = jmn["neighbours"].toObject();
-                const std::map<utils::Direction, core::MapNode *> neighbours = mn->getNeighbours();
-
-                REQUIRE(neighbours.size() == jneighbours.size());
+                const core::MapNodeNeighbours& neighbours = mn->getNeighbours();
 
                 for (const auto& neighbour : neighbours)
                 {

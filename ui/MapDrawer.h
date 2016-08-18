@@ -19,7 +19,7 @@ public:
      * is not nullptr try to make as few modifications as possible.
      * @returns QSGNode* the result scene-graph node
      */
-    virtual QSGNode* drawMapNodeAndContents(const core::MapNode* mapNode, QSGNode* oldNode) = 0;
+    virtual QSGNode* drawMapNodeAndContents(core::MapNode* mapNode, QSGNode* oldNode) = 0;
 };
 
 } // namespace ui

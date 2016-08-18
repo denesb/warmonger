@@ -20,6 +20,26 @@ struct QObjectFinder
     QString name;
 };
 
+/**
+ * RAII class the block signals in the constructor and unblocks in the destructor
+ */
+class SignalBlockGuard
+{
+public:
+    SignalBlockGuard(QObject* const obj) : obj(obj)
+    {
+        obj->blockSignals(true);
+    }
+
+    ~SignalBlockGuard()
+    {
+        obj->blockSignals(false);
+    }
+
+private:
+    QObject* const obj;
+};
+
 template <typename Head, typename Tail>
 Head makePath(const Head& head, const Tail& tail)
 {

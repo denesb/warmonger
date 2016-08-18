@@ -3,6 +3,8 @@
 
 #include <map>
 
+#include <boost/optional.hpp>
+
 #include "core/CampaignMap.h"
 #include "ui/BasicMap.h"
 #include "ui/MapDrawer.h"
@@ -47,7 +49,7 @@ public:
 
     QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* oldNodeData) override;
 
-    QSGNode* drawMapNodeAndContents(const core::MapNode* mapNode, QSGNode* oldNode) override;
+    QSGNode* drawMapNodeAndContents(core::MapNode* mapNode, QSGNode* oldNode) override;
 
 signals:
     void campaignMapChanged();
@@ -63,14 +65,18 @@ protected:
 private:
     void updateContent();
     void updateMapRect();
+    void onMapNodesChanged();
     void doEditingAction(const QPoint& pos);
     void doTerrainTypeEditingAction(const QPoint& pos);
     void doSettlementTypeEditingAction();
+    QSGNode* drawHoverNode(QSGNode* oldNode) const;
 
     core::CampaignMap *campaignMap;
     WorldSurface *worldSurface;
-    std::map<const core::MapNode*, QPoint> mapNodesPos;
-    core::MapNode* currentMapNode;
+    std::map<core::MapNode*, QPoint> mapNodesPos;
+
+    core::MapNode* hoverMapNode;
+    boost::optional<QPoint> hoverPos;
 
     EditingMode editingMode;
     QObject* objectType;

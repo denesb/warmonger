@@ -33,13 +33,26 @@ void CampaignMiniMap::setCampaignMap(core::CampaignMap* campaignMap)
     {
         wInfo << "campaignMap `" << this->campaignMap << "' -> `" << campaignMap << "'";
 
+        if (this->campaignMap != nullptr)
+        {
+            delete this->watcher;
+            QObject::disconnect(this->campaignMap, nullptr, this, nullptr);
+        }
+
         this->campaignMap = campaignMap;
 
         this->updateContent();
 
-        delete this->watcher;
-        this->watcher = new CampaignMapWatcher(this->campaignMap, this);
-        QObject::connect(this->watcher, &CampaignMapWatcher::changed, this, &CampaignMiniMap::update);
+        if (this->campaignMap != nullptr)
+        {
+            this->watcher = new CampaignMapWatcher(this->campaignMap, this);
+            QObject::connect(this->watcher, &CampaignMapWatcher::changed, this, &CampaignMiniMap::update);
+            QObject::connect(
+                    this->campaignMap,
+                    &core::CampaignMap::mapNodesChanged,
+                    this,
+                    &CampaignMiniMap::onMapNodesChanged);
+        }
 
         emit campaignMapChanged();
     }
@@ -90,17 +103,12 @@ QSGNode* CampaignMiniMap::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeD
         rootNode->setMatrix(transform);
     }
 
-    // ugh
-    const std::vector<core::MapNode*> mapNodes = this->campaignMap->getMapNodes();
-    std::vector<const core::MapNode*> visibleMapNodes;
-    std::copy(mapNodes.cbegin(), mapNodes.cend(), std::back_inserter(visibleMapNodes));
-
-    drawMapNodes(visibleMapNodes, mapRootNode, *this);
+    drawMapNodes(this->campaignMap->getMapNodes(), mapRootNode, *this);
 
     return rootNode;
 }
 
-QSGNode* CampaignMiniMap::drawMapNodeAndContents(const core::MapNode* mapNode, QSGNode* oldNode)
+QSGNode* CampaignMiniMap::drawMapNodeAndContents(core::MapNode* mapNode, QSGNode* oldNode)
 {
     return drawMapNode(mapNode, this->worldSurface, this->mapNodesPos.at(mapNode), oldNode);
 }
@@ -138,55 +146,11 @@ void CampaignMiniMap::updateMapRect()
     }
 }
 
-/*
-void CampaignMiniMap::drawNode(QPainter *, const core::MapNode *)
+void CampaignMiniMap::onMapNodesChanged()
 {
-    const QString terrainTypeName = node->getTerrainType()->objectName();
-    const core::Settlement *settlement = this->campaignMap->getSettlementOn(node);
-    const core::Unit *unit = this->campaignMap->getUnitOn(node);
-
-    painter->save();
-    painter->translate(this->mapNodesPos[node]);
-
-    const QColor color = this->worldSurface->getColor(terrainTypeName);
-    painter->fillPath(this->hexagonPainterPath, color);
-
-    const int w = this->tileSize.width();
-    const int h = this->tileSize.height();
-
-    if (settlement != nullptr)
-    {
-        const int size = w/2 - w/10;
-        const QRect sr(w/20, h/2 - size/2, size, size);
-
-        const core::Faction *owner = settlement->getOwner();
-        QColor sc;
-        if (owner == nullptr)
-            sc= this->worldSurface->getColorName("noOwner");
-        else
-            sc = owner->getColor();
-
-        painter->fillRect(sr, sc);
-    }
-
-    if (unit != nullptr)
-    {
-        const int size = w/4;
-        const QRect ur(w/2 + w/5, h/2 - size/2, size, size);
-
-        const core::Faction *owner = unit->getOwner();
-        QColor uc;
-        if (owner == nullptr)
-            uc= this->worldSurface->getColorName("noOwner");
-        else
-            uc = owner->getColor();
-
-        painter->fillRect(ur, uc);
-    }
-
-    painter->restore();
+    this->mapNodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->worldSurface->getTileSize());
+    this->updateMapRect();
 }
-*/
 
 } // namespace ui
 } // namespace warmonger

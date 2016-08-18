@@ -34,6 +34,7 @@ set(
     core/Faction.cpp
     core/Game.cpp
     core/MapNode.cpp
+    core/MapNodeNeighbours.cpp
     core/Settlement.cpp
     core/SettlementType.cpp
     core/TerrainType.cpp
@@ -96,7 +97,7 @@ if(BUILD_TESTS)
         ${SRC_FILES}
         test/Main.cpp
         test/Util.cpp
-        test/core/MapNode.cpp
+        test/core/MapNodeNeighbours.cpp
         test/io/Context.cpp
         test/io/File.cpp
         test/io/JsonSerializer.cpp

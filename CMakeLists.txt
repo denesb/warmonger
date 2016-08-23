@@ -95,7 +95,8 @@ if(BUILD_TESTS)
     set(
         TEST_SRC_FILES
         ${SRC_FILES}
-        test/Main.cpp
+        test/test_warmonger.cpp
+        test/CatchLogSink.cpp
         test/Util.cpp
         test/core/MapNodeNeighbours.cpp
         test/io/Context.cpp
@@ -113,6 +114,7 @@ if(BUILD_TESTS)
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/data/dev.wsp ${CMAKE_BINARY_DIR})
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/data/dev_nometafile.wsp ${CMAKE_BINARY_DIR})
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/data/dev_metainvalidjson.wsp ${CMAKE_BINARY_DIR})
+
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/data/dev_metadir.wsp ${CMAKE_BINARY_DIR})
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/data/dev_norcc.wsp ${CMAKE_BINARY_DIR})
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/data/dev_rccdir.wsp ${CMAKE_BINARY_DIR})

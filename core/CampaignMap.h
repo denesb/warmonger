@@ -12,10 +12,8 @@
 #include "core/Faction.h"
 #include "core/MapNode.h"
 #include "core/Settlement.h"
-#include "core/SettlementType.h"
 #include "core/World.h"
 #include "core/Unit.h"
-#include "core/UnitType.h"
 
 namespace warmonger {
 namespace core {

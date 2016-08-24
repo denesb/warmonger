@@ -2,7 +2,6 @@
 
 #include "core/CampaignMap.h"
 #include "core/TerrainType.h"
-#include "core/UnitClass.h"
 #include "utils/QVariantUtils.h"
 
 using namespace warmonger::core;

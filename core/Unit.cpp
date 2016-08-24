@@ -2,14 +2,14 @@
 
 using namespace warmonger::core;
 
-Unit::Unit(QObject *parent) :
+Unit::Unit(QObject* parent) :
     QObject(parent),
     type(nullptr),
     mapNode(nullptr),
     owner(nullptr),
-    experiencePoints(0.0),
-    hitPoints(0.0),
-    movementPoints(0.0)
+    experiencePoints(0),
+    hitPoints(0),
+    movementPoints(0)
 {
 }
 
@@ -22,7 +22,7 @@ QString Unit::getDisplayName() const
     return this->displayName;
 }
 
-void Unit::setDisplayName(const QString &displayName)
+void Unit::setDisplayName(const QString& displayName)
 {
     if (this->displayName != displayName)
     {
@@ -31,16 +31,16 @@ void Unit::setDisplayName(const QString &displayName)
     }
 }
 
-UnitType * Unit::getType() const
+UnitType* Unit::getType() const
 {
     return this->type;
 }
 
-void Unit::setType(UnitType *type)
+void Unit::setType(UnitType* type)
 {
     if (this->type != type)
     {
-        const UnitType *oldType = this->type;
+        const UnitType* oldType = this->type;
         this->type = type;
 
         this->onTypeChanged(oldType);
@@ -48,12 +48,12 @@ void Unit::setType(UnitType *type)
     }
 }
 
-MapNode * Unit::getMapNode() const
+MapNode* Unit::getMapNode() const
 {
     return this->mapNode;
 }
 
-void Unit::setMapNode(MapNode *mapNode)
+void Unit::setMapNode(MapNode* mapNode)
 {
     if (this->mapNode != mapNode)
     {
@@ -62,12 +62,12 @@ void Unit::setMapNode(MapNode *mapNode)
     }
 }
 
-Faction * Unit::getOwner() const
+Faction* Unit::getOwner() const
 {
     return this->owner;
 }
 
-void Unit::setOwner(Faction *owner)
+void Unit::setOwner(Faction* owner)
 {
     if (this->owner != owner)
     {
@@ -118,7 +118,7 @@ void Unit::setMovementPoints(int movementPoints)
     }
 }
 
-void Unit::onTypeChanged(const UnitType *oldUnitType)
+void Unit::onTypeChanged(const UnitType* oldUnitType)
 {
     if (oldUnitType == nullptr)
     {

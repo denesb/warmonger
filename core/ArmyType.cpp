@@ -1,20 +1,19 @@
-#include "core/WeaponClass.h"
+#include "core/ArmyType.h"
 
 namespace warmonger {
 namespace core {
 
-WeaponClass::WeaponClass(QObject *parent) :
-    QObject(parent),
-    displayName("")
+ArmyType::ArmyType(QObject* parent) :
+    QObject(parent)
 {
 }
 
-QString WeaponClass::getDisplayName() const
+QString ArmyType::getDisplayName() const
 {
     return this->displayName;
 }
 
-void WeaponClass::setDisplayName(const QString &displayName)
+void ArmyType::setDisplayName(const QString& displayName)
 {
     if (this->displayName != displayName)
     {

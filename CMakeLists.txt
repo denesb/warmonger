@@ -26,11 +26,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(
     SRC_FILES
-    core/Armor.cpp
     core/Army.cpp
+    core/ArmyType.cpp
     core/CampaignMap.cpp
     core/Civilization.cpp
-    core/DamageType.cpp
     core/Faction.cpp
     core/Game.cpp
     core/MapNode.cpp
@@ -39,12 +38,7 @@ set(
     core/SettlementType.cpp
     core/TerrainType.cpp
     core/Unit.cpp
-    core/UnitClass.cpp
-    core/UnitLevel.cpp
     core/UnitType.cpp
-    core/Weapon.cpp
-    core/WeaponClass.cpp
-    core/WeaponType.cpp
     core/World.cpp
     io/Context.cpp
     io/File.cpp
@@ -96,7 +90,6 @@ if(BUILD_TESTS)
         TEST_SRC_FILES
         ${SRC_FILES}
         test/test_warmonger.cpp
-        test/CatchLogSink.cpp
         test/Util.cpp
         test/core/MapNodeNeighbours.cpp
         test/io/Context.cpp

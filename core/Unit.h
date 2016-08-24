@@ -23,20 +23,20 @@ class Unit :
     Q_PROPERTY(int movementPoints READ getMovementPoints WRITE setMovementPoints NOTIFY movementPointsChanged)
 
 public:
-    explicit Unit(QObject *parent=nullptr);
+    explicit Unit(QObject* parent=nullptr);
     ~Unit();
 
     QString getDisplayName() const;
-    void setDisplayName(const QString &displayName);
+    void setDisplayName(const QString& displayName);
 
-    UnitType * getType() const;
+    UnitType* getType() const;
     void setType(UnitType *type);
 
-    MapNode * getMapNode() const;
-    void setMapNode(MapNode *mapNode);
+    MapNode* getMapNode() const;
+    void setMapNode(MapNode* mapNode);
 
-    Faction * getOwner() const;
-    void setOwner(Faction *owner);
+    Faction* getOwner() const;
+    void setOwner(Faction* owner);
 
     int getExperiencePoints() const;
     void setExperiencePoints(int experiencePoints);
@@ -57,12 +57,12 @@ signals:
     void movementPointsChanged();
 
 private:
-    void onTypeChanged(const UnitType *oldUnitType);
+    void onTypeChanged(const UnitType* oldUnitType);
 
     QString displayName;
-    UnitType *type;
-    MapNode *mapNode;
-    Faction *owner;
+    UnitType* type;
+    MapNode* mapNode;
+    Faction* owner;
     int experiencePoints;
     int hitPoints;
     int movementPoints;

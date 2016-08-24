@@ -12,6 +12,11 @@
 namespace warmonger {
 namespace utils {
 
+inline QString qObjectName(const QObject * const object)
+{
+    return object->objectName();
+}
+
 /**
  * Convert a Container to a QVariantList.
  *

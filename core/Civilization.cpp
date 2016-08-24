@@ -59,10 +59,9 @@ std::map<SettlementType *, std::vector<UnitType *>> Civilization::getRecruits() 
 QVariantMap Civilization::readRecruits() const
 {
     return utils::toQVariantMap(
-        this->recruits,
-        std::bind(&QObject::objectName, std::placeholders::_1),
-        utils::containerToQVariant<std::vector<UnitType *>>
-    );
+            this->recruits,
+            utils::qObjectName,
+            utils::containerToQVariant<std::vector<UnitType *>>);
 }
 
 void Civilization::setRecruits(const std::map<SettlementType *, std::vector<UnitType *>> &recruits)

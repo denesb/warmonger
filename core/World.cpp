@@ -4,7 +4,7 @@
 namespace warmonger {
 namespace core {
 
-World::World(QObject *parent) :
+World::World(QObject*parent) :
     QObject(parent)
 {
 }
@@ -14,7 +14,7 @@ QString World::getDisplayName() const
     return this->displayName;
 }
 
-void World::setDisplayName(const QString &displayName)
+void World::setDisplayName(const QString& displayName)
 {
     if (this->displayName != displayName)
     {
@@ -23,32 +23,31 @@ void World::setDisplayName(const QString &displayName)
     }
 }
 
-std::vector<Armor *> World::getArmors() const
+std::vector<ArmyType*> World::getArmyTypes() const
 {
-    return this->armors;
+    return this->armyTypes;
 }
 
-void World::setArmors(const std::vector<Armor *> &armors)
+void World::setArmyTypes(const std::vector<ArmyType*>& armyTypes)
 {
-    this->armors = armors;
+    if(this->armyTypes == armyTypes)
+    {
+        this->armyTypes = armyTypes;
+        emit armyTypesChanged();
+    }
 }
 
-std::vector<DamageType *> World::getDamageTypes() const
+QVariantList World::readArmyTypes() const
 {
-    return this->damageTypes;
+    return utils::toQVariantList(this->armyTypes);
 }
 
-void World::setDamageTypes(const std::vector<DamageType *> &damageTypes)
-{
-    this->damageTypes = damageTypes;
-}
-
-std::vector<Civilization *> World::getCivilizations() const
+std::vector<Civilization*> World::getCivilizations() const
 {
     return this->civilizations;
 }
 
-void World::setCivilizations(const std::vector<Civilization *> &civilizations)
+void World::setCivilizations(const std::vector<Civilization*>& civilizations)
 {
     this->civilizations = civilizations;
 }
@@ -58,12 +57,12 @@ QVariantList World::readCivilizations() const
     return utils::toQVariantList(this->civilizations);
 }
 
-std::vector<SettlementType *> World::getSettlementTypes() const
+std::vector<SettlementType*> World::getSettlementTypes() const
 {
     return this->settlementTypes;
 }
 
-void World::setSettlementTypes(const std::vector<SettlementType *> &settlementTypes)
+void World::setSettlementTypes(const std::vector<SettlementType*>& settlementTypes)
 {
     if (this->settlementTypes != settlementTypes)
     {
@@ -77,12 +76,12 @@ QVariantList World::readSettlementTypes() const
     return utils::toQVariantList(this->settlementTypes);
 }
 
-std::vector<TerrainType *> World::getTerrainTypes() const
+std::vector<TerrainType*> World::getTerrainTypes() const
 {
     return this->terrainTypes;
 }
 
-void World::setTerrainTypes(const std::vector<TerrainType *> &terrainTypes)
+void World::setTerrainTypes(const std::vector<TerrainType*>& terrainTypes)
 {
     if (this->terrainTypes != terrainTypes)
     {
@@ -96,36 +95,12 @@ QVariantList World::readTerrainTypes() const
     return utils::toQVariantList(this->terrainTypes);
 }
 
-std::vector<UnitClass *> World::getUnitClasses() const
-{
-    return this->unitClasses;
-}
-
-void World::setUnitClasses(const std::vector<UnitClass *> &unitClasses)
-{
-    this->unitClasses = unitClasses;
-}
-
-std::vector<UnitLevel *> World::getUnitLevels() const
-{
-    return this->unitLevels;
-}
-
-void World::setUnitLevels(const std::vector<UnitLevel *> &unitLevels)
-{
-    if (this->unitLevels != unitLevels)
-    {
-        this->unitLevels = unitLevels;
-        emit unitLevelsChanged();
-    }
-}
-
-std::vector<UnitType *> World::getUnitTypes() const
+std::vector<UnitType*> World::getUnitTypes() const
 {
     return this->unitTypes;
 }
 
-void World::setUnitTypes(const std::vector<UnitType *> &unitTypes)
+void World::setUnitTypes(const std::vector<UnitType*>& unitTypes)
 {
     if (this->unitTypes != unitTypes)
     {
@@ -137,48 +112,6 @@ void World::setUnitTypes(const std::vector<UnitType *> &unitTypes)
 QVariantList World::readUnitTypes() const
 {
     return utils::toQVariantList(this->unitTypes);
-}
-
-std::vector<WeaponClass *> World::getWeaponClasses() const
-{
-    return this->weaponClasses;
-}
-
-void World::setWeaponClasses(const std::vector<WeaponClass *> &weaponClasses)
-{
-    if (this->weaponClasses != weaponClasses)
-    {
-        this->weaponClasses = weaponClasses;
-        emit weaponClassesChanged();
-    }
-}
-
-std::vector<WeaponType *> World::getWeaponTypes() const
-{
-    return this->weaponTypes;
-}
-
-void World::setWeaponTypes(const std::vector<WeaponType *> &weaponTypes)
-{
-    if (this->weaponTypes != weaponTypes)
-    {
-        this->weaponTypes = weaponTypes;
-        emit weaponTypesChanged();
-    }
-}
-
-std::vector<Weapon *> World::getWeapons() const
-{
-    return this->weapons;
-}
-
-void World::setWeapons(const std::vector<Weapon *> &weapons)
-{
-    if (this->weapons != weapons)
-    {
-        this->weapons = weapons;
-        emit weaponsChanged();
-    }
 }
 
 } // namespace core

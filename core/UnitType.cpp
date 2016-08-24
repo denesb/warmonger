@@ -4,14 +4,13 @@
 namespace warmonger {
 namespace core {
 
-UnitType::UnitType(QObject *parent) :
+UnitType::UnitType(QObject* parent) :
     QObject(parent),
-    klass(nullptr),
-    level(nullptr),
     hitPoints(0),
+    experiencePoints(0),
+    movementPoints(0),
     recruitmentCost(0),
-    upkeepCost(0),
-    armor(nullptr)
+    upkeepCost(0)
 {
 }
 
@@ -20,40 +19,12 @@ QString UnitType::getDisplayName() const
     return this->displayName;
 }
 
-void UnitType::setDisplayName(const QString &displayName)
+void UnitType::setDisplayName(const QString& displayName)
 {
     if (this->displayName != displayName)
     {
         this->displayName = displayName;
         emit displayNameChanged();
-    }
-}
-
-UnitClass *UnitType::getClass() const
-{
-    return this->klass;
-}
-
-void UnitType::setClass(UnitClass *klass)
-{
-    if (this->klass != klass)
-    {
-        this->klass = klass;
-        emit classChanged();
-    }
-}
-
-UnitLevel * UnitType::getLevel() const
-{
-    return this->level;
-}
-
-void UnitType::setLevel(UnitLevel *level)
-{
-    if (this->level != level)
-    {
-        this->level = level;
-        emit levelChanged();
     }
 }
 
@@ -68,6 +39,34 @@ void UnitType::setHitPoints(int hitPoints)
     {
         this->hitPoints = hitPoints;
         emit hitPointsChanged();
+    }
+}
+
+int UnitType::getExperiencePoints() const
+{
+    return this->experiencePoints;
+}
+
+void UnitType::setExperiencePoints(int experiencePoints)
+{
+    if (this->experiencePoints != experiencePoints)
+    {
+        this->experiencePoints = experiencePoints;
+        emit experiencePointsChanged();
+    }
+}
+
+int UnitType::getMovementPoints() const
+{
+    return this->movementPoints;
+}
+
+void UnitType::setMovementPoints(int movementPoints)
+{
+    if (this->movementPoints != movementPoints)
+    {
+        this->movementPoints = movementPoints;
+        emit movementPointsChanged();
     }
 }
 
@@ -99,105 +98,51 @@ void UnitType::setUpkeepCost(int upkeepCost)
     }
 }
 
-Armor * UnitType::getArmor() const
+const std::map<TerrainType*, int>& UnitType::getMovementCosts() const
 {
-    return this->armor;
+    return this->movementCosts;
 }
 
-void UnitType::setArmor(Armor *armor)
+void UnitType::setMovementCosts(const std::map<TerrainType*, int>& movementCosts)
 {
-    if (this->armor != armor)
-    {
-        this->armor = armor;
-        emit armorChanged();
-    }
+    this->movementCosts = movementCosts;
 }
 
-std::vector<Weapon *> UnitType::getWeapons() const
+QVariantMap UnitType::readMovementCosts() const
 {
-    return this->weapons;
+    return utils::toQVariantMap(
+            this->movementCosts,
+            utils::qObjectName,
+            utils::verbatim<int>);
 }
 
-void UnitType::setWeapons(const std::vector<Weapon *> &weapons)
+int UnitType::getMovementCost(TerrainType* terrainType) const
 {
-    if (this->weapons != weapons)
-    {
-        this->weapons = weapons;
-        emit weaponsChanged();
-    }
+    return this->movementCosts.at(terrainType);
 }
 
-QVariantList UnitType::readWeapons() const
+void UnitType::setMovementCost(TerrainType* terrainType, int movement)
 {
-    return utils::toQVariantList(this->weapons);
+    this->movementCosts[terrainType] = movement;
 }
 
-std::map<WeaponType *, int> UnitType::getAttackSkills() const
-{
-    return this->attackSkills;
-}
-
-void UnitType::setAttackSkills(const std::map<WeaponType *, int> &attackSkills)
-{
-    if (this->attackSkills != attackSkills)
-    {
-        this->attackSkills = attackSkills;
-        emit attackSkillsChanged();
-    }
-}
-
-int UnitType::getAttackSkill(WeaponType *weaponType) const
-{
-    const auto& it = this->attackSkills.find(weaponType);
-    int attackSkill{0};
-
-    if (it != this->attackSkills.end())
-    {
-        attackSkill = it->second;
-    }
-
-    return attackSkill;
-}
-
-std::map<WeaponClass *, int> UnitType::getDefenseSkills() const
-{
-    return this->defenseSkills;
-}
-
-void UnitType::setDefenseSkills(const std::map<WeaponClass *, int> &defenseSkills)
-{
-    if (this->defenseSkills != defenseSkills)
-    {
-        this->defenseSkills = defenseSkills;
-        emit defenseSkillsChanged();
-    }
-}
-
-int UnitType::getDefenseSkill(WeaponClass *weaponClass) const
-{
-    const auto& it = this->defenseSkills.find(weaponClass);
-    int defenseSkill{0};
-
-    if (it != this->defenseSkills.end())
-    {
-        defenseSkill = it->second;
-    }
-
-    return defenseSkill;
-}
-
-std::vector<UnitType *> UnitType::getUpgrades() const
+const std::vector<UnitType*>& UnitType::getUpgrades() const
 {
     return this->upgrades;
 }
 
-void UnitType::setUpgrades(const std::vector<UnitType *> &upgrades)
+void UnitType::setUpgrades(const std::vector<UnitType*>& upgrades)
 {
     if (this->upgrades != upgrades)
     {
         this->upgrades = upgrades;
         emit upgradesChanged();
     }
+}
+
+QVariantList UnitType::readUpgrades() const
+{
+    return utils::toQVariantList(this->upgrades);
 }
 
 } // namespace core

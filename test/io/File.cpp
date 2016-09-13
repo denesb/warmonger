@@ -8,7 +8,7 @@
 
 void createWorldFile(const QString &path)
 {
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World* , QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
     io::JsonSerializer serializer;
@@ -21,7 +21,7 @@ void createWorldFile(const QString &path)
 
 void createCampaignMapFile(const QString &path)
 {
-    const std::pair<core::CampaignMap *, QJsonObject> campaignMaps = makeMap();
+    const std::pair<core::CampaignMap* , QJsonObject> campaignMaps = makeMap();
     const std::unique_ptr<core::CampaignMap> campaignMap{campaignMaps.first};
 
     io::JsonSerializer serializer;
@@ -34,7 +34,7 @@ void createCampaignMapFile(const QString &path)
 
 TEST_CASE("World can be written to file", "[File]")
 {
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World* , QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
     const QString path("./write_world.json");
@@ -61,7 +61,7 @@ TEST_CASE("World can be read from file", "[File]")
 
     SECTION("reading World")
     {
-        core::World *world = io::readWorld(path, unserializer);
+        core::World* world = io::readWorld(path, unserializer);
 
         REQUIRE(world != nullptr);
     }
@@ -72,7 +72,7 @@ TEST_CASE("World can be read from file", "[File]")
 
 TEST_CASE("Map can be written to file", "[File]")
 {
-    const std::pair<core::CampaignMap *, QJsonObject> campaignMaps = makeMap();
+    const std::pair<core::CampaignMap* , QJsonObject> campaignMaps = makeMap();
     const std::unique_ptr<core::CampaignMap> campaignMap{campaignMaps.first};
 
     const QString path("./write_campaignmap.json");
@@ -95,36 +95,42 @@ void loadWorld(
     io::Context &ctx
 )
 {
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
-    core::World *world{worlds.first};
+    const std::pair<core::World* , QJsonObject> worlds = makeWorld();
+    core::World* world{worlds.first};
 
     if (className == world->metaObject()->className() ||
             objectName == world->objectName())
     {
         ctx.add(world);
-        const std::vector<core::TerrainType *> tts = world->getTerrainTypes();
+        const std::vector<core::ArmyType* > ats = world->getArmyTypes();
+        std::for_each(
+            ats.cbegin(),
+            ats.cend(),
+            [&](core::ArmyType* o){ctx.add(o);}
+        );
+        const std::vector<core::TerrainType* > tts = world->getTerrainTypes();
         std::for_each(
             tts.cbegin(),
             tts.cend(),
-            [&](core::TerrainType *o){ctx.add(o);}
+            [&](core::TerrainType* o){ctx.add(o);}
         );
-        const std::vector<core::Civilization *> cs = world->getCivilizations();
+        const std::vector<core::Civilization* > cs = world->getCivilizations();
         std::for_each(
             cs.cbegin(),
             cs.cend(),
-            [&](core::Civilization *o){ctx.add(o);}
+            [&](core::Civilization* o){ctx.add(o);}
         );
-        const std::vector<core::SettlementType *> sts = world->getSettlementTypes();
+        const std::vector<core::SettlementType* > sts = world->getSettlementTypes();
         std::for_each(
             sts.cbegin(),
             sts.cend(),
-            [&](core::SettlementType *o){ctx.add(o);}
+            [&](core::SettlementType* o){ctx.add(o);}
         );
-        const std::vector<core::UnitType *> uts = world->getUnitTypes();
+        const std::vector<core::UnitType* > uts = world->getUnitTypes();
         std::for_each(
             uts.cbegin(),
             uts.cend(),
-            [&](core::UnitType *o){ctx.add(o);}
+            [&](core::UnitType* o){ctx.add(o);}
         );
     }
 }
@@ -139,7 +145,7 @@ TEST_CASE("Map can be read from file", "[File]")
 
     SECTION("reading CampaignMap")
     {
-        core::CampaignMap *campaignMap = io::readCampaignMap(path, unserializer);
+        core::CampaignMap* campaignMap = io::readCampaignMap(path, unserializer);
 
         REQUIRE(campaignMap != nullptr);
         REQUIRE(campaignMap->getWorld() != nullptr);

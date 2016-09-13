@@ -55,6 +55,12 @@ public:
             object = this->getObject(className, objectName);
         }
 
+        if(object == nullptr)
+        {
+            wWarning  << "Failed to find object `"
+                << className << "' with objectName `" << objectName << "'";
+        }
+
         return qobject_cast<T>(object);
     }
 

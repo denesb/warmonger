@@ -191,6 +191,7 @@ QJsonObject armyToJson(const core::Army* obj)
 {
     QJsonObject jobj(namesToJson(obj));
 
+    jobj["type"] = obj->getType()->objectName();
     jobj["mapNode"] = obj->getMapNode()->objectName();
     jobj["owner"] = obj->getOwner()->objectName();
     jobj["units"] = toQJsonArray(

@@ -353,6 +353,10 @@ core::Army* armyFromJson(const QJsonObject& jobj, Context& ctx)
     std::unique_ptr<core::Army> obj(new core::Army());
     obj->setObjectName(jobj["objectName"].toString());
     obj->setDisplayName(jobj["displayName"].toString());
+    obj->setType(resolveReference<core::ArmyType>(
+        ctx,
+        jobj["type"].toString()
+    ));
     obj->setMapNode(resolveReference<core::MapNode>(
         ctx,
         jobj["mapNode"].toString()

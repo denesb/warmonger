@@ -6,7 +6,10 @@ namespace core {
 
 Army::Army(QObject *parent) :
     QObject(parent),
-    displayName("")
+    displayName(""),
+    type(nullptr),
+    mapNode(nullptr),
+    owner(nullptr)
 {
 }
 

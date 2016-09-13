@@ -18,65 +18,38 @@ CATCH_TRANSLATE_EXCEPTION(utils::ValueError& e) {
 
 static const QByteArray invalidJson{"{\"displayName\": \"displayName\" \"objectName\": \"objectName\"}"};
 
-TEST_CASE("Armor can be unserialized from JSON", "[JsonUnserializer]")
+TEST_CASE("ArmyType can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
 
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
     const QJsonObject jworld{worlds.second};
 
-    const std::vector<core::DamageType *> dts = world->getDamageTypes();
-    std::for_each(
-        dts.cbegin(),
-        dts.cend(),
-        [&](core::DamageType *o){ctx.add(o);}
-    );
+    const QJsonObject jobj = jworld["armyTypes"].toArray()[0].toObject();
 
-    const QJsonObject jobj = jworld["armors"].toArray()[0].toObject();
-
-    SECTION("unserializing Armor")
+    SECTION("unserializing ArmyType")
     {
         io::JsonUnserializer unserializer(ctx);
         QJsonDocument jdoc(jobj);
-        const std::unique_ptr<core::Armor> a(
-            unserializer.unserializeArmor(jdoc.toJson())
+        const std::unique_ptr<core::ArmyType> a(
+            unserializer.unserializeArmyType(jdoc.toJson())
         );
 
         REQUIRE(a->objectName() == jobj["objectName"].toString());
         REQUIRE(a->getDisplayName() == jobj["displayName"].toString());
-
-        objectEqualsMap(jobj["defenses"].toObject(), a->getDefenses());
     }
 }
 
-TEST_CASE("Armor can't be unserialized from JSON", "[JsonUnserializer]")
+TEST_CASE("ArmyType can't be unserialized from JSON", "[JsonUnserializer]")
 {
-    io::Context ctx;
-
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
-    const std::unique_ptr<core::World> world{worlds.first};
-    const QJsonObject jworld{worlds.second};
-
-    const QJsonObject jobj = jworld["armors"].toArray()[0].toObject();
-
     SECTION("invalid JSON")
     {
+        io::Context ctx;
         io::JsonUnserializer unserializer(ctx);
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeArmor(invalidJson),
-            utils::ValueError
-        );
-    }
-
-    SECTION("no damageTypes")
-    {
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeArmor(jdoc.toJson()),
+            unserializer.unserializeArmyType(invalidJson),
             utils::ValueError
         );
     }
@@ -86,30 +59,37 @@ TEST_CASE("Army can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
 
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jmap{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
 
-    const std::vector<core::Faction *> fs = map->getFactions();
+    const std::vector<core::ArmyType*> ats = world->getArmyTypes();
+    std::for_each(
+        ats.cbegin(),
+        ats.cend(),
+        [&](core::ArmyType* o){ctx.add(o);}
+    );
+
+    const std::vector<core::Faction*> fs = map->getFactions();
     std::for_each(
         fs.cbegin(),
         fs.cend(),
-        [&](core::Faction *o){ctx.add(o);}
+        [&](core::Faction* o){ctx.add(o);}
     );
 
-    const std::vector<core::MapNode *> mns = map->getMapNodes();
+    const std::vector<core::MapNode*> mns = map->getMapNodes();
     std::for_each(
         mns.cbegin(),
         mns.cend(),
-        [&](core::MapNode *o){ctx.add(o);}
+        [&](core::MapNode* o){ctx.add(o);}
     );
 
-    const std::vector<core::Unit *> us = map->getUnits();
+    const std::vector<core::Unit*> us = map->getUnits();
     std::for_each(
         us.cbegin(),
         us.cend(),
-        [&](core::Unit *o){ctx.add(o);}
+        [&](core::Unit* o){ctx.add(o);}
     );
 
     const QJsonObject jobj = jmap["armies"].toArray()[0].toObject();
@@ -124,6 +104,7 @@ TEST_CASE("Army can be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE(a->objectName() == jobj["objectName"].toString());
         REQUIRE(a->getDisplayName() == jobj["displayName"].toString());
+        REQUIRE(a->getType()->objectName() == jobj["type"].toString());
         REQUIRE(a->getMapNode()->objectName() == jobj["mapNode"].toString());
         REQUIRE(a->getOwner()->objectName() == jobj["owner"].toString());
         arrayEqualsList(jobj["units"].toArray(), a->getUnits());
@@ -132,7 +113,7 @@ TEST_CASE("Army can be unserialized from JSON", "[JsonUnserializer]")
 
 TEST_CASE("Army can't be unserialized from JSON", "[JsonUnserializer]")
 {
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jmap{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
@@ -150,22 +131,63 @@ TEST_CASE("Army can't be unserialized from JSON", "[JsonUnserializer]")
         );
     }
 
+    SECTION("unserializing Army, no armyTypes")
+    {
+        io::Context ctx;
+
+        const std::vector<core::Unit*> us = map->getUnits();
+        std::for_each(
+            us.cbegin(),
+            us.cend(),
+            [&](core::Unit* o){ctx.add(o);}
+        );
+
+        const std::vector<core::MapNode*> mns = map->getMapNodes();
+        std::for_each(
+            mns.cbegin(),
+            mns.cend(),
+            [&](core::MapNode* o){ctx.add(o);}
+        );
+
+        const std::vector<core::Faction*> fs = map->getFactions();
+        std::for_each(
+            fs.cbegin(),
+            fs.cend(),
+            [&](core::Faction* o){ctx.add(o);}
+        );
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeArmy(jdoc.toJson()),
+            utils::ValueError
+        );
+    }
+
     SECTION("unserializing Army, no units")
     {
         io::Context ctx;
 
-        const std::vector<core::MapNode *> mns = map->getMapNodes();
+        const std::vector<core::ArmyType*> ats = world->getArmyTypes();
+        std::for_each(
+            ats.cbegin(),
+            ats.cend(),
+            [&](core::ArmyType* o){ctx.add(o);}
+        );
+
+        const std::vector<core::MapNode*> mns = map->getMapNodes();
         std::for_each(
             mns.cbegin(),
             mns.cend(),
-            [&](core::MapNode *o){ctx.add(o);}
+            [&](core::MapNode* o){ctx.add(o);}
         );
 
-        const std::vector<core::Faction *> fs = map->getFactions();
+        const std::vector<core::Faction*> fs = map->getFactions();
         std::for_each(
             fs.cbegin(),
             fs.cend(),
-            [&](core::Faction *o){ctx.add(o);}
+            [&](core::Faction* o){ctx.add(o);}
         );
 
         io::JsonUnserializer unserializer(ctx);
@@ -181,18 +203,25 @@ TEST_CASE("Army can't be unserialized from JSON", "[JsonUnserializer]")
     {
         io::Context ctx;
 
-        const std::vector<core::Unit *> us = map->getUnits();
+        const std::vector<core::ArmyType*> ats = world->getArmyTypes();
+        std::for_each(
+            ats.cbegin(),
+            ats.cend(),
+            [&](core::ArmyType* o){ctx.add(o);}
+        );
+
+        const std::vector<core::Unit*> us = map->getUnits();
         std::for_each(
             us.cbegin(),
             us.cend(),
-            [&](core::Unit *o){ctx.add(o);}
+            [&](core::Unit* o){ctx.add(o);}
         );
 
-        const std::vector<core::Faction *> fs = map->getFactions();
+        const std::vector<core::Faction*> fs = map->getFactions();
         std::for_each(
             fs.cbegin(),
             fs.cend(),
-            [&](core::Faction *o){ctx.add(o);}
+            [&](core::Faction* o){ctx.add(o);}
         );
 
         io::JsonUnserializer unserializer(ctx);
@@ -208,18 +237,25 @@ TEST_CASE("Army can't be unserialized from JSON", "[JsonUnserializer]")
     {
         io::Context ctx;
 
-        const std::vector<core::Unit *> us = map->getUnits();
+        const std::vector<core::ArmyType*> ats = world->getArmyTypes();
+        std::for_each(
+            ats.cbegin(),
+            ats.cend(),
+            [&](core::ArmyType* o){ctx.add(o);}
+        );
+
+        const std::vector<core::Unit*> us = map->getUnits();
         std::for_each(
             us.cbegin(),
             us.cend(),
-            [&](core::Unit *o){ctx.add(o);}
+            [&](core::Unit* o){ctx.add(o);}
         );
 
-        const std::vector<core::MapNode *> mns = map->getMapNodes();
+        const std::vector<core::MapNode*> mns = map->getMapNodes();
         std::for_each(
             mns.cbegin(),
             mns.cend(),
-            [&](core::MapNode *o){ctx.add(o);}
+            [&](core::MapNode* o){ctx.add(o);}
         );
 
         io::JsonUnserializer unserializer(ctx);
@@ -236,39 +272,46 @@ TEST_CASE("CampaignMap can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
 
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> obj{maps.first};
     const QJsonObject jobj{maps.second};
     const std::unique_ptr<core::World> world{obj->getWorld()};
 
     ctx.add(world.get());
 
-    const std::vector<core::TerrainType *> tts = world->getTerrainTypes();
+    const std::vector<core::TerrainType*> tts = world->getTerrainTypes();
     std::for_each(
         tts.cbegin(),
         tts.cend(),
-        [&](core::TerrainType *o){ctx.add(o);}
+        [&](core::TerrainType* o){ctx.add(o);}
     );
 
-    const std::vector<core::Civilization *> fs = world->getCivilizations();
+    const std::vector<core::Civilization*> fs = world->getCivilizations();
     std::for_each(
         fs.cbegin(),
         fs.cend(),
-        [&](core::Civilization *o){ctx.add(o);}
+        [&](core::Civilization* o){ctx.add(o);}
     );
 
-    const std::vector<core::SettlementType *> sts = world->getSettlementTypes();
+    const std::vector<core::SettlementType*> sts = world->getSettlementTypes();
     std::for_each(
         sts.cbegin(),
         sts.cend(),
-        [&](core::SettlementType *o){ctx.add(o);}
+        [&](core::SettlementType* o){ctx.add(o);}
     );
 
-    const std::vector<core::UnitType *> uts = world->getUnitTypes();
+    const std::vector<core::UnitType*> uts = world->getUnitTypes();
     std::for_each(
         uts.cbegin(),
         uts.cend(),
-        [&](core::UnitType *o){ctx.add(o);}
+        [&](core::UnitType* o){ctx.add(o);}
+    );
+
+    const std::vector<core::ArmyType*> ats = world->getArmyTypes();
+    std::for_each(
+        ats.cbegin(),
+        ats.cend(),
+        [&](core::ArmyType* o){ctx.add(o);}
     );
 
     SECTION("unserializing CampaignMap")
@@ -288,14 +331,14 @@ TEST_CASE("CampaignMap can be unserialized from JSON", "[JsonUnserializer]")
 
         SECTION("unserializing mapNodes")
         {
-            const std::vector<core::MapNode *> mns{m->getMapNodes()};
+            const std::vector<core::MapNode*> mns{m->getMapNodes()};
             const QJsonArray jmns(jobj["mapNodes"].toArray());
 
             REQUIRE(jmns.size() == mns.size());
 
             for (size_t i = 0; i < mns.size(); i++)
             {
-                const core::MapNode *mn{mns[i]};
+                const core::MapNode* mn{mns[i]};
                 const QJsonObject jmn(jmns[i].toObject());
                 REQUIRE(mn->objectName() == jmn["objectName"].toString());
                 REQUIRE(mn->getDisplayName() == jmn["displayName"].toString());
@@ -321,14 +364,14 @@ TEST_CASE("CampaignMap can be unserialized from JSON", "[JsonUnserializer]")
 
         SECTION("unserializing factions")
         {
-            const std::vector<core::Faction *> ps(m->getFactions());
+            const std::vector<core::Faction*> ps(m->getFactions());
             const QJsonArray jps(jobj["factions"].toArray());
 
             REQUIRE(jps.size() == ps.size());
 
             for (size_t i = 0; i < ps.size(); i++)
             {
-                core::Faction *p{ps[i]};
+                core::Faction* p{ps[i]};
                 const QJsonObject jp(jps[i].toObject());
                 REQUIRE(p->objectName() == jp["objectName"].toString());
                 REQUIRE(p->getDisplayName() == jp["displayName"].toString());
@@ -339,14 +382,14 @@ TEST_CASE("CampaignMap can be unserialized from JSON", "[JsonUnserializer]")
 
         SECTION("unserializing settlements")
         {
-            const std::vector<core::Settlement *> ss(m->getSettlements());
+            const std::vector<core::Settlement*> ss(m->getSettlements());
             const QJsonArray jss(jobj["settlements"].toArray());
 
             REQUIRE(jss.size() == ss.size());
 
             for (size_t i = 0; i < ss.size(); i++)
             {
-                core::Settlement *s{ss[i]};
+                core::Settlement* s{ss[i]};
                 const QJsonObject js(jss[i].toObject());
                 REQUIRE(s->objectName() == js["objectName"].toString());
                 REQUIRE(s->getDisplayName() == js["displayName"].toString());
@@ -358,14 +401,14 @@ TEST_CASE("CampaignMap can be unserialized from JSON", "[JsonUnserializer]")
 
         SECTION("unserializing units")
         {
-            const std::vector<core::Unit *> us(m->getUnits());
+            const std::vector<core::Unit*> us(m->getUnits());
             const QJsonArray jus(jobj["units"].toArray());
 
             REQUIRE(jus.size() == us.size());
 
             for (size_t i = 0; i < us.size(); i++)
             {
-                core::Unit *u{us[i]};
+                core::Unit* u{us[i]};
                 const QJsonObject js(jus[i].toObject());
                 REQUIRE(u->objectName() == js["objectName"].toString());
                 REQUIRE(u->getDisplayName() == js["displayName"].toString());
@@ -377,17 +420,18 @@ TEST_CASE("CampaignMap can be unserialized from JSON", "[JsonUnserializer]")
 
         SECTION("unserializing armies")
         {
-            const std::vector<core::Army *> as(m->getArmies());
+            const std::vector<core::Army*> as(m->getArmies());
             const QJsonArray jas(jobj["armies"].toArray());
 
             REQUIRE(jas.size() == as.size());
 
             for (size_t i = 0; i < as.size(); i++)
             {
-                core::Army *a{as[i]};
+                core::Army* a{as[i]};
                 const QJsonObject js(jas[i].toObject());
                 REQUIRE(a->objectName() == js["objectName"].toString());
                 REQUIRE(a->getDisplayName() == js["displayName"].toString());
+                REQUIRE(a->getType()->objectName() == js["type"].toString());
                 REQUIRE(a->getMapNode()->objectName() == js["mapNode"].toString());
                 REQUIRE(a->getOwner()->objectName() == js["owner"].toString());
                 arrayEqualsList(js["units"].toArray(), a->getUnits());
@@ -398,7 +442,7 @@ TEST_CASE("CampaignMap can be unserialized from JSON", "[JsonUnserializer]")
 
 TEST_CASE("CampaignMap can't be unserialized from JSON", "[JsonUnserializer]")
 {
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> obj{maps.first};
     const QJsonObject jobj{maps.second};
     const std::unique_ptr<core::World> world{obj->getWorld()};
@@ -418,29 +462,29 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[JsonUnserializer]")
     {
         io::Context ctx;
 
-        const std::vector<core::TerrainType *> tts = world->getTerrainTypes();
+        const std::vector<core::TerrainType*> tts = world->getTerrainTypes();
         std::for_each(
             tts.cbegin(),
             tts.cend(),
-            [&](core::TerrainType *o){ctx.add(o);}
+            [&](core::TerrainType* o){ctx.add(o);}
         );
-        const std::vector<core::Civilization *> fs = world->getCivilizations();
+        const std::vector<core::Civilization*> fs = world->getCivilizations();
         std::for_each(
             fs.cbegin(),
             fs.cend(),
-            [&](core::Civilization *o){ctx.add(o);}
+            [&](core::Civilization* o){ctx.add(o);}
         );
-        const std::vector<core::SettlementType *> sts = world->getSettlementTypes();
+        const std::vector<core::SettlementType*> sts = world->getSettlementTypes();
         std::for_each(
             sts.cbegin(),
             sts.cend(),
-            [&](core::SettlementType *o){ctx.add(o);}
+            [&](core::SettlementType* o){ctx.add(o);}
         );
-        const std::vector<core::UnitType *> uts = world->getUnitTypes();
+        const std::vector<core::UnitType*> uts = world->getUnitTypes();
         std::for_each(
             uts.cbegin(),
             uts.cend(),
-            [&](core::UnitType *o){ctx.add(o);}
+            [&](core::UnitType* o){ctx.add(o);}
         );
 
         io::JsonUnserializer unserializer(ctx);
@@ -458,23 +502,23 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[JsonUnserializer]")
 
         ctx.add(world.get());
 
-        const std::vector<core::Civilization *> fs = world->getCivilizations();
+        const std::vector<core::Civilization*> fs = world->getCivilizations();
         std::for_each(
             fs.cbegin(),
             fs.cend(),
-            [&](core::Civilization *o){ctx.add(o);}
+            [&](core::Civilization* o){ctx.add(o);}
         );
-        const std::vector<core::SettlementType *> sts = world->getSettlementTypes();
+        const std::vector<core::SettlementType*> sts = world->getSettlementTypes();
         std::for_each(
             sts.cbegin(),
             sts.cend(),
-            [&](core::SettlementType *o){ctx.add(o);}
+            [&](core::SettlementType* o){ctx.add(o);}
         );
-        const std::vector<core::UnitType *> uts = world->getUnitTypes();
+        const std::vector<core::UnitType*> uts = world->getUnitTypes();
         std::for_each(
             uts.cbegin(),
             uts.cend(),
-            [&](core::UnitType *o){ctx.add(o);}
+            [&](core::UnitType* o){ctx.add(o);}
         );
 
         io::JsonUnserializer unserializer(ctx);
@@ -492,23 +536,23 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[JsonUnserializer]")
 
         ctx.add(world.get());
 
-        const std::vector<core::TerrainType *> tts = world->getTerrainTypes();
+        const std::vector<core::TerrainType*> tts = world->getTerrainTypes();
         std::for_each(
             tts.cbegin(),
             tts.cend(),
-            [&](core::TerrainType *o){ctx.add(o);}
+            [&](core::TerrainType* o){ctx.add(o);}
         );
-        const std::vector<core::SettlementType *> sts = world->getSettlementTypes();
+        const std::vector<core::SettlementType*> sts = world->getSettlementTypes();
         std::for_each(
             sts.cbegin(),
             sts.cend(),
-            [&](core::SettlementType *o){ctx.add(o);}
+            [&](core::SettlementType* o){ctx.add(o);}
         );
-        const std::vector<core::UnitType *> uts = world->getUnitTypes();
+        const std::vector<core::UnitType*> uts = world->getUnitTypes();
         std::for_each(
             uts.cbegin(),
             uts.cend(),
-            [&](core::UnitType *o){ctx.add(o);}
+            [&](core::UnitType* o){ctx.add(o);}
         );
 
         io::JsonUnserializer unserializer(ctx);
@@ -526,23 +570,23 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[JsonUnserializer]")
 
         ctx.add(world.get());
 
-        const std::vector<core::TerrainType *> tts = world->getTerrainTypes();
+        const std::vector<core::TerrainType*> tts = world->getTerrainTypes();
         std::for_each(
             tts.cbegin(),
             tts.cend(),
-            [&](core::TerrainType *o){ctx.add(o);}
+            [&](core::TerrainType* o){ctx.add(o);}
         );
-        const std::vector<core::Civilization *> fs = world->getCivilizations();
+        const std::vector<core::Civilization*> fs = world->getCivilizations();
         std::for_each(
             fs.cbegin(),
             fs.cend(),
-            [&](core::Civilization *o){ctx.add(o);}
+            [&](core::Civilization* o){ctx.add(o);}
         );
-        const std::vector<core::UnitType *> uts = world->getUnitTypes();
+        const std::vector<core::UnitType*> uts = world->getUnitTypes();
         std::for_each(
             uts.cbegin(),
             uts.cend(),
-            [&](core::UnitType *o){ctx.add(o);}
+            [&](core::UnitType* o){ctx.add(o);}
         );
 
         io::JsonUnserializer unserializer(ctx);
@@ -560,23 +604,23 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[JsonUnserializer]")
 
         ctx.add(world.get());
 
-        const std::vector<core::TerrainType *> tts = world->getTerrainTypes();
+        const std::vector<core::TerrainType*> tts = world->getTerrainTypes();
         std::for_each(
             tts.cbegin(),
             tts.cend(),
-            [&](core::TerrainType *o){ctx.add(o);}
+            [&](core::TerrainType* o){ctx.add(o);}
         );
-        const std::vector<core::Civilization *> fs = world->getCivilizations();
+        const std::vector<core::Civilization*> fs = world->getCivilizations();
         std::for_each(
             fs.cbegin(),
             fs.cend(),
-            [&](core::Civilization *o){ctx.add(o);}
+            [&](core::Civilization* o){ctx.add(o);}
         );
-        const std::vector<core::SettlementType *> sts = world->getSettlementTypes();
+        const std::vector<core::SettlementType*> sts = world->getSettlementTypes();
         std::for_each(
             sts.cbegin(),
             sts.cend(),
-            [&](core::SettlementType *o){ctx.add(o);}
+            [&](core::SettlementType* o){ctx.add(o);}
         );
 
         io::JsonUnserializer unserializer(ctx);
@@ -589,63 +633,25 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[JsonUnserializer]")
     }
 }
 
-
-TEST_CASE("DamageType can be unserialized from JSON", "[JsonUnserializer]")
-{
-    io::Context ctx;
-
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
-    const std::unique_ptr<core::World> world{worlds.first};
-    const QJsonObject jworld{worlds.second};
-
-    const QJsonObject jobj = jworld["damageTypes"].toArray()[0].toObject();
-
-    SECTION("unserializing DamageType")
-    {
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-        const std::unique_ptr<core::DamageType> dt(
-            unserializer.unserializeDamageType(jdoc.toJson())
-        );
-
-        REQUIRE(dt->objectName() == jobj["objectName"].toString());
-        REQUIRE(dt->getDisplayName() == jobj["displayName"].toString());
-    }
-}
-
-TEST_CASE("DamageType can't be unserialized from JSON", "[JsonUnserializer]")
-{
-    SECTION("invalid JSON")
-    {
-        io::Context ctx;
-        io::JsonUnserializer unserializer(ctx);
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeDamageType(invalidJson),
-            utils::ValueError
-        );
-    }
-}
-
 TEST_CASE("Civilization can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
 
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
     const QJsonObject jworld{worlds.second};
 
-    const std::vector<core::UnitType *> uts = world->getUnitTypes();
+    const std::vector<core::UnitType*> uts = world->getUnitTypes();
     std::for_each(
         uts.cbegin(),
         uts.cend(),
-        [&](core::UnitType *o){ctx.add(o);}
+        [&](core::UnitType* o){ctx.add(o);}
     );
-    const std::vector<core::SettlementType *> sts = world->getSettlementTypes();
+    const std::vector<core::SettlementType*> sts = world->getSettlementTypes();
     std::for_each(
         sts.cbegin(),
         sts.cend(),
-        [&](core::SettlementType *o){ctx.add(o);}
+        [&](core::SettlementType* o){ctx.add(o);}
     );
 
     const QJsonObject jobj = jworld["civilizations"].toArray()[0].toObject();
@@ -662,7 +668,7 @@ TEST_CASE("Civilization can be unserialized from JSON", "[JsonUnserializer]")
         REQUIRE(f->getDisplayName() == jobj["displayName"].toString());
         arrayEqualsList(jobj["unitTypes"].toArray(), f->getUnitTypes());
 
-        std::map<core::SettlementType *, std::vector<core::UnitType *>> recruits = f->getRecruits();
+        std::map<core::SettlementType*, std::vector<core::UnitType*>> recruits = f->getRecruits();
         const QJsonObject jrecruits = jobj["recruits"].toObject();
 
         REQUIRE(recruits.size() == jrecruits.size());
@@ -676,7 +682,7 @@ TEST_CASE("Civilization can be unserialized from JSON", "[JsonUnserializer]")
 
 TEST_CASE("Civilization can't be unserialized from JSON", "[JsonUnserializer]")
 {
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
     const QJsonObject jworld{worlds.second};
 
@@ -697,11 +703,11 @@ TEST_CASE("Civilization can't be unserialized from JSON", "[JsonUnserializer]")
     {
         io::Context ctx;
 
-        const std::vector<core::UnitType *> uts = world->getUnitTypes();
+        const std::vector<core::UnitType*> uts = world->getUnitTypes();
         std::for_each(
             uts.cbegin(),
             uts.cend(),
-            [&](core::UnitType *o){ctx.add(o);}
+            [&](core::UnitType* o){ctx.add(o);}
         );
 
         io::JsonUnserializer unserializer(ctx);
@@ -717,11 +723,11 @@ TEST_CASE("Civilization can't be unserialized from JSON", "[JsonUnserializer]")
     {
         io::Context ctx;
 
-        const std::vector<core::SettlementType *> sts = world->getSettlementTypes();
+        const std::vector<core::SettlementType*> sts = world->getSettlementTypes();
         std::for_each(
             sts.cbegin(),
             sts.cend(),
-            [&](core::SettlementType *o){ctx.add(o);}
+            [&](core::SettlementType* o){ctx.add(o);}
         );
 
         io::JsonUnserializer unserializer(ctx);
@@ -738,16 +744,16 @@ TEST_CASE("MapNode can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
 
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jmap{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
 
-    const std::vector<core::TerrainType *> tts = world->getTerrainTypes();
+    const std::vector<core::TerrainType*> tts = world->getTerrainTypes();
     std::for_each(
         tts.cbegin(),
         tts.cend(),
-        [&](core::TerrainType *o){ctx.add(o);}
+        [&](core::TerrainType* o){ctx.add(o);}
     );
 
     const QJsonObject jobj = jmap["mapNodes"].toArray()[0].toObject();
@@ -768,7 +774,7 @@ TEST_CASE("MapNode can be unserialized from JSON", "[JsonUnserializer]")
 
 TEST_CASE("MapNode can't be unserialized from JSON", "[JsonUnserializer]")
 {
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jmap{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
@@ -804,16 +810,16 @@ TEST_CASE("Faction can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
 
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jmap{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
 
-    const std::vector<core::Civilization *> fs = world->getCivilizations();
+    const std::vector<core::Civilization*> fs = world->getCivilizations();
     std::for_each(
         fs.cbegin(),
         fs.cend(),
-        [&](core::Civilization *o){ctx.add(o);}
+        [&](core::Civilization* o){ctx.add(o);}
     );
 
     const QJsonObject jobj = jmap["factions"].toArray()[0].toObject();
@@ -836,7 +842,7 @@ TEST_CASE("Faction can be unserialized from JSON", "[JsonUnserializer]")
 
 TEST_CASE("Faction can't be unserialized from JSON", "[JsonUnserializer]")
 {
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jmap{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
@@ -872,30 +878,30 @@ TEST_CASE("Settlement can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
 
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jmap{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
 
-    const std::vector<core::SettlementType *> sts = world->getSettlementTypes();
+    const std::vector<core::SettlementType*> sts = world->getSettlementTypes();
     std::for_each(
         sts.cbegin(),
         sts.cend(),
-        [&](core::SettlementType *o){ctx.add(o);}
+        [&](core::SettlementType* o){ctx.add(o);}
     );
 
-    const std::vector<core::MapNode *> mns = map->getMapNodes();
+    const std::vector<core::MapNode*> mns = map->getMapNodes();
     std::for_each(
         mns.cbegin(),
         mns.cend(),
-        [&](core::MapNode *o){ctx.add(o);}
+        [&](core::MapNode* o){ctx.add(o);}
     );
 
-    const std::vector<core::Faction *> fs = map->getFactions();
+    const std::vector<core::Faction*> fs = map->getFactions();
     std::for_each(
         fs.cbegin(),
         fs.cend(),
-        [&](core::Faction *o){ctx.add(o);}
+        [&](core::Faction* o){ctx.add(o);}
     );
 
     const QJsonObject jobj = jmap["settlements"].toArray()[0].toObject();
@@ -918,7 +924,7 @@ TEST_CASE("Settlement can be unserialized from JSON", "[JsonUnserializer]")
 
 TEST_CASE("Settlement can't be unserialized from JSON", "[JsonUnserializer]")
 {
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jmap{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
@@ -940,18 +946,18 @@ TEST_CASE("Settlement can't be unserialized from JSON", "[JsonUnserializer]")
     {
         io::Context ctx;
 
-        const std::vector<core::MapNode *> mns = map->getMapNodes();
+        const std::vector<core::MapNode*> mns = map->getMapNodes();
         std::for_each(
             mns.cbegin(),
             mns.cend(),
-            [&](core::MapNode *o){ctx.add(o);}
+            [&](core::MapNode* o){ctx.add(o);}
         );
 
-        const std::vector<core::Faction *> fs = map->getFactions();
+        const std::vector<core::Faction*> fs = map->getFactions();
         std::for_each(
             fs.cbegin(),
             fs.cend(),
-            [&](core::Faction *o){ctx.add(o);}
+            [&](core::Faction* o){ctx.add(o);}
         );
 
         QJsonDocument jdoc(jobj);
@@ -966,18 +972,18 @@ TEST_CASE("Settlement can't be unserialized from JSON", "[JsonUnserializer]")
     {
         io::Context ctx;
 
-        const std::vector<core::SettlementType *> sts = world->getSettlementTypes();
+        const std::vector<core::SettlementType*> sts = world->getSettlementTypes();
         std::for_each(
             sts.cbegin(),
             sts.cend(),
-            [&](core::SettlementType *o){ctx.add(o);}
+            [&](core::SettlementType* o){ctx.add(o);}
         );
 
-        const std::vector<core::Faction *> fs = map->getFactions();
+        const std::vector<core::Faction*> fs = map->getFactions();
         std::for_each(
             fs.cbegin(),
             fs.cend(),
-            [&](core::Faction *o){ctx.add(o);}
+            [&](core::Faction* o){ctx.add(o);}
         );
 
         QJsonDocument jdoc(jobj);
@@ -992,18 +998,18 @@ TEST_CASE("Settlement can't be unserialized from JSON", "[JsonUnserializer]")
     {
         io::Context ctx;
 
-        const std::vector<core::SettlementType *> sts = world->getSettlementTypes();
+        const std::vector<core::SettlementType*> sts = world->getSettlementTypes();
         std::for_each(
             sts.cbegin(),
             sts.cend(),
-            [&](core::SettlementType *o){ctx.add(o);}
+            [&](core::SettlementType* o){ctx.add(o);}
         );
 
-        const std::vector<core::MapNode *> mns = map->getMapNodes();
+        const std::vector<core::MapNode*> mns = map->getMapNodes();
         std::for_each(
             mns.cbegin(),
             mns.cend(),
-            [&](core::MapNode *o){ctx.add(o);}
+            [&](core::MapNode* o){ctx.add(o);}
         );
 
         QJsonDocument jdoc(jobj);
@@ -1019,15 +1025,15 @@ TEST_CASE("SettlementType can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
 
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
     const QJsonObject jworld{worlds.second};
 
-    const std::vector<core::UnitType *> uts = world->getUnitTypes();
+    const std::vector<core::UnitType*> uts = world->getUnitTypes();
     std::for_each(
         uts.cbegin(),
         uts.cend(),
-        [&](core::UnitType *o){ctx.add(o);}
+        [&](core::UnitType* o){ctx.add(o);}
     );
 
     const QJsonObject jobj = jworld["settlementTypes"].toArray()[0].toObject();
@@ -1049,7 +1055,7 @@ TEST_CASE("SettlementType can be unserialized from JSON", "[JsonUnserializer]")
 
 TEST_CASE("SettlementType can't be unserialized from JSON", "[JsonUnserializer]")
 {
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
     const QJsonObject jworld{worlds.second};
 
@@ -1083,7 +1089,7 @@ TEST_CASE("TerrainType can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
 
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
     const QJsonObject jworld{worlds.second};
 
@@ -1120,30 +1126,30 @@ TEST_CASE("Unit can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
 
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jmap{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
 
-    const std::vector<core::UnitType *> uts = world->getUnitTypes();
+    const std::vector<core::UnitType*> uts = world->getUnitTypes();
     std::for_each(
         uts.cbegin(),
         uts.cend(),
-        [&](core::UnitType *o){ctx.add(o);}
+        [&](core::UnitType* o){ctx.add(o);}
     );
 
-    const std::vector<core::MapNode *> mns = map->getMapNodes();
+    const std::vector<core::MapNode*> mns = map->getMapNodes();
     std::for_each(
         mns.cbegin(),
         mns.cend(),
-        [&](core::MapNode *o){ctx.add(o);}
+        [&](core::MapNode* o){ctx.add(o);}
     );
 
-    const std::vector<core::Faction *> fs = map->getFactions();
+    const std::vector<core::Faction*> fs = map->getFactions();
     std::for_each(
         fs.cbegin(),
         fs.cend(),
-        [&](core::Faction *o){ctx.add(o);}
+        [&](core::Faction* o){ctx.add(o);}
     );
 
     const QJsonObject jobj = jmap["units"].toArray()[0].toObject();
@@ -1166,7 +1172,7 @@ TEST_CASE("Unit can be unserialized from JSON", "[JsonUnserializer]")
 
 TEST_CASE("Unit can't be unserialized from JSON", "[JsonUnserializer]")
 {
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jmap{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
@@ -1188,18 +1194,18 @@ TEST_CASE("Unit can't be unserialized from JSON", "[JsonUnserializer]")
     {
         io::Context ctx;
 
-        const std::vector<core::MapNode *> mns = map->getMapNodes();
+        const std::vector<core::MapNode*> mns = map->getMapNodes();
         std::for_each(
             mns.cbegin(),
             mns.cend(),
-            [&](core::MapNode *o){ctx.add(o);}
+            [&](core::MapNode* o){ctx.add(o);}
         );
 
-        const std::vector<core::Faction *> fs = map->getFactions();
+        const std::vector<core::Faction*> fs = map->getFactions();
         std::for_each(
             fs.cbegin(),
             fs.cend(),
-            [&](core::Faction *o){ctx.add(o);}
+            [&](core::Faction* o){ctx.add(o);}
         );
 
         io::JsonUnserializer unserializer(ctx);
@@ -1215,18 +1221,18 @@ TEST_CASE("Unit can't be unserialized from JSON", "[JsonUnserializer]")
     {
         io::Context ctx;
 
-        const std::vector<core::UnitType *> uts = world->getUnitTypes();
+        const std::vector<core::UnitType*> uts = world->getUnitTypes();
         std::for_each(
             uts.cbegin(),
             uts.cend(),
-            [&](core::UnitType *o){ctx.add(o);}
+            [&](core::UnitType* o){ctx.add(o);}
         );
 
-        const std::vector<core::Faction *> fs = map->getFactions();
+        const std::vector<core::Faction*> fs = map->getFactions();
         std::for_each(
             fs.cbegin(),
             fs.cend(),
-            [&](core::Faction *o){ctx.add(o);}
+            [&](core::Faction* o){ctx.add(o);}
         );
 
         io::JsonUnserializer unserializer(ctx);
@@ -1242,18 +1248,18 @@ TEST_CASE("Unit can't be unserialized from JSON", "[JsonUnserializer]")
     {
         io::Context ctx;
 
-        const std::vector<core::UnitType *> uts = world->getUnitTypes();
+        const std::vector<core::UnitType*> uts = world->getUnitTypes();
         std::for_each(
             uts.cbegin(),
             uts.cend(),
-            [&](core::UnitType *o){ctx.add(o);}
+            [&](core::UnitType* o){ctx.add(o);}
         );
 
-        const std::vector<core::MapNode *> mns = map->getMapNodes();
+        const std::vector<core::MapNode*> mns = map->getMapNodes();
         std::for_each(
             mns.cbegin(),
             mns.cend(),
-            [&](core::MapNode *o){ctx.add(o);}
+            [&](core::MapNode* o){ctx.add(o);}
         );
 
         io::JsonUnserializer unserializer(ctx);
@@ -1266,163 +1272,25 @@ TEST_CASE("Unit can't be unserialized from JSON", "[JsonUnserializer]")
     }
 }
 
-TEST_CASE("UnitClass can be unserialized from JSON", "[JsonUnserializer]")
-{
-    io::Context ctx;
-
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
-    const std::unique_ptr<core::World> world{worlds.first};
-    const QJsonObject jworld{worlds.second};
-
-    const std::vector<core::TerrainType *> tts = world->getTerrainTypes();
-    std::for_each(
-        tts.cbegin(),
-        tts.cend(),
-        [&](core::TerrainType *o){ctx.add(o);}
-    );
-
-    const QJsonObject jobj = jworld["unitClasses"].toArray()[0].toObject();
-
-    SECTION("unserializing UnitClass")
-    {
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-        const std::unique_ptr<core::UnitClass> uc(
-            unserializer.unserializeUnitClass(jdoc.toJson())
-        );
-
-        REQUIRE(uc->objectName() == jobj["objectName"].toString());
-        REQUIRE(uc->getDisplayName() == jobj["displayName"].toString());
-        REQUIRE(uc->getMovementPoints() == jobj["movementPoints"].toInt());
-        objectEqualsMap(
-            jobj["movementCosts"].toObject(),
-            uc->getMovementCosts()
-        );
-        objectEqualsMap(jobj["attacks"].toObject(), uc->getAttacks());
-        objectEqualsMap(jobj["defenses"].toObject(), uc->getDefenses());
-    }
-}
-
-TEST_CASE("UnitClass can't be unserialized from JSON", "[JsonUnserializer]")
-{
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
-    const std::unique_ptr<core::World> world{worlds.first};
-    const QJsonObject jworld{worlds.second};
-
-    const QJsonObject jobj = jworld["unitClasses"].toArray()[0].toObject();
-
-    SECTION("invalid JSON")
-    {
-        io::Context ctx;
-        io::JsonUnserializer unserializer(ctx);
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeUnitClass(invalidJson),
-            utils::ValueError
-        );
-    }
-
-    SECTION("unserializing UnitClass, no terrainTypes")
-    {
-        io::Context ctx;
-
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeUnitClass(jdoc.toJson()),
-            utils::ValueError
-        );
-    }
-}
-
-TEST_CASE("UnitLevel can be unserialized from JSON", "[JsonUnserializer]")
-{
-    io::Context ctx;
-
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
-    const std::unique_ptr<core::World> world{worlds.first};
-    const QJsonObject jworld{worlds.second};
-
-    const QJsonObject jobj = jworld["unitLevels"].toArray()[0].toObject();
-
-    SECTION("unserializing UnitLevel")
-    {
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-        const std::unique_ptr<core::UnitLevel> ul(
-            unserializer.unserializeUnitLevel(jdoc.toJson())
-        );
-
-        REQUIRE(ul->objectName() == jobj["objectName"].toString());
-        REQUIRE(ul->getDisplayName() == jobj["displayName"].toString());
-        REQUIRE(ul->getExperiencePoints() == jobj["experiencePoints"].toInt());
-        REQUIRE(ul->getIndex() == jobj["index"].toInt());
-    }
-}
-
-TEST_CASE("UnitLevel can't be unserialized from JSON", "[JsonUnserializer]")
-{
-    SECTION("invalid JSON")
-    {
-        io::Context ctx;
-        io::JsonUnserializer unserializer(ctx);
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeUnitLevel(invalidJson),
-            utils::ValueError
-        );
-    }
-}
-
 TEST_CASE("UnitType can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
 
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
     const QJsonObject jworld{worlds.second};
 
-    const std::vector<core::UnitClass *> ucs = world->getUnitClasses();
+    const std::vector<core::TerrainType*> tts = world->getTerrainTypes();
     std::for_each(
-        ucs.cbegin(),
-        ucs.cend(),
-        [&](core::UnitClass *o){ctx.add(o);}
+        tts.cbegin(),
+        tts.cend(),
+        [&](core::TerrainType* o){ctx.add(o);}
     );
-    const std::vector<core::UnitLevel *> uls = world->getUnitLevels();
-    std::for_each(
-        uls.cbegin(),
-        uls.cend(),
-        [&](core::UnitLevel *o){ctx.add(o);}
-    );
-    const std::vector<core::Armor *> as = world->getArmors();
-    std::for_each(
-        as.cbegin(),
-        as.cend(),
-        [&](core::Armor *o){ctx.add(o);}
-    );
-    const std::vector<core::Weapon *> ws = world->getWeapons();
-    std::for_each(
-        ws.cbegin(),
-        ws.cend(),
-        [&](core::Weapon *o){ctx.add(o);}
-    );
-    const std::vector<core::UnitType *> uts = world->getUnitTypes();
+    const std::vector<core::UnitType*> uts = world->getUnitTypes();
     std::for_each(
         uts.cbegin(),
         uts.cend(),
-        [&](core::UnitType *o){ctx.add(o);}
-    );
-    const std::vector<core::WeaponType *> wts = world->getWeaponTypes();
-    std::for_each(
-        wts.cbegin(),
-        wts.cend(),
-        [&](core::WeaponType *o){ctx.add(o);}
-    );
-    const std::vector<core::WeaponClass *> wcs = world->getWeaponClasses();
-    std::for_each(
-        wcs.cbegin(),
-        wcs.cend(),
-        [&](core::WeaponClass *o){ctx.add(o);}
+        [&](core::UnitType* o){ctx.add(o);}
     );
 
     const QJsonObject jobj = jworld["unitTypes"].toArray()[0].toObject();
@@ -1437,21 +1305,21 @@ TEST_CASE("UnitType can be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE(ut->objectName() == jobj["objectName"].toString());
         REQUIRE(ut->getDisplayName() == jobj["displayName"].toString());
-        REQUIRE(ut->getClass()->objectName() == jobj["class"].toString());
         REQUIRE(ut->getHitPoints() == jobj["hitPoints"].toInt());
+        REQUIRE(ut->getExperiencePoints() == jobj["experiencePoints"].toInt());
+        REQUIRE(ut->getMovementPoints() == jobj["movementPoints"].toInt());
         REQUIRE(ut->getRecruitmentCost() == jobj["recruitmentCost"].toInt());
         REQUIRE(ut->getUpkeepCost() == jobj["upkeepCost"].toInt());
-        REQUIRE(ut->getArmor()->objectName() == jobj["armor"].toString());
-        arrayEqualsList(jobj["weapons"].toArray(), ut->getWeapons());
-        arrayEqualsList(jobj["upgrades"].toArray(), ut->getUpgrades());
-        objectEqualsMap(jobj["attackSkills"].toObject(), ut->getAttackSkills());
-        objectEqualsMap(jobj["defenseSkills"].toObject(), ut->getDefenseSkills());
+        objectEqualsMap(
+            jobj["movementCosts"].toObject(),
+            ut->getMovementCosts()
+        );
     }
 }
 
 TEST_CASE("UnitType can't be unserialized from JSON", "[JsonUnserializer]")
 {
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
     const QJsonObject jworld{worlds.second};
 
@@ -1468,195 +1336,15 @@ TEST_CASE("UnitType can't be unserialized from JSON", "[JsonUnserializer]")
         );
     }
 
-    SECTION("unserializing UnitType, no unitClasses")
+    SECTION("unserializing UnitType, no terrainTypes")
     {
         io::Context ctx;
 
-        const std::vector<core::UnitLevel *> uls = world->getUnitLevels();
-        std::for_each(
-            uls.cbegin(),
-            uls.cend(),
-            [&](core::UnitLevel *o){ctx.add(o);}
-        );
-        const std::vector<core::Armor *> as = world->getArmors();
-        std::for_each(
-            as.cbegin(),
-            as.cend(),
-            [&](core::Armor *o){ctx.add(o);}
-        );
-        const std::vector<core::Weapon *> ws = world->getWeapons();
-        std::for_each(
-            ws.cbegin(),
-            ws.cend(),
-            [&](core::Weapon *o){ctx.add(o);}
-        );
-        const std::vector<core::UnitType *> uts = world->getUnitTypes();
+        const std::vector<core::UnitType*> uts = world->getUnitTypes();
         std::for_each(
             uts.cbegin(),
             uts.cend(),
-            [&](core::UnitType *o){ctx.add(o);}
-        );
-        const std::vector<core::WeaponType *> wts = world->getWeaponTypes();
-        std::for_each(
-            wts.cbegin(),
-            wts.cend(),
-            [&](core::WeaponType *o){ctx.add(o);}
-        );
-        const std::vector<core::WeaponClass *> wcs = world->getWeaponClasses();
-        std::for_each(
-            wcs.cbegin(),
-            wcs.cend(),
-            [&](core::WeaponClass *o){ctx.add(o);}
-        );
-
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeUnitType(jdoc.toJson()),
-            utils::ValueError
-        );
-    }
-
-    SECTION("unserializing UnitType, no unitLevels")
-    {
-        io::Context ctx;
-
-        const std::vector<core::UnitClass *> ucs = world->getUnitClasses();
-        std::for_each(
-            ucs.cbegin(),
-            ucs.cend(),
-            [&](core::UnitClass *o){ctx.add(o);}
-        );
-        const std::vector<core::Armor *> as = world->getArmors();
-        std::for_each(
-            as.cbegin(),
-            as.cend(),
-            [&](core::Armor *o){ctx.add(o);}
-        );
-        const std::vector<core::Weapon *> ws = world->getWeapons();
-        std::for_each(
-            ws.cbegin(),
-            ws.cend(),
-            [&](core::Weapon *o){ctx.add(o);}
-        );
-        const std::vector<core::UnitType *> uts = world->getUnitTypes();
-        std::for_each(
-            uts.cbegin(),
-            uts.cend(),
-            [&](core::UnitType *o){ctx.add(o);}
-        );
-        const std::vector<core::WeaponType *> wts = world->getWeaponTypes();
-        std::for_each(
-            wts.cbegin(),
-            wts.cend(),
-            [&](core::WeaponType *o){ctx.add(o);}
-        );
-        const std::vector<core::WeaponClass *> wcs = world->getWeaponClasses();
-        std::for_each(
-            wcs.cbegin(),
-            wcs.cend(),
-            [&](core::WeaponClass *o){ctx.add(o);}
-        );
-
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeUnitType(jdoc.toJson()),
-            utils::ValueError
-        );
-    }
-
-    SECTION("unserializing UnitType, no armors")
-    {
-        io::Context ctx;
-
-        const std::vector<core::UnitClass *> ucs = world->getUnitClasses();
-        std::for_each(
-            ucs.cbegin(),
-            ucs.cend(),
-            [&](core::UnitClass *o){ctx.add(o);}
-        );
-        const std::vector<core::UnitLevel *> uls = world->getUnitLevels();
-        std::for_each(
-            uls.cbegin(),
-            uls.cend(),
-            [&](core::UnitLevel *o){ctx.add(o);}
-        );
-        const std::vector<core::Weapon *> ws = world->getWeapons();
-        std::for_each(
-            ws.cbegin(),
-            ws.cend(),
-            [&](core::Weapon *o){ctx.add(o);}
-        );
-        const std::vector<core::UnitType *> uts = world->getUnitTypes();
-        std::for_each(
-            uts.cbegin(),
-            uts.cend(),
-            [&](core::UnitType *o){ctx.add(o);}
-        );
-        const std::vector<core::WeaponType *> wts = world->getWeaponTypes();
-        std::for_each(
-            wts.cbegin(),
-            wts.cend(),
-            [&](core::WeaponType *o){ctx.add(o);}
-        );
-        const std::vector<core::WeaponClass *> wcs = world->getWeaponClasses();
-        std::for_each(
-            wcs.cbegin(),
-            wcs.cend(),
-            [&](core::WeaponClass *o){ctx.add(o);}
-        );
-
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeUnitType(jdoc.toJson()),
-            utils::ValueError
-        );
-    }
-
-    SECTION("unserializing UnitType, no weapons")
-    {
-        io::Context ctx;
-
-        const std::vector<core::UnitClass *> ucs = world->getUnitClasses();
-        std::for_each(
-            ucs.cbegin(),
-            ucs.cend(),
-            [&](core::UnitClass *o){ctx.add(o);}
-        );
-        const std::vector<core::UnitLevel *> uls = world->getUnitLevels();
-        std::for_each(
-            uls.cbegin(),
-            uls.cend(),
-            [&](core::UnitLevel *o){ctx.add(o);}
-        );
-        const std::vector<core::Armor *> as = world->getArmors();
-        std::for_each(
-            as.cbegin(),
-            as.cend(),
-            [&](core::Armor *o){ctx.add(o);}
-        );
-        const std::vector<core::UnitType *> uts = world->getUnitTypes();
-        std::for_each(
-            uts.cbegin(),
-            uts.cend(),
-            [&](core::UnitType *o){ctx.add(o);}
-        );
-        const std::vector<core::WeaponType *> wts = world->getWeaponTypes();
-        std::for_each(
-            wts.cbegin(),
-            wts.cend(),
-            [&](core::WeaponType *o){ctx.add(o);}
-        );
-        const std::vector<core::WeaponClass *> wcs = world->getWeaponClasses();
-        std::for_each(
-            wcs.cbegin(),
-            wcs.cend(),
-            [&](core::WeaponClass *o){ctx.add(o);}
+            [&](core::UnitType* o){ctx.add(o);}
         );
 
         io::JsonUnserializer unserializer(ctx);
@@ -1672,41 +1360,11 @@ TEST_CASE("UnitType can't be unserialized from JSON", "[JsonUnserializer]")
     {
         io::Context ctx;
 
-        const std::vector<core::UnitClass *> ucs = world->getUnitClasses();
+        const std::vector<core::TerrainType*> tts = world->getTerrainTypes();
         std::for_each(
-            ucs.cbegin(),
-            ucs.cend(),
-            [&](core::UnitClass *o){ctx.add(o);}
-        );
-        const std::vector<core::UnitLevel *> uls = world->getUnitLevels();
-        std::for_each(
-            uls.cbegin(),
-            uls.cend(),
-            [&](core::UnitLevel *o){ctx.add(o);}
-        );
-        const std::vector<core::Armor *> as = world->getArmors();
-        std::for_each(
-            as.cbegin(),
-            as.cend(),
-            [&](core::Armor *o){ctx.add(o);}
-        );
-        const std::vector<core::Weapon *> ws = world->getWeapons();
-        std::for_each(
-            ws.cbegin(),
-            ws.cend(),
-            [&](core::Weapon *o){ctx.add(o);}
-        );
-        const std::vector<core::WeaponType *> wts = world->getWeaponTypes();
-        std::for_each(
-            wts.cbegin(),
-            wts.cend(),
-            [&](core::WeaponType *o){ctx.add(o);}
-        );
-        const std::vector<core::WeaponClass *> wcs = world->getWeaponClasses();
-        std::for_each(
-            wcs.cbegin(),
-            wcs.cend(),
-            [&](core::WeaponClass *o){ctx.add(o);}
+            tts.cbegin(),
+            tts.cend(),
+            [&](core::TerrainType* o){ctx.add(o);}
         );
 
         io::JsonUnserializer unserializer(ctx);
@@ -1714,310 +1372,6 @@ TEST_CASE("UnitType can't be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeUnitType(jdoc.toJson()),
-            utils::ValueError
-        );
-    }
-
-    SECTION("unserializing UnitType, no weaponTypes")
-    {
-        io::Context ctx;
-
-        const std::vector<core::UnitClass *> ucs = world->getUnitClasses();
-        std::for_each(
-            ucs.cbegin(),
-            ucs.cend(),
-            [&](core::UnitClass *o){ctx.add(o);}
-        );
-        const std::vector<core::UnitLevel *> uls = world->getUnitLevels();
-        std::for_each(
-            uls.cbegin(),
-            uls.cend(),
-            [&](core::UnitLevel *o){ctx.add(o);}
-        );
-        const std::vector<core::Armor *> as = world->getArmors();
-        std::for_each(
-            as.cbegin(),
-            as.cend(),
-            [&](core::Armor *o){ctx.add(o);}
-        );
-        const std::vector<core::Weapon *> ws = world->getWeapons();
-        std::for_each(
-            ws.cbegin(),
-            ws.cend(),
-            [&](core::Weapon *o){ctx.add(o);}
-        );
-        const std::vector<core::UnitType *> uts = world->getUnitTypes();
-        std::for_each(
-            uts.cbegin(),
-            uts.cend(),
-            [&](core::UnitType *o){ctx.add(o);}
-        );
-        const std::vector<core::WeaponClass *> wcs = world->getWeaponClasses();
-        std::for_each(
-            wcs.cbegin(),
-            wcs.cend(),
-            [&](core::WeaponClass *o){ctx.add(o);}
-        );
-
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeUnitType(jdoc.toJson()),
-            utils::ValueError
-        );
-    }
-
-    SECTION("unserializing UnitType, no weaponClasses")
-    {
-        io::Context ctx;
-
-        const std::vector<core::UnitClass *> ucs = world->getUnitClasses();
-        std::for_each(
-            ucs.cbegin(),
-            ucs.cend(),
-            [&](core::UnitClass *o){ctx.add(o);}
-        );
-        const std::vector<core::UnitLevel *> uls = world->getUnitLevels();
-        std::for_each(
-            uls.cbegin(),
-            uls.cend(),
-            [&](core::UnitLevel *o){ctx.add(o);}
-        );
-        const std::vector<core::Armor *> as = world->getArmors();
-        std::for_each(
-            as.cbegin(),
-            as.cend(),
-            [&](core::Armor *o){ctx.add(o);}
-        );
-        const std::vector<core::Weapon *> ws = world->getWeapons();
-        std::for_each(
-            ws.cbegin(),
-            ws.cend(),
-            [&](core::Weapon *o){ctx.add(o);}
-        );
-        const std::vector<core::UnitType *> uts = world->getUnitTypes();
-        std::for_each(
-            uts.cbegin(),
-            uts.cend(),
-            [&](core::UnitType *o){ctx.add(o);}
-        );
-        const std::vector<core::WeaponType *> wts = world->getWeaponTypes();
-        std::for_each(
-            wts.cbegin(),
-            wts.cend(),
-            [&](core::WeaponType *o){ctx.add(o);}
-        );
-
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeUnitType(jdoc.toJson()),
-            utils::ValueError
-        );
-    }
-}
-
-TEST_CASE("Weapon can be unserialized from JSON", "[JsonUnserializer]")
-{
-    io::Context ctx;
-
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
-    const std::unique_ptr<core::World> world{worlds.first};
-    const QJsonObject jworld{worlds.second};
-
-    const std::vector<core::DamageType *> dts = world->getDamageTypes();
-    std::for_each(
-        dts.cbegin(),
-        dts.cend(),
-        [&](core::DamageType *o){ctx.add(o);}
-    );
-
-    const std::vector<core::WeaponType *> wts = world->getWeaponTypes();
-    std::for_each(
-        wts.cbegin(),
-        wts.cend(),
-        [&](core::WeaponType *o){ctx.add(o);}
-    );
-
-    const QJsonObject jobj = jworld["weapons"].toArray()[0].toObject();
-
-    SECTION("unserializing Weapon")
-    {
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-        const std::unique_ptr<core::Weapon> w(
-            unserializer.unserializeWeapon(jdoc.toJson())
-        );
-
-        REQUIRE(w->objectName() == jobj["objectName"].toString());
-        REQUIRE(w->getDisplayName() == jobj["displayName"].toString());
-        REQUIRE(w->getRange() == jobj["range"].toInt());
-        REQUIRE(w->getType()->objectName() == jobj["type"].toString());
-        objectEqualsMap(jobj["damages"].toObject(), w->getDamages());
-    }
-}
-
-TEST_CASE("Weapon can't be unserialized from JSON", "[JsonUnserializer]")
-{
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
-    const std::unique_ptr<core::World> world{worlds.first};
-    const QJsonObject jworld{worlds.second};
-
-    const QJsonObject jobj = jworld["weapons"].toArray()[0].toObject();
-
-    SECTION("invalid JSON")
-    {
-        io::Context ctx;
-        io::JsonUnserializer unserializer(ctx);
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeWeapon(invalidJson),
-            utils::ValueError
-        );
-    }
-
-    SECTION("unserializing Weapon, no DamageType")
-    {
-        io::Context ctx;
-
-        const std::vector<core::WeaponType *> wts = world->getWeaponTypes();
-        std::for_each(
-            wts.cbegin(),
-            wts.cend(),
-            [&](core::WeaponType *o){ctx.add(o);}
-        );
-
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeWeapon(jdoc.toJson()),
-            utils::ValueError
-        );
-    }
-
-    SECTION("unserializing Weapon, no WeaponType")
-    {
-        io::Context ctx;
-
-        const std::vector<core::DamageType *> dts = world->getDamageTypes();
-        std::for_each(
-            dts.cbegin(),
-            dts.cend(),
-            [&](core::DamageType *o){ctx.add(o);}
-        );
-
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeWeapon(jdoc.toJson()),
-            utils::ValueError
-        );
-    }
-}
-
-TEST_CASE("WeaponClass can be unserialized from JSON", "[JsonUnserializer]")
-{
-    io::Context ctx;
-
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
-    const std::unique_ptr<core::World> world{worlds.first};
-    const QJsonObject jworld{worlds.second};
-
-    const QJsonObject jobj = jworld["weaponClasses"].toArray()[0].toObject();
-
-    SECTION("unserializing WeaponClass")
-    {
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-        const std::unique_ptr<core::WeaponClass> wc(
-            unserializer.unserializeWeaponClass(jdoc.toJson())
-        );
-
-        REQUIRE(wc->objectName() == jobj["objectName"].toString());
-        REQUIRE(wc->getDisplayName() == jobj["displayName"].toString());
-    }
-}
-
-TEST_CASE("WeaponClass can't be unserialized from JSON", "[JsonUnserializer]")
-{
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
-    const std::unique_ptr<core::World> world{worlds.first};
-    const QJsonObject jworld{worlds.second};
-
-    const QJsonObject jobj = jworld["weaponClasses"].toArray()[0].toObject();
-
-    SECTION("invalid JSON")
-    {
-        io::Context ctx;
-        io::JsonUnserializer unserializer(ctx);
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeWeaponClass(invalidJson),
-            utils::ValueError
-        );
-    }
-}
-
-TEST_CASE("WeaponType can be unserialized from JSON", "[JsonUnserializer]")
-{
-    io::Context ctx;
-
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
-    const std::unique_ptr<core::World> world{worlds.first};
-    const QJsonObject jworld{worlds.second};
-
-    const std::vector<core::WeaponClass *> dts = world->getWeaponClasses();
-    std::for_each(
-        dts.cbegin(),
-        dts.cend(),
-        [&](core::WeaponClass *o){ctx.add(o);}
-    );
-
-    const QJsonObject jobj = jworld["weaponTypes"].toArray()[0].toObject();
-
-    SECTION("unserializing WeaponType")
-    {
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-        const std::unique_ptr<core::WeaponType> wt(
-            unserializer.unserializeWeaponType(jdoc.toJson())
-        );
-
-        REQUIRE(wt->objectName() == jobj["objectName"].toString());
-        REQUIRE(wt->getDisplayName() == jobj["displayName"].toString());
-        REQUIRE(wt->getClass()->objectName() == jobj["class"].toString());
-    }
-}
-
-TEST_CASE("WeaponType can't be unserialized from JSON", "[JsonUnserializer]")
-{
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
-    const std::unique_ptr<core::World> world{worlds.first};
-    const QJsonObject jworld{worlds.second};
-
-    const QJsonObject jobj = jworld["weapons"].toArray()[0].toObject();
-
-    SECTION("invalid JSON")
-    {
-        io::Context ctx;
-        io::JsonUnserializer unserializer(ctx);
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeWeaponType(invalidJson),
-            utils::ValueError
-        );
-    }
-
-    SECTION("unserializing WeaponType, no WeaponClass")
-    {
-        io::Context ctx;
-
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeWeaponType(jdoc.toJson()),
             utils::ValueError
         );
     }
@@ -2027,7 +1381,7 @@ TEST_CASE("World can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
 
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> obj{worlds.first};
     const QJsonObject jobj{worlds.second};
 
@@ -2042,181 +1396,55 @@ TEST_CASE("World can be unserialized from JSON", "[JsonUnserializer]")
         REQUIRE(world->objectName() == jobj["objectName"].toString());
         REQUIRE(world->getDisplayName() == jobj["displayName"].toString());
 
-        SECTION("unserializing damageTypes")
-        {
-            const std::vector<core::DamageType *> dts(world->getDamageTypes());
-            const QJsonArray jdts(jobj["damageTypes"].toArray());
-
-            REQUIRE(jdts.size() == dts.size());
-
-            for (size_t i = 0; i < dts.size(); i++)
-            {
-                core::DamageType *dt{dts[i]};
-                const QJsonObject jdt(jdts[i].toObject());
-                REQUIRE(dt->objectName() == jdt["objectName"].toString());
-                REQUIRE(dt->getDisplayName() == jdt["displayName"].toString());
-            }
-        }
-
-        SECTION("unserializing armors")
-        {
-            const std::vector<core::Armor *> as{world->getArmors()};
-            const QJsonArray jas(jobj["armors"].toArray());
-
-            REQUIRE(jas.size() == as.size());
-
-            for (size_t i = 0; i < as.size(); i++)
-            {
-                core::Armor *a{as[i]};
-                const QJsonObject ja(jas[i].toObject());
-                REQUIRE(a->objectName() == ja["objectName"].toString());
-                REQUIRE(a->getDisplayName() == ja["displayName"].toString());
-                objectEqualsMap(ja["defenses"].toObject(), a->getDefenses());
-            }
-        }
-
-        SECTION("unserializing weaponClasses")
-        {
-            const std::vector<core::WeaponClass *> wcs{world->getWeaponClasses()};
-            const QJsonArray jwcs(jobj["weaponClasses"].toArray());
-
-            REQUIRE(jwcs.size() == wcs.size());
-
-            for (size_t i = 0; i < wcs.size(); i++)
-            {
-                core::WeaponClass *wc{wcs[i]};
-                const QJsonObject jwc(jwcs[i].toObject());
-                REQUIRE(wc->objectName() == jwc["objectName"].toString());
-                REQUIRE(wc->getDisplayName() == jwc["displayName"].toString());
-            }
-        }
-
-        SECTION("unserializing weaponTypes")
-        {
-            const std::vector<core::WeaponType *> wts{world->getWeaponTypes()};
-            const QJsonArray jwts(jobj["weaponTypes"].toArray());
-
-            REQUIRE(jwts.size() == wts.size());
-
-            for (size_t i = 0; i < wts.size(); i++)
-            {
-                core::WeaponType *wt{wts[i]};
-                const QJsonObject jwt(jwts[i].toObject());
-                REQUIRE(wt->objectName() == jwt["objectName"].toString());
-                REQUIRE(wt->getDisplayName() == jwt["displayName"].toString());
-                REQUIRE(wt->getClass()->objectName() == jwt["class"].toString());
-            }
-        }
-
-        SECTION("unserializing weapons")
-        {
-            const std::vector<core::Weapon *> ws{world->getWeapons()};
-            const QJsonArray jws(jobj["weapons"].toArray());
-
-            REQUIRE(jws.size() == ws.size());
-
-            for (size_t i = 0; i < ws.size(); i++)
-            {
-                core::Weapon *w{ws[i]};
-                const QJsonObject jw(jws[i].toObject());
-                REQUIRE(w->objectName() == jw["objectName"].toString());
-                REQUIRE(w->getDisplayName() == jw["displayName"].toString());
-                REQUIRE(w->getRange() == jw["range"].toInt());
-                REQUIRE(w->getType()->objectName() == jw["type"].toString());
-                objectEqualsMap(jw["damages"].toObject(), w->getDamages());
-            }
-        }
-
         SECTION("unserializing terrainTypes")
         {
-            const std::vector<core::TerrainType *> tts(world->getTerrainTypes());
+            const std::vector<core::TerrainType*> tts(world->getTerrainTypes());
             const QJsonArray jtts(jobj["terrainTypes"].toArray());
 
             REQUIRE(jtts.size() == tts.size());
 
             for (size_t i = 0; i < tts.size(); i++)
             {
-                core::TerrainType *tt{tts[i]};
+                core::TerrainType* tt{tts[i]};
                 const QJsonObject jtt(jtts[i].toObject());
                 REQUIRE(tt->objectName() == jtt["objectName"].toString());
                 REQUIRE(tt->getDisplayName() == jtt["displayName"].toString());
             }
         }
 
-        SECTION("unserializing unitClasses")
-        {
-            const std::vector<core::UnitClass *> ucs(world->getUnitClasses());
-            const QJsonArray jucs(jobj["unitClasses"].toArray());
-
-            REQUIRE(jucs.size() == ucs.size());
-
-            for (size_t i = 0; i < ucs.size(); i++)
-            {
-                core::UnitClass *uc{ucs[i]};
-                const QJsonObject juc(jucs[i].toObject());
-                REQUIRE(uc->objectName() == juc["objectName"].toString());
-                REQUIRE(uc->getDisplayName() == juc["displayName"].toString());
-                REQUIRE(uc->getMovementPoints() == juc["movementPoints"].toInt());
-                objectEqualsMap(juc["movementCosts"].toObject(), uc->getMovementCosts());
-                objectEqualsMap(juc["attacks"].toObject(), uc->getAttacks());
-                objectEqualsMap(juc["defenses"].toObject(), uc->getDefenses());
-            }
-        }
-
-        SECTION("unserializing unitLevels")
-        {
-            const std::vector<core::UnitLevel *> uls(world->getUnitLevels());
-            const QJsonArray juls(jobj["unitLevels"].toArray());
-
-            REQUIRE(juls.size() == uls.size());
-
-            for (size_t i = 0; i < uls.size(); i++)
-            {
-                core::UnitLevel *ul{uls[i]};
-                const QJsonObject jul(juls[i].toObject());
-                REQUIRE(ul->objectName() == jul["objectName"].toString());
-                REQUIRE(ul->getDisplayName() == jul["displayName"].toString());
-                REQUIRE(ul->getExperiencePoints() == jul["experiencePoints"].toInt());
-                REQUIRE(ul->getIndex() == jul["index"].toInt());
-            }
-        }
-
         SECTION("unserializing unitTypes")
         {
-            const std::vector<core::UnitType *> uts(world->getUnitTypes());
+            const std::vector<core::UnitType*> uts(world->getUnitTypes());
             const QJsonArray juts(jobj["unitTypes"].toArray());
 
             REQUIRE(juts.size() == uts.size());
 
             for (size_t i = 0; i < uts.size(); i++)
             {
-                core::UnitType *ut{uts[i]};
+                core::UnitType* ut{uts[i]};
                 const QJsonObject jut(juts[i].toObject());
                 REQUIRE(ut->objectName() == jut["objectName"].toString());
                 REQUIRE(ut->getDisplayName() == jut["displayName"].toString());
-                REQUIRE(ut->getClass()->objectName() == jut["class"].toString());
-                REQUIRE(ut->getLevel()->objectName() == jut["level"].toString());
                 REQUIRE(ut->getHitPoints() == jut["hitPoints"].toInt());
+                REQUIRE(ut->getExperiencePoints() == jut["experiencePoints"].toInt());
+                REQUIRE(ut->getMovementPoints() == jut["movementPoints"].toInt());
                 REQUIRE(ut->getRecruitmentCost() == jut["recruitmentCost"].toInt());
                 REQUIRE(ut->getUpkeepCost() == jut["upkeepCost"].toInt());
-                REQUIRE(ut->getArmor()->objectName() == jut["armor"].toString());
-                arrayEqualsList(jut["weapons"].toArray(), ut->getWeapons());
                 arrayEqualsList(jut["upgrades"].toArray(), ut->getUpgrades());
-                objectEqualsMap(jut["attackSkills"].toObject(), ut->getAttackSkills());
-                objectEqualsMap(jut["defenseSkills"].toObject(), ut->getDefenseSkills());
+                objectEqualsMap(jut["movementCosts"].toObject(), ut->getMovementCosts());
             }
         }
 
         SECTION("unserializing settlementTypes")
         {
-            const std::vector<core::SettlementType *> sts(world->getSettlementTypes());
+            const std::vector<core::SettlementType*> sts(world->getSettlementTypes());
             const QJsonArray jsts(jobj["settlementTypes"].toArray());
 
             REQUIRE(jsts.size() == sts.size());
 
             for (size_t i = 0; i < sts.size(); i++)
             {
-                core::SettlementType *st{sts[i]};
+                core::SettlementType* st{sts[i]};
                 const QJsonObject jst(jsts[i].toObject());
                 REQUIRE(st->objectName() == jst["objectName"].toString());
                 REQUIRE(st->getDisplayName() == jst["displayName"].toString());
@@ -2227,20 +1455,20 @@ TEST_CASE("World can be unserialized from JSON", "[JsonUnserializer]")
 
         SECTION("unserializing civilizations")
         {
-            const std::vector<core::Civilization *> cs(world->getCivilizations());
+            const std::vector<core::Civilization*> cs(world->getCivilizations());
             const QJsonArray jcs(jobj["civilizations"].toArray());
 
             REQUIRE(jcs.size() == cs.size());
 
             for (size_t i = 0; i < cs.size(); i++)
             {
-                core::Civilization *c{cs[i]};
+                core::Civilization* c{cs[i]};
                 const QJsonObject jc(jcs[i].toObject());
                 REQUIRE(c->objectName() == jc["objectName"].toString());
                 REQUIRE(c->getDisplayName() == jc["displayName"].toString());
                 arrayEqualsList(jc["unitTypes"].toArray(), c->getUnitTypes());
 
-                std::map<core::SettlementType *, std::vector<core::UnitType *>> rs = c->getRecruits();
+                std::map<core::SettlementType*, std::vector<core::UnitType*>> rs = c->getRecruits();
                 const QJsonObject jrs = jc["recruits"].toObject();
 
                 REQUIRE(rs.size() == jrs.size());

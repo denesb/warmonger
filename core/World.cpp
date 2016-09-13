@@ -30,7 +30,7 @@ std::vector<ArmyType*> World::getArmyTypes() const
 
 void World::setArmyTypes(const std::vector<ArmyType*>& armyTypes)
 {
-    if(this->armyTypes == armyTypes)
+    if(this->armyTypes != armyTypes)
     {
         this->armyTypes = armyTypes;
         emit armyTypesChanged();

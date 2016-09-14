@@ -4,16 +4,33 @@
 #include <map>
 #include <vector>
 
+#include <boost/optional.hpp>
+
 #include <QObject>
 #include <QVariant>
 
 #include "core/TerrainType.h"
+#include "core/HierarchyNode.hpp"
 
 namespace warmonger {
 namespace core {
 
+/**
+ * Defines a type of or kind of unit.
+ *
+ * Can inherit:
+ * * displayName
+ * * hitPoints
+ * * experiencePoints
+ * * movementPoints
+ * * recruitmentCost
+ * * upkeepCost
+ * * movementCosts
+ * * upgrades
+ */
 class UnitType :
-    public QObject
+    public QObject,
+    public HierarchyNode<UnitType>
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName NOTIFY displayNameChanged)
@@ -70,14 +87,14 @@ signals:
     void upgradesChanged();
 
 private:
-    QString displayName;
-    int hitPoints;
-    int experiencePoints;
-    int movementPoints;
-    int recruitmentCost;
-    int upkeepCost;
-    std::map<TerrainType*, int> movementCosts;
-    std::vector<UnitType*> upgrades;
+    boost::optional<QString> displayName;
+    boost::optional<int> hitPoints;
+    boost::optional<int> experiencePoints;
+    boost::optional<int> movementPoints;
+    boost::optional<int> recruitmentCost;
+    boost::optional<int> upkeepCost;
+    boost::optional<std::map<TerrainType*, int>> movementCosts;
+    boost::optional<std::vector<UnitType*>> upgrades;
 };
 
 } // namespace core

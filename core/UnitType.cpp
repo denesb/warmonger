@@ -16,7 +16,12 @@ UnitType::UnitType(QObject* parent) :
 
 QString UnitType::getDisplayName() const
 {
-    return this->displayName;
+    if (this->displayName)
+        return *this->displayName;
+    else if (this->isHierarchyRoot())
+        throw utils::ValueError("displayName is unset");
+    else
+        return this->getHierarchyParent()->getDisplayName();
 }
 
 void UnitType::setDisplayName(const QString& displayName)
@@ -30,7 +35,12 @@ void UnitType::setDisplayName(const QString& displayName)
 
 int UnitType::getHitPoints() const
 {
-    return this->hitPoints;
+    if (this->hitPoints)
+        return *this->hitPoints;
+    else if (this->isHierarchyRoot())
+        throw utils::ValueError("hitPoints is unset");
+    else
+        return this->getHierarchyParent()->getHitPoints();
 }
 
 void UnitType::setHitPoints(int hitPoints)
@@ -44,7 +54,12 @@ void UnitType::setHitPoints(int hitPoints)
 
 int UnitType::getExperiencePoints() const
 {
-    return this->experiencePoints;
+    if (this->experiencePoints)
+        return *this->experiencePoints;
+    else if (this->isHierarchyRoot())
+        throw utils::ValueError("experiencePoints is unset");
+    else
+        return this->getHierarchyParent()->getExperiencePoints();
 }
 
 void UnitType::setExperiencePoints(int experiencePoints)
@@ -58,7 +73,12 @@ void UnitType::setExperiencePoints(int experiencePoints)
 
 int UnitType::getMovementPoints() const
 {
-    return this->movementPoints;
+    if (this->movementPoints)
+        return *this->movementPoints;
+    else if (this->isHierarchyRoot())
+        throw utils::ValueError("movementPoints is unset");
+    else
+        return this->getHierarchyParent()->getMovementPoints();
 }
 
 void UnitType::setMovementPoints(int movementPoints)
@@ -72,7 +92,12 @@ void UnitType::setMovementPoints(int movementPoints)
 
 int UnitType::getRecruitmentCost() const
 {
-    return this->recruitmentCost;
+    if (this->recruitmentCost)
+        return *this->recruitmentCost;
+    else if (this->isHierarchyRoot())
+        throw utils::ValueError("recruitmentCost is unset");
+    else
+        return this->getHierarchyParent()->getRecruitmentCost();
 }
 
 void UnitType::setRecruitmentCost(int recruitmentCost)
@@ -86,7 +111,12 @@ void UnitType::setRecruitmentCost(int recruitmentCost)
 
 int UnitType::getUpkeepCost() const
 {
-    return this->upkeepCost;
+    if (this->upkeepCost)
+        return *this->upkeepCost;
+    else if (this->isHierarchyRoot())
+        throw utils::ValueError("upkeepCost is unset");
+    else
+        return this->getHierarchyParent()->getUpkeepCost();
 }
 
 void UnitType::setUpkeepCost(int upkeepCost)
@@ -100,7 +130,12 @@ void UnitType::setUpkeepCost(int upkeepCost)
 
 const std::map<TerrainType*, int>& UnitType::getMovementCosts() const
 {
-    return this->movementCosts;
+    if (this->movementCosts)
+        return *this->movementCosts;
+    else if (this->isHierarchyRoot())
+        throw utils::ValueError("movementCosts is unset");
+    else
+        return this->getHierarchyParent()->getMovementCosts();
 }
 
 void UnitType::setMovementCosts(const std::map<TerrainType*, int>& movementCosts)
@@ -111,24 +146,32 @@ void UnitType::setMovementCosts(const std::map<TerrainType*, int>& movementCosts
 QVariantMap UnitType::readMovementCosts() const
 {
     return utils::toQVariantMap(
-            this->movementCosts,
+            this->getMovementCosts(),
             utils::qObjectName,
             utils::verbatim<int>);
 }
 
 int UnitType::getMovementCost(TerrainType* terrainType) const
 {
-    return this->movementCosts.at(terrainType);
+    return this->getMovementCosts().at(terrainType);
 }
 
 void UnitType::setMovementCost(TerrainType* terrainType, int movement)
 {
-    this->movementCosts[terrainType] = movement;
+    if (!this->movementCosts)
+        this->movementCosts = std::map<TerrainType*, int>();
+
+    (*this->movementCosts)[terrainType] = movement;
 }
 
 const std::vector<UnitType*>& UnitType::getUpgrades() const
 {
-    return this->upgrades;
+    if (this->upgrades)
+        return *this->upgrades;
+    else if (this->isHierarchyRoot())
+        throw utils::ValueError("upgrades is unset");
+    else
+        return this->getHierarchyParent()->getUpgrades();
 }
 
 void UnitType::setUpgrades(const std::vector<UnitType*>& upgrades)
@@ -142,7 +185,7 @@ void UnitType::setUpgrades(const std::vector<UnitType*>& upgrades)
 
 QVariantList UnitType::readUpgrades() const
 {
-    return utils::toQVariantList(this->upgrades);
+    return utils::toQVariantList(this->getUpgrades());
 }
 
 } // namespace core

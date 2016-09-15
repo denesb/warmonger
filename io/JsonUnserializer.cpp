@@ -545,22 +545,44 @@ core::Unit* unitFromJson(const QJsonObject& jobj, Context& ctx)
 core::UnitType* unitTypeFromJson(const QJsonObject& jobj, Context& ctx)
 {
     std::unique_ptr<core::UnitType> obj(new core::UnitType());
+
     obj->setObjectName(jobj["objectName"].toString());
-    obj->setDisplayName(jobj["displayName"].toString());
-    obj->setHitPoints(jobj["hitPoints"].toInt());
-    obj->setExperiencePoints(jobj["experiencePoints"].toInt());
-    obj->setMovementPoints(jobj["movementPoints"].toInt());
-    obj->setRecruitmentCost(jobj["recruitmentCost"].toInt());
-    obj->setUpkeepCost(jobj["upkeepCost"].toInt());
-    obj->setMovementCosts(fromQJsonObject<std::map<core::TerrainType*, int>>(
-        jobj["movementCosts"].toObject(),
-        ReferenceResolver<core::TerrainType>(ctx),
-        qJsonValueToInt
-    ));
-    obj->setUpgrades(fromQJsonArray<std::vector<core::UnitType *>>(
-        jobj["upgrades"].toArray(),
-        ReferenceResolver<core::UnitType>(ctx)
-    ));
+
+    if (jobj.contains("hierarchyParent"))
+    {
+        obj->setHierarchyParent(resolveReference<core::UnitType>(ctx, jobj["hierarchyParent"].toString()));
+    }
+
+    if (jobj.contains("displayName"))
+        obj->setDisplayName(jobj["displayName"].toString());
+
+    if (jobj.contains("hitPoints"))
+        obj->setHitPoints(jobj["hitPoints"].toInt());
+
+    if (jobj.contains("experiencePoints"))
+        obj->setExperiencePoints(jobj["experiencePoints"].toInt());
+
+    if (jobj.contains("movementPoints"))
+        obj->setMovementPoints(jobj["movementPoints"].toInt());
+
+    if (jobj.contains("recruitmentCost"))
+        obj->setRecruitmentCost(jobj["recruitmentCost"].toInt());
+
+    if (jobj.contains("upkeepCost"))
+        obj->setUpkeepCost(jobj["upkeepCost"].toInt());
+
+    if (jobj.contains("movementCosts"))
+        obj->setMovementCosts(fromQJsonObject<std::map<core::TerrainType*, int>>(
+            jobj["movementCosts"].toObject(),
+            ReferenceResolver<core::TerrainType>(ctx),
+            qJsonValueToInt
+        ));
+
+    if (jobj.contains("upgrades"))
+        obj->setUpgrades(fromQJsonArray<std::vector<core::UnitType *>>(
+            jobj["upgrades"].toArray(),
+            ReferenceResolver<core::UnitType>(ctx)
+        ));
 
     return obj.release();
 }

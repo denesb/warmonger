@@ -389,6 +389,8 @@ TEST_CASE("UnitType can be serialized to JSON", "[JsonSerializer]")
         const QJsonDocument jdoc(QJsonDocument::fromJson(json));
         const QJsonObject jobj(jdoc.object());
 
+        REQUIRE(!jobj.contains("hierarchyParent"));
+
         REQUIRE(jobj["objectName"].toString() == ut->objectName());
         REQUIRE(jobj["displayName"].toString() == ut->getDisplayName());
         REQUIRE(jobj["hitPoints"].toInt() == ut->getHitPoints());
@@ -404,6 +406,31 @@ TEST_CASE("UnitType can be serialized to JSON", "[JsonSerializer]")
 
         const QJsonObject movementCosts(jobj["movementCosts"].toObject());
         objectEqualsMap(movementCosts, ut->getMovementCosts());
+    }
+
+    SECTION("serializing UnitType with all properties inherited")
+    {
+        core::UnitType childUt;
+        childUt.setHierarchyParent(ut);
+
+        childUt.setObjectName("childUnitType0");
+
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeUnitType(&childUt));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
+
+        REQUIRE(jobj["hierarchyParent"].toString() == childUt.getHierarchyParent()->objectName());
+        REQUIRE(jobj["objectName"].toString() == childUt.objectName());
+        REQUIRE(!jobj.contains("displayName"));
+        REQUIRE(!jobj.contains("hitPoints"));
+        REQUIRE(!jobj.contains("experiencePoints"));
+        REQUIRE(!jobj.contains("movementPoints"));
+        REQUIRE(!jobj.contains("recruitmentCost"));
+        REQUIRE(!jobj.contains("upkeepCost"));
+        REQUIRE(!jobj.contains("upgrades"));
+        REQUIRE(!jobj.contains("movementCosts"));
+        REQUIRE(!jobj.contains("upgrades"));
     }
 }
 

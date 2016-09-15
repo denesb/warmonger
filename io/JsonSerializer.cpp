@@ -333,19 +333,45 @@ QJsonObject unitToJson(const core::Unit* obj)
 
 QJsonObject unitTypeToJson(const core::UnitType* obj)
 {
-    QJsonObject jobj(namesToJson(obj));
+    QJsonObject jobj;
 
-    jobj["hitPoints"] = obj->getHitPoints();
-    jobj["experiencePoints"] = obj->getExperiencePoints();
-    jobj["movementPoints"] = obj->getMovementPoints();
-    jobj["recruitmentCost"] = obj->getRecruitmentCost();
-    jobj["upkeepCost"] = obj->getUpkeepCost();
-    jobj["movementCosts"] = toQJsonObject(
-        obj->getMovementCosts(),
-        qObjectName,
-        constructQJsonValue<int>
-    );
-    jobj["upgrades"] = toQJsonArray(obj->getUpgrades(), qObjectName);
+	jobj["objectName"] = obj->objectName();
+
+    const bool isRoot = obj->isHierarchyRoot();
+    const core::UnitType* parent = obj->getHierarchyParent();
+
+    if (!isRoot)
+    {
+        jobj["hierarchyParent"] = parent->objectName();
+    }
+
+    if (isRoot || obj->getDisplayName() != parent->getDisplayName())
+        jobj["displayName"] = obj->getDisplayName();
+
+    if (isRoot || obj->getHitPoints() != parent->getHitPoints())
+        jobj["hitPoints"] = obj->getHitPoints();
+
+    if (isRoot || obj->getExperiencePoints() != parent->getExperiencePoints())
+        jobj["experiencePoints"] = obj->getExperiencePoints();
+
+    if (isRoot || obj->getMovementPoints() != parent->getMovementPoints())
+        jobj["movementPoints"] = obj->getMovementPoints();
+
+    if (isRoot || obj->getRecruitmentCost() != parent->getRecruitmentCost())
+        jobj["recruitmentCost"] = obj->getRecruitmentCost();
+
+    if (isRoot || obj->getUpkeepCost() != parent->getUpkeepCost())
+        jobj["upkeepCost"] = obj->getUpkeepCost();
+
+    if (isRoot || obj->getMovementCosts() != parent->getMovementCosts())
+        jobj["movementCosts"] = toQJsonObject(
+            obj->getMovementCosts(),
+            qObjectName,
+            constructQJsonValue<int>
+        );
+
+    if (isRoot || obj->getUpgrades() != parent->getUpgrades())
+        jobj["upgrades"] = toQJsonArray(obj->getUpgrades(), qObjectName);
 
     return jobj;
 }

@@ -1293,16 +1293,17 @@ TEST_CASE("UnitType can be unserialized from JSON", "[JsonUnserializer]")
         [&](core::UnitType* o){ctx.add(o);}
     );
 
-    const QJsonObject jobj = jworld["unitTypes"].toArray()[0].toObject();
-
     SECTION("unserializing UnitType")
     {
+        const QJsonObject jobj = jworld["unitTypes"].toArray()[0].toObject();
+
         io::JsonUnserializer unserializer(ctx);
         QJsonDocument jdoc(jobj);
         const std::unique_ptr<core::UnitType> ut(
             unserializer.unserializeUnitType(jdoc.toJson())
         );
 
+        REQUIRE(ut->isHierarchyRoot());
         REQUIRE(ut->objectName() == jobj["objectName"].toString());
         REQUIRE(ut->getDisplayName() == jobj["displayName"].toString());
         REQUIRE(ut->getHitPoints() == jobj["hitPoints"].toInt());
@@ -1310,10 +1311,37 @@ TEST_CASE("UnitType can be unserialized from JSON", "[JsonUnserializer]")
         REQUIRE(ut->getMovementPoints() == jobj["movementPoints"].toInt());
         REQUIRE(ut->getRecruitmentCost() == jobj["recruitmentCost"].toInt());
         REQUIRE(ut->getUpkeepCost() == jobj["upkeepCost"].toInt());
-        objectEqualsMap(
-            jobj["movementCosts"].toObject(),
-            ut->getMovementCosts()
+        objectEqualsMap(jobj["movementCosts"].toObject(), ut->getMovementCosts());
+        arrayEqualsList(jobj["upgrades"].toArray(), ut->getUpgrades());
+    }
+
+    SECTION("unserializing UnitType which inherits all it's properties")
+    {
+        const QJsonObject parentJobj = jworld["unitTypes"].toArray()[0].toObject();
+        QJsonObject jobj;
+        jobj["objectName"] = "childUnitType0";
+        jobj["hierarchyParent"] = parentJobj["objectName"];
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        const std::unique_ptr<core::UnitType> ut(
+            unserializer.unserializeUnitType(jdoc.toJson())
         );
+
+        REQUIRE(!ut->isHierarchyRoot());
+        REQUIRE(ut->getHierarchyParent()->objectName() == jobj["hierarchyParent"].toString());
+
+        core::UnitType* parent = ut->getHierarchyParent();
+
+        REQUIRE(ut->objectName() == jobj["objectName"].toString());
+        REQUIRE(ut->getDisplayName() == parent->getDisplayName());
+        REQUIRE(ut->getHitPoints() == parent->getHitPoints());
+        REQUIRE(ut->getExperiencePoints() == parent->getExperiencePoints());
+        REQUIRE(ut->getMovementPoints() == parent->getMovementPoints());
+        REQUIRE(ut->getRecruitmentCost() == parent->getRecruitmentCost());
+        REQUIRE(ut->getUpkeepCost() == parent->getUpkeepCost());
+        REQUIRE(ut->getMovementCosts() == parent->getMovementCosts());
+        REQUIRE(ut->getUpgrades() == parent->getUpgrades());
     }
 }
 

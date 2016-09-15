@@ -5,12 +5,7 @@ namespace warmonger {
 namespace core {
 
 UnitType::UnitType(QObject* parent) :
-    QObject(parent),
-    hitPoints(0),
-    experiencePoints(0),
-    movementPoints(0),
-    recruitmentCost(0),
-    upkeepCost(0)
+    QObject(parent)
 {
 }
 

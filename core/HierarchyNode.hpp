@@ -1,6 +1,7 @@
 #ifndef W_CORE_HIERARCHY_NODE_HPP
 #define W_CORE_HIERARCHY_NODE_HPP
 
+#include <algorithm>
 #include <vector>
 
 namespace warmonger {
@@ -18,13 +19,13 @@ public:
 
     const std::vector<T*>& getHierarchyChildren() const;
 
-    void addHierarchyChild(T* child);
-    void removeHierarchyChild(T* child);
-
     bool isHierarchyRoot() const;
     bool isHierarchyLeaf() const;
 
 private:
+    void addHierarchyChild(T* child);
+    void removeHierarchyChild(T* child);
+
     T* parent{nullptr};
     std::vector<T*> children;
 };
@@ -38,13 +39,31 @@ T* HierarchyNode<T>::getHierarchyParent() const
 template <typename T>
 void HierarchyNode<T>::setHierarchyParent(T* parent)
 {
+    if(this->parent != nullptr)
+        this->parent->removeHierarchyChild(static_cast<T*>(this));
+
     this->parent = parent;
+
+    if(this->parent != nullptr)
+        this->parent->addHierarchyChild(static_cast<T*>(this));
 }
 
 template <typename T>
 const std::vector<T*>& HierarchyNode<T>::getHierarchyChildren() const
 {
     return children;
+}
+
+template <typename T>
+bool HierarchyNode<T>::isHierarchyRoot() const
+{
+    return this->parent == nullptr;
+}
+
+template <typename T>
+bool HierarchyNode<T>::isHierarchyLeaf() const
+{
+    return this->children.empty();
 }
 
 template <typename T>
@@ -61,18 +80,6 @@ void HierarchyNode<T>::removeHierarchyChild(T* child)
     {
         this->children.erase(it);
     }
-}
-
-template <typename T>
-bool HierarchyNode<T>::isHierarchyRoot() const
-{
-    return this->parent == nullptr;
-}
-
-template <typename T>
-bool HierarchyNode<T>::isHierarchyLeaf() const
-{
-    return this->children.empty();
 }
 
 } // namespace core

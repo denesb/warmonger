@@ -92,6 +92,8 @@ if(BUILD_TESTS)
         test/test_warmonger.cpp
         test/Util.cpp
         test/core/MapNodeNeighbours.cpp
+        test/core/UnitType.cpp
+        test/core/HierarchyNode.cpp
         test/io/Context.cpp
         test/io/File.cpp
         test/io/JsonSerializer.cpp

@@ -3,7 +3,7 @@
 
 #include <map>
 
-#include "utils/Hexagon.h"
+#include "core/Hexagon.h"
 
 namespace warmonger {
 namespace core {
@@ -13,12 +13,12 @@ class MapNode;
 class MapNodeNeighbours
 {
 public:
-    typedef std::map<utils::Direction, MapNode*> NeighbourMap;
+    typedef std::map<Direction, MapNode*> NeighbourMap;
     typedef NeighbourMap::iterator iterator;
     typedef NeighbourMap::const_iterator const_iterator;
 
     MapNodeNeighbours();
-    MapNodeNeighbours(std::initializer_list<std::pair<utils::Direction, MapNode*>> init);
+    MapNodeNeighbours(std::initializer_list<std::pair<Direction, MapNode*>> init);
 
     iterator begin();
     const_iterator begin() const;
@@ -31,8 +31,8 @@ public:
     bool operator==(const MapNodeNeighbours& other);
     bool operator!=(const MapNodeNeighbours& other);
 
-    MapNode*& operator[](const utils::Direction direction);
-    MapNode* at(const utils::Direction direction) const;
+    MapNode*& operator[](const Direction direction);
+    MapNode* at(const Direction direction) const;
 
     bool empty() const;
 

@@ -5,7 +5,7 @@
 
 #include "core/MapNodeNeighbours.h"
 #include "core/TerrainType.h"
-#include "utils/Hexagon.h"
+#include "core/Hexagon.h"
 
 namespace warmonger {
 namespace core {
@@ -30,8 +30,8 @@ public:
     void setNeighbours(const MapNodeNeighbours& neighbours);
     void setNeighbours(MapNodeNeighbours&& neighbours);
 
-    MapNode* getNeighbour(utils::Direction direction) const;
-    void setNeighbour(utils::Direction direction, MapNode* mapNode);
+    MapNode* getNeighbour(Direction direction) const;
+    void setNeighbour(Direction direction, MapNode* mapNode);
 
 signals:
     void displayNameChanged();

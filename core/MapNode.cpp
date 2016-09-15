@@ -61,12 +61,12 @@ void MapNode::setNeighbours(MapNodeNeighbours&& neighbours)
     }
 }
 
-MapNode* MapNode::getNeighbour(utils::Direction direction) const
+MapNode* MapNode::getNeighbour(Direction direction) const
 {
     return this->neighbours.at(direction);
 }
 
-void MapNode::setNeighbour(utils::Direction direction, MapNode* mapNode)
+void MapNode::setNeighbour(Direction direction, MapNode* mapNode)
 {
     if (this->neighbours[direction] != mapNode)
     {

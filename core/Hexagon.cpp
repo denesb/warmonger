@@ -1,11 +1,10 @@
-#include "utils/Hexagon.h"
-
 #include <map>
 
+#include "core/Hexagon.h"
 #include "utils/Exception.h"
 
 namespace warmonger {
-namespace utils {
+namespace core {
 
 namespace {
 
@@ -124,7 +123,7 @@ std::pair<Direction, Direction> connectingDirections(const Direction d1, const D
     {
         return connectingDirectionsPrivate(d1, d2);
     }
-    catch (ValueError &e)
+    catch (utils::ValueError &e)
     {
     }
 
@@ -133,11 +132,11 @@ std::pair<Direction, Direction> connectingDirections(const Direction d1, const D
         std::pair<Direction, Direction> inverse = connectingDirectionsPrivate(d2, d1);
         return std::make_pair(std::get<1>(inverse), std::get<0>(inverse));
     }
-    catch (ValueError &e)
+    catch (utils::ValueError &e)
     {
     }
 
-    throw ValueError("Cannot find connecting directions for direction `" + direction2str(d1)
+    throw utils::ValueError("Cannot find connecting directions for direction `" + direction2str(d1)
         + "' and `" + direction2str(d2));
 }
 
@@ -171,12 +170,12 @@ std::pair<Direction, Direction> connectingDirectionsPrivate(const Direction d1, 
     }
     else
     {
-        throw ValueError("Cannot find connecting directions for direction `" + direction2str(d1)
+        throw utils::ValueError("Cannot find connecting directions for direction `" + direction2str(d1)
             + "' and `" + direction2str(d2));
     }
 }
 
 }
 
-} // namespace utils
+} // namespace core
 } // namespace warmonger

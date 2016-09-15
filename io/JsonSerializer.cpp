@@ -4,11 +4,10 @@
 #include <QJsonArray>
 #include <QJsonValue>
 
-#include "io/JsonSerializer.h"
-
 #include "core/CampaignMap.h"
+#include "core/Hexagon.h"
 #include "core/World.h"
-#include "utils/Hexagon.h"
+#include "io/JsonSerializer.h"
 
 using namespace warmonger;
 using namespace warmonger::io;
@@ -283,7 +282,7 @@ QJsonObject mapNodeToJson(const core::MapNode* obj)
             neighbourName = neighbour.second->objectName();
         }
 
-        jneighbours[utils::direction2str(neighbour.first)] = neighbourName;
+        jneighbours[core::direction2str(neighbour.first)] = neighbourName;
     }
 
     jobj["neighbours"] = jneighbours;

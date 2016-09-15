@@ -6,7 +6,7 @@
 #include <QString>
 
 namespace warmonger {
-namespace utils {
+namespace core {
 
 /*
  *  NW  /\  NE
@@ -88,7 +88,7 @@ std::pair<Direction, Direction> neighbourDirections(const Direction d);
  */
 std::pair<Direction, Direction> connectingDirections(const Direction d1, const Direction d2);
 
-} // namespace utils
+} // namespace core
 } // namespace warmonger
 
 #endif // W_UTILS_HEXAGON_H

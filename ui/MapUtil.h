@@ -7,8 +7,8 @@
 #include <QPoint>
 #include <QRect>
 
+#include "core/Hexagon.h"
 #include "core/MapNodeNeighbours.h"
-#include "utils/Hexagon.h"
 
 class QSGNode;
 
@@ -31,10 +31,10 @@ class WorldSurface;
  * The position of the neighbour map-node in the specified direction
  *
  * @param[in] const QPoint& pos the position of the map-node
- * @param[in] utils::Direction dir the direction of the neighbour
+ * @param[in] core::Direction dir the direction of the neighbour
  * @param[in] const QSize& tileSize the size of the map-nodes
  */
-QPoint neighbourPos(const QPoint& pos, utils::Direction dir, const QSize& tileSize);
+QPoint neighbourPos(const QPoint& pos, core::Direction dir, const QSize& tileSize);
 
 /**
  * Find the neighbours by position
@@ -44,7 +44,7 @@ QPoint neighbourPos(const QPoint& pos, utils::Direction dir, const QSize& tileSi
  * @param[in] const QPoint& pos the position
  * @param[in] const QSize& tileSize the tile-size
  *
- * @returns std::map<utils::Direction, core::MapNode*> the neighbour at each
+ * @returns std::map<core::Direction, core::MapNode*> the neighbour at each
  * direction, or nullptr if there is none
  */
 core::MapNodeNeighbours neighboursByPos(

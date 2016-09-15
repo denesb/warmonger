@@ -5,24 +5,24 @@ namespace core {
 
 MapNodeNeighbours::MapNodeNeighbours() :
     neighbours{
-        {utils::Direction::West, nullptr},
-        {utils::Direction::NorthWest, nullptr},
-        {utils::Direction::NorthEast, nullptr},
-        {utils::Direction::East, nullptr},
-        {utils::Direction::SouthEast, nullptr},
-        {utils::Direction::SouthWest, nullptr}
+        {Direction::West, nullptr},
+        {Direction::NorthWest, nullptr},
+        {Direction::NorthEast, nullptr},
+        {Direction::East, nullptr},
+        {Direction::SouthEast, nullptr},
+        {Direction::SouthWest, nullptr}
     }
 {
 }
 
-MapNodeNeighbours::MapNodeNeighbours(std::initializer_list<std::pair<utils::Direction, MapNode*>> init) :
+MapNodeNeighbours::MapNodeNeighbours(std::initializer_list<std::pair<Direction, MapNode*>> init) :
     neighbours{
-        {utils::Direction::West, nullptr},
-        {utils::Direction::NorthWest, nullptr},
-        {utils::Direction::NorthEast, nullptr},
-        {utils::Direction::East, nullptr},
-        {utils::Direction::SouthEast, nullptr},
-        {utils::Direction::SouthWest, nullptr}
+        {Direction::West, nullptr},
+        {Direction::NorthWest, nullptr},
+        {Direction::NorthEast, nullptr},
+        {Direction::East, nullptr},
+        {Direction::SouthEast, nullptr},
+        {Direction::SouthWest, nullptr}
     }
 {
     for(auto value : init)
@@ -71,12 +71,12 @@ bool MapNodeNeighbours::operator!=(const MapNodeNeighbours& other)
     return this->neighbours != other.neighbours;
 }
 
-MapNode*& MapNodeNeighbours::operator[](const utils::Direction direction)
+MapNode*& MapNodeNeighbours::operator[](const Direction direction)
 {
     return this->neighbours[direction];
 }
 
-MapNode* MapNodeNeighbours::at(const utils::Direction direction) const
+MapNode* MapNodeNeighbours::at(const Direction direction) const
 {
     return this->neighbours.at(direction);
 }
@@ -86,7 +86,7 @@ bool MapNodeNeighbours::empty() const
     return !std::any_of(
             this->neighbours.cbegin(),
             this->neighbours.cend(),
-            [](const std::pair<utils::Direction, MapNode*>& i) { return i.second != nullptr; });
+            [](const std::pair<Direction, MapNode*>& i) { return i.second != nullptr; });
 }
 
 } // namespace core

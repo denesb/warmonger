@@ -14,31 +14,31 @@ namespace ui {
 
 static void positionMapNode(core::MapNode* node, std::map<core::MapNode*, QPoint>& nodesPos, const QSize& tileSize);
 
-QPoint neighbourPos(const QPoint& pos, utils::Direction dir, const QSize& tileSize)
+QPoint neighbourPos(const QPoint& pos, core::Direction dir, const QSize& tileSize)
 {
     QSize displacement(0, 0);
 
     switch(dir)
     {
-    case utils::Direction::West:
+    case core::Direction::West:
         displacement.setWidth(-tileSize.width());
         break;
-    case utils::Direction::NorthWest:
+    case core::Direction::NorthWest:
         displacement.setWidth(-tileSize.width()/2);
         displacement.setHeight(-tileSize.height() * 3/4);
         break;
-    case utils::Direction::NorthEast:
+    case core::Direction::NorthEast:
         displacement.setWidth(tileSize.width()/2);
         displacement.setHeight(-tileSize.height() * 3/4);
         break;
-    case utils::Direction::East:
+    case core::Direction::East:
         displacement.setWidth(tileSize.width());
         break;
-    case utils::Direction::SouthEast:
+    case core::Direction::SouthEast:
         displacement.setWidth(tileSize.width()/2);
         displacement.setHeight(tileSize.height() * 3/4);
         break;
-    case utils::Direction::SouthWest:
+    case core::Direction::SouthWest:
         displacement.setWidth(-tileSize.width()/2);
         displacement.setHeight(tileSize.height() * 3/4);
         break;
@@ -58,7 +58,7 @@ core::MapNodeNeighbours neighboursByPos(
     core::MapNodeNeighbours neighbours;
 
     const QSize tileSize = worldSurface->getTileSize();
-    for (utils::Direction direction : utils::directions)
+    for (core::Direction direction : core::directions)
     {
         QPoint nPos = neighbourPos(pos, direction, tileSize);
 
@@ -339,7 +339,7 @@ static void positionMapNode(core::MapNode* node, std::map<core::MapNode*, QPoint
     const core::MapNodeNeighbours& neighbours = node->getNeighbours();
     for (const auto& element :  neighbours)
     {
-        utils::Direction dir = element.first;
+        core::Direction dir = element.first;
         core::MapNode* neighbour = element.second;
 
         if (neighbour == nullptr || nodesPos.find(neighbour) != nodesPos.end())

@@ -32,6 +32,8 @@ set(
     core/Civilization.cpp
     core/Faction.cpp
     core/Game.cpp
+    core/Hexagon.cpp
+    core/MapGenerator.cpp
     core/MapNode.cpp
     core/MapNodeNeighbours.cpp
     core/Settlement.cpp
@@ -53,9 +55,7 @@ set(
     ui/MapUtil.cpp
     ui/MapWindow.cpp
     ui/WorldSurface.cpp
-    utils/Hexagon.cpp
     utils/Logging.cpp
-    utils/MapGenerator.cpp
     utils/Settings.cpp
     utils/ToString.cpp
     utils/Utils.cpp
@@ -94,6 +94,7 @@ if(BUILD_TESTS)
         test/core/MapNodeNeighbours.cpp
         test/core/UnitType.cpp
         test/core/HierarchyNode.cpp
+        test/core/MapGenerator.cpp
         test/io/Context.cpp
         test/io/File.cpp
         test/io/JsonSerializer.cpp
@@ -101,7 +102,6 @@ if(BUILD_TESTS)
         test/ui/MapUtil.cpp
         test/ui/MapWindow.cpp
         test/ui/WorldSurface.cpp
-        test/utils/MapGenerator.cpp
     )
 
     add_executable(test_warmonger ${TEST_SRC_FILES})

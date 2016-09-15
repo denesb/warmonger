@@ -349,7 +349,7 @@ TEST_CASE("CampaignMap can be unserialized from JSON", "[JsonUnserializer]")
 
                 for (const auto& neighbour : neighbours)
                 {
-                    const QString dirName{utils::direction2str(neighbour.first)};
+                    const QString dirName{core::direction2str(neighbour.first)};
                     REQUIRE(jneighbours.contains(dirName));
 
                     REQUIRE((neighbour.second == nullptr) == jneighbours[dirName].toString().isEmpty());

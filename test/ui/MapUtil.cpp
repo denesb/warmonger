@@ -1,10 +1,9 @@
 #include <QGuiApplication>
 
-#include "test/catch.hpp"
-
+#include "core/MapGenerator.h"
 #include "ui/MapUtil.h"
 #include "ui/WorldSurface.h"
-#include "utils/MapGenerator.h"
+#include "test/catch.hpp"
 #include "utils/ToString.h"
 
 using namespace warmonger;
@@ -206,8 +205,8 @@ TEST_CASE("Move tests", "[moveTo]")
 
 TEST_CASE("Visibility test", "[visibleMapNodes]")
 {
-    std::vector<core::MapNode*> mapNodes = utils::generateMapNodes(2);
-    utils::generateMapNodeNames(mapNodes);
+    std::vector<core::MapNode*> mapNodes = core::generateMapNodes(2);
+    core::generateMapNodeNames(mapNodes);
 
     const QSize tileSize(10, 10);
     const std::map<core::MapNode*, QPoint> mapNodesPos = ui::positionMapNodes(mapNodes.front(), tileSize);
@@ -262,8 +261,8 @@ TEST_CASE("Visibility test", "[visibleMapNodes]")
 
 TEST_CASE("", "[mapNodeAtPos]")
 {
-    std::vector<core::MapNode*> mapNodes = utils::generateMapNodes(2);
-    utils::generateMapNodeNames(mapNodes);
+    std::vector<core::MapNode*> mapNodes = core::generateMapNodes(2);
+    core::generateMapNodeNames(mapNodes);
 
     core::World world;
 
@@ -290,15 +289,15 @@ TEST_CASE("", "[mapNodeAtPos]")
 
     n = ui::mapNodeAtPos(QPoint(0, 0), nodesPos, &surface);
     REQUIRE(n != nullptr);
-    REQUIRE(n == mapNodes.front()->getNeighbour(utils::Direction::NorthWest));
+    REQUIRE(n == mapNodes.front()->getNeighbour(core::Direction::NorthWest));
 
     n = ui::mapNodeAtPos(QPoint(w, h), nodesPos, &surface);
     REQUIRE(n != nullptr);
-    REQUIRE(n == mapNodes.front()->getNeighbour(utils::Direction::SouthEast));
+    REQUIRE(n == mapNodes.front()->getNeighbour(core::Direction::SouthEast));
 
     n = ui::mapNodeAtPos(QPoint(-w / 2, h / 2), nodesPos, &surface);
     REQUIRE(n != nullptr);
-    REQUIRE(n == mapNodes.front()->getNeighbour(utils::Direction::West));
+    REQUIRE(n == mapNodes.front()->getNeighbour(core::Direction::West));
 
     n = ui::mapNodeAtPos(QPoint(w * 100, h * 100), nodesPos, &surface);
     REQUIRE(n == nullptr);
@@ -307,8 +306,8 @@ TEST_CASE("", "[mapNodeAtPos]")
 #include <iostream>
 TEST_CASE("neighboursByPos", "[MapUtil]")
 {
-    std::vector<core::MapNode*> mapNodes = utils::generateMapNodes(2);
-    utils::generateMapNodeNames(mapNodes);
+    std::vector<core::MapNode*> mapNodes = core::generateMapNodes(2);
+    core::generateMapNodeNames(mapNodes);
 
     core::World world;
 
@@ -360,9 +359,9 @@ std::ostream& operator<<(std::ostream& s, const core::MapNodeNeighbours& n)
     const auto end = --n.cend();
     auto it = n.cbegin();
     for(; it != end; ++it)
-        s << '"' << utils::direction2str(it->first) << "\": " << it->second << ", ";
+        s << '"' << core::direction2str(it->first) << "\": " << it->second << ", ";
 
-    s << '"' << utils::direction2str(it->first) << "\": " << it->second << "}";
+    s << '"' << core::direction2str(it->first) << "\": " << it->second << "}";
 
     return s;
 }

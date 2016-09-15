@@ -8,10 +8,10 @@
 #include <QJsonObject>
 
 #include "core/CampaignMap.h"
+#include "core/Hexagon.h"
 #include "core/World.h"
 #include "io/JsonUnserializer.h"
 #include "utils/Exception.h"
-#include "utils/Hexagon.h"
 
 namespace warmonger {
 namespace io {
@@ -432,7 +432,7 @@ core::MapNode* mapNodeFromJson(const QJsonObject& jobj, Context& ctx)
 std::vector<core::MapNode*> mapNodesFromJson(const QJsonArray& jarr, Context& ctx)
 {
     std::vector<core::MapNode*> mapNodes;
-    std::vector<std::tuple<core::MapNode*, utils::Direction, QString>> neighbours;
+    std::vector<std::tuple<core::MapNode*, core::Direction, QString>> neighbours;
 
     for (QJsonValue jval : jarr)
     {
@@ -447,13 +447,13 @@ std::vector<core::MapNode*> mapNodesFromJson(const QJsonArray& jarr, Context& ct
         const QJsonObject jneighbours = jobj["neighbours"].toObject();
         for (auto it = jneighbours.constBegin(); it != jneighbours.constEnd(); it++)
         {
-            utils::Direction d = utils::str2direction(it.key());
+            core::Direction d = core::str2direction(it.key());
             neighbours.push_back(std::make_tuple(mn, d, it.value().toString()));
         }
     }
 
     core::MapNode* mn;
-    utils::Direction d;
+    core::Direction d;
     QString neighbourName;
     for (const auto& neighbour : neighbours)
     {

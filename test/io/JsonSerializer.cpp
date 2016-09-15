@@ -97,10 +97,10 @@ TEST_CASE("CampaignMap can be serialized to JSON", "[JsonSerializer]")
 
                 for (auto it = jneighbours.constBegin(); it != jneighbours.constEnd(); it++)
                 {
-                    REQUIRE_NOTHROW(utils::str2direction(it.key()));
+                    REQUIRE_NOTHROW(core::str2direction(it.key()));
                     REQUIRE(it.value().isString());
 
-                    const utils::Direction dir{utils::str2direction(it.key())};
+                    const core::Direction dir{core::str2direction(it.key())};
                     const QString neighbourName{it.value().toString()};
 
                     REQUIRE(neighbourName.isEmpty() == (neighbours.at(dir) == nullptr));

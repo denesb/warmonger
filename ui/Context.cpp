@@ -1,11 +1,11 @@
 #include <QStringList>
 
+#include "core/MapGenerator.h"
 #include "io/File.h"
 #include "io/JsonUnserializer.h"
 #include "ui/Context.h"
 #include "ui/WorldSurface.h"
 #include "utils/Constants.h"
-#include "utils/MapGenerator.h"
 #include "utils/QVariantUtils.h"
 #include "utils/Utils.h"
 #include "utils/Settings.h"
@@ -88,9 +88,9 @@ void Context::newCampaignMap(warmonger::core::World *world)
     const std::vector<core::TerrainType *> terrainTypes = world->getTerrainTypes();
     if (!terrainTypes.empty())
     {
-        const std::vector<core::MapNode *> nodes = utils::generateMapNodes(10);
-        utils::generateMapNodeNames(nodes);
-        utils::generateMapNodeTerrainTypes(nodes, terrainTypes);
+        const std::vector<core::MapNode *> nodes = core::generateMapNodes(10);
+        core::generateMapNodeNames(nodes);
+        core::generateMapNodeTerrainTypes(nodes, terrainTypes);
 
         map->setMapNodes(nodes);
     }

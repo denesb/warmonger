@@ -182,13 +182,13 @@ void CampaignMapEditor::hoverMoveEvent(QHoverEvent* event)
         const auto it = std::find_if(
                 neighbours.cbegin(),
                 neighbours.cend(),
-                [](const std::pair<utils::Direction, core::MapNode*>& i){ return i.second != nullptr; });
+                [](const std::pair<core::Direction, core::MapNode*>& i){ return i.second != nullptr; });
 
         if (it != neighbours.cend())
         {
             currentHoverPos = neighbourPos(
                     this->mapNodesPos[it->second],
-                    utils::oppositeDirection(it->first),
+                    core::oppositeDirection(it->first),
                     this->worldSurface->getTileSize());
         }
         else
@@ -294,9 +294,9 @@ void CampaignMapEditor::doTerrainTypeEditingAction(const QPoint& pos)
                 mapNode->setObjectName("mapNode" + QString::number(this->mapNodesPos.size()));
                 mapNode->setNeighbours(neighbours);
 
-                for (const std::pair<utils::Direction, core::MapNode*>& neighbour : neighbours)
+                for (const std::pair<core::Direction, core::MapNode*>& neighbour : neighbours)
                     if (neighbour.second != nullptr)
-                        neighbour.second->setNeighbour(utils::oppositeDirection(neighbour.first), mapNode);
+                        neighbour.second->setNeighbour(core::oppositeDirection(neighbour.first), mapNode);
 
                 this->campaignMap->addMapNode(mapNode);
 

@@ -19,7 +19,7 @@ TEST_CASE("MapNode neighbours", "[MapNodeNeighbours]")
             REQUIRE(n.second == nullptr);
             ++s;
         }
-        REQUIRE(s == utils::directions.size());
+        REQUIRE(s == core::directions.size());
     }
 
     SECTION("Equal to other default constructed one")
@@ -33,10 +33,10 @@ TEST_CASE("MapNode neighbours", "[MapNodeNeighbours]")
     {
         core::MapNode mn;
 
-        neighbours[utils::Direction::West] = &mn;
+        neighbours[core::Direction::West] = &mn;
 
-        REQUIRE(neighbours[utils::Direction::West] == &mn);
-        REQUIRE(neighbours.at(utils::Direction::West) == &mn);
+        REQUIRE(neighbours[core::Direction::West] == &mn);
+        REQUIRE(neighbours.at(core::Direction::West) == &mn);
     }
 
     SECTION("Not equal to if a neighbour is changed")
@@ -44,7 +44,7 @@ TEST_CASE("MapNode neighbours", "[MapNodeNeighbours]")
         core::MapNodeNeighbours neighbours1;
         core::MapNode mn;
 
-        neighbours1[utils::Direction::West] = &mn;
+        neighbours1[core::Direction::West] = &mn;
 
         REQUIRE(neighbours != neighbours1);
     }
@@ -52,15 +52,15 @@ TEST_CASE("MapNode neighbours", "[MapNodeNeighbours]")
     SECTION("Initializing to with incomplete number of neighbour yields complete neighbour map")
     {
         core::MapNode mn;
-        core::MapNodeNeighbours neighbours1{{utils::Direction::NorthWest, &mn}};
+        core::MapNodeNeighbours neighbours1{{core::Direction::NorthWest, &mn}};
 
-        REQUIRE(neighbours1[utils::Direction::NorthWest] == &mn);
-        REQUIRE(neighbours1.at(utils::Direction::NorthWest) == &mn);
+        REQUIRE(neighbours1[core::Direction::NorthWest] == &mn);
+        REQUIRE(neighbours1.at(core::Direction::NorthWest) == &mn);
 
         unsigned s{0};
         for (const auto& n : neighbours1)
         {
-            if(n.first == utils::Direction::NorthWest)
+            if(n.first == core::Direction::NorthWest)
             {
                 REQUIRE(n.second == &mn);
             }
@@ -70,6 +70,6 @@ TEST_CASE("MapNode neighbours", "[MapNodeNeighbours]")
             }
             ++s;
         }
-        REQUIRE(s == utils::directions.size());
+        REQUIRE(s == core::directions.size());
     }
 }

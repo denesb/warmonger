@@ -329,114 +329,37 @@ TEST_CASE("CampaignMap can be unserialized from JSON", "[JsonUnserializer]")
         REQUIRE(m->getSettlementIndex() == jobj["settlementIndex"].toInt());
         REQUIRE(m->getUnitIndex() == jobj["unitIndex"].toInt());
 
-        SECTION("unserializing mapNodes")
+        const std::vector<core::MapNode*> mns{m->getMapNodes()};
+        const QJsonArray jmns(jobj["mapNodes"].toArray());
+
+        REQUIRE(jmns.size() == mns.size());
+
+        for (size_t i = 0; i < mns.size(); i++)
         {
-            const std::vector<core::MapNode*> mns{m->getMapNodes()};
-            const QJsonArray jmns(jobj["mapNodes"].toArray());
+            const core::MapNode* mn{mns[i]};
+            const QJsonObject jmn(jmns[i].toObject());
 
-            REQUIRE(jmns.size() == mns.size());
+            const QJsonObject jneighbours = jmn["neighbours"].toObject();
+            const core::MapNodeNeighbours& neighbours = mn->getNeighbours();
 
-            for (size_t i = 0; i < mns.size(); i++)
+            for (const auto& neighbour : neighbours)
             {
-                const core::MapNode* mn{mns[i]};
-                const QJsonObject jmn(jmns[i].toObject());
-                REQUIRE(mn->objectName() == jmn["objectName"].toString());
-                REQUIRE(mn->getDisplayName() == jmn["displayName"].toString());
-                REQUIRE(mn->getTerrainType()->objectName() == jmn["terrainType"].toString());
+                const QString dirName{core::direction2str(neighbour.first)};
+                REQUIRE(jneighbours.contains(dirName));
 
-                const QJsonObject jneighbours = jmn["neighbours"].toObject();
-                const core::MapNodeNeighbours& neighbours = mn->getNeighbours();
+                REQUIRE((neighbour.second == nullptr) == jneighbours[dirName].toString().isEmpty());
 
-                for (const auto& neighbour : neighbours)
+                if(neighbour.second != nullptr)
                 {
-                    const QString dirName{core::direction2str(neighbour.first)};
-                    REQUIRE(jneighbours.contains(dirName));
-
-                    REQUIRE((neighbour.second == nullptr) == jneighbours[dirName].toString().isEmpty());
-
-                    if(neighbour.second != nullptr)
-                    {
-                        REQUIRE(neighbour.second->objectName() == jneighbours[dirName].toString());
-                    }
+                    REQUIRE(neighbour.second->objectName() == jneighbours[dirName].toString());
                 }
             }
         }
 
-        SECTION("unserializing factions")
-        {
-            const std::vector<core::Faction*> ps(m->getFactions());
-            const QJsonArray jps(jobj["factions"].toArray());
-
-            REQUIRE(jps.size() == ps.size());
-
-            for (size_t i = 0; i < ps.size(); i++)
-            {
-                core::Faction* p{ps[i]};
-                const QJsonObject jp(jps[i].toObject());
-                REQUIRE(p->objectName() == jp["objectName"].toString());
-                REQUIRE(p->getDisplayName() == jp["displayName"].toString());
-                REQUIRE(p->getColor().name() == jp["color"].toString());
-                REQUIRE(p->getCivilization()->objectName() == jp["civilization"].toString());
-            }
-        }
-
-        SECTION("unserializing settlements")
-        {
-            const std::vector<core::Settlement*> ss(m->getSettlements());
-            const QJsonArray jss(jobj["settlements"].toArray());
-
-            REQUIRE(jss.size() == ss.size());
-
-            for (size_t i = 0; i < ss.size(); i++)
-            {
-                core::Settlement* s{ss[i]};
-                const QJsonObject js(jss[i].toObject());
-                REQUIRE(s->objectName() == js["objectName"].toString());
-                REQUIRE(s->getDisplayName() == js["displayName"].toString());
-                REQUIRE(s->getType()->objectName() == js["type"].toString());
-                REQUIRE(s->getMapNode()->objectName() == js["mapNode"].toString());
-                REQUIRE(s->getOwner()->objectName() == js["owner"].toString());
-            }
-        }
-
-        SECTION("unserializing units")
-        {
-            const std::vector<core::Unit*> us(m->getUnits());
-            const QJsonArray jus(jobj["units"].toArray());
-
-            REQUIRE(jus.size() == us.size());
-
-            for (size_t i = 0; i < us.size(); i++)
-            {
-                core::Unit* u{us[i]};
-                const QJsonObject js(jus[i].toObject());
-                REQUIRE(u->objectName() == js["objectName"].toString());
-                REQUIRE(u->getDisplayName() == js["displayName"].toString());
-                REQUIRE(u->getType()->objectName() == js["type"].toString());
-                REQUIRE(u->getMapNode()->objectName() == js["mapNode"].toString());
-                REQUIRE(u->getOwner()->objectName() == js["owner"].toString());
-            }
-        }
-
-        SECTION("unserializing armies")
-        {
-            const std::vector<core::Army*> as(m->getArmies());
-            const QJsonArray jas(jobj["armies"].toArray());
-
-            REQUIRE(jas.size() == as.size());
-
-            for (size_t i = 0; i < as.size(); i++)
-            {
-                core::Army* a{as[i]};
-                const QJsonObject js(jas[i].toObject());
-                REQUIRE(a->objectName() == js["objectName"].toString());
-                REQUIRE(a->getDisplayName() == js["displayName"].toString());
-                REQUIRE(a->getType()->objectName() == js["type"].toString());
-                REQUIRE(a->getMapNode()->objectName() == js["mapNode"].toString());
-                REQUIRE(a->getOwner()->objectName() == js["owner"].toString());
-                arrayEqualsList(js["units"].toArray(), a->getUnits());
-            }
-        }
+        REQUIRE(m->getFactions().size() == jobj["factions"].toArray().size());
+        REQUIRE(m->getSettlements().size() == jobj["settlements"].toArray().size());
+        REQUIRE(m->getSettlements().size() == jobj["units"].toArray().size());
+        REQUIRE(m->getArmies().size() == jobj["armies"].toArray().size());
     }
 }
 
@@ -1423,90 +1346,10 @@ TEST_CASE("World can be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE(world->objectName() == jobj["objectName"].toString());
         REQUIRE(world->getDisplayName() == jobj["displayName"].toString());
-
-        SECTION("unserializing terrainTypes")
-        {
-            const std::vector<core::TerrainType*> tts(world->getTerrainTypes());
-            const QJsonArray jtts(jobj["terrainTypes"].toArray());
-
-            REQUIRE(jtts.size() == tts.size());
-
-            for (size_t i = 0; i < tts.size(); i++)
-            {
-                core::TerrainType* tt{tts[i]};
-                const QJsonObject jtt(jtts[i].toObject());
-                REQUIRE(tt->objectName() == jtt["objectName"].toString());
-                REQUIRE(tt->getDisplayName() == jtt["displayName"].toString());
-            }
-        }
-
-        SECTION("unserializing unitTypes")
-        {
-            const std::vector<core::UnitType*> uts(world->getUnitTypes());
-            const QJsonArray juts(jobj["unitTypes"].toArray());
-
-            REQUIRE(juts.size() == uts.size());
-
-            for (size_t i = 0; i < uts.size(); i++)
-            {
-                core::UnitType* ut{uts[i]};
-                const QJsonObject jut(juts[i].toObject());
-                REQUIRE(ut->objectName() == jut["objectName"].toString());
-                REQUIRE(ut->getDisplayName() == jut["displayName"].toString());
-                REQUIRE(ut->getHitPoints() == jut["hitPoints"].toInt());
-                REQUIRE(ut->getExperiencePoints() == jut["experiencePoints"].toInt());
-                REQUIRE(ut->getMovementPoints() == jut["movementPoints"].toInt());
-                REQUIRE(ut->getRecruitmentCost() == jut["recruitmentCost"].toInt());
-                REQUIRE(ut->getUpkeepCost() == jut["upkeepCost"].toInt());
-                arrayEqualsList(jut["upgrades"].toArray(), ut->getUpgrades());
-                objectEqualsMap(jut["movementCosts"].toObject(), ut->getMovementCosts());
-            }
-        }
-
-        SECTION("unserializing settlementTypes")
-        {
-            const std::vector<core::SettlementType*> sts(world->getSettlementTypes());
-            const QJsonArray jsts(jobj["settlementTypes"].toArray());
-
-            REQUIRE(jsts.size() == sts.size());
-
-            for (size_t i = 0; i < sts.size(); i++)
-            {
-                core::SettlementType* st{sts[i]};
-                const QJsonObject jst(jsts[i].toObject());
-                REQUIRE(st->objectName() == jst["objectName"].toString());
-                REQUIRE(st->getDisplayName() == jst["displayName"].toString());
-                REQUIRE(st->getGoldPerTurn() == jst["goldPerTurn"].toInt());
-                arrayEqualsList(jst["recruits"].toArray(), st->getRecruits());
-            }
-        }
-
-        SECTION("unserializing civilizations")
-        {
-            const std::vector<core::Civilization*> cs(world->getCivilizations());
-            const QJsonArray jcs(jobj["civilizations"].toArray());
-
-            REQUIRE(jcs.size() == cs.size());
-
-            for (size_t i = 0; i < cs.size(); i++)
-            {
-                core::Civilization* c{cs[i]};
-                const QJsonObject jc(jcs[i].toObject());
-                REQUIRE(c->objectName() == jc["objectName"].toString());
-                REQUIRE(c->getDisplayName() == jc["displayName"].toString());
-                arrayEqualsList(jc["unitTypes"].toArray(), c->getUnitTypes());
-
-                std::map<core::SettlementType*, std::vector<core::UnitType*>> rs = c->getRecruits();
-                const QJsonObject jrs = jc["recruits"].toObject();
-
-                REQUIRE(rs.size() == jrs.size());
-
-                for (const auto& e : rs)
-                {
-                    arrayEqualsList(jrs[e.first->objectName()].toArray(), e.second);
-                }
-            }
-        }
+        REQUIRE(world->getTerrainTypes().size() == jobj["terrainTypes"].toArray().size());
+        REQUIRE(world->getUnitTypes().size() == jobj["unitTypes"].toArray().size());
+        REQUIRE(world->getSettlementTypes().size() == jobj["settlementTypes"].toArray().size());
+        REQUIRE(world->getCivilizations().size() == jobj["civilizations"].toArray().size());
     }
 }
 

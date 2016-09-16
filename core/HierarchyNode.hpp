@@ -9,6 +9,10 @@ namespace core {
 
 /**
  * Utility mix-in class that allows building arbitrary hierarchy trees.
+ *
+ * This class is designed to be used as per the curiously recurring
+ * templates pattern. That is, inheriting classes shall inherit from a template
+ * instance instanciated by themselves.
  */
 template <typename T>
 class HierarchyNode

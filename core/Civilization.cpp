@@ -1,7 +1,6 @@
 #include <functional>
 
 #include "core/Civilization.h"
-#include "core/SettlementType.h"
 #include "core/UnitType.h"
 #include "utils/QVariantUtils.h"
 
@@ -49,37 +48,4 @@ void Civilization::addUnitType(UnitType *unitType)
 {
     this->unitTypes.push_back(unitType);
     emit unitTypesChanged();
-}
-
-std::map<SettlementType *, std::vector<UnitType *>> Civilization::getRecruits() const
-{
-    return this->recruits;
-}
-
-QVariantMap Civilization::readRecruits() const
-{
-    return utils::toQVariantMap(
-            this->recruits,
-            utils::qObjectName,
-            utils::containerToQVariant<std::vector<UnitType *>>);
-}
-
-void Civilization::setRecruits(const std::map<SettlementType *, std::vector<UnitType *>> &recruits)
-{
-    if (this->recruits != recruits)
-    {
-        this->recruits = recruits;
-        emit recruitsChanged();
-    }
-}
-
-std::vector<UnitType *> Civilization::getRecruitsFor(SettlementType *settlementType) const
-{
-    return this->recruits.at(settlementType);
-}
-
-bool Civilization::canRecruitFrom(SettlementType *settlementType, UnitType *unitType) const
-{
-    const std::vector<UnitType *> rs = this->recruits.at(settlementType);
-    return std::find(rs.cbegin(), rs.cend(), unitType) != rs.end();
 }

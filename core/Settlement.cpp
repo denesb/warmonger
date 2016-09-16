@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "core/Settlement.h"
-#include "core/UnitType.h"
 #include "utils/QVariantUtils.h"
 
 namespace warmonger {
@@ -15,18 +14,6 @@ Settlement::Settlement(QObject *parent) :
     mapNode(nullptr),
     owner(nullptr)
 {
-    QObject::connect(
-        this,
-        &Settlement::typeChanged,
-        this,
-        &Settlement::recruitsChanged
-    );
-    QObject::connect(
-        this,
-        &Settlement::ownerChanged,
-        this,
-        &Settlement::recruitsChanged
-    );
 }
 
 Settlement::~Settlement()
@@ -56,17 +43,7 @@ void Settlement::setType(SettlementType *type)
 {
     if (this->type != type)
     {
-        this->type->disconnect(this);
-
         this->type = type;
-
-        QObject::connect(
-            this->type,
-            &SettlementType::recruitsChanged,
-            this,
-            &Settlement::recruitsChanged
-        );
-
         emit typeChanged();
     }
 }
@@ -94,46 +71,9 @@ void Settlement::setOwner(Faction *owner)
 {
     if (this->owner != owner)
     {
-        if (this->owner != nullptr)
-        {
-            this->owner->getCivilization()->disconnect(this);
-        }
-
         this->owner = owner;
-
-        if (this->owner != nullptr)
-        {
-            QObject::connect(
-                this->owner->getCivilization(),
-                &Civilization::recruitsChanged,
-                this,
-                &Settlement::recruitsChanged
-            );
-        }
-
         emit ownerChanged();
     }
-}
-
-std::vector<UnitType *> Settlement::getRecruits() const
-{
-    std::vector<UnitType *> recruits;
-
-    if (this->owner != nullptr)
-    {
-        const std::vector<UnitType *> crs(this->owner->getCivilization()->getRecruitsFor(this->type));
-        std::copy(crs.cbegin(), crs.cend(), std::back_inserter(recruits));
-    }
-
-    const std::vector<UnitType *> srs{this->type->getRecruits()};
-    std::copy(srs.cbegin(), srs.cend(), std::back_inserter(recruits));
-
-    return recruits;
-}
-
-QVariantList Settlement::readRecruits() const
-{
-    return utils::toQVariantList(this->getRecruits());
 }
 
 } // namespace core

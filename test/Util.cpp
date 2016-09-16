@@ -109,22 +109,30 @@ std::pair<core::World*, QJsonObject> makeWorld()
         qMakePair(tt0->objectName(), 6)
     });
 
-    w->setUnitTypes({ut0, ut1});
-    jw["unitTypes"] = QJsonArray({jut0, jut1});
+    core::UnitType* ut2 = new core::UnitType(w);
+    QJsonObject jut2;
+    setNames(ut2, jut2, 2);
+
+    ut2->setHierarchyParent(ut1);
+    jut2["hierarchyParent"] = ut1->objectName();
+
+    w->setUnitTypes({ut0, ut1, ut2});
+    jw["unitTypes"] = QJsonArray({jut0, jut1, jut2});
 
     // SettlementType
     core::SettlementType* st0 = new core::SettlementType(w);
     QJsonObject jst0;
     setNames(st0, jst0, 0);
 
-    st0->setGoldPerTurn(7);
-    jst0["goldPerTurn"] = 7;
+    core::SettlementType* st1 = new core::SettlementType(w);
+    QJsonObject jst1;
+    setNames(st1, jst1, 1);
 
-    st0->setRecruits({ut0});
-    jst0["recruits"] = QJsonArray({ut0->objectName()});
+    st1->setHierarchyParent(st0);
+    jst1["hierarchyParent"] = st0->objectName();
 
-    w->setSettlementTypes({st0});
-    jw["settlementTypes"] = QJsonArray({jst0});
+    w->setSettlementTypes({st0, st1});
+    jw["settlementTypes"] = QJsonArray({jst0, jst1});
 
     // Civilization
     core::Civilization* c0 = new core::Civilization(w);
@@ -136,10 +144,6 @@ std::pair<core::World*, QJsonObject> makeWorld()
 
     std::map<core::SettlementType*, std::vector<core::UnitType* >> recruits;
     recruits[st0] = std::vector<core::UnitType* >({ut0});
-    c0->setRecruits(recruits);
-    jc0["recruits"] = QJsonObject({
-        {st0->objectName(), QJsonArray({ut0->objectName()})}
-    });
 
     w->setCivilizations({c0});
     jw["civilizations"] = QJsonArray({jc0});

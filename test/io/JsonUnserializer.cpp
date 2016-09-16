@@ -590,16 +590,6 @@ TEST_CASE("Civilization can be unserialized from JSON", "[JsonUnserializer]")
         REQUIRE(f->objectName() == jobj["objectName"].toString());
         REQUIRE(f->getDisplayName() == jobj["displayName"].toString());
         arrayEqualsList(jobj["unitTypes"].toArray(), f->getUnitTypes());
-
-        std::map<core::SettlementType*, std::vector<core::UnitType*>> recruits = f->getRecruits();
-        const QJsonObject jrecruits = jobj["recruits"].toObject();
-
-        REQUIRE(recruits.size() == jrecruits.size());
-
-        for (const auto& e : recruits)
-        {
-            arrayEqualsList(jrecruits[e.first->objectName()].toArray(), e.second);
-        }
     }
 }
 
@@ -622,36 +612,9 @@ TEST_CASE("Civilization can't be unserialized from JSON", "[JsonUnserializer]")
         );
     }
 
-    SECTION("unserializing Civilization, no settlementTypes")
-    {
-        io::Context ctx;
-
-        const std::vector<core::UnitType*> uts = world->getUnitTypes();
-        std::for_each(
-            uts.cbegin(),
-            uts.cend(),
-            [&](core::UnitType* o){ctx.add(o);}
-        );
-
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeCivilization(jdoc.toJson()),
-            utils::ValueError
-        );
-    }
-
     SECTION("unserializing Civilization, no unitTypes")
     {
         io::Context ctx;
-
-        const std::vector<core::SettlementType*> sts = world->getSettlementTypes();
-        std::for_each(
-            sts.cbegin(),
-            sts.cend(),
-            [&](core::SettlementType* o){ctx.add(o);}
-        );
 
         io::JsonUnserializer unserializer(ctx);
         QJsonDocument jdoc(jobj);
@@ -952,27 +915,45 @@ TEST_CASE("SettlementType can be unserialized from JSON", "[JsonUnserializer]")
     const std::unique_ptr<core::World> world{worlds.first};
     const QJsonObject jworld{worlds.second};
 
-    const std::vector<core::UnitType*> uts = world->getUnitTypes();
-    std::for_each(
-        uts.cbegin(),
-        uts.cend(),
-        [&](core::UnitType* o){ctx.add(o);}
-    );
-
-    const QJsonObject jobj = jworld["settlementTypes"].toArray()[0].toObject();
-
     SECTION("unserializing SettlementType")
     {
+        const QJsonObject jobj = jworld["settlementTypes"].toArray()[0].toObject();
+
         io::JsonUnserializer unserializer(ctx);
         QJsonDocument jdoc(jobj);
         const std::unique_ptr<core::SettlementType> st(
             unserializer.unserializeSettlementType(jdoc.toJson())
         );
 
+        REQUIRE(st->isHierarchyRoot());
         REQUIRE(st->objectName() == jobj["objectName"].toString());
         REQUIRE(st->getDisplayName() == jobj["displayName"].toString());
-        REQUIRE(st->getGoldPerTurn() == jobj["goldPerTurn"].toInt());
-        arrayEqualsList(jobj["recruits"].toArray(), st->getRecruits());
+    }
+
+    const std::vector<core::SettlementType*> sts = world->getSettlementTypes();
+    std::for_each(
+        sts.cbegin(),
+        sts.cend(),
+        [&](core::SettlementType* o){ctx.add(o);}
+    );
+
+    SECTION("unserializing SettlementType - all properties all inherited")
+    {
+        const QJsonObject parentJobj = jworld["settlementTypes"].toArray()[0].toObject();
+        QJsonObject jobj;
+        jobj["objectName"] = "childSt0";
+        jobj["hierarchyParent"] = parentJobj["objectName"];
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        const std::unique_ptr<core::SettlementType> st(
+            unserializer.unserializeSettlementType(jdoc.toJson())
+        );
+
+        REQUIRE(!st->isHierarchyRoot());
+        REQUIRE(st->getHierarchyParent()->objectName() == parentJobj["objectName"].toString());
+        REQUIRE(st->objectName() == jobj["objectName"].toString());
+        REQUIRE(st->getDisplayName() == parentJobj["displayName"].toString());
     }
 }
 
@@ -991,18 +972,6 @@ TEST_CASE("SettlementType can't be unserialized from JSON", "[JsonUnserializer]"
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeSettlementType(invalidJson),
-            utils::ValueError
-        );
-    }
-
-    SECTION("unserializing SettlementType, no unitTypes")
-    {
-        io::Context ctx;
-
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeSettlementType(jdoc.toJson()),
             utils::ValueError
         );
     }

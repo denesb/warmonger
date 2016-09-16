@@ -110,20 +110,6 @@ TEST_CASE("Civilization can be serialized to JSON", "[JsonSerializer]")
         REQUIRE(jobj["displayName"].toString() == f->getDisplayName());
         REQUIRE(jobj["unitTypes"].isArray() == true);
         arrayEqualsList(jobj["unitTypes"].toArray(), f->getUnitTypes());
-
-        REQUIRE(jobj["recruits"].isObject() == true);
-
-        const QJsonObject jrecruits = jobj["recruits"].toObject();
-        const std::map<core::SettlementType *, std::vector<core::UnitType *>> recruits =
-            f->getRecruits();
-
-        REQUIRE(jrecruits.size() == recruits.size());
-
-        for (const auto& e : recruits)
-        {
-            REQUIRE(jrecruits[e.first->objectName()].isArray() == true);
-            arrayEqualsList(jrecruits[e.first->objectName()].toArray(), e.second);
-        }
     }
 }
 
@@ -224,20 +210,33 @@ TEST_CASE("SettlementType can be serialized to JSON", "[JsonSerializer]")
 
     core::SettlementType *st = world->getSettlementTypes()[0];
 
-    SECTION("serializing SettlementType")
+    SECTION("serializing SettlementType - no inherited properties")
     {
         io::JsonSerializer serializer;
         QByteArray json(serializer.serializeSettlementType(st));
         const QJsonDocument jdoc(QJsonDocument::fromJson(json));
         const QJsonObject jobj(jdoc.object());
 
+        REQUIRE(!jobj.contains("hierarhcyParent"));
         REQUIRE(jobj["objectName"].toString() == st->objectName());
         REQUIRE(jobj["displayName"].toString() == st->getDisplayName());
-        REQUIRE(jobj["goldPerTurn"].toInt() == st->getGoldPerTurn());
-        REQUIRE(jobj["recruits"].isArray() == true);
+    }
 
-        const QJsonArray recruits = jobj["recruits"].toArray();
-        arrayEqualsList(recruits, st->getRecruits());
+    SECTION("serializing SettlementType - all properties all inherited")
+    {
+        core::SettlementType childSt;
+
+        childSt.setObjectName("childSt0");
+        childSt.setHierarchyParent(st);
+
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeSettlementType(&childSt));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
+
+        REQUIRE(jobj["objectName"].toString() == childSt.objectName());
+        REQUIRE(jobj["hierarchyParent"].toString() == childSt.getHierarchyParent()->objectName());
+        REQUIRE(!jobj.contains("displayName"));
     }
 }
 

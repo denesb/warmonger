@@ -301,7 +301,7 @@ core::World * JsonUnserializer::unserializeWorld(const QByteArray& data)
         this->ctx,
         terrainTypeFromJson
     ));
-    // UniTypes refer to other UnitTypes so we need to add UnitTypes
+    // UnitTypes refer to other UnitTypes so we need to add them
     // to the context as soon as they are unserialized
     obj->setUnitTypes(fromQJsonArray<std::vector<core::UnitType *>>(
         jobj["unitTypes"].toArray(),
@@ -312,10 +312,17 @@ core::World * JsonUnserializer::unserializeWorld(const QByteArray& data)
             return ut;
         }
     ));
+    // SettlementTypes refer to other UnitTypes so we need to add them
+    // to the context as soon as they are unserialized
     obj->setSettlementTypes(objectListFromJson<core::SettlementType>(
         jobj["settlementTypes"].toArray(),
         this->ctx,
-        settlementTypeFromJson
+        [&](const QJsonValue& v)
+        {
+            core::SettlementType *st = settlementTypeFromJson(v.toObject(), this->ctx);
+            this->ctx.add(st);
+            return st;
+        }
     ));
     obj->setCivilizations(objectListFromJson<core::Civilization>(
         jobj["civilizations"].toArray(),
@@ -384,19 +391,6 @@ core::Civilization* civilizationsFromJson(const QJsonObject& jobj, Context& ctx)
         jobj["unitTypes"].toArray(),
         unitTypeRefResolver
     ));
-    obj->setRecruits(
-        fromQJsonObject<std::map<core::SettlementType *, std::vector<core::UnitType *>>>(
-            jobj["recruits"].toObject(),
-            ReferenceResolver<core::SettlementType>(ctx),
-            [&](const QJsonValue& v)
-            {
-                return fromQJsonArray<std::vector<core::UnitType *>>(
-                    v.toArray(),
-                    unitTypeRefResolver
-                );
-            }
-        )
-    );
 
     return obj.release();
 }
@@ -495,19 +489,19 @@ core::Settlement* settlementFromJson(
     return obj.release();
 }
 
-core::SettlementType* settlementTypeFromJson(
-    const QJsonObject& jobj,
-    Context& ctx
-)
+core::SettlementType* settlementTypeFromJson(const QJsonObject& jobj, Context& ctx)
 {
     std::unique_ptr<core::SettlementType> obj(new core::SettlementType());
+
+    if (jobj.contains("hierarchyParent"))
+    {
+        obj->setHierarchyParent(resolveReference<core::SettlementType>(ctx, jobj["hierarchyParent"].toString()));
+    }
+
     obj->setObjectName(jobj["objectName"].toString());
-    obj->setDisplayName(jobj["displayName"].toString());
-    obj->setGoldPerTurn(jobj["goldPerTurn"].toInt());
-    obj->setRecruits(fromQJsonArray<std::vector<core::UnitType *>>(
-        jobj["recruits"].toArray(),
-        ReferenceResolver<core::UnitType>(ctx)
-    ));
+
+    if (jobj.contains("displayName"))
+        obj->setDisplayName(jobj["displayName"].toString());
 
     return obj.release();
 }

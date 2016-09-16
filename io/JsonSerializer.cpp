@@ -243,15 +243,6 @@ QJsonObject civilizationToJson(const core::Civilization* obj)
     QJsonObject jobj(namesToJson(obj));
 
     jobj["unitTypes"] = toQJsonArray(obj->getUnitTypes(), qObjectName);
-    jobj["recruits"] = toQJsonObject(
-        obj->getRecruits(),
-        qObjectName,
-        std::bind(
-            toQJsonArray<std::vector<core::UnitType *>, std::function<QString(core::UnitType *)>>,
-            std::placeholders::_1,
-            qObjectName
-        )
-    );
 
     return jobj;
 }
@@ -303,10 +294,20 @@ QJsonObject settlementToJson(const core::Settlement* obj)
 
 QJsonObject settlementTypeToJson(const core::SettlementType* obj)
 {
-    QJsonObject jobj(namesToJson(obj));
+    QJsonObject jobj;
 
-    jobj["goldPerTurn"] = obj->getGoldPerTurn();
-    jobj["recruits"] = toQJsonArray(obj->getRecruits(), qObjectName);
+	jobj["objectName"] = obj->objectName();
+
+    const bool isRoot = obj->isHierarchyRoot();
+    const core::SettlementType* parent = obj->getHierarchyParent();
+
+    if (!isRoot)
+    {
+        jobj["hierarchyParent"] = parent->objectName();
+    }
+
+    if (isRoot || obj->getDisplayName() != parent->getDisplayName())
+        jobj["displayName"] = obj->getDisplayName();
 
     return jobj;
 }

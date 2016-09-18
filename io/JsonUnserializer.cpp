@@ -123,9 +123,8 @@ inline int qJsonValueToInt(const QJsonValue& value)
 }
 
 template <class T>
-std::vector<T*> objectListFromJson(const QJsonArray& array,
-    Context& ctx,
-    std::function<T*(const QJsonObject&)> fromJsonFunc)
+std::vector<T*> objectListFromJson(
+    const QJsonArray& array, Context& ctx, std::function<T*(const QJsonObject&)> fromJsonFunc)
 {
     std::vector<T*> objects =
         fromQJsonArray<std::vector<T*>>(array, [&](const QJsonValue& v) { return fromJsonFunc(v.toObject()); });
@@ -136,9 +135,8 @@ std::vector<T*> objectListFromJson(const QJsonArray& array,
 }
 
 template <class T>
-std::vector<T*> objectListFromJson(const QJsonArray& array,
-    Context& ctx,
-    std::function<T*(const QJsonObject&, Context& ctx)> fromJsonFunc)
+std::vector<T*> objectListFromJson(
+    const QJsonArray& array, Context& ctx, std::function<T*(const QJsonObject&, Context& ctx)> fromJsonFunc)
 {
     std::function<T*(const QJsonObject&)> func = std::bind(fromJsonFunc, std::placeholders::_1, ctx);
     return objectListFromJson<T>(array, ctx, func);

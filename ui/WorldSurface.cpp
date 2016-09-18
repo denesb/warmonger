@@ -25,12 +25,11 @@ static bool isImageMissing(const QString& key);
 static bool isOptionalImageMissing(const QObject* const object);
 static bool isRequiredImageMissing(const QString& p);
 
-const std::vector<QString> requiredImagePaths{utils::resourcePaths::notFound,
-    utils::resourcePaths::mapEditor::hoverValid};
+const std::vector<QString> requiredImagePaths{
+    utils::resourcePaths::notFound, utils::resourcePaths::mapEditor::hoverValid};
 
-const std::set<QString> visualClasses{"warmonger::core::TerrainType",
-    "warmonger::core::SettlementType",
-    "warmonger::core::UnitType"};
+const std::set<QString> visualClasses{
+    "warmonger::core::TerrainType", "warmonger::core::SettlementType", "warmonger::core::UnitType"};
 
 WorldSurface::WorldSurface(const QString& path, core::World* world, QQuickWindow* window, QObject* parent)
     : QObject(parent)

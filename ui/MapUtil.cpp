@@ -47,9 +47,8 @@ QPoint neighbourPos(const QPoint& pos, core::Direction dir, const QSize& tileSiz
     return QPoint(pos.x() + displacement.width(), pos.y() + displacement.height());
 }
 
-core::MapNodeNeighbours neighboursByPos(const QPoint& pos,
-    const WorldSurface* worldSurface,
-    const std::map<core::MapNode*, QPoint>& mapNodesPos)
+core::MapNodeNeighbours neighboursByPos(
+    const QPoint& pos, const WorldSurface* worldSurface, const std::map<core::MapNode*, QPoint>& mapNodesPos)
 {
     core::MapNodeNeighbours neighbours;
 
@@ -106,9 +105,8 @@ QRect calculateBoundingRect(const std::map<core::MapNode*, QPoint>& nodesPos, co
     return QRect(topLeft, bottomRight);
 }
 
-std::vector<core::MapNode*> visibleMapNodes(const std::map<core::MapNode*, QPoint>& mapNodesPos,
-    const QSize& tileSize,
-    const QRect& window)
+std::vector<core::MapNode*> visibleMapNodes(
+    const std::map<core::MapNode*, QPoint>& mapNodesPos, const QSize& tileSize, const QRect& window)
 {
     std::vector<core::MapNode*> visibleNodes;
     QRect nodeRect(0, 0, tileSize.width(), tileSize.height());
@@ -124,9 +122,8 @@ std::vector<core::MapNode*> visibleMapNodes(const std::map<core::MapNode*, QPoin
     return visibleNodes;
 }
 
-core::MapNode* mapNodeAtPos(const QPoint& pos,
-    const std::map<core::MapNode*, QPoint>& nodesPos,
-    const WorldSurface* worldSurface)
+core::MapNode* mapNodeAtPos(
+    const QPoint& pos, const std::map<core::MapNode*, QPoint>& nodesPos, const WorldSurface* worldSurface)
 {
     const QSize tileSize(worldSurface->getTileSize());
     for (const std::pair<core::MapNode*, QPoint>& nodePosItem : nodesPos)

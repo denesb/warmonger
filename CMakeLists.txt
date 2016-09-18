@@ -124,3 +124,13 @@ if(BUILD_TESTS)
         ${WARMONGER_LIBS}
     )
 endif()
+
+file(GLOB_RECURSE ALL_HEADER_FILES ${PROJECT_SOURCE_DIR}/*.h)
+file(GLOB_RECURSE ALL_SOURCE_FILES ${PROJECT_SOURCE_DIR}/*.cpp)
+
+add_custom_target(
+    format
+    COMMAND clang-format -i -style=file ${ALL_HEADER_FILES}
+    COMMAND clang-format -i -style=file ${ALL_SOURCE_FILES}
+    COMMENT "Formatting source files"
+)

@@ -60,7 +60,7 @@ TEST_CASE("MapNode neighbours", "[MapNodeNeighbours]")
         unsigned s{0};
         for (const auto& n : neighbours1)
         {
-            if(n.first == core::Direction::NorthWest)
+            if (n.first == core::Direction::NorthWest)
             {
                 REQUIRE(n.second == &mn);
             }

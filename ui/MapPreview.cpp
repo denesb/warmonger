@@ -16,44 +16,34 @@
 using namespace warmonger;
 using namespace warmonger::ui;
 
-MapPreview::MapPreview(QQuickItem *parent) :
-    QQuickPaintedItem(parent),
-    nodes(),
-    world(nullptr),
-    surface(nullptr),
-    tileSize(),
-    map(nullptr),
-    nodesPos(),
-    boundingRect(),
-    hexagonPainterPath(),
-    scale(1.0),
-    translate(0.0, 0.0)
+MapPreview::MapPreview(QQuickItem* parent)
+    : QQuickPaintedItem(parent)
+    , nodes()
+    , world(nullptr)
+    , surface(nullptr)
+    , tileSize()
+    , map(nullptr)
+    , nodesPos()
+    , boundingRect()
+    , hexagonPainterPath()
+    , scale(1.0)
+    , translate(0.0, 0.0)
 {
-    QObject::connect(
-        this,
-        &MapPreview::widthChanged,
-        this,
-        &MapPreview::updateTransform
-    );
+    QObject::connect(this, &MapPreview::widthChanged, this, &MapPreview::updateTransform);
 
-    QObject::connect(
-        this,
-        &MapPreview::heightChanged,
-        this,
-        &MapPreview::updateTransform
-    );
+    QObject::connect(this, &MapPreview::heightChanged, this, &MapPreview::updateTransform);
 }
 
 MapPreview::~MapPreview()
 {
 }
 
-core::Map * MapPreview::getMap() const
+core::Map* MapPreview::getMap() const
 {
     return this->map;
 }
 
-void MapPreview::setMap(core::Map *map)
+void MapPreview::setMap(core::Map* map)
 {
     if (this->map != map)
     {
@@ -63,7 +53,7 @@ void MapPreview::setMap(core::Map *map)
     }
 }
 
-void MapPreview::paint(QPainter *painter)
+void MapPreview::paint(QPainter* painter)
 {
     if (this->map == nullptr)
         return;
@@ -76,12 +66,8 @@ void MapPreview::paint(QPainter *painter)
 
     auto cbegin = this->nodes.constBegin();
     auto cend = this->nodes.constEnd();
-    std::function<void(const core::MapNode *)> drawNodeFunc = std::bind(
-        &MapPreview::drawNode,
-        this,
-        painter,
-        std::placeholders::_1
-    );
+    std::function<void(const core::MapNode*)> drawNodeFunc =
+        std::bind(&MapPreview::drawNode, this, painter, std::placeholders::_1);
 
     std::for_each(cbegin, cend, drawNodeFunc);
 
@@ -92,7 +78,7 @@ void MapPreview::setupMap()
 {
     if (this->map == nullptr)
     {
-        this->nodes = QList<core::MapNode *>();
+        this->nodes = QList<core::MapNode*>();
         this->world = nullptr;
         this->surface = nullptr;
         this->tileSize = QSize();
@@ -119,28 +105,22 @@ void MapPreview::setupMap()
 
 void MapPreview::updateGeometry()
 {
-    this->boundingRect = calculateBoundingRect(
-        this->nodesPos,
-        this->tileSize
-    );
+    this->boundingRect = calculateBoundingRect(this->nodesPos, this->tileSize);
     this->updateTransform();
 }
 
 void MapPreview::updateTransform()
 {
-    QPair<qreal, QPointF> transform = centerIn(
-        this->boundingRect,
-        this->contentsBoundingRect()
-    );
+    QPair<qreal, QPointF> transform = centerIn(this->boundingRect, this->contentsBoundingRect());
     this->scale = transform.first;
     this->translate = transform.second;
 }
 
-void MapPreview::drawNode(QPainter *painter, const core::MapNode *node)
+void MapPreview::drawNode(QPainter* painter, const core::MapNode* node)
 {
     const QString terrainTypeName = node->getTerrainType()->objectName();
-    const core::Settlement *settlement = this->map->getSettlementOn(node);
-    const core::Unit *unit = this->map->getUnitOn(node);
+    const core::Settlement* settlement = this->map->getSettlementOn(node);
+    const core::Unit* unit = this->map->getUnitOn(node);
 
     painter->save();
     painter->translate(this->nodesPos[node]);
@@ -153,13 +133,13 @@ void MapPreview::drawNode(QPainter *painter, const core::MapNode *node)
 
     if (settlement != nullptr)
     {
-        const int size = w/2 - w/10;
-        const QRect sr(w/20, h/2 - size/2, size, size);
+        const int size = w / 2 - w / 10;
+        const QRect sr(w / 20, h / 2 - size / 2, size, size);
 
-        const core::Player *owner = settlement->getOwner();
+        const core::Player* owner = settlement->getOwner();
         QColor sc;
         if (owner == nullptr)
-            sc= this->surface->getColorName("noOwner");
+            sc = this->surface->getColorName("noOwner");
         else
             sc = owner->getColor();
 
@@ -168,13 +148,13 @@ void MapPreview::drawNode(QPainter *painter, const core::MapNode *node)
 
     if (unit != nullptr)
     {
-        const int size = w/4;
-        const QRect ur(w/2 + w/5, h/2 - size/2, size, size);
+        const int size = w / 4;
+        const QRect ur(w / 2 + w / 5, h / 2 - size / 2, size, size);
 
-        const core::Player *owner = unit->getOwner();
+        const core::Player* owner = unit->getOwner();
         QColor uc;
         if (owner == nullptr)
-            uc= this->surface->getColorName("noOwner");
+            uc = this->surface->getColorName("noOwner");
         else
             uc = owner->getColor();
 
@@ -183,4 +163,3 @@ void MapPreview::drawNode(QPainter *painter, const core::MapNode *node)
 
     painter->restore();
 }
-

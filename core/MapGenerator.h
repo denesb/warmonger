@@ -10,12 +10,9 @@ namespace core {
 
 std::vector<MapNode*> generateMapNodes(unsigned int radius);
 
-void generateMapNodeNames(const std::vector<MapNode*> &nodes);
+void generateMapNodeNames(const std::vector<MapNode*>& nodes);
 
-void generateMapNodeTerrainTypes(
-        const std::vector<MapNode*>& nodes,
-        const std::vector<TerrainType*>& terrainTypes
-    );
+void generateMapNodeTerrainTypes(const std::vector<MapNode*>& nodes, const std::vector<TerrainType*>& terrainTypes);
 
 } // namespace core
 } // namespace warmonger

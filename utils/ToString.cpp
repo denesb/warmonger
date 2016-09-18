@@ -40,15 +40,13 @@ std::ostream& operator<<(std::ostream& s, const QPointF& point)
 
 std::ostream& operator<<(std::ostream& s, const QRect& rect)
 {
-    s << "<QRect (" << rect.x() << "," << rect.y() << ") "
-        << rect.width() << "x" << rect.height() << ">";
+    s << "<QRect (" << rect.x() << "," << rect.y() << ") " << rect.width() << "x" << rect.height() << ">";
     return s;
 }
 
 std::ostream& operator<<(std::ostream& s, const QRectF& rect)
 {
-    s << "<QRectF (" << rect.x() << "," << rect.y() << ") "
-        << rect.width() << "x" << rect.height() << ">";
+    s << "<QRectF (" << rect.x() << "," << rect.y() << ") " << rect.width() << "x" << rect.height() << ">";
     return s;
 }
 
@@ -66,7 +64,7 @@ std::ostream& operator<<(std::ostream& s, const QSizeF& size)
 
 std::ostream& operator<<(std::ostream& s, const QJsonValue& value)
 {
-    switch(value.type())
+    switch (value.type())
     {
         case QJsonValue::Object:
             s << value.toObject();
@@ -161,7 +159,7 @@ std::ostream& operator<<(std::ostream& s, const QObject* const obj)
         return s;
     }
 
-    const QMetaObject *metaObj = obj->metaObject();
+    const QMetaObject* metaObj = obj->metaObject();
     s << metaObj->className() << "<" << obj->objectName() << ">";
 
     return s;

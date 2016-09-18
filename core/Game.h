@@ -8,18 +8,17 @@
 namespace warmonger {
 namespace core {
 
-class Game :
-    public QObject
+class Game : public QObject
 {
     Q_OBJECT
 
     Q_PROPERTY(int turn READ getTurn WRITE setTurn NOTIFY turnChanged)
 
 public:
-    explicit Game(QObject *parent=nullptr);
+    explicit Game(QObject* parent = nullptr);
 
-    CampaignMap * getCampaignMap() const;
-    void setCampaignMap(CampaignMap *campaignMap);
+    CampaignMap* getCampaignMap() const;
+    void setCampaignMap(CampaignMap* campaignMap);
 
     int getTurn() const;
     void setTurn(int turn);
@@ -29,7 +28,7 @@ signals:
     void turnChanged();
 
 private:
-    CampaignMap *campaignMap;
+    CampaignMap* campaignMap;
     int turn;
 };
 

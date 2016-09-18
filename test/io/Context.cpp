@@ -3,8 +3,8 @@
 #include "core/ArmyType.h"
 #include "core/UnitType.h"
 #include "io/Context.h"
-#include "test/catch.hpp"
 #include "test/Util.h"
+#include "test/catch.hpp"
 
 using namespace warmonger;
 
@@ -107,16 +107,15 @@ TEST_CASE("Inexistent object", "[Context]")
 class TestCallback
 {
 public:
-    TestCallback(QObject* obj) :
-        obj(obj)
+    TestCallback(QObject* obj)
+        : obj(obj)
     {
     }
 
-    void operator()(const QString &className, const QString &objectName, io::Context &ctx)
+    void operator()(const QString& className, const QString& objectName, io::Context& ctx)
     {
         const QMetaObject* mo = this->obj->metaObject();
-        if (className == mo->className() &&
-                this->obj->objectName() == objectName)
+        if (className == mo->className() && this->obj->objectName() == objectName)
         {
             ctx.add(this->obj);
         }

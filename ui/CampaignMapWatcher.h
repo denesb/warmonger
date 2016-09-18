@@ -8,7 +8,6 @@ namespace warmonger {
 namespace core {
 
 class CampaignMap;
-
 }
 
 namespace ui {

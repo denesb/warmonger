@@ -1,7 +1,7 @@
 #include <functional>
 
-#include <QJsonObject>
 #include <QJsonArray>
+#include <QJsonObject>
 #include <QJsonValue>
 
 #include "core/CampaignMap.h"
@@ -25,8 +25,8 @@ QJsonObject unitToJson(const core::Unit* obj);
 QJsonObject unitTypeToJson(const core::UnitType* obj);
 QJsonObject worldToJson(const core::World* obj);
 
-JsonSerializer::JsonSerializer(QJsonDocument::JsonFormat format) :
-    format(format)
+JsonSerializer::JsonSerializer(QJsonDocument::JsonFormat format)
+    : format(format)
 {
 }
 
@@ -72,9 +72,7 @@ QByteArray JsonSerializer::serializeSettlement(const core::Settlement* obj)
     return jdoc.toJson(this->format);
 }
 
-QByteArray JsonSerializer::serializeSettlementType(
-    const core::SettlementType* obj
-)
+QByteArray JsonSerializer::serializeSettlementType(const core::SettlementType* obj)
 {
     QJsonDocument jdoc(settlementTypeToJson(obj));
     return jdoc.toJson(this->format);
@@ -109,8 +107,8 @@ QJsonObject namesToJson(T obj)
 {
     QJsonObject jobj;
 
-	jobj["objectName"] = obj->objectName();
-	jobj["displayName"] = obj->getDisplayName();
+    jobj["objectName"] = obj->objectName();
+    jobj["displayName"] = obj->getDisplayName();
 
     return jobj;
 }
@@ -118,7 +116,7 @@ QJsonObject namesToJson(T obj)
 /**
  * Get the objectName of a QObject.
  */
-inline QString qObjectName(const QObject * const object)
+inline QString qObjectName(const QObject* const object)
 {
     return object->objectName();
 }
@@ -129,7 +127,7 @@ inline QString qObjectName(const QObject * const object)
  * Only usable if QJsonValue has a constructor with T (or a type
  * implicitly convertable to T).
  */
-template<typename T>
+template <typename T>
 QJsonValue constructQJsonValue(const T& value)
 {
     return QJsonValue(value);
@@ -141,17 +139,12 @@ QJsonValue constructQJsonValue(const T& value)
  * The convertFunc function converts Container::value_type to
  * QJsonValue.
  */
-template<typename Container, typename ConvertFunc>
+template <typename Container, typename ConvertFunc>
 QJsonArray toQJsonArray(Container container, ConvertFunc convertFunc)
 {
     QJsonArray array;
 
-    std::transform(
-        container.cbegin(),
-        container.cend(),
-        std::back_inserter(array),
-        convertFunc
-    );
+    std::transform(container.cbegin(), container.cend(), std::back_inserter(array), convertFunc);
 
     return array;
 }
@@ -166,16 +159,12 @@ QJsonArray toQJsonArray(Container container, ConvertFunc convertFunc)
  * QString and `convertValue converts from Container::mapping_type to
  * QJsonValue.
  */
-template<typename Container, typename ConvertKeyFunc, typename ConvertValueFunc>
-QJsonObject toQJsonObject(
-    Container container,
-    ConvertKeyFunc convertKey,
-    ConvertValueFunc convertValue
-)
+template <typename Container, typename ConvertKeyFunc, typename ConvertValueFunc>
+QJsonObject toQJsonObject(Container container, ConvertKeyFunc convertKey, ConvertValueFunc convertValue)
 {
     QJsonObject object;
 
-    for(const auto& element : container)
+    for (const auto& element : container)
     {
         QString key = convertKey(element.first);
         QJsonValue value = convertValue(element.second);
@@ -193,10 +182,7 @@ QJsonObject armyToJson(const core::Army* obj)
     jobj["type"] = obj->getType()->objectName();
     jobj["mapNode"] = obj->getMapNode()->objectName();
     jobj["owner"] = obj->getOwner()->objectName();
-    jobj["units"] = toQJsonArray(
-        obj->getUnits(),
-        qObjectName
-    );
+    jobj["units"] = toQJsonArray(obj->getUnits(), qObjectName);
 
     return jobj;
 }
@@ -214,26 +200,11 @@ QJsonObject campaignMapToJson(const core::CampaignMap* obj)
     jobj["mapNodeIndex"] = obj->getMapNodeIndex();
     jobj["settlementIndex"] = obj->getSettlementIndex();
     jobj["unitIndex"] = obj->getUnitIndex();
-    jobj["mapNodes"] = toQJsonArray(
-        obj->getMapNodes(),
-        mapNodeToJson
-    );
-    jobj["factions"] = toQJsonArray(
-        obj->getFactions(),
-        factionToJson
-    );
-    jobj["settlements"] = toQJsonArray(
-        obj->getSettlements(),
-        settlementToJson
-    );
-    jobj["units"] = toQJsonArray(
-        obj->getUnits(),
-        unitToJson
-    );
-    jobj["armies"] = toQJsonArray(
-        obj->getArmies(),
-        armyToJson
-    );
+    jobj["mapNodes"] = toQJsonArray(obj->getMapNodes(), mapNodeToJson);
+    jobj["factions"] = toQJsonArray(obj->getFactions(), factionToJson);
+    jobj["settlements"] = toQJsonArray(obj->getSettlements(), settlementToJson);
+    jobj["units"] = toQJsonArray(obj->getUnits(), unitToJson);
+    jobj["armies"] = toQJsonArray(obj->getArmies(), armyToJson);
 
     return jobj;
 }
@@ -296,7 +267,7 @@ QJsonObject settlementTypeToJson(const core::SettlementType* obj)
 {
     QJsonObject jobj;
 
-	jobj["objectName"] = obj->objectName();
+    jobj["objectName"] = obj->objectName();
 
     const bool isRoot = obj->isHierarchyRoot();
     const core::SettlementType* parent = obj->getHierarchyParent();
@@ -335,7 +306,7 @@ QJsonObject unitTypeToJson(const core::UnitType* obj)
 {
     QJsonObject jobj;
 
-	jobj["objectName"] = obj->objectName();
+    jobj["objectName"] = obj->objectName();
 
     const bool isRoot = obj->isHierarchyRoot();
     const core::UnitType* parent = obj->getHierarchyParent();
@@ -364,11 +335,7 @@ QJsonObject unitTypeToJson(const core::UnitType* obj)
         jobj["upkeepCost"] = obj->getUpkeepCost();
 
     if (isRoot || obj->getMovementCosts() != parent->getMovementCosts())
-        jobj["movementCosts"] = toQJsonObject(
-            obj->getMovementCosts(),
-            qObjectName,
-            constructQJsonValue<int>
-        );
+        jobj["movementCosts"] = toQJsonObject(obj->getMovementCosts(), qObjectName, constructQJsonValue<int>);
 
     if (isRoot || obj->getUpgrades() != parent->getUpgrades())
         jobj["upgrades"] = toQJsonArray(obj->getUpgrades(), qObjectName);
@@ -380,26 +347,11 @@ QJsonObject worldToJson(const core::World* obj)
 {
     QJsonObject jobj(namesToJson(obj));
 
-    jobj["armyTypes"] = toQJsonArray(
-        obj->getArmyTypes(),
-        armyTypeToJson
-    );
-    jobj["terrainTypes"] = toQJsonArray(
-        obj->getTerrainTypes(),
-        terrainTypeToJson
-    );
-    jobj["unitTypes"] = toQJsonArray(
-        obj->getUnitTypes(),
-        unitTypeToJson
-    );
-    jobj["settlementTypes"] = toQJsonArray(
-        obj->getSettlementTypes(),
-        settlementTypeToJson
-    );
-    jobj["civilizations"] = toQJsonArray(
-        obj->getCivilizations(),
-        civilizationToJson
-    );
+    jobj["armyTypes"] = toQJsonArray(obj->getArmyTypes(), armyTypeToJson);
+    jobj["terrainTypes"] = toQJsonArray(obj->getTerrainTypes(), terrainTypeToJson);
+    jobj["unitTypes"] = toQJsonArray(obj->getUnitTypes(), unitTypeToJson);
+    jobj["settlementTypes"] = toQJsonArray(obj->getSettlementTypes(), settlementTypeToJson);
+    jobj["civilizations"] = toQJsonArray(obj->getCivilizations(), civilizationToJson);
 
     return jobj;
 }

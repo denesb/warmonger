@@ -8,8 +8,7 @@
 namespace warmonger {
 namespace io {
 
-class JsonSerializer :
-    public Serializer
+class JsonSerializer : public Serializer
 {
 public:
     JsonSerializer(QJsonDocument::JsonFormat format = QJsonDocument::Indented);

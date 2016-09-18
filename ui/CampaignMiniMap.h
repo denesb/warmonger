@@ -11,22 +11,22 @@
 namespace warmonger {
 
 namespace core {
-    class MapNode;
-    class World;
+class MapNode;
+class World;
 }
 
 namespace ui {
 
 class CampaignMapWatcher;
 
-class CampaignMiniMap :
-    public BasicMiniMap,
-    public MapDrawer
+class CampaignMiniMap : public BasicMiniMap, public MapDrawer
 {
     Q_OBJECT
 
-    Q_PROPERTY(warmonger::core::CampaignMap* campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
-    Q_PROPERTY(warmonger::ui::WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
+    Q_PROPERTY(
+        warmonger::core::CampaignMap* campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
+    Q_PROPERTY(
+        warmonger::ui::WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
 public:
     CampaignMiniMap(QQuickItem* parent = nullptr);
 

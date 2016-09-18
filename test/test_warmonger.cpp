@@ -14,7 +14,7 @@ int main(int argc, char* const argv[])
 {
     utils::initLogging();
 
-    //Construct the sink
+    // Construct the sink
     typedef boost::log::sinks::synchronous_sink<boost::log::sinks::text_ostream_backend> TextSink;
     boost::shared_ptr<TextSink> sink = boost::make_shared<TextSink>();
 

@@ -7,19 +7,19 @@
 #include "ui/WorldSurface.h"
 #include "utils/Constants.h"
 #include "utils/QVariantUtils.h"
-#include "utils/Utils.h"
 #include "utils/Settings.h"
+#include "utils/Utils.h"
 
 namespace warmonger {
 namespace ui {
 
-Context::Context(QQuickWindow *window, QObject *parent) :
-    QObject(parent),
-    window(window),
-    world(nullptr),
-    worldSurface(nullptr),
-    campaignMap(nullptr),
-    game(nullptr)
+Context::Context(QQuickWindow* window, QObject* parent)
+    : QObject(parent)
+    , window(window)
+    , world(nullptr)
+    , worldSurface(nullptr)
+    , campaignMap(nullptr)
+    , game(nullptr)
 {
     loadWorlds();
 
@@ -31,22 +31,22 @@ Context::Context(QQuickWindow *window, QObject *parent) :
     this->colorPalette["focusColor1"] = utils::settingsValue(utils::SettingsKey::focusColor1);
 }
 
-core::World * Context::getWorld() const
+core::World* Context::getWorld() const
 {
     return this->world;
 }
 
-ui::WorldSurface * Context::getWorldSurface() const
+ui::WorldSurface* Context::getWorldSurface() const
 {
     return this->worldSurface;
 }
 
-core::CampaignMap * Context::getCampaignMap() const
+core::CampaignMap* Context::getCampaignMap() const
 {
     return this->campaignMap;
 }
 
-core::Game * Context::getGame() const
+core::Game* Context::getGame() const
 {
     return this->game;
 }
@@ -79,16 +79,16 @@ QVariantMap Context::getColorPalette() const
     return this->colorPalette;
 }
 
-void Context::newCampaignMap(warmonger::core::World *world)
+void Context::newCampaignMap(warmonger::core::World* world)
 {
-    core::CampaignMap *map = new core::CampaignMap(this);
+    core::CampaignMap* map = new core::CampaignMap(this);
     map->setObjectName("newMap");
     map->setWorld(world);
 
-    const std::vector<core::TerrainType *> terrainTypes = world->getTerrainTypes();
+    const std::vector<core::TerrainType*> terrainTypes = world->getTerrainTypes();
     if (!terrainTypes.empty())
     {
-        const std::vector<core::MapNode *> nodes = core::generateMapNodes(10);
+        const std::vector<core::MapNode*> nodes = core::generateMapNodes(10);
         core::generateMapNodeNames(nodes);
         core::generateMapNodeTerrainTypes(nodes, terrainTypes);
 
@@ -98,7 +98,7 @@ void Context::newCampaignMap(warmonger::core::World *world)
     this->setCampaignMap(map);
 }
 
-void Context::setWorld(core::World *world)
+void Context::setWorld(core::World* world)
 {
     if (this->world != world)
     {
@@ -110,7 +110,7 @@ void Context::setWorld(core::World *world)
         emit worldSurfacesChanged();
 
         const QVariant surfaceVal = settingsValue(this->world, utils::WorldSettingsKey::preferredSurface);
-        const std::vector<WorldSurface *>& surfaces = this->worldSurfaces[this->world];
+        const std::vector<WorldSurface*>& surfaces = this->worldSurfaces[this->world];
 
         if (surfaceVal.isNull())
         {
@@ -133,7 +133,7 @@ void Context::setWorld(core::World *world)
     }
 }
 
-void Context::setWorldSurface(ui::WorldSurface *worldSurface)
+void Context::setWorldSurface(ui::WorldSurface* worldSurface)
 {
     if (this->worldSurface != worldSurface)
     {
@@ -146,9 +146,7 @@ void Context::setWorldSurface(ui::WorldSurface *worldSurface)
         if (this->worldSurface != nullptr)
         {
             utils::setSettingsValue(
-                this->world,
-                utils::WorldSettingsKey::preferredSurface,
-                this->worldSurface->objectName());
+                this->world, utils::WorldSettingsKey::preferredSurface, this->worldSurface->objectName());
         }
 
         this->worldSurface->activate();
@@ -158,7 +156,7 @@ void Context::setWorldSurface(ui::WorldSurface *worldSurface)
 
 void Context::setDefaultWorldSurface()
 {
-    const std::vector<WorldSurface *>& surfaces = this->worldSurfaces[this->world];
+    const std::vector<WorldSurface*>& surfaces = this->worldSurfaces[this->world];
     if (surfaces.empty())
     {
         this->setWorldSurface(nullptr);
@@ -169,7 +167,7 @@ void Context::setDefaultWorldSurface()
     }
 }
 
-void Context::setCampaignMap(core::CampaignMap *campaignMap)
+void Context::setCampaignMap(core::CampaignMap* campaignMap)
 {
     if (this->campaignMap != campaignMap)
     {
@@ -189,15 +187,15 @@ void Context::loadWorlds()
     for (QString worldPath : QDir::searchPaths(utils::searchPaths::world))
     {
         QFileInfo fileInfo(worldPath);
-        const QString worldDefinitionPath = worldPath + "/" + fileInfo.baseName() + "."
-            + utils::fileExtensions::worldDefinition;
-        core::World *world{nullptr};
+        const QString worldDefinitionPath =
+            worldPath + "/" + fileInfo.baseName() + "." + utils::fileExtensions::worldDefinition;
+        core::World* world{nullptr};
 
         try
         {
             world = io::readWorld(worldDefinitionPath, worldUnserializer);
         }
-        catch(const utils::Exception &error)
+        catch (const utils::Exception& error)
         {
             wError << "Error loading world " << worldDefinitionPath << ", " << error.getMessage();
             continue;
@@ -232,7 +230,7 @@ void Context::loadWorlds()
     emit campaignMapsChanged();
 }
 
-void Context::loadMapsFromDir(const QDir &mapsDir, core::World *world)
+void Context::loadMapsFromDir(const QDir& mapsDir, core::World* world)
 {
     QStringList nameFilters;
     nameFilters.append("*." + utils::fileExtensions::mapDefinition);
@@ -241,7 +239,7 @@ void Context::loadMapsFromDir(const QDir &mapsDir, core::World *world)
 
     std::size_t n{0};
     const QStringList mapEntries = mapsDir.entryList(nameFilters, filters);
-    for (const QString &mapFile : mapEntries)
+    for (const QString& mapFile : mapEntries)
     {
         const QString mapPath = mapsDir.absoluteFilePath(mapFile);
 
@@ -249,12 +247,12 @@ void Context::loadMapsFromDir(const QDir &mapsDir, core::World *world)
         worldContext.add(world);
         io::JsonUnserializer mapUnserializer(worldContext);
 
-        core::CampaignMap *map{nullptr};
+        core::CampaignMap* map{nullptr};
         try
         {
             map = io::readCampaignMap(mapPath, mapUnserializer);
         }
-        catch (const utils::Exception &error)
+        catch (const utils::Exception& error)
         {
             wError << "Error loading map " << mapPath << ", " << error.getMessage();
             continue;
@@ -269,7 +267,7 @@ void Context::loadMapsFromDir(const QDir &mapsDir, core::World *world)
     wInfo << "Loaded " << n << " maps for world `" << world->objectName() << "'";
 }
 
-void Context::loadSurfacesFromDir(const QDir &surfacesDir, core::World *world)
+void Context::loadSurfacesFromDir(const QDir& surfacesDir, core::World* world)
 {
     QStringList nameFilters;
     nameFilters.append("*." + utils::fileExtensions::surfacePackage);
@@ -278,16 +276,16 @@ void Context::loadSurfacesFromDir(const QDir &surfacesDir, core::World *world)
     std::size_t n{0};
 
     const QStringList surfaceEntries = surfacesDir.entryList(nameFilters, filters);
-    for (const QString &surfaceFile : surfaceEntries)
+    for (const QString& surfaceFile : surfaceEntries)
     {
         const QString surfacePath = surfacesDir.absoluteFilePath(surfaceFile);
 
-        ui::WorldSurface *surface{nullptr};
+        ui::WorldSurface* surface{nullptr};
         try
         {
             surface = new WorldSurface(surfacePath, world, window, this);
         }
-        catch (const utils::Exception &error)
+        catch (const utils::Exception& error)
         {
             wError << "Error loading surface " << surfacePath << ", " << error.getMessage();
             continue;

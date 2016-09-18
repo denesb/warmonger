@@ -1,5 +1,5 @@
-#include <iterator>
 #include <algorithm>
+#include <iterator>
 #include <vector>
 
 #include "core/Settlement.h"
@@ -8,11 +8,11 @@
 namespace warmonger {
 namespace core {
 
-Settlement::Settlement(QObject *parent) :
-    QObject(parent),
-    type(nullptr),
-    mapNode(nullptr),
-    owner(nullptr)
+Settlement::Settlement(QObject* parent)
+    : QObject(parent)
+    , type(nullptr)
+    , mapNode(nullptr)
+    , owner(nullptr)
 {
 }
 
@@ -25,7 +25,7 @@ QString Settlement::getDisplayName() const
     return this->displayName;
 }
 
-void Settlement::setDisplayName(const QString &displayName)
+void Settlement::setDisplayName(const QString& displayName)
 {
     if (this->displayName != displayName)
     {
@@ -34,12 +34,12 @@ void Settlement::setDisplayName(const QString &displayName)
     }
 }
 
-SettlementType * Settlement::getType() const
+SettlementType* Settlement::getType() const
 {
     return this->type;
 }
 
-void Settlement::setType(SettlementType *type)
+void Settlement::setType(SettlementType* type)
 {
     if (this->type != type)
     {
@@ -48,12 +48,12 @@ void Settlement::setType(SettlementType *type)
     }
 }
 
-MapNode * Settlement::getMapNode() const
+MapNode* Settlement::getMapNode() const
 {
     return this->mapNode;
 }
 
-void Settlement::setMapNode(MapNode *mapNode)
+void Settlement::setMapNode(MapNode* mapNode)
 {
     if (this->mapNode != mapNode)
     {
@@ -62,12 +62,12 @@ void Settlement::setMapNode(MapNode *mapNode)
     }
 }
 
-Faction * Settlement::getOwner() const
+Faction* Settlement::getOwner() const
 {
     return this->owner;
 }
 
-void Settlement::setOwner(Faction *owner)
+void Settlement::setOwner(Faction* owner)
 {
     if (this->owner != owner)
     {

@@ -6,14 +6,13 @@
 namespace warmonger {
 namespace core {
 
-class ArmyType :
-    public QObject
+class ArmyType : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
 
 public:
-    explicit ArmyType(QObject* parent=nullptr);
+    explicit ArmyType(QObject* parent = nullptr);
 
     QString getDisplayName() const;
     void setDisplayName(const QString& displayName);

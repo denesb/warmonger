@@ -9,8 +9,8 @@
 #include <QObject>
 #include <QVariant>
 
-#include "core/TerrainType.h"
 #include "core/HierarchyNode.hpp"
+#include "core/TerrainType.h"
 
 namespace warmonger {
 namespace core {
@@ -28,9 +28,7 @@ namespace core {
  * * movementCosts
  * * upgrades
  */
-class UnitType :
-    public QObject,
-    public HierarchyNode<UnitType>
+class UnitType : public QObject, public HierarchyNode<UnitType>
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName NOTIFY displayNameChanged)
@@ -43,7 +41,7 @@ class UnitType :
     Q_PROPERTY(QVariantList upgrades READ readUpgrades NOTIFY upgradesChanged)
 
 public:
-    explicit UnitType(QObject* parent=nullptr);
+    explicit UnitType(QObject* parent = nullptr);
 
     QString getDisplayName() const;
     void setDisplayName(const QString& displayName);

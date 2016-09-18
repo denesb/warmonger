@@ -4,9 +4,9 @@
 #include <QQuickView>
 #include <QtQml/QQmlEngine>
 
-#include "ui/Context.h"
 #include "ui/CampaignMapEditor.h"
 #include "ui/CampaignMiniMap.h"
+#include "ui/Context.h"
 #include "utils/Constants.h"
 #include "utils/Logging.h"
 #include "utils/Settings.h"
@@ -16,12 +16,11 @@ using namespace warmonger;
 namespace {
 
 void setSearchPaths();
-void addSubdirToSearchPath(const QString&worldPath, const QString &subdirName, QStringList &searchPath);
-void initUi(QQuickView *view, ui::Context *ctx);
-
+void addSubdirToSearchPath(const QString& worldPath, const QString& subdirName, QStringList& searchPath);
+void initUi(QQuickView* view, ui::Context* ctx);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     QGuiApplication app(argc, argv);
 
@@ -32,7 +31,7 @@ int main(int argc, char *argv[])
 
     QQuickView view;
 
-    ui::Context *ctx = new ui::Context(&view, &view);
+    ui::Context* ctx = new ui::Context(&view, &view);
 
     initUi(&view, ctx);
 
@@ -61,9 +60,9 @@ void setSearchPaths()
 
     const QDir worldsDir(worldsDirPath);
     const QFileInfoList entries = worldsDir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs);
-    for (const auto &entry : entries)
+    for (const auto& entry : entries)
     {
-        const QString &worldPath = entry.canonicalFilePath();
+        const QString& worldPath = entry.canonicalFilePath();
 
         worldSearchPath.append(worldPath);
 
@@ -78,10 +77,10 @@ void setSearchPaths()
     QDir::setSearchPaths(utils::searchPaths::campaignMap, mapSearchPath);
 }
 
-void addSubdirToSearchPath(const QString&worldPath, const QString &subdirName, QStringList &searchPath)
+void addSubdirToSearchPath(const QString& worldPath, const QString& subdirName, QStringList& searchPath)
 {
-    const QString &subdirPath = worldPath + "/" + subdirName;
-    const QFileInfo &subdirDirInfo(subdirPath);
+    const QString& subdirPath = worldPath + "/" + subdirName;
+    const QFileInfo& subdirDirInfo(subdirPath);
 
     if (subdirDirInfo.exists() && subdirDirInfo.isDir())
         searchPath.append(subdirDirInfo.canonicalFilePath());
@@ -89,7 +88,7 @@ void addSubdirToSearchPath(const QString&worldPath, const QString &subdirName, Q
     wInfo << "Added " << subdirPath << " to " << subdirName << " search path";
 }
 
-void initUi(QQuickView *view, ui::Context *ctx)
+void initUi(QQuickView* view, ui::Context* ctx)
 {
     qmlRegisterType<ui::CampaignMiniMap>("Warmonger", 1, 0, "CampaignMiniMap");
     qmlRegisterType<ui::CampaignMapEditor>("Warmonger", 1, 0, "CampaignMapEditor");
@@ -98,5 +97,4 @@ void initUi(QQuickView *view, ui::Context *ctx)
     view->setSource(QUrl("qrc:/qml/windows/MapEditorWindow.qml"));
     view->show();
 }
-
 }

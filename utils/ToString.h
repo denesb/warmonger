@@ -3,9 +3,9 @@
 
 #include <ostream>
 
-#include <QJsonValue>
-#include <QJsonObject>
 #include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QObject>
 #include <QPoint>
 #include <QPointF>

@@ -11,8 +11,7 @@
 namespace warmonger {
 namespace core {
 
-class Army :
-    public QObject
+class Army : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
@@ -22,7 +21,7 @@ class Army :
     Q_PROPERTY(QVariantList units READ readUnits NOTIFY unitsChanged)
 
 public:
-    explicit Army(QObject* parent=nullptr);
+    explicit Army(QObject* parent = nullptr);
 
     QString getDisplayName() const;
     void setDisplayName(const QString& displayName);
@@ -31,13 +30,13 @@ public:
     void setType(ArmyType* type);
 
     MapNode* getMapNode() const;
-    void setMapNode(MapNode *mapNode);
+    void setMapNode(MapNode* mapNode);
 
     Faction* getOwner() const;
-    void setOwner(Faction *owner);
+    void setOwner(Faction* owner);
 
     std::vector<Unit*> getUnits() const;
-    void setUnits(const std::vector<Unit*> &units);
+    void setUnits(const std::vector<Unit*>& units);
     QVariantList readUnits() const;
 
 signals:

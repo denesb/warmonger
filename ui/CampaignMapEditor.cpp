@@ -9,14 +9,14 @@
 namespace warmonger {
 namespace ui {
 
-CampaignMapEditor::CampaignMapEditor(QQuickItem *parent) :
-    BasicMap(parent),
-    campaignMap(nullptr),
-    worldSurface(nullptr),
-    hoverMapNode(nullptr),
-    editingMode(EditingMode::TerrainType),
-    objectType(nullptr),
-    watcher(nullptr)
+CampaignMapEditor::CampaignMapEditor(QQuickItem* parent)
+    : BasicMap(parent)
+    , campaignMap(nullptr)
+    , worldSurface(nullptr)
+    , hoverMapNode(nullptr)
+    , editingMode(EditingMode::TerrainType)
+    , objectType(nullptr)
+    , watcher(nullptr)
 {
     this->setAcceptHoverEvents(true);
 }
@@ -46,10 +46,7 @@ void CampaignMapEditor::setCampaignMap(core::CampaignMap* campaignMap)
             this->watcher = new CampaignMapWatcher(this->campaignMap, this);
             QObject::connect(this->watcher, &CampaignMapWatcher::changed, this, &CampaignMapEditor::update);
             QObject::connect(
-                    this->campaignMap,
-                    &core::CampaignMap::mapNodesChanged,
-                    this,
-                    &CampaignMapEditor::onMapNodesChanged);
+                this->campaignMap, &core::CampaignMap::mapNodesChanged, this, &CampaignMapEditor::onMapNodesChanged);
         }
 
         emit campaignMapChanged();
@@ -103,7 +100,7 @@ void CampaignMapEditor::setObjectType(QObject* objectType)
     }
 }
 
-QSGNode* CampaignMapEditor::updatePaintNode(QSGNode *oldRootNode, UpdatePaintNodeData *)
+QSGNode* CampaignMapEditor::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
 {
     const QMatrix4x4 transform = ui::moveTo(this->getWindowRect().topLeft(), QPoint(0, 0));
 
@@ -137,10 +134,8 @@ QSGNode* CampaignMapEditor::updatePaintNode(QSGNode *oldRootNode, UpdatePaintNod
 
     rootNode->setClipRect(QRectF(0, 0, this->width(), this->height()));
 
-    const std::vector<core::MapNode*> mapNodes = visibleMapNodes(
-            this->mapNodesPos,
-            this->worldSurface->getTileSize(),
-            this->getWindowRect());
+    const std::vector<core::MapNode*> mapNodes =
+        visibleMapNodes(this->mapNodesPos, this->worldSurface->getTileSize(), this->getWindowRect());
 
     drawMapNodes(mapNodes, mapRootNode, *this);
 
@@ -176,20 +171,17 @@ void CampaignMapEditor::hoverMoveEvent(QHoverEvent* event)
 
     boost::optional<QPoint> currentHoverPos;
 
-    if(currentMapNode == nullptr)
+    if (currentMapNode == nullptr)
     {
         const core::MapNodeNeighbours neighbours = neighboursByPos(mapPos, this->worldSurface, this->mapNodesPos);
-        const auto it = std::find_if(
-                neighbours.cbegin(),
-                neighbours.cend(),
-                [](const std::pair<core::Direction, core::MapNode*>& i){ return i.second != nullptr; });
+        const auto it = std::find_if(neighbours.cbegin(),
+            neighbours.cend(),
+            [](const std::pair<core::Direction, core::MapNode*>& i) { return i.second != nullptr; });
 
         if (it != neighbours.cend())
         {
             currentHoverPos = neighbourPos(
-                    this->mapNodesPos[it->second],
-                    core::oppositeDirection(it->first),
-                    this->worldSurface->getTileSize());
+                this->mapNodesPos[it->second], core::oppositeDirection(it->first), this->worldSurface->getTileSize());
         }
         else
         {
@@ -225,8 +217,8 @@ void CampaignMapEditor::mousePressEvent(QMouseEvent* event)
 
 void CampaignMapEditor::updateContent()
 {
-    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty()
-            || this->worldSurface->getWorld() != this->campaignMap->getWorld())
+    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty() ||
+        this->worldSurface->getWorld() != this->campaignMap->getWorld())
     {
         this->setFlags(0);
     }
@@ -240,8 +232,8 @@ void CampaignMapEditor::updateContent()
 
 void CampaignMapEditor::updateMapRect()
 {
-    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty()
-            || this->worldSurface->getWorld() != this->campaignMap->getWorld())
+    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty() ||
+        this->worldSurface->getWorld() != this->campaignMap->getWorld())
     {
         this->setMapRect(QRect(0, 0, 0, 0));
     }
@@ -260,7 +252,7 @@ void CampaignMapEditor::onMapNodesChanged()
 
 void CampaignMapEditor::doEditingAction(const QPoint& pos)
 {
-    switch(this->editingMode)
+    switch (this->editingMode)
     {
         case EditingMode::TerrainType:
             this->doTerrainTypeEditingAction(pos);
@@ -274,21 +266,21 @@ void CampaignMapEditor::doEditingAction(const QPoint& pos)
 void CampaignMapEditor::doTerrainTypeEditingAction(const QPoint& pos)
 {
     core::TerrainType* terrainType = qobject_cast<core::TerrainType*>(this->objectType);
-    if(terrainType == nullptr)
+    if (terrainType == nullptr)
     {
         wWarning << "objectType has invalid value `" << this->objectType
-            << "' for editing mode `EditingMode::TerrainType'";
+                 << "' for editing mode `EditingMode::TerrainType'";
         return;
     }
 
     core::MapNode* mapNode{nullptr};
 
-    if(this->hoverMapNode == nullptr)
+    if (this->hoverMapNode == nullptr)
     {
         if (this->hoverPos)
         {
             const core::MapNodeNeighbours neighbours(neighboursByPos(pos, this->worldSurface, this->mapNodesPos));
-            if(!neighbours.empty())
+            if (!neighbours.empty())
             {
                 mapNode = new core::MapNode();
                 mapNode->setObjectName("mapNode" + QString::number(this->mapNodesPos.size()));
@@ -313,7 +305,7 @@ void CampaignMapEditor::doTerrainTypeEditingAction(const QPoint& pos)
         wDebug << "Editing existing node " << mapNode;
     }
 
-    if(mapNode != nullptr)
+    if (mapNode != nullptr)
     {
         mapNode->setTerrainType(terrainType);
     }
@@ -329,7 +321,7 @@ QSGNode* CampaignMapEditor::drawHoverNode(QSGNode* oldNode) const
         return nullptr;
 
     QSGSimpleTextureNode* hoverNode;
-    if(oldNode == nullptr)
+    if (oldNode == nullptr)
         hoverNode = new QSGSimpleTextureNode();
     else
         hoverNode = static_cast<QSGSimpleTextureNode*>(oldNode);

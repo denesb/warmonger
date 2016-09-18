@@ -1,11 +1,11 @@
-#include <QSGSimpleTextureNode>
-#include <QSGGeometryNode>
 #include <QSGFlatColorMaterial>
+#include <QSGGeometryNode>
+#include <QSGSimpleTextureNode>
 
 #include "core/MapNode.h"
+#include "ui/MapDrawer.h"
 #include "ui/MapUtil.h"
 #include "ui/WorldSurface.h"
-#include "ui/MapDrawer.h"
 #include "utils/Logging.h"
 #include "utils/Settings.h"
 
@@ -18,42 +18,38 @@ QPoint neighbourPos(const QPoint& pos, core::Direction dir, const QSize& tileSiz
 {
     QSize displacement(0, 0);
 
-    switch(dir)
+    switch (dir)
     {
-    case core::Direction::West:
-        displacement.setWidth(-tileSize.width());
-        break;
-    case core::Direction::NorthWest:
-        displacement.setWidth(-tileSize.width()/2);
-        displacement.setHeight(-tileSize.height() * 3/4);
-        break;
-    case core::Direction::NorthEast:
-        displacement.setWidth(tileSize.width()/2);
-        displacement.setHeight(-tileSize.height() * 3/4);
-        break;
-    case core::Direction::East:
-        displacement.setWidth(tileSize.width());
-        break;
-    case core::Direction::SouthEast:
-        displacement.setWidth(tileSize.width()/2);
-        displacement.setHeight(tileSize.height() * 3/4);
-        break;
-    case core::Direction::SouthWest:
-        displacement.setWidth(-tileSize.width()/2);
-        displacement.setHeight(tileSize.height() * 3/4);
-        break;
+        case core::Direction::West:
+            displacement.setWidth(-tileSize.width());
+            break;
+        case core::Direction::NorthWest:
+            displacement.setWidth(-tileSize.width() / 2);
+            displacement.setHeight(-tileSize.height() * 3 / 4);
+            break;
+        case core::Direction::NorthEast:
+            displacement.setWidth(tileSize.width() / 2);
+            displacement.setHeight(-tileSize.height() * 3 / 4);
+            break;
+        case core::Direction::East:
+            displacement.setWidth(tileSize.width());
+            break;
+        case core::Direction::SouthEast:
+            displacement.setWidth(tileSize.width() / 2);
+            displacement.setHeight(tileSize.height() * 3 / 4);
+            break;
+        case core::Direction::SouthWest:
+            displacement.setWidth(-tileSize.width() / 2);
+            displacement.setHeight(tileSize.height() * 3 / 4);
+            break;
     }
 
-    return QPoint(
-        pos.x() + displacement.width(),
-        pos.y() + displacement.height()
-    );
+    return QPoint(pos.x() + displacement.width(), pos.y() + displacement.height());
 }
 
-core::MapNodeNeighbours neighboursByPos(
-        const QPoint& pos,
-        const WorldSurface* worldSurface,
-        const std::map<core::MapNode*, QPoint>& mapNodesPos)
+core::MapNodeNeighbours neighboursByPos(const QPoint& pos,
+    const WorldSurface* worldSurface,
+    const std::map<core::MapNode*, QPoint>& mapNodesPos)
 {
     core::MapNodeNeighbours neighbours;
 
@@ -79,7 +75,7 @@ std::map<core::MapNode*, QPoint> positionMapNodes(core::MapNode* startNode, cons
     return nodesPos;
 }
 
-QRect calculateBoundingRect(const std::map<core::MapNode *, QPoint> &nodesPos, const QSize &tileSize)
+QRect calculateBoundingRect(const std::map<core::MapNode*, QPoint>& nodesPos, const QSize& tileSize)
 {
     if (nodesPos.size() == 0)
         return QRect(0, 0, 0, 0);
@@ -88,7 +84,7 @@ QRect calculateBoundingRect(const std::map<core::MapNode *, QPoint> &nodesPos, c
     QPoint topLeft = bpos;
     QPoint bottomRight = bpos;
 
-    for (const auto &element : nodesPos)
+    for (const auto& element : nodesPos)
     {
         QPoint pos = element.second;
         topLeft.setX(std::min(pos.x(), topLeft.x()));
@@ -103,17 +99,16 @@ QRect calculateBoundingRect(const std::map<core::MapNode *, QPoint> &nodesPos, c
     bottomRight += QPoint(tileSize.width(), tileSize.height());
 
     // leave a half-tile padding
-    QPoint padding(tileSize.width()/2, tileSize.height()/2);
+    QPoint padding(tileSize.width() / 2, tileSize.height() / 2);
     topLeft -= padding;
     bottomRight += padding;
 
     return QRect(topLeft, bottomRight);
 }
 
-std::vector<core::MapNode*> visibleMapNodes(
-        const std::map<core::MapNode*, QPoint>& mapNodesPos,
-        const QSize& tileSize,
-        const QRect& window)
+std::vector<core::MapNode*> visibleMapNodes(const std::map<core::MapNode*, QPoint>& mapNodesPos,
+    const QSize& tileSize,
+    const QRect& window)
 {
     std::vector<core::MapNode*> visibleNodes;
     QRect nodeRect(0, 0, tileSize.width(), tileSize.height());
@@ -129,34 +124,33 @@ std::vector<core::MapNode*> visibleMapNodes(
     return visibleNodes;
 }
 
-core::MapNode* mapNodeAtPos(
-        const QPoint& pos,
-        const std::map<core::MapNode*, QPoint>& nodesPos,
-        const WorldSurface* worldSurface)
+core::MapNode* mapNodeAtPos(const QPoint& pos,
+    const std::map<core::MapNode*, QPoint>& nodesPos,
+    const WorldSurface* worldSurface)
 {
     const QSize tileSize(worldSurface->getTileSize());
-    for(const std::pair<core::MapNode*, QPoint>& nodePosItem : nodesPos)
+    for (const std::pair<core::MapNode*, QPoint>& nodePosItem : nodesPos)
     {
-        const QPoint &nodePos = nodePosItem.second;
+        const QPoint& nodePos = nodePosItem.second;
         const QPoint hexPos = pos - nodePos;
-        if(QRect(nodePos, tileSize).contains(pos) && worldSurface->hexContains(hexPos))
+        if (QRect(nodePos, tileSize).contains(pos) && worldSurface->hexContains(hexPos))
             return nodePosItem.first;
     }
 
     return nullptr;
 }
 
-QPainterPath hexagonPath(const QSize &tileSize)
+QPainterPath hexagonPath(const QSize& tileSize)
 {
     const int w = tileSize.width();
     const int h = tileSize.height();
 
-    const QPoint p0(0, h/4);
-    const QPoint p1(w/2, 0);
-    const QPoint p2(w, h/4);
-    const QPoint p3(w, 3 * h/4);
-    const QPoint p4(w/2, h - 1);
-    const QPoint p5(0, 3 * h/4);
+    const QPoint p0(0, h / 4);
+    const QPoint p1(w / 2, 0);
+    const QPoint p2(w, h / 4);
+    const QPoint p3(w, 3 * h / 4);
+    const QPoint p4(w / 2, h - 1);
+    const QPoint p5(0, 3 * h / 4);
 
     QPainterPath path;
 
@@ -171,7 +165,7 @@ QPainterPath hexagonPath(const QSize &tileSize)
     return path;
 }
 
-QPoint project(const QPoint &p, const QRect &r)
+QPoint project(const QPoint& p, const QRect& r)
 {
     QPoint pp(p);
     if (!r.contains(pp))
@@ -183,7 +177,7 @@ QPoint project(const QPoint &p, const QRect &r)
     return pp;
 }
 
-QMatrix4x4 centerIn(const QRectF &content, const QRectF &frame)
+QMatrix4x4 centerIn(const QRectF& content, const QRectF& frame)
 {
     const qreal contentSize = std::max(content.width(), content.height());
     const qreal frameSize = std::min(frame.width(), frame.height());
@@ -251,13 +245,9 @@ void drawMapNodes(const std::vector<core::MapNode*>& mapNodes, QSGNode* rootNode
     }
 }
 
-QSGNode* drawMapNode(
-        core::MapNode* mapNode,
-        const ui::WorldSurface* worldSurface,
-        const QPoint& pos,
-        QSGNode* oldNode)
+QSGNode* drawMapNode(core::MapNode* mapNode, const ui::WorldSurface* worldSurface, const QPoint& pos, QSGNode* oldNode)
 {
-    QSGSimpleTextureNode *node;
+    QSGSimpleTextureNode* node;
     if (oldNode == nullptr)
     {
         node = new QSGSimpleTextureNode();
@@ -273,7 +263,7 @@ QSGNode* drawMapNode(
     if (texture == nullptr)
     {
         wError << "No texture found for " << mapNode->getTerrainType();
-        //FIXME: Use the unknown texture here
+        // FIXME: Use the unknown texture here
     }
 
     QSGTexture* currentTexture = node->texture();
@@ -318,7 +308,7 @@ QSGNode* drawRect(const QRect& rect, QSGNode* oldNode)
 
     QSGGeometry* geometry = node->geometry();
 
-    //FIXME: check if these really have to be updated
+    // FIXME: check if these really have to be updated
     geometry->vertexDataAsPoint2D()[0].set(rect.topLeft().x(), rect.topLeft().y());
     geometry->vertexDataAsPoint2D()[1].set(rect.topRight().x(), rect.topRight().y());
     geometry->vertexDataAsPoint2D()[2].set(rect.topRight().x(), rect.topRight().y());
@@ -337,7 +327,7 @@ static void positionMapNode(core::MapNode* node, std::map<core::MapNode*, QPoint
 {
     QPoint pos = nodesPos[node];
     const core::MapNodeNeighbours& neighbours = node->getNeighbours();
-    for (const auto& element :  neighbours)
+    for (const auto& element : neighbours)
     {
         core::Direction dir = element.first;
         core::MapNode* neighbour = element.second;

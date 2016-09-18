@@ -1,3 +1,4 @@
+#include "test/Util.h"
 #include "core/Army.h"
 #include "core/ArmyType.h"
 #include "core/Civilization.h"
@@ -8,13 +9,12 @@
 #include "core/TerrainType.h"
 #include "core/Unit.h"
 #include "core/UnitType.h"
-#include "test/Util.h"
 #include "utils/ToString.h"
 
 using namespace warmonger;
 
 template <class GameObject>
-void setNames(GameObject obj, QJsonObject& jobj, int i=0)
+void setNames(GameObject obj, QJsonObject& jobj, int i = 0)
 {
     static const QString objectNameTemplate{"%1_objectName_%2"};
     static const QString displayNameTemplate{"%1_displayName_%2"};
@@ -78,9 +78,7 @@ std::pair<core::World*, QJsonObject> makeWorld()
     jut0["upgrades"] = QJsonArray({});
 
     ut0->setMovementCost(tt0, 8);
-    jut0["movementCosts"] = QJsonObject({
-        qMakePair(tt0->objectName(), 8)
-    });
+    jut0["movementCosts"] = QJsonObject({qMakePair(tt0->objectName(), 8)});
 
     core::UnitType* ut1 = new core::UnitType(w);
     QJsonObject jut1;
@@ -105,9 +103,7 @@ std::pair<core::World*, QJsonObject> makeWorld()
     jut1["upgrades"] = QJsonArray({ut0->objectName()});
 
     ut1->setMovementCost(tt0, 6);
-    jut1["movementCosts"] = QJsonObject({
-        qMakePair(tt0->objectName(), 6)
-    });
+    jut1["movementCosts"] = QJsonObject({qMakePair(tt0->objectName(), 6)});
 
     core::UnitType* ut2 = new core::UnitType(w);
     QJsonObject jut2;
@@ -142,8 +138,8 @@ std::pair<core::World*, QJsonObject> makeWorld()
     c0->setUnitTypes({ut0});
     jc0["unitTypes"] = QJsonArray({ut0->objectName()});
 
-    std::map<core::SettlementType*, std::vector<core::UnitType* >> recruits;
-    recruits[st0] = std::vector<core::UnitType* >({ut0});
+    std::map<core::SettlementType*, std::vector<core::UnitType*>> recruits;
+    recruits[st0] = std::vector<core::UnitType*>({ut0});
 
     w->setCivilizations({c0});
     jw["civilizations"] = QJsonArray({jc0});
@@ -198,22 +194,18 @@ std::pair<core::CampaignMap*, QJsonObject> makeMap()
     // MapNode neighbours
     mn0->setNeighbour(core::Direction::West, mn1);
     mn1->setNeighbour(core::Direction::East, mn0);
-    jmn0["neighbours"] = QJsonObject{
-        {"West", mn1->objectName()},
+    jmn0["neighbours"] = QJsonObject{{"West", mn1->objectName()},
         {"NorthWest", ""},
         {"NorthEast", ""},
         {"SouthEast", ""},
         {"SouthWest", ""},
-        {"East", ""}
-    };
-    jmn1["neighbours"] = QJsonObject{
-        {"West", ""},
+        {"East", ""}};
+    jmn1["neighbours"] = QJsonObject{{"West", ""},
         {"NorthWest", ""},
         {"NorthEast", ""},
         {"SouthEast", ""},
         {"SouthWest", ""},
-        {"East", mn0->objectName()}
-    };
+        {"East", mn0->objectName()}};
 
     m->setMapNodes({mn0, mn1});
     jm["mapNodes"] = QJsonArray({jmn0, jmn1});

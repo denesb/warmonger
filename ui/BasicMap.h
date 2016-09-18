@@ -1,18 +1,17 @@
 #ifndef W_UI_BASIC_MAP_H
 #define W_UI_BASIC_MAP_H
 
-#include <QtQuick/QQuickItem>
 #include <QPoint>
 #include <QRect>
 #include <QSize>
+#include <QtQuick/QQuickItem>
 
 #include "ui/MapWindow.h"
 
 namespace warmonger {
 namespace ui {
 
-class BasicMap
-    : public QQuickItem
+class BasicMap : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(QRect windowRect READ getWindowRect NOTIFY windowRectChanged)

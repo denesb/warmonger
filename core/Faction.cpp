@@ -1,16 +1,16 @@
-#include "core/Civilization.h"
 #include "core/Faction.h"
+#include "core/Civilization.h"
 #include "core/Settlement.h"
-#include "core/World.h"
 #include "core/Unit.h"
+#include "core/World.h"
 
 using namespace warmonger::core;
 
-Faction::Faction(QObject *parent) :
-    QObject(parent),
-    color(),
-    goldBalance(0),
-    civilization(nullptr)
+Faction::Faction(QObject* parent)
+    : QObject(parent)
+    , color()
+    , goldBalance(0)
+    , civilization(nullptr)
 {
 }
 
@@ -19,7 +19,7 @@ QString Faction::getDisplayName() const
     return this->displayName;
 }
 
-void Faction::setDisplayName(const QString &displayName)
+void Faction::setDisplayName(const QString& displayName)
 {
     if (this->displayName != displayName)
     {
@@ -33,7 +33,7 @@ QColor Faction::getColor() const
     return this->color;
 }
 
-void Faction::setColor(const QColor &color)
+void Faction::setColor(const QColor& color)
 {
     if (this->color != color)
     {
@@ -56,12 +56,12 @@ void Faction::setGoldBalance(int goldBalance)
     }
 }
 
-Civilization * Faction::getCivilization() const
+Civilization* Faction::getCivilization() const
 {
     return this->civilization;
 }
 
-void Faction::setCivilization(Civilization *civilization)
+void Faction::setCivilization(Civilization* civilization)
 {
     if (this->civilization != civilization)
     {

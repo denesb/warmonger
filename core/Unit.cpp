@@ -2,14 +2,14 @@
 
 using namespace warmonger::core;
 
-Unit::Unit(QObject* parent) :
-    QObject(parent),
-    type(nullptr),
-    mapNode(nullptr),
-    owner(nullptr),
-    experiencePoints(0),
-    hitPoints(0),
-    movementPoints(0)
+Unit::Unit(QObject* parent)
+    : QObject(parent)
+    , type(nullptr)
+    , mapNode(nullptr)
+    , owner(nullptr)
+    , experiencePoints(0)
+    , hitPoints(0)
+    , movementPoints(0)
 {
 }
 

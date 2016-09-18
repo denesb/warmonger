@@ -19,7 +19,6 @@ namespace core {
 class MapNode;
 class Settlement;
 class Unit;
-
 }
 
 namespace ui {
@@ -47,10 +46,9 @@ QPoint neighbourPos(const QPoint& pos, core::Direction dir, const QSize& tileSiz
  * @returns std::map<core::Direction, core::MapNode*> the neighbour at each
  * direction, or nullptr if there is none
  */
-core::MapNodeNeighbours neighboursByPos(
-        const QPoint& pos,
-        const WorldSurface* worldSurface,
-        const std::map<core::MapNode*, QPoint>& mapNodesPos);
+core::MapNodeNeighbours neighboursByPos(const QPoint& pos,
+    const WorldSurface* worldSurface,
+    const std::map<core::MapNode*, QPoint>& mapNodesPos);
 
 /**
  * Calculate the position of each map-node
@@ -90,10 +88,9 @@ QRect calculateBoundingRect(const std::map<core::MapNode*, QPoint>& nodesPos, co
  *
  * @returns std::vector<core::MapNode*> the list of visible map-nodes
  */
-std::vector<core::MapNode*> visibleMapNodes(
-        const std::map<core::MapNode*, QPoint>& mapNodesPos,
-        const QSize& tileSize,
-        const QRect& window);
+std::vector<core::MapNode*> visibleMapNodes(const std::map<core::MapNode*, QPoint>& mapNodesPos,
+    const QSize& tileSize,
+    const QRect& window);
 
 /**
  * Find node at position pos.
@@ -106,10 +103,9 @@ std::vector<core::MapNode*> visibleMapNodes(
  * @returns core::MapNode* the map-node or nullptr if no map-node was found at
  * the position.
  */
-core::MapNode* mapNodeAtPos(
-        const QPoint& pos,
-        const std::map<core::MapNode*, QPoint>& mapNodesPos,
-        const WorldSurface* worldSurface);
+core::MapNode* mapNodeAtPos(const QPoint& pos,
+    const std::map<core::MapNode*, QPoint>& mapNodesPos,
+    const WorldSurface* worldSurface);
 
 QPoint project(const QPoint& p, const QRect& r);
 
@@ -153,11 +149,7 @@ void drawMapNodes(const std::vector<core::MapNode*>& mapNodes, QSGNode* rootNode
  *
  * @returns QSGNode* the resulting scene-graph node
  */
-QSGNode* drawMapNode(
-        core::MapNode* mapNode,
-        const ui::WorldSurface* worldSurface,
-        const QPoint& pos,
-        QSGNode* oldNode);
+QSGNode* drawMapNode(core::MapNode* mapNode, const ui::WorldSurface* worldSurface, const QPoint& pos, QSGNode* oldNode);
 
 /**
  * Draw a rectangle

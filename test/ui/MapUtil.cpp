@@ -1,15 +1,15 @@
 #include <QGuiApplication>
 
 #include "core/MapGenerator.h"
+#include "test/catch.hpp"
 #include "ui/MapUtil.h"
 #include "ui/WorldSurface.h"
-#include "test/catch.hpp"
 #include "utils/ToString.h"
 
 using namespace warmonger;
 
-std::pair<float, float> getScaleFactor(const QMatrix4x4 &matrix);
-std::pair<float, float> getTranslation(const QMatrix4x4 &matrix);
+std::pair<float, float> getScaleFactor(const QMatrix4x4& matrix);
+std::pair<float, float> getTranslation(const QMatrix4x4& matrix);
 std::ostream& operator<<(std::ostream& s, const core::MapNodeNeighbours& n);
 
 TEST_CASE("Scaling, equal sided frame, content is larger than frame", "[centerIn]")
@@ -256,7 +256,6 @@ TEST_CASE("Visibility test", "[visibleMapNodes]")
 
         REQUIRE(visibleMapNodes.empty() == true);
     }
-
 }
 
 TEST_CASE("", "[mapNodeAtPos]")
@@ -267,16 +266,14 @@ TEST_CASE("", "[mapNodeAtPos]")
     core::World world;
 
     int argc = 0;
-    char **argv = nullptr;
+    char** argv = nullptr;
     QGuiApplication app(argc, argv);
     QQuickWindow window;
 
     ui::WorldSurface surface("./dev.wsp", &world, &window);
     surface.activate();
 
-    const std::map<core::MapNode*, QPoint> nodesPos = ui::positionMapNodes(
-            mapNodes.front(),
-            surface.getTileSize());
+    const std::map<core::MapNode*, QPoint> nodesPos = ui::positionMapNodes(mapNodes.front(), surface.getTileSize());
 
     const core::MapNode* n;
 
@@ -312,7 +309,7 @@ TEST_CASE("neighboursByPos", "[MapUtil]")
     core::World world;
 
     int argc = 0;
-    char **argv = nullptr;
+    char** argv = nullptr;
     QGuiApplication app(argc, argv);
     QQuickWindow window;
 
@@ -335,7 +332,7 @@ TEST_CASE("neighboursByPos", "[MapUtil]")
     }
 }
 
-std::pair<float, float> getScaleFactor(const QMatrix4x4 &matrix)
+std::pair<float, float> getScaleFactor(const QMatrix4x4& matrix)
 {
     const QVector4D firstRow = matrix.row(0);
     const QVector4D secondRow = matrix.row(1);
@@ -343,13 +340,12 @@ std::pair<float, float> getScaleFactor(const QMatrix4x4 &matrix)
     return std::make_pair(firstRow.x(), secondRow.y());
 }
 
-std::pair<float, float> getTranslation(const QMatrix4x4 &matrix)
+std::pair<float, float> getTranslation(const QMatrix4x4& matrix)
 {
     const QVector4D firstRow = matrix.row(0);
     const QVector4D secondRow = matrix.row(1);
 
     return std::make_pair(firstRow.w(), secondRow.w());
-
 }
 
 std::ostream& operator<<(std::ostream& s, const core::MapNodeNeighbours& n)
@@ -358,7 +354,7 @@ std::ostream& operator<<(std::ostream& s, const core::MapNodeNeighbours& n)
 
     const auto end = --n.cend();
     auto it = n.cbegin();
-    for(; it != end; ++it)
+    for (; it != end; ++it)
         s << '"' << core::direction2str(it->first) << "\": " << it->second << ", ";
 
     s << '"' << core::direction2str(it->first) << "\": " << it->second << "}";

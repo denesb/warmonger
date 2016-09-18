@@ -13,8 +13,7 @@
 namespace warmonger {
 namespace ui {
 
-class WorldSurface :
-    public QObject
+class WorldSurface : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString prefix READ getPrefix NOTIFY prefixChanged)
@@ -25,7 +24,7 @@ class WorldSurface :
     Q_PROPERTY(QColor focusGridColor READ getFocusGridColor NOTIFY focusGridColorChanged)
 
 public:
-    WorldSurface(const QString& path, core::World* world, QQuickWindow *window, QObject *parent=nullptr);
+    WorldSurface(const QString& path, core::World* world, QQuickWindow* window, QObject* parent = nullptr);
     ~WorldSurface();
 
     /**

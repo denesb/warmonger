@@ -7,13 +7,13 @@
 namespace warmonger {
 namespace io {
 
-void writeWorld(const core::World *world, const QString &path, io::Serializer &serializer);
+void writeWorld(const core::World* world, const QString& path, io::Serializer& serializer);
 
-core::World * readWorld(const QString &path, io::Unserializer &unserializer);
+core::World* readWorld(const QString& path, io::Unserializer& unserializer);
 
-void writeCampaignMap(const core::CampaignMap *campaignMap, const QString &path, io::Serializer &serializer);
+void writeCampaignMap(const core::CampaignMap* campaignMap, const QString& path, io::Serializer& serializer);
 
-core::CampaignMap * readCampaignMap(const QString &path, io::Unserializer &unserializer);
+core::CampaignMap* readCampaignMap(const QString& path, io::Unserializer& unserializer);
 
 } // namespace warmonger
 } // namespace io

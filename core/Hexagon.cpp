@@ -9,14 +9,13 @@ namespace core {
 namespace {
 
 std::pair<Direction, Direction> connectingDirectionsPrivate(const Direction d1, const Direction d2);
-
 }
 
 QString direction2str(const Direction d)
 {
     QString dStr;
 
-    switch(d)
+    switch (d)
     {
         case Direction::West:
             dStr = "West";
@@ -46,16 +45,14 @@ QString direction2str(const Direction d)
     return dStr;
 }
 
-Direction str2direction(const QString &str)
+Direction str2direction(const QString& str)
 {
-    static const std::map<QString, Direction> str2dir{
-        {"West", Direction::West},
+    static const std::map<QString, Direction> str2dir{{"West", Direction::West},
         {"NorthWest", Direction::NorthWest},
         {"NorthEast", Direction::NorthEast},
         {"East", Direction::East},
         {"SouthEast", Direction::SouthEast},
-        {"SouthWest", Direction::SouthWest}
-    };
+        {"SouthWest", Direction::SouthWest}};
 
     if (str2dir.find(str) == str2dir.end())
     {
@@ -67,14 +64,12 @@ Direction str2direction(const QString &str)
 
 Direction oppositeDirection(const Direction d)
 {
-    static const std::map<Direction, Direction> oppositeDirs{
-        {Direction::West, Direction::East},
+    static const std::map<Direction, Direction> oppositeDirs{{Direction::West, Direction::East},
         {Direction::NorthWest, Direction::SouthEast},
         {Direction::NorthEast, Direction::SouthWest},
         {Direction::East, Direction::West},
         {Direction::SouthEast, Direction::NorthWest},
-        {Direction::SouthWest, Direction::NorthEast}
-    };
+        {Direction::SouthWest, Direction::NorthEast}};
 
     return oppositeDirs.at(d);
 }
@@ -123,7 +118,7 @@ std::pair<Direction, Direction> connectingDirections(const Direction d1, const D
     {
         return connectingDirectionsPrivate(d1, d2);
     }
-    catch (utils::ValueError &e)
+    catch (utils::ValueError& e)
     {
     }
 
@@ -132,12 +127,12 @@ std::pair<Direction, Direction> connectingDirections(const Direction d1, const D
         std::pair<Direction, Direction> inverse = connectingDirectionsPrivate(d2, d1);
         return std::make_pair(std::get<1>(inverse), std::get<0>(inverse));
     }
-    catch (utils::ValueError &e)
+    catch (utils::ValueError& e)
     {
     }
 
-    throw utils::ValueError("Cannot find connecting directions for direction `" + direction2str(d1)
-        + "' and `" + direction2str(d2));
+    throw utils::ValueError(
+        "Cannot find connecting directions for direction `" + direction2str(d1) + "' and `" + direction2str(d2));
 }
 
 namespace {
@@ -170,11 +165,10 @@ std::pair<Direction, Direction> connectingDirectionsPrivate(const Direction d1, 
     }
     else
     {
-        throw utils::ValueError("Cannot find connecting directions for direction `" + direction2str(d1)
-            + "' and `" + direction2str(d2));
+        throw utils::ValueError(
+            "Cannot find connecting directions for direction `" + direction2str(d1) + "' and `" + direction2str(d2));
     }
 }
-
 }
 
 } // namespace core

@@ -10,29 +10,28 @@
 namespace warmonger {
 namespace core {
 
-class Faction :
-    public QObject
+class Faction : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(QColor color READ getColor WRITE setColor NOTIFY colorChanged)
     Q_PROPERTY(int goldBalance READ getGoldBalance WRITE setGoldBalance NOTIFY goldBalanceChanged)
-    Q_PROPERTY(Civilization *civilization READ getCivilization WRITE setCivilization NOTIFY civilizationChanged)
+    Q_PROPERTY(Civilization* civilization READ getCivilization WRITE setCivilization NOTIFY civilizationChanged)
 
 public:
-    explicit Faction(QObject *parent=nullptr);
+    explicit Faction(QObject* parent = nullptr);
 
     QString getDisplayName() const;
-    void setDisplayName(const QString &displayName);
+    void setDisplayName(const QString& displayName);
 
     QColor getColor() const;
-    void setColor(const QColor &color);
+    void setColor(const QColor& color);
 
     int getGoldBalance() const;
     void setGoldBalance(int goldBalance);
 
-    Civilization * getCivilization() const;
-    void setCivilization(Civilization *civilization);
+    Civilization* getCivilization() const;
+    void setCivilization(Civilization* civilization);
 
 signals:
     void displayNameChanged();
@@ -44,7 +43,7 @@ private:
     QString displayName;
     QColor color;
     int goldBalance;
-    Civilization *civilization;
+    Civilization* civilization;
 };
 
 } // namespace core

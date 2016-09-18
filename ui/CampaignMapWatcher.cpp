@@ -4,16 +4,13 @@
 namespace warmonger {
 namespace ui {
 
-CampaignMapWatcher::CampaignMapWatcher(const core::CampaignMap* const campaignMap, QObject* parent) :
-    QObject(parent),
-    campaignMap(campaignMap)
+CampaignMapWatcher::CampaignMapWatcher(const core::CampaignMap* const campaignMap, QObject* parent)
+    : QObject(parent)
+    , campaignMap(campaignMap)
 {
     this->connectSignals();
     QObject::connect(
-            this->campaignMap,
-            &core::CampaignMap::mapNodesChanged,
-            this,
-            &CampaignMapWatcher::onMapNodesChanged);
+        this->campaignMap, &core::CampaignMap::mapNodesChanged, this, &CampaignMapWatcher::onMapNodesChanged);
 }
 
 void CampaignMapWatcher::connectSignals()

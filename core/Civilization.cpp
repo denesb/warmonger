@@ -6,8 +6,8 @@
 
 using namespace warmonger::core;
 
-Civilization::Civilization(QObject *parent) :
-    QObject(parent)
+Civilization::Civilization(QObject* parent)
+    : QObject(parent)
 {
 }
 
@@ -16,7 +16,7 @@ QString Civilization::getDisplayName() const
     return this->displayName;
 }
 
-void Civilization::setDisplayName(const QString &displayName)
+void Civilization::setDisplayName(const QString& displayName)
 {
     if (this->displayName != displayName)
     {
@@ -25,7 +25,7 @@ void Civilization::setDisplayName(const QString &displayName)
     }
 }
 
-std::vector<UnitType *> Civilization::getUnitTypes() const
+std::vector<UnitType*> Civilization::getUnitTypes() const
 {
     return this->unitTypes;
 }
@@ -35,7 +35,7 @@ QVariantList Civilization::readUnitTypes() const
     return utils::toQVariantList(this->unitTypes);
 }
 
-void Civilization::setUnitTypes(const std::vector<UnitType *> &unitTypes)
+void Civilization::setUnitTypes(const std::vector<UnitType*>& unitTypes)
 {
     if (this->unitTypes != unitTypes)
     {
@@ -44,7 +44,7 @@ void Civilization::setUnitTypes(const std::vector<UnitType *> &unitTypes)
     }
 }
 
-void Civilization::addUnitType(UnitType *unitType)
+void Civilization::addUnitType(UnitType* unitType)
 {
     this->unitTypes.push_back(unitType);
     emit unitTypesChanged();

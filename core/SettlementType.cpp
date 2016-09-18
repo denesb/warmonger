@@ -4,8 +4,8 @@
 namespace warmonger {
 namespace core {
 
-SettlementType::SettlementType(QObject *parent) :
-    QObject(parent)
+SettlementType::SettlementType(QObject* parent)
+    : QObject(parent)
 {
 }
 
@@ -23,7 +23,7 @@ QString SettlementType::getDisplayName() const
         return this->getHierarchyParent()->getDisplayName();
 }
 
-void SettlementType::setDisplayName(const QString &displayName)
+void SettlementType::setDisplayName(const QString& displayName)
 {
     if (this->displayName != displayName)
     {

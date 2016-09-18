@@ -3,22 +3,21 @@
 
 #include <map>
 
+#include "core/Hexagon.h"
 #include "core/MapNodeNeighbours.h"
 #include "core/TerrainType.h"
-#include "core/Hexagon.h"
 
 namespace warmonger {
 namespace core {
 
-class MapNode :
-    public QObject
+class MapNode : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(TerrainType* terrainType READ getTerrainType WRITE setTerrainType NOTIFY terrainTypeChanged)
 
 public:
-    explicit MapNode(QObject *parent=nullptr);
+    explicit MapNode(QObject* parent = nullptr);
 
     QString getDisplayName() const;
     void setDisplayName(const QString& displayName);

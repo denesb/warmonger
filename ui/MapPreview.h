@@ -13,9 +13,9 @@
 namespace warmonger {
 
 namespace core {
-    class MapNode;
-    class World;
-    class WorldSurface;
+class MapNode;
+class World;
+class WorldSurface;
 }
 
 namespace ui {
@@ -30,35 +30,34 @@ class MapPreview : public QQuickPaintedItem
 {
     Q_OBJECT
 
-    Q_PROPERTY(warmonger::core::Map *map READ getMap WRITE setMap NOTIFY mapChanged)
+    Q_PROPERTY(warmonger::core::Map* map READ getMap WRITE setMap NOTIFY mapChanged)
 public:
-    MapPreview(QQuickItem *parent = nullptr);
+    MapPreview(QQuickItem* parent = nullptr);
     ~MapPreview();
 
-    core::Map *getMap() const;
-    void setMap(core::Map *map);
+    core::Map* getMap() const;
+    void setMap(core::Map* map);
 
-    void paint(QPainter *painter);
+    void paint(QPainter* painter);
 
 signals:
     void mapChanged();
 
 protected:
-
 private:
     void setupMap();
     void updateGeometry();
     void updateTransform();
 
-    void drawNode(QPainter *painter, const core::MapNode *node);
+    void drawNode(QPainter* painter, const core::MapNode* node);
 
-    QList<core::MapNode *> nodes;
-    core::World *world;
-    core::WorldSurface *surface;
+    QList<core::MapNode*> nodes;
+    core::World* world;
+    core::WorldSurface* surface;
     QSize tileSize;
 
-    core::Map *map;
-    QHash<const core::MapNode *, QPoint> nodesPos;
+    core::Map* map;
+    QHash<const core::MapNode*, QPoint> nodesPos;
     QRect boundingRect;
     QPainterPath hexagonPainterPath;
 

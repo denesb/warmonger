@@ -6,8 +6,7 @@
 namespace warmonger {
 namespace io {
 
-class JsonUnserializer :
-    public Unserializer
+class JsonUnserializer : public Unserializer
 {
 public:
     using Unserializer::Unserializer;

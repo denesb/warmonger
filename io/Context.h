@@ -3,8 +3,8 @@
 
 #include <functional>
 
-#include <QObject>
 #include <QMap>
+#include <QObject>
 
 #include "utils/Logging.h"
 
@@ -22,12 +22,12 @@ class Context
 {
 public:
     Context();
-    Context(std::function<void (const QString &, const QString &, Context &)> injectFn);
+    Context(std::function<void(const QString&, const QString&, Context&)> injectFn);
 
     /**
      * Add object to the context.
      */
-    void add(QObject *object);
+    void add(QObject* object);
 
     /**
      * Retrieve the object with objectName `objectName` and type `T`
@@ -39,36 +39,34 @@ public:
      * does not remove it from the context.
      */
     template <typename T>
-    T get(const QString &objectName)
+    T get(const QString& objectName)
     {
         typedef typename std::remove_pointer<T>::type Class;
         const QMetaObject metaObject = Class::staticMetaObject;
         const QString className = metaObject.className();
 
-        wDebug << "Looking up object `"
-            << className << "' with objectName `" << objectName << "'";
+        wDebug << "Looking up object `" << className << "' with objectName `" << objectName << "'";
 
-        QObject *object = this->getObject(className, objectName);
+        QObject* object = this->getObject(className, objectName);
         if (object == nullptr && this->injectFn)
         {
             this->injectFn(className, objectName, *this);
             object = this->getObject(className, objectName);
         }
 
-        if(object == nullptr)
+        if (object == nullptr)
         {
-            wWarning  << "Failed to find object `"
-                << className << "' with objectName `" << objectName << "'";
+            wWarning << "Failed to find object `" << className << "' with objectName `" << objectName << "'";
         }
 
         return qobject_cast<T>(object);
     }
 
 private:
-    QObject * getObject(const QString &className, const QString &objectName) const;
+    QObject* getObject(const QString& className, const QString& objectName) const;
 
-    std::function<void (const QString &, const QString &, Context &)> injectFn;
-    QMap<QString, QMap<QString, QObject *>> objectsByType;
+    std::function<void(const QString&, const QString&, Context&)> injectFn;
+    QMap<QString, QMap<QString, QObject*>> objectsByType;
 };
 
 } // namespace io

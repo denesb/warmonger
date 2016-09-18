@@ -4,9 +4,9 @@
 namespace warmonger {
 namespace core {
 
-MapNode::MapNode(QObject *parent) :
-    QObject(parent),
-    terrainType(nullptr)
+MapNode::MapNode(QObject* parent)
+    : QObject(parent)
+    , terrainType(nullptr)
 {
 }
 

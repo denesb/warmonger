@@ -1,19 +1,18 @@
 #ifndef W_UI_BASIC_MINI_MAP_H
 #define W_UI_BASIC_MINI_MAP_H
 
-#include <QtQuick/QQuickItem>
 #include <QMatrix4x4>
 #include <QPoint>
 #include <QRect>
 #include <QSize>
+#include <QtQuick/QQuickItem>
 
 #include "ui/MapWindow.h"
 
 namespace warmonger {
 namespace ui {
 
-class BasicMiniMap
-    : public QQuickItem
+class BasicMiniMap : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(QRect windowRect READ getWindowRect WRITE setWindowRect NOTIFY windowRectChanged)

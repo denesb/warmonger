@@ -24,16 +24,16 @@ std::string trimSrcFilePath(const char* fileName)
     }
 }
 
-static void qtMessageHandler(QtMsgType type, const QMessageLogContext &ctx, const QString &msg);
+static void qtMessageHandler(QtMsgType type, const QMessageLogContext& ctx, const QString& msg);
 
 void initLogging()
 {
     qInstallMessageHandler(qtMessageHandler);
 }
 
-static void qtMessageHandler(QtMsgType type, const QMessageLogContext &ctx, const QString &msg)
+static void qtMessageHandler(QtMsgType type, const QMessageLogContext& ctx, const QString& msg)
 {
-    switch(type)
+    switch (type)
     {
         case QtDebugMsg:
             BOOST_LOG_TRIVIAL(debug) << trimSrcFilePath(ctx.file) << ":" << ctx.line << " " << msg.toStdString();

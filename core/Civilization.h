@@ -12,23 +12,22 @@ namespace core {
 
 class UnitType;
 
-class Civilization :
-    public QObject
+class Civilization : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(QVariantList unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
 
 public:
-    explicit Civilization(QObject *parent=nullptr);
+    explicit Civilization(QObject* parent = nullptr);
 
     QString getDisplayName() const;
-    void setDisplayName(const QString &displayName);
+    void setDisplayName(const QString& displayName);
 
-    std::vector<UnitType *> getUnitTypes() const;
+    std::vector<UnitType*> getUnitTypes() const;
     QVariantList readUnitTypes() const;
-    void setUnitTypes(const std::vector<UnitType *> &unitTypes);
-    void addUnitType(UnitType *unitType);
+    void setUnitTypes(const std::vector<UnitType*>& unitTypes);
+    void addUnitType(UnitType* unitType);
 
 signals:
     void displayNameChanged();
@@ -36,7 +35,7 @@ signals:
 
 private:
     QString displayName;
-    std::vector<UnitType *> unitTypes;
+    std::vector<UnitType*> unitTypes;
 };
 
 } // namespace core

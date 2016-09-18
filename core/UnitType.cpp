@@ -4,8 +4,8 @@
 namespace warmonger {
 namespace core {
 
-UnitType::UnitType(QObject* parent) :
-    QObject(parent)
+UnitType::UnitType(QObject* parent)
+    : QObject(parent)
 {
 }
 
@@ -140,10 +140,7 @@ void UnitType::setMovementCosts(const std::map<TerrainType*, int>& movementCosts
 
 QVariantMap UnitType::readMovementCosts() const
 {
-    return utils::toQVariantMap(
-            this->getMovementCosts(),
-            utils::qObjectName,
-            utils::verbatim<int>);
+    return utils::toQVariantMap(this->getMovementCosts(), utils::qObjectName, utils::verbatim<int>);
 }
 
 int UnitType::getMovementCost(TerrainType* terrainType) const

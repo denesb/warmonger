@@ -4,8 +4,8 @@
 namespace warmonger {
 namespace core {
 
-World::World(QObject*parent) :
-    QObject(parent)
+World::World(QObject* parent)
+    : QObject(parent)
 {
 }
 
@@ -30,7 +30,7 @@ std::vector<ArmyType*> World::getArmyTypes() const
 
 void World::setArmyTypes(const std::vector<ArmyType*>& armyTypes)
 {
-    if(this->armyTypes != armyTypes)
+    if (this->armyTypes != armyTypes)
     {
         this->armyTypes = armyTypes;
         emit armyTypesChanged();

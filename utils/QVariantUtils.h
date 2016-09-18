@@ -12,7 +12,7 @@
 namespace warmonger {
 namespace utils {
 
-inline QString qObjectName(const QObject * const object)
+inline QString qObjectName(const QObject* const object)
 {
     return object->objectName();
 }
@@ -22,17 +22,15 @@ inline QString qObjectName(const QObject * const object)
  *
  * Container::value_type must be a convertable to QVariant!
  */
-template<typename Container>
+template <typename Container>
 QVariantList toQVariantList(Container container)
 {
     QVariantList list;
 
-    std::transform(
-        container.cbegin(),
+    std::transform(container.cbegin(),
         container.cend(),
         std::back_inserter(list),
-        QVariant::fromValue<typename Container::value_type>
-    );
+        QVariant::fromValue<typename Container::value_type>);
 
     return list;
 }
@@ -42,7 +40,7 @@ QVariantList toQVariantList(Container container)
  *
  * Container::value_type must be a convertable to QVariant!
  */
-template<typename Container>
+template <typename Container>
 QVariant containerToQVariant(Container container)
 {
     return QVariant::fromValue<QVariantList>(toQVariantList(container));
@@ -54,8 +52,8 @@ QVariant containerToQVariant(Container container)
  * If the enclosed value has a different type, ValueError will
  * be thrown.
  */
-template<typename T>
-T fromQVariant(const QVariant &v)
+template <typename T>
+T fromQVariant(const QVariant& v)
 {
     if (v.canConvert<T>())
         throw ValueError();
@@ -70,17 +68,13 @@ T fromQVariant(const QVariant &v)
  * method. The elements in the QVariantList must be convartable to
  * Container::value_type, otherwise ValueError will be thrown!
  */
-template<typename Container>
+template <typename Container>
 Container fromQVariantList(QVariantList list)
 {
     Container container;
 
     std::transform(
-        list.cbegin(),
-        list.cend(),
-        std::back_inserter(container),
-        fromQVariant<typename Container::value_type>
-    );
+        list.cbegin(), list.cend(), std::back_inserter(container), fromQVariant<typename Container::value_type>);
 
     return container;
 }
@@ -91,8 +85,8 @@ Container fromQVariantList(QVariantList list)
  * This function is useful as a convert function, when no conversion
  * is necessary.
  */
-template<typename T>
-T verbatim(const T &v)
+template <typename T>
+T verbatim(const T& v)
 {
     return v;
 }
@@ -105,12 +99,12 @@ T verbatim(const T &v)
  * QString and `convertValue converts from Container::mapping_type to
  * QVariant.
  */
-template<typename Container, typename ConvertKeyFunc, typename ConvertValueFunc>
+template <typename Container, typename ConvertKeyFunc, typename ConvertValueFunc>
 QVariantMap toQVariantMap(Container container, ConvertKeyFunc convertKey, ConvertValueFunc convertValue)
 {
     QVariantMap map;
 
-    for (const auto &element : container)
+    for (const auto& element : container)
     {
         QString key = convertKey(element.first);
         QVariant value = convertValue(element.second);
@@ -129,12 +123,8 @@ QVariantMap toQVariantMap(Container container, ConvertKeyFunc convertKey, Conver
  * to Container::key_type and `convertValue converts from QVariant to
  * Container::mapped_type.
  */
-template<typename Container, typename ConvertKeyFunc, typename ConvertValueFunc>
-Container fromQVariantMap(
-    QVariantMap map,
-    ConvertKeyFunc convertKey,
-    ConvertValueFunc convertValue
-)
+template <typename Container, typename ConvertKeyFunc, typename ConvertValueFunc>
+Container fromQVariantMap(QVariantMap map, ConvertKeyFunc convertKey, ConvertValueFunc convertValue)
 {
     Container container;
 

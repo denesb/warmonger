@@ -4,17 +4,17 @@
 #include <QJsonDocument>
 
 #include "io/JsonSerializer.h"
-#include "test/catch.hpp"
 #include "test/Util.h"
+#include "test/catch.hpp"
 
 using namespace warmonger;
 
 TEST_CASE("ArmyType can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
-    core::ArmyType *at = world->getArmyTypes()[0];
+    core::ArmyType* at = world->getArmyTypes()[0];
 
     SECTION("serializing ArmyType")
     {
@@ -30,12 +30,12 @@ TEST_CASE("ArmyType can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("Army can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jobj{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
 
-    const core::Army *a = map->getArmies()[0];
+    const core::Army* a = map->getArmies()[0];
 
     SECTION("serializing Army")
     {
@@ -56,7 +56,7 @@ TEST_CASE("Army can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("CampaignMap can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> m{maps.first};
     const QJsonObject jobj{maps.second};
     const std::unique_ptr<core::World> world{m->getWorld()};
@@ -94,10 +94,10 @@ TEST_CASE("CampaignMap can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("Civilization can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
-    core::Civilization *f = world->getCivilizations()[0];
+    core::Civilization* f = world->getCivilizations()[0];
 
     SECTION("serializing Civilization")
     {
@@ -115,12 +115,12 @@ TEST_CASE("Civilization can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("MapNode can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jobj{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
 
-    const core::MapNode *mn = map->getMapNodes()[0];
+    const core::MapNode* mn = map->getMapNodes()[0];
 
     SECTION("serializing MapNode")
     {
@@ -147,7 +147,7 @@ TEST_CASE("MapNode can be serialized to JSON", "[JsonSerializer]")
 
             REQUIRE(neighbourName.isEmpty() == (neighbours.at(dir) == nullptr));
 
-            if(!neighbourName.isEmpty())
+            if (!neighbourName.isEmpty())
             {
                 REQUIRE(neighbourName == neighbours.at(dir)->objectName());
             }
@@ -157,12 +157,12 @@ TEST_CASE("MapNode can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("Faction can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jobj{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
 
-    const core::Faction *f = map->getFactions()[0];
+    const core::Faction* f = map->getFactions()[0];
 
     SECTION("serializing Faction")
     {
@@ -181,12 +181,12 @@ TEST_CASE("Faction can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("Settlement can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jobj{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
 
-    const core::Settlement *s = map->getSettlements()[0];
+    const core::Settlement* s = map->getSettlements()[0];
 
     SECTION("serializing Settlement")
     {
@@ -205,10 +205,10 @@ TEST_CASE("Settlement can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("SettlementType can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
-    core::SettlementType *st = world->getSettlementTypes()[0];
+    core::SettlementType* st = world->getSettlementTypes()[0];
 
     SECTION("serializing SettlementType - no inherited properties")
     {
@@ -242,10 +242,10 @@ TEST_CASE("SettlementType can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("TerrainType can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
-    core::TerrainType *tt = world->getTerrainTypes()[0];
+    core::TerrainType* tt = world->getTerrainTypes()[0];
 
     SECTION("serializing TerrainType")
     {
@@ -261,12 +261,12 @@ TEST_CASE("TerrainType can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("Unit can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::pair<core::CampaignMap *, QJsonObject> maps = makeMap();
+    const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
     const std::unique_ptr<core::CampaignMap> map{maps.first};
     const QJsonObject jobj{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
 
-    const core::Unit *u = map->getUnits()[0];
+    const core::Unit* u = map->getUnits()[0];
 
     SECTION("serializing Unit")
     {
@@ -288,10 +288,10 @@ TEST_CASE("Unit can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("UnitType can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
-    core::UnitType *ut = world->getUnitTypes()[0];
+    core::UnitType* ut = world->getUnitTypes()[0];
 
     SECTION("serializing UnitType")
     {
@@ -347,7 +347,7 @@ TEST_CASE("UnitType can be serialized to JSON", "[JsonSerializer]")
 
 TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
 {
-    const std::pair<core::World *, QJsonObject> worlds = makeWorld();
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
     const std::unique_ptr<core::World> world{worlds.first};
 
     SECTION("serializing World")

@@ -4,12 +4,12 @@
 namespace warmonger {
 namespace core {
 
-Army::Army(QObject *parent) :
-    QObject(parent),
-    displayName(""),
-    type(nullptr),
-    mapNode(nullptr),
-    owner(nullptr)
+Army::Army(QObject* parent)
+    : QObject(parent)
+    , displayName("")
+    , type(nullptr)
+    , mapNode(nullptr)
+    , owner(nullptr)
 {
 }
 
@@ -18,7 +18,7 @@ QString Army::getDisplayName() const
     return this->displayName;
 }
 
-void Army::setDisplayName(const QString &displayName)
+void Army::setDisplayName(const QString& displayName)
 {
     if (this->displayName != displayName)
     {

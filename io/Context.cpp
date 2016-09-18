@@ -3,17 +3,15 @@
 namespace warmonger {
 namespace io {
 
-Context::Context() :
-    injectFn(),
-    objectsByType()
+Context::Context()
+    : injectFn()
+    , objectsByType()
 {
 }
 
-Context::Context(
-    std::function<void (const QString&, const QString&, Context&)> injectFn
-) :
-    injectFn(injectFn),
-    objectsByType()
+Context::Context(std::function<void(const QString&, const QString&, Context&)> injectFn)
+    : injectFn(injectFn)
+    , objectsByType()
 {
 }
 
@@ -28,10 +26,7 @@ void Context::add(QObject* object)
     objects[object->objectName()] = object;
 }
 
-QObject*  Context::getObject(
-    const QString& className,
-    const QString& objectName
-) const
+QObject* Context::getObject(const QString& className, const QString& objectName) const
 {
     const QMap<QString, QObject*> objects = this->objectsByType[className];
 
@@ -42,8 +37,7 @@ QObject*  Context::getObject(
     }
     else
     {
-        wWarning  << "Object `"
-            << className << "' with objectName `" << objectName << "' not found";
+        wWarning << "Object `" << className << "' with objectName `" << objectName << "' not found";
     }
 
     return object;

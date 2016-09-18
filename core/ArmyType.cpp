@@ -3,8 +3,8 @@
 namespace warmonger {
 namespace core {
 
-ArmyType::ArmyType(QObject* parent) :
-    QObject(parent)
+ArmyType::ArmyType(QObject* parent)
+    : QObject(parent)
 {
 }
 

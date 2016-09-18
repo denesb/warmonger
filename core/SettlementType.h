@@ -19,19 +19,17 @@ class UnitType;
  * Can inherit:
  * * displayName
  */
-class SettlementType :
-    public QObject,
-    public HierarchyNode<SettlementType>
+class SettlementType : public QObject, public HierarchyNode<SettlementType>
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
 
 public:
-    explicit SettlementType(QObject *parent=nullptr);
+    explicit SettlementType(QObject* parent = nullptr);
     ~SettlementType();
 
     QString getDisplayName() const;
-    void setDisplayName(const QString &displayName);
+    void setDisplayName(const QString& displayName);
 
 signals:
     void displayNameChanged();

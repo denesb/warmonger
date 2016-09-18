@@ -26,14 +26,12 @@ enum class Direction
     SouthWest
 };
 
-const std::array<Direction, 6> directions{
-    Direction::West,
+const std::array<Direction, 6> directions{Direction::West,
     Direction::NorthWest,
     Direction::NorthEast,
     Direction::East,
     Direction::SouthEast,
-    Direction::SouthWest
-};
+    Direction::SouthWest};
 
 /**
  * Converts Direction enum to string.
@@ -45,7 +43,7 @@ QString direction2str(const Direction d);
  *
  * Will throw a ValueError if str is not a valid direction name.
  */
-Direction str2direction(const QString &str);
+Direction str2direction(const QString& str);
 
 /**
  * The opposite direction of direction d.

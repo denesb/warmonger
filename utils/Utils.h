@@ -9,10 +9,12 @@ namespace utils {
 
 struct QObjectFinder
 {
-    QObjectFinder(const QString &name) : name(name)
-    {}
+    QObjectFinder(const QString& name)
+        : name(name)
+    {
+    }
 
-    bool operator()(const QObject *obj)
+    bool operator()(const QObject* obj)
     {
         return obj->objectName() == this->name;
     }
@@ -26,7 +28,8 @@ struct QObjectFinder
 class SignalBlockGuard
 {
 public:
-    SignalBlockGuard(QObject* const obj) : obj(obj)
+    SignalBlockGuard(QObject* const obj)
+        : obj(obj)
     {
         obj->blockSignals(true);
     }
@@ -46,8 +49,8 @@ Head makePath(const Head& head, const Tail& tail)
     return head + "/" + tail;
 }
 
-template <typename Head, typename ...Component>
-Head makePath(const Head& head, const Component& ...components)
+template <typename Head, typename... Component>
+Head makePath(const Head& head, const Component&... components)
 {
     return head + "/" + makePath(components...);
 }

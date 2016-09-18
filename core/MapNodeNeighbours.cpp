@@ -3,29 +3,25 @@
 namespace warmonger {
 namespace core {
 
-MapNodeNeighbours::MapNodeNeighbours() :
-    neighbours{
-        {Direction::West, nullptr},
-        {Direction::NorthWest, nullptr},
-        {Direction::NorthEast, nullptr},
-        {Direction::East, nullptr},
-        {Direction::SouthEast, nullptr},
-        {Direction::SouthWest, nullptr}
-    }
+MapNodeNeighbours::MapNodeNeighbours()
+    : neighbours{{Direction::West, nullptr},
+          {Direction::NorthWest, nullptr},
+          {Direction::NorthEast, nullptr},
+          {Direction::East, nullptr},
+          {Direction::SouthEast, nullptr},
+          {Direction::SouthWest, nullptr}}
 {
 }
 
-MapNodeNeighbours::MapNodeNeighbours(std::initializer_list<std::pair<Direction, MapNode*>> init) :
-    neighbours{
-        {Direction::West, nullptr},
-        {Direction::NorthWest, nullptr},
-        {Direction::NorthEast, nullptr},
-        {Direction::East, nullptr},
-        {Direction::SouthEast, nullptr},
-        {Direction::SouthWest, nullptr}
-    }
+MapNodeNeighbours::MapNodeNeighbours(std::initializer_list<std::pair<Direction, MapNode*>> init)
+    : neighbours{{Direction::West, nullptr},
+          {Direction::NorthWest, nullptr},
+          {Direction::NorthEast, nullptr},
+          {Direction::East, nullptr},
+          {Direction::SouthEast, nullptr},
+          {Direction::SouthWest, nullptr}}
 {
-    for(auto value : init)
+    for (auto value : init)
     {
         this->neighbours[value.first] = value.second;
     }
@@ -83,10 +79,9 @@ MapNode* MapNodeNeighbours::at(const Direction direction) const
 
 bool MapNodeNeighbours::empty() const
 {
-    return !std::any_of(
-            this->neighbours.cbegin(),
-            this->neighbours.cend(),
-            [](const std::pair<Direction, MapNode*>& i) { return i.second != nullptr; });
+    return !std::any_of(this->neighbours.cbegin(),
+        this->neighbours.cend(),
+        [](const std::pair<Direction, MapNode*>& i) { return i.second != nullptr; });
 }
 
 } // namespace core

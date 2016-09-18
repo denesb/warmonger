@@ -6,7 +6,7 @@
 namespace warmonger {
 namespace io {
 
-void writeWorld(const core::World *world, const QString &path, io::Serializer &serializer)
+void writeWorld(const core::World* world, const QString& path, io::Serializer& serializer)
 {
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly))
@@ -17,7 +17,7 @@ void writeWorld(const core::World *world, const QString &path, io::Serializer &s
     file.write(serializer.serializeWorld(world));
 }
 
-core::World * readWorld(const QString &path, io::Unserializer &unserializer)
+core::World* readWorld(const QString& path, io::Unserializer& unserializer)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly))
@@ -29,7 +29,7 @@ core::World * readWorld(const QString &path, io::Unserializer &unserializer)
     return unserializer.unserializeWorld(data);
 }
 
-void writeCampaignMap(const core::CampaignMap *campaignMap, const QString &path, io::Serializer &serializer)
+void writeCampaignMap(const core::CampaignMap* campaignMap, const QString& path, io::Serializer& serializer)
 {
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly))
@@ -40,7 +40,7 @@ void writeCampaignMap(const core::CampaignMap *campaignMap, const QString &path,
     file.write(serializer.serializeCampaignMap(campaignMap));
 }
 
-core::CampaignMap * readCampaignMap(const QString &path, io::Unserializer &unserializer)
+core::CampaignMap* readCampaignMap(const QString& path, io::Unserializer& unserializer)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly))
@@ -54,5 +54,3 @@ core::CampaignMap * readCampaignMap(const QString &path, io::Unserializer &unser
 
 } // namespace warmonger
 } // namespace io
-
-

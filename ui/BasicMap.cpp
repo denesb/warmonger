@@ -5,8 +5,8 @@
 namespace warmonger {
 namespace ui {
 
-BasicMap::BasicMap(QQuickItem* parent) :
-    QQuickItem(parent)
+BasicMap::BasicMap(QQuickItem* parent)
+    : QQuickItem(parent)
 {
     QObject::connect(this, &BasicMap::widthChanged, this, &BasicMap::updateWindow);
     QObject::connect(this, &BasicMap::heightChanged, this, &BasicMap::updateWindow);

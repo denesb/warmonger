@@ -9,10 +9,10 @@
 
 #include <ktar.h>
 
-#include "utils/Logging.h"
 #include "ui/WorldSurface.h"
 #include "utils/Constants.h"
 #include "utils/Exception.h"
+#include "utils/Logging.h"
 #include "utils/Utils.h"
 
 namespace warmonger {
@@ -20,29 +20,25 @@ namespace ui {
 
 static QString key(const QObject* const object);
 static QString objectPath(const QObject* const object);
-static void checkMissingImages(const core::World * const world);
+static void checkMissingImages(const core::World* const world);
 static bool isImageMissing(const QString& key);
 static bool isOptionalImageMissing(const QObject* const object);
 static bool isRequiredImageMissing(const QString& p);
 
-const std::vector<QString> requiredImagePaths{
-    utils::resourcePaths::notFound,
-    utils::resourcePaths::mapEditor::hoverValid
-};
+const std::vector<QString> requiredImagePaths{utils::resourcePaths::notFound,
+    utils::resourcePaths::mapEditor::hoverValid};
 
-const std::set<QString> visualClasses{
-    "warmonger::core::TerrainType",
+const std::set<QString> visualClasses{"warmonger::core::TerrainType",
     "warmonger::core::SettlementType",
-    "warmonger::core::UnitType"
-};
+    "warmonger::core::UnitType"};
 
-WorldSurface::WorldSurface(const QString& path, core::World *world, QQuickWindow *window, QObject *parent) :
-    QObject(parent),
-    path(path),
-    world(world),
-    window(window),
-    isTextureSyncOn(window->isSceneGraphInitialized()),
-    isTextureSyncPending(false)
+WorldSurface::WorldSurface(const QString& path, core::World* world, QQuickWindow* window, QObject* parent)
+    : QObject(parent)
+    , path(path)
+    , world(world)
+    , window(window)
+    , isTextureSyncOn(window->isSceneGraphInitialized())
+    , isTextureSyncPending(false)
 {
     QObject::connect(window, &QQuickWindow::sceneGraphInitialized, this, &WorldSurface::turnTextureSyncOn);
     QObject::connect(window, &QQuickWindow::sceneGraphInvalidated, this, &WorldSurface::turnTextureSyncOff);
@@ -50,31 +46,27 @@ WorldSurface::WorldSurface(const QString& path, core::World *world, QQuickWindow
     KTar package(this->path);
     if (!package.open(QIODevice::ReadOnly))
     {
-        throw utils::IOError(
-            "Failed to open surface package " + this->path + ". " + package.device()->errorString()
-        );
+        throw utils::IOError("Failed to open surface package " + this->path + ". " + package.device()->errorString());
     }
 
-    const KArchiveDirectory *rootDir = package.directory();
+    const KArchiveDirectory* rootDir = package.directory();
     const QStringList entries = rootDir->entries();
-    const auto& it = std::find_if(
-        entries.cbegin(),
-        entries.cend(),
-        [](const QString& s){return s.endsWith("." + utils::fileExtensions::surfaceMetadata);}
-    );
+    const auto& it = std::find_if(entries.cbegin(), entries.cend(), [](const QString& s) {
+        return s.endsWith("." + utils::fileExtensions::surfaceMetadata);
+    });
 
     if (it == entries.cend())
     {
         throw utils::IOError("No metadata file found in surface package " + this->path);
     }
 
-    const KArchiveEntry *headerEntry = rootDir->entry(*it);
+    const KArchiveEntry* headerEntry = rootDir->entry(*it);
     if (headerEntry->isDirectory())
     {
         throw utils::IOError("Metadata file is not a file in surface package " + this->path);
     }
 
-    const KArchiveFile *headerFile = dynamic_cast<const KArchiveFile *>(headerEntry);
+    const KArchiveFile* headerFile = dynamic_cast<const KArchiveFile*>(headerEntry);
 
     this->parseHeader(headerFile->data());
 }
@@ -85,13 +77,13 @@ WorldSurface::~WorldSurface()
     {
         this->deactivate();
     }
-    catch(...)
+    catch (...)
     {
         // ignore all exceptions
     }
 }
 
-core::World*  WorldSurface::getWorld() const
+core::World* WorldSurface::getWorld() const
 {
     return this->world;
 }
@@ -137,7 +129,7 @@ QColor WorldSurface::getFocusGridColor() const
     return this->focusGridColor;
 }
 
-bool WorldSurface::hexContains(const QPoint &p) const
+bool WorldSurface::hexContains(const QPoint& p) const
 {
     const int x = p.x();
     const int y = p.y();
@@ -152,7 +144,7 @@ bool WorldSurface::hexContains(const QPoint &p) const
     return (pixel == 0xffffffff);
 }
 
-bool WorldSurface::hexContains(const QPointF &p) const
+bool WorldSurface::hexContains(const QPointF& p) const
 {
     const qreal x = p.x();
     const qreal y = p.y();
@@ -178,11 +170,9 @@ void WorldSurface::activate()
     KTar package(this->path);
     if (!package.open(QIODevice::ReadOnly))
     {
-        throw utils::IOError(
-            "Failed to open surface package " + this->path + ". " + package.device()->errorString()
-        );
+        throw utils::IOError("Failed to open surface package " + this->path + ". " + package.device()->errorString());
     }
-    const KArchiveDirectory *rootDir = package.directory();
+    const KArchiveDirectory* rootDir = package.directory();
     const QStringList entries = rootDir->entries();
     const QString rccEntryName = this->objectName() + "." + utils::fileExtensions::qResourceData;
 
@@ -191,16 +181,16 @@ void WorldSurface::activate()
         throw utils::IOError("No rcc file found in surface package " + this->path);
     }
 
-    const KArchiveEntry *rccEntry = rootDir->entry(rccEntryName);
+    const KArchiveEntry* rccEntry = rootDir->entry(rccEntryName);
     if (rccEntry->isDirectory())
     {
         throw utils::IOError("rcc file is not a file in surface package " + this->path);
     }
 
-    const KArchiveFile *rccFile = dynamic_cast<const KArchiveFile *>(rccEntry);
+    const KArchiveFile* rccFile = dynamic_cast<const KArchiveFile*>(rccEntry);
     this->resourceData = rccFile->data();
 
-    const unsigned char * data = reinterpret_cast<const uchar *>(this->resourceData.data());
+    const unsigned char* data = reinterpret_cast<const uchar*>(this->resourceData.data());
     if (!QResource::registerResource(data))
     {
         throw utils::IOError("Failed to register  " + this->path);
@@ -209,7 +199,8 @@ void WorldSurface::activate()
     QFile jfile(this->getPrefix() + this->objectName() + "." + utils::fileExtensions::surfaceDefinition);
     if (!jfile.open(QIODevice::ReadOnly))
     {
-        throw utils::IOError("Failed to open surface definition from package " + this->path + ". " + jfile.errorString());
+        throw utils::IOError(
+            "Failed to open surface definition from package " + this->path + ". " + jfile.errorString());
     }
 
     QJsonParseError parseError;
@@ -217,10 +208,8 @@ void WorldSurface::activate()
 
     if (parseError.error != QJsonParseError::NoError)
     {
-        throw utils::ValueError(
-            "Error parsing surface definition file from surface package " + this->path + ". "
-            + parseError.errorString() + " at " + parseError.offset
-        );
+        throw utils::ValueError("Error parsing surface definition file from surface package " + this->path + ". " +
+            parseError.errorString() + " at " + parseError.offset);
     }
 
     const QJsonObject jobj = jdoc.object();
@@ -290,10 +279,10 @@ QUrl WorldSurface::getImageUrl(QObject* object) const
     else
     {
         const QString className = fullClassName.section("::", -1);
-        return QUrl(utils::resourcePaths::resourceSchema + utils::makePath(
-                utils::resourcePaths::surface,
-                className,
-                utils::makeFileName(object->objectName(), utils::resourcePaths::fileExtension)));
+        return QUrl(utils::resourcePaths::resourceSchema +
+            utils::makePath(utils::resourcePaths::surface,
+                        className,
+                        utils::makeFileName(object->objectName(), utils::resourcePaths::fileExtension)));
     }
 }
 
@@ -313,17 +302,15 @@ void WorldSurface::turnTextureSyncOff()
     this->isTextureSyncOn = false;
 }
 
-void WorldSurface::parseHeader(const QByteArray &header)
+void WorldSurface::parseHeader(const QByteArray& header)
 {
     QJsonParseError parseError;
     QJsonDocument jdoc = QJsonDocument::fromJson(header, &parseError);
 
     if (parseError.error != QJsonParseError::NoError)
     {
-        throw utils::ValueError(
-            "Error parsing surface meta file from surface package " + this->path + ". "
-            + parseError.errorString() + " at " + parseError.offset
-        );
+        throw utils::ValueError("Error parsing surface meta file from surface package " + this->path + ". " +
+            parseError.errorString() + " at " + parseError.offset);
     }
 
     QJsonObject jobj = jdoc.object();
@@ -341,7 +328,7 @@ void WorldSurface::uploadTextures()
 {
     this->textures.clear();
 
-    void(WorldSurface::* memFn)(const QObject* const) = &WorldSurface::uploadTexture;
+    void (WorldSurface::*memFn)(const QObject* const) = &WorldSurface::uploadTexture;
     const auto uploadTextureFunc = std::bind(memFn, this, std::placeholders::_1);
 
     const auto terrainTypes = this->world->getTerrainTypes();
@@ -353,10 +340,9 @@ void WorldSurface::uploadTextures()
     const auto unitTypes = this->world->getUnitTypes();
     std::for_each(unitTypes.cbegin(), unitTypes.cend(), uploadTextureFunc);
 
-    std::for_each(
-            requiredImagePaths.cbegin(),
-            requiredImagePaths.cend(),
-            [&](const QString& p) { this->uploadTexture(p, QImage(p)); });
+    std::for_each(requiredImagePaths.cbegin(), requiredImagePaths.cend(), [&](const QString& p) {
+        this->uploadTexture(p, QImage(p));
+    });
 
     wInfo << "Textures for surface " << this << " uploaded to GPU";
 }
@@ -388,10 +374,9 @@ static QString objectPath(const QObject* const object)
     const QString fullClassName{object->metaObject()->className()};
     const QString className = fullClassName.section("::", -1);
 
-    return utils::makePath(
-            utils::resourcePaths::surface,
-            className,
-            utils::makeFileName(object->objectName(), utils::resourcePaths::fileExtension));
+    return utils::makePath(utils::resourcePaths::surface,
+        className,
+        utils::makeFileName(object->objectName(), utils::resourcePaths::fileExtension));
 }
 
 static void checkMissingImages(const core::World* const world)

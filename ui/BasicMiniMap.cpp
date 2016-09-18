@@ -5,8 +5,8 @@
 namespace warmonger {
 namespace ui {
 
-BasicMiniMap::BasicMiniMap(QQuickItem* parent) :
-    QQuickItem(parent)
+BasicMiniMap::BasicMiniMap(QQuickItem* parent)
+    : QQuickItem(parent)
 {
     QObject::connect(this, &BasicMiniMap::widthChanged, this, &BasicMiniMap::updateTransform);
     QObject::connect(this, &BasicMiniMap::heightChanged, this, &BasicMiniMap::updateTransform);

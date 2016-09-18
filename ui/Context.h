@@ -13,8 +13,7 @@
 namespace warmonger {
 namespace ui {
 
-class Context :
-    public QObject
+class Context : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(warmonger::core::World* world READ getWorld NOTIFY worldChanged)
@@ -27,12 +26,12 @@ class Context :
     Q_PROPERTY(QVariantMap colorPalette READ getColorPalette NOTIFY colorPaletteChanged)
 
 public:
-    Context(QQuickWindow *window, QObject *parent=nullptr);
+    Context(QQuickWindow* window, QObject* parent = nullptr);
 
-    core::World * getWorld() const;
-    ui::WorldSurface * getWorldSurface() const;
-    core::CampaignMap * getCampaignMap() const;
-    core::Game * getGame() const;
+    core::World* getWorld() const;
+    ui::WorldSurface* getWorldSurface() const;
+    core::CampaignMap* getCampaignMap() const;
+    core::Game* getGame() const;
     QVariantList readWorlds() const;
     QVariantList readWorldSurfaces() const;
     QVariantList readCampaignMaps() const;
@@ -46,7 +45,7 @@ public slots:
      * The map will be set as the current map and the world as the
      * current world.
      */
-    void newCampaignMap(warmonger::core::World *world);
+    void newCampaignMap(warmonger::core::World* world);
 
 signals:
     void worldChanged();
@@ -60,22 +59,22 @@ signals:
     void colorPaletteChanged();
 
 private:
-    void setWorld(core::World *world);
-    void setWorldSurface(ui::WorldSurface *worldSurface);
+    void setWorld(core::World* world);
+    void setWorldSurface(ui::WorldSurface* worldSurface);
     void setDefaultWorldSurface();
-    void setCampaignMap(core::CampaignMap *campaignMap);
+    void setCampaignMap(core::CampaignMap* campaignMap);
     void loadWorlds();
-    void loadMapsFromDir(const QDir& mapsDir, core::World *world);
-    void loadSurfacesFromDir(const QDir& surfacesDir, core::World *world);
+    void loadMapsFromDir(const QDir& mapsDir, core::World* world);
+    void loadSurfacesFromDir(const QDir& surfacesDir, core::World* world);
 
-    QQuickWindow *window;
-    core::World *world;
-    ui::WorldSurface *worldSurface;
-    core::CampaignMap *campaignMap;
-    core::Game *game;
-    std::vector<core::World *> worlds;
-    std::map<core::World *, std::vector<ui::WorldSurface *>> worldSurfaces;
-    std::vector<core::CampaignMap *> campaignMaps;
+    QQuickWindow* window;
+    core::World* world;
+    ui::WorldSurface* worldSurface;
+    core::CampaignMap* campaignMap;
+    core::Game* game;
+    std::vector<core::World*> worlds;
+    std::map<core::World*, std::vector<ui::WorldSurface*>> worldSurfaces;
+    std::vector<core::CampaignMap*> campaignMaps;
     QVariantMap colorPalette;
 };
 

@@ -30,22 +30,17 @@ core::TerrainType* terrainTypeFromJson(const QJsonObject& jobj);
 core::Unit* unitFromJson(const QJsonObject& jobj, Context& ctx);
 core::UnitType* unitTypeFromJson(const QJsonObject& jobj, Context& ctx);
 
-
 /**
  * Resolve reference `name` to `Type`.
  */
 template <typename Type>
-Type * resolveReference(Context& ctx, const QString& name)
+Type* resolveReference(Context& ctx, const QString& name)
 {
-    Type *obj = ctx.get<Type *>(name);
+    Type* obj = ctx.get<Type*>(name);
     if (obj == nullptr)
     {
         QString className(Type::staticMetaObject.className());
-        throw utils::ValueError(
-            QString("Unable to resolve reference `%1' to `%2'")
-                .arg(name)
-                .arg(className)
-        );
+        throw utils::ValueError(QString("Unable to resolve reference `%1' to `%2'").arg(name).arg(className));
     }
 
     return obj;
@@ -58,8 +53,8 @@ template <typename Type>
 class ReferenceResolver
 {
 public:
-    ReferenceResolver(Context& ctx) :
-        ctx(ctx)
+    ReferenceResolver(Context& ctx)
+        : ctx(ctx)
     {
     }
 
@@ -84,17 +79,12 @@ private:
  * method. The convertFunc function converts QJsonValue to
  * Container::value_type.
  */
-template<typename Container, typename ConvertFunc>
+template <typename Container, typename ConvertFunc>
 Container fromQJsonArray(const QJsonArray& array, ConvertFunc convertFunc)
 {
     Container container;
 
-    std::transform(
-        array.begin(),
-        array.end(),
-        std::back_inserter(container),
-        convertFunc
-    );
+    std::transform(array.begin(), array.end(), std::back_inserter(container), convertFunc);
 
     return container;
 }
@@ -108,16 +98,12 @@ Container fromQJsonArray(const QJsonArray& array, ConvertFunc convertFunc)
  * to Container::key_type and `convertValue converts from QJsonValue to
  * Container::mapped_type.
  */
-template<typename Container, typename ConvertKeyFunc, typename ConvertValueFunc>
-Container fromQJsonObject(
-    const QJsonObject& object,
-    ConvertKeyFunc convertKey,
-    ConvertValueFunc convertValue
-)
+template <typename Container, typename ConvertKeyFunc, typename ConvertValueFunc>
+Container fromQJsonObject(const QJsonObject& object, ConvertKeyFunc convertKey, ConvertValueFunc convertValue)
 {
     Container container;
 
-    for(auto it = object.begin(); it != object.end(); it++)
+    for (auto it = object.begin(); it != object.end(); it++)
     {
         typename Container::key_type key = convertKey(it.key());
         typename Container::mapped_type value = convertValue(it.value());
@@ -137,41 +123,24 @@ inline int qJsonValueToInt(const QJsonValue& value)
 }
 
 template <class T>
-std::vector<T*> objectListFromJson(
-    const QJsonArray& array,
+std::vector<T*> objectListFromJson(const QJsonArray& array,
     Context& ctx,
-    std::function<T* (const QJsonObject& )> fromJsonFunc
-)
+    std::function<T*(const QJsonObject&)> fromJsonFunc)
 {
-    std::vector<T*> objects = fromQJsonArray<std::vector<T*>>(
-        array,
-        [&](const QJsonValue& v)
-        {
-            return fromJsonFunc(v.toObject());
-        }
-    );
+    std::vector<T*> objects =
+        fromQJsonArray<std::vector<T*>>(array, [&](const QJsonValue& v) { return fromJsonFunc(v.toObject()); });
 
-    std::for_each(
-        objects.begin(),
-        objects.end(),
-        std::bind(&Context::add,& ctx, std::placeholders::_1)
-    );
+    std::for_each(objects.begin(), objects.end(), std::bind(&Context::add, &ctx, std::placeholders::_1));
 
     return objects;
 }
 
 template <class T>
-std::vector<T*> objectListFromJson(
-    const QJsonArray& array,
+std::vector<T*> objectListFromJson(const QJsonArray& array,
     Context& ctx,
-    std::function<T* (const QJsonObject& , Context& ctx)> fromJsonFunc
-)
+    std::function<T*(const QJsonObject&, Context& ctx)> fromJsonFunc)
 {
-    std::function<T* (const QJsonObject& )> func = std::bind(
-        fromJsonFunc,
-        std::placeholders::_1,
-        ctx
-    );
+    std::function<T*(const QJsonObject&)> func = std::bind(fromJsonFunc, std::placeholders::_1, ctx);
     return objectListFromJson<T>(array, ctx, func);
 }
 
@@ -208,82 +177,67 @@ core::CampaignMap* JsonUnserializer::unserializeCampaignMap(const QByteArray& da
 
     obj->setMapNodes(mapNodesFromJson(jobj["mapNodes"].toArray(), this->ctx));
 
-    obj->setFactions(objectListFromJson<core::Faction>(
-        jobj["factions"].toArray(),
-        this->ctx,
-        factionFromJson
-    ));
+    obj->setFactions(objectListFromJson<core::Faction>(jobj["factions"].toArray(), this->ctx, factionFromJson));
 
-    obj->setSettlements(objectListFromJson<core::Settlement>(
-        jobj["settlements"].toArray(),
-        this->ctx,
-        settlementFromJson
-    ));
+    obj->setSettlements(
+        objectListFromJson<core::Settlement>(jobj["settlements"].toArray(), this->ctx, settlementFromJson));
 
-    obj->setUnits(objectListFromJson<core::Unit>(
-        jobj["units"].toArray(),
-        this->ctx,
-        unitFromJson
-    ));
+    obj->setUnits(objectListFromJson<core::Unit>(jobj["units"].toArray(), this->ctx, unitFromJson));
 
-    obj->setArmies(objectListFromJson<core::Army>(
-        jobj["armies"].toArray(),
-        this->ctx,
-        armyFromJson
-    ));
+    obj->setArmies(objectListFromJson<core::Army>(jobj["armies"].toArray(), this->ctx, armyFromJson));
 
     return obj.release();
 }
 
-core::Civilization * JsonUnserializer::unserializeCivilization(const QByteArray& data)
+core::Civilization* JsonUnserializer::unserializeCivilization(const QByteArray& data)
 {
     QJsonDocument jdoc(parseJson(data));
     return civilizationsFromJson(jdoc.object(), this->ctx);
 }
 
-core::MapNode * JsonUnserializer::unserializeMapNode(const QByteArray& data)
+core::MapNode* JsonUnserializer::unserializeMapNode(const QByteArray& data)
 {
     QJsonDocument jdoc(parseJson(data));
     return mapNodeFromJson(jdoc.object(), this->ctx);
 }
 
-core::Faction * JsonUnserializer::unserializeFaction(const QByteArray& data)
+core::Faction* JsonUnserializer::unserializeFaction(const QByteArray& data)
 {
     QJsonDocument jdoc(parseJson(data));
     return factionFromJson(jdoc.object(), this->ctx);
 }
 
-core::Settlement * JsonUnserializer::unserializeSettlement(const QByteArray& data)
+core::Settlement* JsonUnserializer::unserializeSettlement(const QByteArray& data)
 {
     QJsonDocument jdoc(parseJson(data));
     return settlementFromJson(jdoc.object(), this->ctx);
 }
 
-core::SettlementType * JsonUnserializer::unserializeSettlementType(const QByteArray& data)
+core::SettlementType* JsonUnserializer::unserializeSettlementType(const QByteArray& data)
 {
     QJsonDocument jdoc(parseJson(data));
     return settlementTypeFromJson(jdoc.object(), this->ctx);
 }
 
-core::TerrainType * JsonUnserializer::unserializeTerrainType(const QByteArray& data)
+core::TerrainType* JsonUnserializer::unserializeTerrainType(const QByteArray& data)
 {
     QJsonDocument jdoc(parseJson(data));
     return terrainTypeFromJson(jdoc.object());
 }
 
-core::Unit * JsonUnserializer::unserializeUnit(const QByteArray& data)
+core::Unit* JsonUnserializer::unserializeUnit(const QByteArray& data)
 {
     QJsonDocument jdoc(parseJson(data));
     return unitFromJson(jdoc.object(), this->ctx);
 }
 
-core::UnitType * JsonUnserializer::unserializeUnitType(const QByteArray& data)
+core::UnitType* JsonUnserializer::unserializeUnitType(const QByteArray& data)
 {
     QJsonDocument jdoc(parseJson(data));
     return unitTypeFromJson(jdoc.object(), this->ctx);
 }
 
-core::World * JsonUnserializer::unserializeWorld(const QByteArray& data)
+core::World* JsonUnserializer::unserializeWorld(const QByteArray& data)
 {
     QJsonDocument jdoc(parseJson(data));
     QJsonObject jobj = jdoc.object();
@@ -291,44 +245,27 @@ core::World * JsonUnserializer::unserializeWorld(const QByteArray& data)
     std::unique_ptr<core::World> obj(new core::World());
     obj->setObjectName(jobj["objectName"].toString());
     obj->setDisplayName(jobj["displayName"].toString());
-    obj->setArmyTypes(objectListFromJson<core::ArmyType>(
-        jobj["armyTypes"].toArray(),
-        this->ctx,
-        armyTypeFromJson
-    ));
-    obj->setTerrainTypes(objectListFromJson<core::TerrainType>(
-        jobj["terrainTypes"].toArray(),
-        this->ctx,
-        terrainTypeFromJson
-    ));
+    obj->setArmyTypes(objectListFromJson<core::ArmyType>(jobj["armyTypes"].toArray(), this->ctx, armyTypeFromJson));
+    obj->setTerrainTypes(
+        objectListFromJson<core::TerrainType>(jobj["terrainTypes"].toArray(), this->ctx, terrainTypeFromJson));
     // UnitTypes refer to other UnitTypes so we need to add them
     // to the context as soon as they are unserialized
-    obj->setUnitTypes(fromQJsonArray<std::vector<core::UnitType *>>(
-        jobj["unitTypes"].toArray(),
-        [&](const QJsonValue& v)
-        {
-            core::UnitType *ut = unitTypeFromJson(v.toObject(), this->ctx);
+    obj->setUnitTypes(
+        fromQJsonArray<std::vector<core::UnitType*>>(jobj["unitTypes"].toArray(), [&](const QJsonValue& v) {
+            core::UnitType* ut = unitTypeFromJson(v.toObject(), this->ctx);
             this->ctx.add(ut);
             return ut;
-        }
-    ));
+        }));
     // SettlementTypes refer to other UnitTypes so we need to add them
     // to the context as soon as they are unserialized
     obj->setSettlementTypes(objectListFromJson<core::SettlementType>(
-        jobj["settlementTypes"].toArray(),
-        this->ctx,
-        [&](const QJsonValue& v)
-        {
-            core::SettlementType *st = settlementTypeFromJson(v.toObject(), this->ctx);
+        jobj["settlementTypes"].toArray(), this->ctx, [&](const QJsonValue& v) {
+            core::SettlementType* st = settlementTypeFromJson(v.toObject(), this->ctx);
             this->ctx.add(st);
             return st;
-        }
-    ));
-    obj->setCivilizations(objectListFromJson<core::Civilization>(
-        jobj["civilizations"].toArray(),
-        this->ctx,
-        civilizationsFromJson
-    ));
+        }));
+    obj->setCivilizations(
+        objectListFromJson<core::Civilization>(jobj["civilizations"].toArray(), this->ctx, civilizationsFromJson));
 
     return obj.release();
 }
@@ -337,7 +274,7 @@ QJsonDocument parseJson(const QByteArray& json)
 {
     QJsonParseError parseError;
 
-    QJsonDocument doc(QJsonDocument::fromJson(json,& parseError));
+    QJsonDocument doc(QJsonDocument::fromJson(json, &parseError));
 
     if (parseError.error != QJsonParseError::NoError)
     {
@@ -360,22 +297,11 @@ core::Army* armyFromJson(const QJsonObject& jobj, Context& ctx)
     std::unique_ptr<core::Army> obj(new core::Army());
     obj->setObjectName(jobj["objectName"].toString());
     obj->setDisplayName(jobj["displayName"].toString());
-    obj->setType(resolveReference<core::ArmyType>(
-        ctx,
-        jobj["type"].toString()
-    ));
-    obj->setMapNode(resolveReference<core::MapNode>(
-        ctx,
-        jobj["mapNode"].toString()
-    ));
-    obj->setOwner(resolveReference<core::Faction>(
-        ctx,
-        jobj["owner"].toString()
-    ));
-    obj->setUnits(fromQJsonArray<std::vector<core::Unit *>>(
-        jobj["units"].toArray(),
-        ReferenceResolver<core::Unit>(ctx)
-    ));
+    obj->setType(resolveReference<core::ArmyType>(ctx, jobj["type"].toString()));
+    obj->setMapNode(resolveReference<core::MapNode>(ctx, jobj["mapNode"].toString()));
+    obj->setOwner(resolveReference<core::Faction>(ctx, jobj["owner"].toString()));
+    obj->setUnits(
+        fromQJsonArray<std::vector<core::Unit*>>(jobj["units"].toArray(), ReferenceResolver<core::Unit>(ctx)));
 
     return obj.release();
 }
@@ -387,10 +313,7 @@ core::Civilization* civilizationsFromJson(const QJsonObject& jobj, Context& ctx)
     std::unique_ptr<core::Civilization> obj(new core::Civilization());
     obj->setObjectName(jobj["objectName"].toString());
     obj->setDisplayName(jobj["displayName"].toString());
-    obj->setUnitTypes(fromQJsonArray<std::vector<core::UnitType *>>(
-        jobj["unitTypes"].toArray(),
-        unitTypeRefResolver
-    ));
+    obj->setUnitTypes(fromQJsonArray<std::vector<core::UnitType*>>(jobj["unitTypes"].toArray(), unitTypeRefResolver));
 
     return obj.release();
 }
@@ -402,10 +325,7 @@ core::Faction* factionFromJson(const QJsonObject& jobj, Context& ctx)
     obj->setDisplayName(jobj["displayName"].toString());
     obj->setColor(QColor(jobj["color"].toString()));
     obj->setGoldBalance(jobj["goldBalance"].toInt());
-    obj->setCivilization(resolveReference<core::Civilization>(
-        ctx,
-        jobj["civilization"].toString()
-    ));
+    obj->setCivilization(resolveReference<core::Civilization>(ctx, jobj["civilization"].toString()));
 
     return obj.release();
 }
@@ -415,10 +335,7 @@ core::MapNode* mapNodeFromJson(const QJsonObject& jobj, Context& ctx)
     std::unique_ptr<core::MapNode> obj(new core::MapNode());
     obj->setObjectName(jobj["objectName"].toString());
     obj->setDisplayName(jobj["displayName"].toString());
-    obj->setTerrainType(resolveReference<core::TerrainType>(
-        ctx,
-        jobj["terrainType"].toString()
-    ));
+    obj->setTerrainType(resolveReference<core::TerrainType>(ctx, jobj["terrainType"].toString()));
 
     return obj.release();
 }
@@ -465,26 +382,14 @@ std::vector<core::MapNode*> mapNodesFromJson(const QJsonArray& jarr, Context& ct
     return mapNodes;
 }
 
-core::Settlement* settlementFromJson(
-    const QJsonObject& jobj,
-    Context& ctx
-)
+core::Settlement* settlementFromJson(const QJsonObject& jobj, Context& ctx)
 {
     std::unique_ptr<core::Settlement> obj(new core::Settlement());
     obj->setObjectName(jobj["objectName"].toString());
     obj->setDisplayName(jobj["displayName"].toString());
-    obj->setType(resolveReference<core::SettlementType>(
-        ctx,
-        jobj["type"].toString()
-    ));
-    obj->setMapNode(resolveReference<core::MapNode>(
-        ctx,
-        jobj["mapNode"].toString()
-    ));
-    obj->setOwner(resolveReference<core::Faction>(
-        ctx,
-        jobj["owner"].toString()
-    ));
+    obj->setType(resolveReference<core::SettlementType>(ctx, jobj["type"].toString()));
+    obj->setMapNode(resolveReference<core::MapNode>(ctx, jobj["mapNode"].toString()));
+    obj->setOwner(resolveReference<core::Faction>(ctx, jobj["owner"].toString()));
 
     return obj.release();
 }
@@ -520,18 +425,9 @@ core::Unit* unitFromJson(const QJsonObject& jobj, Context& ctx)
     std::unique_ptr<core::Unit> obj(new core::Unit());
     obj->setObjectName(jobj["objectName"].toString());
     obj->setDisplayName(jobj["displayName"].toString());
-    obj->setType(resolveReference<core::UnitType>(
-        ctx,
-        jobj["type"].toString()
-    ));
-    obj->setMapNode(resolveReference<core::MapNode>(
-        ctx,
-        jobj["mapNode"].toString()
-    ));
-    obj->setOwner(resolveReference<core::Faction>(
-        ctx,
-        jobj["owner"].toString()
-    ));
+    obj->setType(resolveReference<core::UnitType>(ctx, jobj["type"].toString()));
+    obj->setMapNode(resolveReference<core::MapNode>(ctx, jobj["mapNode"].toString()));
+    obj->setOwner(resolveReference<core::Faction>(ctx, jobj["owner"].toString()));
 
     return obj.release();
 }
@@ -567,16 +463,11 @@ core::UnitType* unitTypeFromJson(const QJsonObject& jobj, Context& ctx)
 
     if (jobj.contains("movementCosts"))
         obj->setMovementCosts(fromQJsonObject<std::map<core::TerrainType*, int>>(
-            jobj["movementCosts"].toObject(),
-            ReferenceResolver<core::TerrainType>(ctx),
-            qJsonValueToInt
-        ));
+            jobj["movementCosts"].toObject(), ReferenceResolver<core::TerrainType>(ctx), qJsonValueToInt));
 
     if (jobj.contains("upgrades"))
-        obj->setUpgrades(fromQJsonArray<std::vector<core::UnitType *>>(
-            jobj["upgrades"].toArray(),
-            ReferenceResolver<core::UnitType>(ctx)
-        ));
+        obj->setUpgrades(fromQJsonArray<std::vector<core::UnitType*>>(
+            jobj["upgrades"].toArray(), ReferenceResolver<core::UnitType>(ctx)));
 
     return obj.release();
 }

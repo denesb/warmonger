@@ -15,8 +15,7 @@
 namespace warmonger {
 namespace core {
 
-class World :
-    public QObject
+class World : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName NOTIFY displayNameChanged)
@@ -27,7 +26,7 @@ class World :
     Q_PROPERTY(QVariantList unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
 
 public:
-    explicit World(QObject*parent=nullptr);
+    explicit World(QObject* parent = nullptr);
 
     QString getDisplayName() const;
     void setDisplayName(const QString& displayName);

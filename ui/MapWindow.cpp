@@ -10,9 +10,9 @@ MapWindow::MapWindow()
 {
 }
 
-MapWindow::MapWindow(const QRect& mapRect, const QSize& windowSize) :
-    mapRect(mapRect),
-    windowRect(this->mapRect.topLeft(), windowSize)
+MapWindow::MapWindow(const QRect& mapRect, const QSize& windowSize)
+    : mapRect(mapRect)
+    , windowRect(this->mapRect.topLeft(), windowSize)
 {
     this->setWindowPos(this->windowRect.topLeft());
 }
@@ -45,7 +45,7 @@ void MapWindow::setWindowRect(const QRect& windowRect)
     }
 
     const QPoint newPos = this->adjustWindowPosition(windowRect.topLeft());
-    if  (this->windowRect.topLeft() != newPos)
+    if (this->windowRect.topLeft() != newPos)
     {
         this->windowRect.moveTopLeft(newPos);
         posChanged = true;

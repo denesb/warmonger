@@ -15,8 +15,8 @@
 namespace warmonger {
 
 namespace core {
-    class World;
-    class WorldSurface;
+class World;
+class WorldSurface;
 }
 
 namespace ui {
@@ -24,18 +24,17 @@ namespace ui {
 class MapDrawer;
 struct MovingUnit;
 
-class GameMap :
-    public QQuickPaintedItem
+class GameMap : public QQuickPaintedItem
 {
     Q_OBJECT
 
-    Q_PROPERTY(warmonger::core::Game *game READ getGame WRITE setGame NOTIFY gameChanged)
-    Q_PROPERTY(warmonger::core::MapNode *focusedMapNode READ getFocusedMapNode NOTIFY focusedMapNodeChanged)
-    Q_PROPERTY(warmonger::core::Settlement *focusedSettlement READ getFocusedSettlement NOTIFY focusedSettlementChanged)
-    Q_PROPERTY(warmonger::core::Unit *focusedUnit READ getFocusedUnit NOTIFY focusedUnitChanged)
-    Q_PROPERTY(warmonger::core::MapNode *currentMapNode READ getCurrentMapNode NOTIFY currentMapNodeChanged)
-    Q_PROPERTY(warmonger::core::Settlement *currentSettlement READ getCurrentSettlement NOTIFY currentSettlementChanged)
-    Q_PROPERTY(warmonger::core::Unit *currentUnit READ getCurrentUnit NOTIFY currentUnitChanged)
+    Q_PROPERTY(warmonger::core::Game* game READ getGame WRITE setGame NOTIFY gameChanged)
+    Q_PROPERTY(warmonger::core::MapNode* focusedMapNode READ getFocusedMapNode NOTIFY focusedMapNodeChanged)
+    Q_PROPERTY(warmonger::core::Settlement* focusedSettlement READ getFocusedSettlement NOTIFY focusedSettlementChanged)
+    Q_PROPERTY(warmonger::core::Unit* focusedUnit READ getFocusedUnit NOTIFY focusedUnitChanged)
+    Q_PROPERTY(warmonger::core::MapNode* currentMapNode READ getCurrentMapNode NOTIFY currentMapNodeChanged)
+    Q_PROPERTY(warmonger::core::Settlement* currentSettlement READ getCurrentSettlement NOTIFY currentSettlementChanged)
+    Q_PROPERTY(warmonger::core::Unit* currentUnit READ getCurrentUnit NOTIFY currentUnitChanged)
     Q_PROPERTY(QPoint windowPos READ getWindowPos WRITE setWindowPos NOTIFY windowPosChanged)
     Q_PROPERTY(QSize windowSize READ getWindowSize NOTIFY windowSizeChanged)
     Q_PROPERTY(Mode mode READ getMode WRITE setMode NOTIFY modeChanged)
@@ -49,36 +48,36 @@ public:
     };
     Q_ENUM(Mode)
 
-    GameMap(QQuickItem *parent = nullptr);
+    GameMap(QQuickItem* parent = nullptr);
     ~GameMap();
 
-    core::Game *getGame() const;
-    void setGame(core::Game *game);
+    core::Game* getGame() const;
+    void setGame(core::Game* game);
 
-    core::MapNode * getFocusedMapNode() const;
+    core::MapNode* getFocusedMapNode() const;
 
-    core::Settlement * getFocusedSettlement() const;
+    core::Settlement* getFocusedSettlement() const;
 
-    core::Unit * getFocusedUnit() const;
+    core::Unit* getFocusedUnit() const;
 
-    core::MapNode * getCurrentMapNode() const;
+    core::MapNode* getCurrentMapNode() const;
 
-    core::Settlement * getCurrentSettlement() const;
+    core::Settlement* getCurrentSettlement() const;
 
-    core::Unit * getCurrentUnit() const;
+    core::Unit* getCurrentUnit() const;
 
     QPoint getWindowPos() const;
-    void setWindowPos(const QPoint &windowPos);
+    void setWindowPos(const QPoint& windowPos);
 
-    void centerWindow(const QPoint &pos);
-    void moveWindowBy(const QPoint &diff);
+    void centerWindow(const QPoint& pos);
+    void moveWindowBy(const QPoint& diff);
 
     QSize getWindowSize() const;
 
     Mode getMode() const;
     void setMode(Mode mode);
 
-    void paint(QPainter *painter);
+    void paint(QPainter* painter);
 
 signals:
     void currentMapNodeChanged();
@@ -93,27 +92,27 @@ signals:
     void windowSizeChanged();
 
 protected:
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void hoverMoveEvent(QHoverEvent *event);
+    void mousePressEvent(QMouseEvent* event);
+    void mouseMoveEvent(QMouseEvent* event);
+    void hoverMoveEvent(QHoverEvent* event);
 
 private slots:
-    void onUnitAdded(const core::Unit *unit);
+    void onUnitAdded(const core::Unit* unit);
 
 private:
     void setupMap();
     void updateGeometry();
     void updateWindowPosRect();
-    bool rectContainsNode(const QRect &rect, const core::MapNode *node);
-    QPoint mapToMap(const QPoint &p);
+    bool rectContainsNode(const QRect& rect, const core::MapNode* node);
+    QPoint mapToMap(const QPoint& p);
 
     void onWidthChanged();
     void onHeightChanged();
     void onFocusedNodeChanged();
     void onCurrentNodeChanged();
 
-    void updateFocus(const QPoint &p);
-    void moveUnit(const QPoint &p);
+    void updateFocus(const QPoint& p);
+    void moveUnit(const QPoint& p);
     void advanceUnits();
 
     QList<DrawingInfo::Overlay> getMapOverlays() const;
@@ -121,23 +120,23 @@ private:
     QList<DrawingInfo::Overlay> getRecruitmentMapOverlays() const;
     QList<DrawingInfo::Overlay> getBattleMapOverlays() const;
 
-    core::Game *game;
-    core::World *world;
-    core::WorldSurface *surface;
+    core::Game* game;
+    core::World* world;
+    core::WorldSurface* surface;
     QSize tileSize;
 
-    MapDrawer *mapDrawer;
+    MapDrawer* mapDrawer;
 
-    QList<core::MapNode *> nodes;
-    QHash<const core::MapNode *, QPoint> nodesPos;
-    QSet<core::MapNode *> reachableNodes;
-    QSet<core::MapNode *> pathNodes;
+    QList<core::MapNode*> nodes;
+    QHash<const core::MapNode*, QPoint> nodesPos;
+    QSet<core::MapNode*> reachableNodes;
+    QSet<core::MapNode*> pathNodes;
 
-    core::MapNode *focusedNode;
-    core::MapNode *currentNode;
+    core::MapNode* focusedNode;
+    core::MapNode* currentNode;
 
-    QTimer *unitMoveTimer;
-    QList<MovingUnit *> movingUnits;
+    QTimer* unitMoveTimer;
+    QList<MovingUnit*> movingUnits;
 
     QRect boundingRect;
     QRect windowPosRect;

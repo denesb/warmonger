@@ -6,18 +6,17 @@
 namespace warmonger {
 namespace core {
 
-class TerrainType :
-    public QObject
+class TerrainType : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
 
 public:
-    explicit TerrainType(QObject *parent=nullptr);
+    explicit TerrainType(QObject* parent = nullptr);
     ~TerrainType();
 
     QString getDisplayName() const;
-    void setDisplayName(const QString &displayName);
+    void setDisplayName(const QString& displayName);
 
 signals:
     void displayNameChanged();

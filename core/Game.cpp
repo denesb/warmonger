@@ -3,19 +3,19 @@
 namespace warmonger {
 namespace core {
 
-Game::Game(QObject *parent) :
-    QObject(parent),
-    campaignMap(nullptr),
-    turn(0)
+Game::Game(QObject* parent)
+    : QObject(parent)
+    , campaignMap(nullptr)
+    , turn(0)
 {
 }
 
-CampaignMap * Game::getCampaignMap() const
+CampaignMap* Game::getCampaignMap() const
 {
     return this->campaignMap;
 }
 
-void Game::setCampaignMap(CampaignMap *campaignMap)
+void Game::setCampaignMap(CampaignMap* campaignMap)
 {
     if (this->campaignMap != campaignMap)
     {

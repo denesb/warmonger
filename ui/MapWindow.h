@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include <QPoint>
-#include <QSize>
 #include <QRect>
+#include <QSize>
 
 namespace warmonger {
 namespace ui {

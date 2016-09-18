@@ -11,7 +11,6 @@ namespace ui {
 class MapDrawer
 {
 public:
-
     /**
      * Draw a map-node and all content on it
      * @param[in] mapNode the map-node to draw

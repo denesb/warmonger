@@ -15,14 +15,15 @@ namespace ui {
 
 class CampaignMapWatcher;
 
-class CampaignMapEditor :
-    public BasicMap,
-    public MapDrawer
+class CampaignMapEditor : public BasicMap, public MapDrawer
 {
     Q_OBJECT
-    Q_PROPERTY(warmonger::core::CampaignMap* campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
-    Q_PROPERTY(warmonger::ui::WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
-    Q_PROPERTY(warmonger::ui::CampaignMapEditor::EditingMode editingMode READ getEditingMode WRITE setEditingMode NOTIFY editingModeChanged)
+    Q_PROPERTY(
+        warmonger::core::CampaignMap* campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
+    Q_PROPERTY(
+        warmonger::ui::WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
+    Q_PROPERTY(warmonger::ui::CampaignMapEditor::EditingMode editingMode READ getEditingMode WRITE setEditingMode NOTIFY
+            editingModeChanged)
     Q_PROPERTY(QObject* objectType READ getObjectType WRITE setObjectType NOTIFY objectTypeChanged)
 
 public:
@@ -33,7 +34,7 @@ public:
     };
     Q_ENUM(EditingMode)
 
-    CampaignMapEditor(QQuickItem *parent = nullptr);
+    CampaignMapEditor(QQuickItem* parent = nullptr);
 
     core::CampaignMap* getCampaignMap() const;
     void setCampaignMap(core::CampaignMap* campaignMap);
@@ -71,8 +72,8 @@ private:
     void doSettlementTypeEditingAction();
     QSGNode* drawHoverNode(QSGNode* oldNode) const;
 
-    core::CampaignMap *campaignMap;
-    WorldSurface *worldSurface;
+    core::CampaignMap* campaignMap;
+    WorldSurface* worldSurface;
     std::map<core::MapNode*, QPoint> mapNodesPos;
 
     core::MapNode* hoverMapNode;

@@ -6,19 +6,19 @@
 #include "core/SettlementType.h"
 #include "core/TerrainType.h"
 #include "core/Unit.h"
-#include "ui/CampaignMiniMap.h"
 #include "ui/CampaignMapWatcher.h"
+#include "ui/CampaignMiniMap.h"
 #include "ui/MapUtil.h"
 #include "utils/Logging.h"
 
 namespace warmonger {
 namespace ui {
 
-CampaignMiniMap::CampaignMiniMap(QQuickItem *parent) :
-    BasicMiniMap(parent),
-    worldSurface(nullptr),
-    campaignMap(nullptr),
-    watcher(nullptr)
+CampaignMiniMap::CampaignMiniMap(QQuickItem* parent)
+    : BasicMiniMap(parent)
+    , worldSurface(nullptr)
+    , campaignMap(nullptr)
+    , watcher(nullptr)
 {
 }
 
@@ -48,10 +48,7 @@ void CampaignMiniMap::setCampaignMap(core::CampaignMap* campaignMap)
             this->watcher = new CampaignMapWatcher(this->campaignMap, this);
             QObject::connect(this->watcher, &CampaignMapWatcher::changed, this, &CampaignMiniMap::update);
             QObject::connect(
-                    this->campaignMap,
-                    &core::CampaignMap::mapNodesChanged,
-                    this,
-                    &CampaignMiniMap::onMapNodesChanged);
+                this->campaignMap, &core::CampaignMap::mapNodesChanged, this, &CampaignMiniMap::onMapNodesChanged);
         }
 
         emit campaignMapChanged();
@@ -65,7 +62,7 @@ WorldSurface* CampaignMiniMap::getWorldSurface() const
 
 void CampaignMiniMap::setWorldSurface(WorldSurface* worldSurface)
 {
-    if(this->worldSurface != worldSurface)
+    if (this->worldSurface != worldSurface)
     {
         wInfo << "worldSurface `" << this->worldSurface << "' -> `" << worldSurface << "'";
 
@@ -115,8 +112,8 @@ QSGNode* CampaignMiniMap::drawMapNodeAndContents(core::MapNode* mapNode, QSGNode
 
 void CampaignMiniMap::updateContent()
 {
-    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty()
-            || this->worldSurface->getWorld() != this->campaignMap->getWorld())
+    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty() ||
+        this->worldSurface->getWorld() != this->campaignMap->getWorld())
     {
         this->setFlags(0);
     }
@@ -134,8 +131,8 @@ void CampaignMiniMap::updateContent()
 
 void CampaignMiniMap::updateMapRect()
 {
-    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty()
-            || this->worldSurface->getWorld() != this->campaignMap->getWorld())
+    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty() ||
+        this->worldSurface->getWorld() != this->campaignMap->getWorld())
     {
         this->setMapRect(QRect(0, 0, 0, 0));
     }

@@ -1,43 +1,37 @@
-#include <map>
 #include <functional>
+#include <map>
 
 #include <QColor>
 #include <QCoreApplication>
 #include <QSettings>
 
-#include "utils/Settings.h"
 #include "utils/Constants.h"
+#include "utils/Settings.h"
 
 namespace warmonger {
 namespace utils {
 
 const QString separator{"/"};
 
-const std::map<SettingsKey, QVariant> defaultValues{
-    {SettingsKey::foregroundColor0, QColor("#ffffff")},
+const std::map<SettingsKey, QVariant> defaultValues{{SettingsKey::foregroundColor0, QColor("#ffffff")},
     {SettingsKey::foregroundColor1, QColor("#c1c1c1")},
     {SettingsKey::backgroundColor0, QColor("#414141")},
     {SettingsKey::backgroundColor1, QColor("#616161")},
     {SettingsKey::focusColor0, QColor("#d7894a")},
-    {SettingsKey::focusColor1, QColor("#ff8929")}
-};
+    {SettingsKey::focusColor1, QColor("#ff8929")}};
 
 const std::map<WorldSettingsKey, QVariant> worldDefaultValues{};
 
-const std::map<SettingsKey, QString> settingsKeyToString{
-    {SettingsKey::worldsDir, "worldsDir"},
+const std::map<SettingsKey, QString> settingsKeyToString{{SettingsKey::worldsDir, "worldsDir"},
     {SettingsKey::workDir, "workDir"},
     {SettingsKey::foregroundColor0, "ui/foregroundColor0"},
     {SettingsKey::foregroundColor1, "ui/foregroundColor1"},
     {SettingsKey::backgroundColor0, "ui/backgroundColor0"},
     {SettingsKey::backgroundColor1, "ui/backgroundColor1"},
     {SettingsKey::focusColor0, "ui/focusColor0"},
-    {SettingsKey::focusColor1, "ui/focusColor0"}
-};
+    {SettingsKey::focusColor1, "ui/focusColor0"}};
 
-const std::map<WorldSettingsKey, QString> worldSettingsKeyToString{
-    {WorldSettingsKey::preferredSurface, "surface"}
-};
+const std::map<WorldSettingsKey, QString> worldSettingsKeyToString{{WorldSettingsKey::preferredSurface, "surface"}};
 
 static QString toRawKey(const SettingsKey key);
 static QString toRawKey(const QObject* world, const WorldSettingsKey key);
@@ -91,7 +85,7 @@ static QVariant getDefaultValue(const SettingsKey key)
     {
         return defaultValues.at(key);
     }
-    catch(std::out_of_range&)
+    catch (std::out_of_range&)
     {
         return QVariant();
     }
@@ -103,7 +97,7 @@ static QVariant getWorldDefaultValue(const WorldSettingsKey key)
     {
         return worldDefaultValues.at(key);
     }
-    catch(std::out_of_range&)
+    catch (std::out_of_range&)
     {
         return QVariant();
     }

@@ -1,8 +1,8 @@
 #ifndef TEST_UTIL_H
 #define TEST_UTIL_H
 
-#include <string>
 #include <ostream>
+#include <string>
 
 #include <QJsonArray>
 #include <QJsonObject>
@@ -14,10 +14,10 @@
 
 using namespace warmonger;
 
-std::ostream &operator<<(std::ostream &os, const QString &s);
+std::ostream& operator<<(std::ostream& os, const QString& s);
 
-std::pair<core::World *, QJsonObject> makeWorld();
-std::pair<core::CampaignMap *, QJsonObject> makeMap();
+std::pair<core::World*, QJsonObject> makeWorld();
+std::pair<core::CampaignMap*, QJsonObject> makeMap();
 
 /**
  * Compare a QJsonObject to a map.
@@ -25,12 +25,12 @@ std::pair<core::CampaignMap *, QJsonObject> makeMap();
  * Looks like we have to have this in the direct context of a TEST_CASE
  * to get rid of annoying warnings about parantheses.
  */
-#define objectEqualsMap(object, map) \
-    REQUIRE(object.size() == map.size()); \
-    for (const auto& element : map) \
-    { \
-        REQUIRE(element.first != nullptr); \
-        REQUIRE(object[element.first->objectName()] == element.second); \
+#define objectEqualsMap(object, map)                                                                                   \
+    REQUIRE(object.size() == map.size());                                                                              \
+    for (const auto& element : map)                                                                                    \
+    {                                                                                                                  \
+        REQUIRE(element.first != nullptr);                                                                             \
+        REQUIRE(object[element.first->objectName()] == element.second);                                                \
     }
 
 /**
@@ -39,12 +39,12 @@ std::pair<core::CampaignMap *, QJsonObject> makeMap();
  * Looks like we have to have this in the direct context of a TEST_CASE
  * to get rid of annoying warnings about parantheses.
  */
-#define arrayEqualsList(array, list) \
-    REQUIRE(array.size() == list.size()); \
-    for (size_t i = 0; i < list.size(); i++) \
-    { \
-        REQUIRE(list[i] != nullptr); \
-        REQUIRE(array[i] == list[i]->objectName()); \
+#define arrayEqualsList(array, list)                                                                                   \
+    REQUIRE(array.size() == list.size());                                                                              \
+    for (size_t i = 0; i < list.size(); i++)                                                                           \
+    {                                                                                                                  \
+        REQUIRE(list[i] != nullptr);                                                                                   \
+        REQUIRE(array[i] == list[i]->objectName());                                                                    \
     }
 
 #endif // TEST_UTIL_H

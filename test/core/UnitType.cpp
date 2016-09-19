@@ -4,7 +4,7 @@
 
 using namespace warmonger;
 
-TEST_CASE("Hierarchy and inheritance", "[UnitType]")
+TEST_CASE("UnitType hierarchy and inheritance", "[UnitType]")
 {
     SECTION("root's getters throw")
     {

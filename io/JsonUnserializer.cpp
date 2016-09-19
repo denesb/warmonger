@@ -26,7 +26,7 @@ core::MapNode* mapNodeFromJson(const QJsonObject& jobj, Context& ctx);
 std::vector<core::MapNode*> mapNodesFromJson(const QJsonArray& jarr, Context& ctx);
 core::Settlement* settlementFromJson(const QJsonObject& jobj, Context& ctx);
 core::SettlementType* settlementTypeFromJson(const QJsonObject& jobj, Context& ctx);
-core::TerrainType* terrainTypeFromJson(const QJsonObject& jobj);
+core::TerrainType* terrainTypeFromJson(const QJsonObject& jobj, Context& ctx);
 core::Unit* unitFromJson(const QJsonObject& jobj, Context& ctx);
 core::UnitType* unitTypeFromJson(const QJsonObject& jobj, Context& ctx);
 
@@ -142,6 +142,17 @@ std::vector<T*> objectListFromJson(
     return objectListFromJson<T>(array, ctx, func);
 }
 
+template <class T>
+std::vector<T*> hierarchyNodesFromJson(
+    const QJsonArray& json, std::function<T*(const QJsonObject&, Context&)> fromJson, Context& ctx)
+{
+    return fromQJsonArray<std::vector<T*>>(json, [&](const QJsonValue& v) {
+        T* obj = fromJson(v.toObject(), ctx);
+        ctx.add(obj);
+        return obj;
+    });
+}
+
 core::Army* JsonUnserializer::unserializeArmy(const QByteArray& data)
 {
     QJsonDocument jdoc(parseJson(data));
@@ -220,7 +231,7 @@ core::SettlementType* JsonUnserializer::unserializeSettlementType(const QByteArr
 core::TerrainType* JsonUnserializer::unserializeTerrainType(const QByteArray& data)
 {
     QJsonDocument jdoc(parseJson(data));
-    return terrainTypeFromJson(jdoc.object());
+    return terrainTypeFromJson(jdoc.object(), this->ctx);
 }
 
 core::Unit* JsonUnserializer::unserializeUnit(const QByteArray& data)
@@ -241,27 +252,21 @@ core::World* JsonUnserializer::unserializeWorld(const QByteArray& data)
     QJsonObject jobj = jdoc.object();
 
     std::unique_ptr<core::World> obj(new core::World());
+
     obj->setObjectName(jobj["objectName"].toString());
+
     obj->setDisplayName(jobj["displayName"].toString());
+
     obj->setArmyTypes(objectListFromJson<core::ArmyType>(jobj["armyTypes"].toArray(), this->ctx, armyTypeFromJson));
+
     obj->setTerrainTypes(
-        objectListFromJson<core::TerrainType>(jobj["terrainTypes"].toArray(), this->ctx, terrainTypeFromJson));
-    // UnitTypes refer to other UnitTypes so we need to add them
-    // to the context as soon as they are unserialized
-    obj->setUnitTypes(
-        fromQJsonArray<std::vector<core::UnitType*>>(jobj["unitTypes"].toArray(), [&](const QJsonValue& v) {
-            core::UnitType* ut = unitTypeFromJson(v.toObject(), this->ctx);
-            this->ctx.add(ut);
-            return ut;
-        }));
-    // SettlementTypes refer to other UnitTypes so we need to add them
-    // to the context as soon as they are unserialized
-    obj->setSettlementTypes(objectListFromJson<core::SettlementType>(
-        jobj["settlementTypes"].toArray(), this->ctx, [&](const QJsonValue& v) {
-            core::SettlementType* st = settlementTypeFromJson(v.toObject(), this->ctx);
-            this->ctx.add(st);
-            return st;
-        }));
+        hierarchyNodesFromJson<core::TerrainType>(jobj["terrainTypes"].toArray(), terrainTypeFromJson, this->ctx));
+
+    obj->setUnitTypes(hierarchyNodesFromJson<core::UnitType>(jobj["unitTypes"].toArray(), unitTypeFromJson, this->ctx));
+
+    obj->setSettlementTypes(hierarchyNodesFromJson<core::SettlementType>(
+        jobj["settlementTypes"].toArray(), settlementTypeFromJson, this->ctx));
+
     obj->setCivilizations(
         objectListFromJson<core::Civilization>(jobj["civilizations"].toArray(), this->ctx, civilizationsFromJson));
 
@@ -409,11 +414,19 @@ core::SettlementType* settlementTypeFromJson(const QJsonObject& jobj, Context& c
     return obj.release();
 }
 
-core::TerrainType* terrainTypeFromJson(const QJsonObject& jobj)
+core::TerrainType* terrainTypeFromJson(const QJsonObject& jobj, Context& ctx)
 {
     std::unique_ptr<core::TerrainType> obj(new core::TerrainType());
+
+    if (jobj.contains("hierarchyParent"))
+    {
+        obj->setHierarchyParent(resolveReference<core::TerrainType>(ctx, jobj["hierarchyParent"].toString()));
+    }
+
     obj->setObjectName(jobj["objectName"].toString());
-    obj->setDisplayName(jobj["displayName"].toString());
+
+    if (jobj.contains("displayName"))
+        obj->setDisplayName(jobj["displayName"].toString());
 
     return obj.release();
 }

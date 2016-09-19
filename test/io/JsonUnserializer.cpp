@@ -685,6 +685,20 @@ TEST_CASE("SettlementType can't be unserialized from JSON", "[JsonUnserializer]"
 
         REQUIRE_THROWS_AS(unserializer.unserializeSettlementType(invalidJson), utils::ValueError);
     }
+
+    SECTION("unserializing SettlementType, no parent terrainTypes")
+    {
+        QJsonObject jobj;
+        jobj["objectName"] = "terrainTypeChild0";
+        jobj["hierarchyParent"] = "nonExistentSettlementType0";
+
+        io::Context ctx;
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(unserializer.unserializeSettlementType(jdoc.toJson()), utils::ValueError);
+    }
 }
 
 TEST_CASE("TerrainType can be unserialized from JSON", "[JsonUnserializer]")
@@ -706,6 +720,26 @@ TEST_CASE("TerrainType can be unserialized from JSON", "[JsonUnserializer]")
         REQUIRE(tt->objectName() == jobj["objectName"].toString());
         REQUIRE(tt->getDisplayName() == jobj["displayName"].toString());
     }
+
+    const std::vector<core::TerrainType*> tts = world->getTerrainTypes();
+    std::for_each(tts.cbegin(), tts.cend(), [&](core::TerrainType* o) { ctx.add(o); });
+
+    SECTION("unserializing TerrainType - all properties inherited")
+    {
+        const QJsonObject parentJobj = jworld["terrainTypes"].toArray()[0].toObject();
+        QJsonObject jobj;
+        jobj["objectName"] = "childTt0";
+        jobj["hierarchyParent"] = parentJobj["objectName"];
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        const std::unique_ptr<core::TerrainType> tt(unserializer.unserializeTerrainType(jdoc.toJson()));
+
+        REQUIRE(!tt->isHierarchyRoot());
+        REQUIRE(tt->getHierarchyParent()->objectName() == parentJobj["objectName"].toString());
+        REQUIRE(tt->objectName() == jobj["objectName"].toString());
+        REQUIRE(tt->getDisplayName() == parentJobj["displayName"].toString());
+    }
 }
 
 TEST_CASE("TerrainType can't be unserialized from JSON", "[JsonUnserializer]")
@@ -716,6 +750,20 @@ TEST_CASE("TerrainType can't be unserialized from JSON", "[JsonUnserializer]")
         io::JsonUnserializer unserializer(ctx);
 
         REQUIRE_THROWS_AS(unserializer.unserializeTerrainType(invalidJson), utils::ValueError);
+    }
+
+    SECTION("unserializing TerrainType, no parent terrainTypes")
+    {
+        QJsonObject jobj;
+        jobj["objectName"] = "terrainTypeChild0";
+        jobj["hierarchyParent"] = "nonExistentTerrainType0";
+
+        io::Context ctx;
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(unserializer.unserializeTerrainType(jdoc.toJson()), utils::ValueError);
     }
 }
 

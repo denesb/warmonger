@@ -1,19 +1,22 @@
 #include "core/TerrainType.h"
+#include "utils/Exception.h"
 
-using namespace warmonger::core;
+namespace warmonger {
+namespace core {
 
 TerrainType::TerrainType(QObject* parent)
     : QObject(parent)
 {
 }
 
-TerrainType::~TerrainType()
-{
-}
-
 QString TerrainType::getDisplayName() const
 {
-    return this->displayName;
+    if (this->displayName)
+        return *this->displayName;
+    else if (this->isHierarchyRoot())
+        throw utils::ValueError("displayName is unset");
+    else
+        return this->getHierarchyParent()->getDisplayName();
 }
 
 void TerrainType::setDisplayName(const QString& displayName)
@@ -24,3 +27,6 @@ void TerrainType::setDisplayName(const QString& displayName)
         emit displayNameChanged();
     }
 }
+
+} // namespace core
+} // namespace warmonger

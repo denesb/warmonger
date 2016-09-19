@@ -217,7 +217,7 @@ TEST_CASE("SettlementType can be serialized to JSON", "[JsonSerializer]")
         const QJsonDocument jdoc(QJsonDocument::fromJson(json));
         const QJsonObject jobj(jdoc.object());
 
-        REQUIRE(!jobj.contains("hierarhcyParent"));
+        REQUIRE(!jobj.contains("hierarchyParent"));
         REQUIRE(jobj["objectName"].toString() == st->objectName());
         REQUIRE(jobj["displayName"].toString() == st->getDisplayName());
     }
@@ -247,15 +247,33 @@ TEST_CASE("TerrainType can be serialized to JSON", "[JsonSerializer]")
 
     core::TerrainType* tt = world->getTerrainTypes()[0];
 
-    SECTION("serializing TerrainType")
+    SECTION("serializing TerrainType - no inherited properties")
     {
         io::JsonSerializer serializer;
         QByteArray json(serializer.serializeTerrainType(tt));
         const QJsonDocument jdoc(QJsonDocument::fromJson(json));
         const QJsonObject jobj(jdoc.object());
 
+        REQUIRE(!jobj.contains("hierarchyParent"));
         REQUIRE(jobj["objectName"].toString() == tt->objectName());
         REQUIRE(jobj["displayName"].toString() == tt->getDisplayName());
+    }
+
+    SECTION("serializing TerrainType - all properties all inherited")
+    {
+        core::TerrainType childTt;
+
+        childTt.setObjectName("childTt0");
+        childTt.setHierarchyParent(tt);
+
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeTerrainType(&childTt));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
+
+        REQUIRE(jobj["objectName"].toString() == childTt.objectName());
+        REQUIRE(jobj["hierarchyParent"].toString() == childTt.getHierarchyParent()->objectName());
+        REQUIRE(!jobj.contains("displayName"));
     }
 }
 

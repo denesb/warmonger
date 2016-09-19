@@ -9,10 +9,6 @@ SettlementType::SettlementType(QObject* parent)
 {
 }
 
-SettlementType::~SettlementType()
-{
-}
-
 QString SettlementType::getDisplayName() const
 {
     if (this->displayName)

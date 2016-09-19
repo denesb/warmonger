@@ -285,7 +285,22 @@ QJsonObject settlementTypeToJson(const core::SettlementType* obj)
 
 QJsonObject terrainTypeToJson(const core::TerrainType* obj)
 {
-    return namesToJson(obj);
+    QJsonObject jobj;
+
+    jobj["objectName"] = obj->objectName();
+
+    const bool isRoot = obj->isHierarchyRoot();
+    const core::TerrainType* parent = obj->getHierarchyParent();
+
+    if (!isRoot)
+    {
+        jobj["hierarchyParent"] = parent->objectName();
+    }
+
+    if (isRoot || obj->getDisplayName() != parent->getDisplayName())
+        jobj["displayName"] = obj->getDisplayName();
+
+    return jobj;
 }
 
 QJsonObject unitToJson(const core::Unit* obj)

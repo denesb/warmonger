@@ -6,7 +6,6 @@
 #include <boost/optional.hpp>
 
 #include <QObject>
-#include <QVariant>
 
 #include "core/HierarchyNode.hpp"
 
@@ -26,7 +25,6 @@ class SettlementType : public QObject, public HierarchyNode<SettlementType>
 
 public:
     explicit SettlementType(QObject* parent = nullptr);
-    ~SettlementType();
 
     QString getDisplayName() const;
     void setDisplayName(const QString& displayName);

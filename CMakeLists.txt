@@ -96,6 +96,7 @@ if(BUILD_TESTS)
         test/core/MapGenerator.cpp
         test/core/UnitType.cpp
         test/core/SettlementType.cpp
+        test/core/TerrainType.cpp
         test/io/Context.cpp
         test/io/File.cpp
         test/io/JsonSerializer.cpp

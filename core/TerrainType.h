@@ -1,19 +1,22 @@
-#ifndef CORE_TERRAIN_TYPE_H
-#define CORE_TERRAIN_TYPE_H
+#ifndef W_CORE_TERRAIN_TYPE_H
+#define W_CORE_TERRAIN_TYPE_H
+
+#include <boost/optional.hpp>
 
 #include <QObject>
+
+#include "core/HierarchyNode.hpp"
 
 namespace warmonger {
 namespace core {
 
-class TerrainType : public QObject
+class TerrainType : public QObject, public HierarchyNode<TerrainType>
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
 
 public:
     explicit TerrainType(QObject* parent = nullptr);
-    ~TerrainType();
 
     QString getDisplayName() const;
     void setDisplayName(const QString& displayName);
@@ -22,10 +25,10 @@ signals:
     void displayNameChanged();
 
 private:
-    QString displayName;
+    boost::optional<QString> displayName;
 };
 
 } // namespace core
 } // namespace warmonger
 
-#endif // CORE_TERRAIN_TYPE_H
+#endif // W_CORE_TERRAIN_TYPE_H

@@ -43,8 +43,15 @@ std::pair<core::World*, QJsonObject> makeWorld()
     QJsonObject jtt0;
     setNames(tt0, jtt0, 0);
 
-    w->setTerrainTypes({tt0});
-    jw["terrainTypes"] = QJsonArray({jtt0});
+    core::TerrainType* tt1 = new core::TerrainType(w);
+    QJsonObject jtt1;
+    setNames(tt1, jtt1, 1);
+
+    tt1->setHierarchyParent(tt0);
+    jtt1["hierarchyParent"] = tt0->objectName();
+
+    w->setTerrainTypes({tt0, tt1});
+    jw["terrainTypes"] = QJsonArray({jtt0, jtt1});
 
     // ArmyType
     core::ArmyType* at0 = new core::ArmyType(w);

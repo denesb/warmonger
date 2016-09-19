@@ -91,12 +91,13 @@ if(BUILD_TESTS)
         ${SRC_FILES}
         test/test_warmonger.cpp
         test/Util.cpp
-        test/core/MapNodeNeighbours.cpp
+        test/core/ArmyType.cpp
         test/core/HierarchyNode.cpp
         test/core/MapGenerator.cpp
-        test/core/UnitType.cpp
+        test/core/MapNodeNeighbours.cpp
         test/core/SettlementType.cpp
         test/core/TerrainType.cpp
+        test/core/UnitType.cpp
         test/io/Context.cpp
         test/io/File.cpp
         test/io/JsonSerializer.cpp

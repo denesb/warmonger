@@ -33,10 +33,31 @@ TEST_CASE("ArmyType can be unserialized from JSON", "[JsonUnserializer]")
     {
         io::JsonUnserializer unserializer(ctx);
         QJsonDocument jdoc(jobj);
-        const std::unique_ptr<core::ArmyType> a(unserializer.unserializeArmyType(jdoc.toJson()));
+        const std::unique_ptr<core::ArmyType> at(unserializer.unserializeArmyType(jdoc.toJson()));
 
-        REQUIRE(a->objectName() == jobj["objectName"].toString());
-        REQUIRE(a->getDisplayName() == jobj["displayName"].toString());
+        REQUIRE(at->isHierarchyRoot());
+        REQUIRE(at->objectName() == jobj["objectName"].toString());
+        REQUIRE(at->getDisplayName() == jobj["displayName"].toString());
+    }
+
+    const std::vector<core::ArmyType*> ats = world->getArmyTypes();
+    std::for_each(ats.cbegin(), ats.cend(), [&](core::ArmyType* o) { ctx.add(o); });
+
+    SECTION("unserializing ArmyType - all properties inherited")
+    {
+        const QJsonObject parentJobj = jworld["armyTypes"].toArray()[0].toObject();
+        QJsonObject jobj;
+        jobj["objectName"] = "childAt0";
+        jobj["hierarchyParent"] = parentJobj["objectName"];
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        const std::unique_ptr<core::ArmyType> at(unserializer.unserializeArmyType(jdoc.toJson()));
+
+        REQUIRE(!at->isHierarchyRoot());
+        REQUIRE(at->getHierarchyParent()->objectName() == parentJobj["objectName"].toString());
+        REQUIRE(at->objectName() == jobj["objectName"].toString());
+        REQUIRE(at->getDisplayName() == parentJobj["displayName"].toString());
     }
 }
 
@@ -48,6 +69,20 @@ TEST_CASE("ArmyType can't be unserialized from JSON", "[JsonUnserializer]")
         io::JsonUnserializer unserializer(ctx);
 
         REQUIRE_THROWS_AS(unserializer.unserializeArmyType(invalidJson), utils::ValueError);
+    }
+
+    SECTION("unserializing ArmyType, no parent armyTypes")
+    {
+        QJsonObject jobj;
+        jobj["objectName"] = "armyTypeChild0";
+        jobj["hierarchyParent"] = "nonExistentArmyType0";
+
+        io::Context ctx;
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(unserializer.unserializeArmyType(jdoc.toJson()), utils::ValueError);
     }
 }
 
@@ -987,6 +1022,7 @@ TEST_CASE("World can be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE(world->objectName() == jobj["objectName"].toString());
         REQUIRE(world->getDisplayName() == jobj["displayName"].toString());
+        REQUIRE(world->getArmyTypes().size() == jobj["armyTypes"].toArray().size());
         REQUIRE(world->getTerrainTypes().size() == jobj["terrainTypes"].toArray().size());
         REQUIRE(world->getUnitTypes().size() == jobj["unitTypes"].toArray().size());
         REQUIRE(world->getSettlementTypes().size() == jobj["settlementTypes"].toArray().size());

@@ -1,12 +1,16 @@
 #ifndef W_CORE_ARMY_TYPE_H
 #define W_CORE_ARMY_TYPE_H
 
+#include <boost/optional.hpp>
+
 #include <QObject>
+
+#include "core/HierarchyNode.hpp"
 
 namespace warmonger {
 namespace core {
 
-class ArmyType : public QObject
+class ArmyType : public QObject, public HierarchyNode<ArmyType>
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
@@ -21,7 +25,7 @@ signals:
     void displayNameChanged();
 
 private:
-    QString displayName;
+    boost::optional<QString> displayName;
 };
 
 } // namespace core

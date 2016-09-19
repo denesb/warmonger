@@ -23,8 +23,26 @@ TEST_CASE("ArmyType can be serialized to JSON", "[JsonSerializer]")
         const QJsonDocument jdoc(QJsonDocument::fromJson(json));
         const QJsonObject jobj(jdoc.object());
 
+        REQUIRE(!jobj.contains("hierarchyParent"));
         REQUIRE(jobj["objectName"].toString() == at->objectName());
         REQUIRE(jobj["displayName"].toString() == at->getDisplayName());
+    }
+
+    SECTION("serializing ArmyType - all properties all inherited")
+    {
+        core::ArmyType childAt;
+
+        childAt.setObjectName("childAt0");
+        childAt.setHierarchyParent(at);
+
+        io::JsonSerializer serializer;
+        QByteArray json(serializer.serializeArmyType(&childAt));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
+
+        REQUIRE(jobj["objectName"].toString() == childAt.objectName());
+        REQUIRE(jobj["hierarchyParent"].toString() == childAt.getHierarchyParent()->objectName());
+        REQUIRE(!jobj.contains("displayName"));
     }
 }
 

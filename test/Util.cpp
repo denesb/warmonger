@@ -58,8 +58,15 @@ std::pair<core::World*, QJsonObject> makeWorld()
     QJsonObject jat0;
     setNames(at0, jat0, 0);
 
-    w->setArmyTypes({at0});
-    jw["armyTypes"] = QJsonArray({jat0});
+    core::ArmyType* at1 = new core::ArmyType(w);
+    QJsonObject jat1;
+    setNames(at1, jat1, 1);
+
+    at1->setHierarchyParent(at0);
+    jat1["hierarchyParent"] = at0->objectName();
+
+    w->setArmyTypes({at0, at1});
+    jw["armyTypes"] = QJsonArray({jat0, jat1});
 
     // UnitType
     core::UnitType* ut0 = new core::UnitType(w);

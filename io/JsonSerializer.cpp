@@ -189,7 +189,22 @@ QJsonObject armyToJson(const core::Army* obj)
 
 QJsonObject armyTypeToJson(const core::ArmyType* obj)
 {
-    return namesToJson(obj);
+    QJsonObject jobj;
+
+    jobj["objectName"] = obj->objectName();
+
+    const bool isRoot = obj->isHierarchyRoot();
+    const core::ArmyType* parent = obj->getHierarchyParent();
+
+    if (!isRoot)
+    {
+        jobj["hierarchyParent"] = parent->objectName();
+    }
+
+    if (isRoot || obj->getDisplayName() != parent->getDisplayName())
+        jobj["displayName"] = obj->getDisplayName();
+
+    return jobj;
 }
 
 QJsonObject campaignMapToJson(const core::CampaignMap* obj)

@@ -257,7 +257,8 @@ core::World* JsonUnserializer::unserializeWorld(const QByteArray& data)
 
     obj->setDisplayName(jobj["displayName"].toString());
 
-    obj->setArmyTypes(objectListFromJson<core::ArmyType>(jobj["armyTypes"].toArray(), this->ctx, armyTypeFromJson));
+    obj->setArmyTypes(
+        hierarchyNodesFromJson<core::ArmyType>(jobj["armyTypes"].toArray(), armyTypeFromJson, this->ctx));
 
     obj->setTerrainTypes(
         hierarchyNodesFromJson<core::TerrainType>(jobj["terrainTypes"].toArray(), terrainTypeFromJson, this->ctx));
@@ -287,14 +288,23 @@ QJsonDocument parseJson(const QByteArray& json)
     return doc;
 }
 
-core::ArmyType* armyTypeFromJson(const QJsonObject& jobj, Context&)
+core::ArmyType* armyTypeFromJson(const QJsonObject& jobj, Context& ctx)
 {
     std::unique_ptr<core::ArmyType> obj(new core::ArmyType());
+
+    if (jobj.contains("hierarchyParent"))
+    {
+        obj->setHierarchyParent(resolveReference<core::ArmyType>(ctx, jobj["hierarchyParent"].toString()));
+    }
+
     obj->setObjectName(jobj["objectName"].toString());
-    obj->setDisplayName(jobj["displayName"].toString());
+
+    if (jobj.contains("displayName"))
+        obj->setDisplayName(jobj["displayName"].toString());
 
     return obj.release();
 }
+
 core::Army* armyFromJson(const QJsonObject& jobj, Context& ctx)
 {
     std::unique_ptr<core::Army> obj(new core::Army());

@@ -1,10 +1,13 @@
+#include <QMetaEnum>
 #include <QSGSimpleTextureNode>
 
+#include "core/Utils.hpp"
 #include "ui/CampaignMapEditor.h"
 #include "ui/CampaignMapWatcher.h"
 #include "ui/MapUtil.h"
 #include "utils/Constants.h"
 #include "utils/Logging.h"
+#include "utils/QVariantUtils.h"
 
 namespace warmonger {
 namespace ui {
@@ -19,6 +22,11 @@ CampaignMapEditor::CampaignMapEditor(QQuickItem* parent)
     , watcher(nullptr)
 {
     this->setAcceptHoverEvents(true);
+
+    QObject::connect(
+        this, &CampaignMapEditor::editingModeChanged, this, &CampaignMapEditor::availableObjectTypesChanged);
+    QObject::connect(
+        this, &CampaignMapEditor::campaignMapChanged, this, &CampaignMapEditor::availableObjectTypesChanged);
 }
 
 core::CampaignMap* CampaignMapEditor::getCampaignMap() const
@@ -80,9 +88,38 @@ void CampaignMapEditor::setEditingMode(EditingMode editingMode)
 {
     if (this->editingMode != editingMode)
     {
+        QMetaEnum me = QMetaEnum::fromType<EditingMode>();
+        wDebug << "editingMode: `" << me.valueToKey(static_cast<int>(this->editingMode)) << "' -> `"
+               << me.valueToKey(static_cast<int>(editingMode)) << "'";
+
         this->editingMode = editingMode;
         emit editingModeChanged();
     }
+}
+
+QVariantList CampaignMapEditor::readAvailableObjectTypes() const
+{
+    if (this->campaignMap == nullptr)
+        return QVariantList();
+
+    const core::World* world = this->campaignMap->getWorld();
+
+    switch (this->editingMode)
+    {
+        case EditingMode::TerrainType:
+            return world->readTerrainTypes();
+
+        case EditingMode::SettlementType:
+            return world->readSettlementTypes();
+
+        case EditingMode::ArmyType:
+            return world->readArmyTypes();
+
+        default:
+            return QVariantList();
+    }
+
+    return QVariantList();
 }
 
 QObject* CampaignMapEditor::getObjectType() const
@@ -257,8 +294,21 @@ void CampaignMapEditor::doEditingAction(const QPoint& pos)
         case EditingMode::TerrainType:
             this->doTerrainTypeEditingAction(pos);
             break;
+
         case EditingMode::SettlementType:
-            this->doSettlementTypeEditingAction();
+            this->doSettlementTypeEditingAction(pos);
+            break;
+
+        case EditingMode::ArmyType:
+            // this->doArmyTypeEditingAction();
+            break;
+
+        case EditingMode::Edit:
+            // this->doEditEditingAction();
+            break;
+
+        case EditingMode::Remove:
+            // this->doRemoveTypeEditingAction();
             break;
     }
 }
@@ -311,8 +361,30 @@ void CampaignMapEditor::doTerrainTypeEditingAction(const QPoint& pos)
     }
 }
 
-void CampaignMapEditor::doSettlementTypeEditingAction()
+void CampaignMapEditor::doSettlementTypeEditingAction(const QPoint& pos)
 {
+    core::SettlementType* settlementType = qobject_cast<core::SettlementType*>(this->objectType);
+    if (settlementType == nullptr)
+    {
+        wWarning << "objectType has invalid value `" << this->objectType
+                 << "' for editing mode `EditingMode::SettlementType'";
+        return;
+    }
+
+    core::MapNode* currentMapNode = mapNodeAtPos(pos, this->mapNodesPos, this->worldSurface);
+
+    if (currentMapNode == nullptr)
+        return;
+
+    const std::vector<core::Settlement*>& settlements = this->campaignMap->getSettlements();
+    auto it = std::find_if(settlements.begin(), settlements.end(), core::IsOnMapNode<core::Settlement>(currentMapNode));
+
+    if (it != settlements.end())
+        return;
+
+    core::Settlement* settlement = this->campaignMap->createSettlement(settlementType);
+
+    wDebug << "Creating new settlement " << settlement;
 }
 
 QSGNode* CampaignMapEditor::drawHoverNode(QSGNode* oldNode) const

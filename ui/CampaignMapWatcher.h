@@ -12,6 +12,16 @@ class CampaignMap;
 
 namespace ui {
 
+struct Watcher : public QObject
+{
+    Q_OBJECT
+
+    using QObject::QObject;
+
+signals:
+    void changed();
+};
+
 class CampaignMapWatcher : public QObject
 {
     Q_OBJECT
@@ -23,11 +33,15 @@ signals:
     void changed();
 
 private:
-    void connectSignals();
+    void connectMapNodeSignals();
+    void connectSettlementSignals();
     void onMapNodesChanged();
+    void onSettlementsChanged();
 
 private:
     const core::CampaignMap* const campaignMap;
+    Watcher* mapNodeWatcher;
+    Watcher* settlementWatcher;
 };
 
 } // namespace ui

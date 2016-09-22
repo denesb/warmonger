@@ -73,7 +73,7 @@ public:
     void addMapNode(MapNode* mapNode);
     void removeMapNode(MapNode* mapNode);
 
-    void addSettlement(Settlement* settlement);
+    Settlement* createSettlement(SettlementType* settlementType);
     void removeSettlement(Settlement* settlement);
 
     void addUnit(Unit* unit);

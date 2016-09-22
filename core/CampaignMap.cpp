@@ -239,12 +239,18 @@ void CampaignMap::removeMapNode(MapNode* mapNode)
     }
 }
 
-void CampaignMap::addSettlement(Settlement* settlement)
+Settlement* CampaignMap::createSettlement(SettlementType* settlementType)
 {
-    settlement->setParent(this);
+    Settlement* settlement = new Settlement(this);
+
+    settlement->setObjectName(settlementNameTemplate.arg(this->settlementIndex++));
+    settlement->setType(settlementType);
+
     this->settlements.push_back(settlement);
 
     emit settlementsChanged();
+
+    return settlement;
 }
 
 void CampaignMap::removeSettlement(Settlement* settlement)

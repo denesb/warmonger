@@ -15,6 +15,7 @@ Rectangle {
         id: sideBar
 
         miniMapWindowRect: mapEditor.windowRect
+        availableObjectTypes: mapEditor.availableObjectTypes
 
         width: 200
         anchors {
@@ -43,6 +44,7 @@ Rectangle {
             worldSurface: W.worldSurface
             windowPos: sideBar.miniMapWindowPos
             objectType: sideBar.objectType
+            editingMode: sideBar.editingMode
 
             anchors.fill: parent
             anchors.margins: 1

@@ -8,6 +8,8 @@ Rectangle {
     property var miniMapWindowRect
     readonly property var miniMapWindowPos: miniMap.windowPos
     readonly property var objectType: objectTypeSelector.objectType
+    property var availableObjectTypes
+    property var editingMode: objectTypeSelector.editingMode
 
     color: W.colorPalette.backgroundColor0
 
@@ -28,7 +30,7 @@ Rectangle {
 
             anchors.fill: parent
 
-            objectTypes: W.world.terrainTypes
+            objectTypes: root.availableObjectTypes
         }
     }
 

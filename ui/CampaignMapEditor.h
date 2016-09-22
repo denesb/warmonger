@@ -1,5 +1,5 @@
-#ifndef UI_CAMPAIGN_MAP_EDITOR_H
-#define UI_CAMPAIGN_MAP_EDITOR_H
+#ifndef W_UI_CAMPAIGN_MAP_EDITOR_H
+#define W_UI_CAMPAIGN_MAP_EDITOR_H
 
 #include <map>
 
@@ -24,13 +24,17 @@ class CampaignMapEditor : public BasicMap, public MapDrawer
         warmonger::ui::WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
     Q_PROPERTY(warmonger::ui::CampaignMapEditor::EditingMode editingMode READ getEditingMode WRITE setEditingMode NOTIFY
             editingModeChanged)
+    Q_PROPERTY(QVariantList availableObjectTypes READ readAvailableObjectTypes NOTIFY availableObjectTypesChanged)
     Q_PROPERTY(QObject* objectType READ getObjectType WRITE setObjectType NOTIFY objectTypeChanged)
 
 public:
     enum class EditingMode
     {
         TerrainType,
-        SettlementType
+        SettlementType,
+        ArmyType,
+        Edit,
+        Remove
     };
     Q_ENUM(EditingMode)
 
@@ -45,6 +49,8 @@ public:
     EditingMode getEditingMode() const;
     void setEditingMode(EditingMode editingMode);
 
+    QVariantList readAvailableObjectTypes() const;
+
     QObject* getObjectType() const;
     void setObjectType(QObject* objectType);
 
@@ -57,6 +63,7 @@ signals:
     void worldSurfaceChanged();
     void editingModeChanged();
     void objectTypeChanged();
+    void availableObjectTypesChanged();
 
 protected:
     void hoverMoveEvent(QHoverEvent* event) override;
@@ -69,7 +76,7 @@ private:
     void onMapNodesChanged();
     void doEditingAction(const QPoint& pos);
     void doTerrainTypeEditingAction(const QPoint& pos);
-    void doSettlementTypeEditingAction();
+    void doSettlementTypeEditingAction(const QPoint& pos);
     QSGNode* drawHoverNode(QSGNode* oldNode) const;
 
     core::CampaignMap* campaignMap;
@@ -88,4 +95,4 @@ private:
 } // namespace ui
 } // namespace warmonger
 
-#endif // UI_CAMPAIGN_MAP_EDITOR_H
+#endif // W_UI_CAMPAIGN_MAP_EDITOR_H

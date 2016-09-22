@@ -257,8 +257,7 @@ core::World* JsonUnserializer::unserializeWorld(const QByteArray& data)
 
     obj->setDisplayName(jobj["displayName"].toString());
 
-    obj->setArmyTypes(
-        hierarchyNodesFromJson<core::ArmyType>(jobj["armyTypes"].toArray(), armyTypeFromJson, this->ctx));
+    obj->setArmyTypes(hierarchyNodesFromJson<core::ArmyType>(jobj["armyTypes"].toArray(), armyTypeFromJson, this->ctx));
 
     obj->setTerrainTypes(
         hierarchyNodesFromJson<core::TerrainType>(jobj["terrainTypes"].toArray(), terrainTypeFromJson, this->ctx));

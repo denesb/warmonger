@@ -1,10 +1,14 @@
 import QtQuick 2.2
+import Warmonger 1.0
+
+import "../widgets" as Widgets
 
 Rectangle {
     id: root
 
     property var objectTypes
-    property var objectType
+    property var objectType : null
+    property var editingMode : list.model.get(0).mode
 
     color: W.colorPalette.backgroundColor0
 
@@ -59,21 +63,186 @@ Rectangle {
             states: [
                 State {
                     name: "normal"
-                    PropertyChanges { target: frame; color: W.colorPalette.backgroundColor1; border.color: W.colorPalette.foregroundColor1}
+                    PropertyChanges {
+                        target: frame;
+                        color: W.colorPalette.backgroundColor1;
+                        border.color: W.colorPalette.foregroundColor1
+                        border.width: 1
+                    }
                 },
                 State {
                     name: "normalFocused"
-                    PropertyChanges { target: frame; color: W.colorPalette.foregroundColor1; border.color: W.colorPalette.foregroundColor1}
+                    PropertyChanges {
+                        target: frame;
+                        color: W.colorPalette.foregroundColor1;
+                        border.color: W.colorPalette.foregroundColor1
+                        border.width: 1
+                    }
                 },
                 State {
                     name: "current"
-                    PropertyChanges { target: frame; color: W.colorPalette.backgroundColor1; border.color: W.colorPalette.focusColor0}
+                    PropertyChanges {
+                        target: frame;
+                        color: W.colorPalette.backgroundColor1;
+                        border.color: W.colorPalette.focusColor0;
+                        border.width: 2
+                    }
                 },
                 State {
                     name: "currentFocused"
-                    PropertyChanges { target: frame; color: W.colorPalette.foregroundColor1; border.color: W.colorPalette.focusColor0}
+                    PropertyChanges {
+                        target: frame;
+                        color: W.colorPalette.foregroundColor1;
+                        border.color: W.colorPalette.focusColor0
+                        border.width: 2
+                    }
                 }
             ]
+        }
+    }
+
+    Component {
+        id: editingTypeComponent
+
+        Rectangle {
+            id: frame
+
+            width: 30
+            height: 30
+
+            state: frame.ListView.isCurrentItem ? "current" : "normal"
+
+            border {
+                width: 1
+                color: W.colorPalette.foregroundColor1
+            }
+
+            color: W.colorPalette.backgroundColor1
+
+            Text {
+                anchors.centerIn: parent
+
+                text: name
+            }
+
+            MouseArea {
+                anchors.fill: parent
+
+                acceptedButtons: Qt.LeftButton
+                hoverEnabled: true
+
+                onClicked: {
+                    frame.ListView.view.currentItem.state = "normal"
+                    frame.ListView.view.currentIndex = index
+                }
+
+                onEntered: {
+                    frame.state = frame.ListView.isCurrentItem ? "currentFocused" : "normalFocused";
+                }
+
+                onExited: {
+                    frame.state = frame.ListView.isCurrentItem ? "current" : "normal";
+                }
+            }
+
+            states: [
+                State {
+                    name: "normal"
+                    PropertyChanges {
+                        target: frame;
+                        color: W.colorPalette.backgroundColor1;
+                        border.color: W.colorPalette.foregroundColor1
+                        border.width: 1
+                    }
+                },
+                State {
+                    name: "normalFocused"
+                    PropertyChanges {
+                        target: frame;
+                        color: W.colorPalette.foregroundColor1;
+                        border.color: W.colorPalette.foregroundColor1
+                        border.width: 1
+                    }
+                },
+                State {
+                    name: "current"
+                    PropertyChanges {
+                        target: frame;
+                        color: W.colorPalette.backgroundColor1;
+                        border.color: W.colorPalette.focusColor0;
+                        border.width: 2
+                    }
+                },
+                State {
+                    name: "currentFocused"
+                    PropertyChanges {
+                        target: frame;
+                        color: W.colorPalette.foregroundColor1;
+                        border.color: W.colorPalette.focusColor0
+                        border.width: 2
+                    }
+                }
+            ]
+        }
+
+    }
+
+    Rectangle {
+        id: editingModeSelector
+
+        anchors {
+            top: parent.top
+            left: parent.left
+            right: parent.right
+            margins: 4
+        }
+
+        height: 40
+
+        color: W.colorPalette.backgroundColor0
+
+        ListView {
+            id: list
+            anchors.fill: parent
+            spacing: 2
+            orientation: ListView.Horizontal
+
+            currentIndex: 0
+            onCurrentIndexChanged: {
+                root.editingMode = model.get(currentIndex).mode
+            }
+
+            ListModel {
+                id: editingModes
+
+                ListElement {
+                    name: "T"
+                    mode: CampaignMapEditor.TerrainType
+                }
+
+                ListElement {
+                    name: "S"
+                    mode: CampaignMapEditor.SettlementType
+                }
+
+                ListElement {
+                    name: "A"
+                    mode: CampaignMapEditor.ArmyType
+                }
+
+                ListElement {
+                    name: "E"
+                    mode: CampaignMapEditor.Edit
+                }
+
+                ListElement {
+                    name: "R"
+                    mode: CampaignMapEditor.Remove
+                }
+            }
+
+            model: editingModes
+            delegate: editingTypeComponent
         }
     }
 
@@ -81,9 +250,10 @@ Rectangle {
         id: grid
 
         anchors {
-            top: parent.top
+            top: editingModeSelector.bottom
             bottom: parent.bottom
             horizontalCenter: parent.horizontalCenter
+            margins: 4
         }
 
         cellHeight: 88
@@ -93,7 +263,7 @@ Rectangle {
 
         currentIndex: 0
         onCurrentIndexChanged: {
-            root.objectType = root.objectTypes[currentIndex]
+            root.objectType = root.objectTypes[currentIndex];
         }
 
         model: root.objectTypes

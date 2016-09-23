@@ -89,9 +89,6 @@ TEST_CASE("CampaignMap can be serialized to JSON", "[JsonSerializer]")
         REQUIRE(jobj["objectName"].toString() == m->objectName());
         REQUIRE(jobj["displayName"].toString() == m->getDisplayName());
         REQUIRE(jobj["world"].toString() == m->getWorld()->objectName());
-        REQUIRE(jobj["mapNodeIndex"].toInt() == m->getMapNodeIndex());
-        REQUIRE(jobj["settlementIndex"].toInt() == m->getSettlementIndex());
-        REQUIRE(jobj["unitIndex"].toInt() == m->getUnitIndex());
 
         REQUIRE(jobj["mapNodes"].isArray() == true);
         REQUIRE(m->getMapNodes().size() == jobj["mapNodes"].toArray().size());

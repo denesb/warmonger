@@ -212,9 +212,6 @@ QJsonObject campaignMapToJson(const core::CampaignMap* obj)
     QJsonObject jobj(namesToJson(obj));
 
     jobj["world"] = obj->getWorld()->objectName();
-    jobj["mapNodeIndex"] = obj->getMapNodeIndex();
-    jobj["settlementIndex"] = obj->getSettlementIndex();
-    jobj["unitIndex"] = obj->getUnitIndex();
     jobj["mapNodes"] = toQJsonArray(obj->getMapNodes(), mapNodeToJson);
     jobj["factions"] = toQJsonArray(obj->getFactions(), factionToJson);
     jobj["settlements"] = toQJsonArray(obj->getSettlements(), settlementToJson);

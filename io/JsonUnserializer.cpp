@@ -178,12 +178,6 @@ core::CampaignMap* JsonUnserializer::unserializeCampaignMap(const QByteArray& da
 
     obj->setWorld(resolveReference<core::World>(this->ctx, jobj["world"].toString()));
 
-    obj->setMapNodeIndex(jobj["mapNodeIndex"].toInt());
-
-    obj->setSettlementIndex(jobj["settlementIndex"].toInt());
-
-    obj->setUnitIndex(jobj["unitIndex"].toInt());
-
     obj->setMapNodes(mapNodesFromJson(jobj["mapNodes"].toArray(), this->ctx));
 
     obj->setFactions(objectListFromJson<core::Faction>(jobj["factions"].toArray(), this->ctx, factionFromJson));

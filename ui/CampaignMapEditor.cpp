@@ -323,8 +323,6 @@ void CampaignMapEditor::doTerrainTypeEditingAction(const QPoint& pos)
         return;
     }
 
-    core::MapNode* mapNode{nullptr};
-
     if (this->hoverMapNode == nullptr)
     {
         if (this->hoverPos)
@@ -332,32 +330,17 @@ void CampaignMapEditor::doTerrainTypeEditingAction(const QPoint& pos)
             const core::MapNodeNeighbours neighbours(neighboursByPos(pos, this->worldSurface, this->mapNodesPos));
             if (!neighbours.empty())
             {
-                mapNode = new core::MapNode();
-                mapNode->setObjectName("mapNode" + QString::number(this->mapNodesPos.size()));
-                mapNode->setNeighbours(neighbours);
+                this->hoverMapNode = this->campaignMap->createMapNode(terrainType, neighbours);
 
-                for (const std::pair<core::Direction, core::MapNode*>& neighbour : neighbours)
-                    if (neighbour.second != nullptr)
-                        neighbour.second->setNeighbour(core::oppositeDirection(neighbour.first), mapNode);
-
-                this->campaignMap->addMapNode(mapNode);
-
-                this->hoverMapNode = mapNode;
-
-                wDebug << "Creating new node " << mapNode;
+                wDebug << "Creating new node " << this->hoverMapNode;
             }
         }
     }
     else
     {
-        mapNode = this->hoverMapNode;
+        this->hoverMapNode->setTerrainType(terrainType);
 
-        wDebug << "Editing existing node " << mapNode;
-    }
-
-    if (mapNode != nullptr)
-    {
-        mapNode->setTerrainType(terrainType);
+        wDebug << "Editing existing node " << this->hoverMapNode;
     }
 }
 

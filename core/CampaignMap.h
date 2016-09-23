@@ -37,18 +37,6 @@ public:
     World* getWorld() const;
     void setWorld(World* world);
 
-    int getMapNodeIndex() const;
-    void setMapNodeIndex(int mapNodeIndex);
-
-    int getSettlementIndex() const;
-    void setSettlementIndex(int settlementIndex);
-
-    int getUnitIndex() const;
-    void setUnitIndex(int unitIndex);
-
-    int getArmyIndex() const;
-    void setArmyIndex(int armyIndex);
-
     const std::vector<MapNode*>& getMapNodes() const;
     std::vector<MapNode*>& getMapNodes();
     void setMapNodes(const std::vector<MapNode*>& mapNodes);
@@ -70,25 +58,21 @@ public:
     void setArmies(const std::vector<Army*>& armies);
     QVariantList readArmies() const;
 
-    void addMapNode(MapNode* mapNode);
+    MapNode* createMapNode(TerrainType* terrainType, const MapNodeNeighbours& neighbours);
     void removeMapNode(MapNode* mapNode);
 
     Settlement* createSettlement(SettlementType* settlementType);
     void removeSettlement(Settlement* settlement);
 
-    void addUnit(Unit* unit);
+    Unit* createUnit(UnitType* unitType);
     void removeUnit(Unit* unit);
 
-    void addArmy(Army* army);
+    Army* createArmy(ArmyType* armyType);
     void removeArmy(Army* army);
 
 signals:
     void displayNameChanged();
     void worldChanged();
-    void mapNodeIndexChanged();
-    void settlementIndexChanged();
-    void unitIndexChanged();
-    void armyIndexChanged();
     void factionsChanged();
     void mapNodesChanged();
     void settlementsChanged();

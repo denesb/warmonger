@@ -174,18 +174,6 @@ std::pair<core::CampaignMap*, QJsonObject> makeMap()
     m->setWorld(w);
     jm["world"] = w->objectName();
 
-    m->setMapNodeIndex(2);
-    jm["mapNodeIndex"] = 2;
-
-    m->setSettlementIndex(1);
-    jm["settlementIndex"] = 1;
-
-    m->setUnitIndex(1);
-    jm["unitIndex"] = 1;
-
-    m->setArmyIndex(1);
-    jm["armyIndex"] = 1;
-
     // MapNodes
     core::MapNode* mn0 = new core::MapNode(m);
     QJsonObject jmn0;

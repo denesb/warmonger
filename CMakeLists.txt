@@ -92,6 +92,7 @@ if(BUILD_TESTS)
         test/test_warmonger.cpp
         test/Util.cpp
         test/core/ArmyType.cpp
+        test/core/CampaignMap.cpp
         test/core/HierarchyNode.cpp
         test/core/MapGenerator.cpp
         test/core/MapNodeNeighbours.cpp

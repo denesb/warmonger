@@ -4,15 +4,31 @@
 #include "core/TerrainType.h"
 #include "utils/QVariantUtils.h"
 
-using namespace warmonger::core;
-
-const QString mapNodeNameTemplate{"mapNode%1"};
-const QString settlementNameTemplate{"settlement%1"};
-const QString unitNameTemplate{"unit%1"};
-const QString armyNameTemplate{"army%1"};
-
 namespace warmonger {
 namespace core {
+
+const QString mapNodeNameTemplate{"mapNode-%1"};
+const QString settlementNameTemplate{"settlement-%1"};
+const QString unitNameTemplate{"unit-%1"};
+const QString armyNameTemplate{"army-%1"};
+
+template <class ObjectList>
+static int nextNameIndex(const ObjectList& list)
+{
+    int index{0};
+
+    for (const auto object : list)
+    {
+        index = std::max(index, object->objectName().section('-', -1, -1).toInt());
+    }
+
+    return ++index;
+}
+
+static void destroy(QObject* obj)
+{
+    delete obj;
+}
 
 CampaignMap::CampaignMap(QObject* parent)
     : QObject(parent)
@@ -21,11 +37,6 @@ CampaignMap::CampaignMap(QObject* parent)
     , settlementIndex(0)
     , unitIndex(0)
     , armyIndex(0)
-    , factions()
-    , mapNodes()
-    , settlements()
-    , units()
-    , armies()
 {
 }
 
@@ -57,62 +68,6 @@ void CampaignMap::setWorld(World* world)
     }
 }
 
-int CampaignMap::getMapNodeIndex() const
-{
-    return this->mapNodeIndex;
-}
-
-void CampaignMap::setMapNodeIndex(int mapNodeIndex)
-{
-    if (this->mapNodeIndex != mapNodeIndex)
-    {
-        this->mapNodeIndex = mapNodeIndex;
-        emit mapNodeIndexChanged();
-    }
-}
-
-int CampaignMap::getSettlementIndex() const
-{
-    return this->settlementIndex;
-}
-
-void CampaignMap::setSettlementIndex(int settlementIndex)
-{
-    if (this->settlementIndex != settlementIndex)
-    {
-        this->settlementIndex = settlementIndex;
-        emit settlementIndexChanged();
-    }
-}
-
-int CampaignMap::getUnitIndex() const
-{
-    return this->unitIndex;
-}
-
-void CampaignMap::setUnitIndex(int unitIndex)
-{
-    if (this->unitIndex != unitIndex)
-    {
-        this->unitIndex = unitIndex;
-        emit unitIndexChanged();
-    }
-}
-
-int CampaignMap::getArmyIndex() const
-{
-    return this->armyIndex;
-}
-
-void CampaignMap::setArmyIndex(int armyIndex)
-{
-    if (this->armyIndex != armyIndex)
-    {
-        this->armyIndex = armyIndex;
-        emit armyIndexChanged();
-    }
-}
-
 const std::vector<MapNode*>& CampaignMap::getMapNodes() const
 {
     return this->mapNodes;
@@ -127,12 +82,14 @@ void CampaignMap::setMapNodes(const std::vector<MapNode*>& mapNodes)
 {
     if (this->mapNodes != mapNodes)
     {
+        std::for_each(this->mapNodes.begin(), this->mapNodes.end(), destroy);
+
         this->mapNodes = mapNodes;
 
-        for (MapNode* node : mapNodes)
-        {
+        for (MapNode* node : this->mapNodes)
             node->setParent(this);
-        }
+
+        this->mapNodeIndex = nextNameIndex(this->mapNodes);
 
         emit mapNodesChanged();
     }
@@ -152,7 +109,15 @@ void CampaignMap::setSettlements(const std::vector<Settlement*>& settlements)
 {
     if (this->settlements != settlements)
     {
+        std::for_each(this->settlements.begin(), this->settlements.end(), destroy);
+
         this->settlements = settlements;
+
+        for (Settlement* settlement : this->settlements)
+            settlement->setParent(this);
+
+        this->settlementIndex = nextNameIndex(this->settlements);
+
         emit settlementsChanged();
     }
 }
@@ -171,7 +136,15 @@ void CampaignMap::setUnits(const std::vector<Unit*>& units)
 {
     if (this->units != units)
     {
+        std::for_each(this->units.begin(), this->units.end(), destroy);
+
         this->units = units;
+
+        for (Unit* unit : this->units)
+            unit->setParent(this);
+
+        this->unitIndex = nextNameIndex(this->units);
+
         emit unitsChanged();
     }
 }
@@ -190,7 +163,15 @@ void CampaignMap::setArmies(const std::vector<Army*>& armies)
 {
     if (this->armies != armies)
     {
+        std::for_each(this->armies.begin(), this->armies.end(), destroy);
+
         this->armies = armies;
+
+        for (Army* army : this->armies)
+            army->setParent(this);
+
+        this->armyIndex = nextNameIndex(this->armies);
+
         emit armiesChanged();
     }
 }
@@ -219,12 +200,28 @@ QVariantList CampaignMap::readFactions() const
     return utils::toQVariantList(this->factions);
 }
 
-void CampaignMap::addMapNode(MapNode* mapNode)
+MapNode* CampaignMap::createMapNode(TerrainType* terrainType, const MapNodeNeighbours& neighbours)
 {
-    mapNode->setParent(this);
+    MapNode* mapNode = new MapNode(this);
+
+    mapNode->setObjectName(mapNodeNameTemplate.arg(this->mapNodeIndex++));
+
+    mapNode->setTerrainType(terrainType);
+
+    for (const std::pair<Direction, MapNode*>& neighbour : neighbours)
+    {
+        if (neighbour.second != nullptr)
+        {
+            mapNode->setNeighbour(neighbour.first, neighbour.second);
+            neighbour.second->setNeighbour(oppositeDirection(neighbour.first), mapNode);
+        }
+    }
+
     this->mapNodes.push_back(mapNode);
 
     emit mapNodesChanged();
+
+    return mapNode;
 }
 
 void CampaignMap::removeMapNode(MapNode* mapNode)
@@ -265,12 +262,19 @@ void CampaignMap::removeSettlement(Settlement* settlement)
     }
 }
 
-void CampaignMap::addUnit(Unit* unit)
+Unit* CampaignMap::createUnit(UnitType* unitType)
 {
-    unit->setParent(this);
+    Unit* unit = new Unit(this);
+
+    unit->setObjectName(unitNameTemplate.arg(this->unitIndex++));
+
+    unit->setType(unitType);
+
     this->units.push_back(unit);
 
     emit unitsChanged();
+
+    return unit;
 }
 
 void CampaignMap::removeUnit(Unit* unit)
@@ -285,12 +289,19 @@ void CampaignMap::removeUnit(Unit* unit)
     }
 }
 
-void CampaignMap::addArmy(Army* army)
+Army* CampaignMap::createArmy(ArmyType* armyType)
 {
-    army->setParent(this);
+    Army* army = new Army(this);
+
+    army->setObjectName(armyNameTemplate.arg(this->armyIndex++));
+
+    army->setType(armyType);
+
     this->armies.push_back(army);
 
     emit armiesChanged();
+
+    return army;
 }
 
 void CampaignMap::removeArmy(Army* army)

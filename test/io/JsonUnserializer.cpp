@@ -253,9 +253,6 @@ TEST_CASE("CampaignMap can be unserialized from JSON", "[JsonUnserializer]")
         REQUIRE(m->objectName() == jobj["objectName"].toString());
         REQUIRE(m->getDisplayName() == jobj["displayName"].toString());
         REQUIRE(m->getWorld()->objectName() == jobj["world"].toString());
-        REQUIRE(m->getMapNodeIndex() == jobj["mapNodeIndex"].toInt());
-        REQUIRE(m->getSettlementIndex() == jobj["settlementIndex"].toInt());
-        REQUIRE(m->getUnitIndex() == jobj["unitIndex"].toInt());
 
         const std::vector<core::MapNode*> mns{m->getMapNodes()};
         const QJsonArray jmns(jobj["mapNodes"].toArray());

@@ -6,6 +6,7 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QObject>
 #include <QString>
 
 #include "core/CampaignMap.h"
@@ -46,5 +47,31 @@ std::pair<core::CampaignMap*, QJsonObject> makeMap();
         REQUIRE(list[i] != nullptr);                                                                                   \
         REQUIRE(array[i] == list[i]->objectName());                                                                    \
     }
+
+class DestroyWatcher : public QObject
+{
+    Q_OBJECT
+
+public:
+    DestroyWatcher(QObject* obj)
+        : destroyed(false)
+    {
+        QObject::connect(obj, &QObject::destroyed, this, &DestroyWatcher::onDestroyed);
+    }
+
+    bool isDestroyed() const
+    {
+        return this->destroyed;
+    }
+
+public slots:
+    void onDestroyed()
+    {
+        this->destroyed = true;
+    }
+
+private:
+    bool destroyed;
+};
 
 #endif // TEST_UTIL_H

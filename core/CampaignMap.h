@@ -1,7 +1,7 @@
 #ifndef CORE_CAMPAIGN_MAP_H
 #define CORE_CAMPAIGN_MAP_H
 
-#include <map>
+#include <memory>
 #include <vector>
 
 #include <QObject>
@@ -29,46 +29,114 @@ class CampaignMap : public QObject
     Q_PROPERTY(QVariantList settlements READ readSettlements NOTIFY settlementsChanged)
 
 public:
+    typedef std::tuple<MapNode*, Settlement*, Army*> Content;
+
     explicit CampaignMap(QObject* parent = nullptr);
 
-    QString getDisplayName() const;
+    const QString& getDisplayName() const
+    {
+        return this->displayName;
+    }
+
     void setDisplayName(const QString& displayName);
 
-    World* getWorld() const;
+    World* getWorld() const
+    {
+        return this->world;
+    }
+
     void setWorld(World* world);
 
-    const std::vector<MapNode*>& getMapNodes() const;
-    std::vector<MapNode*>& getMapNodes();
+    const std::vector<MapNode*>& getMapNodes() const
+    {
+        return this->mapNodes;
+    }
+
     void setMapNodes(const std::vector<MapNode*>& mapNodes);
     QVariantList readMapNodes() const;
 
-    std::vector<Faction*> getFactions() const;
+    const std::vector<Faction*>& getFactions() const
+    {
+        return this->factions;
+    }
+
     void setFactions(const std::vector<Faction*>& units);
     QVariantList readFactions() const;
 
-    std::vector<Settlement*> getSettlements() const;
+    const std::vector<Settlement*>& getSettlements() const
+    {
+        return this->settlements;
+    }
+
+    /**
+     * Set settlements
+     *
+     * Destroys previous settlements
+     */
     void setSettlements(const std::vector<Settlement*>& settlements);
     QVariantList readSettlements() const;
 
-    std::vector<Unit*> getUnits() const;
+    const std::vector<Unit*>& getUnits() const
+    {
+        return this->units;
+    }
+
     void setUnits(const std::vector<Unit*>& units);
     QVariantList readUnits() const;
 
-    std::vector<Army*> getArmies() const;
+    const std::vector<Army*>& getArmies() const
+    {
+        return this->armies;
+    }
+
     void setArmies(const std::vector<Army*>& armies);
     QVariantList readArmies() const;
 
     MapNode* createMapNode(TerrainType* terrainType, const MapNodeNeighbours& neighbours);
-    void removeMapNode(MapNode* mapNode);
+    std::unique_ptr<MapNode> removeMapNode(MapNode* mapNode);
 
+    /**
+     * Create a new settlement and assume ownership
+     *
+     * The newly created settlement is added to the settlement list and it is
+     * assigned a unique objectName (in the context of this map).
+     *
+     * @param[in] SettlementType* settlementType the type of the settlement
+     *
+     * @returns Settlement* the newly created settlement
+     */
     Settlement* createSettlement(SettlementType* settlementType);
-    void removeSettlement(Settlement* settlement);
+
+    /**
+     * Remove settlement from the settlement list and renounce ownership
+     *
+     * The removed settlement is removed as an std::unique_ptr and will be
+     * destroyed if the caller doesn't save it.
+     *
+     * @param[in] Settlement* settlement the settlement to remove
+     *
+     * @returns std::unique_ptr<Settlement> the removed settlement or an empty
+     * pointer if the settlement  was not found
+     */
+    std::unique_ptr<Settlement> removeSettlement(Settlement* settlement);
 
     Unit* createUnit(UnitType* unitType);
-    void removeUnit(Unit* unit);
+    std::unique_ptr<Unit> removeUnit(Unit* unit);
 
     Army* createArmy(ArmyType* armyType);
-    void removeArmy(Army* army);
+    std::unique_ptr<Army> removeArmy(Army* army);
+
+    const std::vector<Content>& getContents() const
+    {
+        return this->contents;
+    }
+
+private:
+    void rebuildContents();
+
+private slots:
+    void settlementMapNodeChanged();
+    void armyMapNodeChanged();
 
 signals:
     void displayNameChanged();
@@ -91,6 +159,8 @@ private:
     std::vector<Settlement*> settlements;
     std::vector<Unit*> units;
     std::vector<Army*> armies;
+
+    std::vector<Content> contents;
 };
 
 } // namespace core

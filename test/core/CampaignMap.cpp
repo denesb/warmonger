@@ -5,6 +5,22 @@
 
 using namespace warmonger;
 
+template <typename T>
+struct MatchItemWithMember
+{
+    MatchItemWithMember(const T& member)
+        : member(member)
+    {
+    }
+
+    bool operator()(const core::CampaignMap::Content& content)
+    {
+        return std::get<T>(content) == this->member;
+    }
+
+    const T& member;
+};
+
 TEST_CASE("Create methods", "[CampaignMap]")
 {
     core::CampaignMap map;
@@ -137,5 +153,216 @@ TEST_CASE("Create methods", "[CampaignMap]")
         core::Army* army3 = map.createArmy(&type);
 
         REQUIRE(army3->objectName() == "army-3");
+    }
+}
+
+TEST_CASE("Content", "[CampaignMap]")
+{
+    core::World world;
+
+    core::CampaignMap map;
+
+    map.setWorld(&world);
+
+    core::TerrainType* terrainType0 = new core::TerrainType(&world);
+    core::SettlementType* settlementType0 = new core::SettlementType(&world);
+    core::ArmyType* armyType0 = new core::ArmyType(&world);
+
+    world.setTerrainTypes({terrainType0});
+    world.setSettlementTypes({settlementType0});
+    world.setArmyTypes({armyType0});
+
+    REQUIRE(map.getMapNodes().empty());
+    REQUIRE(map.getSettlements().empty());
+    REQUIRE(map.getArmies().empty());
+    REQUIRE(map.getContents().empty());
+
+    SECTION("Newly created settlement")
+    {
+        core::MapNode* mapNode0 = map.createMapNode(terrainType0, core::MapNodeNeighbours());
+
+        REQUIRE(map.getContents().size() == 1);
+        REQUIRE(std::get<0>(map.getContents()[0]) == mapNode0);
+
+        std::vector<core::CampaignMap::Content> previousContent = map.getContents();
+
+        core::Settlement* settlement0 = map.createSettlement(settlementType0);
+
+        REQUIRE(previousContent == map.getContents());
+
+        settlement0->setMapNode(mapNode0);
+
+        REQUIRE(std::get<1>(map.getContents()[0]) == settlement0);
+
+        settlement0->setMapNode(nullptr);
+
+        REQUIRE(std::get<1>(map.getContents()[0]) == nullptr);
+    }
+
+    SECTION("Newly created army")
+    {
+        core::MapNode* mapNode0 = map.createMapNode(terrainType0, core::MapNodeNeighbours());
+
+        REQUIRE(map.getContents().size() == 1);
+        REQUIRE(std::get<0>(map.getContents()[0]) == mapNode0);
+
+        std::vector<core::CampaignMap::Content> previousContent = map.getContents();
+
+        core::Army* army0 = map.createArmy(armyType0);
+
+        REQUIRE(previousContent == map.getContents());
+
+        army0->setMapNode(mapNode0);
+
+        REQUIRE(std::get<2>(map.getContents()[0]) == army0);
+
+        army0->setMapNode(nullptr);
+
+        REQUIRE(std::get<2>(map.getContents()[0]) == nullptr);
+    }
+
+    SECTION("Content set with setters")
+    {
+        core::MapNode* mapNode0 = new core::MapNode();
+        core::MapNode* mapNode1 = new core::MapNode();
+
+        map.setMapNodes({mapNode0, mapNode1});
+
+        const std::vector<core::CampaignMap::Content>& contents = map.getContents();
+
+        REQUIRE(contents.size() == 2);
+        REQUIRE(std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::MapNode*>(mapNode0)) !=
+            contents.end());
+        REQUIRE(std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::MapNode*>(mapNode1)) !=
+            contents.end());
+
+        core::Settlement* settlement0 = new core::Settlement();
+        core::Settlement* settlement1 = new core::Settlement();
+
+        settlement1->setMapNode(mapNode0);
+
+        map.setSettlements({settlement0, settlement1});
+
+        core::Army* army0 = new core::Army();
+        core::Army* army1 = new core::Army();
+
+        army1->setMapNode(mapNode1);
+
+        map.setArmies({army0, army1});
+
+        SECTION("Settlement changes are tracked")
+        {
+            REQUIRE(
+                std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::Settlement*>(settlement0)) ==
+                contents.end());
+
+            const auto it1 =
+                std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::Settlement*>(settlement1));
+
+            REQUIRE(it1 != contents.end());
+            REQUIRE(std::get<1>(*it1) == settlement1);
+            REQUIRE(std::get<0>(*it1) == settlement1->getMapNode());
+
+            settlement0->setMapNode(mapNode1);
+
+            const auto it0 =
+                std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::Settlement*>(settlement0));
+
+            REQUIRE(it0 != contents.end());
+            REQUIRE(std::get<1>(*it0) == settlement0);
+            REQUIRE(std::get<0>(*it0) == settlement0->getMapNode());
+        }
+
+        SECTION("Army changes are tracked")
+        {
+            REQUIRE(
+                std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::Army*>(army0)) ==
+                contents.end());
+
+            const auto it1 =
+                std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::Army*>(army1));
+
+            REQUIRE(it1 != contents.end());
+            REQUIRE(std::get<2>(*it1) == army1);
+            REQUIRE(std::get<0>(*it1) == army1->getMapNode());
+
+            army0->setMapNode(mapNode0);
+
+            const auto it0 =
+                std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::Army*>(army0));
+
+            REQUIRE(it0 != contents.end());
+            REQUIRE(std::get<2>(*it0) == army0);
+            REQUIRE(std::get<0>(*it0) == army0->getMapNode());
+        }
+
+        SECTION("Removed settlements are not tracked anymore")
+        {
+            std::unique_ptr<core::Settlement> removedSettlement = map.removeSettlement(settlement0);
+
+            REQUIRE(removedSettlement);
+
+            auto it0 = std::find_if(
+                contents.begin(), contents.end(), MatchItemWithMember<core::Settlement*>(removedSettlement.get()));
+
+            REQUIRE(it0 == contents.end());
+
+            removedSettlement->setMapNode(mapNode1);
+
+            it0 = std::find_if(
+                contents.begin(), contents.end(), MatchItemWithMember<core::Settlement*>(removedSettlement.get()));
+
+            REQUIRE(it0 == contents.end());
+
+            core::Settlement* settlement3 = new core::Settlement();
+
+            settlement1->setMapNode(mapNode1);
+            map.setSettlements({settlement3});
+
+            auto it1 =
+                std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::Settlement*>(settlement1));
+
+            REQUIRE(it1 == contents.end());
+        }
+
+        SECTION("Removed armies are not tracked anymore")
+        {
+            std::unique_ptr<core::Army> removedArmy = map.removeArmy(army0);
+
+            REQUIRE(removedArmy);
+
+            auto it0 = std::find_if(
+                contents.begin(), contents.end(), MatchItemWithMember<core::Army*>(removedArmy.get()));
+
+            REQUIRE(it0 == contents.end());
+
+            removedArmy->setMapNode(mapNode1);
+
+            it0 = std::find_if(
+                contents.begin(), contents.end(), MatchItemWithMember<core::Army*>(removedArmy.get()));
+
+            REQUIRE(it0 == contents.end());
+
+            core::Army* army3 = new core::Army();
+
+            army1->setMapNode(mapNode1);
+            map.setArmies({army3});
+
+            auto it1 =
+                std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::Army*>(army1));
+
+            REQUIRE(it1 == contents.end());
+        }
+
+        SECTION("Removed mapNode is removed from content")
+        {
+            std::unique_ptr<core::MapNode> removedMapNode = map.removeMapNode(mapNode1);
+
+            REQUIRE(removedMapNode);
+
+            REQUIRE(std::find_if(contents.begin(),
+                        contents.end(),
+                        MatchItemWithMember<core::MapNode*>(removedMapNode.get())) == contents.end());
+        }
     }
 }

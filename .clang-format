@@ -1,6 +1,5 @@
 ---
 Language:        Cpp
-# BasedOnStyle:  Mozilla
 AccessModifierOffset: -4
 AlignAfterOpenBracket: DontAlign
 AlignConsecutiveAssignments: false

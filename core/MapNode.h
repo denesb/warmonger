@@ -19,17 +19,33 @@ class MapNode : public QObject
 public:
     explicit MapNode(QObject* parent = nullptr);
 
-    QString getDisplayName() const;
+    const QString& getDisplayName() const
+    {
+        return this->displayName;
+    }
+
     void setDisplayName(const QString& displayName);
 
-    TerrainType* getTerrainType() const;
+    TerrainType* getTerrainType() const
+    {
+        return this->terrainType;
+    }
+
     void setTerrainType(TerrainType* terrainType);
 
-    const MapNodeNeighbours& getNeighbours() const;
+    const MapNodeNeighbours& getNeighbours() const
+    {
+        return this->neighbours;
+    }
+
     void setNeighbours(const MapNodeNeighbours& neighbours);
     void setNeighbours(MapNodeNeighbours&& neighbours);
 
-    MapNode* getNeighbour(Direction direction) const;
+    MapNode* getNeighbour(Direction direction) const
+    {
+        return this->neighbours.at(direction);
+    }
+
     void setNeighbour(Direction direction, MapNode* mapNode);
 
 signals:

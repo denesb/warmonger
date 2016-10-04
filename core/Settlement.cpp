@@ -20,11 +20,6 @@ Settlement::~Settlement()
 {
 }
 
-QString Settlement::getDisplayName() const
-{
-    return this->displayName;
-}
-
 void Settlement::setDisplayName(const QString& displayName)
 {
     if (this->displayName != displayName)
@@ -32,11 +27,6 @@ void Settlement::setDisplayName(const QString& displayName)
         this->displayName = displayName;
         emit displayNameChanged();
     }
-}
-
-SettlementType* Settlement::getType() const
-{
-    return this->type;
 }
 
 void Settlement::setType(SettlementType* type)
@@ -48,11 +38,6 @@ void Settlement::setType(SettlementType* type)
     }
 }
 
-MapNode* Settlement::getMapNode() const
-{
-    return this->mapNode;
-}
-
 void Settlement::setMapNode(MapNode* mapNode)
 {
     if (this->mapNode != mapNode)
@@ -60,11 +45,6 @@ void Settlement::setMapNode(MapNode* mapNode)
         this->mapNode = mapNode;
         emit mapNodeChanged();
     }
-}
-
-Faction* Settlement::getOwner() const
-{
-    return this->owner;
 }
 
 void Settlement::setOwner(Faction* owner)

@@ -100,14 +100,17 @@ QSGNode* CampaignMiniMap::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeD
         rootNode->setMatrix(transform);
     }
 
-    drawMapNodes(this->campaignMap->getMapNodes(), mapRootNode, *this);
+    drawContents(this->campaignMap->getContents(), mapRootNode, *this);
 
     return rootNode;
 }
 
-QSGNode* CampaignMiniMap::drawMapNodeAndContents(core::MapNode* mapNode, QSGNode* oldNode)
+QSGNode* CampaignMiniMap::drawContent(const core::CampaignMap::Content& content, QSGNode* oldNode)
 {
-    return drawMapNode(mapNode, this->worldSurface, this->mapNodesPos.at(mapNode), oldNode);
+    return drawMapNode(std::get<core::MapNode*>(content),
+        this->worldSurface,
+        this->mapNodesPos.at(std::get<core::MapNode*>(content)),
+        oldNode);
 }
 
 void CampaignMiniMap::updateContent()

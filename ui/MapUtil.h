@@ -7,6 +7,7 @@
 #include <QPoint>
 #include <QRect>
 
+#include "core/CampaignMap.h"
 #include "core/Hexagon.h"
 #include "core/MapNodeNeighbours.h"
 
@@ -18,12 +19,12 @@ namespace core {
 
 class MapNode;
 class Settlement;
-class Unit;
+class Army;
 }
 
 namespace ui {
 
-class MapDrawer;
+class CampaignMapDrawer;
 class WorldSurface;
 
 /**
@@ -79,16 +80,21 @@ std::map<core::MapNode*, QPoint> positionMapNodes(core::MapNode* startNode, cons
 QRect calculateBoundingRect(const std::map<core::MapNode*, QPoint>& nodesPos, const QSize& tileSize);
 
 /**
- * The visible map-nodes in the window
+ * The visible contents in the window
  *
- * @param[in] mapNodePos map with the map-nodes and their positions
- * @param[in] tileSize the size of the map-nodes
- * @param[in] window the window
+ * @param[in] const std::vector<core::CampaignMap::Content>& contents the
+ *  contents
+ * @param[in] const std::map<core::MapNode*, QPoint>& mapNodesPos map with
+ *  the map-nodes and their positions
+ * @param[in] const QSize& tileSize the size of the map-nodes
+ * @param[in] const QRect& window the window
  *
  * @returns std::vector<core::MapNode*> the list of visible map-nodes
  */
-std::vector<core::MapNode*> visibleMapNodes(
-    const std::map<core::MapNode*, QPoint>& mapNodesPos, const QSize& tileSize, const QRect& window);
+std::vector<core::CampaignMap::Content> visibleContents(const std::vector<core::CampaignMap::Content>& contents,
+    const std::map<core::MapNode*, QPoint>& mapNodesPos,
+    const QSize& tileSize,
+    const QRect& window);
 
 /**
  * Find node at position pos.
@@ -132,21 +138,35 @@ QMatrix4x4 moveTo(const QPoint& point, const QPoint& refPoint);
  *
  * @param[in] mapNodes list of map-nodes to be drawn
  * @param[in] rootNode the root-node of the subtree to be built
- * @param[in] mapNodeDrawer the object which will do the actual drawing
+ * @param[in] campaignMapDrawer the object which will do the actual drawing
  */
-void drawMapNodes(const std::vector<core::MapNode*>& mapNodes, QSGNode* rootNode, MapDrawer& mapNodeDrawer);
+void drawContents(
+    const std::vector<core::CampaignMap::Content>& contents, QSGNode* rootNode, CampaignMapDrawer& campaignMapDrawer);
 
 /**
  * Draw a map-node
  *
- * @param[in] mapNode the map-node to be drawn
- * @param[in] worldSurface the actual world surface (contains the textures)
- * @param[in] pos the position of the node
- * @param[in] oldNode the result of the previous draw call if any or nullptr
+ * @param[in] core::MapNode* mapNode the map-node to be drawn
+ * @param[in] const ui::WorldSurface* worldSurface the actual world surface (contains the textures)
+ * @param[in] const QPoint pos the position of the node
+ * @param[in] QSGNode* oldNode the result of the previous draw call if any or nullptr
  *
  * @returns QSGNode* the resulting scene-graph node
  */
 QSGNode* drawMapNode(core::MapNode* mapNode, const ui::WorldSurface* worldSurface, const QPoint& pos, QSGNode* oldNode);
+
+/**
+ * Draw a settlement
+ *
+ * @param[in] core::Settlement* settlement the settlement to be drawn
+ * @param[in] const ui::WorldSurface* worldSurface the actual world surface (contains the textures)
+ * @param[in] const QPoint pos the position of the node
+ * @param[in] QSGNode* oldNode the result of the previous draw call if any or nullptr
+ *
+ * @returns QSGNode* the resulting scene-graph node
+ */
+QSGNode* drawSettlement(
+    core::Settlement* settlement, const ui::WorldSurface* worldSurface, const QPoint& pos, QSGNode* oldNode);
 
 /**
  * Draw a rectangle

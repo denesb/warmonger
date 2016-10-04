@@ -7,7 +7,7 @@
 
 #include "core/CampaignMap.h"
 #include "ui/BasicMap.h"
-#include "ui/MapDrawer.h"
+#include "ui/CampaignMapDrawer.h"
 #include "ui/WorldSurface.h"
 
 namespace warmonger {
@@ -15,7 +15,7 @@ namespace ui {
 
 class CampaignMapWatcher;
 
-class CampaignMapEditor : public BasicMap, public MapDrawer
+class CampaignMapEditor : public BasicMap, public CampaignMapDrawer
 {
     Q_OBJECT
     Q_PROPERTY(
@@ -56,7 +56,7 @@ public:
 
     QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* oldNodeData) override;
 
-    QSGNode* drawMapNodeAndContents(core::MapNode* mapNode, QSGNode* oldNode) override;
+    QSGNode* drawContent(const core::CampaignMap::Content& content, QSGNode* oldNode) override;
 
 signals:
     void campaignMapChanged();

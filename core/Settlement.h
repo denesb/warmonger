@@ -24,16 +24,32 @@ public:
     explicit Settlement(QObject* parent = nullptr);
     ~Settlement();
 
-    QString getDisplayName() const;
+    const QString& getDisplayName() const
+    {
+        return this->displayName;
+    }
+
     void setDisplayName(const QString& displayName);
 
-    SettlementType* getType() const;
+    SettlementType* getType() const
+    {
+        return this->type;
+    }
+
     void setType(SettlementType* type);
 
-    MapNode* getMapNode() const;
+    MapNode* getMapNode() const
+    {
+        return this->mapNode;
+    }
+
     void setMapNode(MapNode* mapNode);
 
-    Faction* getOwner() const;
+    Faction* getOwner() const
+    {
+        return this->owner;
+    }
+
     void setOwner(Faction* owner);
 
 signals:

@@ -1,9 +1,14 @@
+#include <algorithm>
+#include <iterator>
+
 #include <QSGFlatColorMaterial>
 #include <QSGGeometryNode>
 #include <QSGSimpleTextureNode>
 
+#include "core/Army.h"
 #include "core/MapNode.h"
-#include "ui/MapDrawer.h"
+#include "core/Settlement.h"
+#include "ui/CampaignMapDrawer.h"
 #include "ui/MapUtil.h"
 #include "ui/WorldSurface.h"
 #include "utils/Logging.h"
@@ -105,21 +110,25 @@ QRect calculateBoundingRect(const std::map<core::MapNode*, QPoint>& nodesPos, co
     return QRect(topLeft, bottomRight);
 }
 
-std::vector<core::MapNode*> visibleMapNodes(
-    const std::map<core::MapNode*, QPoint>& mapNodesPos, const QSize& tileSize, const QRect& window)
+std::vector<core::CampaignMap::Content> visibleContents(const std::vector<core::CampaignMap::Content>& contents,
+    const std::map<core::MapNode*, QPoint>& mapNodesPos,
+    const QSize& tileSize,
+    const QRect& window)
 {
-    std::vector<core::MapNode*> visibleNodes;
+    std::vector<core::CampaignMap::Content> visibleContents;
     QRect nodeRect(0, 0, tileSize.width(), tileSize.height());
 
-    for (const auto& mapNodePos : mapNodesPos)
+    for (const auto& content : contents)
     {
-        nodeRect.moveTopLeft(mapNodePos.second);
+        const QPoint mapNodePos = mapNodesPos.at(std::get<core::MapNode*>(content));
+
+        nodeRect.moveTopLeft(mapNodePos);
 
         if (window.intersects(nodeRect))
-            visibleNodes.push_back(mapNodePos.first);
+            visibleContents.push_back(content);
     }
 
-    return visibleNodes;
+    return visibleContents;
 }
 
 core::MapNode* mapNodeAtPos(
@@ -209,9 +218,11 @@ QMatrix4x4 moveTo(const QPoint& point, const QPoint& refPoint)
     return matrix;
 }
 
-void drawMapNodes(const std::vector<core::MapNode*>& mapNodes, QSGNode* rootNode, MapDrawer& mapNodeDrawer)
+void drawContents(
+    const std::vector<core::CampaignMap::Content>& contents, QSGNode* rootNode, CampaignMapDrawer& campaignMapDrawer)
 {
-    const int mapNodesSize = static_cast<int>(mapNodes.size());
+    const int mapNodesSize = static_cast<int>(contents.size());
+
     const int nodesCount = rootNode->childCount();
 
     const int n = std::min(mapNodesSize, nodesCount);
@@ -221,7 +232,7 @@ void drawMapNodes(const std::vector<core::MapNode*>& mapNodes, QSGNode* rootNode
         QSGNode* oldNode = rootNode->childAtIndex(i);
 
         // returned node ignored, since it will always be oldNode
-        mapNodeDrawer.drawMapNodeAndContents(mapNodes[i], oldNode);
+        campaignMapDrawer.drawContent(contents[i], oldNode);
     }
 
     if (mapNodesSize < nodesCount)
@@ -235,7 +246,8 @@ void drawMapNodes(const std::vector<core::MapNode*>& mapNodes, QSGNode* rootNode
     {
         for (int i = nodesCount; i < mapNodesSize; ++i)
         {
-            QSGNode* newNode = mapNodeDrawer.drawMapNodeAndContents(mapNodes[i], nullptr);
+            QSGNode* newNode = campaignMapDrawer.drawContent(contents[i], nullptr);
+
             if (newNode != nullptr)
                 rootNode->appendChildNode(newNode);
         }
@@ -260,6 +272,44 @@ QSGNode* drawMapNode(core::MapNode* mapNode, const ui::WorldSurface* worldSurfac
     if (texture == nullptr)
     {
         wError << "No texture found for " << mapNode->getTerrainType();
+        // FIXME: Use the unknown texture here
+    }
+
+    QSGTexture* currentTexture = node->texture();
+
+    if (currentTexture == nullptr || currentTexture->textureId() != texture->textureId())
+    {
+        node->setTexture(texture);
+    }
+
+    const QRect nodeRect(pos, worldSurface->getTileSize());
+    if (node->rect() != nodeRect)
+    {
+        node->setRect(nodeRect);
+    }
+
+    return node;
+}
+
+QSGNode* drawSettlement(
+    core::Settlement* settlement, const ui::WorldSurface* worldSurface, const QPoint& pos, QSGNode* oldNode)
+{
+    QSGSimpleTextureNode* node;
+    if (oldNode == nullptr)
+    {
+        node = new QSGSimpleTextureNode();
+        node->setOwnsTexture(false);
+    }
+    else
+    {
+        // if not nullptr, it can only be a texture node
+        node = static_cast<QSGSimpleTextureNode*>(oldNode);
+    }
+
+    QSGTexture* texture = worldSurface->getTexture(settlement->getType());
+    if (texture == nullptr)
+    {
+        wError << "No texture found for " << settlement->getType();
         // FIXME: Use the unknown texture here
     }
 

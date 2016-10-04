@@ -171,10 +171,10 @@ QSGNode* CampaignMapEditor::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNod
 
     rootNode->setClipRect(QRectF(0, 0, this->width(), this->height()));
 
-    const std::vector<core::MapNode*> mapNodes =
-        visibleMapNodes(this->mapNodesPos, this->worldSurface->getTileSize(), this->getWindowRect());
+    const std::vector<core::CampaignMap::Content> contents = visibleContents(
+        this->campaignMap->getContents(), this->mapNodesPos, this->worldSurface->getTileSize(), this->getWindowRect());
 
-    drawMapNodes(mapNodes, mapRootNode, *this);
+    drawContents(contents, mapRootNode, *this);
 
     QSGNode* oldHoverNode{nullptr};
     if (transformNode->childCount() == 2)
@@ -196,9 +196,23 @@ QSGNode* CampaignMapEditor::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNod
     return rootNode;
 }
 
-QSGNode* CampaignMapEditor::drawMapNodeAndContents(core::MapNode* mapNode, QSGNode* oldNode)
+QSGNode* CampaignMapEditor::drawContent(const core::CampaignMap::Content& content, QSGNode* oldNode)
 {
-    return drawMapNode(mapNode, this->worldSurface, this->mapNodesPos.at(mapNode), oldNode);
+    core::MapNode* mapNode = std::get<core::MapNode*>(content);
+    const QPoint& pos = this->mapNodesPos.at(mapNode);
+
+    QSGNode* mapSGNode = drawMapNode(mapNode, this->worldSurface, pos, oldNode);
+
+    core::Settlement* settlement = std::get<core::Settlement*>(content);
+    if (settlement != nullptr)
+    {
+        QSGNode* settlementSGNode = drawSettlement(settlement, this->worldSurface, pos, mapSGNode->firstChild());
+
+        if (mapSGNode->firstChild() == nullptr)
+            mapSGNode->appendChildNode(settlementSGNode);
+    }
+
+    return mapSGNode;
 }
 
 void CampaignMapEditor::hoverMoveEvent(QHoverEvent* event)
@@ -366,6 +380,8 @@ void CampaignMapEditor::doSettlementTypeEditingAction(const QPoint& pos)
         return;
 
     core::Settlement* settlement = this->campaignMap->createSettlement(settlementType);
+
+    settlement->setMapNode(currentMapNode);
 
     wDebug << "Creating new settlement " << settlement;
 }

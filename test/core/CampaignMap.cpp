@@ -275,12 +275,10 @@ TEST_CASE("Content", "[CampaignMap]")
 
         SECTION("Army changes are tracked")
         {
-            REQUIRE(
-                std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::Army*>(army0)) ==
+            REQUIRE(std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::Army*>(army0)) ==
                 contents.end());
 
-            const auto it1 =
-                std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::Army*>(army1));
+            const auto it1 = std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::Army*>(army1));
 
             REQUIRE(it1 != contents.end());
             REQUIRE(std::get<2>(*it1) == army1);
@@ -288,8 +286,7 @@ TEST_CASE("Content", "[CampaignMap]")
 
             army0->setMapNode(mapNode0);
 
-            const auto it0 =
-                std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::Army*>(army0));
+            const auto it0 = std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::Army*>(army0));
 
             REQUIRE(it0 != contents.end());
             REQUIRE(std::get<2>(*it0) == army0);
@@ -331,15 +328,14 @@ TEST_CASE("Content", "[CampaignMap]")
 
             REQUIRE(removedArmy);
 
-            auto it0 = std::find_if(
-                contents.begin(), contents.end(), MatchItemWithMember<core::Army*>(removedArmy.get()));
+            auto it0 =
+                std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::Army*>(removedArmy.get()));
 
             REQUIRE(it0 == contents.end());
 
             removedArmy->setMapNode(mapNode1);
 
-            it0 = std::find_if(
-                contents.begin(), contents.end(), MatchItemWithMember<core::Army*>(removedArmy.get()));
+            it0 = std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::Army*>(removedArmy.get()));
 
             REQUIRE(it0 == contents.end());
 
@@ -348,8 +344,7 @@ TEST_CASE("Content", "[CampaignMap]")
             army1->setMapNode(mapNode1);
             map.setArmies({army3});
 
-            auto it1 =
-                std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::Army*>(army1));
+            auto it1 = std::find_if(contents.begin(), contents.end(), MatchItemWithMember<core::Army*>(army1));
 
             REQUIRE(it1 == contents.end());
         }

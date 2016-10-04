@@ -386,9 +386,8 @@ void CampaignMap::armyMapNodeChanged()
         MapNode* mapNode = this->mapNodes[i];
         Settlement* settlement = std::get<1>(oldContents[i]);
 
-        const auto it = std::find_if(this->armies.begin(),
-            this->armies.end(),
-            [&](const Army* army) { return army->getMapNode() == mapNode; });
+        const auto it = std::find_if(
+            this->armies.begin(), this->armies.end(), [&](const Army* army) { return army->getMapNode() == mapNode; });
 
         Army* army = (it == this->armies.end()) ? nullptr : *it;
 

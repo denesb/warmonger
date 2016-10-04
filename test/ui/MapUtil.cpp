@@ -203,10 +203,17 @@ TEST_CASE("Move tests", "[moveTo]")
     }
 }
 
-TEST_CASE("Visibility test", "[visibleMapNodes]")
+TEST_CASE("Visibility test", "[visibleContents]")
 {
     std::vector<core::MapNode*> mapNodes = core::generateMapNodes(2);
     core::generateMapNodeNames(mapNodes);
+
+    std::vector<core::CampaignMap::Content> contents;
+
+    for (core::MapNode* mapNode : mapNodes)
+    {
+        contents.push_back(std::tuple<core::MapNode*, core::Settlement*, core::Army*>(mapNode, nullptr, nullptr));
+    }
 
     const QSize tileSize(10, 10);
     const std::map<core::MapNode*, QPoint> mapNodesPos = ui::positionMapNodes(mapNodes.front(), tileSize);
@@ -215,46 +222,52 @@ TEST_CASE("Visibility test", "[visibleMapNodes]")
     {
         QRect window(-100, -100, 200, 200);
 
-        std::vector<core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
+        std::vector<core::CampaignMap::Content> visibleContents =
+            ui::visibleContents(contents, mapNodesPos, tileSize, window);
 
-        REQUIRE(visibleMapNodes.size() == mapNodes.size());
+        REQUIRE(visibleContents.size() == mapNodes.size());
     }
 
     SECTION("One node is visible")
     {
         QRect window(4, 4, 2, 2);
 
-        std::vector<core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
+        std::vector<core::CampaignMap::Content> visibleContents =
+            ui::visibleContents(contents, mapNodesPos, tileSize, window);
 
-        REQUIRE(visibleMapNodes.size() == 1);
-        REQUIRE(visibleMapNodes.front()->objectName() == mapNodes.front()->objectName());
+        REQUIRE(visibleContents.size() == 1);
+        REQUIRE(std::get<core::MapNode*>(visibleContents.front())->objectName() ==
+            std::get<core::MapNode*>(contents.front())->objectName());
     }
 
     SECTION("Half of the map is visible")
     {
         QRect window(6, -100, 200, 200);
 
-        std::vector<core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
+        std::vector<core::CampaignMap::Content> visibleContents =
+            ui::visibleContents(contents, mapNodesPos, tileSize, window);
 
-        REQUIRE(visibleMapNodes.size() == 4);
+        REQUIRE(visibleContents.size() == 4);
     }
 
     SECTION("Quarter of the map is visible")
     {
         QRect window(6, 6, 200, 200);
 
-        std::vector<core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
+        std::vector<core::CampaignMap::Content> visibleContents =
+            ui::visibleContents(contents, mapNodesPos, tileSize, window);
 
-        REQUIRE(visibleMapNodes.size() == 3);
+        REQUIRE(visibleContents.size() == 3);
     }
 
     SECTION("No nodes is visible")
     {
         QRect window(100, 100, 200, 200);
 
-        std::vector<core::MapNode*> visibleMapNodes = ui::visibleMapNodes(mapNodesPos, tileSize, window);
+        std::vector<core::CampaignMap::Content> visibleContents =
+            ui::visibleContents(contents, mapNodesPos, tileSize, window);
 
-        REQUIRE(visibleMapNodes.empty() == true);
+        REQUIRE(visibleContents.empty() == true);
     }
 }
 

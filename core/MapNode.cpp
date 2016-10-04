@@ -10,11 +10,6 @@ MapNode::MapNode(QObject* parent)
 {
 }
 
-QString MapNode::getDisplayName() const
-{
-    return this->displayName;
-}
-
 void MapNode::setDisplayName(const QString& displayName)
 {
     if (this->displayName != displayName)
@@ -24,11 +19,6 @@ void MapNode::setDisplayName(const QString& displayName)
     }
 }
 
-TerrainType* MapNode::getTerrainType() const
-{
-    return this->terrainType;
-}
-
 void MapNode::setTerrainType(TerrainType* terrainType)
 {
     if (this->terrainType != terrainType)
@@ -36,11 +26,6 @@ void MapNode::setTerrainType(TerrainType* terrainType)
         this->terrainType = terrainType;
         emit terrainTypeChanged();
     }
-}
-
-const MapNodeNeighbours& MapNode::getNeighbours() const
-{
-    return this->neighbours;
 }
 
 void MapNode::setNeighbours(const MapNodeNeighbours& neighbours)
@@ -59,11 +44,6 @@ void MapNode::setNeighbours(MapNodeNeighbours&& neighbours)
         this->neighbours = std::move(neighbours);
         emit neighboursChanged();
     }
-}
-
-MapNode* MapNode::getNeighbour(Direction direction) const
-{
-    return this->neighbours.at(direction);
 }
 
 void MapNode::setNeighbour(Direction direction, MapNode* mapNode)

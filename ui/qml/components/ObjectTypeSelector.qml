@@ -8,7 +8,6 @@ Rectangle {
 
     property var objectTypes
     property var objectType : null
-    property var editingMode : list.model.get(0).mode
 
     color: W.colorPalette.backgroundColor0
 
@@ -187,70 +186,11 @@ Rectangle {
 
     }
 
-    Rectangle {
-        id: editingModeSelector
-
-        anchors {
-            top: parent.top
-            left: parent.left
-            right: parent.right
-            margins: 4
-        }
-
-        height: 40
-
-        color: W.colorPalette.backgroundColor0
-
-        ListView {
-            id: list
-            anchors.fill: parent
-            spacing: 2
-            orientation: ListView.Horizontal
-
-            currentIndex: 0
-            onCurrentIndexChanged: {
-                root.editingMode = model.get(currentIndex).mode
-            }
-
-            ListModel {
-                id: editingModes
-
-                ListElement {
-                    name: "T"
-                    mode: CampaignMapEditor.TerrainType
-                }
-
-                ListElement {
-                    name: "S"
-                    mode: CampaignMapEditor.SettlementType
-                }
-
-                ListElement {
-                    name: "A"
-                    mode: CampaignMapEditor.ArmyType
-                }
-
-                ListElement {
-                    name: "E"
-                    mode: CampaignMapEditor.Edit
-                }
-
-                ListElement {
-                    name: "R"
-                    mode: CampaignMapEditor.Remove
-                }
-            }
-
-            model: editingModes
-            delegate: editingTypeComponent
-        }
-    }
-
     GridView {
         id: grid
 
         anchors {
-            top: editingModeSelector.bottom
+            top: parent.top
             bottom: parent.bottom
             horizontalCenter: parent.horizontalCenter
             margins: 4

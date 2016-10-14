@@ -3,11 +3,7 @@
 <qresource>
     <file>icons/edit.svg</file>
     <file>icons/ok.svg</file>
-    <file>qml/components/CampaignMapEditorSideBar.qml</file>
-    <file>qml/components/CampaignMiniMap.qml</file>
-    <file>qml/components/ObjectTypeSelector.qml</file>
     <file>qml/widgets/Button.qml</file>
     <file>qml/widgets/EditableText.qml</file>
-    <file>qml/windows/MapEditorWindow.qml</file>
 </qresource>
 </RCC>

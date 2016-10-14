@@ -75,7 +75,9 @@ set(
     ui/Context.cpp
     ui/MapUtil.cpp
     ui/MapWindow.cpp
+    ui/SearchPaths.cpp
     ui/WorldSurface.cpp
+    ui/ui.qrc
 )
 
 set(
@@ -131,13 +133,13 @@ qt5_use_modules(ui Core Quick)
 target_link_libraries(ui KF5::Archive)
 
 add_executable(
-    warmonger
-    ui/Main.cpp
-    ui/ui.qrc
+    warmonger_mapeditor
+    warmonger_mapeditor/warmonger_mapeditor.cpp
+    warmonger_mapeditor/warmonger_mapeditor.qrc
 )
 
 target_link_libraries(
-    warmonger
+    warmonger_mapeditor
     ui
     io
     core

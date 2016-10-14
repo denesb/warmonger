@@ -1,48 +1,16 @@
 #include <QDir>
-#include <QGuiApplication>
-#include <QQmlContext>
-#include <QQuickView>
-#include <QtQml/QQmlEngine>
 
-#include "ui/CampaignMapEditor.h"
-#include "ui/CampaignMiniMap.h"
-#include "ui/Context.h"
+#include "ui/SearchPaths.h"
 #include "utils/Constants.h"
 #include "utils/Logging.h"
 #include "utils/Settings.h"
 
-using namespace warmonger;
+namespace warmonger {
+namespace ui {
 
-namespace {
+static void addSubdirToSearchPath(const QString& worldPath, const QString& subdirName, QStringList& searchPath);
 
-void setSearchPaths();
-void addSubdirToSearchPath(const QString& worldPath, const QString& subdirName, QStringList& searchPath);
-void initUi(QQuickView* view, ui::Context* ctx);
-}
-
-int main(int argc, char* argv[])
-{
-    QGuiApplication app(argc, argv);
-
-    utils::initSettings();
-    utils::initLogging();
-
-    setSearchPaths();
-
-    QQuickView view;
-
-    ui::Context* ctx = new ui::Context(&view, &view);
-
-    initUi(&view, ctx);
-
-    QObject::connect(view.engine(), &QQmlEngine::quit, &view, &QQuickView::close);
-
-    return app.exec();
-}
-
-namespace {
-
-void setSearchPaths()
+void setupSearchPaths()
 {
     const QVariant worldsDirVal = utils::settingsValue(utils::SettingsKey::worldsDir);
 
@@ -77,7 +45,7 @@ void setSearchPaths()
     QDir::setSearchPaths(utils::searchPaths::campaignMap, mapSearchPath);
 }
 
-void addSubdirToSearchPath(const QString& worldPath, const QString& subdirName, QStringList& searchPath)
+static void addSubdirToSearchPath(const QString& worldPath, const QString& subdirName, QStringList& searchPath)
 {
     const QString& subdirPath = worldPath + "/" + subdirName;
     const QFileInfo& subdirDirInfo(subdirPath);
@@ -88,13 +56,5 @@ void addSubdirToSearchPath(const QString& worldPath, const QString& subdirName, 
     wInfo << "Added " << subdirPath << " to " << subdirName << " search path";
 }
 
-void initUi(QQuickView* view, ui::Context* ctx)
-{
-    qmlRegisterType<ui::CampaignMiniMap>("Warmonger", 1, 0, "CampaignMiniMap");
-    qmlRegisterType<ui::CampaignMapEditor>("Warmonger", 1, 0, "CampaignMapEditor");
-
-    view->rootContext()->setContextProperty("W", ctx);
-    view->setSource(QUrl("qrc:/qml/windows/MapEditorWindow.qml"));
-    view->show();
-}
-}
+} // namespace warmonger
+} // namespace ui

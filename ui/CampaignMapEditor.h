@@ -30,6 +30,7 @@ class CampaignMapEditor : public BasicMap, public CampaignMapDrawer
 public:
     enum class EditingMode
     {
+        None,
         TerrainType,
         SettlementType,
         ArmyType,

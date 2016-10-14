@@ -1,6 +1,8 @@
 import QtQuick 2.2
+import QtQuick.Layouts 1.2
 import Warmonger 1.0
 import "../components" as Components
+import "../widgets" as Widgets
 
 Rectangle {
     id: root
@@ -12,6 +14,10 @@ Rectangle {
     property var editingMode : tabList.model.get(0).mode
 
     color: W.colorPalette.backgroundColor0
+
+    Component.onCompleted: {
+        tabList.onCurrentIndexChanged()
+    }
 
     Component {
         id: tabButtonComponent
@@ -87,81 +93,238 @@ Rectangle {
     }
 
     Rectangle {
-        id: tabs
-
-        color: W.colorPalette.backgroundColor1
+        id: titleWrapper
 
         anchors {
             top: parent.top
-            bottom: miniMapWrapper.top
+            left: parent.left
             right: parent.right
         }
+        height: 32
 
-        width: 32
+        color: W.colorPalette.backgroundColor0;
 
-        ListView {
-            id: tabList
-            anchors.fill: parent
-            spacing: 0
-            orientation: ListView.Vertical
+        Text {
+            id: title
 
-            currentIndex: 0
-            onCurrentIndexChanged: {
-                root.editingMode = model.get(currentIndex).mode
-            }
+            anchors.centerIn: parent
 
-            ListModel {
-                id: editingModes
-
-                ListElement {
-                    name: "T"
-                    mode: CampaignMapEditor.TerrainType
-                }
-
-                ListElement {
-                    name: "S"
-                    mode: CampaignMapEditor.SettlementType
-                }
-
-                ListElement {
-                    name: "A"
-                    mode: CampaignMapEditor.ArmyType
-                }
-
-                ListElement {
-                    name: "E"
-                    mode: CampaignMapEditor.Edit
-                }
-
-                ListElement {
-                    name: "R"
-                    mode: CampaignMapEditor.Remove
-                }
-            }
-
-            model: editingModes
-            delegate: tabButtonComponent
+            text: "Title"
         }
     }
 
     Rectangle {
-        id: content
-
-        color: W.colorPalette.backgroundColor0
+        id: contentWrapper
 
         anchors {
-            top: parent.top
+            top: titleWrapper.bottom
             bottom: miniMapWrapper.top
             left: parent.left
-            right: tabs.left
+            right: parent.right
         }
 
-        Components.ObjectTypeSelector {
-            id: objectTypeSelector
+        height: 32
 
-            anchors.fill: parent
+        Rectangle {
+            id: tabs
 
-            objectTypes: root.availableObjectTypes
+            color: W.colorPalette.backgroundColor1
+
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                right: parent.right
+            }
+
+            width: 32
+
+            ListView {
+                id: tabList
+                anchors.fill: parent
+                spacing: 0
+                orientation: ListView.Vertical
+
+                currentIndex: 0
+                onCurrentIndexChanged: {
+                    var current = model.get(currentIndex);
+
+                    root.editingMode = current.mode;
+
+                    title.text = current.title;
+
+                    if (current.type == "mapSettings") {
+                        mapSettings.state = "active";
+                        objectTypeSelector.state = "inactive";
+                        factions.state = "inactive";
+                    } else if (current.type == "faction") {
+                        mapSettings.state = "inactive";
+                        objectTypeSelector.state = "inactive";
+                        factions.state = "active";
+                    } else {
+                        mapSettings.state = "inactive";
+                        objectTypeSelector.state = "active";
+                        factions.state = "inactive";
+                    }
+                }
+
+                ListModel {
+                    id: editingModes
+
+                    ListElement {
+                        name: "MS"
+                        type: "mapSettings"
+                        title: "Map Settings"
+                        mode: CampaignMapEditor.None
+                    }
+                    ListElement {
+                        name: "T"
+                        type: "mapNode"
+                        title: "Map Nodes"
+                        mode: CampaignMapEditor.TerrainType
+                    }
+                    ListElement {
+                        name: "S"
+                        type: "settlement"
+                        title: "Settlements"
+                        mode: CampaignMapEditor.SettlementType
+                    }
+                    ListElement {
+                        name: "A"
+                        type: "army"
+                        title: "Armies"
+                        mode: CampaignMapEditor.ArmyType
+                    }
+                    ListElement {
+                        name: "F"
+                        type: "faction"
+                        title: "Factions"
+                        mode: CampaignMapEditor.None
+                    }
+                    ListElement {
+                        name: "E"
+                        type: "edit"
+                        title: "Edit"
+                        mode: CampaignMapEditor.Edit
+                    }
+                    ListElement {
+                        name: "R"
+                        type: "remove"
+                        title: "Remove"
+                        mode: CampaignMapEditor.Remove
+                    }
+                }
+
+                model: editingModes
+                delegate: tabButtonComponent
+            }
+        }
+
+        Rectangle {
+            id: content
+
+            color: W.colorPalette.backgroundColor0
+
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                left: parent.left
+                right: tabs.left
+            }
+
+            Rectangle {
+                id: mapSettings
+
+                anchors {
+                    fill: parent
+                    margins: 4
+                }
+
+                color: W.colorPalette.backgroundColor0
+
+                state: "inactive"
+
+                GridLayout {
+                    width: parent.width
+
+                    columns: 2
+
+                    columnSpacing: 10
+                    rowSpacing: 4
+
+                    Text {
+                        text: "File"
+                    }
+
+                    Widgets.EditableText {
+                        text: W.campaignMap.objectName;
+
+                        Layout.fillWidth: true
+                    }
+
+                    Text {
+                        text: "Name"
+                    }
+
+                    Widgets.EditableText {
+                        text: W.campaignMap.displayName
+
+                        Layout.fillWidth: true
+                    }
+                }
+
+                states: [
+                    State {
+                        name: "active"
+                        PropertyChanges { target: mapSettings; visible: true; enabled: true; }
+                    },
+                    State {
+                        name: "inactive"
+                        PropertyChanges { target: mapSettings; visible: false; enabled: false; }
+                    }
+                ]
+            }
+
+            Components.ObjectTypeSelector {
+                id: objectTypeSelector
+
+                anchors.fill: parent
+
+                objectTypes: root.availableObjectTypes
+
+                state: "inactive"
+
+                states: [
+                    State {
+                        name: "active"
+                        PropertyChanges { target: objectTypeSelector; visible: true; enabled: true; }
+                    },
+                    State {
+                        name: "inactive"
+                        PropertyChanges { target: objectTypeSelector; visible: false; enabled: false; }
+                    }
+                ]
+            }
+
+            Rectangle {
+                id: factions
+
+                anchors.fill: parent
+
+                color: "red"
+
+                state: "inactive"
+
+                states: [
+                    State {
+                        name: "active"
+                        PropertyChanges { target: factions; visible: true; enabled: true; }
+                    },
+                    State {
+                        name: "inactive"
+                        PropertyChanges { target: factions; visible: false; enabled: false; }
+                    }
+                ]
+            }
         }
     }
 

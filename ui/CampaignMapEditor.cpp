@@ -324,6 +324,9 @@ void CampaignMapEditor::doEditingAction(const QPoint& pos)
         case EditingMode::Remove:
             // this->doRemoveTypeEditingAction();
             break;
+
+        case EditingMode::None:
+            break;
     }
 }
 

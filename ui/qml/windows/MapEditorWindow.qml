@@ -14,7 +14,7 @@ Rectangle {
     Rectangle {
         id: sideBarWrapper
 
-        width: 200
+        width: 250
         anchors {
             top: parent.top
             bottom: parent.bottom
@@ -61,7 +61,7 @@ Rectangle {
                         var d = mouse.x - 2;
                         var newWidth = sideBarWrapper.width - d;
 
-                        if (newWidth > 200)
+                        if (newWidth > 250)
                             sideBarWrapper.width = newWidth;
                     }
                 }

@@ -20,12 +20,25 @@ add_compile_options(
     -Wfatal-errors
 )
 
+configure_file(Version.h.in Version.h @ONLY)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(Boost_USE_STATIC_LIBS ON)
+
+# Source files
 
 set(
-    SRC_FILES
+    UTILS_SRC_FILES
+    utils/Logging.cpp
+    utils/Settings.cpp
+    utils/ToString.cpp
+    utils/Utils.cpp
+)
+
+set(
+    CORE_SRC_FILES
     core/Army.cpp
     core/ArmyType.cpp
     core/CampaignMap.cpp
@@ -42,10 +55,18 @@ set(
     core/Unit.cpp
     core/UnitType.cpp
     core/World.cpp
+)
+
+set(
+    IO_SRC_FILES
     io/Context.cpp
     io/File.cpp
     io/JsonSerializer.cpp
     io/JsonUnserializer.cpp
+)
+
+set(
+    UI_SRC_FILES
     ui/BasicMap.cpp
     ui/BasicMiniMap.cpp
     ui/CampaignMapEditor.cpp
@@ -55,60 +76,81 @@ set(
     ui/MapUtil.cpp
     ui/MapWindow.cpp
     ui/WorldSurface.cpp
-    utils/Logging.cpp
-    utils/Settings.cpp
-    utils/ToString.cpp
-    utils/Utils.cpp
 )
 
-configure_file(Version.h.in Version.h @ONLY)
+set(
+    TEST_SRC_FILES
+    test/test_warmonger.cpp
+    test/Util.cpp
+    test/core/ArmyType.cpp
+    test/core/CampaignMap.cpp
+    test/core/HierarchyNode.cpp
+    test/core/MapGenerator.cpp
+    test/core/MapNodeNeighbours.cpp
+    test/core/SettlementType.cpp
+    test/core/TerrainType.cpp
+    test/core/UnitType.cpp
+    test/io/Context.cpp
+    test/io/File.cpp
+    test/io/JsonSerializer.cpp
+    test/io/JsonUnserializer.cpp
+    test/ui/MapUtil.cpp
+    test/ui/MapWindow.cpp
+    test/ui/WorldSurface.cpp
+)
 
-set(Boost_USE_STATIC_LIBS ON)
+file(GLOB_RECURSE ALL_HEADER_FILES ${PROJECT_SOURCE_DIR}/*.h)
+file(GLOB_RECURSE ALL_SOURCE_FILES ${PROJECT_SOURCE_DIR}/*.cpp)
 
+# Libraries
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Quick REQUIRED)
 find_package(KF5Archive REQUIRED)
 find_package(Boost REQUIRED COMPONENTS log)
 
-add_executable(warmonger ${SRC_FILES} ui/Main.cpp ui/ui.qrc)
-
 set(
-    WARMONGER_LIBS
-    KF5::Archive
+    COMMON_EXTERNAL_LIBS
     Qt5::Quick
     Qt5::Core
     Boost::log
 )
 
+# Targets
+
+add_library(utils STATIC ${UTILS_SRC_FILES})
+qt5_use_modules(utils Core Quick)
+
+add_library(core STATIC ${CORE_SRC_FILES})
+qt5_use_modules(core Core Quick)
+
+add_library(io STATIC ${IO_SRC_FILES})
+qt5_use_modules(io Core Quick)
+
+add_library(ui STATIC ${UI_SRC_FILES})
+qt5_use_modules(ui Core Quick)
+target_link_libraries(ui KF5::Archive)
+
+add_executable(
+    warmonger
+    ui/Main.cpp
+    ui/ui.qrc
+)
+
 target_link_libraries(
     warmonger
-    ${WARMONGER_LIBS}
+    ui
+    io
+    core
+    utils
+    ${COMMON_EXTERNAL_LIBS}
 )
 
 if(BUILD_TESTS)
-    set(
-        TEST_SRC_FILES
-        ${SRC_FILES}
+    add_executable(
+        test_warmonger
+        ${TEST_SRC_FILES}
         test/test_warmonger.cpp
-        test/Util.cpp
-        test/core/ArmyType.cpp
-        test/core/CampaignMap.cpp
-        test/core/HierarchyNode.cpp
-        test/core/MapGenerator.cpp
-        test/core/MapNodeNeighbours.cpp
-        test/core/SettlementType.cpp
-        test/core/TerrainType.cpp
-        test/core/UnitType.cpp
-        test/io/Context.cpp
-        test/io/File.cpp
-        test/io/JsonSerializer.cpp
-        test/io/JsonUnserializer.cpp
-        test/ui/MapUtil.cpp
-        test/ui/MapWindow.cpp
-        test/ui/WorldSurface.cpp
     )
-
-    add_executable(test_warmonger ${TEST_SRC_FILES})
 
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/data/dev.wsp ${CMAKE_BINARY_DIR})
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/test/data/dev_nometafile.wsp ${CMAKE_BINARY_DIR})
@@ -125,12 +167,13 @@ if(BUILD_TESTS)
 
     target_link_libraries(
         test_warmonger
-        ${WARMONGER_LIBS}
+        ui
+        io
+        core
+        utils
+        ${COMMON_EXTERNAL_LIBS}
     )
 endif()
-
-file(GLOB_RECURSE ALL_HEADER_FILES ${PROJECT_SOURCE_DIR}/*.h)
-file(GLOB_RECURSE ALL_SOURCE_FILES ${PROJECT_SOURCE_DIR}/*.cpp)
 
 add_custom_target(
     format

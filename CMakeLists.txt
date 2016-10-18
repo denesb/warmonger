@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8.12)
 project(Warmonger)
 
 option(BUILD_TESTS "Build unit test suite" OFF)
+option(BUILD_TOOLS "Build development tools" OFF)
 
 include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR})
 
@@ -146,6 +147,21 @@ target_link_libraries(
     utils
     ${COMMON_EXTERNAL_LIBS}
 )
+
+if(BUILD_TOOLS)
+    add_executable(
+        warmonger_world_smoketest
+        tools/warmonger_world_smoketest.cpp
+    )
+
+    target_link_libraries(
+        warmonger_world_smoketest
+        io
+        core
+        utils
+        ${COMMON_EXTERNAL_LIBS}
+    )
+endif()
 
 if(BUILD_TESTS)
     add_executable(

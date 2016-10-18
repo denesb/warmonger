@@ -3,8 +3,8 @@
 #include <QQuickView>
 #include <QtQml/QQmlEngine>
 
-#include "ui/CampaignMiniMap.h"
 #include "ui/CampaignMapEditor.h"
+#include "ui/CampaignMiniMap.h"
 #include "ui/Context.h"
 #include "ui/SearchPaths.h"
 #include "utils/Constants.h"

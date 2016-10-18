@@ -60,7 +60,12 @@ int main(int argc, char* const argv[])
     }
     catch (utils::ValueError& ve)
     {
-        wError << "Caught utils::IOError while trying to read world: " << ve.getMessage();
+        wError << "Caught utils::ValueError while trying to read world: " << ve.getMessage();
+        FAIL(1);
+    }
+    catch (std::exception& e)
+    {
+        wError << "Caught std::exception while trying to read world: " << e.what();
         FAIL(1);
     }
 

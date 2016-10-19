@@ -77,6 +77,7 @@ set(
     ui/MapUtil.cpp
     ui/MapWindow.cpp
     ui/SearchPaths.cpp
+    ui/UI.cpp
     ui/WorldSurface.cpp
     ui/ui.qrc
 )

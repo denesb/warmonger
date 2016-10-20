@@ -3,7 +3,5 @@
 <qresource>
     <file>icons/edit.svg</file>
     <file>icons/ok.svg</file>
-    <file>qml/widgets/Button.qml</file>
-    <file>qml/widgets/EditableText.qml</file>
 </qresource>
 </RCC>

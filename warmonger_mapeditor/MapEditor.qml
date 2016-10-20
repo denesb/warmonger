@@ -1,7 +1,6 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.4
 import Warmonger 1.0
-import "../components" as Components
 
 ApplicationWindow {
     id: window
@@ -85,7 +84,7 @@ ApplicationWindow {
             ]
         }
 
-        Components.CampaignMapEditorSideBar {
+        SideBar {
             id: sideBar
 
             miniMapWindowRect: mapEditor.windowRect

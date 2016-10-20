@@ -1,8 +1,6 @@
 import QtQuick 2.2
 import Warmonger 1.0
 
-import "../widgets" as Widgets
-
 Rectangle {
     id: root
 

@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 
     engine.rootContext()->setContextProperty("W", ctx);
 
-    engine.load(QUrl("qrc:/qml/windows/MapEditorWindow.qml"));
+    engine.load(QUrl("qrc:/MapEditor.qml"));
 
     return app.exec();
 }

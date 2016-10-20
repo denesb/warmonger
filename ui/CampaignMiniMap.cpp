@@ -109,6 +109,7 @@ QSGNode* CampaignMiniMap::drawContent(const core::CampaignMap::Content& content,
 {
     return drawMapNode(std::get<core::MapNode*>(content),
         this->worldSurface,
+        this->window(),
         this->mapNodesPos.at(std::get<core::MapNode*>(content)),
         oldNode);
 }

@@ -1,7 +1,7 @@
 #include <QGuiApplication>
+#include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickView>
-#include <QtQml/QQmlEngine>
 
 #include "ui/Context.h"
 #include "ui/SearchPaths.h"
@@ -20,20 +20,16 @@ int main(int argc, char* argv[])
     utils::initLogging();
 
     ui::setupSearchPaths();
-
-    QQuickView view;
-
-    ui::Context* ctx = new ui::Context(&view, &view);
-
     ui::initUI();
 
     Q_INIT_RESOURCE(ui);
 
-    QObject::connect(view.engine(), &QQmlEngine::quit, &view, &QQuickView::close);
+    QQmlApplicationEngine engine;
+    ui::Context* ctx = new ui::Context(&engine);
 
-    view.rootContext()->setContextProperty("W", ctx);
-    view.setSource(QUrl("qrc:/qml/windows/MapEditorWindow.qml"));
-    view.show();
+    engine.rootContext()->setContextProperty("W", ctx);
+
+    engine.load(QUrl("qrc:/qml/windows/MapEditorWindow.qml"));
 
     return app.exec();
 }

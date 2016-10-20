@@ -12,6 +12,7 @@
 #include "core/MapNodeNeighbours.h"
 
 class QSGNode;
+class QQuickWindow;
 
 namespace warmonger {
 
@@ -147,26 +148,32 @@ void drawContents(
  * Draw a map-node
  *
  * @param[in] core::MapNode* mapNode the map-node to be drawn
- * @param[in] const ui::WorldSurface* worldSurface the actual world surface (contains the textures)
+ * @param[in] ui::WorldSurface* worldSurface the actual world surface (contains the textures)
+ * @param[in] QQuickWindow* window the window where the node will be rendered
  * @param[in] const QPoint pos the position of the node
  * @param[in] QSGNode* oldNode the result of the previous draw call if any or nullptr
  *
  * @returns QSGNode* the resulting scene-graph node
  */
-QSGNode* drawMapNode(core::MapNode* mapNode, const ui::WorldSurface* worldSurface, const QPoint& pos, QSGNode* oldNode);
+QSGNode* drawMapNode(
+    core::MapNode* mapNode, ui::WorldSurface* worldSurface, QQuickWindow* window, const QPoint& pos, QSGNode* oldNode);
 
 /**
  * Draw a settlement
  *
  * @param[in] core::Settlement* settlement the settlement to be drawn
- * @param[in] const ui::WorldSurface* worldSurface the actual world surface (contains the textures)
+ * @param[in] ui::WorldSurface* worldSurface the actual world surface (contains the textures)
+ * @param[in] QQuickWindow* window the window where the node will be rendered
  * @param[in] const QPoint pos the position of the node
  * @param[in] QSGNode* oldNode the result of the previous draw call if any or nullptr
  *
  * @returns QSGNode* the resulting scene-graph node
  */
-QSGNode* drawSettlement(
-    core::Settlement* settlement, const ui::WorldSurface* worldSurface, const QPoint& pos, QSGNode* oldNode);
+QSGNode* drawSettlement(core::Settlement* settlement,
+    ui::WorldSurface* worldSurface,
+    QQuickWindow* window,
+    const QPoint& pos,
+    QSGNode* oldNode);
 
 /**
  * Draw a rectangle

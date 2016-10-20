@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QQuickWindow>
 #include <QResource>
 #include <QSGTexture>
 
@@ -18,12 +19,12 @@
 namespace warmonger {
 namespace ui {
 
-static QString key(const QObject* const object);
 static QString objectPath(const QObject* const object);
 static void checkMissingImages(const core::World* const world);
 static bool isImageMissing(const QString& key);
 static bool isOptionalImageMissing(const QObject* const object);
 static bool isRequiredImageMissing(const QString& p);
+static QSGTexture* createTexture(const QImage& image, QQuickWindow* window);
 
 const std::vector<QString> requiredImagePaths{
     utils::resourcePaths::notFound, utils::resourcePaths::mapEditor::hoverValid};
@@ -31,17 +32,11 @@ const std::vector<QString> requiredImagePaths{
 const std::set<QString> visualClasses{
     "warmonger::core::TerrainType", "warmonger::core::SettlementType", "warmonger::core::UnitType"};
 
-WorldSurface::WorldSurface(const QString& path, core::World* world, QQuickWindow* window, QObject* parent)
+WorldSurface::WorldSurface(const QString& path, core::World* world, QObject* parent)
     : QObject(parent)
     , path(path)
     , world(world)
-    , window(window)
-    , isTextureSyncOn(window->isSceneGraphInitialized())
-    , isTextureSyncPending(false)
 {
-    QObject::connect(window, &QQuickWindow::sceneGraphInitialized, this, &WorldSurface::turnTextureSyncOn);
-    QObject::connect(window, &QQuickWindow::sceneGraphInvalidated, this, &WorldSurface::turnTextureSyncOff);
-
     KTar package(this->path);
     if (!package.open(QIODevice::ReadOnly))
     {
@@ -232,11 +227,6 @@ void WorldSurface::activate()
     checkMissingImages(this->world);
 
     wInfo << "Succesfully activated surface " << this->objectName();
-
-    if (this->isTextureSyncOn)
-        this->uploadTextures();
-    else
-        this->isTextureSyncPending = true;
 }
 
 void WorldSurface::deactivate()
@@ -250,22 +240,56 @@ void WorldSurface::deactivate()
     wInfo << "Succesfully deactivated surface " << this->objectName();
 }
 
-QSGTexture* WorldSurface::getTexture(const QObject* object) const
+QSGTexture* WorldSurface::getTexture(const QObject* object, QQuickWindow* window)
 {
-    return this->getTexture(key(object));
-}
+    QSGTexture* texture{nullptr};
 
-QSGTexture* WorldSurface::getTexture(const QString& key) const
-{
-    const auto it = this->textures.find(key);
-    if (it == this->textures.end())
+    const auto textureKey = std::make_pair(object, window);
+    const auto it = this->objectTextures.find(textureKey);
+
+    if (it == this->objectTextures.end())
     {
-        return nullptr;
+        texture = createTexture(QImage(objectPath(object)), window);
+
+        if (texture != nullptr)
+        {
+            this->objectTextures.emplace(
+                textureKey, std::unique_ptr<QSGTexture, utils::DelayedQObjectDeleter>(texture));
+            wDebug << "Created texture for " << object;
+        }
     }
     else
     {
-        return it->second.get();
+        texture = it->second.get();
     }
+
+    return texture;
+}
+
+QSGTexture* WorldSurface::getTexture(const QString& path, QQuickWindow* window)
+{
+    QSGTexture* texture{nullptr};
+
+    const auto textureKey = std::make_pair(path, window);
+    const auto it = this->staticTextures.find(textureKey);
+
+    if (it == this->staticTextures.end())
+    {
+        texture = createTexture(QImage(path), window);
+
+        if (texture != nullptr)
+        {
+            this->staticTextures.emplace(
+                textureKey, std::unique_ptr<QSGTexture, utils::DelayedQObjectDeleter>(texture));
+            wDebug << "Created texture for " << path;
+        }
+    }
+    else
+    {
+        texture = it->second.get();
+    }
+
+    return texture;
 }
 
 QUrl WorldSurface::getImageUrl(QObject* object) const
@@ -283,22 +307,6 @@ QUrl WorldSurface::getImageUrl(QObject* object) const
                         className,
                         utils::makeFileName(object->objectName(), utils::resourcePaths::fileExtension)));
     }
-}
-
-void WorldSurface::turnTextureSyncOn()
-{
-    this->isTextureSyncOn = true;
-
-    if (this->isTextureSyncPending)
-    {
-        this->uploadTextures();
-        this->isTextureSyncPending = false;
-    }
-}
-
-void WorldSurface::turnTextureSyncOff()
-{
-    this->isTextureSyncOn = false;
 }
 
 void WorldSurface::parseHeader(const QByteArray& header)
@@ -321,51 +329,6 @@ void WorldSurface::parseHeader(const QByteArray& header)
 
     emit displayNameChanged();
     emit descriptionChanged();
-}
-
-void WorldSurface::uploadTextures()
-{
-    this->textures.clear();
-
-    void (WorldSurface::*memFn)(const QObject* const) = &WorldSurface::uploadTexture;
-    const auto uploadTextureFunc = std::bind(memFn, this, std::placeholders::_1);
-
-    const auto terrainTypes = this->world->getTerrainTypes();
-    std::for_each(terrainTypes.cbegin(), terrainTypes.cend(), uploadTextureFunc);
-
-    const auto settlementTypes = this->world->getSettlementTypes();
-    std::for_each(settlementTypes.cbegin(), settlementTypes.cend(), uploadTextureFunc);
-
-    const auto unitTypes = this->world->getUnitTypes();
-    std::for_each(unitTypes.cbegin(), unitTypes.cend(), uploadTextureFunc);
-
-    std::for_each(requiredImagePaths.cbegin(), requiredImagePaths.cend(), [&](const QString& p) {
-        this->uploadTexture(p, QImage(p));
-    });
-
-    wInfo << "Textures for surface " << this << " uploaded to GPU";
-}
-
-void WorldSurface::uploadTexture(const QObject* const object)
-{
-    this->uploadTexture(key(object), QImage(objectPath(object)));
-}
-
-void WorldSurface::uploadTexture(const QString& textureKey, const QImage& image)
-{
-    if (image.isNull())
-    {
-        return;
-    }
-
-    this->textures[textureKey] = std::unique_ptr<QSGTexture>(this->window->createTextureFromImage(image));
-
-    wInfo << "Successfully uploaded texture " << textureKey;
-}
-
-static QString key(const QObject* const object)
-{
-    return QString(object->metaObject()->className()) + "/" + object->objectName();
 }
 
 static QString objectPath(const QObject* const object)
@@ -425,6 +388,16 @@ static bool isRequiredImageMissing(const QString& path)
     {
         return false;
     }
+}
+
+static QSGTexture* createTexture(const QImage& image, QQuickWindow* window)
+{
+    if (image.isNull())
+    {
+        return nullptr;
+    }
+
+    return window->createTextureFromImage(image);
 }
 
 } // namespace ui

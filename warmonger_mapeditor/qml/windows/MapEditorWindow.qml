@@ -1,15 +1,15 @@
 import QtQuick 2.2
+import QtQuick.Controls 1.4
 import Warmonger 1.0
 import "../components" as Components
 
-Rectangle {
-    id: root
+ApplicationWindow {
+    id: window
+    visible: true
 
     Component.onCompleted: {
         W.newCampaignMap(W.worlds[0]);
     }
-
-    anchors.fill: parent
 
     Rectangle {
         id: sideBarWrapper

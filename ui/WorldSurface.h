@@ -5,10 +5,13 @@
 
 #include <QColor>
 #include <QImage>
-#include <QQuickWindow>
 #include <QSize>
 
 #include "core/World.h"
+#include "utils/Utils.h"
+
+class QQuickWindow;
+class QSGTexture;
 
 namespace warmonger {
 namespace ui {
@@ -24,7 +27,7 @@ class WorldSurface : public QObject
     Q_PROPERTY(QColor focusGridColor READ getFocusGridColor NOTIFY focusGridColorChanged)
 
 public:
-    WorldSurface(const QString& path, core::World* world, QQuickWindow* window, QObject* parent = nullptr);
+    WorldSurface(const QString& path, core::World* world, QObject* parent = nullptr);
     ~WorldSurface();
 
     /**
@@ -69,8 +72,38 @@ public:
      */
     void deactivate();
 
-    QSGTexture* getTexture(const QObject* object) const;
-    QSGTexture* getTexture(const QString& key) const;
+    /**
+     * Get the QSGTexture for the object (e.g. a UnitType) and window
+     *
+     * If the the texture is not found for `window' it is created.
+     * If the lookup and creation fails nullptr will be returned.
+     *
+     * Warning: Only call this function on the rendering thread (e.g.
+     * from the `updatePaintedNode' function!
+     *
+     * Warning: The returned texture is owned by the surface, do not delete
+     * it and do not allow any QSGNodes to take ownership!
+     *
+     * @param[in] const QObject* object the object to get the texture for
+     * @param[in] QQuickWindow* window the window to which the texture belongs
+     * to
+     *
+     * @returns QSGTexture*
+     */
+    QSGTexture* getTexture(const QObject* object, QQuickWindow* window);
+
+    /**
+     * Get the QSGTexture for the key (e.g. a UnitType) and window
+     *
+     * For more details see getTexture(const QObject*, QQuickWindow*).
+     *
+     * @param[in] const QString& key the key to get the texture for
+     * @param[in] QQuickWindow* window the window to which the texture belongs
+     * to
+     *
+     * @returns QSGTexture*
+     */
+    QSGTexture* getTexture(const QString& key, QQuickWindow* window);
 
     Q_INVOKABLE QUrl getImageUrl(QObject* object) const;
 
@@ -84,16 +117,8 @@ signals:
     void normalGridColorChanged();
     void focusGridColorChanged();
 
-private slots:
-    void turnTextureSyncOn();
-    void turnTextureSyncOff();
-
 private:
     void parseHeader(const QByteArray& header);
-    void uploadTextures();
-    void uploadTexture(const QObject* const object);
-    void uploadTexture(const QString& textureKey, const QImage& image);
-    void cleanTextures();
 
     const QString path;
     QString displayName;
@@ -101,10 +126,10 @@ private:
     core::World* world;
 
     QByteArray resourceData;
-    QQuickWindow* window;
-    std::map<QString, std::unique_ptr<QSGTexture>> textures;
-    bool isTextureSyncOn;
-    bool isTextureSyncPending;
+    std::map<std::pair<const QString, QQuickWindow*>, std::unique_ptr<QSGTexture, utils::DelayedQObjectDeleter>>
+        staticTextures;
+    std::map<std::pair<const QObject*, QQuickWindow*>, std::unique_ptr<QSGTexture, utils::DelayedQObjectDeleter>>
+        objectTextures;
 
     int tileWidth;
     int tileHeight;

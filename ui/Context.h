@@ -2,7 +2,6 @@
 #define W_UI_CONTEXT_H
 
 #include <QDir>
-#include <QQuickWindow>
 #include <QVariant>
 
 #include "core/CampaignMap.h"
@@ -26,7 +25,7 @@ class Context : public QObject
     Q_PROPERTY(QVariantMap colorPalette READ getColorPalette NOTIFY colorPaletteChanged)
 
 public:
-    Context(QQuickWindow* window, QObject* parent = nullptr);
+    Context(QObject* parent = nullptr);
 
     core::World* getWorld() const;
     ui::WorldSurface* getWorldSurface() const;
@@ -67,7 +66,6 @@ private:
     void loadMapsFromDir(const QDir& mapsDir, core::World* world);
     void loadSurfacesFromDir(const QDir& surfacesDir, core::World* world);
 
-    QQuickWindow* window;
     core::World* world;
     ui::WorldSurface* worldSurface;
     core::CampaignMap* campaignMap;

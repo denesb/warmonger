@@ -18,9 +18,8 @@ namespace ui {
 
 static QString nextCampaignMapName(const std::vector<core::CampaignMap*>& campaignMaps);
 
-Context::Context(QQuickWindow* window, QObject* parent)
+Context::Context(QObject* parent)
     : QObject(parent)
-    , window(window)
     , world(nullptr)
     , worldSurface(nullptr)
     , campaignMap(nullptr)
@@ -289,7 +288,7 @@ void Context::loadSurfacesFromDir(const QDir& surfacesDir, core::World* world)
         ui::WorldSurface* surface{nullptr};
         try
         {
-            surface = new WorldSurface(surfacePath, world, window, this);
+            surface = new WorldSurface(surfacePath, world, this);
         }
         catch (const utils::Exception& error)
         {

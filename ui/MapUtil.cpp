@@ -254,7 +254,8 @@ void drawContents(
     }
 }
 
-QSGNode* drawMapNode(core::MapNode* mapNode, const ui::WorldSurface* worldSurface, const QPoint& pos, QSGNode* oldNode)
+QSGNode* drawMapNode(
+    core::MapNode* mapNode, ui::WorldSurface* worldSurface, QQuickWindow* window, const QPoint& pos, QSGNode* oldNode)
 {
     QSGSimpleTextureNode* node;
     if (oldNode == nullptr)
@@ -268,7 +269,7 @@ QSGNode* drawMapNode(core::MapNode* mapNode, const ui::WorldSurface* worldSurfac
         node = static_cast<QSGSimpleTextureNode*>(oldNode);
     }
 
-    QSGTexture* texture = worldSurface->getTexture(mapNode->getTerrainType());
+    QSGTexture* texture = worldSurface->getTexture(mapNode->getTerrainType(), window);
     if (texture == nullptr)
     {
         wError << "No texture found for " << mapNode->getTerrainType();
@@ -291,8 +292,11 @@ QSGNode* drawMapNode(core::MapNode* mapNode, const ui::WorldSurface* worldSurfac
     return node;
 }
 
-QSGNode* drawSettlement(
-    core::Settlement* settlement, const ui::WorldSurface* worldSurface, const QPoint& pos, QSGNode* oldNode)
+QSGNode* drawSettlement(core::Settlement* settlement,
+    ui::WorldSurface* worldSurface,
+    QQuickWindow* window,
+    const QPoint& pos,
+    QSGNode* oldNode)
 {
     QSGSimpleTextureNode* node;
     if (oldNode == nullptr)
@@ -306,7 +310,7 @@ QSGNode* drawSettlement(
         node = static_cast<QSGSimpleTextureNode*>(oldNode);
     }
 
-    QSGTexture* texture = worldSurface->getTexture(settlement->getType());
+    QSGTexture* texture = worldSurface->getTexture(settlement->getType(), window);
     if (texture == nullptr)
     {
         wError << "No texture found for " << settlement->getType();

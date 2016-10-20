@@ -1,5 +1,3 @@
-#include <QGuiApplication>
-
 #include "core/MapGenerator.h"
 #include "test/catch.hpp"
 #include "ui/MapUtil.h"
@@ -278,12 +276,7 @@ TEST_CASE("", "[mapNodeAtPos]")
 
     core::World world;
 
-    int argc = 0;
-    char** argv = nullptr;
-    QGuiApplication app(argc, argv);
-    QQuickWindow window;
-
-    ui::WorldSurface surface("./dev.wsp", &world, &window);
+    ui::WorldSurface surface("./dev.wsp", &world);
     surface.activate();
 
     const std::map<core::MapNode*, QPoint> nodesPos = ui::positionMapNodes(mapNodes.front(), surface.getTileSize());
@@ -321,12 +314,7 @@ TEST_CASE("neighboursByPos", "[MapUtil]")
 
     core::World world;
 
-    int argc = 0;
-    char** argv = nullptr;
-    QGuiApplication app(argc, argv);
-    QQuickWindow window;
-
-    ui::WorldSurface worldSurface("./dev.wsp", &world, &window);
+    ui::WorldSurface worldSurface("./dev.wsp", &world);
     const QSize tileSize = worldSurface.getTileSize();
 
     worldSurface.activate();

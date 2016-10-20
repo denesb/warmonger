@@ -57,6 +57,16 @@ Head makePath(const Head& head, const Component&... components)
 
 QString makeFileName(const QString& fileName, const QString& extension);
 
+struct DelayedQObjectDeleter
+{
+    constexpr DelayedQObjectDeleter() = default;
+
+    void operator()(QObject* object) const
+    {
+        object->deleteLater();
+    }
+};
+
 } // namespace utils
 } // namespace warmonger
 

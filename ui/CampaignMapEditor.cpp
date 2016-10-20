@@ -201,12 +201,13 @@ QSGNode* CampaignMapEditor::drawContent(const core::CampaignMap::Content& conten
     core::MapNode* mapNode = std::get<core::MapNode*>(content);
     const QPoint& pos = this->mapNodesPos.at(mapNode);
 
-    QSGNode* mapSGNode = drawMapNode(mapNode, this->worldSurface, pos, oldNode);
+    QSGNode* mapSGNode = drawMapNode(mapNode, this->worldSurface, this->window(), pos, oldNode);
 
     core::Settlement* settlement = std::get<core::Settlement*>(content);
     if (settlement != nullptr)
     {
-        QSGNode* settlementSGNode = drawSettlement(settlement, this->worldSurface, pos, mapSGNode->firstChild());
+        QSGNode* settlementSGNode =
+            drawSettlement(settlement, this->worldSurface, this->window(), pos, mapSGNode->firstChild());
 
         if (mapSGNode->firstChild() == nullptr)
             mapSGNode->appendChildNode(settlementSGNode);
@@ -400,7 +401,7 @@ QSGNode* CampaignMapEditor::drawHoverNode(QSGNode* oldNode) const
     else
         hoverNode = static_cast<QSGSimpleTextureNode*>(oldNode);
 
-    QSGTexture* texture = this->worldSurface->getTexture(utils::resourcePaths::mapEditor::hoverValid);
+    QSGTexture* texture = this->worldSurface->getTexture(utils::resourcePaths::mapEditor::hoverValid, this->window());
     if (texture != hoverNode->texture())
         hoverNode->setTexture(texture);
 

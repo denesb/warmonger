@@ -11,7 +11,7 @@ Rectangle {
     property var availableObjectTypes
     property var editingMode : tabList.model.get(0).mode
 
-    color: W.colorPalette.backgroundColor0
+    color: W.normalPalette.window
 
     Component.onCompleted: {
         tabList.onCurrentIndexChanged()
@@ -26,7 +26,7 @@ Rectangle {
             width: 32
             height: 32
 
-            color: W.colorPalette.backgroundColor0
+            color: W.normalPalette.window
 
             state: tabButton.ListView.isCurrentItem ? "current" : "normal"
 
@@ -62,28 +62,28 @@ Rectangle {
                     name: "normal"
                     PropertyChanges {
                         target: tabButton;
-                        color: W.colorPalette.backgroundColor1;
+                        color: W.normalPalette.window;
                     }
                 },
                 State {
                     name: "normalFocused"
                     PropertyChanges {
                         target: tabButton;
-                        color: W.colorPalette.backgroundColor1;
+                        color: W.normalPalette.window;
                     }
                 },
                 State {
                     name: "current"
                     PropertyChanges {
                         target: tabButton;
-                        color: W.colorPalette.backgroundColor0;
+                        color: W.normalPalette.window;
                     }
                 },
                 State {
                     name: "currentFocused"
                     PropertyChanges {
                         target: tabButton;
-                        color: W.colorPalette.backgroundColor0;
+                        color: W.normalPalette.window;
                     }
                 }
             ]
@@ -100,7 +100,7 @@ Rectangle {
         }
         height: 32
 
-        color: W.colorPalette.backgroundColor0;
+        color: W.normalPalette.window;
 
         Text {
             id: title
@@ -126,7 +126,7 @@ Rectangle {
         Rectangle {
             id: tabs
 
-            color: W.colorPalette.backgroundColor1
+            color: W.normalPalette.window
 
             anchors {
                 top: parent.top
@@ -220,7 +220,7 @@ Rectangle {
         Rectangle {
             id: content
 
-            color: W.colorPalette.backgroundColor0
+            color: W.normalPalette.window
 
             anchors {
                 top: parent.top
@@ -237,7 +237,7 @@ Rectangle {
                     margins: 4
                 }
 
-                color: W.colorPalette.backgroundColor0
+                color: W.normalPalette.window
 
                 state: "inactive"
 
@@ -338,10 +338,10 @@ Rectangle {
 
         border {
             width: 1
-            color: W.colorPalette.foregroundColor1
+            color: W.normalPalette.mid
         }
 
-        color: W.colorPalette.backgroundColor1
+        color: W.normalPalette.window
 
         CampaignMiniMap {
             id: miniMap

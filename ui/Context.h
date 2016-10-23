@@ -8,6 +8,7 @@
 #include "core/Game.h"
 #include "core/World.h"
 #include "ui/WorldSurface.h"
+#include "ui/Palette.h"
 
 namespace warmonger {
 namespace ui {
@@ -22,7 +23,10 @@ class Context : public QObject
     Q_PROPERTY(QVariantList worlds READ readWorlds NOTIFY worldsChanged)
     Q_PROPERTY(QVariantList worldSurfaces READ readWorldSurfaces NOTIFY worldSurfacesChanged)
     Q_PROPERTY(QVariantList campaignMaps READ readCampaignMaps NOTIFY campaignMapsChanged)
-    Q_PROPERTY(QVariantMap colorPalette READ getColorPalette NOTIFY colorPaletteChanged)
+    Q_PROPERTY(warmonger::ui::Palette* disabledPalette READ getDisabledPalette NOTIFY colorPaletteChanged)
+    Q_PROPERTY(warmonger::ui::Palette* inactivePalette READ getActivePalette NOTIFY colorPaletteChanged)
+    Q_PROPERTY(warmonger::ui::Palette* activePalette READ getInactivePalette NOTIFY colorPaletteChanged)
+    Q_PROPERTY(warmonger::ui::Palette* normalPalette READ getNormalPalette NOTIFY colorPaletteChanged)
 
 public:
     Context(QObject* parent = nullptr);
@@ -35,7 +39,25 @@ public:
     QVariantList readWorldSurfaces() const;
     QVariantList readCampaignMaps() const;
 
-    QVariantMap getColorPalette() const;
+    Palette* getDisabledPalette() const
+    {
+        return this->disabledPalette;
+    }
+
+    Palette* getActivePalette() const
+    {
+        return this->activePalette;
+    }
+
+    Palette* getInactivePalette() const
+    {
+        return this->inactivePalette;
+    }
+
+    Palette* getNormalPalette() const
+    {
+        return this->normalPalette;
+    }
 
 public slots:
     /**
@@ -73,7 +95,10 @@ private:
     std::vector<core::World*> worlds;
     std::map<core::World*, std::vector<ui::WorldSurface*>> worldSurfaces;
     std::vector<core::CampaignMap*> campaignMaps;
-    QVariantMap colorPalette;
+    Palette* disabledPalette;
+    Palette* activePalette;
+    Palette* inactivePalette;
+    Palette* normalPalette;
 };
 
 } // namespace ui

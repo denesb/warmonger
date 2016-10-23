@@ -6,6 +6,21 @@ ApplicationWindow {
     id: window
     visible: true
 
+    menuBar: MenuBar {
+        Menu {
+            title: "File"
+            MenuItem { text: "New"; shortcut: "Ctrl+n" }
+            MenuItem { text: "Open"; shortcut: "Ctrl+o" }
+            MenuItem { text: "Save"; shortcut: "Ctrl+s" }
+            MenuItem { text: "Save as"; shortcut: "Ctrl+Shitf+S" }
+            MenuItem { text: "Close"; shortcut: "Ctrl+Q" }
+        }
+        Menu {
+            title: "Edit"
+            MenuItem { text: "Map Properties" }
+        }
+    }
+
     Component.onCompleted: {
         W.newCampaignMap(W.worlds[0]);
     }
@@ -71,14 +86,14 @@ ApplicationWindow {
                     name: "normal"
                     PropertyChanges {
                         target: resizeHandle;
-                        color: W.colorPalette.foregroundColor0;
+                        color: W.normalPalette.window;
                     }
                 },
                 State {
                     name: "active"
                     PropertyChanges {
                         target: resizeHandle;
-                        color: W.colorPalette.focusColor0;
+                        color: W.normalPalette.window;
                     }
                 }
             ]
@@ -100,7 +115,7 @@ ApplicationWindow {
     Rectangle {
         id: mapWrapper
 
-        color: W.colorPalette.backgroundColor1
+        color: W.normalPalette.backgroundColor1
 
         anchors {
             top: parent.top

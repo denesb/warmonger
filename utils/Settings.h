@@ -9,13 +9,7 @@ namespace utils {
 enum class SettingsKey
 {
     worldsDir,
-    workDir,
-    foregroundColor0,
-    foregroundColor1,
-    backgroundColor0,
-    backgroundColor1,
-    focusColor0,
-    focusColor1
+    workDir
 };
 
 enum class WorldSettingsKey

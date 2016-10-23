@@ -7,7 +7,7 @@ Rectangle {
     property var objectTypes
     property var objectType : null
 
-    color: W.colorPalette.backgroundColor0
+    color: W.normalPalette.window
 
     Component {
         id: objectTypeComponent
@@ -22,10 +22,10 @@ Rectangle {
 
             border {
                 width: 1
-                color: W.colorPalette.foregroundColor1
+                color: W.normalPalette.mid
             }
 
-            color: W.colorPalette.backgroundColor1
+            color: W.normalPalette.window
 
             Image {
                 anchors {
@@ -62,8 +62,8 @@ Rectangle {
                     name: "normal"
                     PropertyChanges {
                         target: frame;
-                        color: W.colorPalette.backgroundColor1;
-                        border.color: W.colorPalette.foregroundColor1
+                        color: W.normalPalette.window;
+                        border.color: W.normalPalette.mid
                         border.width: 1
                     }
                 },
@@ -71,8 +71,8 @@ Rectangle {
                     name: "normalFocused"
                     PropertyChanges {
                         target: frame;
-                        color: W.colorPalette.foregroundColor1;
-                        border.color: W.colorPalette.foregroundColor1
+                        color: W.normalPalette.mid;
+                        border.color: W.normalPalette.mid
                         border.width: 1
                     }
                 },
@@ -80,8 +80,8 @@ Rectangle {
                     name: "current"
                     PropertyChanges {
                         target: frame;
-                        color: W.colorPalette.backgroundColor1;
-                        border.color: W.colorPalette.focusColor0;
+                        color: W.normalPalette.window;
+                        border.color: W.normalPalette.dark;
                         border.width: 2
                     }
                 },
@@ -89,8 +89,8 @@ Rectangle {
                     name: "currentFocused"
                     PropertyChanges {
                         target: frame;
-                        color: W.colorPalette.foregroundColor1;
-                        border.color: W.colorPalette.focusColor0
+                        color: W.normalPalette.mid;
+                        border.color: W.normalPalette.dark
                         border.width: 2
                     }
                 }
@@ -111,10 +111,10 @@ Rectangle {
 
             border {
                 width: 1
-                color: W.colorPalette.foregroundColor1
+                color: W.normalPalette.mid
             }
 
-            color: W.colorPalette.backgroundColor1
+            color: W.normalPalette.window
 
             Text {
                 anchors.centerIn: parent
@@ -147,8 +147,8 @@ Rectangle {
                     name: "normal"
                     PropertyChanges {
                         target: frame;
-                        color: W.colorPalette.backgroundColor1;
-                        border.color: W.colorPalette.foregroundColor1
+                        color: W.normalPalette.window;
+                        border.color: W.normalPalette.mid
                         border.width: 1
                     }
                 },
@@ -156,8 +156,8 @@ Rectangle {
                     name: "normalFocused"
                     PropertyChanges {
                         target: frame;
-                        color: W.colorPalette.foregroundColor1;
-                        border.color: W.colorPalette.foregroundColor1
+                        color: W.normalPalette.mid;
+                        border.color: W.normalPalette.mid
                         border.width: 1
                     }
                 },
@@ -165,8 +165,8 @@ Rectangle {
                     name: "current"
                     PropertyChanges {
                         target: frame;
-                        color: W.colorPalette.backgroundColor1;
-                        border.color: W.colorPalette.focusColor0;
+                        color: W.normalPalette.window;
+                        border.color: W.normalPalette.dark;
                         border.width: 2
                     }
                 },
@@ -174,8 +174,8 @@ Rectangle {
                     name: "currentFocused"
                     PropertyChanges {
                         target: frame;
-                        color: W.colorPalette.foregroundColor1;
-                        border.color: W.colorPalette.focusColor0
+                        color: W.normalPalette.mid;
+                        border.color: W.normalPalette.dark
                         border.width: 2
                     }
                 }

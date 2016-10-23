@@ -76,6 +76,7 @@ set(
     ui/Context.cpp
     ui/MapUtil.cpp
     ui/MapWindow.cpp
+    ui/Palette.cpp
     ui/SearchPaths.cpp
     ui/UI.cpp
     ui/WorldSurface.cpp

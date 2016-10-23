@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <iterator>
 
+#include <QGuiApplication>
+#include <QPalette>
 #include <QSGFlatColorMaterial>
 #include <QSGGeometryNode>
 #include <QSGSimpleTextureNode>
@@ -345,7 +347,7 @@ QSGNode* drawRect(const QRect& rect, QSGNode* oldNode)
         geometry->setLineWidth(1);
 
         QSGFlatColorMaterial* material = new QSGFlatColorMaterial;
-        material->setColor(QColor(utils::settingsValue(utils::SettingsKey::foregroundColor0).toString()));
+        material->setColor(QGuiApplication::palette().color(QPalette::Normal, QPalette::WindowText));
 
         node->setGeometry(geometry);
         node->setFlag(QSGNode::OwnsGeometry);

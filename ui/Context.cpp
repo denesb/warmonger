@@ -1,3 +1,4 @@
+#include <QGuiApplication>
 #include <QStringList>
 
 #include "core/MapGenerator.h"
@@ -24,15 +25,12 @@ Context::Context(QObject* parent)
     , worldSurface(nullptr)
     , campaignMap(nullptr)
     , game(nullptr)
+    , disabledPalette(new Palette(QGuiApplication::palette(), QPalette::Disabled, this))
+    , activePalette(new Palette(QGuiApplication::palette(), QPalette::Active, this))
+    , inactivePalette(new Palette(QGuiApplication::palette(), QPalette::Inactive, this))
+    , normalPalette(new Palette(QGuiApplication::palette(), QPalette::Normal, this))
 {
     loadWorlds();
-
-    this->colorPalette["foregroundColor0"] = utils::settingsValue(utils::SettingsKey::foregroundColor0);
-    this->colorPalette["foregroundColor1"] = utils::settingsValue(utils::SettingsKey::foregroundColor1);
-    this->colorPalette["backgroundColor0"] = utils::settingsValue(utils::SettingsKey::backgroundColor0);
-    this->colorPalette["backgroundColor1"] = utils::settingsValue(utils::SettingsKey::backgroundColor1);
-    this->colorPalette["focusColor0"] = utils::settingsValue(utils::SettingsKey::focusColor0);
-    this->colorPalette["focusColor1"] = utils::settingsValue(utils::SettingsKey::focusColor1);
 }
 
 core::World* Context::getWorld() const
@@ -76,11 +74,6 @@ QVariantList Context::readWorldSurfaces() const
 QVariantList Context::readCampaignMaps() const
 {
     return utils::toQVariantList(this->campaignMaps);
-}
-
-QVariantMap Context::getColorPalette() const
-{
-    return this->colorPalette;
 }
 
 void Context::newCampaignMap(warmonger::core::World* world)

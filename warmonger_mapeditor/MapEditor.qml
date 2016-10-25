@@ -1,14 +1,56 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.4
+import QtQuick.Layouts 1.2
 import Warmonger 1.0
 
 ApplicationWindow {
     id: window
     visible: true
 
+    Component.onCompleted: {
+        W.newCampaignMap(W.worlds[0]);
+    }
+
+    Action {
+        id: newAction
+        text: "&New"
+        iconName: "document-new"
+        tooltip: "New Campaign Map"
+        onTriggered: {
+            W.newCampaignMap(W.worlds[0]);
+        }
+    }
+
+    Action {
+        id: terrainTypeEditingModeAction
+        text: "T"
+        tooltip: "Terrain Type Editing Mode"
+        onTriggered: {
+            mapEditor.editingMode = CampaignMapEditor.TerrainType;
+        }
+    }
+
+    Action {
+        id: settlementTypeEditingModeAction
+        text: "S"
+        tooltip: "Settlement Type Editing Mode"
+        onTriggered: {
+            mapEditor.editingMode = CampaignMapEditor.SettlementType;
+        }
+    }
+
+    Action {
+        id: armyTypeEditingModeAction
+        text: "A"
+        tooltip: "Army Type Editing Mode"
+        onTriggered: {
+            mapEditor.editingMode = CampaignMapEditor.ArmyType;
+        }
+    }
+
     menuBar: MenuBar {
         Menu {
-            title: "File"
+            title: "Campaign Map"
             MenuItem { text: "New"; shortcut: "Ctrl+n" }
             MenuItem { text: "Open"; shortcut: "Ctrl+o" }
             MenuItem { text: "Save"; shortcut: "Ctrl+s" }
@@ -21,8 +63,35 @@ ApplicationWindow {
         }
     }
 
-    Component.onCompleted: {
-        W.newCampaignMap(W.worlds[0]);
+    toolBar: ToolBar {
+        RowLayout {
+            anchors.fill: parent
+
+            ToolButton {
+                action: newAction
+            }
+
+            ToolButton {
+                action: terrainTypeEditingModeAction
+            }
+
+            ToolButton {
+                action: settlementTypeEditingModeAction
+            }
+
+            ToolButton {
+                action: armyTypeEditingModeAction
+            }
+
+            Item {
+                Layout.fillWidth: true
+            }
+        }
+    }
+
+    contentItem {
+        minimumWidth: 600
+        minimumHeight: 400
     }
 
     Rectangle {
@@ -115,7 +184,7 @@ ApplicationWindow {
     Rectangle {
         id: mapWrapper
 
-        color: W.normalPalette.backgroundColor1
+        color: W.normalPalette.window
 
         anchors {
             top: parent.top
@@ -131,7 +200,6 @@ ApplicationWindow {
             worldSurface: W.worldSurface
             windowPos: sideBar.miniMapWindowPos
             objectType: sideBar.objectType
-            editingMode: sideBar.editingMode
 
             anchors.fill: parent
             anchors.margins: 1

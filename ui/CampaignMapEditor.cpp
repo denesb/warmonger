@@ -17,7 +17,7 @@ CampaignMapEditor::CampaignMapEditor(QQuickItem* parent)
     , campaignMap(nullptr)
     , worldSurface(nullptr)
     , hoverMapNode(nullptr)
-    , editingMode(EditingMode::TerrainType)
+    , editingMode(EditingMode::None)
     , objectType(nullptr)
     , watcher(nullptr)
 {

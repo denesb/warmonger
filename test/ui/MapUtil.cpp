@@ -1,6 +1,6 @@
+#include "ui/MapUtil.h"
 #include "core/MapGenerator.h"
 #include "test/catch.hpp"
-#include "ui/MapUtil.h"
 #include "ui/WorldSurface.h"
 #include "utils/ToString.h"
 

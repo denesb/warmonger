@@ -20,6 +20,7 @@ QJsonDocument parseJson(const QByteArray& json);
 
 core::Army* armyFromJson(const QJsonObject& jobj, Context& ctx);
 core::ArmyType* armyTypeFromJson(const QJsonObject& jobj, Context& ctx);
+core::Banner* bannerFromJson(const QJsonObject& jobj, Context& ctx);
 core::Civilization* civilizationsFromJson(const QJsonObject& jobj, Context& ctx);
 core::Faction* factionFromJson(const QJsonObject& jobj, Context& ctx);
 core::MapNode* mapNodeFromJson(const QJsonObject& jobj, Context& ctx);
@@ -165,6 +166,12 @@ core::ArmyType* JsonUnserializer::unserializeArmyType(const QByteArray& data)
     return armyTypeFromJson(jdoc.object(), this->ctx);
 }
 
+core::Banner* JsonUnserializer::unserializeBanner(const QByteArray& data)
+{
+    QJsonDocument jdoc(parseJson(data));
+    return bannerFromJson(jdoc.object(), this->ctx);
+}
+
 core::CampaignMap* JsonUnserializer::unserializeCampaignMap(const QByteArray& data)
 {
     QJsonDocument jdoc(parseJson(data));
@@ -264,6 +271,8 @@ core::World* JsonUnserializer::unserializeWorld(const QByteArray& data)
     obj->setCivilizations(
         objectListFromJson<core::Civilization>(jobj["civilizations"].toArray(), this->ctx, civilizationsFromJson));
 
+    obj->setBanners(hierarchyNodesFromJson<core::Banner>(jobj["banners"].toArray(), bannerFromJson, this->ctx));
+
     return obj.release();
 }
 
@@ -294,6 +303,19 @@ core::ArmyType* armyTypeFromJson(const QJsonObject& jobj, Context& ctx)
 
     if (jobj.contains("displayName"))
         obj->setDisplayName(jobj["displayName"].toString());
+
+    return obj.release();
+}
+
+core::Banner* bannerFromJson(const QJsonObject& jobj, Context& ctx)
+{
+    std::unique_ptr<core::Banner> obj(new core::Banner());
+
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+    if (jobj.contains("civilizations"))
+        obj->setCivilizations(fromQJsonArray<std::vector<core::Civilization*>>(
+            jobj["civilizations"].toArray(), ReferenceResolver<core::Civilization>(ctx)));
 
     return obj.release();
 }

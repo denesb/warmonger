@@ -13,6 +13,7 @@ public:
 
     core::Army* unserializeArmy(const QByteArray& data) override;
     core::ArmyType* unserializeArmyType(const QByteArray& data) override;
+    core::Banner* unserializeBanner(const QByteArray& data) override;
     core::CampaignMap* unserializeCampaignMap(const QByteArray& data) override;
     core::Civilization* unserializeCivilization(const QByteArray& data) override;
     core::Faction* unserializeFaction(const QByteArray& data) override;

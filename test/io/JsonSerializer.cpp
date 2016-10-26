@@ -72,6 +72,27 @@ TEST_CASE("Army can be serialized to JSON", "[JsonSerializer]")
     }
 }
 
+TEST_CASE("Banner can be serialized to JSON", "[JsonSerializer]")
+{
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+
+    core::Banner* b = world->getBanners()[0];
+
+    SECTION("serializing Banner")
+    {
+        io::JsonSerializer serializer;
+        const QByteArray json(serializer.serializeBanner(b));
+        const QJsonDocument jdoc(QJsonDocument::fromJson(json));
+        const QJsonObject jobj(jdoc.object());
+
+        REQUIRE(jobj["objectName"].toString() == b->objectName());
+        REQUIRE(jobj["displayName"].toString() == b->getDisplayName());
+        REQUIRE(jobj["civilizations"].isArray());
+        arrayEqualsList(jobj["civilizations"].toArray(), b->getCivilizations());
+    }
+}
+
 TEST_CASE("CampaignMap can be serialized to JSON", "[JsonSerializer]")
 {
     const std::pair<core::CampaignMap*, QJsonObject> maps = makeMap();
@@ -396,6 +417,12 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
         REQUIRE(jobj["armyTypes"].isArray() == true);
         REQUIRE(world->getArmyTypes().size() == jobj["armyTypes"].toArray().size());
 
+        REQUIRE(jobj["banners"].isArray() == true);
+        REQUIRE(world->getBanners().size() == jobj["banners"].toArray().size());
+
+        REQUIRE(jobj["civilizations"].isArray() == true);
+        REQUIRE(world->getCivilizations().size() == jobj["civilizations"].toArray().size());
+
         REQUIRE(jobj["terrainTypes"].isArray() == true);
         REQUIRE(world->getTerrainTypes().size() == jobj["terrainTypes"].toArray().size());
 
@@ -404,8 +431,5 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
 
         REQUIRE(jobj["settlementTypes"].isArray() == true);
         REQUIRE(world->getSettlementTypes().size() == jobj["settlementTypes"].toArray().size());
-
-        REQUIRE(jobj["civilizations"].isArray() == true);
-        REQUIRE(world->getCivilizations().size() == jobj["civilizations"].toArray().size());
     }
 }

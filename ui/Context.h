@@ -7,8 +7,8 @@
 #include "core/CampaignMap.h"
 #include "core/Game.h"
 #include "core/World.h"
-#include "ui/WorldSurface.h"
 #include "ui/Palette.h"
+#include "ui/WorldSurface.h"
 
 namespace warmonger {
 namespace ui {

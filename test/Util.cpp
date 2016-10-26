@@ -1,6 +1,7 @@
 #include "test/Util.h"
 #include "core/Army.h"
 #include "core/ArmyType.h"
+#include "core/Banner.h"
 #include "core/Civilization.h"
 #include "core/Hexagon.h"
 #include "core/MapNode.h"
@@ -157,6 +158,21 @@ std::pair<core::World*, QJsonObject> makeWorld()
 
     w->setCivilizations({c0});
     jw["civilizations"] = QJsonArray({jc0});
+
+    // Banner
+    core::Banner* b0 = new core::Banner(w);
+    QJsonObject jb0;
+    setNames(b0, jb0, 0);
+
+    b0->setCivilizations({c0});
+    jb0["civilizations"] = QJsonArray({c0->objectName()});
+
+    core::Banner* b1 = new core::Banner(w);
+    QJsonObject jb1;
+    setNames(b1, jb1, 1);
+
+    w->setBanners({b0, b1});
+    jw["banners"] = QJsonArray({jb0, jb1});
 
     return std::make_pair(w, jw);
 }

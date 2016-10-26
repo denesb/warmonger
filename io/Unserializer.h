@@ -8,6 +8,7 @@ namespace warmonger {
 namespace core {
 class Army;
 class ArmyType;
+class Banner;
 class CampaignMap;
 class Civilization;
 class Faction;
@@ -45,6 +46,7 @@ public:
 
     virtual core::Army* unserializeArmy(const QByteArray& data) = 0;
     virtual core::ArmyType* unserializeArmyType(const QByteArray& data) = 0;
+    virtual core::Banner* unserializeBanner(const QByteArray& data) = 0;
     virtual core::CampaignMap* unserializeCampaignMap(const QByteArray& data) = 0;
     virtual core::Civilization* unserializeCivilization(const QByteArray& data) = 0;
     virtual core::Faction* unserializeFaction(const QByteArray& data) = 0;

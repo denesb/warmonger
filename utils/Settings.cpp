@@ -16,8 +16,8 @@ const std::map<SettingsKey, QVariant> defaultValues{};
 
 const std::map<WorldSettingsKey, QVariant> worldDefaultValues{};
 
-const std::map<SettingsKey, QString> settingsKeyToString{{SettingsKey::worldsDir, "worldsDir"},
-    {SettingsKey::workDir, "workDir"}};
+const std::map<SettingsKey, QString> settingsKeyToString{
+    {SettingsKey::worldsDir, "worldsDir"}, {SettingsKey::workDir, "workDir"}};
 
 const std::map<WorldSettingsKey, QString> worldSettingsKeyToString{{WorldSettingsKey::preferredSurface, "surface"}};
 

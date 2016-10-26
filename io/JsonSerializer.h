@@ -15,6 +15,7 @@ public:
 
     QByteArray serializeArmy(const core::Army* obj) override;
     QByteArray serializeArmyType(const core::ArmyType* obj) override;
+    QByteArray serializeBanner(const core::Banner* obj) override;
     QByteArray serializeCampaignMap(const core::CampaignMap* obj) override;
     QByteArray serializeCivilization(const core::Civilization* obj) override;
     QByteArray serializeFaction(const core::Faction* obj) override;

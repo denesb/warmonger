@@ -19,73 +19,6 @@ CATCH_TRANSLATE_EXCEPTION(utils::ValueError& e)
 
 static const QByteArray invalidJson{"{\"displayName\": \"displayName\" \"objectName\": \"objectName\"}"};
 
-TEST_CASE("ArmyType can be unserialized from JSON", "[JsonUnserializer]")
-{
-    io::Context ctx;
-
-    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
-    const std::unique_ptr<core::World> world{worlds.first};
-    const QJsonObject jworld{worlds.second};
-
-    const QJsonObject jobj = jworld["armyTypes"].toArray()[0].toObject();
-
-    SECTION("unserializing ArmyType")
-    {
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-        const std::unique_ptr<core::ArmyType> at(unserializer.unserializeArmyType(jdoc.toJson()));
-
-        REQUIRE(at->isHierarchyRoot());
-        REQUIRE(at->objectName() == jobj["objectName"].toString());
-        REQUIRE(at->getDisplayName() == jobj["displayName"].toString());
-    }
-
-    const std::vector<core::ArmyType*> ats = world->getArmyTypes();
-    std::for_each(ats.cbegin(), ats.cend(), [&](core::ArmyType* o) { ctx.add(o); });
-
-    SECTION("unserializing ArmyType - all properties inherited")
-    {
-        const QJsonObject parentJobj = jworld["armyTypes"].toArray()[0].toObject();
-        QJsonObject jobj;
-        jobj["objectName"] = "childAt0";
-        jobj["hierarchyParent"] = parentJobj["objectName"];
-
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-        const std::unique_ptr<core::ArmyType> at(unserializer.unserializeArmyType(jdoc.toJson()));
-
-        REQUIRE(!at->isHierarchyRoot());
-        REQUIRE(at->getHierarchyParent()->objectName() == parentJobj["objectName"].toString());
-        REQUIRE(at->objectName() == jobj["objectName"].toString());
-        REQUIRE(at->getDisplayName() == parentJobj["displayName"].toString());
-    }
-}
-
-TEST_CASE("ArmyType can't be unserialized from JSON", "[JsonUnserializer]")
-{
-    SECTION("invalid JSON")
-    {
-        io::Context ctx;
-        io::JsonUnserializer unserializer(ctx);
-
-        REQUIRE_THROWS_AS(unserializer.unserializeArmyType(invalidJson), utils::ValueError);
-    }
-
-    SECTION("unserializing ArmyType, no parent armyTypes")
-    {
-        QJsonObject jobj;
-        jobj["objectName"] = "armyTypeChild0";
-        jobj["hierarchyParent"] = "nonExistentArmyType0";
-
-        io::Context ctx;
-
-        io::JsonUnserializer unserializer(ctx);
-        QJsonDocument jdoc(jobj);
-
-        REQUIRE_THROWS_AS(unserializer.unserializeArmyType(jdoc.toJson()), utils::ValueError);
-    }
-}
-
 TEST_CASE("Army can be unserialized from JSON", "[JsonUnserializer]")
 {
     io::Context ctx;
@@ -215,6 +148,132 @@ TEST_CASE("Army can't be unserialized from JSON", "[JsonUnserializer]")
         QJsonDocument jdoc(jobj);
 
         REQUIRE_THROWS_AS(unserializer.unserializeArmy(jdoc.toJson()), utils::ValueError);
+    }
+}
+
+TEST_CASE("ArmyType can be unserialized from JSON", "[JsonUnserializer]")
+{
+    io::Context ctx;
+
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+    const QJsonObject jworld{worlds.second};
+
+    const QJsonObject jobj = jworld["armyTypes"].toArray()[0].toObject();
+
+    SECTION("unserializing ArmyType")
+    {
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        const std::unique_ptr<core::ArmyType> at(unserializer.unserializeArmyType(jdoc.toJson()));
+
+        REQUIRE(at->isHierarchyRoot());
+        REQUIRE(at->objectName() == jobj["objectName"].toString());
+        REQUIRE(at->getDisplayName() == jobj["displayName"].toString());
+    }
+
+    const std::vector<core::ArmyType*> ats = world->getArmyTypes();
+    std::for_each(ats.cbegin(), ats.cend(), [&](core::ArmyType* o) { ctx.add(o); });
+
+    SECTION("unserializing ArmyType - all properties inherited")
+    {
+        const QJsonObject parentJobj = jworld["armyTypes"].toArray()[0].toObject();
+        QJsonObject jobj;
+        jobj["objectName"] = "childAt0";
+        jobj["hierarchyParent"] = parentJobj["objectName"];
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        const std::unique_ptr<core::ArmyType> at(unserializer.unserializeArmyType(jdoc.toJson()));
+
+        REQUIRE(!at->isHierarchyRoot());
+        REQUIRE(at->getHierarchyParent()->objectName() == parentJobj["objectName"].toString());
+        REQUIRE(at->objectName() == jobj["objectName"].toString());
+        REQUIRE(at->getDisplayName() == parentJobj["displayName"].toString());
+    }
+}
+
+TEST_CASE("ArmyType can't be unserialized from JSON", "[JsonUnserializer]")
+{
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(unserializer.unserializeArmyType(invalidJson), utils::ValueError);
+    }
+
+    SECTION("unserializing ArmyType, no parent armyTypes")
+    {
+        QJsonObject jobj;
+        jobj["objectName"] = "armyTypeChild0";
+        jobj["hierarchyParent"] = "nonExistentArmyType0";
+
+        io::Context ctx;
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(unserializer.unserializeArmyType(jdoc.toJson()), utils::ValueError);
+    }
+}
+
+TEST_CASE("Banner can be unserialized from JSON", "[JsonUnserializer]")
+{
+    io::Context ctx;
+
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+    const QJsonObject jworld{worlds.second};
+
+    const QJsonObject jobj = jworld["banners"].toArray()[0].toObject();
+
+    const std::vector<core::Civilization*> cs = world->getCivilizations();
+    std::for_each(cs.cbegin(), cs.cend(), [&](core::Civilization* o) { ctx.add(o); });
+
+    SECTION("unserializing Banner")
+    {
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+        const std::unique_ptr<core::Banner> b(unserializer.unserializeBanner(jdoc.toJson()));
+
+        REQUIRE(b->objectName() == jobj["objectName"].toString());
+        REQUIRE(b->getDisplayName() == jobj["displayName"].toString());
+        if (jobj.contains("civilizations"))
+        {
+            arrayEqualsList(jobj["civilizations"].toArray(), b->getCivilizations());
+        }
+        else
+        {
+            REQUIRE(b->getCivilizations().empty());
+        }
+    }
+}
+
+TEST_CASE("Banner can't be unserialized from JSON", "[JsonUnserializer]")
+{
+    SECTION("invalid JSON")
+    {
+        io::Context ctx;
+        io::JsonUnserializer unserializer(ctx);
+
+        REQUIRE_THROWS_AS(unserializer.unserializeBanner(invalidJson), utils::ValueError);
+    }
+
+    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
+    const std::unique_ptr<core::World> world{worlds.first};
+    const QJsonObject jworld{worlds.second};
+
+    const QJsonObject jobj = jworld["banners"].toArray()[0].toObject();
+
+    SECTION("unserializing Banner, no civilizations")
+    {
+        io::Context ctx;
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson()), utils::ValueError);
     }
 }
 
@@ -1020,6 +1079,7 @@ TEST_CASE("World can be unserialized from JSON", "[JsonUnserializer]")
         REQUIRE(world->objectName() == jobj["objectName"].toString());
         REQUIRE(world->getDisplayName() == jobj["displayName"].toString());
         REQUIRE(world->getArmyTypes().size() == jobj["armyTypes"].toArray().size());
+        REQUIRE(world->getBanners().size() == jobj["banners"].toArray().size());
         REQUIRE(world->getTerrainTypes().size() == jobj["terrainTypes"].toArray().size());
         REQUIRE(world->getUnitTypes().size() == jobj["unitTypes"].toArray().size());
         REQUIRE(world->getSettlementTypes().size() == jobj["settlementTypes"].toArray().size());

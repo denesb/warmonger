@@ -9,11 +9,6 @@ World::World(QObject* parent)
 {
 }
 
-QString World::getDisplayName() const
-{
-    return this->displayName;
-}
-
 void World::setDisplayName(const QString& displayName)
 {
     if (this->displayName != displayName)
@@ -21,11 +16,6 @@ void World::setDisplayName(const QString& displayName)
         this->displayName = displayName;
         emit displayNameChanged();
     }
-}
-
-std::vector<ArmyType*> World::getArmyTypes() const
-{
-    return this->armyTypes;
 }
 
 void World::setArmyTypes(const std::vector<ArmyType*>& armyTypes)
@@ -42,9 +32,18 @@ QVariantList World::readArmyTypes() const
     return utils::toQVariantList(this->armyTypes);
 }
 
-std::vector<Civilization*> World::getCivilizations() const
+void World::setBanners(const std::vector<Banner*>& banners)
 {
-    return this->civilizations;
+    if (this->banners != banners)
+    {
+        this->banners = banners;
+        emit bannersChanged();
+    }
+}
+
+QVariantList World::readBanners() const
+{
+    return utils::toQVariantList(this->banners);
 }
 
 void World::setCivilizations(const std::vector<Civilization*>& civilizations)
@@ -55,11 +54,6 @@ void World::setCivilizations(const std::vector<Civilization*>& civilizations)
 QVariantList World::readCivilizations() const
 {
     return utils::toQVariantList(this->civilizations);
-}
-
-std::vector<SettlementType*> World::getSettlementTypes() const
-{
-    return this->settlementTypes;
 }
 
 void World::setSettlementTypes(const std::vector<SettlementType*>& settlementTypes)
@@ -76,11 +70,6 @@ QVariantList World::readSettlementTypes() const
     return utils::toQVariantList(this->settlementTypes);
 }
 
-std::vector<TerrainType*> World::getTerrainTypes() const
-{
-    return this->terrainTypes;
-}
-
 void World::setTerrainTypes(const std::vector<TerrainType*>& terrainTypes)
 {
     if (this->terrainTypes != terrainTypes)
@@ -93,11 +82,6 @@ void World::setTerrainTypes(const std::vector<TerrainType*>& terrainTypes)
 QVariantList World::readTerrainTypes() const
 {
     return utils::toQVariantList(this->terrainTypes);
-}
-
-std::vector<UnitType*> World::getUnitTypes() const
-{
-    return this->unitTypes;
 }
 
 void World::setUnitTypes(const std::vector<UnitType*>& unitTypes)

@@ -42,6 +42,7 @@ set(
     CORE_SRC_FILES
     core/Army.cpp
     core/ArmyType.cpp
+    core/Banner.cpp
     core/CampaignMap.cpp
     core/Civilization.cpp
     core/Faction.cpp

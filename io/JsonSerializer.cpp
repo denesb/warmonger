@@ -14,6 +14,7 @@ using namespace warmonger::io;
 
 QJsonObject armyToJson(const core::Army* obj);
 QJsonObject armyTypeToJson(const core::ArmyType* obj);
+QJsonObject bannerToJson(const core::Banner* obj);
 QJsonObject campaignMapToJson(const core::CampaignMap* obj);
 QJsonObject civilizationToJson(const core::Civilization* obj);
 QJsonObject factionToJson(const core::Faction* obj);
@@ -39,6 +40,12 @@ QByteArray JsonSerializer::serializeArmy(const core::Army* obj)
 QByteArray JsonSerializer::serializeArmyType(const core::ArmyType* obj)
 {
     QJsonDocument jdoc(armyTypeToJson(obj));
+    return jdoc.toJson(this->format);
+}
+
+QByteArray JsonSerializer::serializeBanner(const core::Banner* obj)
+{
+    QJsonDocument jdoc(bannerToJson(obj));
     return jdoc.toJson(this->format);
 }
 
@@ -203,6 +210,15 @@ QJsonObject armyTypeToJson(const core::ArmyType* obj)
 
     if (isRoot || obj->getDisplayName() != parent->getDisplayName())
         jobj["displayName"] = obj->getDisplayName();
+
+    return jobj;
+}
+
+QJsonObject bannerToJson(const core::Banner* obj)
+{
+    QJsonObject jobj(namesToJson(obj));
+
+    jobj["civilizations"] = toQJsonArray(obj->getCivilizations(), qObjectName);
 
     return jobj;
 }
@@ -375,10 +391,11 @@ QJsonObject worldToJson(const core::World* obj)
     QJsonObject jobj(namesToJson(obj));
 
     jobj["armyTypes"] = toQJsonArray(obj->getArmyTypes(), armyTypeToJson);
+    jobj["banners"] = toQJsonArray(obj->getBanners(), bannerToJson);
+    jobj["civilizations"] = toQJsonArray(obj->getCivilizations(), civilizationToJson);
     jobj["terrainTypes"] = toQJsonArray(obj->getTerrainTypes(), terrainTypeToJson);
     jobj["unitTypes"] = toQJsonArray(obj->getUnitTypes(), unitTypeToJson);
     jobj["settlementTypes"] = toQJsonArray(obj->getSettlementTypes(), settlementTypeToJson);
-    jobj["civilizations"] = toQJsonArray(obj->getCivilizations(), civilizationToJson);
 
     return jobj;
 }

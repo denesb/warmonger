@@ -13,11 +13,6 @@ Army::Army(QObject* parent)
 {
 }
 
-QString Army::getDisplayName() const
-{
-    return this->displayName;
-}
-
 void Army::setDisplayName(const QString& displayName)
 {
     if (this->displayName != displayName)
@@ -25,11 +20,6 @@ void Army::setDisplayName(const QString& displayName)
         this->displayName = displayName;
         emit displayNameChanged();
     }
-}
-
-ArmyType* Army::getType() const
-{
-    return this->type;
 }
 
 void Army::setType(ArmyType* type)
@@ -41,11 +31,6 @@ void Army::setType(ArmyType* type)
     }
 }
 
-MapNode* Army::getMapNode() const
-{
-    return this->mapNode;
-}
-
 void Army::setMapNode(MapNode* mapNode)
 {
     if (this->mapNode != mapNode)
@@ -55,11 +40,6 @@ void Army::setMapNode(MapNode* mapNode)
     }
 }
 
-Faction* Army::getOwner() const
-{
-    return this->owner;
-}
-
 void Army::setOwner(Faction* owner)
 {
     if (this->owner != owner)
@@ -67,11 +47,6 @@ void Army::setOwner(Faction* owner)
         this->owner = owner;
         emit ownerChanged();
     }
-}
-
-std::vector<Unit*> Army::getUnits() const
-{
-    return this->units;
 }
 
 void Army::setUnits(const std::vector<Unit*>& units)

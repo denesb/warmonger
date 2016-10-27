@@ -16,6 +16,9 @@
 namespace warmonger {
 namespace core {
 
+/**
+ * A Warmonger World.
+ */
 class World : public QObject
 {
     Q_OBJECT

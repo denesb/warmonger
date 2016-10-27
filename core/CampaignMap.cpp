@@ -58,6 +58,11 @@ void CampaignMap::setWorld(World* world)
     }
 }
 
+QVariantList CampaignMap::readMapNodes() const
+{
+    return utils::toQVariantList(this->mapNodes);
+}
+
 void CampaignMap::setMapNodes(const std::vector<MapNode*>& mapNodes)
 {
     if (this->mapNodes != mapNodes)
@@ -77,9 +82,9 @@ void CampaignMap::setMapNodes(const std::vector<MapNode*>& mapNodes)
     }
 }
 
-QVariantList CampaignMap::readMapNodes() const
+QVariantList CampaignMap::readSettlements() const
 {
-    return utils::toQVariantList(this->mapNodes);
+    return utils::toQVariantList(this->settlements);
 }
 
 void CampaignMap::setSettlements(const std::vector<Settlement*>& settlements)
@@ -102,11 +107,6 @@ void CampaignMap::setSettlements(const std::vector<Settlement*>& settlements)
 
         emit settlementsChanged();
     }
-}
-
-QVariantList CampaignMap::readSettlements() const
-{
-    return utils::toQVariantList(this->settlements);
 }
 
 void CampaignMap::setUnits(const std::vector<Unit*>& units)
@@ -158,6 +158,11 @@ QVariantList CampaignMap::readArmies() const
     return utils::toQVariantList(this->armies);
 }
 
+QVariantList CampaignMap::readFactions() const
+{
+    return utils::toQVariantList(this->factions);
+}
+
 void CampaignMap::setFactions(const std::vector<Faction*>& factions)
 {
     if (this->factions != factions)
@@ -165,11 +170,6 @@ void CampaignMap::setFactions(const std::vector<Faction*>& factions)
         this->factions = factions;
         emit factionsChanged();
     }
-}
-
-QVariantList CampaignMap::readFactions() const
-{
-    return utils::toQVariantList(this->factions);
 }
 
 MapNode* CampaignMap::createMapNode(TerrainType* terrainType, const MapNodeNeighbours& neighbours)

@@ -4,19 +4,13 @@
 #include "core/Unit.h"
 #include "core/World.h"
 
-using namespace warmonger::core;
+namespace warmonger {
+namespace core {
 
 Faction::Faction(QObject* parent)
     : QObject(parent)
-    , color()
-    , goldBalance(0)
     , civilization(nullptr)
 {
-}
-
-QString Faction::getDisplayName() const
-{
-    return this->displayName;
 }
 
 void Faction::setDisplayName(const QString& displayName)
@@ -28,37 +22,31 @@ void Faction::setDisplayName(const QString& displayName)
     }
 }
 
-QColor Faction::getColor() const
+void Faction::setPrimaryColor(const QColor& primaryColor)
 {
-    return this->color;
-}
-
-void Faction::setColor(const QColor& color)
-{
-    if (this->color != color)
+    if (this->primaryColor != primaryColor)
     {
-        this->color = color;
-        emit colorChanged();
+        this->primaryColor = primaryColor;
+        emit primaryColorChanged();
     }
 }
 
-int Faction::getGoldBalance() const
+void Faction::setSecondaryColor(const QColor& secondaryColor)
 {
-    return this->goldBalance;
-}
-
-void Faction::setGoldBalance(int goldBalance)
-{
-    if (this->goldBalance != goldBalance)
+    if (this->secondaryColor != secondaryColor)
     {
-        this->goldBalance = goldBalance;
-        emit goldBalanceChanged();
+        this->secondaryColor = secondaryColor;
+        emit secondaryColorChanged();
     }
 }
 
-Civilization* Faction::getCivilization() const
+void Faction::setBanner(Banner* banner)
 {
-    return this->civilization;
+    if (this->banner != banner)
+    {
+        this->banner = banner;
+        emit bannerChanged();
+    }
 }
 
 void Faction::setCivilization(Civilization* civilization)
@@ -69,3 +57,6 @@ void Faction::setCivilization(Civilization* civilization)
         emit civilizationChanged();
     }
 }
+
+} // namespace core
+} // namespace warmonger

@@ -291,8 +291,11 @@ TEST_CASE("CampaignMap can be unserialized from JSON", "[JsonUnserializer]")
     const std::vector<core::TerrainType*> tts = world->getTerrainTypes();
     std::for_each(tts.cbegin(), tts.cend(), [&](core::TerrainType* o) { ctx.add(o); });
 
-    const std::vector<core::Civilization*> fs = world->getCivilizations();
-    std::for_each(fs.cbegin(), fs.cend(), [&](core::Civilization* o) { ctx.add(o); });
+    const std::vector<core::Banner*> bs = world->getBanners();
+    std::for_each(bs.cbegin(), bs.cend(), [&](core::Banner* o) { ctx.add(o); });
+
+    const std::vector<core::Civilization*> cs = world->getCivilizations();
+    std::for_each(cs.cbegin(), cs.cend(), [&](core::Civilization* o) { ctx.add(o); });
 
     const std::vector<core::SettlementType*> sts = world->getSettlementTypes();
     std::for_each(sts.cbegin(), sts.cend(), [&](core::SettlementType* o) { ctx.add(o); });
@@ -366,12 +369,18 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[JsonUnserializer]")
     {
         io::Context ctx;
 
-        const std::vector<core::TerrainType*> tts = world->getTerrainTypes();
-        std::for_each(tts.cbegin(), tts.cend(), [&](core::TerrainType* o) { ctx.add(o); });
+        const std::vector<core::Banner*> bs = world->getBanners();
+        std::for_each(bs.cbegin(), bs.cend(), [&](core::Banner* o) { ctx.add(o); });
+
         const std::vector<core::Civilization*> fs = world->getCivilizations();
         std::for_each(fs.cbegin(), fs.cend(), [&](core::Civilization* o) { ctx.add(o); });
+
         const std::vector<core::SettlementType*> sts = world->getSettlementTypes();
         std::for_each(sts.cbegin(), sts.cend(), [&](core::SettlementType* o) { ctx.add(o); });
+
+        const std::vector<core::TerrainType*> tts = world->getTerrainTypes();
+        std::for_each(tts.cbegin(), tts.cend(), [&](core::TerrainType* o) { ctx.add(o); });
+
         const std::vector<core::UnitType*> uts = world->getUnitTypes();
         std::for_each(uts.cbegin(), uts.cend(), [&](core::UnitType* o) { ctx.add(o); });
 
@@ -387,10 +396,36 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[JsonUnserializer]")
 
         ctx.add(world.get());
 
+        const std::vector<core::Banner*> bs = world->getBanners();
+        std::for_each(bs.cbegin(), bs.cend(), [&](core::Banner* o) { ctx.add(o); });
+
         const std::vector<core::Civilization*> fs = world->getCivilizations();
         std::for_each(fs.cbegin(), fs.cend(), [&](core::Civilization* o) { ctx.add(o); });
+
         const std::vector<core::SettlementType*> sts = world->getSettlementTypes();
         std::for_each(sts.cbegin(), sts.cend(), [&](core::SettlementType* o) { ctx.add(o); });
+
+        const std::vector<core::UnitType*> uts = world->getUnitTypes();
+        std::for_each(uts.cbegin(), uts.cend(), [&](core::UnitType* o) { ctx.add(o); });
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(unserializer.unserializeCampaignMap(jdoc.toJson()), utils::ValueError);
+    }
+
+    SECTION("unserializing Map, no banners")
+    {
+        io::Context ctx;
+
+        ctx.add(world.get());
+
+        const std::vector<core::SettlementType*> sts = world->getSettlementTypes();
+        std::for_each(sts.cbegin(), sts.cend(), [&](core::SettlementType* o) { ctx.add(o); });
+
+        const std::vector<core::TerrainType*> tts = world->getTerrainTypes();
+        std::for_each(tts.cbegin(), tts.cend(), [&](core::TerrainType* o) { ctx.add(o); });
+
         const std::vector<core::UnitType*> uts = world->getUnitTypes();
         std::for_each(uts.cbegin(), uts.cend(), [&](core::UnitType* o) { ctx.add(o); });
 
@@ -406,10 +441,15 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[JsonUnserializer]")
 
         ctx.add(world.get());
 
-        const std::vector<core::TerrainType*> tts = world->getTerrainTypes();
-        std::for_each(tts.cbegin(), tts.cend(), [&](core::TerrainType* o) { ctx.add(o); });
+        const std::vector<core::Banner*> bs = world->getBanners();
+        std::for_each(bs.cbegin(), bs.cend(), [&](core::Banner* o) { ctx.add(o); });
+
         const std::vector<core::SettlementType*> sts = world->getSettlementTypes();
         std::for_each(sts.cbegin(), sts.cend(), [&](core::SettlementType* o) { ctx.add(o); });
+
+        const std::vector<core::TerrainType*> tts = world->getTerrainTypes();
+        std::for_each(tts.cbegin(), tts.cend(), [&](core::TerrainType* o) { ctx.add(o); });
+
         const std::vector<core::UnitType*> uts = world->getUnitTypes();
         std::for_each(uts.cbegin(), uts.cend(), [&](core::UnitType* o) { ctx.add(o); });
 
@@ -425,10 +465,15 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[JsonUnserializer]")
 
         ctx.add(world.get());
 
+        const std::vector<core::Banner*> bs = world->getBanners();
+        std::for_each(bs.cbegin(), bs.cend(), [&](core::Banner* o) { ctx.add(o); });
+
+        const std::vector<core::Civilization*> cs = world->getCivilizations();
+        std::for_each(cs.cbegin(), cs.cend(), [&](core::Civilization* o) { ctx.add(o); });
+
         const std::vector<core::TerrainType*> tts = world->getTerrainTypes();
         std::for_each(tts.cbegin(), tts.cend(), [&](core::TerrainType* o) { ctx.add(o); });
-        const std::vector<core::Civilization*> fs = world->getCivilizations();
-        std::for_each(fs.cbegin(), fs.cend(), [&](core::Civilization* o) { ctx.add(o); });
+
         const std::vector<core::UnitType*> uts = world->getUnitTypes();
         std::for_each(uts.cbegin(), uts.cend(), [&](core::UnitType* o) { ctx.add(o); });
 
@@ -575,6 +620,9 @@ TEST_CASE("Faction can be unserialized from JSON", "[JsonUnserializer]")
     const QJsonObject jmap{maps.second};
     const std::unique_ptr<core::World> world{map->getWorld()};
 
+    const std::vector<core::Banner*> b = world->getBanners();
+    std::for_each(b.cbegin(), b.cend(), [&](core::Banner* o) { ctx.add(o); });
+
     const std::vector<core::Civilization*> fs = world->getCivilizations();
     std::for_each(fs.cbegin(), fs.cend(), [&](core::Civilization* o) { ctx.add(o); });
 
@@ -588,8 +636,9 @@ TEST_CASE("Faction can be unserialized from JSON", "[JsonUnserializer]")
 
         REQUIRE(p->objectName() == jobj["objectName"].toString());
         REQUIRE(p->getDisplayName() == jobj["displayName"].toString());
-        REQUIRE(p->getColor().name() == jobj["color"].toString());
-        REQUIRE(p->getGoldBalance() == jobj["goldBalance"].toInt());
+        REQUIRE(p->getPrimaryColor().name() == jobj["primaryColor"].toString());
+        REQUIRE(p->getSecondaryColor().name() == jobj["secondaryColor"].toString());
+        REQUIRE(p->getBanner()->objectName() == jobj["banner"].toString());
         REQUIRE(p->getCivilization()->objectName() == jobj["civilization"].toString());
     }
 }
@@ -611,12 +660,28 @@ TEST_CASE("Faction can't be unserialized from JSON", "[JsonUnserializer]")
         REQUIRE_THROWS_AS(unserializer.unserializeFaction(invalidJson), utils::ValueError);
     }
 
+    SECTION("unserializing Faction, no Banners")
+    {
+        io::Context ctx;
+
+        io::JsonUnserializer unserializer(ctx);
+        QJsonDocument jdoc(jobj);
+
+        const std::vector<core::Civilization*> fs = world->getCivilizations();
+        std::for_each(fs.cbegin(), fs.cend(), [&](core::Civilization* o) { ctx.add(o); });
+
+        REQUIRE_THROWS_AS(unserializer.unserializeFaction(jdoc.toJson()), utils::ValueError);
+    }
+
     SECTION("unserializing Faction, no Civilizations")
     {
         io::Context ctx;
 
         io::JsonUnserializer unserializer(ctx);
         QJsonDocument jdoc(jobj);
+
+        const std::vector<core::Banner*> b = world->getBanners();
+        std::for_each(b.cbegin(), b.cend(), [&](core::Banner* o) { ctx.add(o); });
 
         REQUIRE_THROWS_AS(unserializer.unserializeFaction(jdoc.toJson()), utils::ValueError);
     }

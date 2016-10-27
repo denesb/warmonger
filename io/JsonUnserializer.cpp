@@ -351,8 +351,9 @@ core::Faction* factionFromJson(const QJsonObject& jobj, Context& ctx)
     std::unique_ptr<core::Faction> obj(new core::Faction());
     obj->setObjectName(jobj["objectName"].toString());
     obj->setDisplayName(jobj["displayName"].toString());
-    obj->setColor(QColor(jobj["color"].toString()));
-    obj->setGoldBalance(jobj["goldBalance"].toInt());
+    obj->setPrimaryColor(QColor(jobj["primaryColor"].toString()));
+    obj->setSecondaryColor(QColor(jobj["secondaryColor"].toString()));
+    obj->setBanner(resolveReference<core::Banner>(ctx, jobj["banner"].toString()));
     obj->setCivilization(resolveReference<core::Civilization>(ctx, jobj["civilization"].toString()));
 
     return obj.release();

@@ -250,8 +250,9 @@ QJsonObject factionToJson(const core::Faction* obj)
 {
     QJsonObject jobj(namesToJson(obj));
 
-    jobj["color"] = obj->getColor().name();
-    jobj["goldBalance"] = obj->getGoldBalance();
+    jobj["primaryColor"] = obj->getPrimaryColor().name();
+    jobj["secondaryColor"] = obj->getSecondaryColor().name();
+    jobj["banner"] = obj->getBanner()->objectName();
     jobj["civilization"] = obj->getCivilization()->objectName();
 
     return jobj;

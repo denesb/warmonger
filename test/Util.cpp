@@ -234,12 +234,18 @@ std::pair<core::CampaignMap*, QJsonObject> makeMap()
 
     setNames(f0, jf0, 0);
 
-    QColor color("red");
-    f0->setColor(color);
-    jf0["color"] = color.name();
+    QColor primaryColor("red");
+    f0->setPrimaryColor(primaryColor);
+    jf0["primaryColor"] = primaryColor.name();
 
-    f0->setGoldBalance(142);
-    jf0["goldBalance"] = 142;
+    QColor secondaryColor("black");
+    f0->setSecondaryColor(secondaryColor);
+    jf0["secondaryColor"] = secondaryColor.name();
+
+    core::Banner* b0 = w->getBanners()[0];
+
+    f0->setBanner(b0);
+    jf0["banner"] = b0->objectName();
 
     core::Civilization* c0 = w->getCivilizations()[0];
 

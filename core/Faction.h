@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QString>
 
+#include "core/Banner.h"
 #include "core/Civilization.h"
 
 namespace warmonger {
@@ -13,36 +14,61 @@ namespace core {
 class Faction : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
-    Q_PROPERTY(QColor color READ getColor WRITE setColor NOTIFY colorChanged)
-    Q_PROPERTY(int goldBalance READ getGoldBalance WRITE setGoldBalance NOTIFY goldBalanceChanged)
-    Q_PROPERTY(Civilization* civilization READ getCivilization WRITE setCivilization NOTIFY civilizationChanged)
+    Q_PROPERTY(QString displayName READ getDisplayName NOTIFY displayNameChanged)
+    Q_PROPERTY(QColor primaryColor READ getPrimaryColor NOTIFY primaryColorChanged)
+    Q_PROPERTY(QColor secondaryColor READ getPrimaryColor NOTIFY secondaryColorChanged)
+    Q_PROPERTY(Civilization* civilization READ getCivilization NOTIFY civilizationChanged)
 
 public:
     explicit Faction(QObject* parent = nullptr);
 
-    QString getDisplayName() const;
+    const QString& getDisplayName() const
+    {
+        return this->displayName;
+    }
+
     void setDisplayName(const QString& displayName);
 
-    QColor getColor() const;
-    void setColor(const QColor& color);
+    const QColor& getPrimaryColor() const
+    {
+        return this->primaryColor;
+    }
 
-    int getGoldBalance() const;
-    void setGoldBalance(int goldBalance);
+    void setPrimaryColor(const QColor& primaryColor);
 
-    Civilization* getCivilization() const;
+    const QColor& getSecondaryColor() const
+    {
+        return this->secondaryColor;
+    }
+
+    void setSecondaryColor(const QColor& secondaryColor);
+
+    Banner* getBanner() const
+    {
+        return this->banner;
+    }
+
+    void setBanner(Banner* banner);
+
+    Civilization* getCivilization() const
+    {
+        return this->civilization;
+    }
+
     void setCivilization(Civilization* civilization);
 
 signals:
     void displayNameChanged();
-    void colorChanged();
-    void goldBalanceChanged();
+    void primaryColorChanged();
+    void secondaryColorChanged();
+    void bannerChanged();
     void civilizationChanged();
 
 private:
     QString displayName;
-    QColor color;
-    int goldBalance;
+    QColor primaryColor;
+    QColor secondaryColor;
+    Banner* banner;
     Civilization* civilization;
 };
 

@@ -209,8 +209,9 @@ TEST_CASE("Faction can be serialized to JSON", "[JsonSerializer]")
 
         REQUIRE(jobj["objectName"].toString() == f->objectName());
         REQUIRE(jobj["displayName"].toString() == f->getDisplayName());
-        REQUIRE(jobj["color"].toString() == f->getColor().name());
-        REQUIRE(jobj["goldBalance"].toInt() == f->getGoldBalance());
+        REQUIRE(jobj["primaryColor"].toString() == f->getPrimaryColor().name());
+        REQUIRE(jobj["secondaryColor"].toString() == f->getSecondaryColor().name());
+        REQUIRE(jobj["banner"].toString() == f->getBanner()->objectName());
         REQUIRE(jobj["civilization"].toString() == f->getCivilization()->objectName());
     }
 }

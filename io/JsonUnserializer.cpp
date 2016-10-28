@@ -271,6 +271,14 @@ core::World* JsonUnserializer::unserializeWorld(const QByteArray& data)
     obj->setCivilizations(
         objectListFromJson<core::Civilization>(jobj["civilizations"].toArray(), this->ctx, civilizationsFromJson));
 
+    std::vector<QColor> colors;
+    for (const auto&& color : jobj["colors"].toArray())
+    {
+        colors.emplace_back(color.toString());
+    }
+
+    obj->setColors(colors);
+
     obj->setBanners(hierarchyNodesFromJson<core::Banner>(jobj["banners"].toArray(), bannerFromJson, this->ctx));
 
     return obj.release();

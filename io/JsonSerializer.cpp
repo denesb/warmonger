@@ -394,6 +394,7 @@ QJsonObject worldToJson(const core::World* obj)
     jobj["armyTypes"] = toQJsonArray(obj->getArmyTypes(), armyTypeToJson);
     jobj["banners"] = toQJsonArray(obj->getBanners(), bannerToJson);
     jobj["civilizations"] = toQJsonArray(obj->getCivilizations(), civilizationToJson);
+    jobj["colors"] = toQJsonArray(obj->getColors(), [](const QColor& c) { return c.name(); });
     jobj["terrainTypes"] = toQJsonArray(obj->getTerrainTypes(), terrainTypeToJson);
     jobj["unitTypes"] = toQJsonArray(obj->getUnitTypes(), unitTypeToJson);
     jobj["settlementTypes"] = toQJsonArray(obj->getSettlementTypes(), settlementTypeToJson);

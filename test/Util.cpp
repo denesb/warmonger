@@ -174,6 +174,10 @@ std::pair<core::World*, QJsonObject> makeWorld()
     w->setBanners({b0, b1});
     jw["banners"] = QJsonArray({jb0, jb1});
 
+    // Color
+    w->setColors({QColor("#000000")});
+    jw["colors"] = QJsonArray({"#000000"});
+
     return std::make_pair(w, jw);
 }
 

@@ -56,6 +56,20 @@ QVariantList World::readCivilizations() const
     return utils::toQVariantList(this->civilizations);
 }
 
+void World::setColors(const std::vector<QColor>& colors)
+{
+    if (this->colors != colors)
+    {
+        this->colors = colors;
+        emit colorsChanged();
+    }
+}
+
+QVariantList World::readColors() const
+{
+    return utils::toQVariantList(this->colors);
+}
+
 void World::setSettlementTypes(const std::vector<SettlementType*>& settlementTypes)
 {
     if (this->settlementTypes != settlementTypes)

@@ -424,6 +424,16 @@ TEST_CASE("World can be serialized to JSON", "[JsonSerializer]")
         REQUIRE(jobj["civilizations"].isArray() == true);
         REQUIRE(world->getCivilizations().size() == jobj["civilizations"].toArray().size());
 
+        REQUIRE(jobj["colors"].isArray() == true);
+        REQUIRE(world->getColors().size() == jobj["colors"].toArray().size());
+
+        const std::vector<QColor>& colors = world->getColors();
+        QJsonArray jcolors = jobj["colors"].toArray();
+        for (std::size_t i = 0; i < colors.size(); ++i)
+        {
+            REQUIRE(colors[i].name() == jcolors[i].toString());
+        }
+
         REQUIRE(jobj["terrainTypes"].isArray() == true);
         REQUIRE(world->getTerrainTypes().size() == jobj["terrainTypes"].toArray().size());
 

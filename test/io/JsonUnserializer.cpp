@@ -1145,10 +1145,18 @@ TEST_CASE("World can be unserialized from JSON", "[JsonUnserializer]")
         REQUIRE(world->getDisplayName() == jobj["displayName"].toString());
         REQUIRE(world->getArmyTypes().size() == jobj["armyTypes"].toArray().size());
         REQUIRE(world->getBanners().size() == jobj["banners"].toArray().size());
+        REQUIRE(world->getCivilizations().size() == jobj["civilizations"].toArray().size());
+        REQUIRE(world->getColors().size() == jobj["colors"].toArray().size());
         REQUIRE(world->getTerrainTypes().size() == jobj["terrainTypes"].toArray().size());
         REQUIRE(world->getUnitTypes().size() == jobj["unitTypes"].toArray().size());
         REQUIRE(world->getSettlementTypes().size() == jobj["settlementTypes"].toArray().size());
-        REQUIRE(world->getCivilizations().size() == jobj["civilizations"].toArray().size());
+
+        const std::vector<QColor>& colors = world->getColors();
+        QJsonArray jcolors = jobj["colors"].toArray();
+        for (std::size_t i = 0; i < colors.size(); ++i)
+        {
+            REQUIRE(colors[i].name() == jcolors[i].toString());
+        }
     }
 }
 

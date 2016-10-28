@@ -29,30 +29,31 @@ class CampaignMapDrawer;
 class WorldSurface;
 
 /**
- * The position of the neighbour map-node in the specified direction
+ * The position of the neighbour map-node in the specified direction.
  *
- * @param[in] const QPoint& pos the position of the map-node
- * @param[in] core::Direction dir the direction of the neighbour
- * @param[in] const QSize& tileSize the size of the map-nodes
+ * \param pos the position of the map-node
+ * \param dir the direction of the neighbour
+ * \param tileSize the size of the map-nodes
+ *
+ * \return the position of the neighbour map-node
  */
 QPoint neighbourPos(const QPoint& pos, core::Direction dir, const QSize& tileSize);
 
 /**
- * Find the neighbours by position
+ * Find the neighbours by position.
  *
  * Return the neighbours that a map-node would have if it would be at position
  * `pos'.
- * @param[in] const QPoint& pos the position
- * @param[in] const QSize& tileSize the tile-size
+ * \param pos the position
+ * \param tileSize the tile-size
  *
- * @returns std::map<core::Direction, core::MapNode*> the neighbour at each
- * direction, or nullptr if there is none
+ * \return the neighbour at each direction, or nullptr if there is none
  */
 core::MapNodeNeighbours neighboursByPos(
     const QPoint& pos, const WorldSurface* worldSurface, const std::map<core::MapNode*, QPoint>& mapNodesPos);
 
 /**
- * Calculate the position of each map-node
+ * Calculate the position of each map-node.
  *
  * First, the starting map-node is assigned the position of (0,0), then the
  * graph is traversed and each map-node is assigned a position based on it's
@@ -60,37 +61,36 @@ core::MapNodeNeighbours neighboursByPos(
  * The tile-size of the map-nodes is used to calculate the displacement of
  * neighbouring map-nodes relative to each other.
  *
- * @param[in] core::MapNode* startNode the starting node
- * @param[in] const QSize& tileSize the size of the map-nodes
+ * \param startNode the starting node
+ * \param tileSize the size of the map-nodes
  *
- * @returns std::map<core::MapNode*, QPoint> mapping of map-nodes to their
- * position.
+ * \return mapping of map-nodes to their position.
  */
 std::map<core::MapNode*, QPoint> positionMapNodes(core::MapNode* startNode, const QSize& tileSize);
 
 /**
- * Calculate the bounding rectangle of the map-graph
+ * Calculate the bounding rectangle of the map-graph.
  *
  * The bounding rectangle is that minimal rectangle which contains all
  * map-nodes.
  *
- * @param[in] const std::map<core::MapNode*, QPoint>& nodesPos the map-nodes
+ * \param nodesPos the map-nodes
  * and their position
- * @param[in] const QSize& tileSize the tile size of the map-nodes
+ * \param tileSize the tile size of the map-nodes
+ *
+ * \return the bounding rectangle
  */
 QRect calculateBoundingRect(const std::map<core::MapNode*, QPoint>& nodesPos, const QSize& tileSize);
 
 /**
- * The visible contents in the window
+ * The visible contents in the window.
  *
- * @param[in] const std::vector<core::CampaignMap::Content>& contents the
- *  contents
- * @param[in] const std::map<core::MapNode*, QPoint>& mapNodesPos map with
- *  the map-nodes and their positions
- * @param[in] const QSize& tileSize the size of the map-nodes
- * @param[in] const QRect& window the window
+ * \param contents the contents, \see CampaignMap::getContents()
+ * \param mapNodesPos the position of each map-node
+ * \param tileSize the size of a map-node
+ * \param window the window
  *
- * @returns std::vector<core::MapNode*> the list of visible map-nodes
+ * \return the list of visible map-nodes
  */
 std::vector<core::CampaignMap::Content> visibleContents(const std::vector<core::CampaignMap::Content>& contents,
     const std::map<core::MapNode*, QPoint>& mapNodesPos,
@@ -100,13 +100,11 @@ std::vector<core::CampaignMap::Content> visibleContents(const std::vector<core::
 /**
  * Find node at position pos.
  *
- * @param[in] const QPoint& pos the position
- * @param[in] const std::map<core::MapNode*, QPoint>& mapNodesPos the
- * position of map-nodes
- * @param[in] const WorldSurface* worldSurface the active worldSurface
+ * \param pos the position
+ * \param mapNodesPos the position of map-nodes
+ * \param worldSurface the active worldSurface
  *
- * @returns core::MapNode* the map-node or nullptr if no map-node was found at
- * the position.
+ * \returns the map-node or nullptr if no map-node was found at the position
  */
 core::MapNode* mapNodeAtPos(
     const QPoint& pos, const std::map<core::MapNode*, QPoint>& mapNodesPos, const WorldSurface* worldSurface);
@@ -121,25 +119,34 @@ QPoint project(const QPoint& p, const QRect& r);
  * content to be draw and frame is the bounding rect of the drawing
  * area. If content is larger than frame than it will be shrinked to fit
  * (maintaining the aspect ratio) and then centralized in the frame.
+ *
+ * \param content the bounding rectangle of the content
+ * \param frame the available space
+ *
+ * \return the translation matrix that if used will center content in frame
  */
 QMatrix4x4 centerIn(const QRectF& content, const QRectF& frame);
 
 /**
- * Compute the translation matrix necessary to move point p1 to point p2.
+ * Compute the translation matrix necessary to move point to refPoint.
  *
- * @param[in] QPoint point the point to move
- * @param[in] QPoint refPoint the reference point
+ * \param point the point to move
+ * \param refPoint the reference point
  *
- * @returns QMatrix4x4 the translation matrix
+ * \return the translation matrix
  */
 QMatrix4x4 moveTo(const QPoint& point, const QPoint& refPoint);
 
 /**
- * Draw map-nodes
+ * Draw contents.
  *
- * @param[in] mapNodes list of map-nodes to be drawn
- * @param[in] rootNode the root-node of the subtree to be built
- * @param[in] campaignMapDrawer the object which will do the actual drawing
+ * This function will call CampaignMapDrawer::drawContent() for each item in
+ * the content list. It resuses existing nodes in the scene-graph subtree if
+ * possible.
+ *
+ * \param contents the contents to be drawn, \see CampaignMap::getContents()
+ * \param rootNode the root-node of the scene-graph subtree to be built
+ * \param campaignMapDrawer the object which will do the actual drawing
  */
 void drawContents(
     const std::vector<core::CampaignMap::Content>& contents, QSGNode* rootNode, CampaignMapDrawer& campaignMapDrawer);
@@ -147,13 +154,13 @@ void drawContents(
 /**
  * Draw a map-node
  *
- * @param[in] core::MapNode* mapNode the map-node to be drawn
- * @param[in] ui::WorldSurface* worldSurface the actual world surface (contains the textures)
- * @param[in] QQuickWindow* window the window where the node will be rendered
- * @param[in] const QPoint pos the position of the node
- * @param[in] QSGNode* oldNode the result of the previous draw call if any or nullptr
+ * \param mapNode the map-node to be drawn
+ * \param worldSurface the actual world surface (contains the textures)
+ * \param window the window where the node will be rendered
+ * \param pos the position of the node
+ * \param oldNode the result of the previous draw call if any or nullptr
  *
- * @returns QSGNode* the resulting scene-graph node
+ * \return the resulting scene-graph node
  */
 QSGNode* drawMapNode(
     core::MapNode* mapNode, ui::WorldSurface* worldSurface, QQuickWindow* window, const QPoint& pos, QSGNode* oldNode);
@@ -161,13 +168,13 @@ QSGNode* drawMapNode(
 /**
  * Draw a settlement
  *
- * @param[in] core::Settlement* settlement the settlement to be drawn
- * @param[in] ui::WorldSurface* worldSurface the actual world surface (contains the textures)
- * @param[in] QQuickWindow* window the window where the node will be rendered
- * @param[in] const QPoint pos the position of the node
- * @param[in] QSGNode* oldNode the result of the previous draw call if any or nullptr
+ * \param settlement the settlement to be drawn
+ * \param worldSurface the actual world surface (contains the textures)
+ * \param window the window where the node will be rendered
+ * \param pos the position of the node
+ * \param oldNode the result of the previous draw call if any or nullptr
  *
- * @returns QSGNode* the resulting scene-graph node
+ * \return the resulting scene-graph node
  */
 QSGNode* drawSettlement(core::Settlement* settlement,
     ui::WorldSurface* worldSurface,
@@ -178,10 +185,10 @@ QSGNode* drawSettlement(core::Settlement* settlement,
 /**
  * Draw a rectangle
  *
- * @param[in] rect the rectangle to be drawn
- * @param[in] oldNode the result of the previous draw call if any or nullptr
+ * \param rect the rectangle to be drawn
+ * \param oldNode the result of the previous draw call if any or nullptr
  *
- * @returns QSGNode* the resulting scene-graph node
+ * \return the resulting scene-graph node
  */
 QSGNode* drawRect(const QRect& rect, QSGNode* oldNode);
 

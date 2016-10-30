@@ -11,10 +11,12 @@ ApplicationWindow {
         W.newCampaignMap(W.worlds[0]);
     }
 
+    title: "Warmonger Campaign Map Editor"
+
     Action {
         id: newAction
         text: "&New"
-        iconName: "document-new"
+        iconSource: "icons/document-new.svg"
         tooltip: "New Campaign Map"
         onTriggered: {
             W.newCampaignMap(W.worlds[0]);
@@ -23,7 +25,8 @@ ApplicationWindow {
 
     Action {
         id: terrainTypeEditingModeAction
-        text: "T"
+        text: "Terrain Types"
+        iconSource: "icons/terrain-types.svg"
         tooltip: "Terrain Type Editing Mode"
         onTriggered: {
             mapEditor.editingMode = CampaignMapEditor.TerrainType;
@@ -32,7 +35,8 @@ ApplicationWindow {
 
     Action {
         id: settlementTypeEditingModeAction
-        text: "S"
+        text: "Settlement Types"
+        iconSource: "icons/settlement-types.svg"
         tooltip: "Settlement Type Editing Mode"
         onTriggered: {
             mapEditor.editingMode = CampaignMapEditor.SettlementType;
@@ -41,7 +45,8 @@ ApplicationWindow {
 
     Action {
         id: armyTypeEditingModeAction
-        text: "A"
+        text: "Army Types"
+        iconSource: "icons/army-types.svg"
         tooltip: "Army Type Editing Mode"
         onTriggered: {
             mapEditor.editingMode = CampaignMapEditor.ArmyType;

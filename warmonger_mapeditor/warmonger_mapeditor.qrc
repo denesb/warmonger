@@ -4,5 +4,9 @@
     <file>SideBar.qml</file>
     <file>ObjectTypeSelector.qml</file>
     <file>MapEditor.qml</file>
+    <file>icons/document-new.svg</file>
+    <file>icons/terrain-types.svg</file>
+    <file>icons/settlement-types.svg</file>
+    <file>icons/army-types.svg</file>
 </qresource>
 </RCC>

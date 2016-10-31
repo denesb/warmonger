@@ -118,6 +118,7 @@ public:
      *
      * Will emit the signal CampaignMap::mapNodesChanged() if the newly set
      * value is different than the current one.
+     * Destroys previous map-node objects.
      *
      * \param mapNodes the map-nodes
      */
@@ -149,6 +150,7 @@ public:
      *
      * Will emit the signal CampaignMap::factionsChanged() if the newly set
      * value is different than the current one.
+     * Destroys previous faction objects.
      *
      * \param factions the new factions
      */
@@ -178,6 +180,8 @@ public:
     /**
      * Set settlements.
      *
+     * Will emit the signal CampaignMap::factionsChanged() if the newly set
+     * value is different than the current one.
      * Destroys previous settlement objects.
      *
      * \param settlements the new settlements
@@ -210,6 +214,7 @@ public:
      *
      * Will emit the signal CampaignMap::unitsChanged() if the newly set
      * value is different than the current one.
+     * Destroys previous unit objects.
      *
      * \param units the new units
      */
@@ -241,6 +246,7 @@ public:
      *
      * Will emit the signal CampaignMap::armiesChanged() if the newly set
      * value is different than the current one.
+     * Destroys previous army objects.
      *
      * \param armies the new armies
      */
@@ -361,6 +367,32 @@ public:
     std::unique_ptr<Army> removeArmy(Army* army);
 
     /**
+     * Create a new faction and add it to the map.
+     *
+     * The newly created faction is assigned a unique objectName and banner
+     * (in the context of this map). It is created with the given civilization.
+     *
+     * \param civilization the civilization of the faction
+     *
+     * \returns the newly created faction
+     */
+    Faction* createFaction(Civilization* civilization);
+
+    /**
+     * Remove the faction and renounce ownership.
+     *
+     * The faction is removed and it's returned as an std::unique_ptr and
+     * will be destroyed if the caller doesn't save it.
+     * If the faction is not found, nothing happens.
+     *
+     * \param faction the faction to remove
+     *
+     * \returns the removed faction or an empty pointer if the faction
+     * was not found
+     */
+    std::unique_ptr<Faction> removeFaction(Faction* faction);
+
+    /**
      * Get all content of this map.
      *
      * Get a list of tuples with all the map-nodes and the settlements and
@@ -422,10 +454,11 @@ signals:
 private:
     QString displayName;
     World* world;
-    int mapNodeIndex;
-    int settlementIndex;
-    int unitIndex;
-    int armyIndex;
+    unsigned int mapNodeIndex;
+    unsigned int settlementIndex;
+    unsigned int unitIndex;
+    unsigned int armyIndex;
+    unsigned int factionIndex;
     std::vector<Faction*> factions;
     std::vector<MapNode*> mapNodes;
     std::vector<Settlement*> settlements;

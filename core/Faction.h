@@ -17,6 +17,7 @@ class Faction : public QObject
     Q_PROPERTY(QString displayName READ getDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(QColor primaryColor READ getPrimaryColor NOTIFY primaryColorChanged)
     Q_PROPERTY(QColor secondaryColor READ getPrimaryColor NOTIFY secondaryColorChanged)
+    Q_PROPERTY(Banner* banner READ getBanner NOTIFY bannerChanged)
     Q_PROPERTY(Civilization* civilization READ getCivilization NOTIFY civilizationChanged)
 
 public:

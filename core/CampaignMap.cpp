@@ -1,4 +1,7 @@
 #include <algorithm>
+#include <random>
+
+#include <boost/optional.hpp>
 
 #include "core/CampaignMap.h"
 #include "core/TerrainType.h"
@@ -11,6 +14,7 @@ const QString mapNodeNameTemplate{"mapNode-%1"};
 const QString settlementNameTemplate{"settlement-%1"};
 const QString unitNameTemplate{"unit-%1"};
 const QString armyNameTemplate{"army-%1"};
+const QString factionNameTemplate{"faction-%1"};
 
 template <class ObjectList>
 static int nextNameIndex(const ObjectList& list)
@@ -30,6 +34,9 @@ static void destroy(QObject* obj)
     delete obj;
 }
 
+std::tuple<Banner*, QColor, QColor> nextAvailableCombination(
+    const std::vector<Faction*>& factions, const std::vector<Banner*>& banners, const std::vector<QColor>& colors);
+
 CampaignMap::CampaignMap(QObject* parent)
     : QObject(parent)
     , world(nullptr)
@@ -37,6 +44,7 @@ CampaignMap::CampaignMap(QObject* parent)
     , settlementIndex(0)
     , unitIndex(0)
     , armyIndex(0)
+    , factionIndex(0)
 {
 }
 
@@ -167,7 +175,12 @@ void CampaignMap::setFactions(const std::vector<Faction*>& factions)
 {
     if (this->factions != factions)
     {
+        std::for_each(this->factions.begin(), this->factions.end(), destroy);
+
         this->factions = factions;
+
+        this->factionIndex = nextNameIndex(this->factions);
+
         emit factionsChanged();
     }
 }
@@ -315,21 +328,66 @@ Army* CampaignMap::createArmy(ArmyType* armyType)
 
 std::unique_ptr<Army> CampaignMap::removeArmy(Army* army)
 {
-    auto it = std::find(this->armies.cbegin(), this->armies.cend(), army);
-    if (it != this->armies.end())
+    auto it = std::remove(this->armies.begin(), this->armies.end(), army);
+
+    if (it == this->armies.end())
     {
-        this->armies.erase(it);
-        army->setParent(nullptr);
-
-        emit armiesChanged();
-
-        QObject::disconnect(army, nullptr, this, nullptr);
-
-        return std::unique_ptr<Army>(army);
+        return std::unique_ptr<Army>();
     }
     else
     {
-        return std::unique_ptr<Army>();
+        this->armies.erase(it);
+
+        army->setParent(nullptr);
+
+        QObject::disconnect(army, nullptr, this, nullptr);
+
+        emit armiesChanged();
+
+        return std::unique_ptr<Army>(army);
+    }
+}
+
+Faction* CampaignMap::createFaction(Civilization* civilization)
+{
+    this->factions.emplace_back(new Faction(this));
+
+    Faction* faction = this->factions.back();
+
+    faction->setObjectName(factionNameTemplate.arg(this->factionIndex++));
+
+    faction->setCivilization(civilization);
+
+    const auto combination = nextAvailableCombination(this->factions, this->world->getBanners(), this->world->getColors());
+
+    faction->setBanner(std::get<0>(combination));
+    faction->setPrimaryColor(std::get<1>(combination));
+    faction->setSecondaryColor(std::get<2>(combination));
+
+    emit factionsChanged();
+
+    return faction;
+}
+
+std::unique_ptr<Faction> CampaignMap::removeFaction(Faction* faction)
+{
+    const auto it = std::remove(this->factions.begin(), this->factions.end(), faction);
+
+    if (it == this->factions.end())
+    {
+        return std::unique_ptr<Faction>();
+    }
+    else
+    {
+        this->factions.erase(it);
+
+        faction->setParent(nullptr);
+
+        QObject::disconnect(faction, nullptr, this, nullptr);
+
+        emit factionsChanged();
+
+        return std::make_unique<Faction>(faction);
     }
 }
 
@@ -393,6 +451,46 @@ void CampaignMap::armyMapNodeChanged()
 
         this->contents.emplace_back(mapNode, settlement, army);
     }
+}
+
+std::tuple<Banner*, QColor, QColor> nextAvailableCombination(
+    const std::vector<Faction*>& factions, const std::vector<Banner*>& banners, const std::vector<QColor>& colors)
+{
+    typedef std::tuple<Banner*, QColor, QColor> Combination;
+
+    std::vector<Combination> usedCombinations;
+
+    for (const auto& faction : factions)
+    {
+        usedCombinations.emplace_back(faction->getBanner(), faction->getPrimaryColor(), faction->getSecondaryColor());
+    }
+
+    std::vector<Banner*> shuffledBanners(banners);
+    std::vector<QColor> shuffledColors(colors);
+    std::random_device rd;
+    std::mt19937 mtd(rd());
+
+    std::shuffle(shuffledBanners.begin(), shuffledBanners.end(), mtd);
+    std::shuffle(shuffledColors.begin(), shuffledColors.end(), mtd);
+
+    std::uniform_int_distribution<std::size_t> bannersDist(0, banners.size() - 1);
+    std::uniform_int_distribution<std::size_t> colorsDist(0, colors.size() - 1);
+
+    Combination nextCombination;
+    do
+    {
+        std::size_t primaryColorIndex = colorsDist(mtd);
+        std::size_t secondaryColorIndex = colorsDist(mtd);
+
+        if (secondaryColorIndex == primaryColorIndex)
+            secondaryColorIndex = (secondaryColorIndex + 1) % colors.size();
+
+        nextCombination =
+            std::make_tuple(banners.at(bannersDist(mtd)), colors.at(primaryColorIndex), colors.at(secondaryColorIndex));
+    }
+    while (std::find(usedCombinations.begin(), usedCombinations.end(), nextCombination) != usedCombinations.end());
+
+    return nextCombination;
 }
 
 } // namespace core

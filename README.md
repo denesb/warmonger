@@ -27,6 +27,7 @@ Don't expect anything fancy on the graphics-side, I focus on the content (and
 I am _very_ lame with image editors anyway).
 
 ## Dependencies
+* C++14 compliant C++ compiler
 * boost 1.58 (boost::log and boost::optional)
 * Qt 5.5 (QtCore and QtQuick)
 * KF5Archive

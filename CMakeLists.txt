@@ -81,7 +81,6 @@ set(
     ui/SearchPaths.cpp
     ui/UI.cpp
     ui/WorldSurface.cpp
-    ui/ui.qrc
 )
 
 set(

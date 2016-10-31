@@ -22,8 +22,6 @@ int main(int argc, char* argv[])
     ui::setupSearchPaths();
     ui::initUI();
 
-    Q_INIT_RESOURCE(ui);
-
     QQmlApplicationEngine engine;
     ui::Context* ctx = new ui::Context(&engine);
 

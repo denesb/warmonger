@@ -5,6 +5,7 @@
 
 #include "core/CampaignMap.h"
 #include "core/TerrainType.h"
+#include "utils/Logging.h"
 #include "utils/QVariantUtils.h"
 
 namespace warmonger {
@@ -14,7 +15,8 @@ const QString mapNodeNameTemplate{"mapNode-%1"};
 const QString settlementNameTemplate{"settlement-%1"};
 const QString unitNameTemplate{"unit-%1"};
 const QString armyNameTemplate{"army-%1"};
-const QString factionNameTemplate{"faction-%1"};
+const QString factionObjectNameTemplate{"faction-%1"};
+const QString factionDisplayNameTemplate{"New Faction %1"};
 
 template <class ObjectList>
 static int nextNameIndex(const ObjectList& list)
@@ -206,6 +208,8 @@ MapNode* CampaignMap::createMapNode(TerrainType* terrainType, const MapNodeNeigh
 
     this->contents.push_back(std::tuple<MapNode*, Settlement*, Army*>(mapNode, nullptr, nullptr));
 
+    wDebug << "Created map-node " << mapNode;
+
     emit mapNodesChanged();
 
     return mapNode;
@@ -228,6 +232,8 @@ std::unique_ptr<MapNode> CampaignMap::removeMapNode(MapNode* mapNode)
 
         QObject::disconnect(mapNode, nullptr, this, nullptr);
 
+        wDebug << "Removed map-node " << mapNode;
+
         emit mapNodesChanged();
 
         return std::unique_ptr<MapNode>(mapNode);
@@ -247,9 +253,11 @@ Settlement* CampaignMap::createSettlement(SettlementType* settlementType)
 
     this->settlements.push_back(settlement);
 
-    emit settlementsChanged();
-
     QObject::connect(settlement, &Settlement::mapNodeChanged, this, &CampaignMap::settlementMapNodeChanged);
+
+    wDebug << "Created settlement " << settlement;
+
+    emit settlementsChanged();
 
     return settlement;
 }
@@ -265,6 +273,8 @@ std::unique_ptr<Settlement> CampaignMap::removeSettlement(Settlement* settlement
         emit settlementsChanged();
 
         QObject::disconnect(settlement, nullptr, this, nullptr);
+
+        wDebug << "Removed settlement " << settlement;
 
         this->settlementMapNodeChanged();
 
@@ -286,6 +296,8 @@ Unit* CampaignMap::createUnit(UnitType* unitType)
 
     this->units.push_back(unit);
 
+    wDebug << "Created unit " << unit;
+
     emit unitsChanged();
 
     return unit;
@@ -298,6 +310,8 @@ std::unique_ptr<Unit> CampaignMap::removeUnit(Unit* unit)
     {
         this->units.erase(it);
         unit->setParent(nullptr);
+
+        wDebug << "Removed unit " << unit;
 
         emit unitsChanged();
 
@@ -321,6 +335,8 @@ Army* CampaignMap::createArmy(ArmyType* armyType)
 
     QObject::connect(army, &Army::mapNodeChanged, this, &CampaignMap::armyMapNodeChanged);
 
+    wDebug << "Created army " << army;
+
     emit armiesChanged();
 
     return army;
@@ -342,6 +358,8 @@ std::unique_ptr<Army> CampaignMap::removeArmy(Army* army)
 
         QObject::disconnect(army, nullptr, this, nullptr);
 
+        wDebug << "Removed army " << army;
+
         emit armiesChanged();
 
         return std::unique_ptr<Army>(army);
@@ -354,15 +372,19 @@ Faction* CampaignMap::createFaction(Civilization* civilization)
 
     Faction* faction = this->factions.back();
 
-    faction->setObjectName(factionNameTemplate.arg(this->factionIndex++));
+    faction->setObjectName(factionObjectNameTemplate.arg(this->factionIndex));
+    faction->setDisplayName(factionDisplayNameTemplate.arg(this->factionIndex++));
 
     faction->setCivilization(civilization);
 
-    const auto combination = nextAvailableCombination(this->factions, this->world->getBanners(), this->world->getColors());
+    const auto combination =
+        nextAvailableCombination(this->factions, this->world->getBanners(), this->world->getColors());
 
     faction->setBanner(std::get<0>(combination));
     faction->setPrimaryColor(std::get<1>(combination));
     faction->setSecondaryColor(std::get<2>(combination));
+
+    wDebug << "Created faction " << faction;
 
     emit factionsChanged();
 
@@ -385,9 +407,11 @@ std::unique_ptr<Faction> CampaignMap::removeFaction(Faction* faction)
 
         QObject::disconnect(faction, nullptr, this, nullptr);
 
+        wDebug << "Removed faction " << faction;
+
         emit factionsChanged();
 
-        return std::make_unique<Faction>(faction);
+        return std::unique_ptr<Faction>(faction);
     }
 }
 
@@ -487,8 +511,7 @@ std::tuple<Banner*, QColor, QColor> nextAvailableCombination(
 
         nextCombination =
             std::make_tuple(banners.at(bannersDist(mtd)), colors.at(primaryColorIndex), colors.at(secondaryColorIndex));
-    }
-    while (std::find(usedCombinations.begin(), usedCombinations.end(), nextCombination) != usedCombinations.end());
+    } while (std::find(usedCombinations.begin(), usedCombinations.end(), nextCombination) != usedCombinations.end());
 
     return nextCombination;
 }

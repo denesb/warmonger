@@ -170,19 +170,59 @@ TEST_CASE("Create methods", "[CampaignMap]")
 
         core::Faction* f0 = map.createFaction(civ);
 
+        REQUIRE(f0->parent() == &map);
         REQUIRE(f0->getCivilization() == civ);
-        REQUIRE(f0->objectName() == "faction-0");
+        REQUIRE(!f0->objectName().isEmpty());
+        REQUIRE(!f0->getDisplayName().isEmpty());
         REQUIRE(f0->getBanner() == banner);
         REQUIRE(f0->getPrimaryColor().isValid());
         REQUIRE(f0->getSecondaryColor().isValid());
+        REQUIRE(f0->getPrimaryColor() != f0->getSecondaryColor());
+
+        REQUIRE(map.getFactions().size() == 1);
+        REQUIRE(map.getFactions().front() == f0);
 
         core::Faction* f1 = map.createFaction(civ);
+
+        REQUIRE(f1->parent() == &map);
         REQUIRE(f1->getCivilization() == civ);
-        REQUIRE(f1->objectName() == "faction-1");
+        REQUIRE(!f1->objectName().isEmpty());
+        REQUIRE(f1->objectName() != f0->objectName());
+        REQUIRE(!f1->getDisplayName().isEmpty());
+        REQUIRE(f1->getDisplayName() != f0->getDisplayName());
         REQUIRE(f1->getBanner() == banner);
         REQUIRE(f1->getPrimaryColor().isValid());
         REQUIRE(f1->getSecondaryColor().isValid());
-        REQUIRE(!(f1->getPrimaryColor() == f0->getPrimaryColor() && (f1->getSecondaryColor() == f0->getSecondaryColor())));
+        REQUIRE(f1->getPrimaryColor() != f1->getSecondaryColor());
+        REQUIRE(
+            !(f1->getPrimaryColor() == f0->getPrimaryColor() && (f1->getSecondaryColor() == f0->getSecondaryColor())));
+    }
+}
+
+TEST_CASE("Remove methods", "[CampaignMap]")
+{
+    core::CampaignMap map;
+
+    SECTION("Faction")
+    {
+        core::World world;
+
+        core::Civilization* civ = new core::Civilization(&world);
+        core::Banner* banner = new core::Banner(&world);
+
+        world.setBanners({banner});
+        world.setColors({QColor("black"), QColor("white"), QColor("red")});
+        world.setCivilizations({civ});
+
+        map.setWorld(&world);
+
+        core::Faction* f0 = map.createFaction(civ);
+
+        std::unique_ptr<core::Faction> upf0 = map.removeFaction(f0);
+
+        REQUIRE(upf0.get() == f0);
+        REQUIRE(map.getFactions().empty());
+        REQUIRE(upf0->parent() == nullptr);
     }
 }
 
@@ -328,6 +368,7 @@ TEST_CASE("Content", "[CampaignMap]")
             std::unique_ptr<core::Settlement> removedSettlement = map.removeSettlement(settlement0);
 
             REQUIRE(removedSettlement);
+            REQUIRE(removedSettlement.get() == settlement0);
 
             auto it0 = std::find_if(
                 contents.begin(), contents.end(), MatchItemWithMember<core::Settlement*>(removedSettlement.get()));

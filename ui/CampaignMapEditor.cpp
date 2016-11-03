@@ -1,3 +1,5 @@
+#include <random>
+
 #include <QMetaEnum>
 #include <QSGSimpleTextureNode>
 
@@ -29,11 +31,6 @@ CampaignMapEditor::CampaignMapEditor(QQuickItem* parent)
         this, &CampaignMapEditor::campaignMapChanged, this, &CampaignMapEditor::availableObjectTypesChanged);
 }
 
-core::CampaignMap* CampaignMapEditor::getCampaignMap() const
-{
-    return this->campaignMap;
-}
-
 void CampaignMapEditor::setCampaignMap(core::CampaignMap* campaignMap)
 {
     if (this->campaignMap != campaignMap)
@@ -61,11 +58,6 @@ void CampaignMapEditor::setCampaignMap(core::CampaignMap* campaignMap)
     }
 }
 
-WorldSurface* CampaignMapEditor::getWorldSurface() const
-{
-    return this->worldSurface;
-}
-
 void CampaignMapEditor::setWorldSurface(WorldSurface* worldSurface)
 {
     if (this->worldSurface != worldSurface)
@@ -77,11 +69,6 @@ void CampaignMapEditor::setWorldSurface(WorldSurface* worldSurface)
 
         emit worldSurfaceChanged();
     }
-}
-
-CampaignMapEditor::EditingMode CampaignMapEditor::getEditingMode() const
-{
-    return this->editingMode;
 }
 
 void CampaignMapEditor::setEditingMode(EditingMode editingMode)
@@ -120,11 +107,6 @@ QVariantList CampaignMapEditor::readAvailableObjectTypes() const
     }
 
     return QVariantList();
-}
-
-QObject* CampaignMapEditor::getObjectType() const
-{
-    return this->objectType;
 }
 
 void CampaignMapEditor::setObjectType(QObject* objectType)
@@ -214,6 +196,37 @@ QSGNode* CampaignMapEditor::drawContent(const core::CampaignMap::Content& conten
     }
 
     return mapSGNode;
+}
+
+void CampaignMapEditor::setNumberOfFactions(int n)
+{
+    if (this->campaignMap == nullptr)
+        return;
+
+    std::size_t newSize = static_cast<std::size_t>(n);
+    std::size_t currentSize = this->campaignMap->getFactions().size();
+
+    if (newSize > currentSize)
+    {
+        const std::vector<core::Civilization*>& civilizations = this->campaignMap->getWorld()->getCivilizations();
+
+        std::random_device rd;
+        std::mt19937 mtd(rd());
+        std::uniform_int_distribution<std::size_t> dist(0, civilizations.size() - 1);
+
+        for (std::size_t i = currentSize; i < newSize; ++i)
+        {
+            this->campaignMap->createFaction(civilizations.at(dist(mtd)));
+        }
+    }
+    else if (newSize < currentSize)
+    {
+        const std::vector<core::Faction*>& factions = this->campaignMap->getFactions();
+        for (std::size_t i = newSize; i < currentSize; ++i)
+        {
+            this->campaignMap->removeFaction(factions.at(i));
+        }
+    }
 }
 
 void CampaignMapEditor::hoverMoveEvent(QHoverEvent* event)

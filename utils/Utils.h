@@ -23,7 +23,8 @@ struct QObjectFinder
 };
 
 /**
- * RAII class the block signals in the constructor and unblocks in the destructor
+ * RAII class the block signals in the constructor and unblocks in the
+ * destructor.
  */
 class SignalBlockGuard
 {

@@ -99,6 +99,7 @@ set(
     test/io/File.cpp
     test/io/JsonSerializer.cpp
     test/io/JsonUnserializer.cpp
+    test/ui/CampaignMapEditor.cpp
     test/ui/MapUtil.cpp
     test/ui/MapWindow.cpp
     test/ui/WorldSurface.cpp

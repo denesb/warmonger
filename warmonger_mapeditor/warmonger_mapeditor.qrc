@@ -1,12 +1,13 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
 <qresource>
-    <file>SideBar.qml</file>
-    <file>ObjectTypeSelector.qml</file>
+    <file>FactionsWindow.qml</file>
     <file>MapEditor.qml</file>
-    <file>icons/document-new.svg</file>
-    <file>icons/terrain-types.svg</file>
-    <file>icons/settlement-types.svg</file>
+    <file>ObjectTypeSelector.qml</file>
+    <file>SideBar.qml</file>
     <file>icons/army-types.svg</file>
+    <file>icons/document-new.svg</file>
+    <file>icons/settlement-types.svg</file>
+    <file>icons/terrain-types.svg</file>
 </qresource>
 </RCC>

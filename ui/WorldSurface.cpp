@@ -29,8 +29,10 @@ static QSGTexture* createTexture(const QImage& image, QQuickWindow* window);
 const std::vector<QString> requiredImagePaths{
     utils::resourcePaths::notFound, utils::resourcePaths::mapEditor::hoverValid};
 
-const std::set<QString> visualClasses{
-    "warmonger::core::TerrainType", "warmonger::core::SettlementType", "warmonger::core::UnitType"};
+const std::set<QString> visualClasses{"warmonger::core::TerrainType",
+    "warmonger::core::SettlementType",
+    "warmonger::core::UnitType",
+    "warmonger::core::Banner"};
 
 WorldSurface::WorldSurface(const QString& path, core::World* world, QObject* parent)
     : QObject(parent)

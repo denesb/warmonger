@@ -15,7 +15,7 @@ ApplicationWindow {
 
     Action {
         id: newAction
-        text: "&New"
+        text: "&New Campaign Map"
         iconSource: "icons/document-new.svg"
         tooltip: "New Campaign Map"
         onTriggered: {
@@ -53,6 +53,15 @@ ApplicationWindow {
         }
     }
 
+    Action {
+        id: editFactions
+        text: "F"
+        tooltip: "Edit Factions"
+        onTriggered: {
+            factionsWindow.visible = true
+        }
+    }
+
     menuBar: MenuBar {
         Menu {
             title: "Campaign Map"
@@ -86,6 +95,10 @@ ApplicationWindow {
 
             ToolButton {
                 action: armyTypeEditingModeAction
+            }
+
+            ToolButton {
+                action: editFactions
             }
 
             Item {
@@ -209,5 +222,13 @@ ApplicationWindow {
             anchors.fill: parent
             anchors.margins: 1
         }
+    }
+
+    FactionsWindow {
+        id: factionsWindow
+
+        visible: false
+
+        editor: mapEditor
     }
 }

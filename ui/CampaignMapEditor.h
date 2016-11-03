@@ -15,6 +15,19 @@ namespace ui {
 
 class CampaignMapWatcher;
 
+/**
+ * Presents an editing widget for a campaign-map.
+ *
+ * For the map to be actually drawn the CampaignMapEditor needs a campaign-map
+ * and a matching, actvivated  world-surface (that belongs to the same world)
+ * set. When these conditions are not met the QQuickItem::ItemHasContents flag
+ * is unset and nothing is going to be drawn on the screen.
+ *
+ * \see CampaignMapEditor::setCampaignMap
+ * \see CampaignMapEditor::setWorldSurface
+ * \see core::CampaignMap
+ * \see WorldSurface
+ */
 class CampaignMapEditor : public BasicMap, public CampaignMapDrawer
 {
     Q_OBJECT
@@ -28,6 +41,11 @@ class CampaignMapEditor : public BasicMap, public CampaignMapDrawer
     Q_PROPERTY(QObject* objectType READ getObjectType WRITE setObjectType NOTIFY objectTypeChanged)
 
 public:
+    /**
+     * Editing modes.
+     *
+     * \see CampaignMapEditor::setEditingMode()
+     */
     enum class EditingMode
     {
         None,
@@ -39,31 +57,186 @@ public:
     };
     Q_ENUM(EditingMode)
 
+    /**
+     * Constructs an empty map-editor.
+     */
     CampaignMapEditor(QQuickItem* parent = nullptr);
 
-    core::CampaignMap* getCampaignMap() const;
+    /**
+     * Get the edited campaign-map
+     *
+     * The CampaignMapEditor does not own the campaign-map!
+     *
+     * \return the campaign-map
+     */
+    core::CampaignMap* getCampaignMap() const
+    {
+        return this->campaignMap;
+    }
+
+    /**
+     * Set the campaign map to edit.
+     *
+     * If all conditions are given for drawing the map, this will trigger a
+     * redraw. If this was the missing piece it will trigger the first drawing.
+     * The CampaignMapEditor does not assume ownership of the campaign-map!
+     * Will emit the signal CampaignMapEditor::campaignMapChanged() if the newly
+     * set value is different than the current one.
+     *
+     * \param campaignMap the campaign-map
+     */
     void setCampaignMap(core::CampaignMap* campaignMap);
 
-    WorldSurface* getWorldSurface() const;
+    /**
+     * Get the world-surface used for drawing the campign-map.
+     *
+     * The CampaignMapEditor does not own the world-surface!
+     *
+     * \return the world-surface
+     */
+    WorldSurface* getWorldSurface() const
+    {
+        return this->worldSurface;
+    }
+
+    /**
+     * Set the world-surface used for drawing the map.
+     *
+     * If all conditions are given for drawing the map, this will trigger a
+     * redraw. If this was the missing piece it will trigger the first drawing.
+     * The CampaignMapEditor does not assume ownership of the world-surface!
+     * Will emit the signal CampaignMapEditor::worldSurfaceChanged() if the
+     * newly set value is different than the current one.
+     *
+     * \param worldSurface the world-surface
+     */
     void setWorldSurface(WorldSurface* worldSurface);
 
-    EditingMode getEditingMode() const;
+    /**
+     * Get the editing-mode.
+     *
+     * \return the editing-mode
+     *
+     * \see CampaignMapEditor::setEditingMode()
+     */
+    EditingMode getEditingMode() const
+    {
+        return this->editingMode;
+    }
+
+    /**
+     * Set the editing-mode.
+     *
+     * The editing-mode together with the object-type (\see
+     * CampaignMapEditor::setObjectType()) determines what happens when the
+     * user clicks on the map-editor. Editing-mode determines the class of
+     * objects that the will be editited. E.g. the TerrainType editing-mode
+     * means that all editing-actions will target the map-nodes.
+     * Will emit the signal CampaignMapEditor::editingModeChanged() if the
+     * newly set value is different than the current one.
+     *
+     * \param editingMode - the editing-mode
+     */
     void setEditingMode(EditingMode editingMode);
 
+    /**
+     * Read method which returns the available object-types.
+     *
+     * The available object-types depend on the current editing-mode. Some
+     * editing-modes might have no available object-types, in this case the
+     * return list will be empty.
+     * This function is used as a read function for the availableObjectTypes
+     * property and is not supposed to be called from C++ code.
+     *
+     * \returns the available object-types as a QVariantList
+     *
+     * \see CampaignMapEditor::setObjectType()
+     * \see CampaignMapEditor::setEditingMode()
+     */
     QVariantList readAvailableObjectTypes() const;
 
-    QObject* getObjectType() const;
+    /**
+     * Get the object-type.
+     *
+     * \returns the object-type
+     *
+     * \see CampaignMapEditor::setObjectType()
+     */
+    QObject* getObjectType() const
+    {
+        return this->objectType;
+    }
+
+    /**
+     * Set the object-type.
+     *
+     * The object-type together with the editing-mode determines what happens
+     * when the user clicks on the map. While the editing-mode determines the
+     * kind-of object that will be affected the object-type determines what
+     * will the affected object become, e.g. if the editing-mode is
+     * EditingMode::TerrainType and the objectType is *plains* then when the
+     * user clicks on a map-node its terrain-type is going to be changed to
+     * *plains*.
+     * The object-type has to be one of the available object-types as returned
+     * by CampaignMapEditor::readAvailableObjectTypes().
+     * Will emit the signal CampaignMapEditor::objectTypeChanged() if the
+     * newly set value is different than the current one.
+     *
+     * \param objectType - the object-type
+     */
     void setObjectType(QObject* objectType);
 
+    /**
+     * Update the scene-graph.
+     *
+     * \see QQuickItem::updatePaintNode()
+     */
     QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* oldNodeData) override;
 
+    /**
+     * Draw the content.
+     *
+     * \param content - the content to be drawn
+     * \param oldNode - the node drawn by the previous call if any
+     *
+     * \return the drawn node
+     */
     QSGNode* drawContent(const core::CampaignMap::Content& content, QSGNode* oldNode) override;
 
+    /**
+     * Set the number of factions on the map.
+     *
+     * Factions will be created or removed to match the set number.
+     * If there is no campaign-map set this method will have no effect.
+     *
+     * \param n the new number of factions
+     */
+    Q_INVOKABLE void setNumberOfFactions(int n);
+
 signals:
+    /**
+     * Emitted when the map-node changes.
+     */
     void campaignMapChanged();
+
+    /**
+     * Emitted when the world-surface changes.
+     */
     void worldSurfaceChanged();
+
+    /**
+     * Emitted when the editing-mode changes.
+     */
     void editingModeChanged();
+
+    /**
+     * Emitted when the object-type changes.
+     */
     void objectTypeChanged();
+
+    /**
+     * Emitted when the available object-types change.
+     */
     void availableObjectTypesChanged();
 
 protected:

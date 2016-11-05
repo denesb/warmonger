@@ -21,6 +21,21 @@ function(WARMONGER_AUTOMOC target)
         get_filename_component(src_name ${src} NAME_WE)
         get_filename_component(src_ext ${src} EXT)
 
+        # Examine the cpp file
+        file(READ ${src} src_content)
+
+        set(qobject_pos -1)
+        set(qgadget_pos -1)
+        string(FIND "${src_content}" "Q_OBJECT" qobject_pos)
+        string(FIND "${src_content}" "Q_GADGET" qgadget_pos)
+
+        if(${qobject_pos} GREATER -1 OR ${qgadget_pos} GREATER -1)
+            set(src_moc ${moc_prefix}/${src_name}.moc)
+            QT5_GENERATE_MOC(${src} "${src_moc}")
+            list(APPEND target_new_sources "${src_moc}")
+        endif()
+
+        # Examine the h file
         set(src_header ${src_dir}/${src_name}.h)
         if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${src_header}")
             file(READ ${src_header} header_content)

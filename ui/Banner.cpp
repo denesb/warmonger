@@ -53,7 +53,6 @@ void Banner::paint(QPainter* painter)
         return;
 
     const QRect source(QPoint(0, 0), this->bannerImage.size());
-    //const QRect target(0, 0, this->width(), this->height());
     painter->drawImage(painter->window(), this->bannerImage, source);
 }
 

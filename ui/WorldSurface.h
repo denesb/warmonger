@@ -6,6 +6,7 @@
 #include <QColor>
 #include <QImage>
 #include <QSize>
+#include <QUrl>
 
 #include "core/World.h"
 #include "utils/Utils.h"

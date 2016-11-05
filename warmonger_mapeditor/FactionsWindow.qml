@@ -2,6 +2,7 @@ import QtQuick 2.2
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.2
 import QtQuick.Window 2.2
+import Warmonger 1.0
 
 Window {
     id: root
@@ -37,11 +38,14 @@ Window {
                     text: model.modelData.displayName
                 }
 
-                Image {
+                Banner {
                     height: 30
                     width: 30
 
-                    source: W.worldSurface.getImageUrl(model.modelData.banner)
+                    banner: model.modelData.banner
+                    primaryColor: model.modelData.primaryColor
+                    secondaryColor: model.modelData.secondaryColor
+                    worldSurface: W.worldSurface
                 }
 
                 Rectangle {

@@ -23,7 +23,14 @@ add_compile_options(
 
 configure_file(Version.h.in Version.h @ONLY)
 
-set(CMAKE_AUTOMOC ON)
+# AUTOMOC puts all moc files in the same directory
+# this causes name clashes for warmonger and I'm not
+# willing to make up new names for my files because
+# of a limitiation in the build system.
+# As a temporary workaround use WARMONGER_AUTOMOC(target)
+# for each target whose source files possibly use Q_OBJECT
+# or Q_GADGET
+set(CMAKE_AUTOMOC OFF)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(Boost_USE_STATIC_LIBS ON)
@@ -69,6 +76,7 @@ set(
 
 set(
     UI_SRC_FILES
+    ui/Banner.cpp
     ui/BasicMap.cpp
     ui/BasicMiniMap.cpp
     ui/CampaignMapEditor.cpp
@@ -114,6 +122,8 @@ find_package(Qt5Quick REQUIRED)
 find_package(KF5Archive REQUIRED)
 find_package(Boost REQUIRED COMPONENTS log)
 
+include(warmonger_automoc.cmake)
+
 set(
     COMMON_EXTERNAL_LIBS
     Qt5::Quick
@@ -125,16 +135,20 @@ set(
 
 add_library(utils STATIC ${UTILS_SRC_FILES})
 qt5_use_modules(utils Core Quick)
+WARMONGER_AUTOMOC(utils)
 
 add_library(core STATIC ${CORE_SRC_FILES})
 qt5_use_modules(core Core Quick)
+WARMONGER_AUTOMOC(core)
 
 add_library(io STATIC ${IO_SRC_FILES})
 qt5_use_modules(io Core Quick)
+WARMONGER_AUTOMOC(io)
 
 add_library(ui STATIC ${UI_SRC_FILES})
 qt5_use_modules(ui Core Quick)
 target_link_libraries(ui KF5::Archive)
+WARMONGER_AUTOMOC(ui)
 
 add_executable(
     warmonger_mapeditor

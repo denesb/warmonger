@@ -1,6 +1,7 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
 <qresource>
+    <file>BannerDialog.qml</file>
     <file>FactionsWindow.qml</file>
     <file>MapEditor.qml</file>
     <file>ObjectTypeSelector.qml</file>

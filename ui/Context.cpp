@@ -1,3 +1,5 @@
+#include <random>
+
 #include <QGuiApplication>
 #include <QStringList>
 
@@ -92,6 +94,15 @@ void Context::newCampaignMap(warmonger::core::World* world)
 
         map->setMapNodes(nodes);
     }
+
+    const std::vector<core::Civilization*>& civilizations = world->getCivilizations();
+
+    std::random_device rd;
+    std::mt19937 mtd(rd());
+    std::uniform_int_distribution<std::size_t> civsDist(0, civilizations.size() - 1);
+
+    map->createFaction(civilizations.at(civsDist(mtd)));
+    map->createFaction(civilizations.at(civsDist(mtd)));
 
     this->setCampaignMap(map);
 }

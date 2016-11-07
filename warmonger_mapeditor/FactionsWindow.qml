@@ -7,8 +7,10 @@ import Warmonger 1.0
 Window {
     id: root
 
-    minimumWidth: 500
-    minimumHeight: 500
+    minimumWidth: 400
+    minimumHeight: 400
+
+    title: "Warmonger Campaign Map Editor - Edit Factions"
 
     color: W.normalPalette.window
 
@@ -21,45 +23,75 @@ Window {
             color: W.normalPalette.window
 
             width: factionList.width
-            height: 30
+            height: 40
 
-            Row {
+            RowLayout {
                 anchors.fill: parent
 
                 spacing: 4
 
-                Text {
+                TextField {
                     anchors {
                         verticalCenter: parent.verticalCenter
                     }
 
-                    color: W.normalPalette.windowText
+                    Layout.fillWidth: true
+
+                    textColor: W.normalPalette.windowText
 
                     text: model.modelData.displayName
+
+                    onEditingFinished: {
+                        model.modelData.displayName = text
+                    }
                 }
 
-                Banner {
-                    height: 30
-                    width: 30
+                ComboBox {
+                    anchors {
+                        verticalCenter: parent.verticalCenter
+                    }
 
-                    banner: model.modelData.banner
-                    primaryColor: model.modelData.primaryColor
-                    secondaryColor: model.modelData.secondaryColor
-                    worldSurface: W.worldSurface
+                    model: W.world.civilizations
+                    textRole: "displayName"
+
+                    onActivated: {
+                        model.modelData.civilization = W.world.civilizations[index];
+                    }
                 }
 
                 Rectangle {
                     height: 30
                     width: 30
 
-                    color: model.modelData.primaryColor
-                }
+                    border {
+                        width: 1
+                        color: W.normalPalette.mid
+                    }
 
-                Rectangle {
-                    height: 30
-                    width: 30
+                    anchors {
+                        verticalCenter: parent.verticalCenter
+                    }
 
-                    color: model.modelData.secondaryColor
+                    Banner {
+                        anchors {
+                            fill: parent
+                            margins: 1
+                        }
+
+                        banner: model.modelData.banner
+                        primaryColor: model.modelData.primaryColor
+                        secondaryColor: model.modelData.secondaryColor
+                        worldSurface: W.worldSurface
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+
+                        onClicked: {
+                            bannerDialog.faction = model.modelData
+                            bannerDialog.visible = true
+                        }
+                    }
                 }
             }
         }
@@ -83,8 +115,6 @@ Window {
 
             ListView {
                 id: factionList
-
-                spacing: 4
 
                 model: W.campaignMap.factions
 
@@ -124,5 +154,13 @@ Window {
                 factionsWindow.visible = false;
             }
         }
+    }
+
+    BannerDialog {
+        id: bannerDialog
+
+        visible: false
+
+        faction: W.campaignMap.factions[0]
     }
 }

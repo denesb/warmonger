@@ -14,11 +14,11 @@ namespace core {
 class Faction : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString displayName READ getDisplayName NOTIFY displayNameChanged)
-    Q_PROPERTY(QColor primaryColor READ getPrimaryColor NOTIFY primaryColorChanged)
-    Q_PROPERTY(QColor secondaryColor READ getSecondaryColor NOTIFY secondaryColorChanged)
-    Q_PROPERTY(Banner* banner READ getBanner NOTIFY bannerChanged)
-    Q_PROPERTY(Civilization* civilization READ getCivilization NOTIFY civilizationChanged)
+    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
+    Q_PROPERTY(QColor primaryColor READ getPrimaryColor WRITE setPrimaryColor NOTIFY primaryColorChanged)
+    Q_PROPERTY(QColor secondaryColor READ getSecondaryColor WRITE setSecondaryColor NOTIFY secondaryColorChanged)
+    Q_PROPERTY(Banner* banner READ getBanner WRITE setBanner NOTIFY bannerChanged)
+    Q_PROPERTY(Civilization* civilization READ getCivilization WRITE setCivilization NOTIFY civilizationChanged)
 
 public:
     explicit Faction(QObject* parent = nullptr);

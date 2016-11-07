@@ -58,16 +58,13 @@ void Banner::paint(QPainter* painter)
 
 void Banner::updateContent()
 {
-    const bool wasNull = this->bannerImage.isNull();
-
     this->bannerImage = createBannerImage(this->worldSurface, this->banner, this->primaryColor);
     if(this->bannerImage.isNull())
         this->setFlags(0);
     else
         this->setFlags(QQuickItem::ItemHasContents);
 
-    if(this->bannerImage.isNull() != wasNull)
-        this->update();
+    this->update();
 }
 
 static QImage createBannerImage(WorldSurface* worldSurface, core::Banner* banner, const QColor& color)

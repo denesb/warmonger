@@ -57,8 +57,8 @@ public:
     /**
      * Set the display-name.
      *
-     * Will emit the signal World::displayNameChanged() if the newly set value is
-     * different than the current one.
+     * Will emit the signal World::displayNameChanged() if the newly set value
+     * is different than the current one.
      *
      * \param displayName the new displayName
      */

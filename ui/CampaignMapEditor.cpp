@@ -414,7 +414,7 @@ QSGNode* CampaignMapEditor::drawHoverNode(QSGNode* oldNode) const
     else
         hoverNode = static_cast<QSGSimpleTextureNode*>(oldNode);
 
-    QSGTexture* texture = this->worldSurface->getTexture(utils::resourcePaths::mapEditor::hoverValid, this->window());
+    QSGTexture* texture = this->worldSurface->getTexture(WorldSurface::Image::HoverValid, this->window());
     if (texture != hoverNode->texture())
         hoverNode->setTexture(texture);
 

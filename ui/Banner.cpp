@@ -7,7 +7,8 @@ namespace ui {
 
 static QImage createBannerImage(WorldSurface* worldSurface, core::Banner* banner, const QColor& color);
 
-Banner::Banner(QQuickItem* parent) : QQuickPaintedItem(parent)
+Banner::Banner(QQuickItem* parent)
+    : QQuickPaintedItem(parent)
 {
 }
 
@@ -59,7 +60,7 @@ void Banner::paint(QPainter* painter)
 void Banner::updateContent()
 {
     this->bannerImage = createBannerImage(this->worldSurface, this->banner, this->primaryColor);
-    if(this->bannerImage.isNull())
+    if (this->bannerImage.isNull())
         this->setFlags(0);
     else
         this->setFlags(QQuickItem::ItemHasContents);
@@ -72,7 +73,7 @@ static QImage createBannerImage(WorldSurface* worldSurface, core::Banner* banner
     if (worldSurface == nullptr || banner == nullptr || !color.isValid())
         return QImage();
 
-    QImage image(":" + worldSurface->getImageUrl(banner).path());
+    QImage image(worldSurface->getObjectImagePath(banner));
 
     const QRgb rgb = color.rgb();
     const QSize size = image.size();

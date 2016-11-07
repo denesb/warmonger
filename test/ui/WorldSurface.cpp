@@ -21,57 +21,57 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
 
     SECTION("No package file")
     {
-        REQUIRE_THROWS_AS(ui::WorldSurface("./dev_nonexistent.wsp", &world), utils::IOError);
+        REQUIRE_THROWS_AS(ui::WorldSurface("./test_nonExistent.wsp", &world), utils::IOError);
     }
 
     SECTION("No metadata file in package")
     {
-        REQUIRE_THROWS_AS(ui::WorldSurface("./dev_nometafile.wsp", &world), utils::IOError);
+        REQUIRE_THROWS_AS(ui::WorldSurface("./test_noMeta.wsp", &world), utils::IOError);
     }
 
     SECTION("Metadata file is not a file")
     {
-        REQUIRE_THROWS_AS(ui::WorldSurface("./dev_metadir.wsp", &world), utils::IOError);
+        REQUIRE_THROWS_AS(ui::WorldSurface("./test_metaDir.wsp", &world), utils::IOError);
     }
 
     SECTION("Metadata file not valid JSON")
     {
-        REQUIRE_THROWS_AS(ui::WorldSurface("./dev_metainvalidjson.wsp", &world), utils::ValueError);
+        REQUIRE_THROWS_AS(ui::WorldSurface("./test_metaInvalidJson.wsp", &world), utils::ValueError);
     }
 
     SECTION("No resource file")
     {
-        ui::WorldSurface s("./dev_norcc.wsp", &world);
+        ui::WorldSurface s("./test_noRcc.wsp", &world);
         REQUIRE_THROWS_AS(s.activate(), utils::IOError);
     }
 
     SECTION("Resource file is not a file")
     {
-        ui::WorldSurface s("./dev_rccdir.wsp", &world);
+        ui::WorldSurface s("./test_rccDir.wsp", &world);
         REQUIRE_THROWS_AS(s.activate(), utils::IOError);
     }
 
     SECTION("Resource file is invalid")
     {
-        ui::WorldSurface s("./dev_rccinvalid.wsp", &world);
+        ui::WorldSurface s("./test_rccInvalid.wsp", &world);
         REQUIRE_THROWS_AS(s.activate(), utils::IOError);
     }
 
     SECTION("Resource file, missing definition file")
     {
-        ui::WorldSurface s("./dev_rccnodefinition.wsp", &world);
+        ui::WorldSurface s("./test_noDefinition.wsp", &world);
         REQUIRE_THROWS_AS(s.activate(), utils::IOError);
     }
 
     SECTION("Resource file, definition file - invalid json")
     {
-        ui::WorldSurface s("./dev_rccdefinitioninvalidjson.wsp", &world);
+        ui::WorldSurface s("./test_definitionInvalidJson.wsp", &world);
         REQUIRE_THROWS_AS(s.activate(), utils::ValueError);
     }
 
     SECTION("Resource file, no hexmask")
     {
-        ui::WorldSurface s("./dev_rccnohexmask.wsp", &world);
+        ui::WorldSurface s("./test_noHexMask.wsp", &world);
         REQUIRE_THROWS_AS(s.activate(), utils::IOError);
     }
 }
@@ -80,7 +80,7 @@ TEST_CASE("Missing some required images", "[WorldSurface]")
 {
     core::World world;
 
-    ui::WorldSurface s("./dev_missingrequiredimages.wsp", &world);
+    ui::WorldSurface s("./test_noRequiredStaticImage.wsp", &world);
 
     REQUIRE_THROWS_AS(s.activate(), utils::IOError);
 }
@@ -89,18 +89,18 @@ TEST_CASE("Can use Surface", "[WorldSurface]")
 {
     core::World world;
 
-    ui::WorldSurface s("./dev.wsp", &world);
+    ui::WorldSurface s("./test.wsp", &world);
 
     SECTION("Can read metadata")
     {
-        REQUIRE(s.objectName() == "dev");
-        REQUIRE(s.getDisplayName() == "Development surface");
-        REQUIRE(s.getDescription() == "Surface used for development");
+        REQUIRE(s.objectName() == "test");
+        REQUIRE(s.getDisplayName() == "Test surface");
+        REQUIRE(s.getDescription() == "Surface used for testing");
     }
 
     SECTION("Resources not yet loaded")
     {
-        QFile f(s.getPrefix() + "dev.wsd");
+        QFile f(s.getImagePath(ui::WorldSurface::Image::HoverValid));
         REQUIRE(f.open(QIODevice::ReadOnly) == false);
     }
 
@@ -108,7 +108,7 @@ TEST_CASE("Can use Surface", "[WorldSurface]")
     {
         s.activate();
 
-        QFile f(s.getPrefix() + "dev.wsd");
+        QFile f(s.getImagePath(ui::WorldSurface::Image::HoverValid));
         REQUIRE(f.open(QIODevice::ReadOnly) == true);
         REQUIRE(s.getTileWidth() == 110);
         REQUIRE(s.getTileHeight() == 128);
@@ -124,27 +124,7 @@ TEST_CASE("Can use Surface", "[WorldSurface]")
         s.activate();
         s.deactivate();
 
-        QFile f(s.getPrefix() + "dev.wsd");
+        QFile f(s.getImagePath(ui::WorldSurface::Image::HoverValid));
         REQUIRE(f.open(QIODevice::ReadOnly) == false);
-    }
-}
-
-TEST_CASE("getImageUrl", "[WorldSurface]")
-{
-    core::World world;
-
-    ui::WorldSurface s("./dev.wsp", &world);
-
-    SECTION("Happy flow")
-    {
-        core::UnitType unitType;
-        unitType.setObjectName("ut1");
-
-        const QString p = utils::makePath(utils::resourcePaths::surface,
-            QString("UnitType"),
-            utils::makeFileName(unitType.objectName(), utils::resourcePaths::fileExtension));
-        const QUrl url(utils::resourcePaths::resourceSchema + p);
-
-        REQUIRE(s.getImageUrl(&unitType) == url);
     }
 }

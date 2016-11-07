@@ -17,7 +17,7 @@ TEST_CASE("Invokable map-editing members", "[CampaignMapEditor]")
     core::CampaignMap map;
     map.setWorld(&world);
 
-    ui::WorldSurface surface("./dev.wsp", &world);
+    ui::WorldSurface surface("./test.wsp", &world);
 
     ui::CampaignMapEditor mapEditor;
     mapEditor.setCampaignMap(&map);

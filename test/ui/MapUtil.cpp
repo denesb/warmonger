@@ -276,7 +276,7 @@ TEST_CASE("", "[mapNodeAtPos]")
 
     core::World world;
 
-    ui::WorldSurface surface("./dev.wsp", &world);
+    ui::WorldSurface surface("./test.wsp", &world);
     surface.activate();
 
     const std::map<core::MapNode*, QPoint> nodesPos = ui::positionMapNodes(mapNodes.front(), surface.getTileSize());
@@ -306,7 +306,6 @@ TEST_CASE("", "[mapNodeAtPos]")
     REQUIRE(n == nullptr);
 }
 
-#include <iostream>
 TEST_CASE("neighboursByPos", "[MapUtil]")
 {
     std::vector<core::MapNode*> mapNodes = core::generateMapNodes(2);
@@ -314,7 +313,7 @@ TEST_CASE("neighboursByPos", "[MapUtil]")
 
     core::World world;
 
-    ui::WorldSurface worldSurface("./dev.wsp", &world);
+    ui::WorldSurface worldSurface("./test.wsp", &world);
     const QSize tileSize = worldSurface.getTileSize();
 
     worldSurface.activate();

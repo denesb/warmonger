@@ -20,7 +20,6 @@ namespace ui {
 class WorldSurface : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString prefix READ getPrefix NOTIFY prefixChanged)
     Q_PROPERTY(QString displayName READ getDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(QString description READ getDescription NOTIFY descriptionChanged)
     Q_PROPERTY(QSize tileSize READ getTileSize NOTIFY tileSizeChanged)
@@ -28,30 +27,53 @@ class WorldSurface : public QObject
     Q_PROPERTY(QColor focusGridColor READ getFocusGridColor NOTIFY focusGridColorChanged)
 
 public:
+    enum class Image
+    {
+        HoverValid
+    };
+
     WorldSurface(const QString& path, core::World* world, QObject* parent = nullptr);
     ~WorldSurface();
 
-    /**
-     * Common path prefix of all paths to surface resources.
-     * The prefix contains a trailing /.
-     */
-    QString getPrefix() const;
+    core::World* getWorld() const
+    {
+        return this->world;
+    }
 
-    core::World* getWorld() const;
+    QString getDisplayName() const
+    {
+        return this->displayName;
+    }
 
-    QString getDisplayName() const;
+    QString getDescription() const
+    {
+        return this->description;
+    }
 
-    QString getDescription() const;
+    int getTileWidth() const
+    {
+        return this->tileWidth;
+    }
 
-    int getTileWidth() const;
+    int getTileHeight() const
+    {
+        return this->tileHeight;
+    }
 
-    int getTileHeight() const;
+    QSize getTileSize() const
+    {
+        return QSize(this->tileWidth, this->tileHeight);
+    }
 
-    QSize getTileSize() const;
+    QColor getNormalGridColor() const
+    {
+        return this->normalGridColor;
+    }
 
-    QColor getNormalGridColor() const;
-
-    QColor getFocusGridColor() const;
+    QColor getFocusGridColor() const
+    {
+        return this->focusGridColor;
+    }
 
     bool hexContains(const QPoint& p) const;
     bool hexContains(const QPointF& p) const;
@@ -104,12 +126,15 @@ public:
      *
      * @returns QSGTexture*
      */
-    QSGTexture* getTexture(const QString& key, QQuickWindow* window);
+    QSGTexture* getTexture(Image image, QQuickWindow* window);
 
-    Q_INVOKABLE QUrl getImageUrl(QObject* object) const;
+    Q_INVOKABLE QUrl getObjectImageUrl(QObject* object) const;
+    Q_INVOKABLE QString getObjectImagePath(QObject* object) const;
+
+    Q_INVOKABLE QUrl getImageUrl(Image image) const;
+    Q_INVOKABLE QString getImagePath(Image image) const;
 
 signals:
-    void prefixChanged();
     void displayNameChanged();
     void descriptionChanged();
     void tileWidthChanged();

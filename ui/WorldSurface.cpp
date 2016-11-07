@@ -19,15 +19,31 @@
 namespace warmonger {
 namespace ui {
 
+namespace {
+
+const QString resourceSchema{"qrc"};
+const QString fileExtension{"png"};
+const QString prefix{":"};
+
+namespace path {
+
+const QString surface{utils::makePath(prefix, "surface")};
+
+const QString hexagonMask{utils::makePath(surface, QString("hexagonMask.xpm"))};
+const QString notFound{utils::makePath(surface, QString("notFound.png"))};
+
+const QString mapEditor{utils::makePath(surface, "MapEditor")};
+const QString hoverValid{utils::makePath(mapEditor, QString("hoverValid.png"))};
+
+} // namespace path
+} // anonymus namespace
+
 static QString objectPath(const QObject* const object);
-static void checkMissingImages(const core::World* const world);
-static bool isImageMissing(const QString& key);
-static bool isOptionalImageMissing(const QObject* const object);
-static bool isRequiredImageMissing(const QString& p);
+static QString imagePath(WorldSurface::Image image);
+static void checkMissingImages(const WorldSurface* const surface);
 static QSGTexture* createTexture(const QImage& image, QQuickWindow* window);
 
-const std::vector<QString> requiredImagePaths{
-    utils::resourcePaths::notFound, utils::resourcePaths::mapEditor::hoverValid};
+const std::vector<WorldSurface::Image> staticImages{WorldSurface::Image::HoverValid};
 
 const std::set<QString> visualClasses{"warmonger::core::TerrainType",
     "warmonger::core::SettlementType",
@@ -79,52 +95,6 @@ WorldSurface::~WorldSurface()
     }
 }
 
-core::World* WorldSurface::getWorld() const
-{
-    return this->world;
-}
-
-QString WorldSurface::getPrefix() const
-{
-    static const QString prefix = utils::resourcePaths::surface + "/";
-    return prefix;
-}
-
-QString WorldSurface::getDisplayName() const
-{
-    return this->displayName;
-}
-
-QString WorldSurface::getDescription() const
-{
-    return this->description;
-}
-
-int WorldSurface::getTileWidth() const
-{
-    return this->tileWidth;
-}
-
-int WorldSurface::getTileHeight() const
-{
-    return this->tileHeight;
-}
-
-QSize WorldSurface::getTileSize() const
-{
-    return QSize(this->tileWidth, this->tileHeight);
-}
-
-QColor WorldSurface::getNormalGridColor() const
-{
-    return this->normalGridColor;
-}
-
-QColor WorldSurface::getFocusGridColor() const
-{
-    return this->focusGridColor;
-}
-
 bool WorldSurface::hexContains(const QPoint& p) const
 {
     const int x = p.x();
@@ -166,7 +136,7 @@ void WorldSurface::activate()
     KTar package(this->path);
     if (!package.open(QIODevice::ReadOnly))
     {
-        throw utils::IOError("Failed to open surface package " + this->path + ". " + package.device()->errorString());
+        throw utils::IOError("Failed to open surface package " + this->path + ": " + package.device()->errorString());
     }
     const KArchiveDirectory* rootDir = package.directory();
     const QStringList entries = rootDir->entries();
@@ -192,11 +162,12 @@ void WorldSurface::activate()
         throw utils::IOError("Failed to register  " + this->path);
     }
 
-    QFile jfile(this->getPrefix() + this->objectName() + "." + utils::fileExtensions::surfaceDefinition);
+    QFile jfile(
+        utils::makePath(path::surface, utils::makeFileName(this->objectName(), utils::fileExtensions::surfaceDefinition)));
     if (!jfile.open(QIODevice::ReadOnly))
     {
         throw utils::IOError(
-            "Failed to open surface definition from package " + this->path + ". " + jfile.errorString());
+            "Failed to open surface definition from package " + this->path + ": " + jfile.errorString());
     }
 
     QJsonParseError parseError;
@@ -221,12 +192,12 @@ void WorldSurface::activate()
     emit normalGridColorChanged();
     emit focusGridColorChanged();
 
-    if (!this->hexMask.load(utils::resourcePaths::hexagonMask))
+    if (!this->hexMask.load(path::hexagonMask))
     {
         throw utils::IOError("Hexagon mask not found in surface package " + this->path);
     }
 
-    checkMissingImages(this->world);
+    checkMissingImages(this);
 
     wInfo << "Succesfully activated surface " << this->objectName();
 }
@@ -268,10 +239,11 @@ QSGTexture* WorldSurface::getTexture(const QObject* object, QQuickWindow* window
     return texture;
 }
 
-QSGTexture* WorldSurface::getTexture(const QString& path, QQuickWindow* window)
+QSGTexture* WorldSurface::getTexture(Image image, QQuickWindow* window)
 {
     QSGTexture* texture{nullptr};
 
+    const QString path(imagePath(image));
     const auto textureKey = std::make_pair(path, window);
     const auto it = this->staticTextures.find(textureKey);
 
@@ -294,7 +266,7 @@ QSGTexture* WorldSurface::getTexture(const QString& path, QQuickWindow* window)
     return texture;
 }
 
-QUrl WorldSurface::getImageUrl(QObject* object) const
+QUrl WorldSurface::getObjectImageUrl(QObject* object) const
 {
     const QString fullClassName{object->metaObject()->className()};
     if (visualClasses.find(fullClassName) == visualClasses.end())
@@ -304,11 +276,34 @@ QUrl WorldSurface::getImageUrl(QObject* object) const
     else
     {
         const QString className = fullClassName.section("::", -1);
-        return QUrl(utils::resourcePaths::resourceSchema +
-            utils::makePath(utils::resourcePaths::surface,
-                        className,
-                        utils::makeFileName(object->objectName(), utils::resourcePaths::fileExtension)));
+        return QUrl(resourceSchema +
+            utils::makePath(path::surface, className, utils::makeFileName(object->objectName(), fileExtension)));
     }
+}
+
+QString WorldSurface::getObjectImagePath(QObject* object) const
+{
+    const QString fullClassName{object->metaObject()->className()};
+    if (visualClasses.find(fullClassName) == visualClasses.end())
+    {
+        return QString();
+    }
+    else
+    {
+        const QString className = fullClassName.section("::", -1);
+        return QString(
+            utils::makePath(path::surface, className, utils::makeFileName(object->objectName(), fileExtension)));
+    }
+}
+
+QUrl WorldSurface::getImageUrl(Image image) const
+{
+    return QUrl(resourceSchema + getImagePath(image));
+}
+
+QString WorldSurface::getImagePath(Image image) const
+{
+    return imagePath(image);
 }
 
 void WorldSurface::parseHeader(const QByteArray& header)
@@ -338,57 +333,50 @@ static QString objectPath(const QObject* const object)
     const QString fullClassName{object->metaObject()->className()};
     const QString className = fullClassName.section("::", -1);
 
-    return utils::makePath(utils::resourcePaths::surface,
-        className,
-        utils::makeFileName(object->objectName(), utils::resourcePaths::fileExtension));
+    return utils::makePath(path::surface, className, utils::makeFileName(object->objectName(), fileExtension));
 }
 
-static void checkMissingImages(const core::World* const world)
+static QString imagePath(WorldSurface::Image image)
 {
-    const auto terrainTypes = world->getTerrainTypes();
-    std::for_each(terrainTypes.cbegin(), terrainTypes.cend(), isOptionalImageMissing);
-
-    const auto settlementTypes = world->getSettlementTypes();
-    std::for_each(settlementTypes.cbegin(), settlementTypes.cend(), isOptionalImageMissing);
-
-    const auto unitTypes = world->getUnitTypes();
-    std::for_each(unitTypes.cbegin(), unitTypes.cend(), isOptionalImageMissing);
-
-    if (std::any_of(requiredImagePaths.cbegin(), requiredImagePaths.cend(), isRequiredImageMissing))
+    switch (image)
     {
-        throw utils::IOError("Failed to find one or more required image resources");
+        case WorldSurface::Image::HoverValid:
+            return path::hoverValid;
     }
+    return QString();
 }
 
-static bool isImageMissing(const QString& imagePath)
+static void checkMissingImages(const WorldSurface* const surface)
 {
-    return QImage(imagePath).isNull();
-}
+    const auto isObjectImageMissing = [&surface](
+        QObject* object) { return QImage(surface->getObjectImagePath(object)).isNull(); };
 
-static bool isOptionalImageMissing(const QObject* const object)
-{
-    const QString path(objectPath(object));
-    if (isImageMissing(path))
-    {
-        wWarning << "Image " << path << " for " << object << " is missing";
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
+    const auto isStaticImageMissing = [&surface](
+        WorldSurface::Image image) { return QImage(surface->getImagePath(image)).isNull(); };
 
-static bool isRequiredImageMissing(const QString& path)
-{
-    if (isImageMissing(path))
+    const core::World* world = surface->getWorld();
+
+    const auto& terrainTypes = world->getTerrainTypes();
+    if (std::any_of(terrainTypes.cbegin(), terrainTypes.cend(), isObjectImageMissing))
     {
-        wError << "Image " << path << " is missing";
-        return true;
+        throw utils::IOError("Failed to find one or more terrain-type images");
     }
-    else
+
+    const auto& settlementTypes = world->getSettlementTypes();
+    if (std::any_of(settlementTypes.cbegin(), settlementTypes.cend(), isObjectImageMissing))
     {
-        return false;
+        throw utils::IOError("Failed to find one or more settlement-type images");
+    }
+
+    const auto& unitTypes = world->getUnitTypes();
+    if (std::any_of(unitTypes.cbegin(), unitTypes.cend(), isObjectImageMissing))
+    {
+        throw utils::IOError("Failed to find one or more unit-type images");
+    }
+
+    if (std::any_of(staticImages.cbegin(), staticImages.cend(), isStaticImageMissing))
+    {
+        throw utils::IOError("Failed to find one or more static images");
     }
 }
 

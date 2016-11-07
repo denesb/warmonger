@@ -1,0 +1,13 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+<qresource>
+    <file>test.wsd</file>
+    <file>hexagonMask.xpm</file>
+    <file>MapEditor/hoverValid.png</file>
+    <file>ArmyType/armyType.png</file>
+    <file>Banner/banner.png</file>
+    <file>SettlementType/settlementType.png</file>
+    <file>TerrainType/terrainType.png</file>
+    <file>UnitType/unitType.png</file>
+</qresource>
+</RCC>

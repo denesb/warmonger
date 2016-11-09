@@ -26,33 +26,12 @@ Context::Context(QObject* parent)
     , world(nullptr)
     , worldSurface(nullptr)
     , campaignMap(nullptr)
-    , game(nullptr)
     , disabledPalette(new Palette(QGuiApplication::palette(), QPalette::Disabled, this))
     , activePalette(new Palette(QGuiApplication::palette(), QPalette::Active, this))
     , inactivePalette(new Palette(QGuiApplication::palette(), QPalette::Inactive, this))
     , normalPalette(new Palette(QGuiApplication::palette(), QPalette::Normal, this))
 {
     loadWorlds();
-}
-
-core::World* Context::getWorld() const
-{
-    return this->world;
-}
-
-ui::WorldSurface* Context::getWorldSurface() const
-{
-    return this->worldSurface;
-}
-
-core::CampaignMap* Context::getCampaignMap() const
-{
-    return this->campaignMap;
-}
-
-core::Game* Context::getGame() const
-{
-    return this->game;
 }
 
 QVariantList Context::readWorlds() const

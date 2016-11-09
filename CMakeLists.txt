@@ -53,7 +53,6 @@ set(
     core/CampaignMap.cpp
     core/Civilization.cpp
     core/Faction.cpp
-    core/Game.cpp
     core/Hexagon.cpp
     core/MapGenerator.cpp
     core/MapNode.cpp

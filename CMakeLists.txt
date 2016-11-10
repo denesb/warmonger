@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 2.8.12)
 project(Warmonger)
 
 option(BUILD_TESTS "Build unit test suite" OFF)
-option(BUILD_TOOLS "Build development tools" OFF)
 
 include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR})
 
@@ -150,13 +149,13 @@ target_link_libraries(ui KF5::Archive)
 WARMONGER_AUTOMOC(ui)
 
 add_executable(
-    warmonger_mapeditor
-    warmonger_mapeditor/warmonger_mapeditor.cpp
-    warmonger_mapeditor/warmonger_mapeditor.qrc
+    wmapeditor
+    wmapeditor/wmapeditor.cpp
+    wmapeditor/wmapeditor.qrc
 )
 
 target_link_libraries(
-    warmonger_mapeditor
+    wmapeditor
     ui
     io
     core
@@ -164,20 +163,18 @@ target_link_libraries(
     ${COMMON_EXTERNAL_LIBS}
 )
 
-if(BUILD_TOOLS)
-    add_executable(
-        warmonger_world_smoketest
-        tools/warmonger_world_smoketest.cpp
-    )
+add_executable(
+    wcheck_world
+    wwrapper/wcheck_world.cpp
+)
 
-    target_link_libraries(
-        warmonger_world_smoketest
-        io
-        core
-        utils
-        ${COMMON_EXTERNAL_LIBS}
-    )
-endif()
+target_link_libraries(
+    wcheck_world
+    io
+    core
+    utils
+    ${COMMON_EXTERNAL_LIBS}
+)
 
 if(BUILD_TESTS)
     add_executable(

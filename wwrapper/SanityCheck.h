@@ -4,6 +4,11 @@
 class QString;
 
 namespace warmonger {
+
+namespace core {
+    class World;
+} // namespace core
+
 namespace wwrapper {
 
 /**
@@ -17,6 +22,20 @@ namespace wwrapper {
  * \return is the world sane
  */
 bool isWorldSane(const QString& path);
+
+/**
+ * Is the campaign-map sane?
+ *
+ * A "sane" campaign-map can be loaded without exceptions.
+ *
+ * \param path the path to the world
+ * \param world a *sane* world
+ *
+ * \return is the campaign-map sane
+ *
+ * \see isWorldSane
+ */
+bool isCampaignMapSane(const QString& path, core::World* world);
 
 } // namespace wwrapper
 } // namespace warmonger

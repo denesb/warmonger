@@ -2,6 +2,7 @@
 
 #include <QString>
 
+#include "core/CampaignMap.h"
 #include "core/World.h"
 #include "io/File.h"
 #include "io/JsonUnserializer.h"
@@ -71,6 +72,27 @@ bool isWorldSane(const QString& path)
     if (world->getUnitTypes().empty())
     {
         wError << "The world has no unit-types";
+        return false;
+    }
+
+    return true;
+}
+
+bool isCampaignMapSane(const QString& path, core::World* world)
+{
+    std::unique_ptr<core::CampaignMap> campaignMap;
+
+    try
+    {
+        io::Context ctx;
+        io::addWorldToContext(ctx, world);
+
+        io::JsonUnserializer unserializer(ctx);
+        campaignMap.reset(io::readCampaignMap(path, unserializer));
+    }
+    catch (const std::exception& e)
+    {
+        wError << "Caught exception while trying to load world: " << e.what();
         return false;
     }
 

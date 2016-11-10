@@ -2,12 +2,20 @@
 
 #include "test/catch.hpp"
 
+#include "core/World.h"
+#include "io/File.h"
+#include "io/JsonUnserializer.h"
 #include "wwrapper/SanityCheck.h"
 
 using namespace warmonger;
 
 TEST_CASE("isWorldSane", "[SanityCheck]")
 {
+    SECTION("All is good")
+    {
+        REQUIRE(wwrapper::isWorldSane("./world-packages/world.wwd"));
+    }
+
     SECTION("Inexistent")
     {
         REQUIRE(!wwrapper::isWorldSane("./world-packages/inexistent.wwd"));
@@ -57,9 +65,35 @@ TEST_CASE("isWorldSane", "[SanityCheck]")
     {
         REQUIRE(!wwrapper::isWorldSane("./world-packages/noUnitTypes.wwd"));
     }
+}
+
+TEST_CASE("isCampaignMapSane", "[SanityCheck]")
+{
+    io::JsonUnserializer unserializer;
+    std::unique_ptr<core::World> world(io::readWorld("./world-packages/world.wwd", unserializer));
 
     SECTION("All is good")
     {
-        REQUIRE(wwrapper::isWorldSane("./world-packages/world.wwd"));
+        REQUIRE(wwrapper::isCampaignMapSane("./campaignmap-packages/campaignmap.wmd", world.get()));
+    }
+
+    SECTION("Inexistent")
+    {
+        REQUIRE(!wwrapper::isCampaignMapSane("./campaignmap-packages/inexistent.wmd", world.get()));
+    }
+
+    SECTION("Invalid JSON")
+    {
+        REQUIRE(!wwrapper::isCampaignMapSane("./campaignmap-packages/invalidJson.wmd", world.get()));
+    }
+
+    SECTION("Unresolved reference")
+    {
+        REQUIRE(!wwrapper::isCampaignMapSane("./campaignmap-packages/unresolvedReference.wmd", world.get()));
+    }
+
+    SECTION("Invalid value")
+    {
+        REQUIRE(!wwrapper::isCampaignMapSane("./campaignmap-packages/invalidValue.wmd", world.get()));
     }
 }

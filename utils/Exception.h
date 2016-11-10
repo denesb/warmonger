@@ -13,22 +13,22 @@ class Exception : public std::exception
 {
 public:
     explicit Exception(const QString& message = QString())
-        : message(message)
+        : message(message.toStdString())
     {
     }
 
     QString getMessage() const noexcept
     {
-        return this->message;
+        return QString::fromStdString(this->message);
     }
 
     const char* what() const noexcept override
     {
-        return this->message.toStdString().c_str();
+        return this->message.c_str();
     }
 
 protected:
-    const QString message;
+    const std::string message;
 };
 
 /**

@@ -247,6 +247,11 @@ if(BUILD_TESTS)
         ${TEST_DATA}/world-packages
         ${CMAKE_BINARY_DIR}/world-packages
     )
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${TEST_DATA}/campaignmap-packages
+        ${CMAKE_BINARY_DIR}/campaignmap-packages
+    )
 endif()
 
 add_custom_target(

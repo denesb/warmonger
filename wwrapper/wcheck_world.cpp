@@ -1,10 +1,9 @@
 #include <iostream>
 #include <memory>
 
-#include "core/World.h"
-#include "io/File.h"
-#include "io/JsonUnserializer.h"
-#include "utils/Exception.h"
+#include <QString>
+
+#include "utils/Logging.h"
 #include "wwrapper/SanityCheck.h"
 #include "wwrapper/Utils.h"
 

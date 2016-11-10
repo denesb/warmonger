@@ -9,6 +9,11 @@
 #include "utils/Logging.h"
 
 namespace warmonger {
+
+namespace core {
+    class World;
+} // namespace core
+
 namespace io {
 
 /**
@@ -68,6 +73,8 @@ private:
     std::function<void(const QString&, const QString&, Context&)> injectFn;
     QMap<QString, QMap<QString, QObject*>> objectsByType;
 };
+
+void addWorldToContext(Context& ctx, core::World* world);
 
 } // namespace io
 } // namespace warmonger

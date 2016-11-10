@@ -4,7 +4,7 @@
 #include "core/CampaignMap.h"
 #include "io/File.h"
 #include "io/JsonUnserializer.h"
-#include "utils/Exception.h"
+#include "wwrapper/SanityCheck.h"
 #include "wwrapper/Utils.h"
 
 using namespace warmonger;
@@ -30,38 +30,19 @@ int main(int argc, char* const argv[])
     wInfo << "world path: " << worldPath;
     wInfo << "campaign-map path: " << campaignMapPath;
 
-    std::unique_ptr<core::World> world;
-
-    try
+    if (!wwrapper::isWorldSane(worldPath))
     {
-        io::JsonUnserializer unserializer;
-        world.reset(io::readWorld(worldPath, unserializer));
-    }
-    catch (std::exception& e)
-    {
-        wError << "Caught exception while trying to read world: " << e.what();
+        wError << "World is not sane";
         FAIL(1);
     }
+
+    io::JsonUnserializer unserializer;
+    std::unique_ptr<core::World> world(io::readWorld(worldPath, unserializer));
 
     wInfo << "Successfully loaded world " << world.get();
 
-    std::unique_ptr<core::CampaignMap> campaignMap;
-
-    try
-    {
-        io::Context ctx;
-        ctx.add(world.get());
-
-        io::JsonUnserializer unserializer(ctx);
-        campaignMap.reset(io::readCampaignMap(campaignMapPath, unserializer));
-    }
-    catch (std::exception& e)
-    {
-        wError << "Caught exception while trying to read campaignMap: " << e.what();
+    if (!wwrapper::isCampaignMapSane(campaignMapPath, world.get()))
         FAIL(1);
-    }
-
-    wInfo << "Successfully loaded campaignMap " << campaignMap.get();
 
     return 0;
 }

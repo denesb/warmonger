@@ -90,6 +90,12 @@ set(
 )
 
 set(
+    WWRAPPER_SRC_FILES
+    wwrapper/SanityCheck.cpp
+    wwrapper/Utils.cpp
+)
+
+set(
     TEST_SRC_FILES
     test/test_warmonger.cpp
     test/Util.cpp
@@ -109,6 +115,7 @@ set(
     test/ui/MapUtil.cpp
     test/ui/MapWindow.cpp
     test/ui/WorldSurface.cpp
+    test/wwrapper/SanityCheck.cpp
 )
 
 file(GLOB_RECURSE ALL_HEADER_FILES ${PROJECT_SOURCE_DIR}/*.h)
@@ -163,14 +170,18 @@ target_link_libraries(
     ${COMMON_EXTERNAL_LIBS}
 )
 
+add_library(wwrapper STATIC ${WWRAPPER_SRC_FILES})
+qt5_use_modules(wwrapper Core Quick)
+WARMONGER_AUTOMOC(wwrapper)
+
 add_executable(
     wcheck_world
     wwrapper/wcheck_world.cpp
-    wwrapper/Utils.cpp
 )
 
 target_link_libraries(
     wcheck_world
+    wwrapper
     io
     core
     utils
@@ -180,11 +191,11 @@ target_link_libraries(
 add_executable(
     wcheck_campaignmap
     wwrapper/wcheck_campaignmap.cpp
-    wwrapper/Utils.cpp
 )
 
 target_link_libraries(
     wcheck_campaignmap
+    wwrapper
     io
     core
     utils
@@ -194,11 +205,11 @@ target_link_libraries(
 add_executable(
     wcheck_worldsurface
     wwrapper/wcheck_worldsurface.cpp
-    wwrapper/Utils.cpp
 )
 
 target_link_libraries(
     wcheck_worldsurface
+    wwrapper
     ui
     io
     core
@@ -215,26 +226,26 @@ if(BUILD_TESTS)
 
     WARMONGER_AUTOMOC(test_warmonger)
 
-    set(TEST_PACKAGES "${CMAKE_SOURCE_DIR}/test/data/surface-packages")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${TEST_PACKAGES}/test.wsp ${CMAKE_BINARY_DIR})
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${TEST_PACKAGES}/test_noMeta.wsp ${CMAKE_BINARY_DIR})
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${TEST_PACKAGES}/test_metaInvalidJson.wsp ${CMAKE_BINARY_DIR})
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${TEST_PACKAGES}/test_metaDir.wsp ${CMAKE_BINARY_DIR})
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${TEST_PACKAGES}/test_noRcc.wsp ${CMAKE_BINARY_DIR})
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${TEST_PACKAGES}/test_rccDir.wsp ${CMAKE_BINARY_DIR})
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${TEST_PACKAGES}/test_rccInvalid.wsp ${CMAKE_BINARY_DIR})
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${TEST_PACKAGES}/test_noDefinition.wsp ${CMAKE_BINARY_DIR})
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${TEST_PACKAGES}/test_definitionInvalidJson.wsp ${CMAKE_BINARY_DIR})
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${TEST_PACKAGES}/test_noHexMask.wsp ${CMAKE_BINARY_DIR})
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${TEST_PACKAGES}/test_noRequiredStaticImage.wsp ${CMAKE_BINARY_DIR})
-
     target_link_libraries(
         test_warmonger
+        wwrapper
         ui
         io
         core
         utils
         ${COMMON_EXTERNAL_LIBS}
+    )
+
+    set(TEST_DATA "${CMAKE_SOURCE_DIR}/test/data")
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${TEST_DATA}/worldsurface-packages
+        ${CMAKE_BINARY_DIR}/worldsurface-packages
+    )
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${TEST_DATA}/world-packages
+        ${CMAKE_BINARY_DIR}/world-packages
     )
 endif()
 

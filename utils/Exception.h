@@ -9,7 +9,7 @@ namespace utils {
 /**
  * Generic Exception, the father of all exceptions.
  */
-class Exception : std::exception
+class Exception : public std::exception
 {
 public:
     explicit Exception(const QString& message = QString())

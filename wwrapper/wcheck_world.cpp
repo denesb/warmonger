@@ -5,6 +5,7 @@
 #include "io/File.h"
 #include "io/JsonUnserializer.h"
 #include "utils/Exception.h"
+#include "wwrapper/SanityCheck.h"
 #include "wwrapper/Utils.h"
 
 using namespace warmonger;
@@ -29,77 +30,8 @@ int main(int argc, char* const argv[])
 
     wInfo << "path: " << path;
 
-    std::unique_ptr<core::World> world;
-
-    try
-    {
-        io::JsonUnserializer unserializer;
-        world.reset(io::readWorld(path, unserializer));
-    }
-    catch (std::exception& e)
-    {
-        wError << "Caught exception while trying to read world: " << e.what();
+    if (!wwrapper::isWorldSane(path))
         FAIL(1);
-    }
-
-    wInfo << "Successfully loaded world " << world.get();
-
-    bool fail{false};
-
-    // Check army-types
-    if (world->getArmyTypes().empty())
-    {
-        wError << "The world has no army-types";
-        fail = true;
-    }
-
-    // Check banners
-    if (world->getBanners().empty())
-    {
-        wError << "The world has no banners";
-        fail = true;
-    }
-
-    // Check civilizations
-    if (world->getCivilizations().empty())
-    {
-        wError << "The world has no civilizations";
-        fail = true;
-    }
-
-    // Check colors
-    if (world->getColors().empty())
-    {
-        wError << "The world has no colors";
-        fail = true;
-    }
-
-    // Check settlement-types
-    if (world->getSettlementTypes().empty())
-    {
-        wError << "The world has no settlement-types";
-        fail = true;
-    }
-
-    // Check unit-types
-    if (world->getUnitTypes().empty())
-    {
-        wError << "The world has no unit-types";
-        fail = true;
-    }
-
-    // Check terrain-types
-    if (world->getTerrainTypes().empty())
-    {
-        wError << "The world has no terrain-types";
-        fail = true;
-    }
-
-    if (fail)
-    {
-        wError << "The world failed the sanity check";
-        FAIL(1);
-    }
 
     return 0;
 }

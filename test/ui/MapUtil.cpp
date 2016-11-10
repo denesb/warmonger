@@ -276,7 +276,7 @@ TEST_CASE("", "[mapNodeAtPos]")
 
     core::World world;
 
-    ui::WorldSurface surface("./test.wsp", &world);
+    ui::WorldSurface surface("./worldsurface-packages/test.wsp", &world);
     surface.activate();
 
     const std::map<core::MapNode*, QPoint> nodesPos = ui::positionMapNodes(mapNodes.front(), surface.getTileSize());
@@ -313,7 +313,7 @@ TEST_CASE("neighboursByPos", "[MapUtil]")
 
     core::World world;
 
-    ui::WorldSurface worldSurface("./test.wsp", &world);
+    ui::WorldSurface worldSurface("./worldsurface-packages/test.wsp", &world);
     const QSize tileSize = worldSurface.getTileSize();
 
     worldSurface.activate();

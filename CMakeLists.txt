@@ -166,6 +166,7 @@ target_link_libraries(
 add_executable(
     wcheck_world
     wwrapper/wcheck_world.cpp
+    wwrapper/Utils.cpp
 )
 
 target_link_libraries(
@@ -179,10 +180,26 @@ target_link_libraries(
 add_executable(
     wcheck_campaignmap
     wwrapper/wcheck_campaignmap.cpp
+    wwrapper/Utils.cpp
 )
 
 target_link_libraries(
     wcheck_campaignmap
+    io
+    core
+    utils
+    ${COMMON_EXTERNAL_LIBS}
+)
+
+add_executable(
+    wcheck_worldsurface
+    wwrapper/wcheck_worldsurface.cpp
+    wwrapper/Utils.cpp
+)
+
+target_link_libraries(
+    wcheck_worldsurface
+    ui
     io
     core
     utils

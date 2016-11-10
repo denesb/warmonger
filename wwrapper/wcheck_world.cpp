@@ -9,22 +9,16 @@
 #include "utils/Logging.h"
 
 #define FAIL(retcode)                                                                                                  \
-    std::cerr << logStream->str() << "Smoketest failed. There was smoke" << std::endl;                                 \
+    std::cerr << logStream->str() << "Sanity check failed" << std::endl;                                 \
     return retcode;
 
 using namespace warmonger;
-
-namespace warmonger {
-namespace tools {
-
-} // namespace warmonger
-} // namespace tools
 
 int main(int argc, char* const argv[])
 {
     if (argc < 2)
     {
-        std::cout << "Usage: warmonger_world_sometest /path/to/world.wwd" << std::endl;
+        std::cout << "Usage: wcheck_world /path/to/world.wwd" << std::endl;
         return 1;
     }
 

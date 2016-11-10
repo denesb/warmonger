@@ -175,12 +175,7 @@ signals:
     void worldChanged();
 
     /**
-     * Emitted right before the world-surface is changed.
-     */
-    void aboutToChangeWorldSurface();
-
-    /**
-     * Emitted after the world-surface has changed.
+     * Emitted when the world-surface has changed.
      */
     void worldSurfaceChanged();
 

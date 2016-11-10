@@ -31,7 +31,7 @@ Context::Context(QObject* parent)
     , inactivePalette(new Palette(QGuiApplication::palette(), QPalette::Inactive, this))
     , normalPalette(new Palette(QGuiApplication::palette(), QPalette::Normal, this))
 {
-    loadWorlds();
+    this->loadWorlds();
 }
 
 QVariantList Context::readWorlds() const
@@ -125,19 +125,20 @@ void Context::setWorldSurface(ui::WorldSurface* worldSurface)
 {
     if (this->worldSurface != worldSurface)
     {
-        wInfo << "worldSurface: `" << this->worldSurface << "' -> `" << worldSurface << "'";
-
-        emit aboutToChangeWorldSurface();
+        if (this->worldSurface != nullptr)
+            this->worldSurface->deactivate();
 
         this->worldSurface = worldSurface;
 
+        wInfo << "worldSurface: `" << this->worldSurface << "' -> `" << worldSurface << "'";
+
         if (this->worldSurface != nullptr)
         {
+            this->worldSurface->activate();
+
             utils::setSettingsValue(
                 this->world, utils::WorldSettingsKey::preferredSurface, this->worldSurface->objectName());
         }
-
-        this->worldSurface->activate();
         emit worldSurfaceChanged();
     }
 }
@@ -177,17 +178,8 @@ void Context::loadWorlds()
         QFileInfo fileInfo(worldPath);
         const QString worldDefinitionPath =
             worldPath + "/" + fileInfo.baseName() + "." + utils::fileExtensions::worldDefinition;
-        core::World* world{nullptr};
 
-        try
-        {
-            world = io::readWorld(worldDefinitionPath, worldUnserializer);
-        }
-        catch (const utils::Exception& error)
-        {
-            wError << "Error loading world " << worldDefinitionPath << ", " << error.getMessage();
-            continue;
-        }
+        core::World* world = io::readWorld(worldDefinitionPath, worldUnserializer);
 
         wInfo << "Loaded world " << worldDefinitionPath;
 
@@ -235,16 +227,7 @@ void Context::loadMapsFromDir(const QDir& mapsDir, core::World* world)
         worldContext.add(world);
         io::JsonUnserializer mapUnserializer(worldContext);
 
-        core::CampaignMap* map{nullptr};
-        try
-        {
-            map = io::readCampaignMap(mapPath, mapUnserializer);
-        }
-        catch (const utils::Exception& error)
-        {
-            wError << "Error loading map " << mapPath << ", " << error.getMessage();
-            continue;
-        }
+        core::CampaignMap* map = io::readCampaignMap(mapPath, mapUnserializer);
 
         map->setParent(this);
 
@@ -268,16 +251,7 @@ void Context::loadSurfacesFromDir(const QDir& surfacesDir, core::World* world)
     {
         const QString surfacePath = surfacesDir.absoluteFilePath(surfaceFile);
 
-        ui::WorldSurface* surface{nullptr};
-        try
-        {
-            surface = new WorldSurface(surfacePath, world, this);
-        }
-        catch (const utils::Exception& error)
-        {
-            wError << "Error loading surface " << surfacePath << ", " << error.getMessage();
-            continue;
-        }
+        ui::WorldSurface* surface = new WorldSurface(surfacePath, world, this);
 
         this->worldSurfaces[world].push_back(surface);
         ++n;

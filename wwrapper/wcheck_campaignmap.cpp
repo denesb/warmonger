@@ -4,7 +4,7 @@
 
 #include <boost/log/sinks.hpp>
 
-#include "core/World.h"
+#include "core/CampaignMap.h"
 #include "io/File.h"
 #include "io/JsonUnserializer.h"
 #include "utils/Exception.h"
@@ -18,9 +18,9 @@ using namespace warmonger;
 
 int main(int argc, char* const argv[])
 {
-    if (argc < 2)
+    if (argc < 3)
     {
-        std::cout << "Usage: wcheck_world /path/to/world.wwd" << std::endl;
+        std::cout << "Usage: wcheck_campaignmap /path/to/world.wwd /path/to/campaignmap.wmd" << std::endl;
         return 1;
     }
 
@@ -38,16 +38,18 @@ int main(int argc, char* const argv[])
     // Register the sink in the logging core
     boost::log::core::get()->add_sink(sink);
 
-    QString path{argv[1]};
+    QString worldPath{argv[1]};
+    QString campaignMapPath{argv[2]};
 
-    wInfo << "path: " << path;
+    wInfo << "world path: " << worldPath;
+    wInfo << "campaign-map path: " << campaignMapPath;
 
     std::unique_ptr<core::World> world;
 
     try
     {
         io::JsonUnserializer unserializer;
-        world.reset(io::readWorld(path, unserializer));
+        world.reset(io::readWorld(worldPath, unserializer));
     }
     catch (std::exception& e)
     {
@@ -57,62 +59,23 @@ int main(int argc, char* const argv[])
 
     wInfo << "Successfully loaded world " << world.get();
 
-    bool fail{false};
+    std::unique_ptr<core::CampaignMap> campaignMap;
 
-    // Check army-types
-    if (world->getArmyTypes().empty())
+    try
     {
-        wError << "The world has no army-types";
-        fail = true;
+        io::Context ctx;
+        ctx.add(world.get());
+
+        io::JsonUnserializer unserializer(ctx);
+        campaignMap.reset(io::readCampaignMap(campaignMapPath, unserializer));
     }
-
-    // Check banners
-    if (world->getBanners().empty())
+    catch (std::exception& e)
     {
-        wError << "The world has no banners";
-        fail = true;
-    }
-
-    // Check civilizations
-    if (world->getCivilizations().empty())
-    {
-        wError << "The world has no civilizations";
-        fail = true;
-    }
-
-    // Check colors
-    if (world->getColors().empty())
-    {
-        wError << "The world has no colors";
-        fail = true;
-    }
-
-    // Check settlement-types
-    if (world->getSettlementTypes().empty())
-    {
-        wError << "The world has no settlement-types";
-        fail = true;
-    }
-
-    // Check unit-types
-    if (world->getUnitTypes().empty())
-    {
-        wError << "The world has no unit-types";
-        fail = true;
-    }
-
-    // Check terrain-types
-    if (world->getTerrainTypes().empty())
-    {
-        wError << "The world has no terrain-types";
-        fail = true;
-    }
-
-    if (fail)
-    {
-        wError << "The world failed the sanity check";
+        wError << "Caught exception while trying to read campaignMap: " << e.what();
         FAIL(1);
     }
+
+    wInfo << "Successfully loaded campaignMap " << campaignMap.get();
 
     return 0;
 }

@@ -176,6 +176,19 @@ target_link_libraries(
     ${COMMON_EXTERNAL_LIBS}
 )
 
+add_executable(
+    wcheck_campaignmap
+    wwrapper/wcheck_campaignmap.cpp
+)
+
+target_link_libraries(
+    wcheck_campaignmap
+    io
+    core
+    utils
+    ${COMMON_EXTERNAL_LIBS}
+)
+
 if(BUILD_TESTS)
     add_executable(
         test_warmonger

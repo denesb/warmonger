@@ -21,6 +21,7 @@ CampaignMapEditor::CampaignMapEditor(QQuickItem* parent)
     , hoverMapNode(nullptr)
     , editingMode(EditingMode::None)
     , objectType(nullptr)
+    , currentFaction(nullptr)
     , watcher(nullptr)
 {
     this->setAcceptHoverEvents(true);
@@ -229,6 +230,18 @@ void CampaignMapEditor::setNumberOfFactions(int n)
     }
 }
 
+void CampaignMapEditor::setCurrentFaction(core::Faction* currentFaction)
+{
+    if (this->currentFaction != currentFaction)
+    {
+        wDebug << "currentFaction: `" << this->currentFaction << "' -> `" << currentFaction << "'";
+
+        this->currentFaction = currentFaction;
+
+        emit currentFactionChanged();
+    }
+}
+
 void CampaignMapEditor::hoverMoveEvent(QHoverEvent* event)
 {
     const QPoint mapPos = this->windowPosToMapPos(event->pos());
@@ -324,7 +337,7 @@ void CampaignMapEditor::doEditingAction(const QPoint& pos)
             break;
 
         case EditingMode::SettlementType:
-            this->doSettlementTypeEditingAction(pos);
+            this->doSettlementTypeEditingAction();
             break;
 
         case EditingMode::ArmyType:
@@ -337,6 +350,10 @@ void CampaignMapEditor::doEditingAction(const QPoint& pos)
 
         case EditingMode::Remove:
             // this->doRemoveTypeEditingAction();
+            break;
+
+        case EditingMode::GrantToCurrentFaction:
+            this->doGrantToCurrentFactionEditingAction();
             break;
 
         case EditingMode::None:
@@ -375,7 +392,7 @@ void CampaignMapEditor::doTerrainTypeEditingAction(const QPoint& pos)
     }
 }
 
-void CampaignMapEditor::doSettlementTypeEditingAction(const QPoint& pos)
+void CampaignMapEditor::doSettlementTypeEditingAction()
 {
     core::SettlementType* settlementType = qobject_cast<core::SettlementType*>(this->objectType);
     if (settlementType == nullptr)
@@ -385,7 +402,7 @@ void CampaignMapEditor::doSettlementTypeEditingAction(const QPoint& pos)
         return;
     }
 
-    core::MapNode* currentMapNode = mapNodeAtPos(pos, this->mapNodesPos, this->worldSurface);
+    core::MapNode* currentMapNode = this->hoverMapNode;
 
     if (currentMapNode == nullptr)
         return;
@@ -399,8 +416,44 @@ void CampaignMapEditor::doSettlementTypeEditingAction(const QPoint& pos)
     core::Settlement* settlement = this->campaignMap->createSettlement(settlementType);
 
     settlement->setMapNode(currentMapNode);
+    settlement->setOwner(currentFaction);
 
     wDebug << "Creating new settlement " << settlement;
+}
+
+void CampaignMapEditor::doGrantToCurrentFactionEditingAction()
+{
+    core::MapNode* currentMapNode = this->hoverMapNode;
+
+    const std::vector<core::CampaignMap::Content>& contents = this->campaignMap->getContents();
+
+    auto it = std::find_if(contents.begin(), contents.end(), core::HasMapNode(currentMapNode));
+
+    if (it == contents.end())
+    {
+        wError << "hoverMapNode not in campaign-map's contents";
+        return;
+    }
+
+    core::Army* army = std::get<core::Army*>(*it);
+    if (army != nullptr)
+    {
+        army->setOwner(this->currentFaction);
+
+        wDebug << "Granted " << army << " to " << this->currentFaction;
+
+        return;
+    }
+
+    core::Settlement* settlement = std::get<core::Settlement*>(*it);
+    if (settlement != nullptr)
+    {
+        settlement->setOwner(this->currentFaction);
+
+        wDebug << "Granted " << settlement << " to " << this->currentFaction;
+
+        return;
+    }
 }
 
 QSGNode* CampaignMapEditor::drawHoverNode(QSGNode* oldNode) const

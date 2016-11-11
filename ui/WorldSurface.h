@@ -56,6 +56,7 @@ public:
     {
         HoverValid
     };
+    Q_ENUM(Image)
 
     /**
      * Constructs an inactive world-surface.

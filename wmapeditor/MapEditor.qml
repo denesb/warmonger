@@ -62,6 +62,15 @@ ApplicationWindow {
         }
     }
 
+    Action {
+        id: grantToCurrentFaction
+        text: "G"
+        tooltip: "Grant to current faction"
+        onTriggered: {
+            mapEditor.editingMode = CampaignMapEditor.GrantToCurrentFaction;
+        }
+    }
+
     menuBar: MenuBar {
         Menu {
             title: "Campaign Map"
@@ -101,8 +110,35 @@ ApplicationWindow {
                 action: editFactions
             }
 
+            ToolButton {
+                action: grantToCurrentFaction
+            }
+
             Item {
                 Layout.fillWidth: true
+            }
+
+            ComboBox {
+                id: currentFactionSelector
+
+                property var factions: W.campaignMap.factions
+
+                Layout.preferredWidth: 150
+
+                textRole: "displayName"
+
+                onActivated: {
+                    if (index == 0)
+                        mapEditor.currentFaction = null;
+                    else
+                        mapEditor.currentFaction = W.campaignMap.factions[index];
+                }
+
+                onFactionsChanged: {
+                    factions.unshift({"displayName": "None"});
+                    model = factions;
+                    console.log(factions);
+                }
             }
         }
     }

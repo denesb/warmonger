@@ -2,6 +2,7 @@
 #define W_CORE_UTIL_HPP
 
 #include "core/MapNode.h"
+#include "core/CampaignMap.h"
 
 namespace warmonger {
 namespace core {
@@ -9,17 +10,31 @@ namespace core {
 template <typename T>
 struct IsOnMapNode
 {
-    IsOnMapNode(const MapNode* mapNode) : mapNode(mapNode)
+    explicit constexpr IsOnMapNode(const MapNode* mapNode) : mapNode(mapNode)
     {
     }
 
     bool operator()(const T* obj)
     {
-        return obj->getMapNode() == mapNode;
+        return obj->getMapNode() == this->mapNode;
     }
 
     const MapNode* mapNode;
 
+};
+
+struct HasMapNode
+{
+    explicit constexpr HasMapNode(const MapNode* mapNode) : mapNode(mapNode)
+    {
+    }
+
+    bool operator()(const CampaignMap::Content& content)
+    {
+        return std::get<MapNode*>(content) == this->mapNode;
+    }
+
+    const MapNode* mapNode;
 };
 
 } // namespace core

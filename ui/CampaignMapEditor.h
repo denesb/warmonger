@@ -38,6 +38,7 @@ class CampaignMapEditor : public BasicMap, public CampaignMapDrawer
             editingModeChanged)
     Q_PROPERTY(QVariantList availableObjectTypes READ readAvailableObjectTypes NOTIFY availableObjectTypesChanged)
     Q_PROPERTY(QObject* objectType READ getObjectType WRITE setObjectType NOTIFY objectTypeChanged)
+    Q_PROPERTY(warmonger::core::Faction* currentFaction READ getCurrentFaction WRITE setCurrentFaction NOTIFY currentFactionChanged)
 
 public:
     /**
@@ -52,7 +53,8 @@ public:
         SettlementType,
         ArmyType,
         Edit,
-        Remove
+        Remove,
+        GrantToCurrentFaction
     };
     Q_ENUM(EditingMode)
 
@@ -212,6 +214,33 @@ public:
      */
     Q_INVOKABLE void setNumberOfFactions(int n);
 
+    /**
+     * Get the current faction.
+     *
+     * \return the current faction
+     *
+     * \see setCurrentFaction()
+     */
+    core::Faction* getCurrentFaction() const
+    {
+        return this->currentFaction;
+    }
+
+    /**
+     * Set the current faction.
+     *
+     * The current faction determines the owner of newly created settlements
+     * and armies or the clicked-on ones when the editing-mode is
+     * EditingMode::GrantToCurrentFaction.
+     * The current faction can be nullptr (unassigned), in this case the
+     * settlements and armies will have no owner.
+     * Will emit the signal CampaignMapEditor::currentFactionChanged() if the
+     * newly set value is different than the current one.
+     *
+     * \param currentFaction the current faction
+     */
+    void setCurrentFaction(core::Faction* currentFaction);
+
 signals:
     /**
      * Emitted when the map-node changes.
@@ -238,6 +267,11 @@ signals:
      */
     void availableObjectTypesChanged();
 
+    /**
+     * Emitted when the current faction changes.
+     */
+    void currentFactionChanged();
+
 protected:
     void hoverMoveEvent(QHoverEvent* event) override;
     void hoverLeaveEvent(QHoverEvent* event) override;
@@ -249,7 +283,8 @@ private:
     void onMapNodesChanged();
     void doEditingAction(const QPoint& pos);
     void doTerrainTypeEditingAction(const QPoint& pos);
-    void doSettlementTypeEditingAction(const QPoint& pos);
+    void doSettlementTypeEditingAction();
+    void doGrantToCurrentFactionEditingAction();
     QSGNode* drawHoverNode(QSGNode* oldNode) const;
 
     core::CampaignMap* campaignMap;
@@ -261,6 +296,7 @@ private:
 
     EditingMode editingMode;
     QObject* objectType;
+    core::Faction* currentFaction;
 
     CampaignMapWatcher* watcher;
 };

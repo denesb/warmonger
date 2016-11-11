@@ -33,7 +33,7 @@ Rectangle {
                     margins: 4
                 }
 
-                source: W.worldSurface.getImageUrl(model.modelData)
+                source: W.worldSurface.getObjectImageUrl(model.modelData)
                 fillMode: Image.PreserveAspectFit
             }
 

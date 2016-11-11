@@ -6,13 +6,14 @@
 #include "tools/Utils.h"
 #include "ui/WorldSurface.h"
 #include "utils/Exception.h"
+#include "wwrapper/SanityCheck.h"
 
 using namespace warmonger;
 
 /**
  * Sanity-check a world-surface.
  *
- * A "sane" world-surface can be loaded and activated without exceptions;
+ * A "sane" world-surface can be loaded and activated without exceptions.
  */
 int main(int argc, char* const argv[])
 {
@@ -30,7 +31,14 @@ int main(int argc, char* const argv[])
     wInfo << "world path: " << worldPath;
     wInfo << "world-surface path: " << worldSurfacePath;
 
-    std::unique_ptr<core::World> world;
+    if (!wwrapper::isWorldSane(worldPath))
+    {
+        wError << "World is not sane";
+        FAIL(1);
+    }
+
+    io::JsonUnserializer unserializer;
+    std::unique_ptr<core::World> world(io::readWorld(worldPath, unserializer));
 
     try
     {
@@ -43,29 +51,8 @@ int main(int argc, char* const argv[])
         FAIL(1);
     }
 
-    std::unique_ptr<ui::WorldSurface> worldSurface;
-
-    try
-    {
-        worldSurface = std::make_unique<ui::WorldSurface>(worldSurfacePath, world.get());
-    }
-    catch (std::exception& e)
-    {
-        wError << "Caught exception while trying to read world-surface: " << e.what();
+    if (!wwrapper::isWorldSurfaceSane(worldSurfacePath, world.get()))
         FAIL(1);
-    }
-
-    try
-    {
-        worldSurface->activate();
-    }
-    catch (std::exception& e)
-    {
-        wError << "Caught exception while trying to activate world-surface: " << e.what();
-        FAIL(1);
-    }
-
-    wInfo << "Successfully loaded world-surface " << worldSurface.get();
 
     return 0;
 }

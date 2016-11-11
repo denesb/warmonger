@@ -97,3 +97,24 @@ TEST_CASE("isCampaignMapSane", "[SanityCheck]")
         REQUIRE(!wwrapper::isCampaignMapSane("./campaignmap-packages/invalidValue.wmd", world.get()));
     }
 }
+
+TEST_CASE("isWorldSurfaceSane", "[SanityCheck]")
+{
+    io::JsonUnserializer unserializer;
+    std::unique_ptr<core::World> world(io::readWorld("./world-packages/world.wwd", unserializer));
+
+    SECTION("All is good")
+    {
+        REQUIRE(wwrapper::isWorldSurfaceSane("./worldsurface-packages/test.wsp", world.get()));
+    }
+
+    SECTION("Invalid Json in meta-information")
+    {
+        REQUIRE(!wwrapper::isWorldSurfaceSane("./worldsurface-packages/test_metaInvalidJson.wsp", world.get()));
+    }
+
+    SECTION("Resource file, no hexmask")
+    {
+        REQUIRE(!wwrapper::isWorldSurfaceSane("./worldsurface-packages/test_noHexMask.wsp", world.get()));
+    }
+}

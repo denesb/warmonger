@@ -184,6 +184,7 @@ if(BUILD_TOOLS)
     target_link_libraries(
         wcheck_world
         wwrapper
+        ui
         io
         core
         utils
@@ -199,6 +200,7 @@ if(BUILD_TOOLS)
     target_link_libraries(
         wcheck_campaignmap
         wwrapper
+        ui
         io
         core
         utils

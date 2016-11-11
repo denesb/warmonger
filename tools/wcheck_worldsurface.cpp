@@ -3,9 +3,9 @@
 
 #include "io/File.h"
 #include "io/JsonUnserializer.h"
+#include "tools/Utils.h"
 #include "ui/WorldSurface.h"
 #include "utils/Exception.h"
-#include "wwrapper/Utils.h"
 
 using namespace warmonger;
 

@@ -36,7 +36,8 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
 
     SECTION("Metadata file not valid JSON")
     {
-        REQUIRE_THROWS_AS(ui::WorldSurface("./worldsurface-packages/test_metaInvalidJson.wsp", &world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            ui::WorldSurface("./worldsurface-packages/test_metaInvalidJson.wsp", &world), utils::ValueError);
     }
 
     SECTION("No resource file")

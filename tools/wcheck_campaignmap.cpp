@@ -4,8 +4,8 @@
 #include "core/CampaignMap.h"
 #include "io/File.h"
 #include "io/JsonUnserializer.h"
+#include "tools/Utils.h"
 #include "wwrapper/SanityCheck.h"
-#include "wwrapper/Utils.h"
 
 using namespace warmonger;
 

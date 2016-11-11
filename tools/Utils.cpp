@@ -1,7 +1,7 @@
 #include <boost/log/sinks.hpp>
 
+#include "tools/Utils.h"
 #include "utils/Logging.h"
-#include "wwrapper/Utils.h"
 
 namespace warmonger {
 namespace wwrapper {

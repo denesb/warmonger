@@ -11,7 +11,7 @@
 namespace warmonger {
 
 namespace core {
-    class World;
+class World;
 } // namespace core
 
 namespace io {

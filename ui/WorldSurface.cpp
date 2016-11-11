@@ -162,8 +162,8 @@ void WorldSurface::activate()
         throw utils::IOError("Failed to register  " + this->path);
     }
 
-    QFile jfile(
-        utils::makePath(path::surface, utils::makeFileName(this->objectName(), utils::fileExtensions::surfaceDefinition)));
+    QFile jfile(utils::makePath(
+        path::surface, utils::makeFileName(this->objectName(), utils::fileExtensions::surfaceDefinition)));
     if (!jfile.open(QIODevice::ReadOnly))
     {
         throw utils::IOError(

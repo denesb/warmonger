@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project(Warmonger)
 
+option(BUILD_TOOLS "Build development tools" OFF)
 option(BUILD_TESTS "Build unit test suite" OFF)
 
 include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR})
@@ -92,7 +93,6 @@ set(
 set(
     WWRAPPER_SRC_FILES
     wwrapper/SanityCheck.cpp
-    wwrapper/Utils.cpp
 )
 
 set(
@@ -174,48 +174,53 @@ add_library(wwrapper STATIC ${WWRAPPER_SRC_FILES})
 qt5_use_modules(wwrapper Core Quick)
 WARMONGER_AUTOMOC(wwrapper)
 
-add_executable(
-    wcheck_world
-    wwrapper/wcheck_world.cpp
-)
+if(BUILD_TOOLS)
+    add_executable(
+        wcheck_world
+        tools/wcheck_world.cpp
+        tools/Utils.cpp
+    )
 
-target_link_libraries(
-    wcheck_world
-    wwrapper
-    io
-    core
-    utils
-    ${COMMON_EXTERNAL_LIBS}
-)
+    target_link_libraries(
+        wcheck_world
+        wwrapper
+        io
+        core
+        utils
+        ${COMMON_EXTERNAL_LIBS}
+    )
 
-add_executable(
-    wcheck_campaignmap
-    wwrapper/wcheck_campaignmap.cpp
-)
+    add_executable(
+        wcheck_campaignmap
+        tools/wcheck_campaignmap.cpp
+        tools/Utils.cpp
+    )
 
-target_link_libraries(
-    wcheck_campaignmap
-    wwrapper
-    io
-    core
-    utils
-    ${COMMON_EXTERNAL_LIBS}
-)
+    target_link_libraries(
+        wcheck_campaignmap
+        wwrapper
+        io
+        core
+        utils
+        ${COMMON_EXTERNAL_LIBS}
+    )
 
-add_executable(
-    wcheck_worldsurface
-    wwrapper/wcheck_worldsurface.cpp
-)
+    add_executable(
+        wcheck_worldsurface
+        tools/Utils.cpp
+        tools/wcheck_worldsurface.cpp
+    )
 
-target_link_libraries(
-    wcheck_worldsurface
-    wwrapper
-    ui
-    io
-    core
-    utils
-    ${COMMON_EXTERNAL_LIBS}
-)
+    target_link_libraries(
+        wcheck_worldsurface
+        wwrapper
+        ui
+        io
+        core
+        utils
+        ${COMMON_EXTERNAL_LIBS}
+    )
+endif()
 
 if(BUILD_TESTS)
     add_executable(

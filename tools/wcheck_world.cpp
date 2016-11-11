@@ -3,9 +3,9 @@
 
 #include <QString>
 
+#include "tools/Utils.h"
 #include "utils/Logging.h"
 #include "wwrapper/SanityCheck.h"
-#include "wwrapper/Utils.h"
 
 using namespace warmonger;
 

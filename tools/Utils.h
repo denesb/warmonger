@@ -5,8 +5,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-#define FAIL(retcode)                                                    \
-    std::cerr << logStream->str() << "Sanity check failed" << std::endl; \
+#define FAIL(retcode)                                                                                                  \
+    std::cerr << logStream->str() << "Sanity check failed" << std::endl;                                               \
     return retcode;
 
 namespace warmonger {

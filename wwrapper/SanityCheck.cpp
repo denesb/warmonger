@@ -101,4 +101,3 @@ bool isCampaignMapSane(const QString& path, core::World* world)
 
 } // namespace wwrapper
 } // namespace warmonger
-

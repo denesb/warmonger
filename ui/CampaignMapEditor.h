@@ -275,6 +275,7 @@ signals:
 
 protected:
     void hoverMoveEvent(QHoverEvent* event) override;
+    void hoverEnterEvent(QHoverEvent* event) override;
     void hoverLeaveEvent(QHoverEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
 
@@ -287,6 +288,7 @@ private:
     void doSettlementTypeEditingAction();
     void doArmyTypeEditingAction();
     void doGrantToCurrentFactionEditingAction();
+    bool isCurrentEditingActionPossible() const;
 
     core::CampaignMap* campaignMap;
     WorldSurface* worldSurface;

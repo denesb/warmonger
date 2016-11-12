@@ -4,6 +4,7 @@
     <file>test.wsd</file>
     <file>hexagonMask.xpm</file>
     <file>ArmyType/armyType.png</file>
+    <file>Banner/banner.png</file>
     <file>SettlementType/settlementType.png</file>
     <file>TerrainType/terrainType.png</file>
     <file>UnitType/unitType.png</file>

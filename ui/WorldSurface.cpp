@@ -44,8 +44,7 @@ static QSGTexture* createTexture(const QImage& image, QQuickWindow* window);
 
 const std::vector<WorldSurface::Image> staticImages{};
 
-const std::set<QString> visualClasses{
-    "warmonger::core::ArmyType",
+const std::set<QString> visualClasses{"warmonger::core::ArmyType",
     "warmonger::core::Banner",
     "warmonger::core::SettlementType",
     "warmonger::core::TerrainType",

@@ -1,5 +1,7 @@
 #include <random>
 
+#include <QGuiApplication>
+#include <QCursor>
 #include <QMetaEnum>
 #include <QSGSimpleTextureNode>
 
@@ -258,14 +260,28 @@ void CampaignMapEditor::hoverMoveEvent(QHoverEvent* event)
     {
         this->hoverMapNode = currentMapNode;
         this->hoverPos = currentHoverPos;
+
+        if (this->isCurrentEditingActionPossible())
+            QGuiApplication::changeOverrideCursor(QCursor(Qt::ArrowCursor));
+        else
+            QGuiApplication::changeOverrideCursor(QCursor(Qt::ForbiddenCursor));
+
         this->update();
     }
+}
+
+void CampaignMapEditor::hoverEnterEvent(QHoverEvent*)
+{
+    QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 }
 
 void CampaignMapEditor::hoverLeaveEvent(QHoverEvent*)
 {
     this->hoverMapNode = nullptr;
     this->hoverPos = boost::none;
+
+    QGuiApplication::restoreOverrideCursor();
+
     this->update();
 }
 
@@ -428,7 +444,10 @@ void CampaignMapEditor::doArmyTypeEditingAction()
     auto it = std::find_if(contents.begin(), contents.end(), core::HasMapNode(currentMapNode));
 
     if (it == contents.end())
+    {
+        wWarning << "hoverMapNode not in campaign-map's contents";
         return;
+    }
 
     if (std::get<core::Army*>(*it) != nullptr || std::get<core::Settlement*>(*it) != nullptr)
         return;
@@ -451,7 +470,7 @@ void CampaignMapEditor::doGrantToCurrentFactionEditingAction()
 
     if (it == contents.end())
     {
-        wError << "hoverMapNode not in campaign-map's contents";
+        wWarning << "hoverMapNode not in campaign-map's contents";
         return;
     }
 
@@ -474,6 +493,41 @@ void CampaignMapEditor::doGrantToCurrentFactionEditingAction()
 
         return;
     }
+}
+
+bool CampaignMapEditor::isCurrentEditingActionPossible() const
+{
+    boost::optional<core::CampaignMap::Content> content;
+
+    if (this->hoverMapNode != nullptr)
+    {
+        const std::vector<core::CampaignMap::Content>& contents = this->campaignMap->getContents();
+
+        auto it = std::find_if(contents.begin(), contents.end(), core::HasMapNode(this->hoverMapNode));
+        content = *it;
+    }
+
+    switch (this->editingMode)
+    {
+        case EditingMode::TerrainType:
+            return true;
+
+        case EditingMode::SettlementType:
+        case EditingMode::ArmyType:
+            return content && std::get<core::Settlement*>(*content) == nullptr &&
+                std::get<core::Army*>(*content) == nullptr;
+
+        case EditingMode::Edit:
+        case EditingMode::Remove:
+        case EditingMode::GrantToCurrentFaction:
+            return content &&
+                (std::get<core::Settlement*>(*content) != nullptr || std::get<core::Army*>(*content) != nullptr);
+
+        case EditingMode::None:
+            return true;
+    }
+
+    return true;
 }
 
 } // namespace ui

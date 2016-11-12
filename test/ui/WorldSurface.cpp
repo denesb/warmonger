@@ -79,20 +79,48 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
     }
 }
 
-TEST_CASE("Missing some required images", "[WorldSurface]")
+TEST_CASE("Missing required images", "[WorldSurface]")
 {
-    core::World world;
+    io::JsonUnserializer unserializer;
+    std::unique_ptr<core::World> world(io::readWorld("./world-packages/world.wwd", unserializer));
 
-    ui::WorldSurface s("./worldsurface-packages/test_noRequiredStaticImage.wsp", &world);
+    SECTION("Missing army-type images")
+    {
+        ui::WorldSurface s("./worldsurface-packages/test_noArmyTypeImage.wsp", world.get());
+        REQUIRE_THROWS_AS(s.activate(), utils::IOError);
+    }
 
-    REQUIRE_THROWS_AS(s.activate(), utils::IOError);
+    SECTION("Missing settlement-type images")
+    {
+        ui::WorldSurface s("./worldsurface-packages/test_noSettlementTypeImage.wsp", world.get());
+        REQUIRE_THROWS_AS(s.activate(), utils::IOError);
+    }
+
+    SECTION("Missing banner images")
+    {
+        ui::WorldSurface s("./worldsurface-packages/test_noBannerImage.wsp", world.get());
+        REQUIRE_THROWS_AS(s.activate(), utils::IOError);
+    }
+
+    SECTION("Missing terrain-type images")
+    {
+        ui::WorldSurface s("./worldsurface-packages/test_noTerrainTypeImage.wsp", world.get());
+        REQUIRE_THROWS_AS(s.activate(), utils::IOError);
+    }
+
+    SECTION("Missing unit-type images")
+    {
+        ui::WorldSurface s("./worldsurface-packages/test_noUnitTypeImage.wsp", world.get());
+        REQUIRE_THROWS_AS(s.activate(), utils::IOError);
+    }
 }
 
 TEST_CASE("Can use Surface", "[WorldSurface]")
 {
-    core::World world;
+    io::JsonUnserializer unserializer;
+    std::unique_ptr<core::World> world(io::readWorld("./world-packages/world.wwd", unserializer));
 
-    ui::WorldSurface s("./worldsurface-packages/test.wsp", &world);
+    ui::WorldSurface s("./worldsurface-packages/test.wsp", world.get());
 
     SECTION("Can read metadata")
     {
@@ -103,7 +131,7 @@ TEST_CASE("Can use Surface", "[WorldSurface]")
 
     SECTION("Resources not yet loaded")
     {
-        QFile f(s.getImagePath(ui::WorldSurface::Image::HoverValid));
+        QFile f(s.getObjectImagePath(world->getUnitTypes().front()));
         REQUIRE(f.open(QIODevice::ReadOnly) == false);
     }
 
@@ -111,7 +139,7 @@ TEST_CASE("Can use Surface", "[WorldSurface]")
     {
         s.activate();
 
-        QFile f(s.getImagePath(ui::WorldSurface::Image::HoverValid));
+        QFile f(s.getObjectImagePath(world->getUnitTypes().front()));
         REQUIRE(f.open(QIODevice::ReadOnly) == true);
         REQUIRE(s.getTileWidth() == 110);
         REQUIRE(s.getTileHeight() == 128);
@@ -127,7 +155,7 @@ TEST_CASE("Can use Surface", "[WorldSurface]")
         s.activate();
         s.deactivate();
 
-        QFile f(s.getImagePath(ui::WorldSurface::Image::HoverValid));
+        QFile f(s.getObjectImagePath(world->getUnitTypes().front()));
         REQUIRE(f.open(QIODevice::ReadOnly) == false);
     }
 }

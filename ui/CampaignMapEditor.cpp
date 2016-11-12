@@ -159,23 +159,6 @@ QSGNode* CampaignMapEditor::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNod
 
     drawContents(contents, mapRootNode, *this);
 
-    QSGNode* oldHoverNode{nullptr};
-    if (transformNode->childCount() == 2)
-        oldHoverNode = transformNode->lastChild();
-
-    QSGNode* hoverNode = this->drawHoverNode(oldHoverNode);
-
-    if (hoverNode == nullptr)
-    {
-        if (oldHoverNode != nullptr)
-            transformNode->removeChildNode(oldHoverNode);
-    }
-    else
-    {
-        if (oldHoverNode == nullptr)
-            transformNode->appendChildNode(hoverNode);
-    }
-
     return rootNode;
 }
 
@@ -491,28 +474,6 @@ void CampaignMapEditor::doGrantToCurrentFactionEditingAction()
 
         return;
     }
-}
-
-QSGNode* CampaignMapEditor::drawHoverNode(QSGNode* oldNode) const
-{
-    if (!this->hoverPos)
-        return nullptr;
-
-    QSGSimpleTextureNode* hoverNode;
-    if (oldNode == nullptr)
-        hoverNode = new QSGSimpleTextureNode();
-    else
-        hoverNode = static_cast<QSGSimpleTextureNode*>(oldNode);
-
-    QSGTexture* texture = this->worldSurface->getTexture(WorldSurface::Image::HoverValid, this->window());
-    if (texture != hoverNode->texture())
-        hoverNode->setTexture(texture);
-
-    const QRect hoverRect(*this->hoverPos, this->worldSurface->getTileSize());
-    if (hoverNode->rect() != hoverRect)
-        hoverNode->setRect(hoverRect);
-
-    return hoverNode;
 }
 
 } // namespace ui

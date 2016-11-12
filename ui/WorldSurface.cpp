@@ -33,7 +33,6 @@ const QString hexagonMask{utils::makePath(surface, QString("hexagonMask.xpm"))};
 const QString notFound{utils::makePath(surface, QString("notFound.png"))};
 
 const QString mapEditor{utils::makePath(surface, "MapEditor")};
-const QString hoverValid{utils::makePath(mapEditor, QString("hoverValid.png"))};
 
 } // namespace path
 } // anonymus namespace
@@ -43,12 +42,14 @@ static QString imagePath(WorldSurface::Image image);
 static void checkMissingImages(const WorldSurface* const surface);
 static QSGTexture* createTexture(const QImage& image, QQuickWindow* window);
 
-const std::vector<WorldSurface::Image> staticImages{WorldSurface::Image::HoverValid};
+const std::vector<WorldSurface::Image> staticImages{};
 
-const std::set<QString> visualClasses{"warmonger::core::TerrainType",
+const std::set<QString> visualClasses{
+    "warmonger::core::ArmyType",
+    "warmonger::core::Banner",
     "warmonger::core::SettlementType",
-    "warmonger::core::UnitType",
-    "warmonger::core::Banner"};
+    "warmonger::core::TerrainType",
+    "warmonger::core::UnitType"};
 
 WorldSurface::WorldSurface(const QString& path, core::World* world, QObject* parent)
     : QObject(parent)
@@ -266,7 +267,7 @@ QSGTexture* WorldSurface::getTexture(Image image, QQuickWindow* window)
     return texture;
 }
 
-QUrl WorldSurface::getObjectImageUrl(QObject* object) const
+QUrl WorldSurface::getObjectImageUrl(const QObject* object) const
 {
     const QString fullClassName{object->metaObject()->className()};
     if (visualClasses.find(fullClassName) == visualClasses.end())
@@ -281,7 +282,7 @@ QUrl WorldSurface::getObjectImageUrl(QObject* object) const
     }
 }
 
-QString WorldSurface::getObjectImagePath(QObject* object) const
+QString WorldSurface::getObjectImagePath(const QObject* object) const
 {
     const QString fullClassName{object->metaObject()->className()};
     if (visualClasses.find(fullClassName) == visualClasses.end())
@@ -363,13 +364,8 @@ static QString objectPath(const QObject* const object)
     return utils::makePath(path::surface, className, utils::makeFileName(object->objectName(), fileExtension));
 }
 
-static QString imagePath(WorldSurface::Image image)
+static QString imagePath(WorldSurface::Image)
 {
-    switch (image)
-    {
-        case WorldSurface::Image::HoverValid:
-            return path::hoverValid;
-    }
     return QString();
 }
 
@@ -383,16 +379,28 @@ static void checkMissingImages(const WorldSurface* const surface)
 
     const core::World* world = surface->getWorld();
 
-    const auto& terrainTypes = world->getTerrainTypes();
-    if (std::any_of(terrainTypes.cbegin(), terrainTypes.cend(), isObjectImageMissing))
+    const auto& armyTypes = world->getArmyTypes();
+    if (std::any_of(armyTypes.cbegin(), armyTypes.cend(), isObjectImageMissing))
     {
-        throw utils::IOError("Failed to find one or more terrain-type images");
+        throw utils::IOError("Failed to find one or more army-type images");
+    }
+
+    const auto& banner = world->getBanners();
+    if (std::any_of(banner.cbegin(), banner.cend(), isObjectImageMissing))
+    {
+        throw utils::IOError("Failed to find one or more banner images");
     }
 
     const auto& settlementTypes = world->getSettlementTypes();
     if (std::any_of(settlementTypes.cbegin(), settlementTypes.cend(), isObjectImageMissing))
     {
         throw utils::IOError("Failed to find one or more settlement-type images");
+    }
+
+    const auto& terrainTypes = world->getTerrainTypes();
+    if (std::any_of(terrainTypes.cbegin(), terrainTypes.cend(), isObjectImageMissing))
+    {
+        throw utils::IOError("Failed to find one or more terrain-type images");
     }
 
     const auto& unitTypes = world->getUnitTypes();

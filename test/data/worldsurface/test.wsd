@@ -1,6 +1,6 @@
 {
     "objectName": "test",
-    "displayName": "Test surface"
+    "displayName": "Test surface",
     "description": "Surface used for testing",
 
     "focusGridColor": "#d59037",

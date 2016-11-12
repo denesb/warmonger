@@ -287,7 +287,6 @@ private:
     void doSettlementTypeEditingAction();
     void doArmyTypeEditingAction();
     void doGrantToCurrentFactionEditingAction();
-    QSGNode* drawHoverNode(QSGNode* oldNode) const;
 
     core::CampaignMap* campaignMap;
     WorldSurface* worldSurface;

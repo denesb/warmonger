@@ -33,3 +33,6 @@
 
 # Other
 build/
+
+# Warmonger intermediary files
+*.wsm

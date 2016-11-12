@@ -54,7 +54,6 @@ public:
      */
     enum class Image
     {
-        HoverValid
     };
     Q_ENUM(Image)
 
@@ -241,7 +240,7 @@ public:
      *
      * \return the url
      */
-    Q_INVOKABLE QUrl getObjectImageUrl(QObject* object) const;
+    Q_INVOKABLE QUrl getObjectImageUrl(const QObject* object) const;
 
     /**
      * Get the path of the image for the object.
@@ -254,7 +253,7 @@ public:
      *
      * \return the path
      */
-    Q_INVOKABLE QString getObjectImagePath(QObject* object) const;
+    Q_INVOKABLE QString getObjectImagePath(const QObject* object) const;
 
     /**
      * Get the url of the static image.

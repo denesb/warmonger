@@ -341,7 +341,7 @@ void CampaignMapEditor::doEditingAction(const QPoint& pos)
             break;
 
         case EditingMode::ArmyType:
-            // this->doArmyTypeEditingAction();
+            this->doArmyTypeEditingAction();
             break;
 
         case EditingMode::Edit:
@@ -407,10 +407,14 @@ void CampaignMapEditor::doSettlementTypeEditingAction()
     if (currentMapNode == nullptr)
         return;
 
-    const std::vector<core::Settlement*>& settlements = this->campaignMap->getSettlements();
-    auto it = std::find_if(settlements.begin(), settlements.end(), core::IsOnMapNode<core::Settlement>(currentMapNode));
+    const std::vector<core::CampaignMap::Content>& contents = this->campaignMap->getContents();
 
-    if (it != settlements.end())
+    auto it = std::find_if(contents.begin(), contents.end(), core::HasMapNode(currentMapNode));
+
+    if (it == contents.end())
+        return;
+
+    if (std::get<core::Army*>(*it) != nullptr || std::get<core::Settlement*>(*it) != nullptr)
         return;
 
     core::Settlement* settlement = this->campaignMap->createSettlement(settlementType);
@@ -418,7 +422,40 @@ void CampaignMapEditor::doSettlementTypeEditingAction()
     settlement->setMapNode(currentMapNode);
     settlement->setOwner(currentFaction);
 
-    wDebug << "Creating new settlement " << settlement;
+    wDebug << "Created new settlement " << settlement;
+}
+
+void CampaignMapEditor::doArmyTypeEditingAction()
+{
+    core::ArmyType* armyType = qobject_cast<core::ArmyType*>(this->objectType);
+    if (armyType == nullptr)
+    {
+        wWarning << "objectType has invalid value `" << this->objectType
+                 << "' for editing mode `EditingMode::ArmyType'";
+        return;
+    }
+
+    core::MapNode* currentMapNode = this->hoverMapNode;
+
+    if (currentMapNode == nullptr)
+        return;
+
+    const std::vector<core::CampaignMap::Content>& contents = this->campaignMap->getContents();
+
+    auto it = std::find_if(contents.begin(), contents.end(), core::HasMapNode(currentMapNode));
+
+    if (it == contents.end())
+        return;
+
+    if (std::get<core::Army*>(*it) != nullptr || std::get<core::Settlement*>(*it) != nullptr)
+        return;
+
+    core::Army* army = this->campaignMap->createArmy(armyType);
+
+    army->setMapNode(currentMapNode);
+    army->setOwner(currentFaction);
+
+    wDebug << "Created new army " << army;
 }
 
 void CampaignMapEditor::doGrantToCurrentFactionEditingAction()

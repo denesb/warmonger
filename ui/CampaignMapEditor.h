@@ -285,6 +285,7 @@ private:
     void doEditingAction(const QPoint& pos);
     void doTerrainTypeEditingAction(const QPoint& pos);
     void doSettlementTypeEditingAction();
+    void doArmyTypeEditingAction();
     void doGrantToCurrentFactionEditingAction();
     QSGNode* drawHoverNode(QSGNode* oldNode) const;
 

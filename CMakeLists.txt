@@ -71,6 +71,7 @@ set(
     io/File.cpp
     io/JsonSerializer.cpp
     io/JsonUnserializer.cpp
+    io/SanityCheck.cpp
 )
 
 set(
@@ -91,11 +92,6 @@ set(
 )
 
 set(
-    WWRAPPER_SRC_FILES
-    wwrapper/SanityCheck.cpp
-)
-
-set(
     TEST_SRC_FILES
     test/test_warmonger.cpp
     test/Util.cpp
@@ -111,11 +107,11 @@ set(
     test/io/File.cpp
     test/io/JsonSerializer.cpp
     test/io/JsonUnserializer.cpp
+    test/io/SanityCheck.cpp
     test/ui/CampaignMapEditor.cpp
     test/ui/MapUtil.cpp
     test/ui/MapWindow.cpp
     test/ui/WorldSurface.cpp
-    test/wwrapper/SanityCheck.cpp
 )
 
 file(GLOB_RECURSE ALL_HEADER_FILES ${PROJECT_SOURCE_DIR}/*.h)
@@ -170,10 +166,6 @@ target_link_libraries(
     ${COMMON_EXTERNAL_LIBS}
 )
 
-add_library(wwrapper STATIC ${WWRAPPER_SRC_FILES})
-qt5_use_modules(wwrapper Core Quick)
-WARMONGER_AUTOMOC(wwrapper)
-
 if(BUILD_TOOLS)
     add_executable(
         wcheck_world
@@ -183,7 +175,6 @@ if(BUILD_TOOLS)
 
     target_link_libraries(
         wcheck_world
-        wwrapper
         ui
         io
         core
@@ -199,7 +190,6 @@ if(BUILD_TOOLS)
 
     target_link_libraries(
         wcheck_campaignmap
-        wwrapper
         ui
         io
         core
@@ -215,7 +205,6 @@ if(BUILD_TOOLS)
 
     target_link_libraries(
         wcheck_worldsurface
-        wwrapper
         ui
         io
         core
@@ -235,7 +224,6 @@ if(BUILD_TESTS)
 
     target_link_libraries(
         test_warmonger
-        wwrapper
         ui
         io
         core

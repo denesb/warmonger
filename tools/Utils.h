@@ -10,11 +10,11 @@
     return retcode;
 
 namespace warmonger {
-namespace wwrapper {
+namespace tools {
 
 boost::shared_ptr<std::stringstream> setupLogging();
 
-} // namespace wwrapper
+} // namespace tools
 } // namespace warmonger
 
 #endif // W_WWRAPPER_UTILS_H

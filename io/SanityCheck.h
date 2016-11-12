@@ -9,7 +9,7 @@ namespace core {
 class World;
 } // namespace core
 
-namespace wwrapper {
+namespace io {
 
 /**
  * Is the world sane?
@@ -37,21 +37,7 @@ bool isWorldSane(const QString& path);
  */
 bool isCampaignMapSane(const QString& path, core::World* world);
 
-/**
- * Is the world-surface sane?.
- *
- * A "sane" world-surface can be loaded and activated without exceptions.
- *
- * \param path the path to the world-surface
- * \param world a *sane* world
- *
- * \return is the world-surface sane
- *
- * \see isWorldSane
- */
-bool isWorldSurfaceSane(const QString& path, core::World* world);
-
-} // namespace wwrapper
+} // namespace io
 } // namespace warmonger
 
 #endif // W_WWRAPPER_SANITY_CHECK_H

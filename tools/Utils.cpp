@@ -4,7 +4,7 @@
 #include "utils/Logging.h"
 
 namespace warmonger {
-namespace wwrapper {
+namespace tools {
 
 boost::shared_ptr<std::stringstream> setupLogging()
 {
@@ -25,5 +25,5 @@ boost::shared_ptr<std::stringstream> setupLogging()
     return logStream;
 }
 
-} // namespace wwrapper
+} // namespace tools
 } // namespace warmonger

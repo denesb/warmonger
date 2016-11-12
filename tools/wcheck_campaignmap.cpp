@@ -4,8 +4,8 @@
 #include "core/CampaignMap.h"
 #include "io/File.h"
 #include "io/JsonUnserializer.h"
+#include "io/SanityCheck.h"
 #include "tools/Utils.h"
-#include "wwrapper/SanityCheck.h"
 
 using namespace warmonger;
 
@@ -22,7 +22,7 @@ int main(int argc, char* const argv[])
         return 1;
     }
 
-    boost::shared_ptr<std::stringstream> logStream = wwrapper::setupLogging();
+    boost::shared_ptr<std::stringstream> logStream = tools::setupLogging();
 
     QString worldPath{argv[1]};
     QString campaignMapPath{argv[2]};
@@ -30,7 +30,7 @@ int main(int argc, char* const argv[])
     wInfo << "world path: " << worldPath;
     wInfo << "campaign-map path: " << campaignMapPath;
 
-    if (!wwrapper::isWorldSane(worldPath))
+    if (!io::isWorldSane(worldPath))
     {
         wError << "World is not sane";
         FAIL(1);
@@ -41,7 +41,7 @@ int main(int argc, char* const argv[])
 
     wInfo << "Successfully loaded world " << world.get();
 
-    if (!wwrapper::isCampaignMapSane(campaignMapPath, world.get()))
+    if (!io::isCampaignMapSane(campaignMapPath, world.get()))
         FAIL(1);
 
     return 0;

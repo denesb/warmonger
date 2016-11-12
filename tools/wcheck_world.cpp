@@ -3,9 +3,9 @@
 
 #include <QString>
 
+#include "io/SanityCheck.h"
 #include "tools/Utils.h"
 #include "utils/Logging.h"
-#include "wwrapper/SanityCheck.h"
 
 using namespace warmonger;
 
@@ -23,13 +23,13 @@ int main(int argc, char* const argv[])
         return 1;
     }
 
-    boost::shared_ptr<std::stringstream> logStream = wwrapper::setupLogging();
+    boost::shared_ptr<std::stringstream> logStream = tools::setupLogging();
 
     QString path{argv[1]};
 
     wInfo << "path: " << path;
 
-    if (!wwrapper::isWorldSane(path))
+    if (!io::isWorldSane(path))
         FAIL(1);
 
     return 0;

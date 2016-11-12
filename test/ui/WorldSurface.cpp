@@ -2,6 +2,8 @@
 
 #include "test/catch.hpp"
 
+#include "io/File.h"
+#include "io/JsonUnserializer.h"
 #include "ui/WorldSurface.h"
 #include "utils/Constants.h"
 #include "utils/Exception.h"
@@ -127,5 +129,26 @@ TEST_CASE("Can use Surface", "[WorldSurface]")
 
         QFile f(s.getImagePath(ui::WorldSurface::Image::HoverValid));
         REQUIRE(f.open(QIODevice::ReadOnly) == false);
+    }
+}
+
+TEST_CASE("isWorldSurfaceSane", "[WorldSurface]")
+{
+    io::JsonUnserializer unserializer;
+    std::unique_ptr<core::World> world(io::readWorld("./world-packages/world.wwd", unserializer));
+
+    SECTION("All is good")
+    {
+        REQUIRE(ui::isWorldSurfaceSane("./worldsurface-packages/test.wsp", world.get()));
+    }
+
+    SECTION("Invalid Json in meta-informatuin")
+    {
+        REQUIRE(!ui::isWorldSurfaceSane("./worldsurface-packages/test_metaInvalidJson.wsp", world.get()));
+    }
+
+    SECTION("Resource file, no hexmask")
+    {
+        REQUIRE(!ui::isWorldSurfaceSane("./worldsurface-packages/test_noHexMask.wsp", world.get()));
     }
 }

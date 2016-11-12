@@ -6,11 +6,11 @@
 #include "core/World.h"
 #include "io/File.h"
 #include "io/JsonUnserializer.h"
-#include "ui/WorldSurface.h"
+#include "io/SanityCheck.h"
 #include "utils/Logging.h"
 
 namespace warmonger {
-namespace wwrapper {
+namespace io {
 
 bool isWorldSane(const QString& path)
 {
@@ -100,32 +100,5 @@ bool isCampaignMapSane(const QString& path, core::World* world)
     return true;
 }
 
-bool isWorldSurfaceSane(const QString& path, core::World* world)
-{
-    std::unique_ptr<ui::WorldSurface> worldSurface;
-
-    try
-    {
-        worldSurface = std::make_unique<ui::WorldSurface>(path, world);
-    }
-    catch (std::exception& e)
-    {
-        wError << "Caught exception while trying to read world-surface: " << e.what();
-        return false;
-    }
-
-    try
-    {
-        worldSurface->activate();
-    }
-    catch (std::exception& e)
-    {
-        wError << "Caught exception while trying to activate world-surface: " << e.what();
-        return false;
-    }
-
-    return true;
-}
-
-} // namespace wwrapper
+} // namespace io
 } // namespace warmonger

@@ -328,6 +328,33 @@ void WorldSurface::parseHeader(const QByteArray& header)
     emit descriptionChanged();
 }
 
+bool isWorldSurfaceSane(const QString& path, core::World* world)
+{
+    std::unique_ptr<WorldSurface> worldSurface;
+
+    try
+    {
+        worldSurface = std::make_unique<WorldSurface>(path, world);
+    }
+    catch (std::exception& e)
+    {
+        wError << "Caught exception while trying to read world-surface: " << e.what();
+        return false;
+    }
+
+    try
+    {
+        worldSurface->activate();
+    }
+    catch (std::exception& e)
+    {
+        wError << "Caught exception while trying to activate world-surface: " << e.what();
+        return false;
+    }
+
+    return true;
+}
+
 static QString objectPath(const QObject* const object)
 {
     const QString fullClassName{object->metaObject()->className()};

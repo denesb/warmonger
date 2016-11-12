@@ -38,7 +38,8 @@ class CampaignMapEditor : public BasicMap, public CampaignMapDrawer
             editingModeChanged)
     Q_PROPERTY(QVariantList availableObjectTypes READ readAvailableObjectTypes NOTIFY availableObjectTypesChanged)
     Q_PROPERTY(QObject* objectType READ getObjectType WRITE setObjectType NOTIFY objectTypeChanged)
-    Q_PROPERTY(warmonger::core::Faction* currentFaction READ getCurrentFaction WRITE setCurrentFaction NOTIFY currentFactionChanged)
+    Q_PROPERTY(warmonger::core::Faction* currentFaction READ getCurrentFaction WRITE setCurrentFaction NOTIFY
+            currentFactionChanged)
 
 public:
     /**

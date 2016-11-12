@@ -1,7 +1,7 @@
 #include <random>
 
-#include <QGuiApplication>
 #include <QCursor>
+#include <QGuiApplication>
 #include <QMetaEnum>
 #include <QSGSimpleTextureNode>
 
@@ -171,14 +171,21 @@ QSGNode* CampaignMapEditor::drawContent(const core::CampaignMap::Content& conten
 
     QSGNode* mapSGNode = drawMapNode(mapNode, this->worldSurface, this->window(), pos, oldNode);
 
-    core::Settlement* settlement = std::get<core::Settlement*>(content);
-    if (settlement != nullptr)
+    if (std::get<core::Settlement*>(content) != nullptr)
     {
-        QSGNode* settlementSGNode =
-            drawSettlement(settlement, this->worldSurface, this->window(), pos, mapSGNode->firstChild());
+        QSGNode* settlementSGNode = drawSettlement(
+            std::get<core::Settlement*>(content), this->worldSurface, this->window(), pos, mapSGNode->firstChild());
 
         if (mapSGNode->firstChild() == nullptr)
             mapSGNode->appendChildNode(settlementSGNode);
+    }
+    else if (std::get<core::Army*>(content) != nullptr)
+    {
+        QSGNode* armySGNode =
+            drawArmy(std::get<core::Army*>(content), this->worldSurface, this->window(), pos, mapSGNode->firstChild());
+
+        if (mapSGNode->firstChild() == nullptr)
+            mapSGNode->appendChildNode(armySGNode);
     }
 
     return mapSGNode;

@@ -240,7 +240,22 @@ public:
      *
      * \return the url
      */
-    Q_INVOKABLE QUrl getObjectImageUrl(const QObject* object) const;
+    QUrl getObjectImageUrl(const QObject* object) const;
+
+    /**
+     * Get the url of the image for the object.
+     *
+     * Q_INVOKABLE overload of
+     * WorldSurface::getObjectImageUrl(const QObject*) const
+     *
+     * \param object the object to get the image for
+     *
+     * \return the url
+     */
+    Q_INVOKABLE QUrl getObjectImageUrl(QObject* object) const
+    {
+        return getObjectImageUrl(const_cast<const QObject*>(object));
+    }
 
     /**
      * Get the path of the image for the object.
@@ -253,7 +268,22 @@ public:
      *
      * \return the path
      */
-    Q_INVOKABLE QString getObjectImagePath(const QObject* object) const;
+    QString getObjectImagePath(const QObject* object) const;
+
+    /**
+     * Get the path of the image for the object.
+     *
+     * Q_INVOKABLE overload of
+     * WorldSurface::getObjectImagePath(const QObject*) const
+     *
+     * \param object the object to get the image for
+     *
+     * \return the path
+     */
+    Q_INVOKABLE QString getObjectImagePath(QObject* object) const
+    {
+        return getObjectImagePath(const_cast<const QObject*>(object));
+    }
 
     /**
      * Get the url of the static image.

@@ -183,6 +183,20 @@ QSGNode* drawSettlement(core::Settlement* settlement,
     QSGNode* oldNode);
 
 /**
+ * Draw an army
+ *
+ * \param army the army to be drawn
+ * \param worldSurface the actual world surface (contains the textures)
+ * \param window the window where the node will be rendered
+ * \param pos the position of the node
+ * \param oldNode the result of the previous draw call if any or nullptr
+ *
+ * \return the resulting scene-graph node
+ */
+QSGNode* drawArmy(
+    core::Army* army, ui::WorldSurface* worldSurface, QQuickWindow* window, const QPoint& pos, QSGNode* oldNode);
+
+/**
  * Draw a rectangle
  *
  * \param rect the rectangle to be drawn

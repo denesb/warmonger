@@ -272,12 +272,6 @@ QSGNode* drawMapNode(
     }
 
     QSGTexture* texture = worldSurface->getTexture(mapNode->getTerrainType(), window);
-    if (texture == nullptr)
-    {
-        wError << "No texture found for " << mapNode->getTerrainType();
-        // FIXME: Use the unknown texture here
-    }
-
     QSGTexture* currentTexture = node->texture();
 
     if (currentTexture == nullptr || currentTexture->textureId() != texture->textureId())
@@ -313,12 +307,38 @@ QSGNode* drawSettlement(core::Settlement* settlement,
     }
 
     QSGTexture* texture = worldSurface->getTexture(settlement->getType(), window);
-    if (texture == nullptr)
+    QSGTexture* currentTexture = node->texture();
+
+    if (currentTexture == nullptr || currentTexture->textureId() != texture->textureId())
     {
-        wError << "No texture found for " << settlement->getType();
-        // FIXME: Use the unknown texture here
+        node->setTexture(texture);
     }
 
+    const QRect nodeRect(pos, worldSurface->getTileSize());
+    if (node->rect() != nodeRect)
+    {
+        node->setRect(nodeRect);
+    }
+
+    return node;
+}
+
+QSGNode* drawArmy(
+    core::Army* army, ui::WorldSurface* worldSurface, QQuickWindow* window, const QPoint& pos, QSGNode* oldNode)
+{
+    QSGSimpleTextureNode* node;
+    if (oldNode == nullptr)
+    {
+        node = new QSGSimpleTextureNode();
+        node->setOwnsTexture(false);
+    }
+    else
+    {
+        // if not nullptr, it can only be a texture node
+        node = static_cast<QSGSimpleTextureNode*>(oldNode);
+    }
+
+    QSGTexture* texture = worldSurface->getTexture(army->getType(), window);
     QSGTexture* currentTexture = node->texture();
 
     if (currentTexture == nullptr || currentTexture->textureId() != texture->textureId())

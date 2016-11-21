@@ -153,9 +153,11 @@ WARMONGER_AUTOMOC(ui)
 
 add_executable(
     wmapeditor
+    wmapeditor/Context.cpp
     wmapeditor/wmapeditor.cpp
     wmapeditor/wmapeditor.qrc
 )
+WARMONGER_AUTOMOC(wmapeditor)
 
 target_link_libraries(
     wmapeditor

@@ -3,12 +3,12 @@
 #include <QQmlContext>
 #include <QQuickView>
 
-#include "ui/Context.h"
 #include "ui/SearchPaths.h"
 #include "ui/UI.h"
 #include "utils/Constants.h"
 #include "utils/Logging.h"
 #include "utils/Settings.h"
+#include "wmapeditor/Context.h"
 
 using namespace warmonger;
 
@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
     ui::initUI();
 
     QQmlApplicationEngine engine;
-    ui::Context* ctx = new ui::Context(&engine);
+    wmapeditor::Context* ctx = new wmapeditor::Context(&engine);
 
     engine.rootContext()->setContextProperty("W", ctx);
 

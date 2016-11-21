@@ -3,7 +3,6 @@
 #include <QGuiApplication>
 #include <QStringList>
 
-#include "core/MapGenerator.h"
 #include "io/File.h"
 #include "io/JsonUnserializer.h"
 #include "ui/Context.h"
@@ -13,13 +12,8 @@
 #include "utils/Settings.h"
 #include "utils/Utils.h"
 
-const QString campaignMapObjectName{"newCampaignMap"};
-const QString campaignMapDisplayName{"New campaign map"};
-
 namespace warmonger {
 namespace ui {
-
-static QString nextCampaignMapName(const std::vector<core::CampaignMap*>& campaignMaps);
 
 Context::Context(QObject* parent)
     : QObject(parent)
@@ -55,35 +49,6 @@ QVariantList Context::readWorldSurfaces() const
 QVariantList Context::readCampaignMaps() const
 {
     return utils::toQVariantList(this->campaignMaps);
-}
-
-void Context::newCampaignMap(warmonger::core::World* world)
-{
-    core::CampaignMap* map = new core::CampaignMap(this);
-    map->setObjectName(nextCampaignMapName(this->campaignMaps));
-    map->setDisplayName(campaignMapDisplayName);
-    map->setWorld(world);
-
-    const std::vector<core::TerrainType*> terrainTypes = world->getTerrainTypes();
-    if (!terrainTypes.empty())
-    {
-        const std::vector<core::MapNode*> nodes = core::generateMapNodes(10);
-        core::generateMapNodeNames(nodes);
-        core::generateMapNodeTerrainTypes(nodes, terrainTypes);
-
-        map->setMapNodes(nodes);
-    }
-
-    const std::vector<core::Civilization*>& civilizations = world->getCivilizations();
-
-    std::random_device rd;
-    std::mt19937 mtd(rd());
-    std::uniform_int_distribution<std::size_t> civsDist(0, civilizations.size() - 1);
-
-    map->createFaction(civilizations.at(civsDist(mtd)));
-    map->createFaction(civilizations.at(civsDist(mtd)));
-
-    this->setCampaignMap(map);
 }
 
 void Context::setWorld(core::World* world)
@@ -258,24 +223,6 @@ void Context::loadSurfacesFromDir(const QDir& surfacesDir, core::World* world)
     }
 
     wInfo << "Loaded " << n << " surfaces for world `" << world->objectName() << "'";
-}
-
-static QString nextCampaignMapName(const std::vector<core::CampaignMap*>& campaignMaps)
-{
-    std::vector<QString> names;
-
-    names.reserve(campaignMaps.size());
-
-    for (const core::CampaignMap* campaignMap : campaignMaps)
-        names.push_back(campaignMap->objectName());
-
-    std::size_t postFix{0};
-    QString objectName{campaignMapObjectName + QString::number(postFix)};
-
-    while (std::find(names.begin(), names.end(), objectName) != names.end())
-        objectName = campaignMapObjectName + QString::number(++postFix);
-
-    return objectName;
 }
 
 } // namespace ui

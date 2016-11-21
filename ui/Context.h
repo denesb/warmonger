@@ -45,6 +45,13 @@ public:
     Context(QObject* parent = nullptr);
 
     /**
+     * Destructs the context object.
+     */
+    virtual ~Context()
+    {
+    }
+
+    /**
      * Get the current world.
      *
      * Will be nullptr when there is no world selected.
@@ -159,15 +166,6 @@ public:
         return this->normalPalette;
     }
 
-public slots:
-    /**
-     * Create a new map.
-     *
-     * The map will be set as the current map and the world as the
-     * current world.
-     */
-    void newCampaignMap(warmonger::core::World* world);
-
 signals:
     /**
      * Emitted when the world changes.
@@ -204,7 +202,7 @@ signals:
      */
     void colorPaletteChanged();
 
-private:
+protected:
     void setWorld(core::World* world);
     void setWorldSurface(ui::WorldSurface* worldSurface);
     void setDefaultWorldSurface();

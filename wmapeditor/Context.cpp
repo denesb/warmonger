@@ -103,7 +103,7 @@ bool Context::load(const QString& path)
         io::Context ctx(std::function<void(const QString&, const QString&, Context&)>(injector));
 
         io::JsonUnserializer unserializer;
-        this->setCampaignMap(io::readCampaignMap(path, unserializer));
+        this->setCampaignMap(io::readCampaignMap(path, unserializer).release());
     }
     catch (utils::IOError& e)
     {

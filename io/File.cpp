@@ -1,5 +1,7 @@
 #include <QFile>
 
+#include "core/CampaignMap.h"
+#include "core/World.h"
 #include "io/File.h"
 #include "utils/Exception.h"
 
@@ -17,7 +19,7 @@ void writeWorld(const core::World* world, const QString& path, io::Serializer& s
     file.write(serializer.serializeWorld(world));
 }
 
-core::World* readWorld(const QString& path, io::Unserializer& unserializer)
+std::unique_ptr<core::World> readWorld(const QString& path, io::Unserializer& unserializer)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly))
@@ -40,7 +42,7 @@ void writeCampaignMap(const core::CampaignMap* campaignMap, const QString& path,
     file.write(serializer.serializeCampaignMap(campaignMap));
 }
 
-core::CampaignMap* readCampaignMap(const QString& path, io::Unserializer& unserializer)
+std::unique_ptr<core::CampaignMap> readCampaignMap(const QString& path, io::Unserializer& unserializer)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly))

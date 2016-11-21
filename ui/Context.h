@@ -1,3 +1,7 @@
+/** \file
+ * Generic ui context.
+ */
+
 #ifndef W_UI_CONTEXT_H
 #define W_UI_CONTEXT_H
 

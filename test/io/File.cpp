@@ -61,9 +61,9 @@ TEST_CASE("World can be read from file", "[File]")
 
     SECTION("reading World")
     {
-        core::World* world = io::readWorld(path, unserializer);
+        std::unique_ptr<core::World> world = io::readWorld(path, unserializer);
 
-        REQUIRE(world != nullptr);
+        REQUIRE(world);
     }
 
     QFile file(path);
@@ -128,9 +128,9 @@ TEST_CASE("Map can be read from file", "[File]")
 
     SECTION("reading CampaignMap")
     {
-        core::CampaignMap* campaignMap = io::readCampaignMap(path, unserializer);
+        std::unique_ptr<core::CampaignMap> campaignMap = io::readCampaignMap(path, unserializer);
 
-        REQUIRE(campaignMap != nullptr);
+        REQUIRE(campaignMap);
         REQUIRE(campaignMap->getWorld() != nullptr);
     }
 

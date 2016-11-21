@@ -1,3 +1,7 @@
+/** \file
+ * Campaign-map context.
+ */
+
 #ifndef W_WMAPEDITOR_CONTEXT_H
 #define W_WMAPEDITOR_CONTEXT_H
 

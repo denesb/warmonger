@@ -130,6 +130,8 @@ void Context::setCampaignMap(core::CampaignMap* campaignMap)
         this->campaignMap = campaignMap;
         this->setWorld(this->campaignMap->getWorld());
 
+        this->campaignMap->setParent(this);
+
         emit campaignMapChanged();
     }
 }
@@ -144,7 +146,7 @@ void Context::loadWorlds()
         const QString worldDefinitionPath =
             worldPath + "/" + fileInfo.baseName() + "." + utils::fileExtensions::worldDefinition;
 
-        core::World* world = io::readWorld(worldDefinitionPath, worldUnserializer);
+        core::World* world = io::readWorld(worldDefinitionPath, worldUnserializer).release();
 
         wInfo << "Loaded world " << worldDefinitionPath;
 
@@ -192,7 +194,7 @@ void Context::loadMapsFromDir(const QDir& mapsDir, core::World* world)
         worldContext.add(world);
         io::JsonUnserializer mapUnserializer(worldContext);
 
-        core::CampaignMap* map = io::readCampaignMap(mapPath, mapUnserializer);
+        core::CampaignMap* map = io::readCampaignMap(mapPath, mapUnserializer).release();
 
         map->setParent(this);
 

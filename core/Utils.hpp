@@ -1,3 +1,7 @@
+/** \file
+ * Generic utility functions and function objects.
+ */
+
 #ifndef W_CORE_UTIL_HPP
 #define W_CORE_UTIL_HPP
 

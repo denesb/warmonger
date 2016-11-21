@@ -1,3 +1,7 @@
+/** \file
+ * Map-related utility functions.
+ */
+
 #ifndef UI_MAP_UTIL_H
 #define UI_MAP_UTIL_H
 

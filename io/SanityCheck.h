@@ -1,3 +1,7 @@
+/** \file
+ * Sanity-check functions.
+ */
+
 #ifndef W_WWRAPPER_SANITY_CHECK_H
 #define W_WWRAPPER_SANITY_CHECK_H
 

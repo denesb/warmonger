@@ -38,12 +38,12 @@ int main(int argc, char* const argv[])
     }
 
     io::JsonUnserializer unserializer;
-    std::unique_ptr<core::World> world(io::readWorld(worldPath, unserializer));
+    std::unique_ptr<core::World> world;
 
     try
     {
         io::JsonUnserializer unserializer;
-        world.reset(io::readWorld(worldPath, unserializer));
+        world = io::readWorld(worldPath, unserializer);
     }
     catch (std::exception& e)
     {

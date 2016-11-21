@@ -19,7 +19,7 @@ bool isWorldSane(const QString& path)
     try
     {
         io::JsonUnserializer unserializer;
-        world.reset(io::readWorld(path, unserializer));
+        world = io::readWorld(path, unserializer);
     }
     catch (const std::exception& e)
     {
@@ -89,7 +89,7 @@ bool isCampaignMapSane(const QString& path, core::World* world)
         io::addWorldToContext(ctx, world);
 
         io::JsonUnserializer unserializer(ctx);
-        campaignMap.reset(io::readCampaignMap(path, unserializer));
+        campaignMap = io::readCampaignMap(path, unserializer);
     }
     catch (const std::exception& e)
     {

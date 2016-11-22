@@ -86,6 +86,8 @@ bool Context::saveAs(const QString& path)
 {
     try
     {
+        this->lastPath = path;
+
         io::JsonSerializer serializer;
         io::writeCampaignMap(this->campaignMap, path, serializer);
     }
@@ -107,8 +109,6 @@ bool Context::saveAs(const QString& path)
         this->lastErrorMessage = unknownErrorMessage;
         return false;
     }
-
-    this->lastPath = path;
 
     return true;
 }

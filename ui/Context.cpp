@@ -209,7 +209,7 @@ void Context::loadMapsFromDir(const QDir& mapsDir, core::World* world)
         const QString mapPath = mapsDir.absoluteFilePath(mapFile);
 
         io::Context worldContext;
-        worldContext.add(world);
+        io::addWorldToContext(worldContext, world);
         io::JsonUnserializer mapUnserializer(worldContext);
 
         core::CampaignMap* map = io::readCampaignMap(mapPath, mapUnserializer).release();

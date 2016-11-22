@@ -109,7 +109,7 @@ public:
      *
      * \return the last path
      */
-    Q_INVOKABLE QString getPath() const
+    Q_INVOKABLE QString getLastPath() const
     {
         return this->lastPath;
     }

@@ -40,6 +40,10 @@ int main(int argc, char* argv[])
     ui::setupSearchPaths();
     ui::initUI();
 
+    const char* const applicationName = utils::applicationName.toStdString().c_str();
+
+    qmlRegisterType<wmapeditor::Context>(applicationName, 1, 0, "Context");
+
     QQmlApplicationEngine engine;
     wmapeditor::Context* ctx = new wmapeditor::Context(&engine);
 

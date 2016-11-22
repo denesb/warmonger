@@ -18,6 +18,7 @@
 
 import QtQuick 2.2
 import QtQuick.Controls 1.4
+import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.2
 import Warmonger 1.0
 
@@ -37,7 +38,33 @@ ApplicationWindow {
         iconSource: "icons/document-new.svg"
         tooltip: "New Campaign Map"
         onTriggered: {
+            setStatus("Creating new map...")
             W.create(W.worlds[0]);
+            setTemporaryStatus("Created new map with name: " + W.campaignMap.displayName)
+        }
+    }
+
+    Action {
+        id: saveAction
+        text: "S"
+        tooltip: "Save Campaign Map"
+        onTriggered: {
+            setStatus("Saving...")
+            if (W.save()) {
+                setTemporaryStatus("Map saved to " + W.getLastPath());
+            } else {
+                setTemporaryStatus("Failed to save map to " + W.getLastPath());
+                errorDialog.show(W.getLastErrorCategory(), W.getLastErrorMessage());
+            }
+        }
+    }
+
+    Action {
+        id: saveAsAction
+        text: "SA"
+        tooltip: "Save Campaign Map As"
+        onTriggered: {
+            W.save();
         }
     }
 
@@ -113,6 +140,14 @@ ApplicationWindow {
             }
 
             ToolButton {
+                action: saveAction
+            }
+
+            ToolButton {
+                action: saveAsAction
+            }
+
+            ToolButton {
                 action: terrainTypeEditingModeAction
             }
 
@@ -155,9 +190,18 @@ ApplicationWindow {
                 onFactionsChanged: {
                     factions.unshift({"displayName": "None"});
                     model = factions;
-                    console.log(factions);
                 }
             }
+        }
+    }
+
+    statusBar: StatusBar {
+        Label {
+            id: statusLabel
+
+            anchors.fill: parent
+
+            text: "Ready"
         }
     }
 
@@ -284,5 +328,53 @@ ApplicationWindow {
         visible: false
 
         editor: mapEditor
+    }
+
+    MessageDialog {
+        id: errorDialog
+        visible: false
+        standardButtons: StandardButton.Ok
+
+        function show(errorCategory, errorMessage) {
+            if (errorCategory == Context.IOError)
+                this.title = "I/O Error";
+            else if (errorCategory == Context.ContentError)
+                this.title = "Content Error";
+            else if (errorCategory == Context.InternalError)
+                this.title = "Internal Error";
+            else
+                this.title = "Unknown Error";
+
+            this.text = errorMessage;
+
+            this.open();
+        }
+    }
+
+    Timer {
+        id: statusTimer
+
+        interval: 5000
+        repeat: false
+
+        onTriggered: {
+            statusLabel.text = "Ready"
+        }
+    }
+
+    function setStatus(status) {
+        statusLabel.text = status;
+
+        if (statusTimer.running)
+            statusTimer.stop();
+    }
+
+    function setTemporaryStatus(status) {
+        statusLabel.text = status;
+
+        if (statusTimer.running)
+            statusTimer.restart();
+        else
+            statusTimer.start();
     }
 }

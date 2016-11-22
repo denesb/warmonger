@@ -26,7 +26,7 @@ ApplicationWindow {
     visible: true
 
     Component.onCompleted: {
-        W.newCampaignMap(W.worlds[0]);
+        W.create(W.worlds[0]);
     }
 
     title: "Warmonger Campaign Map Editor"
@@ -37,7 +37,7 @@ ApplicationWindow {
         iconSource: "icons/document-new.svg"
         tooltip: "New Campaign Map"
         onTriggered: {
-            W.newCampaignMap(W.worlds[0]);
+            W.create(W.worlds[0]);
         }
     }
 

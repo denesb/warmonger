@@ -275,3 +275,10 @@ add_custom_target(
     COMMAND clang-format -i -style=file ${ALL_SOURCE_FILES}
     COMMENT "Formatting source files"
 )
+
+add_custom_target(
+    docs
+    COMMAND doxygen ${PROJECT_SOURCE_DIR}/.doxygen.conf
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Generating documentation"
+)

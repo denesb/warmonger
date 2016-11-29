@@ -38,9 +38,37 @@ ApplicationWindow {
         iconSource: "icons/document-new.svg"
         tooltip: "New Campaign Map"
         onTriggered: {
-            setStatus("Creating new map...")
+            setStatus("Creating new campaign map...")
             W.create(W.worlds[0]);
             setTemporaryStatus("Created new map with name: " + W.campaignMap.displayName)
+        }
+    }
+
+    Action {
+        id: openAction
+        text: "O"
+        tooltip: "Open Campaign Map"
+        onTriggered: {
+            campaignMapsWindow.accepted.connect(onAccepted);
+            campaignMapsWindow.rejected.connect(onRejected);
+
+            campaignMapsWindow.visible = true;
+        }
+
+        function onAccepted() {
+            setStatus("Opening campaign map...");
+
+            console.log(campaignMapsWindow.campaignMap);
+            W.campaignMap = campaignMapsWindow.campaignMap;
+            console.log("accept");
+
+            campaignMapsWindow.accepted.disconnect(onAccepted);
+            campaignMapsWindow.rejected.disconnect(onRejected);
+        }
+
+        function onRejected() {
+            campaignMapsWindow.accepted.disconnect(onAccepted);
+            campaignMapsWindow.rejected.disconnect(onRejected);
         }
     }
 
@@ -56,15 +84,6 @@ ApplicationWindow {
                 setTemporaryStatus("Failed to save map to " + W.getLastPath());
                 errorDialog.show(W.getLastErrorCategory(), W.getLastErrorMessage());
             }
-        }
-    }
-
-    Action {
-        id: saveAsAction
-        text: "SA"
-        tooltip: "Save Campaign Map As"
-        onTriggered: {
-            W.save();
         }
     }
 
@@ -140,11 +159,11 @@ ApplicationWindow {
             }
 
             ToolButton {
-                action: saveAction
+                action: openAction
             }
 
             ToolButton {
-                action: saveAsAction
+                action: saveAction
             }
 
             ToolButton {
@@ -320,6 +339,14 @@ ApplicationWindow {
             anchors.fill: parent
             anchors.margins: 1
         }
+    }
+
+    CampaignMapsWindow {
+        id: campaignMapsWindow
+
+        campaignMaps: W.campaignMaps
+
+        visible: false
     }
 
     FactionsWindow {

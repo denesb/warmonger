@@ -16,6 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <random>
+
 #include "core/MapGenerator.h"
 #include "io/File.h"
 #include "io/JsonSerializer.h"

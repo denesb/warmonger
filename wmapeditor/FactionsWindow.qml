@@ -28,7 +28,7 @@ Window {
     minimumWidth: 400
     minimumHeight: 400
 
-    title: "Warmonger Campaign Map Editor - Edit Factions"
+    title: "Edit Factions"
 
     color: W.normalPalette.window
 

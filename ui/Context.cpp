@@ -16,8 +16,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <random>
-
 #include <QGuiApplication>
 #include <QStringList>
 
@@ -49,6 +47,21 @@ Context::Context(QObject* parent)
 QVariantList Context::readWorlds() const
 {
     return utils::toQVariantList(this->worlds);
+}
+
+void Context::setCampaignMap(core::CampaignMap* campaignMap)
+{
+    if (this->campaignMap != campaignMap)
+    {
+        wInfo << "campaignMap: `" << this->campaignMap << "' -> `" << campaignMap << "'";
+
+        this->campaignMap = campaignMap;
+        this->setWorld(this->campaignMap->getWorld());
+
+        this->campaignMap->setParent(this);
+
+        emit campaignMapChanged();
+    }
 }
 
 QVariantList Context::readWorldSurfaces() const
@@ -136,21 +149,6 @@ void Context::setDefaultWorldSurface()
     else
     {
         this->setWorldSurface(surfaces.front());
-    }
-}
-
-void Context::setCampaignMap(core::CampaignMap* campaignMap)
-{
-    if (this->campaignMap != campaignMap)
-    {
-        wInfo << "campaignMap: `" << this->campaignMap << "' -> `" << campaignMap << "'";
-
-        this->campaignMap = campaignMap;
-        this->setWorld(this->campaignMap->getWorld());
-
-        this->campaignMap->setParent(this);
-
-        emit campaignMapChanged();
     }
 }
 

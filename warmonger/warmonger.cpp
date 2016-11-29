@@ -16,27 +16,40 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <QtQml>
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
+#include <QQuickView>
 
-#include "ui/Banner.h"
-#include "ui/CampaignMapEditor.h"
-#include "ui/CampaignMapPreview.h"
-#include "ui/CampaignMiniMap.h"
+#include "ui/Context.h"
+#include "ui/SearchPaths.h"
 #include "ui/UI.h"
 #include "utils/Constants.h"
+#include "utils/Logging.h"
+#include "utils/Settings.h"
 
-namespace warmonger {
-namespace ui {
+using namespace warmonger;
 
-void initUI()
+int main(int argc, char* argv[])
 {
+    QGuiApplication app(argc, argv);
+
+    utils::initSettings();
+    utils::initLogging();
+
+    ui::setupSearchPaths();
+    ui::initUI();
+
     const char* const applicationName = utils::applicationName.toStdString().c_str();
 
-    qmlRegisterType<Banner>(applicationName, 1, 0, "Banner");
-    qmlRegisterType<CampaignMapEditor>(applicationName, 1, 0, "CampaignMapEditor");
-    qmlRegisterType<CampaignMapPreview>(applicationName, 1, 0, "CampaignMapPreview");
-    qmlRegisterType<CampaignMiniMap>(applicationName, 1, 0, "CampaignMiniMap");
-}
+    qmlRegisterType<ui::Context>(applicationName, 1, 0, "Context");
 
-} // namespace ui
-} // namespace warmonger
+    QQmlApplicationEngine engine;
+    ui::Context* ctx = new ui::Context(&engine);
+
+    engine.rootContext()->setContextProperty("W", ctx);
+
+    engine.load(QUrl("qrc:/Warmonger.qml"));
+
+    return app.exec();
+}

@@ -98,6 +98,7 @@ set(
     ui/BasicMap.cpp
     ui/BasicMiniMap.cpp
     ui/CampaignMapEditor.cpp
+    ui/CampaignMapPreview.cpp
     ui/CampaignMapWatcher.cpp
     ui/CampaignMiniMap.cpp
     ui/Context.cpp
@@ -179,6 +180,22 @@ WARMONGER_AUTOMOC(wmapeditor)
 
 target_link_libraries(
     wmapeditor
+    ui
+    io
+    core
+    utils
+    ${COMMON_EXTERNAL_LIBS}
+)
+
+add_executable(
+    warmonger
+    warmonger/warmonger.cpp
+    warmonger/warmonger.qrc
+)
+WARMONGER_AUTOMOC(warmonger)
+
+target_link_libraries(
+    warmonger
     ui
     io
     core

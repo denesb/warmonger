@@ -16,27 +16,23 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <QtQml>
+import QtQuick 2.2
+import QtQuick.Controls 1.4
 
-#include "ui/Banner.h"
-#include "ui/CampaignMapEditor.h"
-#include "ui/CampaignMapPreview.h"
-#include "ui/CampaignMiniMap.h"
-#include "ui/UI.h"
-#include "utils/Constants.h"
+ApplicationWindow {
+    id: window
+    visible: true
 
-namespace warmonger {
-namespace ui {
+    title: "Warmonger"
 
-void initUI()
-{
-    const char* const applicationName = utils::applicationName.toStdString().c_str();
+    contentItem {
+        minimumWidth: 600
+        minimumHeight: 400
+    }
 
-    qmlRegisterType<Banner>(applicationName, 1, 0, "Banner");
-    qmlRegisterType<CampaignMapEditor>(applicationName, 1, 0, "CampaignMapEditor");
-    qmlRegisterType<CampaignMapPreview>(applicationName, 1, 0, "CampaignMapPreview");
-    qmlRegisterType<CampaignMiniMap>(applicationName, 1, 0, "CampaignMiniMap");
+    Rectangle {
+        anchors.fill: parent
+
+        color: "red"
+    }
 }
-
-} // namespace ui
-} // namespace warmonger

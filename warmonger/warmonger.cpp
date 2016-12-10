@@ -16,22 +16,31 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <iostream>
+
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickView>
 
-#include "ui/Context.h"
 #include "ui/SearchPaths.h"
 #include "ui/UI.h"
 #include "utils/Constants.h"
 #include "utils/Logging.h"
 #include "utils/Settings.h"
+#include "warmonger/Context.h"
 
 using namespace warmonger;
 
 int main(int argc, char* argv[])
 {
+    if (argc < 3)
+    {
+        std::cerr << "Too few arguments." << std::endl;
+        std::cerr << "Usage: warmonger {world} {world-surface}" << std::endl;
+        return 1;
+    }
+
     QGuiApplication app(argc, argv);
 
     utils::initSettings();
@@ -40,12 +49,12 @@ int main(int argc, char* argv[])
     ui::setupSearchPaths();
     ui::initUI();
 
-    const char* const applicationName = utils::applicationName.toStdString().c_str();
+    //const char* const applicationName = utils::applicationName.toStdString().c_str();
 
-    qmlRegisterType<ui::Context>(applicationName, 1, 0, "Context");
+    //qmlRegisterType<Context>(applicationName, 1, 0, "Context");
 
     QQmlApplicationEngine engine;
-    ui::Context* ctx = new ui::Context(&engine);
+    Context* ctx = new Context(nullptr, nullptr, &engine);
 
     engine.rootContext()->setContextProperty("W", ctx);
 

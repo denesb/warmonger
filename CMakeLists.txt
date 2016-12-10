@@ -101,7 +101,6 @@ set(
     ui/CampaignMapPreview.cpp
     ui/CampaignMapWatcher.cpp
     ui/CampaignMiniMap.cpp
-    ui/Context.cpp
     ui/MapUtil.cpp
     ui/MapWindow.cpp
     ui/Palette.cpp
@@ -189,6 +188,7 @@ target_link_libraries(
 
 add_executable(
     warmonger
+    warmonger/Context.cpp
     warmonger/warmonger.cpp
     warmonger/warmonger.qrc
 )

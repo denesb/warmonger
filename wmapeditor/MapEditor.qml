@@ -135,6 +135,7 @@ ApplicationWindow {
         }
     }
 
+    /* QtQuick menues don't work under Ubuntu/Unity
     menuBar: MenuBar {
         Menu {
             title: "Campaign Map"
@@ -149,6 +150,7 @@ ApplicationWindow {
             MenuItem { text: "Map Properties" }
         }
     }
+    */
 
     toolBar: ToolBar {
         RowLayout {

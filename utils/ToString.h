@@ -50,6 +50,7 @@ std::ostream& operator<<(std::ostream& s, const QJsonArray& array);
 std::ostream& operator<<(std::ostream& s, const QString& string);
 std::ostream& operator<<(std::ostream& s, const QStringList& list);
 std::ostream& operator<<(std::ostream& s, const QObject* const obj);
+std::ostream& operator<<(std::ostream& s, const QObject& obj);
 std::ostream& operator<<(std::ostream& s, const QUrl& url);
 
 #endif // W_UTILS_TO_STRING_H

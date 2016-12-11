@@ -169,6 +169,12 @@ std::ostream& operator<<(std::ostream& s, const QStringList& list)
     return s;
 }
 
+std::ostream& operator<<(std::ostream& s, const QObject& obj)
+{
+    s << &obj;
+    return s;
+}
+
 std::ostream& operator<<(std::ostream& s, const QObject* const obj)
 {
     if (obj == nullptr)

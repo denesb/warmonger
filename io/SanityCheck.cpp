@@ -30,6 +30,60 @@
 namespace warmonger {
 namespace io {
 
+bool isWorldSane(const core::World& world)
+{
+    // Check army-types
+    if (world.getArmyTypes().empty())
+    {
+        wError << "The world has no army-types";
+        return false;
+    }
+
+    // Check banners
+    if (world.getBanners().empty())
+    {
+        wError << "The world has no banners";
+        return false;
+    }
+
+    // Check civilizations
+    if (world.getCivilizations().empty())
+    {
+        wError << "The world has no civilizations";
+        return false;
+    }
+
+    // Check colors
+    if (world.getColors().empty())
+    {
+        wError << "The world has no colors";
+        return false;
+    }
+
+    // Check settlement-types
+    if (world.getSettlementTypes().empty())
+    {
+        wError << "The world has no settlement-types";
+        return false;
+    }
+
+    // Check terrain-types
+    if (world.getTerrainTypes().empty())
+    {
+        wError << "The world has no terrain-types";
+        return false;
+    }
+
+    // Check unit-types
+    if (world.getUnitTypes().empty())
+    {
+        wError << "The world has no unit-types";
+        return false;
+    }
+
+    return true;
+}
+
 bool isWorldSane(const QString& path)
 {
     std::unique_ptr<core::World> world;
@@ -45,56 +99,7 @@ bool isWorldSane(const QString& path)
         return false;
     }
 
-    // Check army-types
-    if (world->getArmyTypes().empty())
-    {
-        wError << "The world has no army-types";
-        return false;
-    }
-
-    // Check banners
-    if (world->getBanners().empty())
-    {
-        wError << "The world has no banners";
-        return false;
-    }
-
-    // Check civilizations
-    if (world->getCivilizations().empty())
-    {
-        wError << "The world has no civilizations";
-        return false;
-    }
-
-    // Check colors
-    if (world->getColors().empty())
-    {
-        wError << "The world has no colors";
-        return false;
-    }
-
-    // Check settlement-types
-    if (world->getSettlementTypes().empty())
-    {
-        wError << "The world has no settlement-types";
-        return false;
-    }
-
-    // Check terrain-types
-    if (world->getTerrainTypes().empty())
-    {
-        wError << "The world has no terrain-types";
-        return false;
-    }
-
-    // Check unit-types
-    if (world->getUnitTypes().empty())
-    {
-        wError << "The world has no unit-types";
-        return false;
-    }
-
-    return true;
+    return isWorldSane(*world.get());
 }
 
 bool isCampaignMapSane(const QString& path, core::World* world)

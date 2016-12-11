@@ -19,6 +19,7 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.4
 import QtQuick.Window 2.2
+import Warmonger 1.0
 
 ApplicationWindow {
     id: window
@@ -32,9 +33,10 @@ ApplicationWindow {
         minimumHeight: 400
     }
 
-    Rectangle {
+    CampaignMapPreview {
         anchors.fill: parent
 
-        color: "red"
+        campaignMap: backgroundCampaignMap
+        worldSurface: W.worldSurface
     }
 }

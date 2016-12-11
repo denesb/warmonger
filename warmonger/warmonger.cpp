@@ -20,8 +20,10 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
-#include "io/JsonUnserializer.h"
+#include "core/MapGenerator.h"
 #include "io/File.h"
+#include "io/JsonUnserializer.h"
+#include "io/SanityCheck.h"
 #include "ui/SearchPaths.h"
 #include "ui/UI.h"
 #include "utils/Exception.h"
@@ -30,6 +32,9 @@
 #include "warmonger/Context.h"
 
 using namespace warmonger;
+
+static std::unique_ptr<Context> createContext(const QString& worldName, const QString& worldSurfaceName);
+static std::unique_ptr<core::CampaignMap> generateBackgroundCampaignMap(core::World* world);
 
 int main(int argc, char* argv[])
 {
@@ -50,6 +55,32 @@ int main(int argc, char* argv[])
     ui::setupSearchPaths();
     ui::initUI();
 
+    std::unique_ptr<Context> ctx;
+
+    try
+    {
+        ctx = createContext(worldName, worldSurfaceName);
+    }
+    catch (const utils::Exception& e)
+    {
+        wFatal << "Failed to create context: " << e.what();
+        return 1;
+    }
+
+    std::unique_ptr<core::CampaignMap> backgroundCampaignMap = generateBackgroundCampaignMap(ctx->getWorld());
+
+    QQmlApplicationEngine engine;
+
+    engine.rootContext()->setContextProperty("W", ctx.get());
+    engine.rootContext()->setContextProperty("backgroundCampaignMap", backgroundCampaignMap.get());
+
+    engine.load(QUrl("qrc:/Warmonger.qml"));
+
+    return app.exec();
+}
+
+static std::unique_ptr<Context> createContext(const QString& worldName, const QString& worldSurfaceName)
+{
     std::unique_ptr<core::World> world;
     const QString worldPath = utils::worldPath(worldName);
 
@@ -61,8 +92,13 @@ int main(int argc, char* argv[])
     }
     catch (const utils::Exception& e)
     {
-        wFatal << "Loading world " << worldName << " from " << worldPath << " failed: " << e.what();
-        return 1;
+        throw utils::Exception(
+            utils::MsgBuilder() << "Loading world " << worldName << " from " << worldPath << " failed: " << e.what());
+    }
+
+    if (!io::isWorldSane(*world.get()))
+    {
+        throw utils::Exception(utils::MsgBuilder() << "Loaded world " << *world.get() << "is not sane");
     }
 
     wInfo << "Loaded world " << worldName << " from " << worldPath;
@@ -77,19 +113,28 @@ int main(int argc, char* argv[])
     }
     catch (const utils::Exception& e)
     {
-        wFatal << "Loading world-surface " << worldSurfaceName << " from " << worldSurfacePath
-               << " failed: " << e.what();
-        return 1;
+        throw utils::Exception(utils::MsgBuilder() << "Loading world-surface " << worldSurfaceName << " from "
+                                                   << worldSurfacePath
+                                                   << " failed: "
+                                                   << e.what());
     }
 
     wInfo << "Loaded world-surface " << worldSurfaceName << " from " << worldSurfacePath;
 
-    QQmlApplicationEngine engine;
-    Context* ctx = new Context(std::move(world), std::move(worldSurface), &engine);
+    return std::make_unique<Context>(std::move(world), std::move(worldSurface));
+}
 
-    engine.rootContext()->setContextProperty("W", ctx);
+static std::unique_ptr<core::CampaignMap> generateBackgroundCampaignMap(core::World* world)
+{
+    std::unique_ptr<core::CampaignMap> map = std::make_unique<core::CampaignMap>();
+    map->setObjectName("backgroundCampaignMap");
+    map->setWorld(world);
 
-    engine.load(QUrl("qrc:/Warmonger.qml"));
+    const std::vector<core::MapNode*> nodes = core::generateMapNodes(10);
+    core::generateMapNodeNames(nodes);
+    core::generateMapNodeTerrainTypes(nodes, world->getTerrainTypes());
 
-    return app.exec();
+    map->setMapNodes(nodes);
+
+    return map;
 }

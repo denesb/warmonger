@@ -37,6 +37,17 @@ namespace io {
  * A "sane" world can be loaded without exceptions and it has at least one of
  * every type.
  *
+ * \param world the world to check
+ *
+ * \return is the world sane
+ */
+bool isWorldSane(const core::World& world);
+
+/**
+ * Is the world sane?
+ *
+ * \see isWorldSane(core::World*)
+ *
  * \param path the path to the world
  *
  * \return is the world sane

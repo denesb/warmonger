@@ -31,11 +31,15 @@ namespace warmonger {
 namespace ui {
 
 CampaignMapPreview::CampaignMapPreview(QQuickItem* parent)
-    : BasicMap(parent)
+    : QQuickItem(parent)
     , campaignMap(nullptr)
     , worldSurface(nullptr)
     , watcher(nullptr)
 {
+    QObject::connect(this, &CampaignMapPreview::widthChanged, this, &CampaignMapPreview::updateTransform);
+    QObject::connect(this, &CampaignMapPreview::heightChanged, this, &CampaignMapPreview::updateTransform);
+
+    this->updateTransform();
 }
 
 void CampaignMapPreview::setCampaignMap(core::CampaignMap* campaignMap)
@@ -80,8 +84,6 @@ void CampaignMapPreview::setWorldSurface(WorldSurface* worldSurface)
 
 QSGNode* CampaignMapPreview::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
 {
-    const QMatrix4x4 transform = ui::moveTo(this->getWindowRect().topLeft(), QPoint(0, 0));
-
     QSGClipNode* rootNode;
     QSGTransformNode* transformNode;
     QSGNode* mapRootNode;
@@ -91,7 +93,7 @@ QSGNode* CampaignMapPreview::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNo
         rootNode->setIsRectangular(true);
 
         transformNode = new QSGTransformNode();
-        transformNode->setMatrix(transform);
+        transformNode->setMatrix(this->transform);
         rootNode->appendChildNode(transformNode);
 
         mapRootNode = new QSGNode();
@@ -102,9 +104,9 @@ QSGNode* CampaignMapPreview::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNo
         rootNode = static_cast<QSGClipNode*>(oldRootNode);
 
         transformNode = static_cast<QSGTransformNode*>(rootNode->firstChild());
-        if (transform != transformNode->matrix())
+        if (this->transform != transformNode->matrix())
         {
-            transformNode->setMatrix(transform);
+            transformNode->setMatrix(this->transform);
         }
 
         mapRootNode = transformNode->firstChild();
@@ -112,8 +114,10 @@ QSGNode* CampaignMapPreview::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNo
 
     rootNode->setClipRect(QRectF(0, 0, this->width(), this->height()));
 
-    const std::vector<core::CampaignMap::Content> contents = visibleContents(
-        this->campaignMap->getContents(), this->mapNodesPos, this->worldSurface->getTileSize(), this->getWindowRect());
+    const std::vector<core::CampaignMap::Content> contents = visibleContents(this->campaignMap->getContents(),
+        this->mapNodesPos,
+        this->worldSurface->getTileSize(),
+        this->mapRect);
 
     drawContents(contents, mapRootNode, *this);
 
@@ -167,11 +171,11 @@ void CampaignMapPreview::updateMapRect()
     if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty() ||
         this->worldSurface->getWorld() != this->campaignMap->getWorld())
     {
-        this->setMapRect(QRect(0, 0, 0, 0));
+        this->mapRect = QRect(0, 0, 0, 0);
     }
     else
     {
-        this->setMapRect(calculateBoundingRect(this->mapNodesPos, this->worldSurface->getTileSize()));
+        this->mapRect = calculateBoundingRect(this->mapNodesPos, this->worldSurface->getTileSize());
         this->update();
     }
 }
@@ -180,6 +184,13 @@ void CampaignMapPreview::onMapNodesChanged()
 {
     this->mapNodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->worldSurface->getTileSize());
     this->updateMapRect();
+    this->updateTransform();
+}
+
+void CampaignMapPreview::updateTransform()
+{
+    this->transform =
+        ui::moveTo(QPoint(0, 0), QPoint(this->width() / 2, this->height() / 2));
 }
 
 } // namespace ui

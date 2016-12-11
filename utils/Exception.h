@@ -21,10 +21,35 @@
 #ifndef W_UTILS_EXCEPTION_H
 #define W_UTILS_EXCEPTION_H
 
+#include <sstream>
+
 #include <QString>
+
+#include "utils/ToString.h"
 
 namespace warmonger {
 namespace utils {
+
+/**
+ * Convenience class to build a message with streams.
+ */
+struct MsgBuilder
+{
+    template <typename T>
+    MsgBuilder& operator<<(const T& o)
+    {
+        s << o;
+        return *this;
+    }
+
+    operator std::string() const
+    {
+        return s.str();
+    }
+
+private:
+    std::stringstream s;
+};
 
 /**
  * Generic Exception, the father of all exceptions.
@@ -32,7 +57,21 @@ namespace utils {
 class Exception : public std::exception
 {
 public:
-    explicit Exception(const QString& message = QString())
+    Exception()
+    {
+    }
+
+    explicit Exception(const char* message)
+        : message(message)
+    {
+    }
+
+    explicit Exception(const std::string& message)
+        : message(message)
+    {
+    }
+
+    explicit Exception(const QString& message)
         : message(message.toStdString())
     {
     }

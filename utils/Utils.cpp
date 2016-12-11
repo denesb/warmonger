@@ -39,8 +39,8 @@ QString worldSurfacePath(const QString& worldName, const QString& worldSurfaceNa
 {
     const QString worldPath = settingsValue(SettingsKey::worldsDir).toString();
 
-    return makeFileName(makePath(worldPath, worldName, paths::surfaces, worldSurfaceName),
-        fileExtensions::surfacePackage);
+    return makeFileName(
+        makePath(worldPath, worldName, paths::surfaces, worldSurfaceName), fileExtensions::surfacePackage);
 }
 
 } // namespace utils

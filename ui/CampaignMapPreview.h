@@ -21,6 +21,9 @@
 #ifndef W_UI_CAMPAIGN_MAP_PREVIEW_H
 #define W_UI_CAMPAIGN_MAP_PREVIEW_H
 
+#include <QMatrix4x4>
+#include <QtQuick/QQuickItem>
+
 #include "core/CampaignMap.h"
 #include "ui/BasicMap.h"
 #include "ui/CampaignMapDrawer.h"
@@ -44,7 +47,7 @@ class CampaignMapWatcher;
  * \see core::CampaignMap
  * \see WorldSurface
  */
-class CampaignMapPreview : public BasicMap, public CampaignMapDrawer
+class CampaignMapPreview : public QQuickItem, public CampaignMapDrawer
 {
     Q_OBJECT
     Q_PROPERTY(
@@ -139,6 +142,10 @@ private:
     void updateContent();
     void updateMapRect();
     void onMapNodesChanged();
+    void updateTransform();
+
+    QRect mapRect;
+    QMatrix4x4 transform;
 
     core::CampaignMap* campaignMap;
     WorldSurface* worldSurface;

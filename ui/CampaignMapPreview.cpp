@@ -190,7 +190,7 @@ void CampaignMapPreview::onMapNodesChanged()
 void CampaignMapPreview::updateTransform()
 {
     this->transform =
-        ui::moveTo(QPoint(0, 0), QPoint(this->width() / 2, this->height() / 2));
+        ui::centerIn(this->mapRect, QRect(0, 0, this->width(), this->height()));
 }
 
 } // namespace ui

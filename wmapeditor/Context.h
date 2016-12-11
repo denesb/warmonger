@@ -47,7 +47,8 @@ class Context : public QObject
     Q_OBJECT
     Q_PROPERTY(warmonger::core::World* world READ getWorld NOTIFY worldChanged)
     Q_PROPERTY(warmonger::ui::WorldSurface* worldSurface READ getWorldSurface NOTIFY worldSurfaceChanged)
-    Q_PROPERTY(warmonger::core::CampaignMap* campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
+    Q_PROPERTY(
+        warmonger::core::CampaignMap* campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
     Q_PROPERTY(QVariantList worlds READ readWorlds NOTIFY worldsChanged)
     Q_PROPERTY(QVariantList worldSurfaces READ readWorldSurfaces NOTIFY worldSurfacesChanged)
     Q_PROPERTY(QVariantList campaignMaps READ readCampaignMaps NOTIFY campaignMapsChanged)
@@ -204,7 +205,6 @@ public:
     {
         return this->normalPalette;
     }
-
 
     /**
      * Create a new map.

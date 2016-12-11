@@ -21,7 +21,9 @@
 #ifndef W_UTILS_LOGGING_H
 #define W_UTILS_LOGGING_H
 
-#include "boost/log/trivial.hpp"
+#include <cstdlib>
+
+#include <boost/log/trivial.hpp>
 
 #include "utils/ToString.h"
 

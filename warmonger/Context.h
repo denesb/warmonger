@@ -45,25 +45,23 @@ class Context : public QObject
     Q_OBJECT
     Q_PROPERTY(warmonger::core::World* world READ getWorld CONSTANT)
     Q_PROPERTY(warmonger::ui::WorldSurface* worldSurface READ getWorldSurface CONSTANT)
-    Q_PROPERTY(warmonger::core::CampaignMap* campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
+    Q_PROPERTY(
+        warmonger::core::CampaignMap* campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
     Q_PROPERTY(QVariantList campaignMaps READ readCampaignMaps NOTIFY campaignMapsChanged)
 
 public:
-    /**
-     * Constructs an empty context object.
-     *
-     * \param parent the parent QObject
-     */
-    //Context(QObject* parent = nullptr);
-
     /**
      * Constructs a context object.
      *
      * \param world the world to use
      * \param worldSurface the worldSurface to use
      * \param parent the parent QObject
+     *
+     * The context object takes ownership of the world and worldSurface.
      */
-    Context(core::World* world, ui::WorldSurface* worldSurface, QObject* parent = nullptr);
+    Context(std::unique_ptr<core::World>&& world,
+        std::unique_ptr<ui::WorldSurface>&& worldSurface,
+        QObject* parent = nullptr);
 
     /**
      * Get the world.
@@ -77,16 +75,6 @@ public:
         assert(this->world != nullptr);
 
         return this->world;
-    }
-
-    /**
-     * Set the world.
-     *
-     * \param world the world to use
-     */
-    void setWorld(core::World* world)
-    {
-        this->world = world;
     }
 
     /**

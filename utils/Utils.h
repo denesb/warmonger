@@ -27,6 +27,9 @@
 namespace warmonger {
 namespace utils {
 
+/**
+ * Filter functor which can be used to find a QObject by name.
+ */
 struct QObjectFinder
 {
     QObjectFinder(const QString& name)
@@ -64,20 +67,54 @@ private:
     QObject* const obj;
 };
 
+/**
+ * Convenience function to build a path from it's components.
+ *
+ * Two component specialization.
+ *
+ * \param head the first path-component
+ * \param tail the second path-component
+ *
+ * \return the constructed path
+ */
 template <typename Head, typename Tail>
 Head makePath(const Head& head, const Tail& tail)
 {
     return head + "/" + tail;
 }
 
+/**
+ * Convenience function to build a path from it's components.
+ *
+ * This function will accepth any number of components.
+ *
+ * \param head the first path-component
+ * \param components the rest of the components
+ *
+ * \return the constructed path
+ */
 template <typename Head, typename... Component>
 Head makePath(const Head& head, const Component&... components)
 {
     return head + "/" + makePath(components...);
 }
 
+/**
+ * Make a full file-name from the file's base-name and extension.
+ *
+ * \param fileName the base-name of the file
+ * \param extension the file extension
+ *
+ * \return the file-name
+ */
 QString makeFileName(const QString& fileName, const QString& extension);
 
+/**
+ * Delayed QObject deleter functor.
+ *
+ * When invoked this functor will call QObject::deleteLater() on the passed-in
+ * object.
+ */
 struct DelayedQObjectDeleter
 {
     constexpr DelayedQObjectDeleter() = default;
@@ -87,6 +124,29 @@ struct DelayedQObjectDeleter
         object->deleteLater();
     }
 };
+
+/**
+ * Construct the world path for the world.
+ *
+ * The settings have to be initialized for this to work.
+ *
+ * \param worldName the name of the world
+ *
+ * \return the path to the world definition file
+ */
+QString worldPath(const QString& worldName);
+
+/**
+ * Construct the world-surface path for the world-surface.
+ *
+ * The settings have to be initialized for this to work.
+ *
+ * \param worldName the name of the world
+ * \param worldSurfaceName the name of the world-surface
+ *
+ * \return the path to the world definition file
+ */
+QString worldSurfacePath(const QString& worldName, const QString& worldSurfaceName);
 
 } // namespace utils
 } // namespace warmonger

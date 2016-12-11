@@ -373,7 +373,6 @@ void Context::loadSurfacesFromDir(const QDir& surfacesDir, core::World* world)
     wInfo << "Loaded " << n << " surfaces for world `" << world->objectName() << "'";
 }
 
-
 static QString nextCampaignMapName(const std::vector<core::CampaignMap*>& campaignMaps)
 {
     std::vector<QString> names;

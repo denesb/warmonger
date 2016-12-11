@@ -23,8 +23,6 @@
 
 #include "io/File.h"
 #include "io/JsonUnserializer.h"
-#include "ui/Context.h"
-#include "ui/WorldSurface.h"
 #include "utils/Constants.h"
 #include "utils/QVariantUtils.h"
 #include "utils/Settings.h"
@@ -32,22 +30,15 @@
 
 namespace warmonger {
 
-/*
-Context::Context(QObject* parent)
+Context::Context(
+    std::unique_ptr<core::World>&& world, std::unique_ptr<ui::WorldSurface>&& worldSurface, QObject* parent)
     : QObject(parent)
-    , world(nullptr)
-    , worldSurface(nullptr)
+    , world(world.release())
+    , worldSurface(worldSurface.release())
     , campaignMap(nullptr)
 {
-}
-*/
-
-Context::Context(core::World* world, ui::WorldSurface* worldSurface, QObject* parent)
-    : QObject(parent)
-    , world(world)
-    , worldSurface(worldSurface)
-    , campaignMap(nullptr)
-{
+    this->world->setParent(this);
+    this->worldSurface->setParent(this);
 }
 
 void Context::setCampaignMap(core::CampaignMap* campaignMap)

@@ -1,5 +1,5 @@
 /** \file
- * Conststants.
+ * Constants.
  *
  * \copyright (C) 2015-2016 Botond Dénes
  *

@@ -145,8 +145,8 @@ template <class T>
 std::vector<T*> objectListFromJson(
     const QJsonArray& array, Context& ctx, std::function<std::unique_ptr<T>(const QJsonObject&)> fromJsonFunc)
 {
-    std::vector<T*> objects =
-        fromQJsonArray<std::vector<T*>>(array, [&](const QJsonValue& v) { return fromJsonFunc(v.toObject()).release(); });
+    std::vector<T*> objects = fromQJsonArray<std::vector<T*>>(
+        array, [&](const QJsonValue& v) { return fromJsonFunc(v.toObject()).release(); });
 
     std::for_each(objects.begin(), objects.end(), std::bind(&Context::add, &ctx, std::placeholders::_1));
 
@@ -154,8 +154,9 @@ std::vector<T*> objectListFromJson(
 }
 
 template <class T>
-std::vector<T*> objectListFromJson(
-    const QJsonArray& array, Context& ctx, std::function<std::unique_ptr<T>(const QJsonObject&, Context& ctx)> fromJsonFunc)
+std::vector<T*> objectListFromJson(const QJsonArray& array,
+    Context& ctx,
+    std::function<std::unique_ptr<T>(const QJsonObject&, Context& ctx)> fromJsonFunc)
 {
     std::function<std::unique_ptr<T>(const QJsonObject&)> func = std::bind(fromJsonFunc, std::placeholders::_1, ctx);
     return objectListFromJson<T>(array, ctx, func);

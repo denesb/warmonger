@@ -17,6 +17,8 @@
  */
 
 #include "utils/Utils.h"
+#include "utils/Constants.h"
+#include "utils/Settings.h"
 
 namespace warmonger {
 namespace utils {
@@ -24,6 +26,21 @@ namespace utils {
 QString makeFileName(const QString& fileName, const QString& extension)
 {
     return fileName + "." + extension;
+}
+
+QString worldPath(const QString& worldName)
+{
+    const QString worldPath = settingsValue(SettingsKey::worldsDir).toString();
+
+    return makeFileName(makePath(worldPath, worldName, worldName), fileExtensions::worldDefinition);
+}
+
+QString worldSurfacePath(const QString& worldName, const QString& worldSurfaceName)
+{
+    const QString worldPath = settingsValue(SettingsKey::worldsDir).toString();
+
+    return makeFileName(makePath(worldPath, worldName, paths::surfaces, worldSurfaceName),
+        fileExtensions::surfacePackage);
 }
 
 } // namespace utils

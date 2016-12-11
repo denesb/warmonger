@@ -16,18 +16,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <iostream>
-
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
-#include <QQuickView>
 
 #include "io/JsonUnserializer.h"
 #include "io/File.h"
 #include "ui/SearchPaths.h"
 #include "ui/UI.h"
-#include "utils/Constants.h"
 #include "utils/Exception.h"
 #include "utils/Logging.h"
 #include "utils/Settings.h"

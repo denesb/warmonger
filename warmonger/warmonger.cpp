@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 
     if (argc < 3)
     {
-        wError << "Too few arguments. Usage: warmonger {world} {world-surface}";
+        wFatal << "Too few arguments. Usage: warmonger {world} {world-surface}";
         return 1;
     }
 

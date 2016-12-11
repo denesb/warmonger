@@ -20,11 +20,13 @@ import QtQuick 2.2
 import QtQuick.Controls 1.4
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.2
+import QtQuick.Window 2.2
 import Warmonger 1.0
 
 ApplicationWindow {
     id: window
     visible: true
+    visibility: Window.Maximized
 
     Component.onCompleted: {
         W.create(W.worlds[0]);

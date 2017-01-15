@@ -35,15 +35,16 @@ int main()
 
     QDir homeDir{QDir::home()};
 
-    const QString worldsDirPath{utils::makePath(QDir::homePath(), QStringLiteral(".warmonger"), QStringLiteral("worlds"))};
+    const QString workDirPath{utils::makePath(QDir::homePath(), QStringLiteral(".warmonger"))};
+    const QString worldsDirPath{utils::makePath(workDirPath, QStringLiteral("worlds"))};
 
     homeDir.mkpath(worldsDirPath);
 
-    wInfo << "Created work directory " << utils::makePath(QDir::homePath(), QStringLiteral(".warmonger"));
-    wInfo << "Created worlds directory " << utils::makePath(QDir::homePath(), QStringLiteral(".warmonger"), QStringLiteral("worlds"));
+    wInfo << "Created work directory " << workDirPath;
+    wInfo << "Created worlds directory " << worldsDirPath;
 
     utils::setSettingsValue(utils::SettingsKey::worldsDir, worldsDirPath);
-    utils::setSettingsValue(utils::SettingsKey::workDir, utils::makePath(QDir::homePath(), QStringLiteral(".warmonger")));
+    utils::setSettingsValue(utils::SettingsKey::workDir, workDirPath);
 
     QSettings settings;
 

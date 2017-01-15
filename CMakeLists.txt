@@ -248,6 +248,17 @@ if(BUILD_TOOLS)
         utils
         ${COMMON_EXTERNAL_LIBS}
     )
+
+    add_executable(
+        wcreate_default_settings
+        tools/wcreate_default_settings.cpp
+    )
+
+    target_link_libraries(
+        wcreate_default_settings
+        utils
+        ${COMMON_EXTERNAL_LIBS}
+    )
 endif()
 
 if(BUILD_TESTS)

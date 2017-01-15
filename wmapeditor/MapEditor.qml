@@ -228,11 +228,6 @@ ApplicationWindow {
         }
     }
 
-    contentItem {
-        minimumWidth: 600
-        minimumHeight: 400
-    }
-
     Rectangle {
         id: sideBarWrapper
 

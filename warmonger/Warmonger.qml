@@ -18,6 +18,8 @@
 
 import QtQuick 2.2
 import QtQuick.Controls 1.4
+import QtQuick.Controls.Styles 1.4
+import QtQuick.Layouts 1.3
 import QtQuick.Window 2.2
 import Warmonger 1.0
 
@@ -28,15 +30,77 @@ ApplicationWindow {
 
     title: "Warmonger"
 
-    contentItem {
-        minimumWidth: 600
-        minimumHeight: 400
-    }
-
     CampaignMapPreview {
         anchors.fill: parent
 
         campaignMap: backgroundCampaignMap
         worldSurface: W.worldSurface
+
+        Rectangle {
+            anchors {
+                top: parent.top
+                right: parent.right
+                topMargin: 20
+                rightMargin: 20
+            }
+            width: 200
+            height: 200
+
+            ColumnLayout {
+                anchors.fill: parent
+
+                Component {
+                    id: menuButtonStyle
+
+                    ButtonStyle {
+                        background: Rectangle {
+                            implicitWidth: 200
+                            implicitHeight: 20
+                            radius: 4
+                            border.width: 1
+                            border.color: "#888"
+                            gradient: Gradient {
+                                GradientStop { position: 0 ; color: control.pressed ? "#ccc" : "#eee" }
+                                GradientStop { position: 1 ; color: control.pressed ? "#aaa" : "#ccc" }
+                            }
+                        }
+                    }
+                }
+
+                Button {
+                    text: "New Game"
+
+                    style: menuButtonStyle
+                }
+
+                Button {
+                    text: "Continue Game"
+
+                    style: menuButtonStyle
+                }
+
+                Button {
+                    text: "Manual"
+
+                    style: menuButtonStyle
+                }
+
+                Button {
+                    text: "About"
+
+                    style: menuButtonStyle
+                }
+
+                Button {
+                    text: "Exit"
+
+                    style: menuButtonStyle
+
+                    onClicked: {
+                        window.close();
+                    }
+                }
+            }
+        }
     }
 }

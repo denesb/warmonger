@@ -45,16 +45,24 @@ ApplicationWindow {
             }
             width: 200
             height: 200
+            radius: 4
+
+            border {
+                color: "#888"
+            }
 
             ColumnLayout {
-                anchors.fill: parent
+                anchors {
+                    fill: parent
+                    margins: 20
+                }
 
                 Component {
                     id: menuButtonStyle
 
                     ButtonStyle {
                         background: Rectangle {
-                            implicitWidth: 200
+                            implicitWidth: 160
                             implicitHeight: 20
                             radius: 4
                             border.width: 1

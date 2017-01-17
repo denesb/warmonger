@@ -36,11 +36,25 @@ ApplicationWindow {
         campaignMap: backgroundCampaignMap
         worldSurface: W.worldSurface
 
-        Rectangle {
+        Text {
             anchors {
                 top: parent.top
-                right: parent.right
+                horizontalCenter: parent.horizontalCenter
                 topMargin: 20
+            }
+
+            font {
+                pointSize: 18
+            }
+
+            text: "Warmonger - " + W.world.displayName
+        }
+
+        Rectangle {
+            anchors {
+                bottom: parent.bottom
+                right: parent.right
+                bottomMargin: 20
                 rightMargin: 20
             }
             width: 200

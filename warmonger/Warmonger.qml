@@ -50,6 +50,21 @@ ApplicationWindow {
             text: "Warmonger - " + W.world.displayName
         }
 
+        Text {
+            anchors {
+                left: parent.left
+                bottom: parent.bottom
+                leftMargin: 20
+                bottomMargin: 20
+            }
+
+            font {
+                pointSize: 12
+            }
+
+            text: W.version
+        }
+
         Rectangle {
             anchors {
                 bottom: parent.bottom

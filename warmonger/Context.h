@@ -28,6 +28,7 @@
 #include "core/CampaignMap.h"
 #include "core/World.h"
 #include "ui/WorldSurface.h"
+#include "Version.h"
 
 namespace warmonger {
 
@@ -48,6 +49,7 @@ class Context : public QObject
     Q_PROPERTY(
         warmonger::core::CampaignMap* campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
     Q_PROPERTY(QVariantList campaignMaps READ readCampaignMaps NOTIFY campaignMapsChanged)
+    Q_PROPERTY(QString version READ getVersion CONSTANT)
 
 public:
     /**
@@ -124,6 +126,16 @@ public:
      * \returns the campaign-maps
      */
     QVariantList readCampaignMaps() const;
+
+    /**
+     * Get the application version.
+     *
+     * \returns the application version
+     */
+    QString getVersion() const
+    {
+        return QString(version.c_str());
+    }
 
 signals:
     /**

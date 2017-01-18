@@ -39,6 +39,28 @@ add_compile_options(
     -Wfatal-errors
 )
 
+find_program(GIT_PATH git DOC "Git executable path")
+
+if(GIT_PATH)
+    execute_process(
+        COMMAND ${GIT_PATH} describe
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        RESULT_VARIABLE RESULT
+        OUTPUT_VARIABLE VERSION_OUTPUT
+    )
+    string(STRIP "${VERSION_OUTPUT}" VERSION)
+
+    execute_process(
+        COMMAND ${GIT_PATH} show --pretty=format:%H -s
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE GIT_COMMIT_HASH_OUTPUT
+    )
+    string(STRIP "${GIT_COMMIT_HASH_OUTPUT}" GIT_COMMIT_HASH)
+else()
+    set(VERSION "UNKNOWN")
+    set(GIT_COMMIT_HASH "UNKNOWN")
+endif()
+
 configure_file(Version.h.in Version.h @ONLY)
 
 # AUTOMOC puts all moc files in the same directory

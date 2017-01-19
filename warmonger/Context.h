@@ -27,6 +27,7 @@
 
 #include "core/CampaignMap.h"
 #include "core/World.h"
+#include "ui/Palette.h"
 #include "ui/WorldSurface.h"
 #include "Version.h"
 
@@ -50,6 +51,10 @@ class Context : public QObject
         warmonger::core::CampaignMap* campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
     Q_PROPERTY(QVariantList campaignMaps READ readCampaignMaps NOTIFY campaignMapsChanged)
     Q_PROPERTY(QString version READ getVersion CONSTANT)
+    Q_PROPERTY(warmonger::ui::Palette* disabledPalette READ getDisabledPalette CONSTANT)
+    Q_PROPERTY(warmonger::ui::Palette* inactivePalette READ getActivePalette CONSTANT)
+    Q_PROPERTY(warmonger::ui::Palette* activePalette READ getInactivePalette CONSTANT)
+    Q_PROPERTY(warmonger::ui::Palette* normalPalette READ getNormalPalette CONSTANT)
 
 public:
     /**
@@ -137,6 +142,54 @@ public:
         return QString(version.c_str());
     }
 
+    /**
+     * Get the disabled palette.
+     *
+     * \see Palette
+     *
+     * \return the disabled palette
+     */
+    ui::Palette* getDisabledPalette() const
+    {
+        return this->disabledPalette;
+    }
+
+    /**
+     * Get the active palette.
+     *
+     * \see Palette
+     *
+     * \return the active palette
+     */
+    ui::Palette* getActivePalette() const
+    {
+        return this->activePalette;
+    }
+
+    /**
+     * Get the inactive palette.
+     *
+     * \see Palette
+     *
+     * \return the inactive palette
+     */
+    ui::Palette* getInactivePalette() const
+    {
+        return this->inactivePalette;
+    }
+
+    /**
+     * Get the normal palette.
+     *
+     * \see Palette
+     *
+     * \return the normal palette
+     */
+    ui::Palette* getNormalPalette() const
+    {
+        return this->normalPalette;
+    }
+
 signals:
     /**
      * Emitted when the campaign-map changes.
@@ -153,6 +206,10 @@ private:
     ui::WorldSurface* worldSurface;
     core::CampaignMap* campaignMap;
     std::vector<core::CampaignMap*> campaignMaps;
+    ui::Palette* disabledPalette;
+    ui::Palette* activePalette;
+    ui::Palette* inactivePalette;
+    ui::Palette* normalPalette;
 };
 
 } // namespace warmonger

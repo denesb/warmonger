@@ -325,8 +325,7 @@ void Context::loadWorlds()
 
 void Context::loadMapsFromDir(const QDir& mapsDir, core::World* world)
 {
-    QStringList nameFilters;
-    nameFilters.append("*." + utils::fileExtensions::mapDefinition);
+    const QStringList nameFilters{"*." + utils::fileExtensions::mapDefinition};
 
     const QFlags<QDir::Filter> filters = QDir::Files | QDir::Readable;
 

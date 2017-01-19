@@ -2,5 +2,7 @@
 <RCC version="1.0">
 <qresource>
     <file>Warmonger.qml</file>
+    <file>NewGame.qml</file>
+    <file>MainMenu.qml</file>
 </qresource>
 </RCC>

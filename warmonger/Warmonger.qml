@@ -18,10 +18,7 @@
 
 import QtQuick 2.2
 import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.4
-import QtQuick.Layouts 1.3
 import QtQuick.Window 2.2
-import Warmonger 1.0
 
 ApplicationWindow {
     id: window
@@ -30,114 +27,11 @@ ApplicationWindow {
 
     title: "Warmonger"
 
-    CampaignMapPreview {
+    StackView {
+        id: rootStack
+
         anchors.fill: parent
 
-        campaignMap: backgroundCampaignMap
-        worldSurface: W.worldSurface
-
-        Text {
-            anchors {
-                top: parent.top
-                horizontalCenter: parent.horizontalCenter
-                topMargin: 20
-            }
-
-            font {
-                pointSize: 18
-            }
-
-            text: "Warmonger - " + W.world.displayName
-        }
-
-        Text {
-            anchors {
-                left: parent.left
-                bottom: parent.bottom
-                leftMargin: 20
-                bottomMargin: 20
-            }
-
-            font {
-                pointSize: 12
-            }
-
-            text: W.version
-        }
-
-        Rectangle {
-            anchors {
-                bottom: parent.bottom
-                right: parent.right
-                bottomMargin: 20
-                rightMargin: 20
-            }
-            width: 200
-            height: 200
-            radius: 4
-
-            border {
-                color: "#888"
-            }
-
-            ColumnLayout {
-                anchors {
-                    fill: parent
-                    margins: 20
-                }
-
-                Component {
-                    id: menuButtonStyle
-
-                    ButtonStyle {
-                        background: Rectangle {
-                            implicitWidth: 160
-                            implicitHeight: 20
-                            radius: 4
-                            border.width: 1
-                            border.color: "#888"
-                            gradient: Gradient {
-                                GradientStop { position: 0 ; color: control.pressed ? "#ccc" : "#eee" }
-                                GradientStop { position: 1 ; color: control.pressed ? "#aaa" : "#ccc" }
-                            }
-                        }
-                    }
-                }
-
-                Button {
-                    text: "New Game"
-
-                    style: menuButtonStyle
-                }
-
-                Button {
-                    text: "Continue Game"
-
-                    style: menuButtonStyle
-                }
-
-                Button {
-                    text: "Manual"
-
-                    style: menuButtonStyle
-                }
-
-                Button {
-                    text: "About"
-
-                    style: menuButtonStyle
-                }
-
-                Button {
-                    text: "Exit"
-
-                    style: menuButtonStyle
-
-                    onClicked: {
-                        window.close();
-                    }
-                }
-            }
-        }
+        initialItem: Qt.resolvedUrl("MainMenu.qml")
     }
 }

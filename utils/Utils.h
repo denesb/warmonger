@@ -148,6 +148,17 @@ QString worldPath(const QString& worldName);
  */
 QString worldSurfacePath(const QString& worldName, const QString& worldSurfaceName);
 
+/**
+ * Construct the path of the world's maps directory.
+ *
+ * The settings have to be initialized for this to work.
+ *
+ * \param worldName the name of the world
+ *
+ * \return the path to the world's maps directory
+ */
+QString worldMapsPath(const QString& worldName);
+
 } // namespace utils
 } // namespace warmonger
 

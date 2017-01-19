@@ -52,10 +52,10 @@ class Context : public QObject
     Q_PROPERTY(QVariantList worlds READ readWorlds NOTIFY worldsChanged)
     Q_PROPERTY(QVariantList worldSurfaces READ readWorldSurfaces NOTIFY worldSurfacesChanged)
     Q_PROPERTY(QVariantList campaignMaps READ readCampaignMaps NOTIFY campaignMapsChanged)
-    Q_PROPERTY(warmonger::ui::Palette* disabledPalette READ getDisabledPalette NOTIFY colorPaletteChanged)
-    Q_PROPERTY(warmonger::ui::Palette* inactivePalette READ getActivePalette NOTIFY colorPaletteChanged)
-    Q_PROPERTY(warmonger::ui::Palette* activePalette READ getInactivePalette NOTIFY colorPaletteChanged)
-    Q_PROPERTY(warmonger::ui::Palette* normalPalette READ getNormalPalette NOTIFY colorPaletteChanged)
+    Q_PROPERTY(warmonger::ui::Palette* disabledPalette READ getDisabledPalette CONSTANT)
+    Q_PROPERTY(warmonger::ui::Palette* inactivePalette READ getActivePalette CONSTANT)
+    Q_PROPERTY(warmonger::ui::Palette* activePalette READ getInactivePalette CONSTANT)
+    Q_PROPERTY(warmonger::ui::Palette* normalPalette READ getNormalPalette CONSTANT)
 
 public:
     /**
@@ -320,11 +320,6 @@ signals:
      * Emitted when the campaign-maps change.
      */
     void campaignMapsChanged();
-
-    /**
-     * Emitted when the color-palette changes.
-     */
-    void colorPaletteChanged();
 
 private:
     void setWorld(core::World* world);

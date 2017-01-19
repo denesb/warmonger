@@ -43,5 +43,12 @@ QString worldSurfacePath(const QString& worldName, const QString& worldSurfaceNa
         makePath(worldPath, worldName, paths::surfaces, worldSurfaceName), fileExtensions::surfacePackage);
 }
 
+QString worldMapsPath(const QString& worldName)
+{
+    const QString worldPath = settingsValue(SettingsKey::worldsDir).toString();
+
+    return makePath(worldPath, worldName, paths::maps);
+}
+
 } // namespace utils
 } // namespace warmonger

@@ -217,8 +217,8 @@ Rectangle {
                                 }
 
                                 Rectangle {
-                                    height: 30
-                                    width: 30
+                                    Layout.preferredHeight: 30
+                                    Layout.preferredWidth: 30
 
                                     border {
                                         width: 1

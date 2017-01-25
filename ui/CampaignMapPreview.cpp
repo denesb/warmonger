@@ -163,6 +163,7 @@ void CampaignMapPreview::updateContent()
         this->setFlags(QQuickItem::ItemHasContents);
         this->mapNodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->worldSurface->getTileSize());
         this->updateMapRect();
+        this->updateTransform();
     }
 }
 

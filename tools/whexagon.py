@@ -51,7 +51,7 @@ def draw_hexagon_image(image, side):
     x_top_left_target = int(image.width / 2) - 2
     y_top_target = 1
 
-    x_depth = 0
+    x_debt = 0
 
     # since all sides have exactly the same length it's enough to monitor just
     # one of them
@@ -69,10 +69,10 @@ def draw_hexagon_image(image, side):
         y_top -= 1
         y_bottom -= 1
 
-        x_depth += step_diff - step_diff_floor
+        x_debt += step_diff - step_diff_floor
 
-        if x_depth > 1:
-            x_depth -= 1
+        if x_debt > 1:
+            x_debt -= 1
 
             image.set_at(x_top_left, y_top)
             image.set_at(x_top_right, y_top)

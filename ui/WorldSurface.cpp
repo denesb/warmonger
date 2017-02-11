@@ -47,8 +47,7 @@ namespace path {
 
 const QString surface{utils::makePath(prefix, "surface")};
 
-const QString hexagonMask{utils::makePath(surface, QString("hexagonMask.xpm"))};
-const QString notFound{utils::makePath(surface, QString("notFound.png"))};
+const QString hexagonMask{utils::makePath(surface, QString("hexagonMask.png"))};
 
 const QString mapEditor{utils::makePath(surface, "MapEditor")};
 

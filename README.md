@@ -20,16 +20,24 @@ game.
 ## How?
 
 Warmonger is written with moddability and hackability in mind from the very
-first line of code where mods are first-world content and there is no
-favoured built-in content.
+first line of code where mods are first-class and there is no favoured built-in
+content.
 
 Warmonger is a hexagon-based wargame, with action happens is happening on the
 campaign map and battles being resolved on the battle map.
 
 See the [design overview](docs/OVERVIEW.md) for more details.
 
+## Contributing
+
+Warmonger doesn't have a roadmap yet, mainly because I'm still making up my
+mind about some of the essential design decisions. Nevertheless if you are
+interested feel free to drop me a line at dns dot botond at gmail dot com.
+
 ## Dependencies
-* C++14 compliant C++ compiler
+
+* C++14 compliant C++ compiler (tested with gcc 6.2)
+* CMake
 * boost 1.58 (boost::log and boost::optional)
 * Qt 5.5 (QtCore and QtQuick)
 * KF5Archive

@@ -35,3 +35,13 @@ See the [design overview](docs/OVERVIEW.md) for more details.
 * KF5Archive
 
 Version numbers refer to the minimum supported version of each dependency.
+
+## Other awesome strategy game projects
+ * [Battle for Wesnoth](https://www.wesnoth.org/)
+ * [0 A.D.](https://play0ad.com/)
+ * [OpenRA](http://www.openra.net/)
+ * [TripleA](http://www.triplea-game.org/)
+ * [OpenAge](http://openage.sft.mx/)
+ * [Wyrmsun](https://andrettin.github.io/)
+ * [FreeCiv](http://www.freeciv.org/)
+ * [FreeCol](http://www.freecol.org/)

@@ -25,11 +25,11 @@
 
 #include <QVariant>
 
+#include "Version.h"
 #include "core/CampaignMap.h"
 #include "core/World.h"
 #include "ui/Palette.h"
 #include "ui/WorldSurface.h"
-#include "Version.h"
 
 namespace warmonger {
 

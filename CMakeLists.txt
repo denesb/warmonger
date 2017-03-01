@@ -103,6 +103,8 @@ set(
     core/Unit.cpp
     core/UnitType.cpp
     core/World.cpp
+    core/Entity.cpp
+    core/EntityType.cpp
 )
 
 set(

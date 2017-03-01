@@ -114,10 +114,8 @@ QSGNode* CampaignMapPreview::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNo
 
     rootNode->setClipRect(QRectF(0, 0, this->width(), this->height()));
 
-    const std::vector<core::CampaignMap::Content> contents = visibleContents(this->campaignMap->getContents(),
-        this->mapNodesPos,
-        this->worldSurface->getTileSize(),
-        this->mapRect);
+    const std::vector<core::CampaignMap::Content> contents = visibleContents(
+        this->campaignMap->getContents(), this->mapNodesPos, this->worldSurface->getTileSize(), this->mapRect);
 
     drawContents(contents, mapRootNode, *this);
 
@@ -190,8 +188,7 @@ void CampaignMapPreview::onMapNodesChanged()
 
 void CampaignMapPreview::updateTransform()
 {
-    this->transform =
-        ui::centerIn(this->mapRect, QRect(0, 0, this->width(), this->height()));
+    this->transform = ui::centerIn(this->mapRect, QRect(0, 0, this->width(), this->height()));
 }
 
 } // namespace ui

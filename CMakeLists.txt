@@ -328,9 +328,10 @@ add_custom_target(
     COMMENT "Formatting source files"
 )
 
+configure_file(doxygen.conf.in doxygen.conf @ONLY)
 add_custom_target(
     docs
-    COMMAND doxygen ${PROJECT_SOURCE_DIR}/.doxygen.conf
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMAND doxygen ${PROJECT_BINARY_DIR}/doxygen.conf
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     COMMENT "Generating documentation"
 )

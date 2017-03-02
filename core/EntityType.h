@@ -28,16 +28,18 @@ namespace core {
 /**
  * The type of an entity.
  *
+ * For an overview of the Entity-Component-Systems design pattern (ECS) and how
+ * warmonger implements it see \ref docs/ECS.md.
  * EntityType provides a way to categorise entities based on their role
  * and purpose. It defines the type of components it has, this cannot be
  * changed once the type object is created. This allows world developers
  * to define all the different kind of entities that exists in their world
  * up front.
  *
- * \see core::warmonger::Component
- * \see core::warmonger::ComponentType
- * \see core::warmonger::Entity
- * \see core::warmonger::World
+ * \see warmonger::core::Component
+ * \see warmonger::core::ComponentType
+ * \see warmonger::core::Entity
+ * \see warmonger::core::World
  */
 class EntityType
 {

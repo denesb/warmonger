@@ -56,11 +56,13 @@ struct MetaProperty
 /**
  * The type of a component.
  *
+ * For an overview of the Entity-Component-Systems design pattern (ECS) and how
+ * warmonger implements it see \ref docs/ECS.md.
  * The component-type defines the set of properties a component has. Properties
  * have a name and a value and some metadata, like their type and
  * default-value.
  *
- * \see core::warmonger::Component
+ * \see \ref core::warmonger::Component
  */
 class ComponentType
 {

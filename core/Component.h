@@ -34,11 +34,11 @@ namespace core {
  * The component of a game entity.
  *
  * For an overview of the Entity-Component-Systems design pattern (ECS) and how
- * warmonger implements it see \ref ECS.md.
+ * warmonger implements it see \ref docs/ECS.md.
  *
  * Components have a set of properties defined by their component-type.
  *
- * \see core::warmonger::ComponentType
+ * \see warmonger::core::ComponentType
  */
 class Component
 {

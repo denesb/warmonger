@@ -332,6 +332,6 @@ configure_file(doxygen.conf.in doxygen.conf @ONLY)
 add_custom_target(
     docs
     COMMAND doxygen ${PROJECT_BINARY_DIR}/doxygen.conf
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
     COMMENT "Generating documentation"
 )

@@ -36,13 +36,19 @@ interested feel free to drop me a line at dns dot botond at gmail dot com.
 
 ## Dependencies
 
+### Build
+
 * C++14 compliant C++ compiler (tested with gcc 6.2)
 * CMake
 * boost 1.58 (boost::log and boost::optional)
 * Qt 5.5 (QtCore and QtQuick)
 * KF5Archive
 
-### To generate documentation
+### Formate the code
+
+* clang-format (clang-tools)
+
+### Generate documentation
 
 * doxygen 1.8
 * graphviz

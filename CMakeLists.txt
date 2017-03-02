@@ -92,6 +92,8 @@ set(
     core/Banner.cpp
     core/CampaignMap.cpp
     core/Civilization.cpp
+    core/Entity.cpp
+    core/EntityType.cpp
     core/Faction.cpp
     core/Hexagon.cpp
     core/MapGenerator.cpp
@@ -103,8 +105,7 @@ set(
     core/Unit.cpp
     core/UnitType.cpp
     core/World.cpp
-    core/Entity.cpp
-    core/EntityType.cpp
+    core/WorldComponentType.cpp
 )
 
 set(

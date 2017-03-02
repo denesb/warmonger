@@ -1,5 +1,5 @@
 /** \file
- * ComponentType interface.
+ * WorldComponentType class.
  *
  * \copyright (C) 2015-2017 Botond Dénes
  *
@@ -17,14 +17,10 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#ifndef W_CORE_COMPONENT_TYPE_H
-#define W_CORE_COMPONENT_TYPE_H
+#ifndef W_CORE_WORLD_COMPONENT_TYPE_H
+#define W_CORE_WORLD_COMPONENT_TYPE_H
 
-#include <memory>
-#include <vector>
-
-#include <QString>
-#include <QVariant>
+#include "core/ComponentType.h"
 
 namespace warmonger {
 namespace core {
@@ -34,31 +30,38 @@ namespace core {
  *
  * For an overview of the Entity-Component-Systems design pattern (ECS) and how
  * warmonger implements it see \ref docs/ECS.md.
- * The component-type defines the set of properties a component has. Properties
- * have a name and a value and some metadata, like their type and
- * default-value.
+ * Component-type used by worlds. This is a dynamic component-type created at
+ * runtime, defined by the loaded world.
  *
- * \see warmonger::core::Component
+ * \see warmonger::core::ComponentType
  */
-class ComponentType
+class WorldComponentType : public ComponentType
 {
 public:
     /**
-     * Get the name.
+     * Create a world component-type with the name and properties.
      *
-     * \returns the name
+     * \param name the name
+     * \param propertyNames the names of the properties
      */
-    virtual const QString& getName() const = 0;
+    WorldComponentType(const QString& name, const std::vector<QString>& propertyNames);
 
-    /**
-     * Get the property names
-     *
-     * \returns the property names
-     */
-    virtual std::vector<QString> getPropertyNames() const = 0;
+    const QString& getName() const override
+    {
+        return this->name;
+    }
+
+    std::vector<QString> getPropertyNames() const override
+    {
+        return this->propertyNames;
+    }
+
+private:
+    QString name;
+    std::vector<QString> propertyNames;
 };
 
 } // namespace core
 } // namespace warmonger
 
-#endif // W_CORE_COMPONENT_TYPE_H
+#endif // W_CORE_WORLD_COMPONENT_TYPE_H

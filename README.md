@@ -42,6 +42,11 @@ interested feel free to drop me a line at dns dot botond at gmail dot com.
 * Qt 5.5 (QtCore and QtQuick)
 * KF5Archive
 
+### To generate documentation
+
+* doxygen 1.8
+* graphviz
+
 Version numbers refer to the minimum supported version of each dependency.
 
 ## Other awesome strategy game projects

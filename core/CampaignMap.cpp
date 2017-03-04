@@ -22,37 +22,13 @@
 #include <boost/optional.hpp>
 
 #include "core/CampaignMap.h"
-#include "core/TerrainType.h"
 #include "utils/Logging.h"
 #include "utils/QVariantUtils.h"
 
 namespace warmonger {
 namespace core {
 
-const QString mapNodeNameTemplate{"mapNode-%1"};
-const QString settlementNameTemplate{"settlement-%1"};
-const QString unitNameTemplate{"unit-%1"};
-const QString armyNameTemplate{"army-%1"};
-const QString factionObjectNameTemplate{"faction-%1"};
 const QString factionDisplayNameTemplate{"New Faction %1"};
-
-template <class ObjectList>
-static int nextNameIndex(const ObjectList& list)
-{
-    int index{0};
-
-    for (const auto object : list)
-    {
-        index = std::max(index, object->objectName().section('-', -1, -1).toInt());
-    }
-
-    return ++index;
-}
-
-static void destroy(QObject* obj)
-{
-    delete obj;
-}
 
 std::tuple<Banner*, QColor, QColor> nextAvailableCombination(
     const std::vector<Faction*>& factions, const std::vector<Banner*>& banners, const std::vector<QColor>& colors);
@@ -61,9 +37,7 @@ CampaignMap::CampaignMap(QObject* parent)
     : QObject(parent)
     , world(nullptr)
     , mapNodeIndex(0)
-    , settlementIndex(0)
-    , unitIndex(0)
-    , armyIndex(0)
+    , entityIndex(0)
     , factionIndex(0)
 {
 }
@@ -91,127 +65,27 @@ QVariantList CampaignMap::readMapNodes() const
     return utils::toQVariantList(this->mapNodes);
 }
 
-void CampaignMap::setMapNodes(const std::vector<MapNode*>& mapNodes)
+QVariantList CampaignMap::readEntities() const
 {
-    if (this->mapNodes != mapNodes)
-    {
-        std::for_each(this->mapNodes.begin(), this->mapNodes.end(), destroy);
-
-        this->mapNodes = mapNodes;
-
-        for (MapNode* node : this->mapNodes)
-            node->setParent(this);
-
-        this->mapNodeIndex = nextNameIndex(this->mapNodes);
-
-        this->rebuildContents();
-
-        emit mapNodesChanged();
-    }
+    return utils::toQVariantList(this->entities);
 }
 
-QVariantList CampaignMap::readSettlements() const
+void CampaignMap::addMapNode(std::unique_ptr<MapNode>&& mapNode)
 {
-    return utils::toQVariantList(this->settlements);
+    mapNode->setParent(this);
+
+    this->mapNodes.push_back(mapNode.release());
+
+    wDebug << "Added map-node " << this->mapNodes.back();
+
+    emit mapNodesChanged();
 }
 
-void CampaignMap::setSettlements(const std::vector<Settlement*>& settlements)
-{
-    if (this->settlements != settlements)
-    {
-        std::for_each(this->settlements.begin(), this->settlements.end(), destroy);
-
-        this->settlements = settlements;
-
-        for (Settlement* settlement : this->settlements)
-        {
-            settlement->setParent(this);
-            QObject::connect(settlement, &Settlement::mapNodeChanged, this, &CampaignMap::settlementMapNodeChanged);
-        }
-
-        this->settlementIndex = nextNameIndex(this->settlements);
-
-        this->settlementMapNodeChanged();
-
-        emit settlementsChanged();
-    }
-}
-
-void CampaignMap::setUnits(const std::vector<Unit*>& units)
-{
-    if (this->units != units)
-    {
-        std::for_each(this->units.begin(), this->units.end(), destroy);
-
-        this->units = units;
-
-        for (Unit* unit : this->units)
-            unit->setParent(this);
-
-        this->unitIndex = nextNameIndex(this->units);
-
-        emit unitsChanged();
-    }
-}
-
-QVariantList CampaignMap::readUnits() const
-{
-    return utils::toQVariantList(this->units);
-}
-
-void CampaignMap::setArmies(const std::vector<Army*>& armies)
-{
-    if (this->armies != armies)
-    {
-        std::for_each(this->armies.begin(), this->armies.end(), destroy);
-
-        this->armies = armies;
-
-        for (Army* army : this->armies)
-        {
-            army->setParent(this);
-            QObject::connect(army, &Army::mapNodeChanged, this, &CampaignMap::armyMapNodeChanged);
-        }
-
-        this->armyIndex = nextNameIndex(this->armies);
-
-        this->armyMapNodeChanged();
-
-        emit armiesChanged();
-    }
-}
-
-QVariantList CampaignMap::readArmies() const
-{
-    return utils::toQVariantList(this->armies);
-}
-
-QVariantList CampaignMap::readFactions() const
-{
-    return utils::toQVariantList(this->factions);
-}
-
-void CampaignMap::setFactions(const std::vector<Faction*>& factions)
-{
-    if (this->factions != factions)
-    {
-        std::for_each(this->factions.begin(), this->factions.end(), destroy);
-
-        this->factions = factions;
-
-        this->factionIndex = nextNameIndex(this->factions);
-
-        emit factionsChanged();
-    }
-}
-
-MapNode* CampaignMap::createMapNode(TerrainType* terrainType, const MapNodeNeighbours& neighbours)
+MapNode* CampaignMap::createMapNode(const MapNodeNeighbours& neighbours)
 {
     MapNode* mapNode = new MapNode(this);
 
-    mapNode->setObjectName(mapNodeNameTemplate.arg(this->mapNodeIndex++));
-
-    mapNode->setTerrainType(terrainType);
+    mapNode->setObjectName(QString::number(this->mapNodeIndex++));
 
     for (const std::pair<Direction, MapNode*>& neighbour : neighbours)
     {
@@ -223,8 +97,6 @@ MapNode* CampaignMap::createMapNode(TerrainType* terrainType, const MapNodeNeigh
     }
 
     this->mapNodes.push_back(mapNode);
-
-    this->contents.push_back(std::tuple<MapNode*, Settlement*, Army*>(mapNode, nullptr, nullptr));
 
     wDebug << "Created map-node " << mapNode;
 
@@ -241,13 +113,6 @@ std::unique_ptr<MapNode> CampaignMap::removeMapNode(MapNode* mapNode)
         this->mapNodes.erase(it);
         mapNode->setParent(nullptr);
 
-        const auto contentIt = std::find_if(this->contents.begin(), this->contents.end(), [&](const Content& content) {
-            return std::get<0>(content) == mapNode;
-        });
-
-        if (contentIt != this->contents.end())
-            this->contents.erase(contentIt);
-
         QObject::disconnect(mapNode, nullptr, this, nullptr);
 
         wDebug << "Removed map-node " << mapNode;
@@ -262,125 +127,53 @@ std::unique_ptr<MapNode> CampaignMap::removeMapNode(MapNode* mapNode)
     }
 }
 
-Settlement* CampaignMap::createSettlement(SettlementType* settlementType)
+void CampaignMap::addEntity(std::unique_ptr<Entity>&& entity)
 {
-    Settlement* settlement = new Settlement(this);
+    entity->setParent(this);
 
-    settlement->setObjectName(settlementNameTemplate.arg(this->settlementIndex++));
-    settlement->setType(settlementType);
+    this->entities.push_back(entity.get());
 
-    this->settlements.push_back(settlement);
+    wDebug << "Added entity " << entity.get() << " to world " << this;
 
-    QObject::connect(settlement, &Settlement::mapNodeChanged, this, &CampaignMap::settlementMapNodeChanged);
+    entity.reset();
 
-    wDebug << "Created settlement " << settlement;
-
-    emit settlementsChanged();
-
-    return settlement;
+    emit entitiesChanged();
 }
 
-std::unique_ptr<Settlement> CampaignMap::removeSettlement(Settlement* settlement)
+Entity* CampaignMap::createEntity(EntityType* entityType)
 {
-    auto it = std::find(this->settlements.cbegin(), this->settlements.cend(), settlement);
-    if (it != this->settlements.end())
+    Entity* entity = new Entity(entityType, this);
+
+    entity->setObjectName(QString::number(this->entityIndex++));
+
+    this->entities.push_back(entity);
+
+    wDebug << "Created entity " << entity;
+
+    emit entitiesChanged();
+
+    return entity;
+}
+
+std::unique_ptr<Entity> CampaignMap::removeEntity(Entity* entity)
+{
+    auto it = std::find(this->entities.cbegin(), this->entities.cend(), entity);
+    if (it != this->entities.end())
     {
-        this->settlements.erase(it);
-        settlement->setParent(nullptr);
+        this->entities.erase(it);
+        entity->setParent(nullptr);
 
-        emit settlementsChanged();
+        emit entitiesChanged();
 
-        QObject::disconnect(settlement, nullptr, this, nullptr);
+        QObject::disconnect(entity, nullptr, this, nullptr);
 
-        wDebug << "Removed settlement " << settlement;
+        wDebug << "Removed entity " << entity;
 
-        this->settlementMapNodeChanged();
-
-        return std::unique_ptr<Settlement>(settlement);
+        return std::unique_ptr<Entity>(entity);
     }
     else
     {
-        return std::unique_ptr<Settlement>();
-    }
-}
-
-Unit* CampaignMap::createUnit(UnitType* unitType)
-{
-    Unit* unit = new Unit(this);
-
-    unit->setObjectName(unitNameTemplate.arg(this->unitIndex++));
-
-    unit->setType(unitType);
-
-    this->units.push_back(unit);
-
-    wDebug << "Created unit " << unit;
-
-    emit unitsChanged();
-
-    return unit;
-}
-
-std::unique_ptr<Unit> CampaignMap::removeUnit(Unit* unit)
-{
-    auto it = std::find(this->units.cbegin(), this->units.cend(), unit);
-    if (it != this->units.end())
-    {
-        this->units.erase(it);
-        unit->setParent(nullptr);
-
-        wDebug << "Removed unit " << unit;
-
-        emit unitsChanged();
-
-        return std::unique_ptr<Unit>(unit);
-    }
-    else
-    {
-        return std::unique_ptr<Unit>();
-    }
-}
-
-Army* CampaignMap::createArmy(ArmyType* armyType)
-{
-    Army* army = new Army(this);
-
-    army->setObjectName(armyNameTemplate.arg(this->armyIndex++));
-
-    army->setType(armyType);
-
-    this->armies.push_back(army);
-
-    QObject::connect(army, &Army::mapNodeChanged, this, &CampaignMap::armyMapNodeChanged);
-
-    wDebug << "Created army " << army;
-
-    emit armiesChanged();
-
-    return army;
-}
-
-std::unique_ptr<Army> CampaignMap::removeArmy(Army* army)
-{
-    auto it = std::remove(this->armies.begin(), this->armies.end(), army);
-
-    if (it == this->armies.end())
-    {
-        return std::unique_ptr<Army>();
-    }
-    else
-    {
-        this->armies.erase(it);
-
-        army->setParent(nullptr);
-
-        QObject::disconnect(army, nullptr, this, nullptr);
-
-        wDebug << "Removed army " << army;
-
-        emit armiesChanged();
-
-        return std::unique_ptr<Army>(army);
+        return std::unique_ptr<Entity>();
     }
 }
 
@@ -390,7 +183,7 @@ Faction* CampaignMap::createFaction(Civilization* civilization)
 
     Faction* faction = this->factions.back();
 
-    faction->setObjectName(factionObjectNameTemplate.arg(this->factionIndex));
+    faction->setObjectName(QString::number(this->factionIndex));
     faction->setDisplayName(factionDisplayNameTemplate.arg(this->factionIndex++));
 
     faction->setCivilization(civilization);
@@ -407,6 +200,19 @@ Faction* CampaignMap::createFaction(Civilization* civilization)
     emit factionsChanged();
 
     return faction;
+}
+
+void CampaignMap::addFaction(std::unique_ptr<Faction>&& faction)
+{
+    faction->setParent(this);
+
+    this->factions.push_back(faction.get());
+
+    wDebug << "Added faction " << faction.get() << " to world " << this;
+
+    faction.reset();
+
+    emit factionsChanged();
 }
 
 std::unique_ptr<Faction> CampaignMap::removeFaction(Faction* faction)
@@ -430,68 +236,6 @@ std::unique_ptr<Faction> CampaignMap::removeFaction(Faction* faction)
         emit factionsChanged();
 
         return std::unique_ptr<Faction>(faction);
-    }
-}
-
-void CampaignMap::rebuildContents()
-{
-    this->contents.clear();
-
-    for (MapNode* mapNode : this->mapNodes)
-    {
-        const auto settlementIt = std::find_if(this->settlements.begin(),
-            this->settlements.end(),
-            [&](const Settlement* settlement) { return settlement->getMapNode() == mapNode; });
-
-        Settlement* settlement = (settlementIt == this->settlements.end()) ? nullptr : *settlementIt;
-
-        const auto armyIt = std::find_if(
-            this->armies.begin(), this->armies.end(), [&](const Army* army) { return army->getMapNode() == mapNode; });
-
-        Army* army = (armyIt == this->armies.end()) ? nullptr : *armyIt;
-
-        this->contents.emplace_back(mapNode, settlement, army);
-    }
-}
-
-void CampaignMap::settlementMapNodeChanged()
-{
-    const std::vector<Content> oldContents(this->contents);
-
-    this->contents.clear();
-
-    for (std::size_t i = 0; i < this->mapNodes.size(); ++i)
-    {
-        MapNode* mapNode = this->mapNodes[i];
-        Army* army = std::get<2>(oldContents[i]);
-
-        const auto it = std::find_if(this->settlements.begin(),
-            this->settlements.end(),
-            [&](const Settlement* settlement) { return settlement->getMapNode() == mapNode; });
-
-        Settlement* settlement = (it == this->settlements.end()) ? nullptr : *it;
-
-        this->contents.emplace_back(mapNode, settlement, army);
-    }
-}
-
-void CampaignMap::armyMapNodeChanged()
-{
-    const std::vector<Content> oldContents(this->contents);
-
-    this->contents.clear();
-
-    for (std::size_t i = 0; i < this->mapNodes.size(); ++i)
-    {
-        MapNode* mapNode = this->mapNodes[i];
-        Settlement* settlement = std::get<1>(oldContents[i]);
-
-        const auto it = std::find_if(
-            this->armies.begin(), this->armies.end(), [&](const Army* army) { return army->getMapNode() == mapNode; });
-
-        Army* army = (it == this->armies.end()) ? nullptr : *it;
-
-        this->contents.emplace_back(mapNode, settlement, army);
     }
 }
 

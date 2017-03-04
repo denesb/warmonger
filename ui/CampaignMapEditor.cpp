@@ -23,7 +23,6 @@
 #include <QMetaEnum>
 #include <QSGSimpleTextureNode>
 
-#include "core/Utils.hpp"
 #include "ui/CampaignMapEditor.h"
 #include "ui/CampaignMapWatcher.h"
 #include "ui/MapUtil.h"
@@ -40,16 +39,10 @@ CampaignMapEditor::CampaignMapEditor(QQuickItem* parent)
     , worldSurface(nullptr)
     , hoverMapNode(nullptr)
     , editingMode(EditingMode::None)
-    , objectType(nullptr)
     , currentFaction(nullptr)
     , watcher(nullptr)
 {
     this->setAcceptHoverEvents(true);
-
-    QObject::connect(
-        this, &CampaignMapEditor::editingModeChanged, this, &CampaignMapEditor::availableObjectTypesChanged);
-    QObject::connect(
-        this, &CampaignMapEditor::campaignMapChanged, this, &CampaignMapEditor::availableObjectTypesChanged);
 }
 
 void CampaignMapEditor::setCampaignMap(core::CampaignMap* campaignMap)
@@ -105,41 +98,6 @@ void CampaignMapEditor::setEditingMode(EditingMode editingMode)
     }
 }
 
-QVariantList CampaignMapEditor::readAvailableObjectTypes() const
-{
-    if (this->campaignMap == nullptr)
-        return QVariantList();
-
-    const core::World* world = this->campaignMap->getWorld();
-
-    switch (this->editingMode)
-    {
-        case EditingMode::TerrainType:
-            return world->readTerrainTypes();
-
-        case EditingMode::SettlementType:
-            return world->readSettlementTypes();
-
-        case EditingMode::ArmyType:
-            return world->readArmyTypes();
-
-        default:
-            return QVariantList();
-    }
-
-    return QVariantList();
-}
-
-void CampaignMapEditor::setObjectType(QObject* objectType)
-{
-    if (this->objectType != objectType)
-    {
-        wDebug << "objectType: `" << this->objectType << "' -> `" << objectType << "'";
-        this->objectType = objectType;
-        emit objectTypeChanged();
-    }
-}
-
 QSGNode* CampaignMapEditor::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
 {
     const QMatrix4x4 transform = ui::moveTo(this->getWindowRect().topLeft(), QPoint(0, 0));
@@ -174,39 +132,9 @@ QSGNode* CampaignMapEditor::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNod
 
     rootNode->setClipRect(QRectF(0, 0, this->width(), this->height()));
 
-    const std::vector<core::CampaignMap::Content> contents = visibleContents(
-        this->campaignMap->getContents(), this->mapNodesPos, this->worldSurface->getTileSize(), this->getWindowRect());
-
-    drawContents(contents, mapRootNode, *this);
+    // TODO: invoke GraphicsSystem
 
     return rootNode;
-}
-
-QSGNode* CampaignMapEditor::drawContent(const core::CampaignMap::Content& content, QSGNode* oldNode)
-{
-    core::MapNode* mapNode = std::get<core::MapNode*>(content);
-    const QPoint& pos = this->mapNodesPos.at(mapNode);
-
-    QSGNode* mapSGNode = drawMapNode(mapNode, this->worldSurface, this->window(), pos, oldNode);
-
-    if (std::get<core::Settlement*>(content) != nullptr)
-    {
-        QSGNode* settlementSGNode = drawSettlement(
-            std::get<core::Settlement*>(content), this->worldSurface, this->window(), pos, mapSGNode->firstChild());
-
-        if (mapSGNode->firstChild() == nullptr)
-            mapSGNode->appendChildNode(settlementSGNode);
-    }
-    else if (std::get<core::Army*>(content) != nullptr)
-    {
-        QSGNode* armySGNode =
-            drawArmy(std::get<core::Army*>(content), this->worldSurface, this->window(), pos, mapSGNode->firstChild());
-
-        if (mapSGNode->firstChild() == nullptr)
-            mapSGNode->appendChildNode(armySGNode);
-    }
-
-    return mapSGNode;
 }
 
 void CampaignMapEditor::setNumberOfFactions(int n)
@@ -352,22 +280,10 @@ void CampaignMapEditor::onMapNodesChanged()
     this->updateMapRect();
 }
 
-void CampaignMapEditor::doEditingAction(const QPoint& pos)
+void CampaignMapEditor::doEditingAction(const QPoint&)
 {
     switch (this->editingMode)
     {
-        case EditingMode::TerrainType:
-            this->doTerrainTypeEditingAction(pos);
-            break;
-
-        case EditingMode::SettlementType:
-            this->doSettlementTypeEditingAction();
-            break;
-
-        case EditingMode::ArmyType:
-            this->doArmyTypeEditingAction();
-            break;
-
         case EditingMode::Edit:
             // this->doEditEditingAction();
             break;
@@ -385,173 +301,12 @@ void CampaignMapEditor::doEditingAction(const QPoint& pos)
     }
 }
 
-void CampaignMapEditor::doTerrainTypeEditingAction(const QPoint& pos)
-{
-    core::TerrainType* terrainType = qobject_cast<core::TerrainType*>(this->objectType);
-    if (terrainType == nullptr)
-    {
-        wWarning << "objectType has invalid value `" << this->objectType
-                 << "' for editing mode `EditingMode::TerrainType'";
-        return;
-    }
-
-    if (this->hoverMapNode == nullptr)
-    {
-        if (this->hoverPos)
-        {
-            const core::MapNodeNeighbours neighbours(neighboursByPos(pos, this->worldSurface, this->mapNodesPos));
-            if (!neighbours.empty())
-            {
-                this->hoverMapNode = this->campaignMap->createMapNode(terrainType, neighbours);
-
-                wDebug << "Creating new node " << this->hoverMapNode;
-            }
-        }
-    }
-    else
-    {
-        this->hoverMapNode->setTerrainType(terrainType);
-
-        wDebug << "Editing existing node " << this->hoverMapNode;
-    }
-}
-
-void CampaignMapEditor::doSettlementTypeEditingAction()
-{
-    core::SettlementType* settlementType = qobject_cast<core::SettlementType*>(this->objectType);
-    if (settlementType == nullptr)
-    {
-        wWarning << "objectType has invalid value `" << this->objectType
-                 << "' for editing mode `EditingMode::SettlementType'";
-        return;
-    }
-
-    core::MapNode* currentMapNode = this->hoverMapNode;
-
-    if (currentMapNode == nullptr)
-        return;
-
-    const std::vector<core::CampaignMap::Content>& contents = this->campaignMap->getContents();
-
-    auto it = std::find_if(contents.begin(), contents.end(), core::HasMapNode(currentMapNode));
-
-    if (it == contents.end())
-        return;
-
-    if (std::get<core::Army*>(*it) != nullptr || std::get<core::Settlement*>(*it) != nullptr)
-        return;
-
-    core::Settlement* settlement = this->campaignMap->createSettlement(settlementType);
-
-    settlement->setMapNode(currentMapNode);
-    settlement->setOwner(currentFaction);
-
-    wDebug << "Created new settlement " << settlement;
-}
-
-void CampaignMapEditor::doArmyTypeEditingAction()
-{
-    core::ArmyType* armyType = qobject_cast<core::ArmyType*>(this->objectType);
-    if (armyType == nullptr)
-    {
-        wWarning << "objectType has invalid value `" << this->objectType
-                 << "' for editing mode `EditingMode::ArmyType'";
-        return;
-    }
-
-    core::MapNode* currentMapNode = this->hoverMapNode;
-
-    if (currentMapNode == nullptr)
-        return;
-
-    const std::vector<core::CampaignMap::Content>& contents = this->campaignMap->getContents();
-
-    auto it = std::find_if(contents.begin(), contents.end(), core::HasMapNode(currentMapNode));
-
-    if (it == contents.end())
-    {
-        wWarning << "hoverMapNode not in campaign-map's contents";
-        return;
-    }
-
-    if (std::get<core::Army*>(*it) != nullptr || std::get<core::Settlement*>(*it) != nullptr)
-        return;
-
-    core::Army* army = this->campaignMap->createArmy(armyType);
-
-    army->setMapNode(currentMapNode);
-    army->setOwner(currentFaction);
-
-    wDebug << "Created new army " << army;
-}
-
 void CampaignMapEditor::doGrantToCurrentFactionEditingAction()
 {
-    core::MapNode* currentMapNode = this->hoverMapNode;
-
-    const std::vector<core::CampaignMap::Content>& contents = this->campaignMap->getContents();
-
-    auto it = std::find_if(contents.begin(), contents.end(), core::HasMapNode(currentMapNode));
-
-    if (it == contents.end())
-    {
-        wWarning << "hoverMapNode not in campaign-map's contents";
-        return;
-    }
-
-    core::Army* army = std::get<core::Army*>(*it);
-    if (army != nullptr)
-    {
-        army->setOwner(this->currentFaction);
-
-        wDebug << "Granted " << army << " to " << this->currentFaction;
-
-        return;
-    }
-
-    core::Settlement* settlement = std::get<core::Settlement*>(*it);
-    if (settlement != nullptr)
-    {
-        settlement->setOwner(this->currentFaction);
-
-        wDebug << "Granted " << settlement << " to " << this->currentFaction;
-
-        return;
-    }
 }
 
 bool CampaignMapEditor::isCurrentEditingActionPossible() const
 {
-    boost::optional<core::CampaignMap::Content> content;
-
-    if (this->hoverMapNode != nullptr)
-    {
-        const std::vector<core::CampaignMap::Content>& contents = this->campaignMap->getContents();
-
-        auto it = std::find_if(contents.begin(), contents.end(), core::HasMapNode(this->hoverMapNode));
-        content = *it;
-    }
-
-    switch (this->editingMode)
-    {
-        case EditingMode::TerrainType:
-            return true;
-
-        case EditingMode::SettlementType:
-        case EditingMode::ArmyType:
-            return content && std::get<core::Settlement*>(*content) == nullptr &&
-                std::get<core::Army*>(*content) == nullptr;
-
-        case EditingMode::Edit:
-        case EditingMode::Remove:
-        case EditingMode::GrantToCurrentFaction:
-            return content &&
-                (std::get<core::Settlement*>(*content) != nullptr || std::get<core::Army*>(*content) != nullptr);
-
-        case EditingMode::None:
-            return true;
-    }
-
     return true;
 }
 

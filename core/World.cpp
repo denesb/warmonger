@@ -18,6 +18,8 @@
 
 #include "core/World.h"
 #include "utils/QVariantUtils.h"
+#include "utils/Logging.h"
+#include "core/Utils.h"
 
 namespace warmonger {
 namespace core {
@@ -36,27 +38,17 @@ void World::setDisplayName(const QString& displayName)
     }
 }
 
-void World::setArmyTypes(const std::vector<ArmyType*>& armyTypes)
+void World::addBanner(std::unique_ptr<Banner>&& banner)
 {
-    if (this->armyTypes != armyTypes)
-    {
-        this->armyTypes = armyTypes;
-        emit armyTypesChanged();
-    }
-}
+    banner->setParent(this);
 
-QVariantList World::readArmyTypes() const
-{
-    return utils::toQVariantList(this->armyTypes);
-}
+    this->banners.push_back(banner.get());
 
-void World::setBanners(const std::vector<Banner*>& banners)
-{
-    if (this->banners != banners)
-    {
-        this->banners = banners;
-        emit bannersChanged();
-    }
+    wDebug << "Added banner " << banner.get() << " to world " << this;
+
+    banner.reset();
+
+    emit bannersChanged();
 }
 
 QVariantList World::readBanners() const
@@ -64,14 +56,22 @@ QVariantList World::readBanners() const
     return utils::toQVariantList(this->banners);
 }
 
-void World::setCivilizations(const std::vector<Civilization*>& civilizations)
-{
-    this->civilizations = civilizations;
-}
-
 QVariantList World::readCivilizations() const
 {
     return utils::toQVariantList(this->civilizations);
+}
+
+void World::addCivilization(std::unique_ptr<Civilization>&& civilization)
+{
+    civilization->setParent(this);
+
+    this->civilizations.push_back(civilization.get());
+
+    wDebug << "Added civilization " << civilization.get() << " to world " << this;
+
+    civilization.reset();
+
+    emit civilizationsChanged();
 }
 
 void World::setColors(const std::vector<QColor>& colors)
@@ -88,46 +88,40 @@ QVariantList World::readColors() const
     return utils::toQVariantList(this->colors);
 }
 
-void World::setSettlementTypes(const std::vector<SettlementType*>& settlementTypes)
+void World::addComponentType(std::unique_ptr<ComponentType>&& componentType)
 {
-    if (this->settlementTypes != settlementTypes)
-    {
-        this->settlementTypes = settlementTypes;
-        emit settlementTypesChanged();
-    }
+    componentType->setParent(this);
+
+    this->componentTypes.push_back(componentType.get());
+
+    wDebug << "Added componentType " << componentType.get() << " to world " << this;
+
+    componentType.reset();
+
+    emit componentTypesChanged();
 }
 
-QVariantList World::readSettlementTypes() const
+QVariantList World::readComponentTypes() const
 {
-    return utils::toQVariantList(this->settlementTypes);
+    return utils::toQVariantList(this->componentTypes);
 }
 
-void World::setTerrainTypes(const std::vector<TerrainType*>& terrainTypes)
+void World::addEntityType(std::unique_ptr<EntityType>&& entityType)
 {
-    if (this->terrainTypes != terrainTypes)
-    {
-        this->terrainTypes = terrainTypes;
-        emit terrainTypesChanged();
-    }
+    entityType->setParent(this);
+
+    this->entityTypes.push_back(entityType.get());
+
+    wDebug << "Added entityType " << entityType.get() << " to world " << this;
+
+    entityType.reset();
+
+    emit entityTypesChanged();
 }
 
-QVariantList World::readTerrainTypes() const
+QVariantList World::readEntityTypes() const
 {
-    return utils::toQVariantList(this->terrainTypes);
-}
-
-void World::setUnitTypes(const std::vector<UnitType*>& unitTypes)
-{
-    if (this->unitTypes != unitTypes)
-    {
-        this->unitTypes = unitTypes;
-        emit unitTypesChanged();
-    }
-}
-
-QVariantList World::readUnitTypes() const
-{
-    return utils::toQVariantList(this->unitTypes);
+    return utils::toQVariantList(this->entityTypes);
 }
 
 } // namespace core

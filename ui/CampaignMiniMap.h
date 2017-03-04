@@ -25,7 +25,6 @@
 
 #include "core/CampaignMap.h"
 #include "ui/BasicMiniMap.h"
-#include "ui/CampaignMapDrawer.h"
 #include "ui/WorldSurface.h"
 
 namespace warmonger {
@@ -39,7 +38,7 @@ namespace ui {
 
 class CampaignMapWatcher;
 
-class CampaignMiniMap : public BasicMiniMap, public CampaignMapDrawer
+class CampaignMiniMap : public BasicMiniMap
 {
     Q_OBJECT
 
@@ -57,8 +56,6 @@ public:
     void setWorldSurface(WorldSurface* worldSurface);
 
     QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* data) override;
-
-    QSGNode* drawContent(const core::CampaignMap::Content& content, QSGNode* oldNode) override;
 
 signals:
     void campaignMapChanged();

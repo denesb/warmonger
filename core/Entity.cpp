@@ -23,12 +23,15 @@
 namespace warmonger {
 namespace core {
 
-Entity::Entity(EntityType* type, const std::vector<ComponentType*>& componentTypes)
-    : type(type)
+Entity::Entity(EntityType* type, QObject* parent)
+    : QObject(parent)
+    , type(type)
 {
-    for (const auto& componentType : componentTypes)
+    for (const auto& componentType : this->type->getComponentTypes())
     {
-        this->components.emplace(componentType, std::make_unique<Component>(componentType));
+        const auto result{this->components.emplace(componentType, std::make_unique<Component>(componentType))};
+
+        QObject::connect(result.first->second.get(), &Component::propertyChanged, this, &Entity::componentChanged);
     }
 }
 

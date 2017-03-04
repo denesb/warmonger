@@ -29,9 +29,11 @@
 namespace warmonger {
 
 namespace core {
-class World;
-class EntityType;
+class Banner;
+class Civilization;
 class ComponentType;
+class EntityType;
+class World;
 }
 
 namespace io {
@@ -49,13 +51,32 @@ public:
     }
 
     /**
-     * Unserialize a world.
+     * Unserialize an banner.
      *
      * \param data the raw data
      *
-     * \return the unserialized world object
+     * \return the unserialized banner object
      */
-    virtual std::unique_ptr<core::World> unserializeWorld(const QByteArray& data) const = 0;
+    virtual std::unique_ptr<core::Banner> unserializeBanner(
+        const QByteArray& data, const std::vector<core::Civilization*>& allCivilizations) const = 0;
+
+    /**
+     * Unserialize an civilization.
+     *
+     * \param data the raw data
+     *
+     * \return the unserialized civilization object
+     */
+    virtual std::unique_ptr<core::Civilization> unserializeCivilization(const QByteArray& data) const = 0;
+
+    /**
+     * Unserialize a component-type.
+     *
+     * \param data the raw data
+     *
+     * \return the unserialized component-type object
+     */
+    virtual std::unique_ptr<core::ComponentType> unserializeComponentType(const QByteArray& data) const = 0;
 
     /**
      * Unserialize an entity-type.
@@ -68,13 +89,13 @@ public:
         const QByteArray& data, const std::vector<core::ComponentType*>& allComponentTypes) const = 0;
 
     /**
-     * Unserialize a component-type.
+     * Unserialize a world.
      *
      * \param data the raw data
      *
-     * \return the unserialized component-type object
+     * \return the unserialized world object
      */
-    virtual std::unique_ptr<core::ComponentType> unserializeComponentType(const QByteArray& data) const = 0;
+    virtual std::unique_ptr<core::World> unserializeWorld(const QByteArray& data) const = 0;
 };
 
 } // namespace warmonger

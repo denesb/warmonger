@@ -22,6 +22,8 @@
 
 #include <map>
 
+#include <QObject>
+
 #include "core/Component.h"
 #include "core/EntityType.h"
 
@@ -42,15 +44,18 @@ namespace core {
  * \see warmonger::core::EntityType
  * \see warmonger::core::World
  */
-class Entity
+class Entity : public QObject
 {
+    Q_OBJECT
+
 public:
     /**
      * Create an entity of the given type
      *
      * \param type the entity-type
+     * \param parent the parent QObject
      */
-    explicit Entity(EntityType* type, const std::vector<ComponentType*>& componentTypes);
+    explicit Entity(EntityType* type, QObject* parent = nullptr);
 
     /**
      * Get the type
@@ -67,6 +72,7 @@ public:
      *
      * An entity can have only one component of a given type so retrieving them
      * is possible by type.
+     * Changing the component will trigger the Entity::componentChanged() signal.
      *
      * \param componentType the component-type
      *
@@ -79,12 +85,19 @@ public:
      *
      * An entity can have only one component of a given type so retrieving them
      * is possible by type.
+     * Changing the component will trigger the Entity::componentChanged() signal.
      *
      * \param componentTypeName the component-type's name
      *
      * \return the component or nullptr if entity doesn't have componentType
      */
     Component* operator[](const QString& componentTypeName);
+
+signals:
+    /**
+     * Emitted when one of the components changes.
+     */
+    void componentChanged();
 
 private:
     EntityType* type;

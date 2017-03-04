@@ -26,7 +26,6 @@
 
 #include "core/CampaignMap.h"
 #include "ui/BasicMap.h"
-#include "ui/CampaignMapDrawer.h"
 #include "ui/WorldSurface.h"
 
 namespace warmonger {
@@ -47,7 +46,7 @@ class CampaignMapWatcher;
  * \see core::CampaignMap
  * \see WorldSurface
  */
-class CampaignMapPreview : public QQuickItem, public CampaignMapDrawer
+class CampaignMapPreview : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(
@@ -116,16 +115,6 @@ public:
      * \see QQuickItem::updatePaintNode()
      */
     QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* oldNodeData) override;
-
-    /**
-     * Draw the content.
-     *
-     * \param content - the content to be drawn
-     * \param oldNode - the node drawn by the previous call if any
-     *
-     * \return the drawn node
-     */
-    QSGNode* drawContent(const core::CampaignMap::Content& content, QSGNode* oldNode) override;
 
 signals:
     /**

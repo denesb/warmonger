@@ -23,8 +23,6 @@ namespace warmonger {
 namespace core {
 
 class MapNode;
-class Settlement;
-class Army;
 }
 
 namespace ui {
@@ -87,21 +85,6 @@ std::map<core::MapNode*, QPoint> positionMapNodes(core::MapNode* startNode, cons
 QRect calculateBoundingRect(const std::map<core::MapNode*, QPoint>& nodesPos, const QSize& tileSize);
 
 /**
- * The visible contents in the window.
- *
- * \param contents the contents, \see CampaignMap::getContents()
- * \param mapNodesPos the position of each map-node
- * \param tileSize the size of a map-node
- * \param window the window
- *
- * \return the list of visible map-nodes
- */
-std::vector<core::CampaignMap::Content> visibleContents(const std::vector<core::CampaignMap::Content>& contents,
-    const std::map<core::MapNode*, QPoint>& mapNodesPos,
-    const QSize& tileSize,
-    const QRect& window);
-
-/**
  * Find node at position pos.
  *
  * \param pos the position
@@ -113,6 +96,14 @@ std::vector<core::CampaignMap::Content> visibleContents(const std::vector<core::
 core::MapNode* mapNodeAtPos(
     const QPoint& pos, const std::map<core::MapNode*, QPoint>& mapNodesPos, const WorldSurface* worldSurface);
 
+/**
+ * Project point p into the reactangle r.
+ *
+ * \param p the point
+ * \param r the rectangle
+ *
+ * \returns the projected point
+ */
 QPoint project(const QPoint& p, const QRect& r);
 
 /**
@@ -140,65 +131,6 @@ QMatrix4x4 centerIn(const QRectF& content, const QRectF& frame);
  * \return the translation matrix
  */
 QMatrix4x4 moveTo(const QPoint& point, const QPoint& refPoint);
-
-/**
- * Draw contents.
- *
- * This function will call CampaignMapDrawer::drawContent() for each item in
- * the content list. It resuses existing nodes in the scene-graph subtree if
- * possible.
- *
- * \param contents the contents to be drawn, \see CampaignMap::getContents()
- * \param rootNode the root-node of the scene-graph subtree to be built
- * \param campaignMapDrawer the object which will do the actual drawing
- */
-void drawContents(
-    const std::vector<core::CampaignMap::Content>& contents, QSGNode* rootNode, CampaignMapDrawer& campaignMapDrawer);
-
-/**
- * Draw a map-node
- *
- * \param mapNode the map-node to be drawn
- * \param worldSurface the actual world surface (contains the textures)
- * \param window the window where the node will be rendered
- * \param pos the position of the node
- * \param oldNode the result of the previous draw call if any or nullptr
- *
- * \return the resulting scene-graph node
- */
-QSGNode* drawMapNode(
-    core::MapNode* mapNode, ui::WorldSurface* worldSurface, QQuickWindow* window, const QPoint& pos, QSGNode* oldNode);
-
-/**
- * Draw a settlement
- *
- * \param settlement the settlement to be drawn
- * \param worldSurface the actual world surface (contains the textures)
- * \param window the window where the node will be rendered
- * \param pos the position of the node
- * \param oldNode the result of the previous draw call if any or nullptr
- *
- * \return the resulting scene-graph node
- */
-QSGNode* drawSettlement(core::Settlement* settlement,
-    ui::WorldSurface* worldSurface,
-    QQuickWindow* window,
-    const QPoint& pos,
-    QSGNode* oldNode);
-
-/**
- * Draw an army
- *
- * \param army the army to be drawn
- * \param worldSurface the actual world surface (contains the textures)
- * \param window the window where the node will be rendered
- * \param pos the position of the node
- * \param oldNode the result of the previous draw call if any or nullptr
- *
- * \return the resulting scene-graph node
- */
-QSGNode* drawArmy(
-    core::Army* army, ui::WorldSurface* worldSurface, QQuickWindow* window, const QPoint& pos, QSGNode* oldNode);
 
 /**
  * Draw a rectangle

@@ -54,29 +54,6 @@ std::vector<MapNode*> generateMapNodes(unsigned int radius)
     return nodes;
 }
 
-void generateMapNodeNames(const std::vector<MapNode*>& nodes)
-{
-    for (std::size_t i = 0; i < nodes.size(); ++i)
-    {
-        nodes[i]->setObjectName("mapNode" + QString::number(i));
-    }
-}
-
-void generateMapNodeTerrainTypes(const std::vector<MapNode*>& nodes, const std::vector<TerrainType*>& terrainTypes)
-{
-    if (terrainTypes.empty())
-        return;
-
-    std::srand(std::time(0));
-    const std::size_t range = terrainTypes.size();
-
-    for (MapNode* node : nodes)
-    {
-        const std::size_t index = std::rand() % range;
-        node->setTerrainType(terrainTypes[index]);
-    }
-}
-
 namespace {
 
 void addMapNodeRing(std::vector<MapNode*>& nodes)

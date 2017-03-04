@@ -1,7 +1,7 @@
 /** \file
- * JSON serializer.
+ * Campaign-map JSON Serializer.
  *
- * \copyright (C) 2015-2017 Botond Dénes
+ * \copyright (C) 2014-2016 Botond Dénes
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,26 +18,36 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef IO_JSON_SERIALIZER_H
-#define IO_JSON_SERIALIZER_H
+#ifndef W_IO_CAMPAIGN_MAP_JSON_SERIALIZER_H
+#define W_IO_CAMPAIGN_MAP_JSON_SERIALIZER_H
 
+#include <QByteArray>
 #include <QJsonDocument>
 
-#include "io/Serializer.h"
+#include "io/CampaignMapSerializer.h"
 
 namespace warmonger {
+
+namespace core {
+class CampaignMap;
+class Component;
+class Entity;
+class Faction;
+class MapNode;
+}
+
 namespace io {
 
 /**
- * JSON serializer.
+ * Campaign-map json serializer.
  *
- * Serialize any core game-object to JSON.
+ * Serialize the campiang-map and related core game-objects.
  */
-class JsonSerializer : public Serializer
+class CampaignMapJsonSerializer : public CampaignMapSerializer
 {
 public:
     /**
-     * Construct a json-serializer object.
+     * Construct a campaign-map json-serializer object.
      *
      * The compactness of the produced data can be changed by the format param.
      * Use QJsonDocument::Indented to produce nice human-readable output or
@@ -46,61 +56,52 @@ public:
      *
      * \param format the formatting method to use
      */
-    JsonSerializer(QJsonDocument::JsonFormat format = QJsonDocument::Indented);
+    CampaignMapJsonSerializer(QJsonDocument::JsonFormat format = QJsonDocument::Indented);
 
     /**
-     * Serialize an banner.
-     *
-     * \param obj the banner
-     *
-     * \return the raw serialized data
-     */
-    QByteArray serializeBanner(const core::Banner* obj) override;
-
-    /**
-     * Serialize an campaign-map.
+     * Serialize an campaign-map to json.
      *
      * \param obj the campaign-map
      *
      * \return the raw serialized data
      */
-    QByteArray serializeCampaignMap(const core::CampaignMap* obj) override;
+    QByteArray serializeCampaignMap(const core::CampaignMap* const obj) const override;
 
     /**
-     * Serialize an civilization.
+     * Serialize a component to json.
      *
-     * \param obj the civilization
+     * \param obj the component
      *
      * \return the raw serialized data
      */
-    QByteArray serializeCivilization(const core::Civilization* obj) override;
+    QByteArray serializeComponent(const core::Component* const obj) const override;
 
     /**
-     * Serialize an faction.
+     * Serialize a entity json.
+     *
+     * \param obj the entity
+     *
+     * \return the raw serialized data
+     */
+    QByteArray serializeEntity(const core::Entity* const obj) const override;
+
+    /**
+     * Serialize an faction to json.
      *
      * \param obj the faction
      *
      * \return the raw serialized data
      */
-    QByteArray serializeFaction(const core::Faction* obj) override;
+    QByteArray serializeFaction(const core::Faction* const obj) const override;
 
     /**
-     * Serialize an map-node.
+     * Serialize an map-node to json.
      *
      * \param obj the map-node
      *
      * \return the raw serialized data
      */
-    QByteArray serializeMapNode(const core::MapNode* obj) override;
-
-    /**
-     * Serialize an world.
-     *
-     * \param obj the world
-     *
-     * \return the raw serialized data
-     */
-    QByteArray serializeWorld(const core::World* obj) override;
+    QByteArray serializeMapNode(const core::MapNode* const obj) const override;
 
 private:
     QJsonDocument::JsonFormat format;
@@ -109,4 +110,4 @@ private:
 } // namespace warmonger
 } // namespace io
 
-#endif // IO_JSON_SERIALIZER_H
+#endif // W_IO_CAMPAIGN_MAP_JSON_SERIALIZER_H

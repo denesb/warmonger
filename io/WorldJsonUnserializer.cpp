@@ -29,17 +29,134 @@
 namespace warmonger {
 namespace io {
 
-std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByteArray&) const
+static std::unique_ptr<core::Banner> bannerFromJson(
+    const QJsonObject& jobj, const std::vector<core::Civilization*>& allCivilizations);
+static std::unique_ptr<core::Civilization> civilizationFromJson(const QJsonObject& jobj);
+static std::unique_ptr<core::ComponentType> componentTypeFromJson(const QJsonObject& jobj);
+static std::unique_ptr<core::EntityType> entityTypeFromJson(
+    const QJsonObject& jobj, const std::vector<core::ComponentType*>& allComponentTypes);
+
+std::unique_ptr<core::Banner> WorldJsonUnserializer::unserializeBanner(
+    const QByteArray& data, const std::vector<core::Civilization*>& allCivilizations) const
 {
-    return std::unique_ptr<core::World>();
+    QJsonDocument jdoc(parseJson(data));
+    return bannerFromJson(jdoc.object(), allCivilizations);
+}
+
+std::unique_ptr<core::Civilization> WorldJsonUnserializer::unserializeCivilization(const QByteArray& data) const
+{
+    QJsonDocument jdoc(parseJson(data));
+    return civilizationFromJson(jdoc.object());
+}
+
+std::unique_ptr<core::ComponentType> WorldJsonUnserializer::unserializeComponentType(const QByteArray& data) const
+{
+    QJsonDocument jdoc(parseJson(data));
+    return componentTypeFromJson(jdoc.object());
 }
 
 std::unique_ptr<core::EntityType> WorldJsonUnserializer::unserializeEntityType(
     const QByteArray& data, const std::vector<core::ComponentType*>& allComponentTypes) const
 {
-    QJsonDocument jdoc{parseJson(data)};
-    QJsonObject jobj{jdoc.object()};
+    QJsonDocument jdoc(parseJson(data));
+    return entityTypeFromJson(jdoc.object(), allComponentTypes);
+}
 
+std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByteArray& data) const
+{
+    QJsonDocument jdoc(parseJson(data));
+    QJsonObject jobj = jdoc.object();
+
+    std::unique_ptr<core::World> obj(new core::World());
+
+    obj->setObjectName(jobj["objectName"].toString());
+
+    obj->setDisplayName(jobj["displayName"].toString());
+
+    const QJsonArray civilizations = jobj["civilizations"].toArray();
+    std::for_each(civilizations.begin(), civilizations.end(), [&obj](const auto& val) {
+        obj->addCivilization(civilizationFromJson(val.toObject()));
+    });
+
+    std::vector<QColor> colors;
+    for (const auto&& color : jobj["colors"].toArray())
+    {
+        colors.emplace_back(color.toString());
+    }
+
+    obj->setColors(colors);
+
+    const QJsonArray banners = jobj["banners"].toArray();
+    std::for_each(banners.begin(), banners.end(), [&obj](const auto& val) {
+        obj->addBanner(bannerFromJson(val.toObject(), obj->getCivilizations()));
+    });
+
+    return obj;
+}
+
+static std::unique_ptr<core::Banner> bannerFromJson(
+    const QJsonObject& jobj, const std::vector<core::Civilization*>&)
+{
+    std::unique_ptr<core::Banner> obj(new core::Banner());
+
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+
+    /*
+    if (jobj.contains("civilizations"))
+        obj->setCivilizations(fromQJsonArray<std::vector<core::Civilization*>>(
+            jobj["civilizations"].toArray(), ReferenceResolver<core::Civilization>(ctx)));
+            */
+
+    return obj;
+}
+
+static std::unique_ptr<core::Civilization> civilizationFromJson(const QJsonObject& jobj)
+{
+    auto obj = std::make_unique<core::Civilization>();
+
+    obj->setObjectName(jobj["objectName"].toString());
+    obj->setDisplayName(jobj["displayName"].toString());
+
+    return obj;
+}
+
+static std::unique_ptr<core::ComponentType> componentTypeFromJson(const QJsonObject& jobj)
+{
+    const QString& name{jobj["name"].toString()};
+
+    if (name.isNull() || name.isEmpty())
+    {
+        throw utils::ValueError("Failed to unserialize component-type, it doesn't have a name property");
+    }
+
+    const QJsonArray jpropertyNames(jobj["propertyNames"].toArray());
+
+    if (jpropertyNames.isEmpty())
+    {
+        throw utils::ValueError("Failed to unserialize component-type " + name + ", it doesn't have any properties");
+    }
+
+    std::vector<QString> propertyNames;
+
+    for (const auto& jpropertyName : jpropertyNames)
+    {
+        const QString propertyName{jpropertyName.toString()};
+
+        if (propertyName.isNull())
+        {
+            throw utils::ValueError("Failed to unserialize component-type " + name + ", it has an empty property name");
+        }
+
+        propertyNames.push_back(propertyName);
+    }
+
+    return std::make_unique<core::WorldComponentType>(name, propertyNames);
+}
+
+static std::unique_ptr<core::EntityType> entityTypeFromJson(
+    const QJsonObject& jobj, const std::vector<core::ComponentType*>& allComponentTypes)
+{
     const QString& name{jobj["name"].toString()};
 
     if (name.isNull() || name.isEmpty())
@@ -81,42 +198,6 @@ std::unique_ptr<core::EntityType> WorldJsonUnserializer::unserializeEntityType(
     }
 
     return std::make_unique<core::EntityType>(name, componentTypes);
-}
-
-std::unique_ptr<core::ComponentType> WorldJsonUnserializer::unserializeComponentType(const QByteArray& data) const
-{
-    QJsonDocument jdoc{parseJson(data)};
-    QJsonObject jobj{jdoc.object()};
-
-    const QString& name{jobj["name"].toString()};
-
-    if (name.isNull() || name.isEmpty())
-    {
-        throw utils::ValueError("Failed to unserialize component-type, it doesn't have a name property");
-    }
-
-    const QJsonArray jpropertyNames(jobj["propertyNames"].toArray());
-
-    if (jpropertyNames.isEmpty())
-    {
-        throw utils::ValueError("Failed to unserialize component-type " + name + ", it doesn't have any properties");
-    }
-
-    std::vector<QString> propertyNames;
-
-    for (const auto& jpropertyName : jpropertyNames)
-    {
-        const QString propertyName{jpropertyName.toString()};
-
-        if (propertyName.isNull())
-        {
-            throw utils::ValueError("Failed to unserialize component-type " + name + ", it has an empty property name");
-        }
-
-        propertyNames.push_back(propertyName);
-    }
-
-    return std::make_unique<core::WorldComponentType>(name, propertyNames);
 }
 
 } // namespace warmonger

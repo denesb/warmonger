@@ -87,11 +87,10 @@ set(
 
 set(
     CORE_SRC_FILES
-    core/Army.cpp
-    core/ArmyType.cpp
     core/Banner.cpp
     core/CampaignMap.cpp
     core/Civilization.cpp
+    core/Component.cpp
     core/Entity.cpp
     core/EntityType.cpp
     core/Faction.cpp
@@ -99,23 +98,20 @@ set(
     core/MapGenerator.cpp
     core/MapNode.cpp
     core/MapNodeNeighbours.cpp
-    core/Settlement.cpp
-    core/SettlementType.cpp
-    core/TerrainType.cpp
-    core/Unit.cpp
-    core/UnitType.cpp
+    core/Utils.cpp
     core/World.cpp
     core/WorldComponentType.cpp
 )
 
 set(
     IO_SRC_FILES
+    io/CampaignMapJsonSerializer.cpp
+    io/CampaignMapJsonUnserializer.cpp
     io/Context.cpp
     io/File.cpp
-    io/JsonSerializer.cpp
-    io/JsonUnserializer.cpp
-    io/WorldJsonUnserializer.cpp
     io/SanityCheck.cpp
+    io/WorldJsonSerializer.cpp
+    io/WorldJsonUnserializer.cpp
 )
 
 set(
@@ -139,18 +135,11 @@ set(
     TEST_SRC_FILES
     test/test_warmonger.cpp
     test/Util.cpp
-    test/core/ArmyType.cpp
-    test/core/CampaignMap.cpp
     test/core/HierarchyNode.cpp
     test/core/MapGenerator.cpp
     test/core/MapNodeNeighbours.cpp
-    test/core/SettlementType.cpp
-    test/core/TerrainType.cpp
-    test/core/UnitType.cpp
     test/io/Context.cpp
     test/io/File.cpp
-    test/io/JsonSerializer.cpp
-    test/io/JsonUnserializer.cpp
     test/io/SanityCheck.cpp
     test/ui/CampaignMapEditor.cpp
     test/ui/MapUtil.cpp

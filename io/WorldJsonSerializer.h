@@ -1,5 +1,5 @@
 /** \file
- * JSON serializer.
+ * World JSON serializer.
  *
  * \copyright (C) 2015-2017 Botond Dénes
  *
@@ -18,12 +18,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef IO_JSON_SERIALIZER_H
-#define IO_JSON_SERIALIZER_H
+#ifndef W_IO_WORLD_JSON_SERIALIZER_H
+#define W_IO_WORLD_JSON_SERIALIZER_H
 
 #include <QJsonDocument>
 
-#include "io/Serializer.h"
+#include "io/WorldSerializer.h"
 
 namespace warmonger {
 namespace io {
@@ -33,7 +33,7 @@ namespace io {
  *
  * Serialize any core game-object to JSON.
  */
-class JsonSerializer : public Serializer
+class WorldJsonSerializer : public WorldSerializer
 {
 public:
     /**
@@ -46,7 +46,7 @@ public:
      *
      * \param format the formatting method to use
      */
-    JsonSerializer(QJsonDocument::JsonFormat format = QJsonDocument::Indented);
+    WorldJsonSerializer(QJsonDocument::JsonFormat format = QJsonDocument::Indented);
 
     /**
      * Serialize an banner.
@@ -55,16 +55,7 @@ public:
      *
      * \return the raw serialized data
      */
-    QByteArray serializeBanner(const core::Banner* obj) override;
-
-    /**
-     * Serialize an campaign-map.
-     *
-     * \param obj the campaign-map
-     *
-     * \return the raw serialized data
-     */
-    QByteArray serializeCampaignMap(const core::CampaignMap* obj) override;
+    QByteArray serializeBanner(const core::Banner* const obj) const override;
 
     /**
      * Serialize an civilization.
@@ -73,34 +64,34 @@ public:
      *
      * \return the raw serialized data
      */
-    QByteArray serializeCivilization(const core::Civilization* obj) override;
+    QByteArray serializeCivilization(const core::Civilization* const obj) const override;
 
     /**
-     * Serialize an faction.
+     * Serialize an component-type.
      *
-     * \param obj the faction
+     * \param obj the component-type
      *
      * \return the raw serialized data
      */
-    QByteArray serializeFaction(const core::Faction* obj) override;
+    QByteArray serializeComponentType(const core::ComponentType* const obj) const override;
 
     /**
-     * Serialize an map-node.
+     * Serialize an entity-type.
      *
-     * \param obj the map-node
+     * \param obj the entity-type
      *
      * \return the raw serialized data
      */
-    QByteArray serializeMapNode(const core::MapNode* obj) override;
+    QByteArray serializeEntityType(const core::EntityType* const obj) const override;
 
     /**
-     * Serialize an world.
+     * Serialize a world.
      *
      * \param obj the world
      *
      * \return the raw serialized data
      */
-    QByteArray serializeWorld(const core::World* obj) override;
+    QByteArray serializeWorld(const core::World* const obj) const override;
 
 private:
     QJsonDocument::JsonFormat format;
@@ -109,4 +100,4 @@ private:
 } // namespace warmonger
 } // namespace io
 
-#endif // IO_JSON_SERIALIZER_H
+#endif // W_IO_WORLD_JSON_SERIALIZER_H

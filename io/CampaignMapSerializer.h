@@ -1,5 +1,5 @@
 /** \file
- * Serializer interface.
+ * Campaign-map Serializer interface.
  *
  * \copyright (C) 2014-2016 Botond Dénes
  *
@@ -18,41 +18,31 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef IO_SERIALIZER_H
-#define IO_SERIALIZER_H
+#ifndef W_IO_CAMPAIGN_MAP_SERIALIZER_H
+#define W_IO_CAMPAIGN_MAP_SERIALIZER_H
 
 #include <QByteArray>
 
 namespace warmonger {
 
 namespace core {
-class Banner;
 class CampaignMap;
-class Civilization;
+class Component;
+class Entity;
 class Faction;
 class MapNode;
-class World;
 }
 
 namespace io {
 
 /**
- * Serializer interface.
+ * Campaign-map serializer interface.
  *
- * Serialize any core game-object.
+ * Serialize the campiang-map and related core game-objects.
  */
-class Serializer
+class CampaignMapSerializer
 {
 public:
-    /**
-     * Serialize an banner.
-     *
-     * \param obj the banner
-     *
-     * \return the raw serialized data
-     */
-    virtual QByteArray serializeBanner(const core::Banner* obj) = 0;
-
     /**
      * Serialize an campaign-map.
      *
@@ -60,16 +50,25 @@ public:
      *
      * \return the raw serialized data
      */
-    virtual QByteArray serializeCampaignMap(const core::CampaignMap* obj) = 0;
+    virtual QByteArray serializeCampaignMap(const core::CampaignMap* const obj) const = 0;
 
     /**
-     * Serialize an civilization.
+     * Serialize a component.
      *
-     * \param obj the civilization
+     * \param obj the component
      *
      * \return the raw serialized data
      */
-    virtual QByteArray serializeCivilization(const core::Civilization* obj) = 0;
+    virtual QByteArray serializeComponent(const core::Component* const obj) const = 0;
+
+    /**
+     * Serialize a entity.
+     *
+     * \param obj the entity
+     *
+     * \return the raw serialized data
+     */
+    virtual QByteArray serializeEntity(const core::Entity* const obj) const = 0;
 
     /**
      * Serialize an faction.
@@ -78,7 +77,7 @@ public:
      *
      * \return the raw serialized data
      */
-    virtual QByteArray serializeFaction(const core::Faction* obj) = 0;
+    virtual QByteArray serializeFaction(const core::Faction* const obj) const = 0;
 
     /**
      * Serialize an map-node.
@@ -87,19 +86,10 @@ public:
      *
      * \return the raw serialized data
      */
-    virtual QByteArray serializeMapNode(const core::MapNode* obj) = 0;
-
-    /**
-     * Serialize an world.
-     *
-     * \param obj the world
-     *
-     * \return the raw serialized data
-     */
-    virtual QByteArray serializeWorld(const core::World* obj) = 0;
+    virtual QByteArray serializeMapNode(const core::MapNode* const obj) const = 0;
 };
 
 } // namespace warmonger
 } // namespace io
 
-#endif // IO_SERIALIZER_H
+#endif // W_IO_CAMPAIGN_MAP_SERIALIZER_H

@@ -20,10 +20,6 @@
 #include <QSGTransformNode>
 
 #include "core/Faction.h"
-#include "core/Settlement.h"
-#include "core/SettlementType.h"
-#include "core/TerrainType.h"
-#include "core/Unit.h"
 #include "ui/CampaignMapWatcher.h"
 #include "ui/CampaignMiniMap.h"
 #include "ui/MapUtil.h"
@@ -118,18 +114,9 @@ QSGNode* CampaignMiniMap::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeD
         rootNode->setMatrix(transform);
     }
 
-    drawContents(this->campaignMap->getContents(), mapRootNode, *this);
+    // TODO: invoke GraphicsSystem
 
     return rootNode;
-}
-
-QSGNode* CampaignMiniMap::drawContent(const core::CampaignMap::Content& content, QSGNode* oldNode)
-{
-    return drawMapNode(std::get<core::MapNode*>(content),
-        this->worldSurface,
-        this->window(),
-        this->mapNodesPos.at(std::get<core::MapNode*>(content)),
-        oldNode);
 }
 
 void CampaignMiniMap::updateContent()

@@ -38,17 +38,22 @@ namespace core {
  *
  * Components have a set of properties defined by their component-type.
  *
+ * TODO: QVariant's do not allow for value change tracking,
+ * need a better solution.
+ *
  * \see warmonger::core::ComponentType
  */
-class Component
+class Component : public QObject
 {
+    Q_OBJECT
+
 public:
     /**
      * Create a component with the given type.
      *
      * \param type the type
      */
-    explicit Component(const ComponentType* type);
+    explicit Component(ComponentType* type, QObject* parent = nullptr);
 
     /**
      * Get the type.
@@ -71,6 +76,12 @@ public:
      * \returns the property value
      */
     QVariant& operator[](const QString& name);
+
+signals:
+    /**
+     * Emitted when a property's value changes.
+     */
+    void propertyChanged();
 
 private:
     ComponentType* type;

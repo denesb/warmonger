@@ -18,11 +18,19 @@
 
 #include <QObject>
 
-#include "core/ArmyType.h"
-#include "core/UnitType.h"
 #include "io/Context.h"
 #include "test/Util.h"
 #include "test/catch.hpp"
+
+class TestClass0 : public QObject
+{
+    Q_OBJECT
+};
+
+class TestClass1 : public QObject
+{
+    Q_OBJECT
+};
 
 using namespace warmonger;
 
@@ -49,9 +57,9 @@ TEST_CASE("Objects derived from QObject", "[Context]")
 {
     io::Context ctx;
 
-    core::ArmyType a;
+    TestClass0 a;
     a.setObjectName("armyType1");
-    core::UnitType dt;
+    TestClass1 dt;
     dt.setObjectName("unitType1");
 
     ctx.add(&a);
@@ -59,7 +67,7 @@ TEST_CASE("Objects derived from QObject", "[Context]")
 
     SECTION("ArmyType can retrieved")
     {
-        core::ArmyType* a1 = ctx.get<core::ArmyType*>(a.objectName());
+        TestClass0* a1 = ctx.get<TestClass0*>(a.objectName());
 
         REQUIRE(a1 != nullptr);
         REQUIRE(a.objectName() == a1->objectName());
@@ -68,7 +76,7 @@ TEST_CASE("Objects derived from QObject", "[Context]")
 
     SECTION("UnitType can retrieved")
     {
-        core::UnitType* dt1 = ctx.get<core::UnitType*>(dt.objectName());
+        TestClass1* dt1 = ctx.get<TestClass1*>(dt.objectName());
 
         REQUIRE(dt1 != nullptr);
         REQUIRE(dt.objectName() == dt1->objectName());
@@ -80,9 +88,9 @@ TEST_CASE("Objects with the same name but different type", "[Context]")
 {
     io::Context ctx;
 
-    core::ArmyType a;
+    TestClass0 a;
     a.setObjectName("object1");
-    core::UnitType dt;
+    TestClass1 dt;
     dt.setObjectName("object1");
 
     ctx.add(&a);
@@ -90,7 +98,7 @@ TEST_CASE("Objects with the same name but different type", "[Context]")
 
     SECTION("ArmyType can retrieved")
     {
-        core::ArmyType* a1 = ctx.get<core::ArmyType*>(a.objectName());
+        TestClass0* a1 = ctx.get<TestClass0*>(a.objectName());
 
         REQUIRE(a1 != nullptr);
         REQUIRE(a.objectName() == a1->objectName());
@@ -99,7 +107,7 @@ TEST_CASE("Objects with the same name but different type", "[Context]")
 
     SECTION("UnitType can retrieved")
     {
-        core::UnitType* dt1 = ctx.get<core::UnitType*>(dt.objectName());
+        TestClass1* dt1 = ctx.get<TestClass1*>(dt.objectName());
 
         REQUIRE(dt1 != nullptr);
         REQUIRE(dt.objectName() == dt1->objectName());
@@ -111,12 +119,12 @@ TEST_CASE("Inexistent object", "[Context]")
 {
     io::Context ctx;
 
-    core::ArmyType a;
+    TestClass0 a;
     a.setObjectName("object1");
 
     SECTION("ArmyType can retrieved")
     {
-        core::ArmyType* a1 = ctx.get<core::ArmyType*>(a.objectName());
+        TestClass0* a1 = ctx.get<TestClass0*>(a.objectName());
 
         REQUIRE(a1 == nullptr);
     }
@@ -145,7 +153,7 @@ private:
 
 TEST_CASE("Lookup callback", "[Context]")
 {
-    core::ArmyType a;
+    TestClass0 a;
     a.setObjectName("retrievedObject");
 
     SECTION("ArmyType can retrieved, via callback")
@@ -153,7 +161,7 @@ TEST_CASE("Lookup callback", "[Context]")
         TestCallback cb(&a);
         io::Context ctx(cb);
 
-        core::ArmyType* a1 = ctx.get<core::ArmyType*>(a.objectName());
+        TestClass0* a1 = ctx.get<TestClass0*>(a.objectName());
 
         REQUIRE(a1 == &a);
     }

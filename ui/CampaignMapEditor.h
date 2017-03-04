@@ -27,7 +27,6 @@
 
 #include "core/CampaignMap.h"
 #include "ui/BasicMap.h"
-#include "ui/CampaignMapDrawer.h"
 #include "ui/WorldSurface.h"
 
 namespace warmonger {
@@ -48,7 +47,7 @@ class CampaignMapWatcher;
  * \see core::CampaignMap
  * \see WorldSurface
  */
-class CampaignMapEditor : public BasicMap, public CampaignMapDrawer
+class CampaignMapEditor : public BasicMap
 {
     Q_OBJECT
     Q_PROPERTY(
@@ -56,8 +55,6 @@ class CampaignMapEditor : public BasicMap, public CampaignMapDrawer
     Q_PROPERTY(WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
     Q_PROPERTY(warmonger::ui::CampaignMapEditor::EditingMode editingMode READ getEditingMode WRITE setEditingMode NOTIFY
             editingModeChanged)
-    Q_PROPERTY(QVariantList availableObjectTypes READ readAvailableObjectTypes NOTIFY availableObjectTypesChanged)
-    Q_PROPERTY(QObject* objectType READ getObjectType WRITE setObjectType NOTIFY objectTypeChanged)
     Q_PROPERTY(warmonger::core::Faction* currentFaction READ getCurrentFaction WRITE setCurrentFaction NOTIFY
             currentFactionChanged)
 
@@ -70,9 +67,6 @@ public:
     enum class EditingMode
     {
         None,
-        TerrainType,
-        SettlementType,
-        ArmyType,
         Edit,
         Remove,
         GrantToCurrentFaction
@@ -149,64 +143,14 @@ public:
     /**
      * Set the editing-mode.
      *
-     * The editing-mode together with the object-type (\see
-     * CampaignMapEditor::setObjectType()) determines what happens when the
-     * user clicks on the map-editor. Editing-mode determines the class of
-     * objects that the will be editited. E.g. the TerrainType editing-mode
-     * means that all editing-actions will target the map-nodes.
+     * The editing-mode determines what happens when the
+     * user clicks on the map-editor.
      * Will emit the signal CampaignMapEditor::editingModeChanged() if the
      * newly set value is different than the current one.
      *
-     * \param editingMode - the editing-mode
+     * \param editingMode the editing-mode
      */
     void setEditingMode(EditingMode editingMode);
-
-    /**
-     * Read method which returns the available object-types.
-     *
-     * The available object-types depend on the current editing-mode. Some
-     * editing-modes might have no available object-types, in this case the
-     * return list will be empty.
-     * This function is used as a read function for the availableObjectTypes
-     * property and is not supposed to be called from C++ code.
-     *
-     * \returns the available object-types as a QVariantList
-     *
-     * \see CampaignMapEditor::setObjectType()
-     * \see CampaignMapEditor::setEditingMode()
-     */
-    QVariantList readAvailableObjectTypes() const;
-
-    /**
-     * Get the object-type.
-     *
-     * \returns the object-type
-     *
-     * \see CampaignMapEditor::setObjectType()
-     */
-    QObject* getObjectType() const
-    {
-        return this->objectType;
-    }
-
-    /**
-     * Set the object-type.
-     *
-     * The object-type together with the editing-mode determines what happens
-     * when the user clicks on the map. While the editing-mode determines the
-     * kind-of object that will be affected the object-type determines what
-     * will the affected object become, e.g. if the editing-mode is
-     * EditingMode::TerrainType and the objectType is *plains* then when the
-     * user clicks on a map-node its terrain-type is going to be changed to
-     * *plains*.
-     * The object-type has to be one of the available object-types as returned
-     * by CampaignMapEditor::readAvailableObjectTypes().
-     * Will emit the signal CampaignMapEditor::objectTypeChanged() if the
-     * newly set value is different than the current one.
-     *
-     * \param objectType - the object-type
-     */
-    void setObjectType(QObject* objectType);
 
     /**
      * Update the scene-graph.
@@ -214,16 +158,6 @@ public:
      * \see QQuickItem::updatePaintNode()
      */
     QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* oldNodeData) override;
-
-    /**
-     * Draw the content.
-     *
-     * \param content - the content to be drawn
-     * \param oldNode - the node drawn by the previous call if any
-     *
-     * \return the drawn node
-     */
-    QSGNode* drawContent(const core::CampaignMap::Content& content, QSGNode* oldNode) override;
 
     /**
      * Set the number of factions on the map.
@@ -279,16 +213,6 @@ signals:
     void editingModeChanged();
 
     /**
-     * Emitted when the object-type changes.
-     */
-    void objectTypeChanged();
-
-    /**
-     * Emitted when the available object-types change.
-     */
-    void availableObjectTypesChanged();
-
-    /**
      * Emitted when the current faction changes.
      */
     void currentFactionChanged();
@@ -304,9 +228,6 @@ private:
     void updateMapRect();
     void onMapNodesChanged();
     void doEditingAction(const QPoint& pos);
-    void doTerrainTypeEditingAction(const QPoint& pos);
-    void doSettlementTypeEditingAction();
-    void doArmyTypeEditingAction();
     void doGrantToCurrentFactionEditingAction();
     bool isCurrentEditingActionPossible() const;
 
@@ -318,7 +239,6 @@ private:
     boost::optional<QPoint> hoverPos;
 
     EditingMode editingMode;
-    QObject* objectType;
     core::Faction* currentFaction;
 
     CampaignMapWatcher* watcher;

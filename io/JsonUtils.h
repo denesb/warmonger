@@ -20,12 +20,50 @@
 
 class QByteArray;
 
+#include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonObject>
+#include <QObject>
 
 namespace warmonger {
 namespace io {
 
 QJsonDocument parseJson(const QByteArray& json);
+
+template <typename T>
+QJsonObject namesToJson(T obj)
+{
+    QJsonObject jobj;
+
+    jobj["objectName"] = obj->objectName();
+    jobj["displayName"] = obj->getDisplayName();
+
+    return jobj;
+}
+
+/**
+ * Convert Container to QJsonArray.
+ *
+ * The convertFunc function converts Container::value_type to
+ * QJsonValue.
+ */
+template <typename Container, typename ConvertFunc>
+QJsonArray toQJsonArray(Container container, ConvertFunc convertFunc)
+{
+    QJsonArray array;
+
+    std::transform(container.cbegin(), container.cend(), std::back_inserter(array), convertFunc);
+
+    return array;
+}
+
+/**
+ * Get the objectName of a QObject.
+ */
+inline QString qObjectName(const QObject* const object)
+{
+    return object->objectName();
+}
 
 } // namespace warmonger
 } // namespace io

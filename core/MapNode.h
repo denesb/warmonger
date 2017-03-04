@@ -23,60 +23,97 @@
 
 #include <map>
 
+#include <QObject>
+
 #include "core/Hexagon.h"
 #include "core/MapNodeNeighbours.h"
-#include "core/TerrainType.h"
 
 namespace warmonger {
 namespace core {
 
+/**
+ * The basic building block of any game map.
+ *
+ * Map-nodes form the map. A map-node has a list of it's neighbours. The
+ * map-nodes together form a graph that defines the structure of the map.
+ * The granularity of positioning in the game is the map-node.
+ * The map-node is assumed to be hexagonal, and thus has exactly six
+ * neighbours.
+ */
 class MapNode : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
-    Q_PROPERTY(TerrainType* terrainType READ getTerrainType WRITE setTerrainType NOTIFY terrainTypeChanged)
 
 public:
+    /**
+     * Constructs an empty map-node.
+     *
+     *\param parent the parent QObject.
+     */
     explicit MapNode(QObject* parent = nullptr);
 
-    const QString& getDisplayName() const
-    {
-        return this->displayName;
-    }
-
-    void setDisplayName(const QString& displayName);
-
-    TerrainType* getTerrainType() const
-    {
-        return this->terrainType;
-    }
-
-    void setTerrainType(TerrainType* terrainType);
-
+    /**
+     * Get he neighbours of this map.
+     *
+     * \returns the neighbours
+     */
     const MapNodeNeighbours& getNeighbours() const
     {
         return this->neighbours;
     }
 
+    /**
+     * Set the neighbours.
+     *
+     * Will emit the signal MapNode::neighboursChanged() if the newly set value
+     * is different than the current one.
+     *
+     * \param neighbours the neigbours
+     */
     void setNeighbours(const MapNodeNeighbours& neighbours);
+
+    /**
+     * Set the neighbours (move version).
+     *
+     * Will emit the signal MapNode::neighboursChanged() if the newly set value
+     * is different than the current one.
+     *
+     * \param neighbours the neigbours
+     */
     void setNeighbours(MapNodeNeighbours&& neighbours);
 
+    /**
+     * Get the neighbours for the given direction.
+     *
+     * \param direction the direction
+     *
+     * \returns the neighbour for the direction
+     *
+     * \see warmonger::core::Direction
+     */
     MapNode* getNeighbour(Direction direction) const
     {
         return this->neighbours.at(direction);
     }
 
+    /**
+     * Set the the given neighbour for the given direction.
+     *
+     * Will emit the signal MapNode::neighboursChanged() if the newly set value
+     * is different than the current one.
+     *
+     * \param direction the direction
+     * \param mapNode the new neighbour
+     */
     void setNeighbour(Direction direction, MapNode* mapNode);
 
 signals:
-    void displayNameChanged();
-    void terrainTypeChanged();
+    /**
+     * Emitted when the map-nodes change.
+     */
     void neighboursChanged();
 
 private:
-    QString displayName;
-
-    TerrainType* terrainType;
     MapNodeNeighbours neighbours;
 };
 

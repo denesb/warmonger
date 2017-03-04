@@ -37,24 +37,6 @@ public:
     using Unserializer::Unserializer;
 
     /**
-     * Unserialize an army.
-     *
-     * \param data the raw data
-     *
-     * \return the unserialized army object
-     */
-    std::unique_ptr<core::Army> unserializeArmy(const QByteArray& data) override;
-
-    /**
-     * Unserialize an army-type.
-     *
-     * \param data the raw data
-     *
-     * \return the unserialized army-type object
-     */
-    std::unique_ptr<core::ArmyType> unserializeArmyType(const QByteArray& data) override;
-
-    /**
      * Unserialize an banner.
      *
      * \param data the raw data
@@ -98,51 +80,6 @@ public:
      * \return the unserialized map-node object
      */
     std::unique_ptr<core::MapNode> unserializeMapNode(const QByteArray& data) override;
-
-    /**
-     * Unserialize an settlement.
-     *
-     * \param data the raw data
-     *
-     * \return the unserialized settlement object
-     */
-    std::unique_ptr<core::Settlement> unserializeSettlement(const QByteArray& data) override;
-
-    /**
-     * Unserialize an settlement-type.
-     *
-     * \param data the raw data
-     *
-     * \return the unserialized settlement-type object
-     */
-    std::unique_ptr<core::SettlementType> unserializeSettlementType(const QByteArray& data) override;
-
-    /**
-     * Unserialize an terrain-type.
-     *
-     * \param data the raw data
-     *
-     * \return the unserialized terrain-type object
-     */
-    std::unique_ptr<core::TerrainType> unserializeTerrainType(const QByteArray& data) override;
-
-    /**
-     * Unserialize a unit.
-     *
-     * \param data the raw data
-     *
-     * \return the unserialized unit object
-     */
-    std::unique_ptr<core::Unit> unserializeUnit(const QByteArray& data) override;
-
-    /**
-     * Unserialize a unit-type.
-     *
-     * \param data the raw data
-     *
-     * \return the unserialized unit-type object
-     */
-    std::unique_ptr<core::UnitType> unserializeUnitType(const QByteArray& data) override;
 
     /**
      * Unserialize a world.

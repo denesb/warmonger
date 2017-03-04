@@ -25,10 +25,7 @@
 #include <QSGGeometryNode>
 #include <QSGSimpleTextureNode>
 
-#include "core/Army.h"
 #include "core/MapNode.h"
-#include "core/Settlement.h"
-#include "ui/CampaignMapDrawer.h"
 #include "ui/MapUtil.h"
 #include "ui/WorldSurface.h"
 #include "utils/Logging.h"
@@ -130,27 +127,6 @@ QRect calculateBoundingRect(const std::map<core::MapNode*, QPoint>& nodesPos, co
     return QRect(topLeft, bottomRight);
 }
 
-std::vector<core::CampaignMap::Content> visibleContents(const std::vector<core::CampaignMap::Content>& contents,
-    const std::map<core::MapNode*, QPoint>& mapNodesPos,
-    const QSize& tileSize,
-    const QRect& window)
-{
-    std::vector<core::CampaignMap::Content> visibleContents;
-    QRect nodeRect(0, 0, tileSize.width(), tileSize.height());
-
-    for (const auto& content : contents)
-    {
-        const QPoint mapNodePos = mapNodesPos.at(std::get<core::MapNode*>(content));
-
-        nodeRect.moveTopLeft(mapNodePos);
-
-        if (window.intersects(nodeRect))
-            visibleContents.push_back(content);
-    }
-
-    return visibleContents;
-}
-
 core::MapNode* mapNodeAtPos(
     const QPoint& pos, const std::map<core::MapNode*, QPoint>& nodesPos, const WorldSurface* worldSurface)
 {
@@ -236,141 +212,6 @@ QMatrix4x4 moveTo(const QPoint& point, const QPoint& refPoint)
     matrix.translate(refPoint.x() - point.x(), refPoint.y() - point.y());
 
     return matrix;
-}
-
-void drawContents(
-    const std::vector<core::CampaignMap::Content>& contents, QSGNode* rootNode, CampaignMapDrawer& campaignMapDrawer)
-{
-    const int mapNodesSize = static_cast<int>(contents.size());
-
-    const int nodesCount = rootNode->childCount();
-
-    const int n = std::min(mapNodesSize, nodesCount);
-
-    for (int i = 0; i < n; ++i)
-    {
-        QSGNode* oldNode = rootNode->childAtIndex(i);
-
-        // returned node ignored, since it will always be oldNode
-        campaignMapDrawer.drawContent(contents[i], oldNode);
-    }
-
-    if (mapNodesSize < nodesCount)
-    {
-        for (int i = mapNodesSize; i < nodesCount; ++i)
-        {
-            rootNode->removeChildNode(rootNode->lastChild());
-        }
-    }
-    else if (mapNodesSize > nodesCount)
-    {
-        for (int i = nodesCount; i < mapNodesSize; ++i)
-        {
-            QSGNode* newNode = campaignMapDrawer.drawContent(contents[i], nullptr);
-
-            if (newNode != nullptr)
-                rootNode->appendChildNode(newNode);
-        }
-    }
-}
-
-QSGNode* drawMapNode(
-    core::MapNode* mapNode, ui::WorldSurface* worldSurface, QQuickWindow* window, const QPoint& pos, QSGNode* oldNode)
-{
-    QSGSimpleTextureNode* node;
-    if (oldNode == nullptr)
-    {
-        node = new QSGSimpleTextureNode();
-        node->setOwnsTexture(false);
-    }
-    else
-    {
-        // if not nullptr, it can only be a texture node
-        node = static_cast<QSGSimpleTextureNode*>(oldNode);
-    }
-
-    QSGTexture* texture = worldSurface->getTexture(mapNode->getTerrainType(), window);
-    QSGTexture* currentTexture = node->texture();
-
-    if (currentTexture == nullptr || currentTexture->textureId() != texture->textureId())
-    {
-        node->setTexture(texture);
-    }
-
-    const QRect nodeRect(pos, worldSurface->getTileSize());
-    if (node->rect() != nodeRect)
-    {
-        node->setRect(nodeRect);
-    }
-
-    return node;
-}
-
-QSGNode* drawSettlement(core::Settlement* settlement,
-    ui::WorldSurface* worldSurface,
-    QQuickWindow* window,
-    const QPoint& pos,
-    QSGNode* oldNode)
-{
-    QSGSimpleTextureNode* node;
-    if (oldNode == nullptr)
-    {
-        node = new QSGSimpleTextureNode();
-        node->setOwnsTexture(false);
-    }
-    else
-    {
-        // if not nullptr, it can only be a texture node
-        node = static_cast<QSGSimpleTextureNode*>(oldNode);
-    }
-
-    QSGTexture* texture = worldSurface->getTexture(settlement->getType(), window);
-    QSGTexture* currentTexture = node->texture();
-
-    if (currentTexture == nullptr || currentTexture->textureId() != texture->textureId())
-    {
-        node->setTexture(texture);
-    }
-
-    const QRect nodeRect(pos, worldSurface->getTileSize());
-    if (node->rect() != nodeRect)
-    {
-        node->setRect(nodeRect);
-    }
-
-    return node;
-}
-
-QSGNode* drawArmy(
-    core::Army* army, ui::WorldSurface* worldSurface, QQuickWindow* window, const QPoint& pos, QSGNode* oldNode)
-{
-    QSGSimpleTextureNode* node;
-    if (oldNode == nullptr)
-    {
-        node = new QSGSimpleTextureNode();
-        node->setOwnsTexture(false);
-    }
-    else
-    {
-        // if not nullptr, it can only be a texture node
-        node = static_cast<QSGSimpleTextureNode*>(oldNode);
-    }
-
-    QSGTexture* texture = worldSurface->getTexture(army->getType(), window);
-    QSGTexture* currentTexture = node->texture();
-
-    if (currentTexture == nullptr || currentTexture->textureId() != texture->textureId())
-    {
-        node->setTexture(texture);
-    }
-
-    const QRect nodeRect(pos, worldSurface->getTileSize());
-    if (node->rect() != nodeRect)
-    {
-        node->setRect(nodeRect);
-    }
-
-    return node;
 }
 
 QSGNode* drawRect(const QRect& rect, QSGNode* oldNode)

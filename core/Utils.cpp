@@ -16,34 +16,40 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "core/TerrainType.h"
+#include "core/Utils.h"
+
+#include <algorithm>
+#include <iterator>
+
 #include "utils/Exception.h"
 
 namespace warmonger {
 namespace core {
 
-TerrainType::TerrainType(QObject* parent)
-    : QObject(parent)
+QString createObjectName(const QObject* const object, int index)
 {
+    const QMetaObject* metaObject{object->metaObject()};
+
+    const QString fullClassName{metaObject->className()};
+
+    return fullClassName.section("::", -1) + ":" + QString::number(index);
 }
 
-QString TerrainType::getDisplayName() const
+std::pair<QString, int> splitObjectName(const QString& objectName)
 {
-    if (this->displayName)
-        return *this->displayName;
-    else if (this->isHierarchyRoot())
-        throw utils::ValueError("displayName is unset");
-    else
-        return this->getHierarchyParent()->getDisplayName();
-}
+    const QStringList parts{objectName.split(':')};
 
-void TerrainType::setDisplayName(const QString& displayName)
-{
-    if (this->displayName != displayName)
-    {
-        this->displayName = displayName;
-        emit displayNameChanged();
-    }
+    if(parts.size() != 2)
+        throw utils::ValueError("Invalid objectName format, name " + objectName + " has more than one : characters");
+
+    bool conversionSucceded{false};
+
+    const int index{parts[1].toInt(&conversionSucceded)};
+
+    if(!conversionSucceded)
+        throw utils::ValueError("Invalid objectName, name " + objectName + " has non-numeric index");
+
+    return std::make_pair(parts[0], index);
 }
 
 } // namespace core

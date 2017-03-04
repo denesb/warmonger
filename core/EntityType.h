@@ -41,16 +41,21 @@ namespace core {
  * \see warmonger::core::Entity
  * \see warmonger::core::World
  */
-class EntityType
+class EntityType : public QObject
 {
+    Q_OBJECT
+
 public:
     /**
      * Create a new entity-type with the given name and component-types.
      *
      * \param name the name
      * \param componentTypes the types of components this entity-type has
+     * \param parent the parent QObject
      */
-    EntityType(const QString& name, const std::vector<ComponentType*>& componentTypes);
+    EntityType(const QString& name, const std::vector<ComponentType*>& componentTypes, QObject* parent = nullptr);
+
+    EntityType(QObject* parent = nullptr);
 
     /**
      * Get the name.

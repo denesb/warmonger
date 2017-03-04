@@ -30,32 +30,47 @@
 namespace warmonger {
 namespace core {
 
-class UnitType;
-
+/**
+ * A civilization.
+ */
 class Civilization : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
-    Q_PROPERTY(QVariantList unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
 
 public:
+    /**
+     * Creates an empty civilization object.
+     *
+     * \param parent the parent QObject.
+     */
     explicit Civilization(QObject* parent = nullptr);
 
+    /**
+     * Get the display-name.
+     *
+     * \returns the displayName
+     */
     QString getDisplayName() const;
+
+    /**
+     * Set the display-name.
+     *
+     * Will emit the signal World::displayNameChanged() if the newly set value
+     * is different than the current one.
+     *
+     * \param displayName the new displayName
+     */
     void setDisplayName(const QString& displayName);
 
-    std::vector<UnitType*> getUnitTypes() const;
-    QVariantList readUnitTypes() const;
-    void setUnitTypes(const std::vector<UnitType*>& unitTypes);
-    void addUnitType(UnitType* unitType);
-
 signals:
+    /**
+     * Emitted when the display-name changes.
+     */
     void displayNameChanged();
-    void unitTypesChanged();
 
 private:
     QString displayName;
-    std::vector<UnitType*> unitTypes;
 };
 
 } // namespace core

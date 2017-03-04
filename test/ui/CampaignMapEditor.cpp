@@ -25,11 +25,11 @@ TEST_CASE("Invokable map-editing members", "[CampaignMapEditor]")
 {
     core::World world;
 
-    core::Civilization* civ = new core::Civilization();
-    world.setCivilizations({civ});
+    auto civ{std::make_unique<core::Civilization>()};
+    world.addCivilization(std::move(civ));
 
-    core::Banner* banner = new core::Banner();
-    world.setBanners({banner});
+    auto banner{std::make_unique<core::Banner>()};
+    world.addBanner(std::move(banner));
     world.setColors({QColor("black"), QColor("white"), QColor("gray")});
 
     core::CampaignMap map;

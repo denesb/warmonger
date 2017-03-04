@@ -19,7 +19,6 @@
 #include <QGuiApplication>
 #include <QSGSimpleTextureNode>
 
-#include "core/Utils.hpp"
 #include "ui/CampaignMapPreview.h"
 #include "ui/CampaignMapWatcher.h"
 #include "ui/MapUtil.h"
@@ -114,39 +113,9 @@ QSGNode* CampaignMapPreview::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNo
 
     rootNode->setClipRect(QRectF(0, 0, this->width(), this->height()));
 
-    const std::vector<core::CampaignMap::Content> contents = visibleContents(
-        this->campaignMap->getContents(), this->mapNodesPos, this->worldSurface->getTileSize(), this->mapRect);
-
-    drawContents(contents, mapRootNode, *this);
+    // TODO: invoke GraphicsSystem
 
     return rootNode;
-}
-
-QSGNode* CampaignMapPreview::drawContent(const core::CampaignMap::Content& content, QSGNode* oldNode)
-{
-    core::MapNode* mapNode = std::get<core::MapNode*>(content);
-    const QPoint& pos = this->mapNodesPos.at(mapNode);
-
-    QSGNode* mapSGNode = drawMapNode(mapNode, this->worldSurface, this->window(), pos, oldNode);
-
-    if (std::get<core::Settlement*>(content) != nullptr)
-    {
-        QSGNode* settlementSGNode = drawSettlement(
-            std::get<core::Settlement*>(content), this->worldSurface, this->window(), pos, mapSGNode->firstChild());
-
-        if (mapSGNode->firstChild() == nullptr)
-            mapSGNode->appendChildNode(settlementSGNode);
-    }
-    else if (std::get<core::Army*>(content) != nullptr)
-    {
-        QSGNode* armySGNode =
-            drawArmy(std::get<core::Army*>(content), this->worldSurface, this->window(), pos, mapSGNode->firstChild());
-
-        if (mapSGNode->firstChild() == nullptr)
-            mapSGNode->appendChildNode(armySGNode);
-    }
-
-    return mapSGNode;
 }
 
 void CampaignMapPreview::updateContent()

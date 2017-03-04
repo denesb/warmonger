@@ -395,34 +395,10 @@ static void checkMissingImages(const WorldSurface* const surface)
 
     const core::World* world = surface->getWorld();
 
-    const auto& armyTypes = world->getArmyTypes();
-    if (std::any_of(armyTypes.cbegin(), armyTypes.cend(), isObjectImageMissing))
-    {
-        throw utils::IOError("Failed to find one or more army-type images");
-    }
-
     const auto& banner = world->getBanners();
     if (std::any_of(banner.cbegin(), banner.cend(), isObjectImageMissing))
     {
         throw utils::IOError("Failed to find one or more banner images");
-    }
-
-    const auto& settlementTypes = world->getSettlementTypes();
-    if (std::any_of(settlementTypes.cbegin(), settlementTypes.cend(), isObjectImageMissing))
-    {
-        throw utils::IOError("Failed to find one or more settlement-type images");
-    }
-
-    const auto& terrainTypes = world->getTerrainTypes();
-    if (std::any_of(terrainTypes.cbegin(), terrainTypes.cend(), isObjectImageMissing))
-    {
-        throw utils::IOError("Failed to find one or more terrain-type images");
-    }
-
-    const auto& unitTypes = world->getUnitTypes();
-    if (std::any_of(unitTypes.cbegin(), unitTypes.cend(), isObjectImageMissing))
-    {
-        throw utils::IOError("Failed to find one or more unit-type images");
     }
 
     if (std::any_of(staticImages.cbegin(), staticImages.cend(), isStaticImageMissing))

@@ -32,13 +32,6 @@ namespace io {
 
 bool isWorldSane(const core::World& world)
 {
-    // Check army-types
-    if (world.getArmyTypes().empty())
-    {
-        wError << "The world has no army-types";
-        return false;
-    }
-
     // Check banners
     if (world.getBanners().empty())
     {
@@ -60,24 +53,17 @@ bool isWorldSane(const core::World& world)
         return false;
     }
 
-    // Check settlement-types
-    if (world.getSettlementTypes().empty())
+    // Check component-types
+    if (world.getComponentTypes().empty())
     {
-        wError << "The world has no settlement-types";
+        wError << "The world has no component-types";
         return false;
     }
 
-    // Check terrain-types
-    if (world.getTerrainTypes().empty())
+    // Check entity-types
+    if (world.getEntityTypes().empty())
     {
-        wError << "The world has no terrain-types";
-        return false;
-    }
-
-    // Check unit-types
-    if (world.getUnitTypes().empty())
-    {
-        wError << "The world has no unit-types";
+        wError << "The world has no entity-types";
         return false;
     }
 

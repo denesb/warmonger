@@ -77,17 +77,14 @@ signals:
 
 private:
     void connectMapNodeSignals();
-    void connectSettlementSignals();
-    void connectArmySignals();
+    void connectEntitySignals();
     void onMapNodesChanged();
-    void onSettlementsChanged();
-    void onArmiesChanged();
+    void onEntitiesChanged();
 
 private:
     const core::CampaignMap* const campaignMap;
     Watcher* mapNodeWatcher;
-    Watcher* settlementWatcher;
-    Watcher* armyWatcher;
+    Watcher* entityWatcher;
 };
 
 } // namespace ui

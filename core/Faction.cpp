@@ -18,8 +18,6 @@
 
 #include "core/Faction.h"
 #include "core/Civilization.h"
-#include "core/Settlement.h"
-#include "core/Unit.h"
 #include "core/World.h"
 
 namespace warmonger {

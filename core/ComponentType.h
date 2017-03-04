@@ -23,6 +23,7 @@
 #include <memory>
 #include <vector>
 
+#include <QObject>
 #include <QString>
 #include <QVariant>
 
@@ -40,8 +41,10 @@ namespace core {
  *
  * \see warmonger::core::Component
  */
-class ComponentType
+class ComponentType : public QObject
 {
+    Q_OBJECT
+
 public:
     /**
      * Get the name.

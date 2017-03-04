@@ -1,7 +1,5 @@
-/** \file
- * ArmyType class.
- *
- * \copyright (C) 2014-2016 Botond Dénes
+/**
+ * Copyright (C) 2015-2017 Botond Dénes
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,37 +16,39 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef W_CORE_ARMY_TYPE_H
-#define W_CORE_ARMY_TYPE_H
+#include "core/Component.h"
 
-#include <boost/optional.hpp>
-
-#include <QObject>
-
-#include "core/HierarchyNode.hpp"
+#include "utils/Logging.h"
 
 namespace warmonger {
 namespace core {
 
-class ArmyType : public QObject, public HierarchyNode<ArmyType>
+Component::Component(ComponentType* type, QObject* parent)
+    : QObject(parent)
+    , type(type)
 {
-    Q_OBJECT
-    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
+}
 
-public:
-    explicit ArmyType(QObject* parent = nullptr);
+QVariant& Component::operator[](const QString& name)
+{
+    static QVariant invalidPropertyValue{};
 
-    QString getDisplayName() const;
-    void setDisplayName(const QString& displayName);
+    const auto it = this->properties.find(name);
 
-signals:
-    void displayNameChanged();
+    if (it == this->properties.end())
+    {
+        return it->second;
+    }
+    else
+    {
+        wError << "Requested non existent property " << name << " for component " << this;
 
-private:
-    boost::optional<QString> displayName;
-};
+        // in case some previously returned instance was modified
+        invalidPropertyValue.clear();
+
+        return invalidPropertyValue;
+    }
+}
 
 } // namespace core
 } // namespace warmonger
-
-#endif // W_CORE_ARMY_TYPE_H

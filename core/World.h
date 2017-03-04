@@ -27,12 +27,10 @@
 #include <QObject>
 #include <QVariant>
 
-#include "core/ArmyType.h"
 #include "core/Banner.h"
 #include "core/Civilization.h"
-#include "core/SettlementType.h"
-#include "core/TerrainType.h"
-#include "core/UnitType.h"
+#include "core/ComponentType.h"
+#include "core/EntityType.h"
 
 namespace warmonger {
 namespace core {
@@ -41,33 +39,30 @@ namespace core {
  * Defines a game world.
  *
  * A world defines the content all its behaviour besides the core game rules.
- * It defines the available terrain, settlement, unit and army types and all
- * their properties.
+ * It defines the available civilizations, entity-types and component-types.
  */
 class World : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName NOTIFY displayNameChanged)
-    Q_PROPERTY(QVariantList armyTypes READ readArmyTypes NOTIFY armyTypesChanged)
     Q_PROPERTY(QVariantList banners READ readBanners NOTIFY bannersChanged)
     Q_PROPERTY(QVariantList civilizations READ readCivilizations NOTIFY civilizationsChanged)
     Q_PROPERTY(QVariantList colors READ readColors NOTIFY colorsChanged)
-    Q_PROPERTY(QVariantList settlementTypes READ readSettlementTypes NOTIFY settlementTypesChanged)
-    Q_PROPERTY(QVariantList terrainTypes READ readTerrainTypes NOTIFY terrainTypesChanged)
-    Q_PROPERTY(QVariantList unitTypes READ readUnitTypes NOTIFY unitTypesChanged)
+    Q_PROPERTY(QVariantList entityTypes READ readEntityTypes NOTIFY entityTypesChanged)
+    Q_PROPERTY(QVariantList componentTypes READ readComponentTypes NOTIFY componentTypesChanged)
 
 public:
     /**
      * Constructs an empty world object.
      *
-     *\param parent the parent QObject.
+     * \param parent the parent QObject.
      */
     explicit World(QObject* parent = nullptr);
 
     /**
      * Get the display-name.
      *
-     *\returns the displayName
+     * \returns the displayName
      */
     const QString& getDisplayName() const
     {
@@ -85,37 +80,6 @@ public:
     void setDisplayName(const QString& displayName);
 
     /**
-     * Get the army-types.
-     *
-     * \return the army-types
-     */
-    const std::vector<ArmyType*>& getArmyTypes() const
-    {
-        return this->armyTypes;
-    }
-
-    /**
-     * Set the army-types.
-     *
-     * Will emit the signal World::armyTypesChanged() if the newly set
-     * value is different than the current one.
-     *
-     * \param army-types the new army-types
-     */
-    void setArmyTypes(const std::vector<ArmyType*>& armyTpes);
-
-    /**
-     * Get the army-types as a QVariantList.
-     *
-     * This function is used as a read function for the mapNodes property and is
-     * not supposed to be called from C++ code. Use World::getArmyTypes()
-     * instead.
-     *
-     * \returns the army-types
-     */
-    QVariantList readArmyTypes() const;
-
-    /**
      * Get the banners.
      *
      * \return the banners
@@ -126,16 +90,6 @@ public:
     }
 
     /**
-     * Set the banners.
-     *
-     * Will emit the signal World::bannersChanged() if the newly set
-     * value is different than the current one.
-     *
-     * \param banners the new banners
-     */
-    QVariantList readBanners() const;
-
-    /**
      * Get the banners as a QVariantList.
      *
      * This function is used as a read function for the mapNodes property and is
@@ -144,7 +98,19 @@ public:
      *
      * \returns the banners
      */
-    void setBanners(const std::vector<Banner*>& banners);
+    QVariantList readBanners() const;
+
+    /**
+     * Add a banner.
+     *
+     * The world will take ownership over the object.
+     * Will emit the signal World::bannersChanged().
+     * The behaviour is undefined if the civilization is already owned by this
+     * world.
+     *
+     * \param banners the new banners
+     */
+    void addBanner(std::unique_ptr<Banner>&& banner);
 
     /**
      * Get the civilizations.
@@ -157,16 +123,6 @@ public:
     }
 
     /**
-     * Set the civilizations.
-     *
-     * Will emit the signal World::civilizationsChanged() if the newly set
-     * value is different than the current one.
-     *
-     * \param civilizations the new civilizations
-     */
-    void setCivilizations(const std::vector<Civilization*>& civilizations);
-
-    /**
      * Get the civilizations as a QVariantList.
      *
      * This function is used as a read function for the mapNodes property and is
@@ -176,6 +132,18 @@ public:
      * \returns the civilizations
      */
     QVariantList readCivilizations() const;
+
+    /**
+     * Add a civilizations.
+     *
+     * The world will take ownership over the object.
+     * Will emit the signal World::civilizationsChanged().
+     * The behaviour is undefined if the civilization is already owned by this
+     * world.
+     *
+     * \param civilizations the new civilization
+     */
+    void addCivilization(std::unique_ptr<Civilization>&& civilization);
 
     /**
      * Get the colors.
@@ -209,108 +177,76 @@ public:
     QVariantList readColors() const;
 
     /**
-     * Get the settlement-types.
+     * Get the component-types.
      *
-     * \return the settlement-types
+     * \return the component-types
      */
-    const std::vector<SettlementType*>& getSettlementTypes() const
+    const std::vector<ComponentType*>& getComponentTypes() const
     {
-        return this->settlementTypes;
+        return this->componentTypes;
     }
 
     /**
-     * Set the settlement-types.
-     *
-     * Will emit the signal World::settlementTypesChanged() if the newly set
-     * value is different than the current one.
-     *
-     * \param settlement-types the new settlement-types
-     */
-    void setSettlementTypes(const std::vector<SettlementType*>& settlementTypes);
-
-    /**
-     * Get the settlement-types as a QVariantList.
+     * Get the component-types as a QVariantList.
      *
      * This function is used as a read function for the mapNodes property and is
-     * not supposed to be called from C++ code. Use World::getSettlementTypes()
+     * not supposed to be called from C++ code. Use World::getComponentTypes()
      * instead.
      *
-     * \returns the settlement-types
+     * \returns the component-types
      */
-    QVariantList readSettlementTypes() const;
+    QVariantList readComponentTypes() const;
 
     /**
-     * Get the terrain-types.
+     * Add the component-type.
      *
-     * \return the terrain-types
+     * The world will take ownership over the object.
+     * Will emit the signal World::componentTypesChanged().
+     * The behaviour is undefined if the civilization is already owned by this
+     * world.
+     *
+     * \param component-type the new component-type
      */
-    const std::vector<TerrainType*>& getTerrainTypes() const
+    void addComponentType(std::unique_ptr<ComponentType>&& componentType);
+
+    /**
+     * Get the entity-types.
+     *
+     * \return the entity-types
+     */
+    const std::vector<EntityType*>& getEntityTypes() const
     {
-        return this->terrainTypes;
+        return this->entityTypes;
     }
 
     /**
-     * Set the terrain-types.
+     * Add the entity-type.
      *
-     * Will emit the signal World::terrainTypesChanged() if the newly set
-     * value is different than the current one.
+     * The world will take ownership over the object.
+     * Will emit the signal World::entityTypesChanged().
+     * The behaviour is undefined if the civilization is already owned by this
+     * world.
      *
-     * \param terrain-types the new terrain-types
+     * \param entity-type the new entity-type
      */
-    void setTerrainTypes(const std::vector<TerrainType*>& terrainTypes);
+    void addEntityType(std::unique_ptr<EntityType>&& entityTpe);
 
     /**
-     * Get the terrain-types as a QVariantList.
+     * Get the entity-types as a QVariantList.
      *
      * This function is used as a read function for the mapNodes property and is
-     * not supposed to be called from C++ code. Use World::getTerrainTypes()
+     * not supposed to be called from C++ code. Use World::getArmyTypes()
      * instead.
      *
-     * \returns the terrain-types
+     * \returns the entity-types
      */
-    QVariantList readTerrainTypes() const;
-
-    /**
-     * Get the unit-types.
-     *
-     * \return the unit-types
-     */
-    const std::vector<UnitType*>& getUnitTypes() const
-    {
-        return this->unitTypes;
-    }
-
-    /**
-     * Set the unit-types.
-     *
-     * Will emit the signal World::unitTypesChanged() if the newly set
-     * value is different than the current one.
-     *
-     * \param unit-types the new unit-types
-     */
-    void setUnitTypes(const std::vector<UnitType*>& unitTypes);
-
-    /**
-     * Get the unit-types as a QVariantList.
-     *
-     * This function is used as a read function for the mapNodes property and is
-     * not supposed to be called from C++ code. Use World::getUnitTypes()
-     * instead.
-     *
-     * \returns the unit-types
-     */
-    QVariantList readUnitTypes() const;
+    QVariantList readEntityTypes() const;
 
 signals:
     /**
      * Emitted when the display-name changes.
      */
     void displayNameChanged();
-
-    /**
-     * Emitted when the army-types change.
-     */
-    void armyTypesChanged();
 
     /**
      * Emitted when the banners change.
@@ -330,27 +266,20 @@ signals:
     /**
      * Emitted when the terrain-types change.
      */
-    void terrainTypesChanged();
+    void componentTypesChanged();
 
     /**
      * Emitted when the unit-types change.
      */
-    void unitTypesChanged();
-
-    /**
-     * Emitted when the settlement-types change.
-     */
-    void settlementTypesChanged();
+    void entityTypesChanged();
 
 private:
     QString displayName;
-    std::vector<ArmyType*> armyTypes;
     std::vector<Banner*> banners;
     std::vector<Civilization*> civilizations;
     std::vector<QColor> colors;
-    std::vector<TerrainType*> terrainTypes;
-    std::vector<UnitType*> unitTypes;
-    std::vector<SettlementType*> settlementTypes;
+    std::vector<ComponentType*> componentTypes;
+    std::vector<EntityType*> entityTypes;
 };
 
 } // namespace core

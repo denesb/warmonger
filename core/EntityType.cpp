@@ -21,8 +21,9 @@
 namespace warmonger {
 namespace core {
 
-EntityType::EntityType(const QString& name, const std::vector<ComponentType*>& componentTypes)
-    : name(name)
+EntityType::EntityType(const QString& name, const std::vector<ComponentType*>& componentTypes, QObject* parent)
+    : QObject(parent)
+    , name(name)
     , componentTypes(componentTypes)
 {
 }

@@ -30,6 +30,14 @@ namespace core {
 
 class MapNode;
 
+/**
+ * The neighbours of a map-node.
+ *
+ * This class ensures that the map-node registry of a map-node is always
+ * consistent, after creation, insertion, removal or change.
+ * A map-node is expected to store nullptr for direction for which it doesn't
+ * have a neighbour.
+ */
 class MapNodeNeighbours
 {
 public:
@@ -37,7 +45,14 @@ public:
     typedef NeighbourMap::iterator iterator;
     typedef NeighbourMap::const_iterator const_iterator;
 
+    /**
+     * Construct an empty neighbours object.
+     */
     MapNodeNeighbours();
+
+    /**
+     * Construct an empty neighbours object from the initializer list.
+     */
     MapNodeNeighbours(std::initializer_list<std::pair<Direction, MapNode*>> init);
 
     iterator begin();

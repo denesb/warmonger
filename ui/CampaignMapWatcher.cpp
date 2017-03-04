@@ -26,22 +26,18 @@ CampaignMapWatcher::CampaignMapWatcher(const core::CampaignMap* const campaignMa
     : QObject(parent)
     , campaignMap(campaignMap)
     , mapNodeWatcher(new Watcher(this))
-    , settlementWatcher(new Watcher(this))
-    , armyWatcher(new Watcher(this))
+    , entityWatcher(new Watcher(this))
 {
     QObject::connect(
         this->campaignMap, &core::CampaignMap::mapNodesChanged, this, &CampaignMapWatcher::onMapNodesChanged);
     QObject::connect(
-        this->campaignMap, &core::CampaignMap::settlementsChanged, this, &CampaignMapWatcher::onSettlementsChanged);
-    QObject::connect(this->campaignMap, &core::CampaignMap::armiesChanged, this, &CampaignMapWatcher::onArmiesChanged);
+        this->campaignMap, &core::CampaignMap::entitiesChanged, this, &CampaignMapWatcher::onEntitiesChanged);
 
     QObject::connect(this->mapNodeWatcher, &Watcher::changed, this, &CampaignMapWatcher::changed);
-    QObject::connect(this->settlementWatcher, &Watcher::changed, this, &CampaignMapWatcher::changed);
-    QObject::connect(this->armyWatcher, &Watcher::changed, this, &CampaignMapWatcher::changed);
+    QObject::connect(this->entityWatcher, &Watcher::changed, this, &CampaignMapWatcher::changed);
 
     this->connectMapNodeSignals();
-    this->connectSettlementSignals();
-    this->connectArmySignals();
+    this->connectEntitySignals();
 }
 
 void CampaignMapWatcher::connectMapNodeSignals()
@@ -49,25 +45,16 @@ void CampaignMapWatcher::connectMapNodeSignals()
     const std::vector<core::MapNode*>& mapNodes = this->campaignMap->getMapNodes();
     for (core::MapNode* mapNode : mapNodes)
     {
-        QObject::connect(mapNode, &core::MapNode::terrainTypeChanged, this->mapNodeWatcher, &Watcher::changed);
+        QObject::connect(mapNode, &core::MapNode::neighboursChanged, this->mapNodeWatcher, &Watcher::changed);
     }
 }
 
-void CampaignMapWatcher::connectSettlementSignals()
+void CampaignMapWatcher::connectEntitySignals()
 {
-    const std::vector<core::Settlement*>& settlements = this->campaignMap->getSettlements();
-    for (core::Settlement* settlement : settlements)
+    const std::vector<core::Entity*>& entities = this->campaignMap->getEntities();
+    for (core::Entity* entity : entities)
     {
-        QObject::connect(settlement, &core::Settlement::typeChanged, this->settlementWatcher, &Watcher::changed);
-    }
-}
-
-void CampaignMapWatcher::connectArmySignals()
-{
-    const std::vector<core::Army*>& armies = this->campaignMap->getArmies();
-    for (core::Army* army : armies)
-    {
-        QObject::connect(army, &core::Army::typeChanged, this->armyWatcher, &Watcher::changed);
+        QObject::connect(entity, &core::Entity::componentChanged, this->entityWatcher, &Watcher::changed);
     }
 }
 
@@ -79,18 +66,10 @@ void CampaignMapWatcher::onMapNodesChanged()
     emit changed();
 }
 
-void CampaignMapWatcher::onSettlementsChanged()
+void CampaignMapWatcher::onEntitiesChanged()
 {
-    QObject::disconnect(this->campaignMap, nullptr, this->settlementWatcher, nullptr);
-    this->connectSettlementSignals();
-
-    emit changed();
-}
-
-void CampaignMapWatcher::onArmiesChanged()
-{
-    QObject::disconnect(this->campaignMap, nullptr, this->armyWatcher, nullptr);
-    this->connectArmySignals();
+    QObject::disconnect(this->campaignMap, nullptr, this->entityWatcher, nullptr);
+    this->connectEntitySignals();
 
     emit changed();
 }

@@ -28,11 +28,10 @@
 #include <QString>
 #include <QVariant>
 
-#include "core/Army.h"
+#include "core/Component.h"
+#include "core/Entity.h"
 #include "core/Faction.h"
 #include "core/MapNode.h"
-#include "core/Settlement.h"
-#include "core/Unit.h"
 #include "core/World.h"
 
 namespace warmonger {
@@ -42,14 +41,14 @@ namespace core {
  * A campaign-map.
  *
  * The campaign-map is were the game actually take place. The campaign-map
- * contain the graph of map-nodes that form the terrain. It also contains the list
- * of factions, armies and settlements that participate in the game. A
- * campaign-map is linked to a world which defines all aspects of its behaviour.
+ * contain the graph of map-nodes that form the map. It also contains the list
+ * of factions and entities that participate in the game. A campaign-map is
+ * linked to a world which defines all aspects of its behaviour.
  *
- * \see warmonger::core::MapNode
- * \see warmonger::core::Army
- * \see warmonger::core::Settlement
+ * \see warmonger::core::Component
+ * \see warmonger::core::Entity
  * \see warmonger::core::Faction
+ * \see warmonger::core::MapNode
  * \see warmonger::core::World
  */
 class CampaignMap : public QObject
@@ -59,23 +58,20 @@ class CampaignMap : public QObject
     Q_PROPERTY(World* world READ getWorld WRITE setWorld NOTIFY worldChanged)
     Q_PROPERTY(QVariantList mapNodes READ readMapNodes NOTIFY mapNodesChanged)
     Q_PROPERTY(QVariantList factions READ readFactions NOTIFY factionsChanged)
-    Q_PROPERTY(QVariantList units READ readUnits)
-    Q_PROPERTY(QVariantList settlements READ readSettlements NOTIFY settlementsChanged)
+    Q_PROPERTY(QVariantList entities READ readEntities NOTIFY entitiesChanged)
 
 public:
-    typedef std::tuple<MapNode*, Settlement*, Army*> Content;
-
     /**
      * Constructs an empty CampaignMap.
      *
-     *\param parent the parent QObject.
+     * \param parent the parent QObject.
      */
     explicit CampaignMap(QObject* parent = nullptr);
 
     /**
      * Get the display-name.
      *
-     *\returns the displayName
+     * \returns the displayName
      */
     const QString& getDisplayName() const
     {
@@ -134,17 +130,6 @@ public:
     QVariantList readMapNodes() const;
 
     /**
-     * Set the map-nodes.
-     *
-     * Will emit the signal CampaignMap::mapNodesChanged() if the newly set
-     * value is different than the current one.
-     * Destroys previous map-node objects.
-     *
-     * \param mapNodes the map-nodes
-     */
-    void setMapNodes(const std::vector<MapNode*>& mapNodes);
-
-    /**
      * Get the factions.
      *
      * \returns the factions
@@ -166,131 +151,59 @@ public:
     QVariantList readFactions() const;
 
     /**
-     * Set the factions.
+     * Get the entities.
      *
-     * Will emit the signal CampaignMap::factionsChanged() if the newly set
-     * value is different than the current one.
-     * Destroys previous faction objects.
-     *
-     * \param factions the new factions
+     * \return the entities
      */
-    void setFactions(const std::vector<Faction*>& factions);
-
-    /**
-     * Get the settlements.
-     *
-     * \return the settlements
-     */
-    const std::vector<Settlement*>& getSettlements() const
+    const std::vector<Entity*>& getEntities() const
     {
-        return this->settlements;
+        return this->entities;
     }
 
     /**
-     * Get the settlements as a QVariantList.
+     * Get the entities as a QVariantList.
      *
      * This function is used as a read function for the mapNodes property and is
-     * not supposed to be called from C++ code. Use CampaignMap::getSettlements()
+     * not supposed to be called from C++ code. Use CampaignMap::getEntitys()
      * instead.
      *
-     * \returns the settlements
+     * \returns the entities
      */
-    QVariantList readSettlements() const;
+    QVariantList readEntities() const;
 
     /**
-     * Set settlements.
+     * Add a map-node to the map.
      *
-     * Will emit the signal CampaignMap::factionsChanged() if the newly set
-     * value is different than the current one.
-     * Destroys previous settlement objects.
+     * This method does not check for conflicts in map-node
+     * positions. If a map-node is added with the same neighbours as an
+     * existing one, or it is added with neighbours that are not really near
+     * then the map will get into an inconsistent state. It is the caller's
+     * responsability to make sure the added map-node is sane.
+     * Will emit the signal CampaignMap::mapNodesChanged().
      *
-     * \param settlements the new settlements
+     * \param mapNode the map-node
      */
-    void setSettlements(const std::vector<Settlement*>& settlements);
-
-    /**
-     * Get the units.
-     *
-     * \return get the units
-     */
-    const std::vector<Unit*>& getUnits() const
-    {
-        return this->units;
-    }
-
-    /**
-     * Get the units as a QVariantList.
-     *
-     * This function is used as a read function for the mapNodes property and is
-     * not supposed to be called from C++ code. Use CampaignMap::getUnits()
-     * instead.
-     *
-     * \returns the units
-     */
-    QVariantList readUnits() const;
-
-    /**
-     * Set the units.
-     *
-     * Will emit the signal CampaignMap::unitsChanged() if the newly set
-     * value is different than the current one.
-     * Destroys previous unit objects.
-     *
-     * \param units the new units
-     */
-    void setUnits(const std::vector<Unit*>& units);
-
-    /**
-     * Get the armies.
-     *
-     * \return the armies
-     */
-    const std::vector<Army*>& getArmies() const
-    {
-        return this->armies;
-    }
-
-    /**
-     * Get the armies as a QVariantList.
-     *
-     * This function is used as a read function for the mapNodes property and is
-     * not supposed to be called from C++ code. Use CampaignMap::getArmies()
-     * instead.
-     *
-     * \returns the armies
-     */
-    QVariantList readArmies() const;
-
-    /**
-     * Set the armies.
-     *
-     * Will emit the signal CampaignMap::armiesChanged() if the newly set
-     * value is different than the current one.
-     * Destroys previous army objects.
-     *
-     * \param armies the new armies
-     */
-    void setArmies(const std::vector<Army*>& armies);
+    void addMapNode(std::unique_ptr<MapNode>&& mapNode);
 
     /**
      * Create a new map-node and add it to the map.
      *
      * The newly created map-node is assigned a unique objectName (in the
-     * context of this map). It is created with the given terrain-type
-     * and neighbours. Neighbour relations are updated for all neighbouring
+     * context of this map). It is created with the given and neighbours.
+     * Neighbour relations are updated for all neighbouring
      * map-nodes as well. This method does not check for conflicts in map-node
      * positions. If a map-node is created with the same neighbours as an
      * existing one, or it is created with neighbours that are not really near
-     * than the map will get into an inconsistent state. It is the callers
+     * then the map will get into an inconsistent state. It is the caller's
      * responsability to make sure the new map-node is sane.
+     * Will emit the signal CampaignMap::mapNodesChanged().
      *
-     * \param terrainType the terrain-type of the to-be created map-node
      * \param neighbours the neighbour relations of the to-be created map-node
      *
      * \returns the new map-node allowing the caller to make further
      * modifications
      */
-    MapNode* createMapNode(TerrainType* terrainType, const MapNodeNeighbours& neighbours);
+    MapNode* createMapNode(const MapNodeNeighbours& neighbours);
 
     /**
      * Remove an exising map-node and renounce ownership.
@@ -300,91 +213,50 @@ public:
      * If the map-node is not found, nothing happens. The map-node will
      * loose all its neighbours. The map-nodes former neighbours are also
      * updated.
+     * Will emit the signal CampaignMap::mapNodesChanged().
      *
      * \param mapNode the map-node to be removed
      *
-     * \returns the removed map-node or an empty pointer if the settlement
+     * \returns the removed map-node or an empty pointer if the entity
      * was not found
      */
     std::unique_ptr<MapNode> removeMapNode(MapNode* mapNode);
 
     /**
-     * Create a new settlement and add it to the map.
+     * Add the entity to the map.
      *
-     * The newly created settlement is assigned a unique objectName (in the
-     * context of this map). It is created with the given settlement-type.
+     * The map takes ownership over the entity.
+     * Will emit the signal CampaignMap::entitiesChanged().
      *
-     * \param settlementType the type of the settlement
-     *
-     * \returns the newly created settlement
+     * \param entity the entity
      */
-    Settlement* createSettlement(SettlementType* settlementType);
+    void addEntity(std::unique_ptr<Entity>&& entity);
 
     /**
-     * Remove the settlement and renounce ownership.
+     * Create a new entity and add it to the map.
      *
-     * The settlement is removed and it's returned as an std::unique_ptr and
+     * The newly created entity is assigned a unique objectName (in the
+     * context of this map). It is created with the given entity-type.
+     *
+     * \param entityType the type of the entity
+     *
+     * \returns the newly created entity
+     */
+    Entity* createEntity(EntityType* entityType);
+
+    /**
+     * Remove the entity and renounce ownership.
+     *
+     * The entity is removed and it's returned as an std::unique_ptr and
      * will be destroyed if the caller doesn't save it.
-     * If the settlement is not found, nothing happens.
+     * If the entity is not found, nothing happens.
      *
-     * \param settlement the settlement to remove
+     * \param entity the entity to remove
      *
-     * \returns the removed settlement or an empty pointer if the settlement
+     * \returns the removed entity or an empty pointer if the entity
      * was not found
      */
-    std::unique_ptr<Settlement> removeSettlement(Settlement* settlement);
-
-    /**
-     * Create a new unit and add it to the map.
-     *
-     * The newly created unit is assigned a unique objectName (in the context
-     * of this map). It is created with the given unit-type.
-     *
-     * \param unitType the type of the unit
-     *
-     * \returns the newly created unit
-     */
-    Unit* createUnit(UnitType* unitType);
-
-    /**
-     * Remove the unit and renounce ownership.
-     *
-     * The unit is removed and it's returned as an std::unique_ptr and
-     * will be destroyed if the caller doesn't save it.
-     * If the unit is not found, nothing happens.
-     *
-     * \param unit the unit to remove
-     *
-     * \returns the removed unit or an empty pointer if the unit
-     * was not found
-     */
-    std::unique_ptr<Unit> removeUnit(Unit* unit);
-
-    /**
-     * Create a new army and add it to the map.
-     *
-     * The newly created army is assigned a unique objectName (in the context
-     * of this map). It is created with the given army-type.
-     *
-     * \param armyType the type of the army
-     *
-     * \returns the newly created army
-     */
-    Army* createArmy(ArmyType* armyType);
-
-    /**
-     * Remove the army and renounce ownership.
-     *
-     * The army is removed and it's returned as an std::unique_ptr and
-     * will be destroyed if the caller doesn't save it.
-     * If the army is not found, nothing happens.
-     *
-     * \param army the army to remove
-     *
-     * \returns the removed army or an empty pointer if the army
-     * was not found
-     */
-    std::unique_ptr<Army> removeArmy(Army* army);
+    std::unique_ptr<Entity> removeEntity(Entity* entity);
 
     /**
      * Create a new faction and add it to the map.
@@ -399,6 +271,16 @@ public:
     Faction* createFaction(Civilization* civilization);
 
     /**
+     * Add the faction to the map.
+     *
+     * The map takes ownership over the faction.
+     * Will emit the signal CampaignMap::factionsChanged().
+     *
+     * \param faction the faction
+     */
+    void addFaction(std::unique_ptr<Faction>&& faction);
+
+    /**
      * Remove the faction and renounce ownership.
      *
      * The faction is removed and it's returned as an std::unique_ptr and
@@ -411,29 +293,6 @@ public:
      * was not found
      */
     std::unique_ptr<Faction> removeFaction(Faction* faction);
-
-    /**
-     * Get all content of this map.
-     *
-     * Get a list of tuples with all the map-nodes and the settlements and
-     * armies that are on it. Every item in the list is a tuple of a map-node
-     * and a settlement and/or army that is on that map-node. All map-nodes are
-     * in the content list. Settlements and armies however that don't have an
-     * assigned position (map-node property is not set) won't be included.
-     *
-     * \returns the contents
-     */
-    const std::vector<Content>& getContents() const
-    {
-        return this->contents;
-    }
-
-private:
-    void rebuildContents();
-
-private slots:
-    void settlementMapNodeChanged();
-    void armyMapNodeChanged();
 
 signals:
     /**
@@ -457,35 +316,19 @@ signals:
     void mapNodesChanged();
 
     /**
-     * Emitted when the settlements change.
+     * Emitted when the entities change.
      */
-    void settlementsChanged();
-
-    /**
-     * Emitted when the units change.
-     */
-    void unitsChanged();
-
-    /**
-     * Emitted when the armies change.
-     */
-    void armiesChanged();
+    void entitiesChanged();
 
 private:
     QString displayName;
     World* world;
     unsigned int mapNodeIndex;
-    unsigned int settlementIndex;
-    unsigned int unitIndex;
-    unsigned int armyIndex;
+    unsigned int entityIndex;
     unsigned int factionIndex;
     std::vector<Faction*> factions;
     std::vector<MapNode*> mapNodes;
-    std::vector<Settlement*> settlements;
-    std::vector<Unit*> units;
-    std::vector<Army*> armies;
-
-    std::vector<Content> contents;
+    std::vector<Entity*> entities;
 };
 
 } // namespace core

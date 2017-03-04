@@ -114,6 +114,7 @@ set(
     io/File.cpp
     io/JsonSerializer.cpp
     io/JsonUnserializer.cpp
+    io/WorldJsonUnserializer.cpp
     io/SanityCheck.cpp
 )
 
@@ -154,6 +155,7 @@ set(
     test/ui/CampaignMapEditor.cpp
     test/ui/MapUtil.cpp
     test/ui/MapWindow.cpp
+    test/io/WorldJsonUnserializer.cpp
     test/ui/WorldSurface.cpp
 )
 

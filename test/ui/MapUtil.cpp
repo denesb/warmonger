@@ -287,7 +287,7 @@ TEST_CASE("Visibility test", "[visibleContents]")
     }
 }
 
-TEST_CASE("", "[mapNodeAtPos]")
+TEST_CASE("", "[mapNodeAtPos][!hide]")
 {
     std::vector<core::MapNode*> mapNodes = core::generateMapNodes(2);
     core::generateMapNodeNames(mapNodes);
@@ -324,7 +324,7 @@ TEST_CASE("", "[mapNodeAtPos]")
     REQUIRE(n == nullptr);
 }
 
-TEST_CASE("neighboursByPos", "[MapUtil]")
+TEST_CASE("neighboursByPos", "[MapUtil][!hide]")
 {
     std::vector<core::MapNode*> mapNodes = core::generateMapNodes(2);
     core::generateMapNodeNames(mapNodes);

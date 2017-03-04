@@ -35,7 +35,7 @@ CATCH_TRANSLATE_EXCEPTION(utils::Exception& e)
     return e.getMessage().toStdString();
 }
 
-TEST_CASE("Failed to load surface metadata", "[WorldSurface]")
+TEST_CASE("Failed to load surface metadata", "[WorldSurface][!hide]")
 {
     core::World world;
 
@@ -133,7 +133,7 @@ TEST_CASE("Missing required images", "[WorldSurface]")
     }
 }
 
-TEST_CASE("Can use Surface", "[WorldSurface]")
+TEST_CASE("Can use Surface", "[WorldSurface][!hide]")
 {
     io::JsonUnserializer unserializer;
     std::unique_ptr<core::World> world(io::readWorld("./world-packages/world.wwd", unserializer));
@@ -178,7 +178,7 @@ TEST_CASE("Can use Surface", "[WorldSurface]")
     }
 }
 
-TEST_CASE("isWorldSurfaceSane", "[WorldSurface]")
+TEST_CASE("isWorldSurfaceSane", "[WorldSurface][!hide]")
 {
     io::JsonUnserializer unserializer;
     std::unique_ptr<core::World> world(io::readWorld("./world-packages/world.wwd", unserializer));

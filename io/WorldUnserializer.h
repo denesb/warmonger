@@ -22,6 +22,7 @@
 #define IO_WORLD_UNSERIALIZER_H
 
 #include <memory>
+#include <vector>
 
 #include <QByteArray>
 
@@ -54,7 +55,7 @@ public:
      *
      * \return the unserialized world object
      */
-    virtual std::unique_ptr<core::World> unserializeWorld(const QByteArray& data) = 0;
+    virtual std::unique_ptr<core::World> unserializeWorld(const QByteArray& data) const = 0;
 
     /**
      * Unserialize an entity-type.
@@ -63,7 +64,8 @@ public:
      *
      * \return the unserialized entity-type object
      */
-    virtual std::unique_ptr<core::EntityType> unserializeEntityType(const QByteArray& data) = 0;
+    virtual std::unique_ptr<core::EntityType> unserializeEntityType(
+        const QByteArray& data, const std::vector<core::ComponentType*>& allComponentTypes) const = 0;
 
     /**
      * Unserialize a component-type.
@@ -72,7 +74,7 @@ public:
      *
      * \return the unserialized component-type object
      */
-    virtual std::unique_ptr<core::ComponentType> unserializeComponentType(const QByteArray& data) = 0;
+    virtual std::unique_ptr<core::ComponentType> unserializeComponentType(const QByteArray& data) const = 0;
 };
 
 } // namespace warmonger

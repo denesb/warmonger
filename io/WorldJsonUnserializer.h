@@ -34,9 +34,10 @@ namespace io {
 class WorldJsonUnserializer : public WorldUnserializer
 {
 public:
-    std::unique_ptr<core::World> unserializeWorld(const QByteArray& data) override;
-    std::unique_ptr<core::EntityType> unserializeEntityType(const QByteArray& data) override;
-    std::unique_ptr<core::ComponentType> unserializeComponentType(const QByteArray& data) override;
+    std::unique_ptr<core::World> unserializeWorld(const QByteArray& data) const override;
+    std::unique_ptr<core::EntityType> unserializeEntityType(
+        const QByteArray& data, const std::vector<core::ComponentType*>& allComponentTypes) const override;
+    std::unique_ptr<core::ComponentType> unserializeComponentType(const QByteArray& data) const override;
 };
 
 } // namespace warmonger

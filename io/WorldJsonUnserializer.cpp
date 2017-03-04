@@ -29,29 +29,73 @@
 namespace warmonger {
 namespace io {
 
-std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByteArray&)
+std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByteArray&) const
 {
     return std::unique_ptr<core::World>();
 }
 
-std::unique_ptr<core::EntityType> WorldJsonUnserializer::unserializeEntityType(const QByteArray&)
-{
-    return std::unique_ptr<core::EntityType>();
-}
-
-std::unique_ptr<core::ComponentType> WorldJsonUnserializer::unserializeComponentType(const QByteArray& data)
+std::unique_ptr<core::EntityType> WorldJsonUnserializer::unserializeEntityType(
+    const QByteArray& data, const std::vector<core::ComponentType*>& allComponentTypes) const
 {
     QJsonDocument jdoc{parseJson(data)};
     QJsonObject jobj{jdoc.object()};
 
     const QString& name{jobj["name"].toString()};
 
-    if (name.isNull())
+    if (name.isNull() || name.isEmpty())
+    {
+        throw utils::ValueError("Failed to unserialize entity-type, it doesn't have a name property");
+    }
+
+    const QJsonArray jcomponentTypeNames(jobj["componentTypes"].toArray());
+
+    if (jcomponentTypeNames.isEmpty())
+    {
+        throw utils::ValueError("Failed to unserialize entity-type " + name + ", it doesn't have any component-types");
+    }
+
+    std::vector<core::ComponentType*> componentTypes;
+
+    for (const auto& jcomponentTypeName : jcomponentTypeNames)
+    {
+        const QString name{jcomponentTypeName.toString()};
+
+        if (name.isEmpty())
+        {
+            throw utils::ValueError("Failed to unserialize entity-type " + name + ", it has an empty component-type");
+        }
+
+        const auto it{std::find_if(allComponentTypes.cbegin(),
+            allComponentTypes.cend(),
+            [&name](const auto& componentType) { return componentType->getName() == name; })};
+
+        if (it != allComponentTypes.cend())
+        {
+            componentTypes.push_back(*it);
+        }
+        else
+        {
+            throw utils::ValueError(
+                "Failed to unserialize entity-type " + name + ", it has a non-existent component-type " + name);
+        }
+    }
+
+    return std::make_unique<core::EntityType>(name, componentTypes);
+}
+
+std::unique_ptr<core::ComponentType> WorldJsonUnserializer::unserializeComponentType(const QByteArray& data) const
+{
+    QJsonDocument jdoc{parseJson(data)};
+    QJsonObject jobj{jdoc.object()};
+
+    const QString& name{jobj["name"].toString()};
+
+    if (name.isNull() || name.isEmpty())
     {
         throw utils::ValueError("Failed to unserialize component-type, it doesn't have a name property");
     }
 
-    QJsonArray jpropertyNames(jobj["propertyNames"].toArray());
+    const QJsonArray jpropertyNames(jobj["propertyNames"].toArray());
 
     if (jpropertyNames.isEmpty())
     {

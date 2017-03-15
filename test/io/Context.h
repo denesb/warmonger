@@ -16,41 +16,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "core/Component.h"
+#include <QObject>
 
-#include <QVariant>
-
-#include "utils/Logging.h"
-
-namespace warmonger {
-namespace core {
-
-Component::Component(ComponentType* type, QObject* parent)
-    : QObject(parent)
-    , type(type)
+class TestClass0 : public QObject
 {
-}
+    Q_OBJECT
+};
 
-QVariant& Component::operator[](const QString& name)
+class TestClass1 : public QObject
 {
-    static QVariant invalidPropertyValue{};
-
-    const auto it = this->properties.find(name);
-
-    if (it == this->properties.end())
-    {
-        return it->second;
-    }
-    else
-    {
-        wError << "Requested non existent property " << name << " for component " << this;
-
-        // in case some previously returned instance was modified
-        invalidPropertyValue.clear();
-
-        return invalidPropertyValue;
-    }
-}
-
-} // namespace core
-} // namespace warmonger
+    Q_OBJECT
+};

@@ -23,8 +23,8 @@
 #include <QStringList>
 
 #include "io/File.h"
-#include "io/JsonUnserializer.h"
 #include "utils/Constants.h"
+#include "utils/Logging.h"
 #include "utils/QVariantUtils.h"
 #include "utils/Settings.h"
 #include "utils/Utils.h"
@@ -95,11 +95,7 @@ std::vector<std::unique_ptr<core::CampaignMap>> loadWorldMaps(core::World* world
     {
         const QString mapPath = mapsDir.absoluteFilePath(mapFile);
 
-        io::Context worldContext;
-        io::addWorldToContext(worldContext, world);
-        io::JsonUnserializer mapUnserializer(worldContext);
-
-        campaignMaps.push_back(io::readCampaignMap(mapPath, mapUnserializer));
+        campaignMaps.push_back(io::readCampaignMap(mapPath, world));
     }
 
     wInfo << "Loaded " << campaignMaps.size() << " maps for world `" << world->objectName() << "'";

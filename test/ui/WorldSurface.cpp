@@ -21,7 +21,6 @@
 #include "test/catch.hpp"
 
 #include "io/File.h"
-#include "io/JsonUnserializer.h"
 #include "ui/WorldSurface.h"
 #include "utils/Constants.h"
 #include "utils/Exception.h"
@@ -99,8 +98,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface][!hide]")
 
 TEST_CASE("Missing required images", "[WorldSurface]")
 {
-    io::JsonUnserializer unserializer;
-    std::unique_ptr<core::World> world(io::readWorld("./world-packages/world.wwd", unserializer));
+    std::unique_ptr<core::World> world(io::readWorld("./world-packages/world.wwd"));
 
     SECTION("Missing army-type images")
     {
@@ -135,8 +133,7 @@ TEST_CASE("Missing required images", "[WorldSurface]")
 
 TEST_CASE("Can use Surface", "[WorldSurface][!hide]")
 {
-    io::JsonUnserializer unserializer;
-    std::unique_ptr<core::World> world(io::readWorld("./world-packages/world.wwd", unserializer));
+    std::unique_ptr<core::World> world(io::readWorld("./world-packages/world.wwd"));
 
     ui::WorldSurface s("./worldsurface-packages/test.wsp", world.get());
 
@@ -149,18 +146,18 @@ TEST_CASE("Can use Surface", "[WorldSurface][!hide]")
 
     SECTION("Resources not yet loaded")
     {
-        //TODO test with an entity with a graphic component
-        //QFile f(s.getObjectImagePath(world->getUnitTypes().front()));
-        //REQUIRE(f.open(QIODevice::ReadOnly) == false);
+        // TODO test with an entity with a graphic component
+        // QFile f(s.getObjectImagePath(world->getUnitTypes().front()));
+        // REQUIRE(f.open(QIODevice::ReadOnly) == false);
     }
 
     SECTION("Surface activated")
     {
         s.activate();
 
-        //TODO test with an entity with a graphic component
-        //QFile f(s.getObjectImagePath(world->getUnitTypes().front()));
-        //REQUIRE(f.open(QIODevice::ReadOnly) == true);
+        // TODO test with an entity with a graphic component
+        // QFile f(s.getObjectImagePath(world->getUnitTypes().front()));
+        // REQUIRE(f.open(QIODevice::ReadOnly) == true);
         REQUIRE(s.getTileWidth() == 110);
         REQUIRE(s.getTileHeight() == 128);
         REQUIRE(s.getNormalGridColor().name() == "#000000");
@@ -175,16 +172,15 @@ TEST_CASE("Can use Surface", "[WorldSurface][!hide]")
         s.activate();
         s.deactivate();
 
-        //TODO test with an entity with a graphic component
-        //QFile f(s.getObjectImagePath(world->getUnitTypes().front()));
-        //REQUIRE(f.open(QIODevice::ReadOnly) == false);
+        // TODO test with an entity with a graphic component
+        // QFile f(s.getObjectImagePath(world->getUnitTypes().front()));
+        // REQUIRE(f.open(QIODevice::ReadOnly) == false);
     }
 }
 
 TEST_CASE("isWorldSurfaceSane", "[WorldSurface][!hide]")
 {
-    io::JsonUnserializer unserializer;
-    std::unique_ptr<core::World> world(io::readWorld("./world-packages/world.wwd", unserializer));
+    std::unique_ptr<core::World> world(io::readWorld("./world-packages/world.wwd"));
 
     SECTION("All is good")
     {

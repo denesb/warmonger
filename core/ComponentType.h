@@ -21,11 +21,9 @@
 #define W_CORE_COMPONENT_TYPE_H
 
 #include <memory>
-#include <vector>
 
 #include <QObject>
 #include <QString>
-#include <QVariant>
 
 namespace warmonger {
 namespace core {

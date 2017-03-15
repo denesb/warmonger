@@ -18,13 +18,13 @@
 
 #include "test/Util.h"
 
-#include "core/Utils.h"
 #include "core/Banner.h"
 #include "core/Civilization.h"
+#include "core/EntityType.h"
 #include "core/Hexagon.h"
 #include "core/MapNode.h"
+#include "core/Utils.h"
 #include "core/WorldComponentType.h"
-#include "core/EntityType.h"
 #include "utils/ToString.h"
 
 using namespace warmonger;
@@ -54,7 +54,8 @@ std::pair<core::World*, QJsonObject> makeWorld()
     setNames(w, jw, 0);
 
     // ComponentType
-    auto ct0{std::make_unique<core::WorldComponentType>("componentType0", std::vector<QString>{"property0", "property1"})};
+    auto ct0{
+        std::make_unique<core::WorldComponentType>("componentType0", std::vector<QString>{"property0", "property1"})};
     ct0->setObjectName(core::createObjectName(ct0.get(), 0));
 
     QJsonObject jct0;
@@ -62,7 +63,8 @@ std::pair<core::World*, QJsonObject> makeWorld()
     jct0["name"] = "componentType0";
     jct0["propertyNames"] = QJsonArray{"property0", "property1"};
 
-    auto ct1{std::make_unique<core::WorldComponentType>("componentType1", std::vector<QString>{"property2", "property3"})};
+    auto ct1{
+        std::make_unique<core::WorldComponentType>("componentType1", std::vector<QString>{"property2", "property3"})};
     ct1->setObjectName(core::createObjectName(ct0.get(), 1));
 
     QJsonObject jct1;
@@ -143,12 +145,12 @@ std::pair<core::CampaignMap*, QJsonObject> makeMap()
     auto mn0{std::make_unique<core::MapNode>()};
     QJsonObject jmn0;
 
-    //setNames(mn0.get(), jmn0, 0);
+    // setNames(mn0.get(), jmn0, 0);
 
     auto mn1{std::make_unique<core::MapNode>()};
     QJsonObject jmn1;
 
-    //setNames(mn1.get(), jmn1, 1);
+    // setNames(mn1.get(), jmn1, 1);
 
     // MapNode neighbours
     mn0->setNeighbour(core::Direction::West, mn1.get());

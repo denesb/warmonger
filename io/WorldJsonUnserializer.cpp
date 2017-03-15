@@ -94,8 +94,7 @@ std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByte
     return obj;
 }
 
-static std::unique_ptr<core::Banner> bannerFromJson(
-    const QJsonObject& jobj, const std::vector<core::Civilization*>&)
+static std::unique_ptr<core::Banner> bannerFromJson(const QJsonObject& jobj, const std::vector<core::Civilization*>&)
 {
     std::unique_ptr<core::Banner> obj(new core::Banner());
 

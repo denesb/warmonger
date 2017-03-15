@@ -39,14 +39,14 @@ std::pair<QString, int> splitObjectName(const QString& objectName)
 {
     const QStringList parts{objectName.split(':')};
 
-    if(parts.size() != 2)
+    if (parts.size() != 2)
         throw utils::ValueError("Invalid objectName format, name " + objectName + " has more than one : characters");
 
     bool conversionSucceded{false};
 
     const int index{parts[1].toInt(&conversionSucceded)};
 
-    if(!conversionSucceded)
+    if (!conversionSucceded)
         throw utils::ValueError("Invalid objectName, name " + objectName + " has non-numeric index");
 
     return std::make_pair(parts[0], index);

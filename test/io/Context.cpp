@@ -21,16 +21,7 @@
 #include "io/Context.h"
 #include "test/Util.h"
 #include "test/catch.hpp"
-
-class TestClass0 : public QObject
-{
-    Q_OBJECT
-};
-
-class TestClass1 : public QObject
-{
-    Q_OBJECT
-};
+#include "test/io/Context.h"
 
 using namespace warmonger;
 

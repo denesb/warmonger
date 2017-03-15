@@ -91,6 +91,7 @@ set(
     core/CampaignMap.cpp
     core/Civilization.cpp
     core/Component.cpp
+    core/ComponentType.cpp
     core/Entity.cpp
     core/EntityType.cpp
     core/Faction.cpp
@@ -109,6 +110,7 @@ set(
     io/CampaignMapJsonUnserializer.cpp
     io/Context.cpp
     io/File.cpp
+    io/JsonUtils.cpp
     io/SanityCheck.cpp
     io/WorldJsonSerializer.cpp
     io/WorldJsonUnserializer.cpp
@@ -283,7 +285,6 @@ if(BUILD_TESTS)
         ${TEST_SRC_FILES}
         test/test_warmonger.cpp
     )
-
     WARMONGER_AUTOMOC(test_warmonger)
 
     target_link_libraries(

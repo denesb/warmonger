@@ -21,9 +21,9 @@
 
 #include "core/CampaignMap.h"
 #include "io/File.h"
-#include "io/JsonUnserializer.h"
 #include "io/SanityCheck.h"
 #include "tools/Utils.h"
+#include "utils/Logging.h"
 
 using namespace warmonger;
 
@@ -54,8 +54,7 @@ int main(int argc, char* const argv[])
         FAIL(1);
     }
 
-    io::JsonUnserializer unserializer;
-    std::unique_ptr<core::World> world(io::readWorld(worldPath, unserializer));
+    std::unique_ptr<core::World> world(io::readWorld(worldPath));
 
     wInfo << "Successfully loaded world " << world.get();
 

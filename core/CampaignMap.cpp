@@ -65,6 +65,11 @@ QVariantList CampaignMap::readMapNodes() const
     return utils::toQVariantList(this->mapNodes);
 }
 
+QVariantList CampaignMap::readFactions() const
+{
+    return utils::toQVariantList(this->factions);
+}
+
 QVariantList CampaignMap::readEntities() const
 {
     return utils::toQVariantList(this->entities);

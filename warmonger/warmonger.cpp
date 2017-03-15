@@ -22,7 +22,6 @@
 
 #include "core/MapGenerator.h"
 #include "io/File.h"
-#include "io/JsonUnserializer.h"
 #include "io/SanityCheck.h"
 #include "ui/SearchPaths.h"
 #include "ui/UI.h"
@@ -86,9 +85,7 @@ static std::unique_ptr<Context> createContext(const QString& worldName, const QS
 
     try
     {
-        io::JsonUnserializer unserializer;
-
-        world = io::readWorld(worldPath, unserializer);
+        world = io::readWorld(worldPath);
     }
     catch (const utils::Exception& e)
     {
@@ -130,11 +127,9 @@ static std::unique_ptr<core::CampaignMap> generateBackgroundCampaignMap(core::Wo
     map->setObjectName("backgroundCampaignMap");
     map->setWorld(world);
 
+    // TODO fix map generation
     const std::vector<core::MapNode*> nodes = core::generateMapNodes(10);
-    core::generateMapNodeNames(nodes);
-    core::generateMapNodeTerrainTypes(nodes, world->getTerrainTypes());
-
-    map->setMapNodes(nodes);
+    // map->setMapNodes(nodes);
 
     return map;
 }

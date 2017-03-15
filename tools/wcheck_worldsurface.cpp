@@ -20,11 +20,11 @@
 #include <memory>
 
 #include "io/File.h"
-#include "io/JsonUnserializer.h"
 #include "io/SanityCheck.h"
 #include "tools/Utils.h"
 #include "ui/WorldSurface.h"
 #include "utils/Exception.h"
+#include "utils/Logging.h"
 
 using namespace warmonger;
 
@@ -55,13 +55,11 @@ int main(int argc, char* const argv[])
         FAIL(1);
     }
 
-    io::JsonUnserializer unserializer;
     std::unique_ptr<core::World> world;
 
     try
     {
-        io::JsonUnserializer unserializer;
-        world = io::readWorld(worldPath, unserializer);
+        world = io::readWorld(worldPath);
     }
     catch (std::exception& e)
     {

@@ -24,6 +24,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QVariant>
 
 #include "core/ComponentType.h"
 

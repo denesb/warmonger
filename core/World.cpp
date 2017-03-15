@@ -17,9 +17,9 @@
  */
 
 #include "core/World.h"
-#include "utils/QVariantUtils.h"
-#include "utils/Logging.h"
 #include "core/Utils.h"
+#include "utils/Logging.h"
+#include "utils/QVariantUtils.h"
 
 namespace warmonger {
 namespace core {

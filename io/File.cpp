@@ -20,13 +20,17 @@
 
 #include "core/CampaignMap.h"
 #include "core/World.h"
+#include "io/CampaignMapJsonSerializer.h"
+#include "io/CampaignMapJsonUnserializer.h"
 #include "io/File.h"
+#include "io/WorldJsonSerializer.h"
+#include "io/WorldJsonUnserializer.h"
 #include "utils/Exception.h"
 
 namespace warmonger {
 namespace io {
 
-void writeWorld(const core::World* world, const QString& path, io::Serializer& serializer)
+void writeWorld(const core::World* const world, const QString& path)
 {
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly))
@@ -34,22 +38,26 @@ void writeWorld(const core::World* world, const QString& path, io::Serializer& s
         throw utils::IOError(QString("Failed to open %1 for writing").arg(path));
     }
 
+    io::WorldJsonSerializer serializer;
+
     file.write(serializer.serializeWorld(world));
 }
 
-std::unique_ptr<core::World> readWorld(const QString& path, io::Unserializer& unserializer)
+std::unique_ptr<core::World> readWorld(const QString& path)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly))
     {
         throw utils::IOError(QString("Failed to open %1 for reading").arg(path));
     }
+
+    io::WorldJsonUnserializer unserializer;
 
     const QByteArray data = file.readAll();
     return unserializer.unserializeWorld(data);
 }
 
-void writeCampaignMap(const core::CampaignMap* campaignMap, const QString& path, io::Serializer& serializer)
+void writeCampaignMap(const core::CampaignMap* const campaignMap, const QString& path)
 {
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly))
@@ -57,10 +65,12 @@ void writeCampaignMap(const core::CampaignMap* campaignMap, const QString& path,
         throw utils::IOError(QString("Failed to open %1 for writing").arg(path));
     }
 
+    io::CampaignMapJsonSerializer serializer;
+
     file.write(serializer.serializeCampaignMap(campaignMap));
 }
 
-std::unique_ptr<core::CampaignMap> readCampaignMap(const QString& path, io::Unserializer& unserializer)
+std::unique_ptr<core::CampaignMap> readCampaignMap(const QString& path, core::World* world)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly))
@@ -68,8 +78,10 @@ std::unique_ptr<core::CampaignMap> readCampaignMap(const QString& path, io::Unse
         throw utils::IOError(QString("Failed to open %1 for reading").arg(path));
     }
 
+    io::CampaignMapJsonUnserializer unserializer;
+
     const QByteArray data = file.readAll();
-    return unserializer.unserializeCampaignMap(data);
+    return unserializer.unserializeCampaignMap(data, world);
 }
 
 } // namespace warmonger

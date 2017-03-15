@@ -22,7 +22,6 @@
 
 #include "core/World.h"
 #include "io/File.h"
-#include "io/JsonUnserializer.h"
 #include "io/SanityCheck.h"
 
 using namespace warmonger;
@@ -87,8 +86,7 @@ TEST_CASE("isWorldSane", "[SanityCheck]")
 
 TEST_CASE("isCampaignMapSane", "[SanityCheck]")
 {
-    io::JsonUnserializer unserializer;
-    std::unique_ptr<core::World> world(io::readWorld("./world-packages/world.wwd", unserializer));
+    std::unique_ptr<core::World> world(io::readWorld("./world-packages/world.wwd"));
 
     SECTION("All is good")
     {

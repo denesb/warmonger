@@ -62,7 +62,7 @@ std::pair<QString, int> splitObjectName(const QString& objectName);
  *
  * \see createObjectName
  */
-inline std::pair<QString, int> splitObjectName(const QObject * const obj)
+inline std::pair<QString, int> splitObjectName(const QObject* const obj)
 {
     return splitObjectName(obj->objectName());
 }

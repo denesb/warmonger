@@ -23,7 +23,6 @@
 #include "core/CampaignMap.h"
 #include "core/World.h"
 #include "io/File.h"
-#include "io/JsonUnserializer.h"
 #include "io/SanityCheck.h"
 #include "utils/Logging.h"
 
@@ -76,8 +75,7 @@ bool isWorldSane(const QString& path)
 
     try
     {
-        io::JsonUnserializer unserializer;
-        world = io::readWorld(path, unserializer);
+        world = io::readWorld(path);
     }
     catch (const std::exception& e)
     {
@@ -94,11 +92,7 @@ bool isCampaignMapSane(const QString& path, core::World* world)
 
     try
     {
-        io::Context ctx;
-        io::addWorldToContext(ctx, world);
-
-        io::JsonUnserializer unserializer(ctx);
-        campaignMap = io::readCampaignMap(path, unserializer);
+        campaignMap = io::readCampaignMap(path, world);
     }
     catch (const std::exception& e)
     {

@@ -25,11 +25,10 @@
 
 #include "core/MapGenerator.h"
 #include "io/File.h"
-#include "io/JsonSerializer.h"
-#include "io/JsonUnserializer.h"
 #include "ui/WorldSurface.h"
 #include "utils/Constants.h"
 #include "utils/Exception.h"
+#include "utils/Logging.h"
 #include "utils/QVariantUtils.h"
 #include "utils/Settings.h"
 #include "utils/Utils.h"
@@ -43,18 +42,6 @@ const QString unknownErrorMessage{"Unknown error"};
 
 static QString nextCampaignMapName(const std::vector<core::CampaignMap*>& campaignMaps);
 static QString defaultPath(const core::World* world, const core::CampaignMap* campaignMap);
-
-struct WorldInjector
-{
-    WorldInjector(const std::vector<core::World*>& worlds)
-        : worlds(worlds)
-    {
-    }
-
-    void operator()(const QString& className, const QString& objectName, io::Context& ctx);
-
-    const std::vector<core::World*>& worlds;
-};
 
 Context::Context(QObject* parent)
     : QObject(parent)
@@ -114,15 +101,9 @@ void Context::create(warmonger::core::World* world)
     map->setDisplayName(campaignMapDisplayName);
     map->setWorld(world);
 
-    const std::vector<core::TerrainType*> terrainTypes = world->getTerrainTypes();
-    if (!terrainTypes.empty())
-    {
-        const std::vector<core::MapNode*> nodes = core::generateMapNodes(10);
-        core::generateMapNodeNames(nodes);
-        core::generateMapNodeTerrainTypes(nodes, terrainTypes);
-
-        map->setMapNodes(nodes);
-    }
+    // TODO fix map-node generation
+    const std::vector<core::MapNode*> nodes = core::generateMapNodes(10);
+    // map->setMapNodes(nodes);
 
     const std::vector<core::Civilization*>& civilizations = world->getCivilizations();
 
@@ -147,8 +128,7 @@ bool Context::saveAs(const QString& path)
     {
         this->lastPath = path;
 
-        io::JsonSerializer serializer;
-        io::writeCampaignMap(this->campaignMap, path, serializer);
+        io::writeCampaignMap(this->campaignMap, path);
     }
     catch (utils::IOError& e)
     {
@@ -176,11 +156,11 @@ bool Context::load(const QString& path)
 {
     try
     {
-        WorldInjector injector(this->worlds);
-        io::Context ctx(std::function<void(const QString&, const QString&, Context&)>(injector));
+        // WorldInjector injector(this->worlds);
+        // io::Context ctx(std::function<void(const QString&, const QString&, Context&)>(injector));
 
-        io::JsonUnserializer unserializer;
-        this->setCampaignMap(io::readCampaignMap(path, unserializer).release());
+        // TODO: fix loading campaign-maps with unknnown world
+        // this->setCampaignMap(io::readCampaignMap(path, unserializer).release());
     }
     catch (utils::IOError& e)
     {
@@ -284,15 +264,13 @@ void Context::setDefaultWorldSurface()
 
 void Context::loadWorlds()
 {
-    io::JsonUnserializer worldUnserializer;
-
     for (QString worldPath : QDir::searchPaths(utils::searchPaths::world))
     {
         QFileInfo fileInfo(worldPath);
         const QString worldDefinitionPath =
             worldPath + "/" + fileInfo.baseName() + "." + utils::fileExtensions::worldDefinition;
 
-        core::World* world = io::readWorld(worldDefinitionPath, worldUnserializer).release();
+        core::World* world = io::readWorld(worldDefinitionPath).release();
 
         wInfo << "Loaded world " << worldDefinitionPath;
 
@@ -335,11 +313,7 @@ void Context::loadMapsFromDir(const QDir& mapsDir, core::World* world)
     {
         const QString mapPath = mapsDir.absoluteFilePath(mapFile);
 
-        io::Context worldContext;
-        io::addWorldToContext(worldContext, world);
-        io::JsonUnserializer mapUnserializer(worldContext);
-
-        core::CampaignMap* map = io::readCampaignMap(mapPath, mapUnserializer).release();
+        core::CampaignMap* map = io::readCampaignMap(mapPath, world).release();
 
         map->setParent(this);
 
@@ -395,16 +369,6 @@ static QString defaultPath(const core::World* world, const core::CampaignMap* ca
     const QString worldsPath{utils::settingsValue(utils::SettingsKey::worldsDir).toString()};
     const QString fileName{utils::makeFileName(campaignMap->objectName(), utils::fileExtensions::mapDefinition)};
     return utils::makePath(worldsPath, world->objectName(), utils::paths::maps, fileName);
-}
-
-void WorldInjector::operator()(const QString& className, const QString& objectName, io::Context& ctx)
-{
-    if (className == core::World::staticMetaObject.className())
-    {
-        auto it = std::find_if(this->worlds.begin(), this->worlds.end(), utils::QObjectFinder(objectName));
-        if (it != this->worlds.end())
-            io::addWorldToContext(ctx, *it);
-    }
 }
 
 } // namespace wmapeditor

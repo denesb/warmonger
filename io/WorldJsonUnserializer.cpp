@@ -19,6 +19,7 @@
 #include "io/WorldJsonUnserializer.h"
 
 #include <QJsonObject>
+#include <QMetaEnum>
 
 #include "core/EntityType.h"
 #include "core/World.h"
@@ -35,6 +36,7 @@ static std::unique_ptr<core::Civilization> civilizationFromJson(const QJsonObjec
 static std::unique_ptr<core::ComponentType> componentTypeFromJson(const QJsonObject& jobj);
 static std::unique_ptr<core::EntityType> entityTypeFromJson(
     const QJsonObject& jobj, const std::vector<core::ComponentType*>& allComponentTypes);
+static std::unique_ptr<core::FieldType> unserializeFieldType(const QJsonValue& jval);
 
 std::unique_ptr<core::Banner> WorldJsonUnserializer::unserializeBanner(
     const QByteArray& data, const std::vector<core::Civilization*>& allCivilizations) const
@@ -129,28 +131,43 @@ static std::unique_ptr<core::ComponentType> componentTypeFromJson(const QJsonObj
         throw utils::ValueError("Failed to unserialize component-type, it doesn't have a name property");
     }
 
-    const QJsonArray jpropertyNames(jobj["propertyNames"].toArray());
+    const QJsonArray jfields(jobj["fields"].toArray());
 
-    if (jpropertyNames.isEmpty())
+    if (jfields.isEmpty())
     {
-        throw utils::ValueError("Failed to unserialize component-type " + name + ", it doesn't have any properties");
+        throw utils::ValueError("Failed to unserialize component-type " + name + ", it doesn't have any fields");
     }
 
-    std::vector<QString> propertyNames;
+    auto componentType{std::make_unique<core::WorldComponentType>()};
+    componentType->setName(name);
 
-    for (const auto& jpropertyName : jpropertyNames)
+    for (const auto& jfieldValue : jfields)
     {
-        const QString propertyName{jpropertyName.toString()};
+        const QJsonObject jfield{jfieldValue.toObject()};
+        const QString fieldName{jfield["name"].toString()};
 
-        if (propertyName.isNull())
+        if (fieldName.isNull() || fieldName.isEmpty())
         {
-            throw utils::ValueError("Failed to unserialize component-type " + name + ", it has an empty property name");
+            throw utils::ValueError("Failed to unserialize component-type " + name + ", it has a field without name");
         }
 
-        propertyNames.push_back(propertyName);
+        const QJsonValue fieldType{jfield["type"]};
+
+        if (fieldType.isUndefined() || (!fieldType.isString() && !fieldType.isObject()))
+        {
+            throw utils::ValueError("Failed to unserialize component-type " + name + ", the field " + fieldName +
+                " has invalid or missing");
+        }
+
+        auto field{std::make_unique<core::Field>()};
+
+        field->setName(fieldName);
+        field->setType(unserializeFieldType(fieldType));
+
+        componentType->addField(std::move(field));
     }
 
-    return std::make_unique<core::WorldComponentType>(name, propertyNames);
+    return componentType;
 }
 
 static std::unique_ptr<core::EntityType> entityTypeFromJson(
@@ -197,6 +214,65 @@ static std::unique_ptr<core::EntityType> entityTypeFromJson(
     }
 
     return std::make_unique<core::EntityType>(name, componentTypes);
+}
+
+static std::unique_ptr<core::FieldType> unserializeFieldType(const QJsonValue& jval)
+{
+    const QMetaEnum typeIdMetaEnum{QMetaEnum::fromType<core::Field::TypeId>()};
+
+    if (jval.isString())
+    {
+        const QString typeStr{jval.toString()};
+
+        if(typeStr.isEmpty())
+        {
+            throw utils::ValueError("Failed to unserialize field-type, type has empty value");
+        }
+
+        const int val{typeIdMetaEnum.keyToValue(typeStr.toLocal8Bit().data())};
+
+        switch (static_cast<core::Field::TypeId>(val))
+        {
+            case core::Field::TypeId::Integer:
+                return std::make_unique<core::FieldTypes::Integer>();
+            case core::Field::TypeId::Real:
+                return std::make_unique<core::FieldTypes::Real>();
+            case core::Field::TypeId::String:
+                return std::make_unique<core::FieldTypes::String>();
+            case core::Field::TypeId::Reference:
+                return std::make_unique<core::FieldTypes::Reference>();
+            default:
+                return std::unique_ptr<core::FieldType>();
+        }
+    }
+    else if (jval.isObject())
+    {
+        const QJsonObject jcompositeType{jval.toObject()};
+
+        const QString typeIdStr{jcompositeType["id"].toString()};
+
+        if(typeIdStr.isEmpty())
+        {
+            throw utils::ValueError("Failed to unserialize field-type, type id is missing or empty");
+        }
+
+        const int val{typeIdMetaEnum.keyToValue(typeIdStr.toLocal8Bit().data())};
+
+        switch (static_cast<core::Field::TypeId>(val))
+        {
+            case core::Field::TypeId::List:
+                return std::make_unique<core::FieldTypes::List>(unserializeFieldType(jcompositeType["valueType"]));
+            case core::Field::TypeId::Dictionary:
+                return std::make_unique<core::FieldTypes::Dictionary>(
+                    unserializeFieldType(jcompositeType["valueType"]));
+            default:
+                return std::unique_ptr<core::FieldType>();
+        }
+    }
+    else
+    {
+        return std::unique_ptr<core::FieldType>();
+    }
 }
 
 } // namespace warmonger

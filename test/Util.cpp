@@ -54,18 +54,18 @@ std::pair<core::World*, QJsonObject> makeWorld()
     setNames(w, jw, 0);
 
     // ComponentType
-    auto ct0{
-        std::make_unique<core::WorldComponentType>("componentType0", std::vector<QString>{"property0", "property1"})};
+    auto ct0{std::make_unique<core::WorldComponentType>()};
     ct0->setObjectName(core::createObjectName(ct0.get(), 0));
+    ct0->setName("componentType0");
 
     QJsonObject jct0;
     jct0["id"] = 0;
     jct0["name"] = "componentType0";
     jct0["propertyNames"] = QJsonArray{"property0", "property1"};
 
-    auto ct1{
-        std::make_unique<core::WorldComponentType>("componentType1", std::vector<QString>{"property2", "property3"})};
+    auto ct1{std::make_unique<core::WorldComponentType>()};
     ct1->setObjectName(core::createObjectName(ct0.get(), 1));
+    ct1->setName("componentType1");
 
     QJsonObject jct1;
     jct1["id"] = 1;

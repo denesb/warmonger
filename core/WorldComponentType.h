@@ -20,45 +20,89 @@
 #ifndef W_CORE_WORLD_COMPONENT_TYPE_H
 #define W_CORE_WORLD_COMPONENT_TYPE_H
 
+#include <memory>
+
 #include "core/ComponentType.h"
 
 namespace warmonger {
 namespace core {
 
 /**
- * The type of a component.
+ * Component-type defined by the world.
  *
  * For an overview of the Entity-Component-Systems design pattern (ECS) and how
  * warmonger implements it see \ref docs/ECS.md.
- * Component-type used by worlds. This is a dynamic component-type created at
- * runtime, defined by the loaded world.
+ * World component-type is a dynamic component-type (as opposed to built-in)
+ * created at runtime, defined by the loaded world. These component-types are
+ * used solely by world systems and are ignored by all built-in systems.
  *
  * \see warmonger::core::ComponentType
  */
 class WorldComponentType : public ComponentType
 {
+    Q_OBJECT
+
 public:
     /**
-     * Create a world component-type with the name and properties.
+     * Constructs an empty WorldComponentType.
      *
-     * \param name the name
-     * \param propertyNames the names of the properties
+     * \param parent the parent QObject.
      */
-    WorldComponentType(const QString& name, const std::vector<QString>& propertyNames);
+    WorldComponentType(QObject* parent = nullptr);
 
-    const QString& getName() const override
+    /**
+     * Set the name.
+     *
+     * Will emit the signal ComponentType::nameChanged() if the newly set
+     * value is different than the current one.
+     *
+     * \param name the new name
+     */
+    void setName(const QString& name);
+
+    /**
+     * Set the fields.
+     *
+     * Will emit the signal ComponentType::fieldsChanged().
+     * The WorldComponentType takes ownership of the field.
+     *
+     * \param fields the fields
+     */
+    void addField(std::unique_ptr<Field>&& field);
+
+    /**
+     * Remove an exising field and renounce ownership.
+     *
+     * The field is removed and it's returned as an std::unique_ptr
+     * and will be destroyed if the caller doesn't save it.
+     * If the field is not found, nothing happens.
+     * Will emit the signal WorldComponentType::fieldsChanged().
+     *
+     * \param field the field to be removed
+     *
+     * \returns the removed field or an empty pointer if the entity
+     * was not found
+     */
+    std::unique_ptr<Field> removeField(Field* field);
+
+    bool isBuiltIn() const override
+    {
+        return false;
+    }
+
+    QString getName() const override
     {
         return this->name;
     }
 
-    std::vector<QString> getPropertyNames() const override
+    std::vector<Field*> getFields() const override
     {
-        return this->propertyNames;
+        return fields;
     }
 
 private:
     QString name;
-    std::vector<QString> propertyNames;
+    std::vector<Field*> fields;
 };
 
 } // namespace core

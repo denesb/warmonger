@@ -21,10 +21,44 @@
 namespace warmonger {
 namespace core {
 
-WorldComponentType::WorldComponentType(const QString& name, const std::vector<QString>& propertyNames)
-    : name(name)
-    , propertyNames(propertyNames)
+WorldComponentType::WorldComponentType(QObject* parent)
+    : ComponentType(parent)
 {
+}
+
+void WorldComponentType::setName(const QString& name)
+{
+    if (name != this->name)
+    {
+        this->name = name;
+        emit nameChanged();
+    }
+}
+
+void WorldComponentType::addField(std::unique_ptr<Field>&& field)
+{
+    field->setParent(this);
+    this->fields.push_back(field.release());
+
+    emit fieldsChanged();
+}
+
+std::unique_ptr<Field> WorldComponentType::removeField(Field* field)
+{
+    auto it = std::find(this->fields.cbegin(), this->fields.cend(), field);
+    if (it != this->fields.end())
+    {
+        this->fields.erase(it);
+        field->setParent(nullptr);
+
+        emit fieldsChanged();
+
+        return std::unique_ptr<Field>(field);
+    }
+    else
+    {
+        return std::unique_ptr<Field>();
+    }
 }
 
 } // namespace core

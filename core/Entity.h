@@ -21,6 +21,7 @@
 #define W_CORE_ENTITY_H
 
 #include <map>
+#include <memory>
 
 #include <QObject>
 

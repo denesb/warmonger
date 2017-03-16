@@ -16,22 +16,48 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "core/ComponentType.h"
-
-#include "utils/QVariantUtils.h"
+#include "core/Field.h"
 
 namespace warmonger {
 namespace core {
 
-ComponentType::ComponentType(QObject* parent)
+Field::Field(QObject* parent)
     : QObject(parent)
 {
 }
 
-QVariantList ComponentType::readFields() const
+void Field::setName(const QString& name)
 {
-    return utils::toQVariantList(this->getFields());
+    if (this->name != name)
+    {
+        this->name = name;
+        emit nameChanged();
+    }
 }
+
+void Field::setType(std::unique_ptr<FieldType>&& type)
+{
+    type->setParent(this);
+    this->type = type.release();
+
+    emit typeChanged();
+}
+
+namespace FieldTypes {
+
+List::List(std::unique_ptr<FieldType>&& valueType)
+    : valueType(valueType.release())
+{
+    this->valueType->setParent(this);
+}
+
+Dictionary::Dictionary(std::unique_ptr<FieldType>&& valueType)
+    : valueType(valueType.release())
+{
+    this->valueType->setParent(this);
+}
+
+} // namspace FieldTypes
 
 } // namespace core
 } // namespace warmonger

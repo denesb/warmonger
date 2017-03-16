@@ -20,10 +20,13 @@
 #ifndef W_CORE_COMPONENT_TYPE_H
 #define W_CORE_COMPONENT_TYPE_H
 
-#include <memory>
+#include <vector>
 
 #include <QObject>
 #include <QString>
+#include <QVariant>
+
+#include "core/Field.h"
 
 namespace warmonger {
 namespace core {
@@ -43,20 +46,70 @@ class ComponentType : public QObject
 {
     Q_OBJECT
 
+    /**
+     * The name of the component-type.
+     */
+    Q_PROPERTY(QString name READ getName NOTIFY nameChanged)
+
+    /**
+     * The fields of the component-type.
+     */
+    Q_PROPERTY(QVariantList fields READ readFields NOTIFY fieldsChanged)
+
 public:
+    /**
+     * Constructs an empty ComponentType.
+     *
+     * \param parent the parent QObject.
+     */
+    ComponentType(QObject* parent = nullptr);
+
+    /**
+     * Is this component-type built-in?
+     *
+     * Built-in component-types are the ones that the engine's systems know
+     * about. These are non-editable, with a pre-defined set of fields
+     * and name.
+     *
+     * \return is the component-type built-in
+     */
+    virtual bool isBuiltIn() const = 0;
+
     /**
      * Get the name.
      *
      * \returns the name
      */
-    virtual const QString& getName() const = 0;
+    virtual QString getName() const = 0;
 
     /**
-     * Get the property names
+     * Get the fields.
      *
-     * \returns the property names
+     * \returns the fields
      */
-    virtual std::vector<QString> getPropertyNames() const = 0;
+    virtual std::vector<Field*> getFields() const = 0;
+
+    /**
+     * Get the fields as a QVariantList
+     *
+     * This function is used as a read function for the fields property and is
+     * not supposed to be called from C++ code. Use ComponentType::getFields()
+     * instead.
+     *
+     * \returns the fields
+     */
+    QVariantList readFields() const;
+
+signals:
+    /**
+     * Emitted when the name changes.
+     */
+    void nameChanged();
+
+    /**
+     * Emitted when the property-names change.
+     */
+    void fieldsChanged();
 };
 
 } // namespace core

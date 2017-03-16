@@ -21,6 +21,7 @@
 #ifndef W_CORE_WORLD_H
 #define W_CORE_WORLD_H
 
+#include <memory>
 #include <vector>
 
 #include <QColor>

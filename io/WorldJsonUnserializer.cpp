@@ -224,7 +224,7 @@ static std::unique_ptr<core::FieldType> unserializeFieldType(const QJsonValue& j
     {
         const QString typeStr{jval.toString()};
 
-        if(typeStr.isEmpty())
+        if (typeStr.isEmpty())
         {
             throw utils::ValueError("Failed to unserialize field-type, type has empty value");
         }
@@ -232,9 +232,10 @@ static std::unique_ptr<core::FieldType> unserializeFieldType(const QJsonValue& j
         bool ok;
         const int val{typeIdMetaEnum.keyToValue(typeStr.toLocal8Bit().data(), &ok)};
 
-        if(!ok)
+        if (!ok)
         {
-            throw utils::ValueError("Failed to unserialize field-type, unknown type `" + typeStr + "' specified as type id");
+            throw utils::ValueError(
+                "Failed to unserialize field-type, unknown type `" + typeStr + "' specified as type id");
         }
 
         switch (static_cast<core::Field::TypeId>(val))
@@ -258,7 +259,7 @@ static std::unique_ptr<core::FieldType> unserializeFieldType(const QJsonValue& j
 
         const QString typeIdStr{jcompositeType["id"].toString()};
 
-        if(typeIdStr.isEmpty())
+        if (typeIdStr.isEmpty())
         {
             throw utils::ValueError("Failed to unserialize field-type, type id is missing or empty");
         }
@@ -266,9 +267,10 @@ static std::unique_ptr<core::FieldType> unserializeFieldType(const QJsonValue& j
         bool ok;
         const int val{typeIdMetaEnum.keyToValue(typeIdStr.toLocal8Bit().data(), &ok)};
 
-        if(!ok)
+        if (!ok)
         {
-            throw utils::ValueError("Failed to unserialize field-type, unknown type `" + typeIdStr + "' specified as type id");
+            throw utils::ValueError(
+                "Failed to unserialize field-type, unknown type `" + typeIdStr + "' specified as type id");
         }
 
         switch (static_cast<core::Field::TypeId>(val))

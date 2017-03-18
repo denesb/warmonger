@@ -229,7 +229,13 @@ static std::unique_ptr<core::FieldType> unserializeFieldType(const QJsonValue& j
             throw utils::ValueError("Failed to unserialize field-type, type has empty value");
         }
 
-        const int val{typeIdMetaEnum.keyToValue(typeStr.toLocal8Bit().data())};
+        bool ok;
+        const int val{typeIdMetaEnum.keyToValue(typeStr.toLocal8Bit().data(), &ok)};
+
+        if(!ok)
+        {
+            throw utils::ValueError("Failed to unserialize field-type, unknown type `" + typeStr + "' specified as type id");
+        }
 
         switch (static_cast<core::Field::TypeId>(val))
         {
@@ -241,8 +247,9 @@ static std::unique_ptr<core::FieldType> unserializeFieldType(const QJsonValue& j
                 return std::make_unique<core::FieldTypes::String>();
             case core::Field::TypeId::Reference:
                 return std::make_unique<core::FieldTypes::Reference>();
-            default:
-                return std::unique_ptr<core::FieldType>();
+            case core::Field::TypeId::List:
+            case core::Field::TypeId::Dictionary:
+                throw utils::ValueError("Failed to unserialize field-type, `" + typeStr + "' is not a simple type");
         }
     }
     else if (jval.isObject())
@@ -256,23 +263,34 @@ static std::unique_ptr<core::FieldType> unserializeFieldType(const QJsonValue& j
             throw utils::ValueError("Failed to unserialize field-type, type id is missing or empty");
         }
 
-        const int val{typeIdMetaEnum.keyToValue(typeIdStr.toLocal8Bit().data())};
+        bool ok;
+        const int val{typeIdMetaEnum.keyToValue(typeIdStr.toLocal8Bit().data(), &ok)};
+
+        if(!ok)
+        {
+            throw utils::ValueError("Failed to unserialize field-type, unknown type `" + typeIdStr + "' specified as type id");
+        }
 
         switch (static_cast<core::Field::TypeId>(val))
         {
+            case core::Field::TypeId::Integer:
+            case core::Field::TypeId::Real:
+            case core::Field::TypeId::String:
+            case core::Field::TypeId::Reference:
+                throw utils::ValueError("Failed to unserialize field-type, `" + typeIdStr + "' is not a complex type");
             case core::Field::TypeId::List:
                 return std::make_unique<core::FieldTypes::List>(unserializeFieldType(jcompositeType["valueType"]));
             case core::Field::TypeId::Dictionary:
                 return std::make_unique<core::FieldTypes::Dictionary>(
                     unserializeFieldType(jcompositeType["valueType"]));
-            default:
-                return std::unique_ptr<core::FieldType>();
         }
     }
     else
     {
         return std::unique_ptr<core::FieldType>();
     }
+
+    return std::unique_ptr<core::FieldType>();
 }
 
 } // namespace warmonger

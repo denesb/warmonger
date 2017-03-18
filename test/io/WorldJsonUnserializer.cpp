@@ -312,6 +312,20 @@ TEST_CASE(
         REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
     }
 
+    SECTION("Field has unknown type")
+    {
+        QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": \"Unknown\"}]}"};
+
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+    }
+
+    SECTION("Field has invalid type")
+    {
+        QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": \"List\"}]}"};
+
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+    }
+
     SECTION("Complex field type has no id")
     {
         QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": {\"valueType\": \"Integer\"}}]}"};
@@ -322,6 +336,20 @@ TEST_CASE(
     SECTION("Complex field type has empty id")
     {
         QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": {\"id\": \"\", \"valueType\": \"Integer\"}}]}"};
+
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+    }
+
+    SECTION("Complex field type has unknown id")
+    {
+        QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": {\"id\": \"Unknown\", \"valueType\": \"Integer\"}}]}"};
+
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+    }
+
+    SECTION("Complex field type has invalid id")
+    {
+        QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": {\"id\": \"String\", \"valueType\": \"Integer\"}}]}"};
 
         REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
     }

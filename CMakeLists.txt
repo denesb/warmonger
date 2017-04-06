@@ -101,6 +101,7 @@ set(
     core/MapNode.cpp
     core/MapNodeNeighbours.cpp
     core/Utils.cpp
+    core/WObject.cpp
     core/World.cpp
     core/WorldComponentType.cpp
 )
@@ -141,6 +142,7 @@ set(
     test/core/HierarchyNode.cpp
     test/core/MapGenerator.cpp
     test/core/MapNodeNeighbours.cpp
+    test/core/WObject.cpp
     test/io/Context.cpp
     #test/io/File.cpp TODO fix serialization/unserialization tests before
     #test/io/SanityCheck.cpp

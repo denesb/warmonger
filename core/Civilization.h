@@ -21,11 +21,7 @@
 #ifndef CORE_CIVILIZATION_H
 #define CORE_CIVILIZATION_H
 
-#include <map>
-#include <vector>
-
 #include <QObject>
-#include <QVariant>
 
 namespace warmonger {
 namespace core {

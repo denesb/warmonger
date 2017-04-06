@@ -24,6 +24,7 @@
 #include <vector>
 
 #include <QObject>
+#include <QVariant>
 
 #include "core/Civilization.h"
 

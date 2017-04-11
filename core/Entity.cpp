@@ -19,20 +19,37 @@
 #include "core/Entity.h"
 
 #include "utils/Logging.h"
+#include "utils/QVariantUtils.h"
 
 namespace warmonger {
 namespace core {
 
-Entity::Entity(EntityType* type, QObject* parent)
-    : QObject(parent)
-    , type(type)
+Entity::Entity(long id)
+    : WObject(id)
 {
+}
+
+Entity::Entity(QObject* parent)
+    : WObject(parent)
+{
+}
+
+void Entity::setType(EntityType* type)
+{
+    if (this->type == type)
+        return;
+
+    this->type = type;
+    this->components.clear();
+
     for (const auto& componentType : this->type->getComponentTypes())
     {
         const auto result{this->components.emplace(componentType, std::make_unique<Component>(componentType))};
 
-        QObject::connect(result.first->second.get(), &Component::propertyChanged, this, &Entity::componentChanged);
+        QObject::connect(result.first->second.get(), &Component::fieldChanged, this, &Entity::componentChanged);
     }
+
+    emit typeChanged();
 }
 
 Component* Entity::operator[](const ComponentType* const componentType)

@@ -25,30 +25,52 @@
 namespace warmonger {
 namespace core {
 
-Component::Component(ComponentType* type, QObject* parent)
-    : QObject(parent)
-    , type(type)
+Component::Component(long id)
+    : WObject(id)
+    , type(nullptr)
 {
 }
 
-QVariant& Component::operator[](const QString& name)
+Component::Component(QObject* parent)
+    : WObject(parent)
+    , type(nullptr)
 {
-    static QVariant invalidPropertyValue{};
+}
 
-    const auto it = this->properties.find(name);
+void Component::setType(ComponentType* type)
+{
+    if (this->type != type)
+    {
+        this->type = type;
+        emit typeChanged();
+    }
+}
 
-    if (it == this->properties.end())
+QVariant Component::getField(const QString& name) const
+{
+    const auto it = this->fields.find(name);
+
+    if (it == this->fields.end())
     {
         return it->second;
     }
     else
     {
-        wError << "Requested non existent property " << name << " for component " << this;
+        wError << "Requested non existent field " << name << " for component " << this;
 
-        // in case some previously returned instance was modified
-        invalidPropertyValue.clear();
+        return QVariant();
+    }
+}
 
-        return invalidPropertyValue;
+void Component::setField(const QString& name, const QVariant& value)
+{
+    auto& currentValue = this->fields[name];
+
+    if (currentValue != value)
+    {
+        currentValue = value;
+
+        emit fieldChanged();
     }
 }
 

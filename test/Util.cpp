@@ -77,21 +77,25 @@ std::pair<core::World*, QJsonObject> makeWorld()
     jw["componentTypes"] = QJsonArray({jct0, jct1});
 
     // EntityType
-    auto et0{std::make_unique<core::EntityType>("entityType0", std::vector<core::ComponentType*>{ct0.get()})};
+    auto et0{std::make_unique<core::EntityType>()};
     et0->setObjectName(core::createObjectName(et0.get(), 0));
+    et0->setName("entityType0");
+    et0->addComponentType(ct0.get());
 
     QJsonObject jet0;
     jet0["id"] = 0;
     jet0["name"] = "entityType0";
-    jet0["type"] = "componentType:0";
+    jet0["componentTypes"] = QJsonArray{"componentType:0"};
 
-    auto et1{std::make_unique<core::EntityType>("entityType1", std::vector<core::ComponentType*>{ct1.get()})};
+    auto et1{std::make_unique<core::EntityType>()};
     et1->setObjectName(core::createObjectName(et1.get(), 1));
+    et1->setName("entityType1");
+    et1->addComponentType(ct1.get());
 
     QJsonObject jet1;
-    jet0["id"] = 1;
-    jet0["name"] = "entityType1";
-    jet0["type"] = "componentType:1";
+    jet1["id"] = 1;
+    jet1["name"] = "entityType1";
+    jet1["componentTypes"] = QJsonArray{"componentType:1"};
 
     w->addEntityType(std::move(et0));
     w->addEntityType(std::move(et1));

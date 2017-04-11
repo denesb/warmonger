@@ -175,6 +175,8 @@ static std::unique_ptr<core::ComponentType> componentTypeFromJson(const QJsonObj
 static std::unique_ptr<core::EntityType> entityTypeFromJson(
     const QJsonObject& jobj, const std::vector<core::ComponentType*>& allComponentTypes)
 {
+    auto entityType = std::make_unique<core::EntityType>();
+
     const QString& name{jobj["name"].toString()};
 
     if (name.isNull() || name.isEmpty())
@@ -182,14 +184,14 @@ static std::unique_ptr<core::EntityType> entityTypeFromJson(
         throw utils::ValueError("Failed to unserialize entity-type, it doesn't have a name property");
     }
 
+    entityType->setName(name);
+
     const QJsonArray jcomponentTypeNames(jobj["componentTypes"].toArray());
 
     if (jcomponentTypeNames.isEmpty())
     {
         throw utils::ValueError("Failed to unserialize entity-type " + name + ", it doesn't have any component-types");
     }
-
-    std::vector<core::ComponentType*> componentTypes;
 
     for (const auto& jcomponentTypeName : jcomponentTypeNames)
     {
@@ -206,7 +208,7 @@ static std::unique_ptr<core::EntityType> entityTypeFromJson(
 
         if (it != allComponentTypes.cend())
         {
-            componentTypes.push_back(*it);
+            entityType->addComponentType(*it);
         }
         else
         {
@@ -215,7 +217,7 @@ static std::unique_ptr<core::EntityType> entityTypeFromJson(
         }
     }
 
-    return std::make_unique<core::EntityType>(name, componentTypes);
+    return entityType;
 }
 
 static std::unique_ptr<core::FieldType> unserializeFieldType(const QJsonValue& jval)

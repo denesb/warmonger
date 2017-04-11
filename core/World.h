@@ -203,7 +203,7 @@ public:
      *
      * The world will take ownership over the object.
      * Will emit the signal World::componentTypesChanged().
-     * The behaviour is undefined if the civilization is already owned by this
+     * The behaviour is undefined if the component-type is already owned by this
      * world.
      *
      * \param component-type the new component-type

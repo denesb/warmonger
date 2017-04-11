@@ -23,10 +23,9 @@
 #include <map>
 #include <memory>
 
-#include <QObject>
-
 #include "core/Component.h"
 #include "core/EntityType.h"
+#include "core/WObject.h"
 
 namespace warmonger {
 namespace core {
@@ -45,18 +44,24 @@ namespace core {
  * \see warmonger::core::EntityType
  * \see warmonger::core::World
  */
-class Entity : public QObject
+class Entity : public WObject
 {
     Q_OBJECT
 
 public:
     /**
-     * Create an entity of the given type
+     * Create an empty entity with the given id.
      *
-     * \param type the entity-type
+     * \param id the id of the object
+     */
+    explicit Entity(long id);
+
+    /**
+     * Create an empty entity with the given parent.
+     *
      * \param parent the parent QObject
      */
-    explicit Entity(EntityType* type, QObject* parent = nullptr);
+    explicit Entity(QObject* parent = nullptr);
 
     /**
      * Get the type
@@ -67,6 +72,18 @@ public:
     {
         return this->type;
     }
+
+    /**
+     * Set the type.
+     *
+     * If the type is changed all current components are discarded and new ones
+     * are created according to the new type.
+     * Will emit the signal Entity::typeChanged() if the newly set value
+     * is different than the current one.
+     *
+     * \param type the type
+     */
+    void setType(EntityType* type);
 
     /**
      * Get the component with the given type
@@ -96,7 +113,12 @@ public:
 
 signals:
     /**
-     * Emitted when one of the components changes.
+     * Emitted when the type changes.
+     */
+    void typeChanged();
+
+    /**
+     * Emitted when one of the components change.
      */
     void componentChanged();
 

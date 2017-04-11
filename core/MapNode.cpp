@@ -22,8 +22,13 @@
 namespace warmonger {
 namespace core {
 
+MapNode::MapNode(long id)
+    : WObject(id)
+{
+}
+
 MapNode::MapNode(QObject* parent)
-    : QObject(parent)
+    : WObject(parent)
 {
 }
 

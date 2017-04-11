@@ -22,11 +22,11 @@
 
 #include <vector>
 
-#include <QObject>
 #include <QString>
 #include <QVariant>
 
 #include "core/Field.h"
+#include "core/WObject.h"
 
 namespace warmonger {
 namespace core {
@@ -42,7 +42,7 @@ namespace core {
  *
  * \see warmonger::core::Component
  */
-class ComponentType : public QObject
+class ComponentType : public WObject
 {
     Q_OBJECT
 
@@ -58,11 +58,18 @@ class ComponentType : public QObject
 
 public:
     /**
-     * Constructs an empty ComponentType.
+     * Constructs an empty ComponentType with the given id.
+     *
+     * \param id the id of the object
+     */
+    explicit ComponentType(long id);
+
+    /**
+     * Constructs an empty ComponentType with the given parent.
      *
      * \param parent the parent QObject.
      */
-    ComponentType(QObject* parent = nullptr);
+    explicit ComponentType(QObject* parent = nullptr);
 
     /**
      * Is this component-type built-in?

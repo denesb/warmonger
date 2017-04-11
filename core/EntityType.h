@@ -21,6 +21,7 @@
 #define W_CORE_ENTITY_TYPE_H
 
 #include "core/ComponentType.h"
+#include "core/WObject.h"
 
 namespace warmonger {
 namespace core {
@@ -41,21 +42,34 @@ namespace core {
  * \see warmonger::core::Entity
  * \see warmonger::core::World
  */
-class EntityType : public QObject
+class EntityType : public WObject
 {
     Q_OBJECT
 
+    /**
+     * The name of the entity-type
+     */
+    Q_PROPERTY(QString name READ getName NOTIFY nameChanged)
+
+    /**
+     * The types of component this entity-type can have
+     */
+    Q_PROPERTY(QVariantList componentTypes READ readComponentTypes NOTIFY componentTypesChanged)
+
 public:
     /**
-     * Create a new entity-type with the given name and component-types.
+     * Construct an empty entity-type object with the given id.
      *
-     * \param name the name
-     * \param componentTypes the types of components this entity-type has
+     * \param id the id of the object
+     */
+    explicit EntityType(long id);
+
+    /**
+     * Construct an empty entity-type object with the given parent.
+     *
      * \param parent the parent QObject
      */
-    EntityType(const QString& name, const std::vector<ComponentType*>& componentTypes, QObject* parent = nullptr);
-
-    EntityType(QObject* parent = nullptr);
+    explicit EntityType(QObject* parent = nullptr);
 
     /**
      * Get the name.
@@ -68,6 +82,16 @@ public:
     }
 
     /**
+     * Set the name.
+     *
+     * Will emit the signal EntityType::nameChanged() if the newly set value
+     * is different than the current one.
+     *
+     * \param name the new name
+     */
+    void setName(const QString& name);
+
+    /**
      * Get the component-types.
      *
      * \returns the component-types
@@ -76,6 +100,48 @@ public:
     {
         return this->componentTypes;
     }
+
+    /**
+     * Get the component-types as a QVariantList.
+     *
+     * This function is used as a read function for the mapNodes property and is
+     * not supposed to be called from C++ code. Use EntityType::getComponentTypes()
+     * instead.
+     *
+     * \returns the component-types
+     */
+    QVariantList readComponentTypes() const;
+
+    /**
+     * Add the component-type.
+     *
+     * Will emit the signal EntityType::componentTypesChanged().
+     * Has no effect if the entity-type already has the component-type.
+     *
+     * \param component-type the new component-type
+     */
+    void addComponentType(ComponentType* componentType);
+
+    /**
+     * Remove the component-type.
+     *
+     * Will emit the signal EntityType::componentTypesChanged().
+     * Has no effect if the entity-type doesn't has the component-type.
+     *
+     * \param component-type the component-type
+     */
+    void removeComponentType(ComponentType* componentType);
+
+signals:
+    /**
+     * Emitted when the name changes.
+     */
+    void nameChanged();
+
+    /**
+     * Emitted when the component-types change.
+     */
+    void componentTypesChanged();
 
 private:
     QString name;

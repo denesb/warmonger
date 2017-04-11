@@ -56,7 +56,7 @@ public:
      *
      * \param id the id
      */
-    WObject(long id);
+    explicit WObject(long id);
 
     /**
      * Create a parented WObject.
@@ -67,7 +67,7 @@ public:
      *
      * \param parent the parent QObject.
      */
-    WObject(QObject* parent);
+    explicit WObject(QObject* parent);
 
     /**
      * Get the id.

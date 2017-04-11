@@ -21,7 +21,7 @@
 #ifndef CORE_CIVILIZATION_H
 #define CORE_CIVILIZATION_H
 
-#include <QObject>
+#include "core/WObject.h"
 
 namespace warmonger {
 namespace core {
@@ -29,14 +29,21 @@ namespace core {
 /**
  * A civilization.
  */
-class Civilization : public QObject
+class Civilization : public WObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
 
 public:
     /**
-     * Creates an empty civilization object.
+     * Creates an empty civilization object with the given id.
+     *
+     * \param id the id of the object
+     */
+    explicit Civilization(long id);
+
+    /**
+     * Creates an empty civilization object with the given parent.
      *
      * \param parent the parent QObject.
      */

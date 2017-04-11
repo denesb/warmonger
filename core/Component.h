@@ -22,11 +22,11 @@
 
 #include <vector>
 
-#include <QObject>
 #include <QString>
 #include <QVariant>
 
 #include "core/ComponentType.h"
+#include "core/WObject.h"
 
 namespace warmonger {
 namespace core {
@@ -37,24 +37,33 @@ namespace core {
  * For an overview of the Entity-Component-Systems design pattern (ECS) and how
  * warmonger implements it see \ref docs/ECS.md.
  *
- * Components have a set of properties defined by their component-type.
- *
- * TODO: QVariant's do not allow for value change tracking,
- * need a better solution.
+ * Components have a set of fields defined by their component-type.
  *
  * \see warmonger::core::ComponentType
  */
-class Component : public QObject
+class Component : public WObject
 {
     Q_OBJECT
 
+    /**
+     * The type of the component
+     */
+    Q_PROPERTY(ComponentType* type READ getType NOTIFY typeChanged)
+
 public:
     /**
-     * Create a component with the given type.
+     * Create an empty component with the given id.
      *
-     * \param type the type
+     * \param id the id of the object
      */
-    explicit Component(ComponentType* type, QObject* parent = nullptr);
+    explicit Component(long id);
+
+    /**
+     * Create an empty component with the given parent.
+     *
+     * \param parent the parent QObject.
+     */
+    explicit Component(QObject* parent = nullptr);
 
     /**
      * Get the type.
@@ -67,26 +76,52 @@ public:
     }
 
     /**
-     * Get the property wth the given name.
+     * Set the type.
      *
-     * If this component doesn't have a property with the given name an invelid
+     * Will emit the signal Component::componentChanged() if the newly set value
+     * is different than the current one.
+     *
+     * \param type the type
+     */
+    void setType(ComponentType* type);
+
+    /**
+     * Get the field wth the given name.
+     *
+     * If this component doesn't have a field with the given name an invalid
      * QVariant will be returned.
      *
-     * \param name the name of the property
+     * \param name the name of the field
      *
      * \returns the property value
      */
-    QVariant& operator[](const QString& name);
+    QVariant getField(const QString& name) const;
+
+    /**
+     * Set the field with the given name.
+     *
+     * Will emit the signal Component::fieldChanged() if the newly set value
+     * is different than the current one.
+     *
+     * \param name the name of the field
+     * \param value the new value of the field
+     */
+    void setField(const QString& name, const QVariant& value);
 
 signals:
     /**
-     * Emitted when a property's value changes.
+     * Emitted when the type changes.
      */
-    void propertyChanged();
+    void typeChanged();
+
+    /**
+     * Emitted when a field's value changes.
+     */
+    void fieldChanged();
 
 private:
     ComponentType* type;
-    std::map<const QString, QVariant> properties;
+    std::map<const QString, QVariant> fields;
 };
 
 } // namespace core

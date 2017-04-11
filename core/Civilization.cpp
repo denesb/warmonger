@@ -19,10 +19,16 @@
 #include "core/Civilization.h"
 #include "utils/QVariantUtils.h"
 
-using namespace warmonger::core;
+namespace warmonger {
+namespace core {
+
+Civilization::Civilization(long id)
+    : WObject(id)
+{
+}
 
 Civilization::Civilization(QObject* parent)
-    : QObject(parent)
+    : WObject(parent)
 {
 }
 
@@ -39,3 +45,6 @@ void Civilization::setDisplayName(const QString& displayName)
         emit displayNameChanged();
     }
 }
+
+} // namespace core
+} // namespace warmonger

@@ -147,9 +147,11 @@ void CampaignMap::addEntity(std::unique_ptr<Entity>&& entity)
 
 Entity* CampaignMap::createEntity(EntityType* entityType)
 {
-    Entity* entity = new Entity(entityType, this);
+    Entity* entity = new Entity(this);
 
     entity->setObjectName(QString::number(this->entityIndex++));
+
+    entity->setType(entityType);
 
     this->entities.push_back(entity);
 

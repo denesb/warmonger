@@ -23,10 +23,10 @@
 
 #include <vector>
 
-#include <QObject>
 #include <QVariant>
 
 #include "core/Civilization.h"
+#include "core/WObject.h"
 
 namespace warmonger {
 namespace core {
@@ -34,20 +34,45 @@ namespace core {
 /**
  * A faction banner
  */
-class Banner : public QObject
+class Banner : public WObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(QVariantList civilizations READ readCivilizations NOTIFY civilizationsChanged)
 
 public:
+    /**
+     * Construct an empty Banner object with the given id.
+     *
+     * \param id the id of the object
+     */
+    explicit Banner(long id);
+
+    /**
+     * Construct an empty Banner object with the given parent.
+     *
+     * \param parent the parent QObject.
+     */
     explicit Banner(QObject* parent = nullptr);
 
+    /**
+     * Get the display-name.
+     *
+     * \returns the displayName
+     */
     const QString& getDisplayName() const
     {
         return this->displayName;
     }
 
+    /**
+     * Set the display-name.
+     *
+     * Will emit the signal Faction::displayNameChanged() if the newly set value
+     * is different than the current one.
+     *
+     * \param displayName the new displayName
+     */
     void setDisplayName(const QString& displayName);
 
     /**
@@ -63,12 +88,36 @@ public:
         return this->civilizations;
     }
 
+    /**
+     * Get the civilizations as a QVariantList.
+     *
+     * This function is used as a read function for the mapNodes property and is
+     * not supposed to be called from C++ code. Use Banner::getCivilizations()
+     * instead.
+     *
+     * \returns the banners
+     */
     QVariantList readCivilizations() const;
 
+    /**
+     * Set the civilizations.
+     *
+     * Will emit the signal Banner::civilizationsChanged() if the newly set value
+     * is different than the current one.
+     *
+     * \param civilizations the civilizations
+     */
     void setCivilizations(const std::vector<Civilization*>& civilizations);
 
 signals:
+    /**
+     * Emitted when the display-name changes.
+     */
     void displayNameChanged();
+
+    /**
+     * Emitted when the civilizations change.
+     */
     void civilizationsChanged();
 
 private:

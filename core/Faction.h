@@ -22,11 +22,11 @@
 #define CORE_FACTION_H
 
 #include <QColor>
-#include <QObject>
 #include <QString>
 
 #include "core/Banner.h"
 #include "core/Civilization.h"
+#include "core/WObject.h"
 
 namespace warmonger {
 namespace core {
@@ -36,10 +36,10 @@ namespace core {
  *
  * It has a civilization, a banner, a primary and secondary color.
  *
- *\see Civilization
- *\see Banner
+ * \see Civilization
+ * \see Banner
  */
-class Faction : public QObject
+class Faction : public WObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
@@ -50,16 +50,23 @@ class Faction : public QObject
 
 public:
     /**
-     * Constructs an empty Faction object.
+     * Construct an empty Faction object with the given id.
      *
-     *\param parent the parent QObject.
+     * \param id the id of the object
+     */
+    explicit Faction(long id);
+
+    /**
+     * Construct an empty Faction object with the given parent.
+     *
+     * \param parent the parent QObject.
      */
     explicit Faction(QObject* parent = nullptr);
 
     /**
      * Get the display-name.
      *
-     *\returns the displayName
+     * \returns the displayName
      */
     const QString& getDisplayName() const
     {

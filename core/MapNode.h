@@ -23,10 +23,9 @@
 
 #include <map>
 
-#include <QObject>
-
 #include "core/Hexagon.h"
 #include "core/MapNodeNeighbours.h"
+#include "core/WObject.h"
 
 namespace warmonger {
 namespace core {
@@ -40,15 +39,22 @@ namespace core {
  * The map-node is assumed to be hexagonal, and thus has exactly six
  * neighbours.
  */
-class MapNode : public QObject
+class MapNode : public WObject
 {
     Q_OBJECT
 
 public:
     /**
-     * Constructs an empty map-node.
+     * Constructs an empty map-node with the given id.
      *
-     *\param parent the parent QObject.
+     * \param id the id of the object
+     */
+    explicit MapNode(long id);
+
+    /**
+     * Constructs an empty map-node with the given parent.
+     *
+     * \param parent the parent QObject.
      */
     explicit MapNode(QObject* parent = nullptr);
 

@@ -18,14 +18,55 @@
 
 #include "core/EntityType.h"
 
+#include "utils/QVariantUtils.h"
+
 namespace warmonger {
 namespace core {
 
-EntityType::EntityType(const QString& name, const std::vector<ComponentType*>& componentTypes, QObject* parent)
-    : QObject(parent)
-    , name(name)
-    , componentTypes(componentTypes)
+EntityType::EntityType(long id)
+    : WObject(id)
 {
+}
+
+EntityType::EntityType(QObject* parent)
+    : WObject(parent)
+{
+}
+
+void EntityType::setName(const QString& name)
+{
+    if (this->name != name)
+    {
+        this->name = name;
+        emit nameChanged();
+    }
+}
+
+void EntityType::addComponentType(ComponentType* componentType)
+{
+    if (std::find(this->componentTypes.cbegin(), this->componentTypes.cend(), componentType) != this->componentTypes.cend())
+        return;
+
+    this->componentTypes.push_back(componentType);
+
+    emit componentTypesChanged();
+}
+
+void EntityType::removeComponentType(ComponentType* componentType)
+{
+    auto it = std::remove(this->componentTypes.begin(), this->componentTypes.end(), componentType);
+
+    if (it == this->componentTypes.end())
+        return;
+
+    this->componentTypes.erase(it);
+
+    emit componentTypesChanged();
+}
+
+QVariantList EntityType::readComponentTypes() const
+{
+    return utils::toQVariantList(this->componentTypes);
 }
 
 } // namespace core

@@ -16,10 +16,29 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "test/catch.hpp"
 #include "test/core/WObject.h"
+#include "test/catch.hpp"
 
 using namespace warmonger;
+
+TEST_CASE("getObjectTreeRoot()", "[WObject]")
+{
+    QObject root;
+
+    REQUIRE(core::getObjectTreeRoot(nullptr) == nullptr);
+
+    auto obj0 = new core::WObject(&root);
+    REQUIRE(core::getObjectTreeRoot(obj0) == &root);
+
+    auto obj1 = new TestWObject1(obj0);
+    REQUIRE(core::getObjectTreeRoot(obj1) == &root);
+
+    core::WObject wobj0(nullptr);
+    REQUIRE(core::getObjectTreeRoot(&wobj0) == nullptr);
+
+    core::WObject* wobj1 = new core::WObject(&wobj0);
+    REQUIRE(core::getObjectTreeRoot(wobj1) == nullptr);
+}
 
 TEST_CASE("Children ids", "[WObject]")
 {

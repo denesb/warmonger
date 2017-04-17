@@ -25,8 +25,9 @@ option(BUILD_TESTS "Build unit test suite" OFF)
 
 include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR})
 
+set(CMAKE_CXX_STANDARD 14)
+
 add_compile_options(
-    -std=c++14
     -Werror
     -Wpedantic
     -Wall
@@ -113,6 +114,7 @@ set(
     io/Context.cpp
     io/File.cpp
     io/JsonUtils.cpp
+    io/Reference.cpp
     io/SanityCheck.cpp
     io/WorldJsonSerializer.cpp
     io/WorldJsonUnserializer.cpp
@@ -137,19 +139,20 @@ set(
 
 set(
     TEST_SRC_FILES
-    test/test_warmonger.cpp
+    #test/io/File.cpp TODO fix serialization/unserialization tests before
+    #test/io/SanityCheck.cpp
     test/Util.cpp
     test/core/HierarchyNode.cpp
     test/core/MapGenerator.cpp
     test/core/MapNodeNeighbours.cpp
     test/core/WObject.cpp
     test/io/Context.cpp
-    #test/io/File.cpp TODO fix serialization/unserialization tests before
-    #test/io/SanityCheck.cpp
+    test/io/Reference.cpp
+    test/io/WorldJsonUnserializer.cpp
+    test/test_warmonger.cpp
     test/ui/CampaignMapEditor.cpp
     test/ui/MapUtil.cpp
     test/ui/MapWindow.cpp
-    test/io/WorldJsonUnserializer.cpp
     test/ui/WorldSurface.cpp
 )
 

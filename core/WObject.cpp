@@ -17,17 +17,15 @@
  */
 
 #include <algorithm>
-#include <vector>
 #include <iostream>
-
+#include <vector>
 
 #include "core/WObject.h"
 
 namespace warmonger {
 namespace core {
 
-static QObject* getObjectTreeRoot(QObject* obj);
-static long generateId(QObject* obj);
+static long generateId(WObject* obj);
 
 const long WObject::invalidId{-1};
 
@@ -43,26 +41,25 @@ WObject::WObject(QObject* parent)
 {
 }
 
-static QObject* getObjectTreeRoot(QObject* obj)
+QObject* getObjectTreeRoot(WObject* obj)
 {
     if (obj == nullptr)
         return nullptr;
 
-    WObject* wobj{qobject_cast<WObject*>(obj)};
+    QObject* parent = obj->parent();
+    WObject* wparent = qobject_cast<WObject*>(parent);
 
-    if (wobj == nullptr)
-    {
-        return obj;
-    }
-    else
-    {
-        return getObjectTreeRoot(obj->parent());
-    }
+    if (parent == nullptr) // no parent
+        return parent;
+    else if (wparent == nullptr) // parent is not WObject
+        return parent;
+    else // parent is WObject
+        return getObjectTreeRoot(wparent);
 }
 
-static long generateId(QObject* obj)
+static long generateId(WObject* obj)
 {
-    QObject* root{getObjectTreeRoot(obj->parent())};
+    QObject* root{getObjectTreeRoot(obj)};
 
     if (root == nullptr)
     {
@@ -77,9 +74,11 @@ static long generateId(QObject* obj)
         siblings.erase(it);
 
     std::vector<long> ids;
-    std::transform(siblings.cbegin(), siblings.cend(), std::back_inserter(ids), [](const auto& sibling){ return sibling->getId(); });
+    std::transform(siblings.cbegin(), siblings.cend(), std::back_inserter(ids), [](const auto& sibling) {
+        return sibling->getId();
+    });
 
-    if(ids.empty())
+    if (ids.empty())
     {
         return 0;
     }

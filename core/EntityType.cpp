@@ -44,7 +44,8 @@ void EntityType::setName(const QString& name)
 
 void EntityType::addComponentType(ComponentType* componentType)
 {
-    if (std::find(this->componentTypes.cbegin(), this->componentTypes.cend(), componentType) != this->componentTypes.cend())
+    if (std::find(this->componentTypes.cbegin(), this->componentTypes.cend(), componentType) !=
+        this->componentTypes.cend())
         return;
 
     this->componentTypes.push_back(componentType);

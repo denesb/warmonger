@@ -43,9 +43,15 @@ class WObject : public QObject
 {
     Q_OBJECT
 
+    /**
+     * The id of the object.
+     */
     Q_PROPERTY(long id READ getId NOTIFY idChanged)
 
 public:
+    /**
+     * The value of invalid ids.
+     */
     static const long invalidId;
 
     /**
@@ -90,6 +96,18 @@ signals:
 private:
     long id;
 };
+
+/**
+ * Get the root of the object tree obj is member of.
+ *
+ * The root of the tree is the first parent that is not a WObject.
+ * If such parent is not found nullptr is returned.
+ *
+ * \param obj the object
+ *
+ * \returns the root object or nullptr if not found
+ */
+QObject* getObjectTreeRoot(WObject* obj);
 
 } // namespace core
 } // namespace warmonger

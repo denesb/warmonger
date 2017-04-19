@@ -53,7 +53,34 @@ namespace io {
  */
 QString serializeReference(core::WObject* obj);
 
+/**
+ * Unserialize the reference.
+ *
+ * Unserialize a reference that references a child of the world.
+ * If the unserialization fails for any reason (reference is malformed,
+ * object not found, etc.) nullptr is returned.
+ *
+ * \param reference the serialized reference
+ * \param world the parent of the referenced object
+ *
+ * \returns the referenced object
+ */
 core::WObject* unserializeReference(const QString& reference, core::World* world);
+
+/**
+ * Unserialize the reference.
+ *
+ * Unserialize a reference that references a child of the map or it's world.
+ * If the unserialization fails for any reason (reference is malformed,
+ * object not found, etc.) nullptr is returned.
+ * The reference can reference a map or a world object. The map must have a
+ * world set.
+ *
+ * \param reference the serialized reference
+ * \param map the parent of the referenced object
+ *
+ * \returns the referenced object
+ */
 core::WObject* unserializeReference(const QString& reference, core::CampaignMap* map);
 
 } // namespace warmonger

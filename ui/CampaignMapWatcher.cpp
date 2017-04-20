@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "core/CampaignMap.h"
 #include "ui/CampaignMapWatcher.h"
+#include "core/CampaignMap.h"
 
 namespace warmonger {
 namespace ui {

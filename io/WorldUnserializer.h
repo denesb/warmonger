@@ -51,45 +51,47 @@ public:
     }
 
     /**
-     * Unserialize an banner.
+     * Unserialize the banner and add it to the world.
      *
      * \param data the raw data
+     * \param world the world
      *
      * \return the unserialized banner object
      */
-    virtual std::unique_ptr<core::Banner> unserializeBanner(
-        const QByteArray& data, const std::vector<core::Civilization*>& allCivilizations) const = 0;
+    virtual core::Banner* unserializeBanner(const QByteArray& data, core::World* world) const = 0;
 
     /**
-     * Unserialize an civilization.
+     * Unserialize the civilization and add it to the world.
      *
      * \param data the raw data
+     * \param world the world
      *
      * \return the unserialized civilization object
      */
-    virtual std::unique_ptr<core::Civilization> unserializeCivilization(const QByteArray& data) const = 0;
+    virtual core::Civilization* unserializeCivilization(const QByteArray& data, core::World* world) const = 0;
 
     /**
-     * Unserialize a component-type.
+     * Unserialize the component-type and add it to the world.
      *
      * \param data the raw data
+     * \param world the world
      *
      * \return the unserialized component-type object
      */
-    virtual std::unique_ptr<core::ComponentType> unserializeComponentType(const QByteArray& data) const = 0;
+    virtual core::ComponentType* unserializeComponentType(const QByteArray& data, core::World* world) const = 0;
 
     /**
-     * Unserialize an entity-type.
+     * Unserialize the entity-type and add it to the world.
      *
      * \param data the raw data
+     * \param world the world
      *
      * \return the unserialized entity-type object
      */
-    virtual std::unique_ptr<core::EntityType> unserializeEntityType(
-        const QByteArray& data, const std::vector<core::ComponentType*>& allComponentTypes) const = 0;
+    virtual core::EntityType* unserializeEntityType(const QByteArray& data, core::World* world) const = 0;
 
     /**
-     * Unserialize a world.
+     * Unserialize the world.
      *
      * \param data the raw data
      *

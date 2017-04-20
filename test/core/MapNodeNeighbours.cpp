@@ -21,12 +21,14 @@
 
 #include "core/MapNode.h"
 #include "core/MapNodeNeighbours.h"
+#include "core/World.h"
 #include "test/catch.hpp"
 
 using namespace warmonger;
 
 TEST_CASE("MapNode neighbours", "[MapNodeNeighbours]")
 {
+    core::World w("uuid0");
     core::MapNodeNeighbours neighbours;
 
     SECTION("MapNode has a full neighbour map after construction")
@@ -49,7 +51,7 @@ TEST_CASE("MapNode neighbours", "[MapNodeNeighbours]")
 
     SECTION("Setter changes neighbour")
     {
-        core::MapNode mn;
+        core::MapNode mn(&w);
 
         neighbours[core::Direction::West] = &mn;
 
@@ -60,7 +62,7 @@ TEST_CASE("MapNode neighbours", "[MapNodeNeighbours]")
     SECTION("Not equal to if a neighbour is changed")
     {
         core::MapNodeNeighbours neighbours1;
-        core::MapNode mn;
+        core::MapNode mn(&w);
 
         neighbours1[core::Direction::West] = &mn;
 
@@ -69,7 +71,7 @@ TEST_CASE("MapNode neighbours", "[MapNodeNeighbours]")
 
     SECTION("Initializing to with incomplete number of neighbour yields complete neighbour map")
     {
-        core::MapNode mn;
+        core::MapNode mn(&w);
         core::MapNodeNeighbours neighbours1{{core::Direction::NorthWest, &mn}};
 
         REQUIRE(neighbours1[core::Direction::NorthWest] == &mn);

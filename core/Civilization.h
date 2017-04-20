@@ -36,18 +36,14 @@ class Civilization : public WObject
 
 public:
     /**
-     * Creates an empty civilization object with the given id.
-     *
-     * \param id the id of the object
-     */
-    explicit Civilization(long id);
-
-    /**
-     * Creates an empty civilization object with the given parent.
+     * Creates an empty civilization.
      *
      * \param parent the parent QObject.
+     * \param id the id
+     *
+     * \see WObject::WObject
      */
-    explicit Civilization(QObject* parent = nullptr);
+    Civilization(QObject* parent, long id = WObject::invalidId);
 
     /**
      * Get the display-name.

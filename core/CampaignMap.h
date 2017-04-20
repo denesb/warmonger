@@ -172,38 +172,18 @@ public:
     QVariantList readEntities() const;
 
     /**
-     * Add a map-node to the map.
-     *
-     * This method does not check for conflicts in map-node
-     * positions. If a map-node is added with the same neighbours as an
-     * existing one, or it is added with neighbours that are not really near
-     * then the map will get into an inconsistent state. It is the caller's
-     * responsability to make sure the added map-node is sane.
-     * Will emit the signal CampaignMap::mapNodesChanged().
-     *
-     * \param mapNode the map-node
-     */
-    void addMapNode(std::unique_ptr<MapNode>&& mapNode);
-
-    /**
      * Create a new map-node and add it to the map.
      *
-     * The newly created map-node is assigned a unique objectName (in the
-     * context of this map). It is created with the given and neighbours.
-     * Neighbour relations are updated for all neighbouring
-     * map-nodes as well. This method does not check for conflicts in map-node
-     * positions. If a map-node is created with the same neighbours as an
-     * existing one, or it is created with neighbours that are not really near
-     * then the map will get into an inconsistent state. It is the caller's
-     * responsability to make sure the new map-node is sane.
+     * The map takes ownership of the created object.
      * Will emit the signal CampaignMap::mapNodesChanged().
+     * An id value should only be passed when the factions is being
+     * unserialized and it already has a priorly generated id.
      *
-     * \param neighbours the neighbour relations of the to-be created map-node
+     * \param id the id
      *
-     * \returns the new map-node allowing the caller to make further
-     * modifications
+     * \returns the new map-node
      */
-    MapNode* createMapNode(const MapNodeNeighbours& neighbours);
+    MapNode* createMapNode(long id = WObject::invalidId);
 
     /**
      * Remove an exising map-node and renounce ownership.
@@ -223,26 +203,18 @@ public:
     std::unique_ptr<MapNode> removeMapNode(MapNode* mapNode);
 
     /**
-     * Add the entity to the map.
-     *
-     * The map takes ownership over the entity.
-     * Will emit the signal CampaignMap::entitiesChanged().
-     *
-     * \param entity the entity
-     */
-    void addEntity(std::unique_ptr<Entity>&& entity);
-
-    /**
      * Create a new entity and add it to the map.
      *
-     * The newly created entity is assigned a unique objectName (in the
-     * context of this map). It is created with the given entity-type.
+     * The map takes ownership of the created object.
+     * Will emit the signal CampaignMap::entitiesChanged().
+     * An id value should only be passed when the entity is being
+     * unserialized and it already has a priorly generated id.
      *
-     * \param entityType the type of the entity
+     * \param id the id
      *
      * \returns the newly created entity
      */
-    Entity* createEntity(EntityType* entityType);
+    Entity* createEntity(long id = WObject::invalidId);
 
     /**
      * Remove the entity and renounce ownership.
@@ -261,24 +233,16 @@ public:
     /**
      * Create a new faction and add it to the map.
      *
-     * The newly created faction is assigned a unique objectName and banner
-     * (in the context of this map). It is created with the given civilization.
+     * The map takes ownership of the created object.
+     * Will emit the signal CampaignMap::factionsChanged().
+     * An id value should only be passed when the factions is being
+     * unserialized and it already has a priorly generated id.
      *
-     * \param civilization the civilization of the faction
+     * \param id the id
      *
      * \returns the newly created faction
      */
-    Faction* createFaction(Civilization* civilization);
-
-    /**
-     * Add the faction to the map.
-     *
-     * The map takes ownership over the faction.
-     * Will emit the signal CampaignMap::factionsChanged().
-     *
-     * \param faction the faction
-     */
-    void addFaction(std::unique_ptr<Faction>&& faction);
+    Faction* createFaction(long id = WObject::invalidId);
 
     /**
      * Remove the faction and renounce ownership.
@@ -293,6 +257,18 @@ public:
      * was not found
      */
     std::unique_ptr<Faction> removeFaction(Faction* faction);
+
+    /**
+     * Generate a hexagonal map with the given radius.
+     *
+     * The radius is the number of map-nodes that make the shortest path from
+     * the central map-node to any outermost one.
+     * Generating map-nodes discards all existing map-nodes and will generate
+     * new ones!
+     *
+     * \param radius the radius of the map
+     */
+    void generateMapNodes(unsigned int radius);
 
 signals:
     /**

@@ -65,5 +65,12 @@ inline QString qObjectName(const QObject* const object)
     return object->objectName();
 }
 
+long unserializeId(const QJsonValue& val);
+
+inline long unserializeIdFrom(const QJsonObject& jobj)
+{
+    return unserializeId(jobj["id"]);
+}
+
 } // namespace warmonger
 } // namespace io

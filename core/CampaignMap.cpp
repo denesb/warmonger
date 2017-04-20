@@ -30,8 +30,9 @@ namespace core {
 
 const QString factionDisplayNameTemplate{"New Faction %1"};
 
-std::tuple<Banner*, QColor, QColor> nextAvailableCombination(
-    const std::vector<Faction*>& factions, const std::vector<Banner*>& banners, const std::vector<QColor>& colors);
+static void addMapNodeRing(std::vector<MapNode*>& nodes, CampaignMap* map);
+static MapNode* createNeighbour(MapNode* node, const Direction direction, CampaignMap* map);
+static void connectWithCommonNeighbour(MapNode* n1, MapNode* n2, const Direction dn1n2, const Direction dn1n3);
 
 CampaignMap::CampaignMap(QObject* parent)
     : QObject(parent)
@@ -75,35 +76,13 @@ QVariantList CampaignMap::readEntities() const
     return utils::toQVariantList(this->entities);
 }
 
-void CampaignMap::addMapNode(std::unique_ptr<MapNode>&& mapNode)
+MapNode* CampaignMap::createMapNode(long id)
 {
-    mapNode->setParent(this);
-
-    this->mapNodes.push_back(mapNode.release());
-
-    wDebug << "Added map-node " << this->mapNodes.back();
-
-    emit mapNodesChanged();
-}
-
-MapNode* CampaignMap::createMapNode(const MapNodeNeighbours& neighbours)
-{
-    MapNode* mapNode = new MapNode(this);
-
-    mapNode->setObjectName(QString::number(this->mapNodeIndex++));
-
-    for (const std::pair<Direction, MapNode*>& neighbour : neighbours)
-    {
-        if (neighbour.second != nullptr)
-        {
-            mapNode->setNeighbour(neighbour.first, neighbour.second);
-            neighbour.second->setNeighbour(oppositeDirection(neighbour.first), mapNode);
-        }
-    }
+    MapNode* mapNode = new MapNode(this, id);
 
     this->mapNodes.push_back(mapNode);
 
-    wDebug << "Created map-node " << mapNode;
+    wDebug << "Created map-node " << mapNode << " in map " << this;
 
     emit mapNodesChanged();
 
@@ -132,30 +111,13 @@ std::unique_ptr<MapNode> CampaignMap::removeMapNode(MapNode* mapNode)
     }
 }
 
-void CampaignMap::addEntity(std::unique_ptr<Entity>&& entity)
+Entity* CampaignMap::createEntity(long id)
 {
-    entity->setParent(this);
-
-    this->entities.push_back(entity.get());
-
-    wDebug << "Added entity " << entity.get() << " to world " << this;
-
-    entity.reset();
-
-    emit entitiesChanged();
-}
-
-Entity* CampaignMap::createEntity(EntityType* entityType)
-{
-    Entity* entity = new Entity(this);
-
-    entity->setObjectName(QString::number(this->entityIndex++));
-
-    entity->setType(entityType);
+    Entity* entity = new Entity(this, id);
 
     this->entities.push_back(entity);
 
-    wDebug << "Created entity " << entity;
+    wDebug << "Created entity " << entity << " in map " << this;
 
     emit entitiesChanged();
 
@@ -184,42 +146,17 @@ std::unique_ptr<Entity> CampaignMap::removeEntity(Entity* entity)
     }
 }
 
-Faction* CampaignMap::createFaction(Civilization* civilization)
+Faction* CampaignMap::createFaction(long id)
 {
-    this->factions.emplace_back(new Faction(this));
+    Faction* faction = new Faction(this, id);
 
-    Faction* faction = this->factions.back();
+    this->factions.emplace_back(faction);
 
-    faction->setObjectName(QString::number(this->factionIndex));
-    faction->setDisplayName(factionDisplayNameTemplate.arg(this->factionIndex++));
-
-    faction->setCivilization(civilization);
-
-    const auto combination =
-        nextAvailableCombination(this->factions, this->world->getBanners(), this->world->getColors());
-
-    faction->setBanner(std::get<0>(combination));
-    faction->setPrimaryColor(std::get<1>(combination));
-    faction->setSecondaryColor(std::get<2>(combination));
-
-    wDebug << "Created faction " << faction;
+    wDebug << "Created faction " << faction << " in map " << this;
 
     emit factionsChanged();
 
     return faction;
-}
-
-void CampaignMap::addFaction(std::unique_ptr<Faction>&& faction)
-{
-    faction->setParent(this);
-
-    this->factions.push_back(faction.get());
-
-    wDebug << "Added faction " << faction.get() << " to world " << this;
-
-    faction.reset();
-
-    emit factionsChanged();
 }
 
 std::unique_ptr<Faction> CampaignMap::removeFaction(Faction* faction)
@@ -246,43 +183,74 @@ std::unique_ptr<Faction> CampaignMap::removeFaction(Faction* faction)
     }
 }
 
-std::tuple<Banner*, QColor, QColor> nextAvailableCombination(
-    const std::vector<Faction*>& factions, const std::vector<Banner*>& banners, const std::vector<QColor>& colors)
+void CampaignMap::generateMapNodes(unsigned int radius)
 {
-    typedef std::tuple<Banner*, QColor, QColor> Combination;
-
-    std::vector<Combination> usedCombinations;
-
-    for (const auto& faction : factions)
+    if (radius == 0)
     {
-        usedCombinations.emplace_back(faction->getBanner(), faction->getPrimaryColor(), faction->getSecondaryColor());
+        return;
     }
 
-    std::vector<Banner*> shuffledBanners(banners);
-    std::vector<QColor> shuffledColors(colors);
-    std::random_device rd;
-    std::mt19937 mtd(rd());
+    std::vector<MapNode*> nodes;
 
-    std::shuffle(shuffledBanners.begin(), shuffledBanners.end(), mtd);
-    std::shuffle(shuffledColors.begin(), shuffledColors.end(), mtd);
+    nodes.emplace_back(new MapNode(this));
 
-    std::uniform_int_distribution<std::size_t> bannersDist(0, banners.size() - 1);
-    std::uniform_int_distribution<std::size_t> colorsDist(0, colors.size() - 1);
-
-    Combination nextCombination;
-    do
+    for (unsigned i = 1; i < radius; ++i)
     {
-        std::size_t primaryColorIndex = colorsDist(mtd);
-        std::size_t secondaryColorIndex = colorsDist(mtd);
+        addMapNodeRing(nodes, this);
+    }
 
-        if (secondaryColorIndex == primaryColorIndex)
-            secondaryColorIndex = (secondaryColorIndex + 1) % colors.size();
+    for (auto mapNode : this->mapNodes)
+    {
+        delete mapNode;
+    }
 
-        nextCombination =
-            std::make_tuple(banners.at(bannersDist(mtd)), colors.at(primaryColorIndex), colors.at(secondaryColorIndex));
-    } while (std::find(usedCombinations.begin(), usedCombinations.end(), nextCombination) != usedCombinations.end());
+    this->mapNodes = mapNodes;
 
-    return nextCombination;
+    emit mapNodesChanged();
+}
+
+static void addMapNodeRing(std::vector<MapNode*>& nodes, CampaignMap* map)
+{
+    std::vector<MapNode*> newNodes;
+
+    for (MapNode* node : nodes)
+    {
+        for (Direction direction : directions)
+        {
+            if (node->getNeighbour(direction) == nullptr)
+                newNodes.push_back(createNeighbour(node, direction, map));
+        }
+    }
+
+    std::copy(newNodes.begin(), newNodes.end(), std::back_inserter(nodes));
+}
+
+static MapNode* createNeighbour(MapNode* node, const Direction direction, CampaignMap* map)
+{
+    MapNode* newNode = new MapNode(map);
+
+    node->setNeighbour(direction, newNode);
+    newNode->setNeighbour(oppositeDirection(direction), node);
+
+    const std::pair<Direction, Direction> axis = neighbourDirections(direction);
+
+    connectWithCommonNeighbour(node, newNode, direction, std::get<0>(axis));
+    connectWithCommonNeighbour(node, newNode, direction, std::get<1>(axis));
+
+    return newNode;
+}
+
+static void connectWithCommonNeighbour(MapNode* n1, MapNode* n2, const Direction dn1n2, const Direction dn1n3)
+{
+    MapNode* n3 = n1->getNeighbour(dn1n3);
+
+    if (n3 == nullptr)
+        return;
+
+    std::pair<Direction, Direction> connectionAxis = connectingDirections(dn1n2, dn1n3);
+
+    n2->setNeighbour(std::get<0>(connectionAxis), n3);
+    n3->setNeighbour(std::get<1>(connectionAxis), n2);
 }
 
 } // namespace core

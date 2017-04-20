@@ -29,15 +29,14 @@ namespace core {
  * The basic core object of the warmonger object tree.
  *
  * WObjects have an unique id which is either passed in to the constructor or
- * generated when the object is assigned a parent. The id is unique in the
- * context of it's parent, i.e. no other sibling with the same type should
- * have the same id.
+ * generated when the object is created. The id is unique in the
+ * context of it's parent, i.e. no other sibling type will have the same id.
  * WObject forms the backbone of the inter-object reference system in warmonger,
  * providing persistent references that can be serialized/unserialized to/from
  * the disk or the network.
  * WObjects should not be exposed to client code before their id is generated
  * or assigned.
- * TODO: Add support for changing parent
+ * WObjects don't support reparenting!
  */
 class WObject : public QObject
 {
@@ -55,25 +54,15 @@ public:
     static const long invalidId;
 
     /**
-     * Create an orphan WObject.
-     *
-     * This constructor should be used when the object is unserialized and the
-     * id is already know but the parent is not.
-     *
-     * \param id the id
-     */
-    explicit WObject(long id);
-
-    /**
-     * Create a parented WObject.
+     * Create a WObject.
      *
      * This constructor should be used when a new object is created and it's
-     * parent is known. A new unique id will be generated based on the current
-     * siblings.
+     * parent is known. If an id is not passed a new one will be generated.
      *
-     * \param parent the parent QObject.
+     * \param parent the parent QObject
+     * \param id the id
      */
-    explicit WObject(QObject* parent);
+    WObject(QObject* parent, long id = WObject::invalidId);
 
     /**
      * Get the id.
@@ -94,11 +83,13 @@ signals:
     void idChanged();
 
 private:
+    void onParentChanged();
+
     long id;
 };
 
 /**
- * Get the root of the object tree obj is member of.
+ * Get the root object of the object tree obj is member of.
  *
  * The root of the tree is the first parent that is not a WObject.
  * If such parent is not found nullptr is returned.

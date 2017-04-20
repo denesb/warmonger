@@ -22,13 +22,8 @@
 namespace warmonger {
 namespace core {
 
-Banner::Banner(long id)
-    : WObject(id)
-{
-}
-
-Banner::Banner(QObject* parent)
-    : WObject(parent)
+Banner::Banner(QObject* parent, long id)
+    : WObject(parent, id)
 {
 }
 

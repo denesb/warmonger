@@ -25,6 +25,7 @@
 #include "core/MapNode.h"
 #include "core/Utils.h"
 #include "core/WorldComponentType.h"
+#include "io/Reference.h"
 #include "utils/ToString.h"
 
 using namespace warmonger;
@@ -46,176 +47,183 @@ void setNames(GameObject obj, QJsonObject& jobj, int i = 0)
     jobj["displayName"] = displayName;
 }
 
-std::pair<core::World*, QJsonObject> makeWorld()
+std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
 {
-    core::World* w(new core::World());
-    QJsonObject jw;
+    auto world{std::make_unique<core::World>("universaly-unique-id-0")};
+    QJsonObject jworld;
 
-    setNames(w, jw, 0);
+    setNames(world.get(), jworld, 0);
 
     // ComponentType
-    auto ct0{std::make_unique<core::WorldComponentType>()};
-    ct0->setObjectName(core::createObjectName(ct0.get(), 0));
-    ct0->setName("componentType0");
+    auto componentType0 = world->createWorldComponentType(0);
+    componentType0->setObjectName(core::createObjectName(componentType0, 0));
+    componentType0->setName("componentType0");
 
-    QJsonObject jct0;
-    jct0["id"] = 0;
-    jct0["name"] = "componentType0";
-    jct0["propertyNames"] = QJsonArray{"property0", "property1"};
+    auto componentType0Field0 = componentType0->createField();
+    componentType0Field0->setName("intField");
+    componentType0Field0->setType(std::make_unique<core::FieldTypes::Integer>());
 
-    auto ct1{std::make_unique<core::WorldComponentType>()};
-    ct1->setObjectName(core::createObjectName(ct0.get(), 1));
-    ct1->setName("componentType1");
+    auto componentType0Field1 = componentType0->createField();
+    componentType0Field1->setName("listField");
+    componentType0Field1->setType(std::make_unique<core::FieldTypes::List>(std::make_unique<core::FieldTypes::String>()));
 
-    QJsonObject jct1;
-    jct1["id"] = 1;
-    jct1["name"] = "componentType1";
-    jct1["propertyNames"] = QJsonArray{"property2", "property3"};
+    QJsonObject jcomponentType0;
+    jcomponentType0["id"] = 0;
+    jcomponentType0["name"] = "componentType0";
+    jcomponentType0["fields"] = QJsonArray{
+        QJsonObject{{"name", "intField"}, {"type", "Integer"}},
+        QJsonObject{{"name", "listField"}, {"type", QJsonObject{{"id", "List"}, {"valueType", "String"}}}}
+    };
 
-    w->addComponentType(std::move(ct0));
-    w->addComponentType(std::move(ct1));
-    jw["componentTypes"] = QJsonArray({jct0, jct1});
+    auto componentType1 = world->createWorldComponentType(0);
+    componentType1->setObjectName(core::createObjectName(componentType1, 1));
+    componentType1->setName("componentType1");
+    auto componentType1Field0 = componentType0->createField();
+    componentType0Field0->setName("realField");
+    componentType0Field0->setType(std::make_unique<core::FieldTypes::Real>());
+
+    QJsonObject jcomponentType1;
+    jcomponentType1["id"] = 1;
+    jcomponentType1["name"] = "componentType1";
+    jcomponentType0["fields"] = QJsonArray{
+        QJsonObject{{"name", "realField"}, {"type", "Real"}}
+    };
+
+    jworld["componentTypes"] = QJsonArray({jcomponentType0, jcomponentType1});
 
     // EntityType
-    auto et0{std::make_unique<core::EntityType>()};
-    et0->setObjectName(core::createObjectName(et0.get(), 0));
-    et0->setName("entityType0");
-    et0->addComponentType(ct0.get());
+    auto entityType0 = world->createEntityType();
+    entityType0->setName("entityType0");
+    entityType0->addComponentType(componentType0);
 
-    QJsonObject jet0;
-    jet0["id"] = 0;
-    jet0["name"] = "entityType0";
-    jet0["componentTypes"] = QJsonArray{"componentType:0"};
+    QJsonObject jentityType0;
+    jentityType0["id"] = 2;
+    jentityType0["name"] = "entityType0";
+    jentityType0["componentTypes"] = QJsonArray{io::serializeReference(componentType0)};
 
-    auto et1{std::make_unique<core::EntityType>()};
-    et1->setObjectName(core::createObjectName(et1.get(), 1));
-    et1->setName("entityType1");
-    et1->addComponentType(ct1.get());
+    auto entityType1 = world->createEntityType();
+    entityType1->setObjectName(core::createObjectName(entityType1, 1));
+    entityType1->setName("entityType1");
+    entityType1->addComponentType(componentType1);
 
-    QJsonObject jet1;
-    jet1["id"] = 1;
-    jet1["name"] = "entityType1";
-    jet1["componentTypes"] = QJsonArray{"componentType:1"};
+    QJsonObject jentityType1;
+    jentityType1["id"] = 1;
+    jentityType1["name"] = "entityType1";
+    jentityType1["componentTypes"] = QJsonArray{io::serializeReference(componentType1)};
 
-    w->addEntityType(std::move(et0));
-    w->addEntityType(std::move(et1));
-    jw["entityTypes"] = QJsonArray({jet0, jet1});
+    jworld["entityTypes"] = QJsonArray({jentityType0, jentityType1});
 
     // Civilization
-    auto c0{std::make_unique<core::Civilization>()};
-    QJsonObject jc0;
-    setNames(c0.get(), jc0, 0);
+    auto civilization0 = world->createCivilization();
+    QJsonObject jcivilization0;
+    setNames(civilization0, jcivilization0, 0);
 
-    w->addCivilization(std::move(c0));
-    jw["civilizations"] = QJsonArray({jc0});
+    jworld["civilizations"] = QJsonArray({jcivilization0});
 
     // Banner
-    auto b0{std::make_unique<core::Banner>()};
-    QJsonObject jb0;
-    setNames(b0.get(), jb0, 0);
+    auto banner0 = world->createBanner();
+    QJsonObject jbanner0;
+    setNames(banner0, jbanner0, 0);
 
-    b0->setCivilizations({c0.get()});
-    jb0["civilizations"] = QJsonArray({c0->objectName()});
+    banner0->setCivilizations({civilization0});
+    jbanner0["civilizations"] = QJsonArray({io::serializeReference(civilization0)});
 
-    auto b1{std::make_unique<core::Banner>()};
-    QJsonObject jb1;
-    setNames(b1.get(), jb1, 1);
+    auto banner1 = world->createBanner();
+    QJsonObject jbanner1;
+    setNames(banner1, jbanner1, 1);
 
-    w->addBanner(std::move(b0));
-    w->addBanner(std::move(b1));
-    jw["banners"] = QJsonArray({jb0, jb1});
+    jworld["banners"] = QJsonArray({jbanner0, jbanner1});
 
     // Color
-    w->setColors({QColor("#000000")});
-    jw["colors"] = QJsonArray({"#000000"});
+    world->setColors({QColor("#000000"), QColor("#ffffff")});
+    jworld["colors"] = QJsonArray({"#000000", "#ffffff"});
 
-    return std::make_pair(w, jw);
+    return std::make_pair(std::move(world), jworld);
 }
 
-std::pair<core::CampaignMap*, QJsonObject> makeMap()
+std::pair<std::unique_ptr<core::CampaignMap>, QJsonObject> makeMap()
 {
-    core::CampaignMap* m(new core::CampaignMap());
-    QJsonObject jm;
+    auto map{std::make_unique<core::CampaignMap>()};
+    QJsonObject jmap;
 
-    setNames(m, jm, 0);
+    setNames(map.get(), jmap, 0);
 
-    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
-    core::World* w = worlds.first;
+    auto worlds{makeWorld()};
+    core::World* world = worlds.first.release();
+    world->setParent(map.get());
 
-    m->setWorld(w);
-    jm["world"] = w->objectName();
+    map->setWorld(world);
+    jmap["world"] = world->getUuid();
 
     // MapNodes
-    auto mn0{std::make_unique<core::MapNode>()};
-    QJsonObject jmn0;
+    auto mapNode0 = map->createMapNode();
+    QJsonObject jmapNode0;
 
-    // setNames(mn0.get(), jmn0, 0);
-
-    auto mn1{std::make_unique<core::MapNode>()};
-    QJsonObject jmn1;
-
-    // setNames(mn1.get(), jmn1, 1);
+    auto mapNode1 = map->createMapNode();
+    QJsonObject jmapNode1;
 
     // MapNode neighbours
-    mn0->setNeighbour(core::Direction::West, mn1.get());
-    mn1->setNeighbour(core::Direction::East, mn0.get());
-    jmn0["neighbours"] = QJsonObject{{"West", mn1->objectName()},
+    mapNode0->setNeighbour(core::Direction::West, mapNode1);
+    mapNode1->setNeighbour(core::Direction::East, mapNode0);
+    jmapNode0["neighbours"] = QJsonObject{
+        {"West", io::serializeReference(mapNode1)},
         {"NorthWest", ""},
         {"NorthEast", ""},
         {"SouthEast", ""},
         {"SouthWest", ""},
         {"East", ""}};
-    jmn1["neighbours"] = QJsonObject{{"West", ""},
+    jmapNode1["neighbours"] = QJsonObject{
+        {"West", ""},
         {"NorthWest", ""},
         {"NorthEast", ""},
         {"SouthEast", ""},
         {"SouthWest", ""},
-        {"East", mn0->objectName()}};
+        {"East", io::serializeReference(mapNode0)}};
 
-    m->addMapNode(std::move(mn0));
-    m->addMapNode(std::move(mn1));
-    jm["mapNodes"] = QJsonArray({jmn0, jmn1});
+    jmap["mapNodes"] = QJsonArray({jmapNode0, jmapNode1});
 
     // Factions
-    auto f0{std::make_unique<core::Faction>()};
-    QJsonObject jf0;
+    auto faction0 = map->createFaction();
+    QJsonObject jfaction0;
 
-    setNames(f0.get(), jf0, 0);
+    setNames(faction0, jfaction0, 0);
 
-    QColor primaryColor("red");
-    f0->setPrimaryColor(primaryColor);
-    jf0["primaryColor"] = primaryColor.name();
+    QColor primaryColor = world->getColors()[0];
+    faction0->setPrimaryColor(primaryColor);
+    jfaction0["primaryColor"] = primaryColor.name();
 
-    QColor secondaryColor("black");
-    f0->setSecondaryColor(secondaryColor);
-    jf0["secondaryColor"] = secondaryColor.name();
+    QColor secondaryColor = world->getColors()[1];
+    faction0->setSecondaryColor(secondaryColor);
+    jfaction0["secondaryColor"] = secondaryColor.name();
 
-    core::Banner* b0 = w->getBanners()[0];
+    core::Banner* banner0 = world->getBanners()[0];
 
-    f0->setBanner(b0);
-    jf0["banner"] = b0->objectName();
+    faction0->setBanner(banner0);
+    jfaction0["banner"] = io::serializeReference(banner0);
 
-    core::Civilization* c0 = w->getCivilizations()[0];
+    core::Civilization* civilization0 = world->getCivilizations()[0];
 
-    f0->setCivilization(c0);
-    jf0["civilization"] = c0->objectName();
+    faction0->setCivilization(civilization0);
+    jfaction0["civilization"] = io::serializeReference(civilization0);
 
-    m->addFaction(std::move(f0));
-    jm["factions"] = QJsonArray({jf0});
+    jmap["factions"] = QJsonArray({jfaction0});
 
-    // Entitys
-    auto e0{std::make_unique<core::Entity>(w->getEntityTypes()[0])};
-    QJsonObject je0;
+    // Entities
+    auto entityType0 = world->getEntityTypes()[0];
+    auto componentType0 = entityType0->getComponentTypes()[0];
 
-    je0["type"] = w->getEntityTypes()[0]->objectName();
+    auto entity0 = map->createEntity();
+    entity0->setType(entityType0);
+    (*entity0)[componentType0]->setField("intField", 100);
+    (*entity0)[componentType0]->setField("listField", QVariantList{QString{"str0"}, QString{"str1"}});
 
-    //(*e0.get())["property0"] = 100;
-    //(*e0.get())["property1"] = "val1";
-    je0["property0"] = 100;
-    je0["property1"] = "val1";
+    QJsonObject jentity0;
+    jentity0["type"] = io::serializeReference(entityType0);
+    jentity0["components"] = QJsonObject{
+        {io::serializeReference(componentType0), QJsonObject{{"intField", 100}, {"listField", QJsonArray{"str0", "str1"}}}}
+    };
 
-    m->addEntity(std::move(e0));
-    jm["entities"] = QJsonArray({je0});
+    jmap["entities"] = QJsonArray({jentity0});
 
-    return std::make_pair(m, jm);
+    return std::make_pair(std::move(map), jmap);
 }

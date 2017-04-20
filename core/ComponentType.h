@@ -58,18 +58,14 @@ class ComponentType : public WObject
 
 public:
     /**
-     * Constructs an empty ComponentType with the given id.
-     *
-     * \param id the id of the object
-     */
-    explicit ComponentType(long id);
-
-    /**
-     * Constructs an empty ComponentType with the given parent.
+     * Constructs an empty ComponentType.
      *
      * \param parent the parent QObject.
+     * \param id the id
+     *
+     * \see WObject::WObject
      */
-    explicit ComponentType(QObject* parent = nullptr);
+    ComponentType(QObject* parent, long id = WObject::invalidId);
 
     /**
      * Is this component-type built-in?

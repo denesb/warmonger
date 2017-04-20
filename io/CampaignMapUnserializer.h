@@ -53,9 +53,10 @@ public:
     }
 
     /**
-     * Unserialize an campaign-map.
+     * Unserialize a campaign-map.
      *
      * \param data the raw data
+     * \param world the world the map belongs to
      *
      * \return the unserialized campaign-map object
      */
@@ -63,31 +64,34 @@ public:
         const QByteArray& data, core::World* world) const = 0;
 
     /**
-     * Unserialize an entity.
+     * Unserialize the entity and add it to the map.
      *
      * \param data the raw data
+     * \param map the map the entity belongs to
      *
      * \return the unserialized entity object
      */
-    virtual std::unique_ptr<core::Entity> unserializeEntity(const QByteArray& data, core::World* world) const = 0;
+    virtual core::Entity* unserializeEntity(const QByteArray& data, core::CampaignMap* map) const = 0;
 
     /**
-     * Unserialize an faction.
+     * Unserialize the faction and add it to the map.
      *
      * \param data the raw data
+     * \param map the map the faction belongs to
      *
      * \return the unserialized faction object
      */
-    virtual std::unique_ptr<core::Faction> unserializeFaction(const QByteArray& data, core::World* world) const = 0;
+    virtual core::Faction* unserializeFaction(const QByteArray& data, core::CampaignMap* map) const = 0;
 
     /**
-     * Unserialize an map-node.
+     * Unserialize the map-node and add it to the map.
      *
      * \param data the raw data
+     * \param map the map the map-node belongs to
      *
      * \return the unserialized map-node object
      */
-    virtual std::unique_ptr<core::MapNode> unserializeMapNode(const QByteArray& data, core::World* world) const = 0;
+    virtual core::MapNode* unserializeMapNode(const QByteArray& data, core::CampaignMap* map) const = 0;
 };
 
 } // namespace warmonger

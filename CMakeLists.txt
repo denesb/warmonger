@@ -98,7 +98,6 @@ set(
     core/Faction.cpp
     core/Field.cpp
     core/Hexagon.cpp
-    core/MapGenerator.cpp
     core/MapNode.cpp
     core/MapNodeNeighbours.cpp
     core/Utils.cpp
@@ -142,11 +141,11 @@ set(
     #test/io/File.cpp TODO fix serialization/unserialization tests before
     #test/io/SanityCheck.cpp
     test/Util.cpp
-    test/core/HierarchyNode.cpp
-    test/core/MapGenerator.cpp
+    test/core/CampaignMap.cpp
     test/core/MapNodeNeighbours.cpp
     test/core/WObject.cpp
     test/io/Context.cpp
+    test/io/JsonUtils.cpp
     test/io/Reference.cpp
     test/io/WorldJsonUnserializer.cpp
     test/test_warmonger.cpp

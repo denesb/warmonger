@@ -25,150 +25,93 @@
 #include "core/CampaignMap.h"
 #include "core/Hexagon.h"
 #include "core/World.h"
-#include "io/Context.h"
 #include "io/JsonUtils.h"
+#include "io/Reference.h"
 #include "utils/Exception.h"
 
 namespace warmonger {
 namespace io {
 
-std::unique_ptr<core::Faction> factionFromJson(const QJsonObject& jobj, Context& ctx);
-std::unique_ptr<core::MapNode> mapNodeFromJson(const QJsonObject& jobj);
-std::vector<std::unique_ptr<core::MapNode>> mapNodesFromJson(const QJsonArray& jarr);
-
-/**
- * Resolve reference `name` to `Type`.
- */
-template <typename Type>
-Type* resolveReference(Context& ctx, const QString& name)
-{
-    Type* obj = ctx.get<Type*>(name);
-    if (obj == nullptr)
-    {
-        QString className(Type::staticMetaObject.className());
-        throw utils::ValueError(QString("Unable to resolve reference `%1' to `%2'").arg(name).arg(className));
-    }
-
-    return obj;
-}
-
-/**
- * Functor object that retrieves object from the ctx.
- */
-template <typename Type>
-class ReferenceResolver
-{
-public:
-    ReferenceResolver(Context& ctx)
-        : ctx(ctx)
-    {
-    }
-
-    Type* operator()(const QString& n) const
-    {
-        return resolveReference<Type>(this->ctx, n);
-    }
-
-    Type* operator()(const QJsonValue& v) const
-    {
-        return resolveReference<Type>(this->ctx, v.toString());
-    }
-
-private:
-    Context& ctx;
-};
+core::Faction* factionFromJson(const QJsonObject& jobj, core::CampaignMap* map);
+core::MapNode* mapNodeFromJson(const QJsonObject& jobj, core::CampaignMap* map);
+void mapNodesFromJson(const QJsonArray& jarr, core::CampaignMap* map);
 
 std::unique_ptr<core::CampaignMap> CampaignMapJsonUnserializer::unserializeCampaignMap(
     const QByteArray& data, core::World* world) const
 {
-    Context ctx;
-    addWorldToContext(ctx, world);
-
     QJsonDocument jdoc(parseJson(data));
     QJsonObject jobj = jdoc.object();
 
     std::unique_ptr<core::CampaignMap> obj{std::make_unique<core::CampaignMap>()};
 
-    obj->setObjectName(jobj["objectName"].toString());
-
     obj->setDisplayName(jobj["displayName"].toString());
 
-    obj->setWorld(resolveReference<core::World>(ctx, jobj["world"].toString()));
+    obj->setWorld(world);
 
-    auto mapNodes{mapNodesFromJson(jobj["mapNodes"].toArray())};
-
-    std::for_each(mapNodes.begin(), mapNodes.end(), [&obj](auto& mapNode) { obj->addMapNode(std::move(mapNode)); });
+    mapNodesFromJson(jobj["mapNodes"].toArray(), obj.get());
 
     auto jfactions{jobj["factions"].toArray()};
-    std::for_each(jfactions.begin(), jfactions.end(), [&obj, &ctx](const auto& faction) {
-        obj->addFaction(factionFromJson(faction.toObject(), ctx));
+    std::for_each(jfactions.begin(), jfactions.end(), [&obj](const auto& faction) {
+        factionFromJson(faction.toObject(), obj.get());
     });
 
     return obj;
 }
 
-std::unique_ptr<core::Entity> CampaignMapJsonUnserializer::unserializeEntity(const QByteArray&, core::World*) const
+core::Entity* CampaignMapJsonUnserializer::unserializeEntity(const QByteArray&, core::CampaignMap*) const
 {
-    return std::unique_ptr<core::Entity>();
+    return nullptr;
 }
 
-std::unique_ptr<core::Faction> CampaignMapJsonUnserializer::unserializeFaction(
-    const QByteArray& data, core::World* world) const
+core::Faction* CampaignMapJsonUnserializer::unserializeFaction(
+    const QByteArray& data, core::CampaignMap* map) const
+{
+    QJsonDocument jdoc(parseJson(data));
+    return factionFromJson(jdoc.object(), map);
+}
+
+core::MapNode* CampaignMapJsonUnserializer::unserializeMapNode(
+    const QByteArray& data, core::CampaignMap* map) const
 {
     QJsonDocument jdoc(parseJson(data));
 
-    Context ctx;
-    addWorldToContext(ctx, world);
-
-    return factionFromJson(jdoc.object(), ctx);
+    return mapNodeFromJson(jdoc.object(), map);
 }
 
-std::unique_ptr<core::MapNode> CampaignMapJsonUnserializer::unserializeMapNode(
-    const QByteArray& data, core::World* world) const
+core::Faction* factionFromJson(const QJsonObject& jobj, core::CampaignMap* map)
 {
-    QJsonDocument jdoc(parseJson(data));
+    const auto id = unserializeIdFrom(jobj);
+    const auto name = jobj["displayName"].toString();
+    const auto primaryColor = QColor(jobj["primaryColor"].toString());
+    const auto secondaryColor = QColor(jobj["secondaryColor"].toString());
+    auto banner = unserializeReferenceAs<core::Banner>(jobj["banner"].toString(), map);
+    auto civilization = unserializeReferenceAs<core::Civilization>(jobj["civilization"].toString(), map);
 
-    Context ctx;
-    addWorldToContext(ctx, world);
+    auto obj = map->createFaction(id);
 
-    return mapNodeFromJson(jdoc.object());
-}
-
-std::unique_ptr<core::Faction> factionFromJson(const QJsonObject& jobj, Context& ctx)
-{
-    std::unique_ptr<core::Faction> obj{std::make_unique<core::Faction>()};
-    obj->setObjectName(jobj["objectName"].toString());
-    obj->setDisplayName(jobj["displayName"].toString());
-    obj->setPrimaryColor(QColor(jobj["primaryColor"].toString()));
-    obj->setSecondaryColor(QColor(jobj["secondaryColor"].toString()));
-    obj->setBanner(resolveReference<core::Banner>(ctx, jobj["banner"].toString()));
-    obj->setCivilization(resolveReference<core::Civilization>(ctx, jobj["civilization"].toString()));
+    obj->setDisplayName(name);
+    obj->setPrimaryColor(primaryColor);
+    obj->setSecondaryColor(secondaryColor);
+    obj->setBanner(banner);
+    obj->setCivilization(civilization);
 
     return obj;
 }
 
-std::unique_ptr<core::MapNode> mapNodeFromJson(const QJsonObject& jobj)
+core::MapNode* mapNodeFromJson(const QJsonObject& jobj, core::CampaignMap* map)
 {
-    std::unique_ptr<core::MapNode> obj{std::make_unique<core::MapNode>()};
-    obj->setObjectName(jobj["objectName"].toString());
-
-    return obj;
+    return map->createMapNode(unserializeIdFrom(jobj));
 }
 
-std::vector<std::unique_ptr<core::MapNode>> mapNodesFromJson(const QJsonArray& jarr)
+void mapNodesFromJson(const QJsonArray& jarr, core::CampaignMap* map)
 {
-    Context ctx;
-    std::vector<std::unique_ptr<core::MapNode>> mapNodes;
     std::vector<std::tuple<core::MapNode*, core::Direction, QString>> neighbours;
 
     for (QJsonValue jval : jarr)
     {
         QJsonObject jobj = jval.toObject();
 
-        mapNodes.emplace_back(mapNodeFromJson(jobj));
-
-        core::MapNode* mn = mapNodes.back().get();
-        ctx.add(mn);
+        auto mapNode = mapNodeFromJson(jobj, map);
 
         // for now just store the references to the neighbours
         // they will be resolved after all mapnodes have been processed
@@ -176,27 +119,25 @@ std::vector<std::unique_ptr<core::MapNode>> mapNodesFromJson(const QJsonArray& j
         for (auto it = jneighbours.constBegin(); it != jneighbours.constEnd(); it++)
         {
             core::Direction d = core::str2direction(it.key());
-            neighbours.push_back(std::make_tuple(mn, d, it.value().toString()));
+            neighbours.push_back(std::make_tuple(mapNode, d, it.value().toString()));
         }
     }
 
     core::MapNode* mn;
     core::Direction d;
-    QString neighbourName;
+    QString neighbourReference;
     for (const auto& neighbour : neighbours)
     {
-        std::tie(mn, d, neighbourName) = neighbour;
-        if (neighbourName.isEmpty())
+        std::tie(mn, d, neighbourReference) = neighbour;
+        if (neighbourReference.isEmpty())
         {
             mn->setNeighbour(d, nullptr);
         }
         else
         {
-            mn->setNeighbour(d, resolveReference<core::MapNode>(ctx, neighbourName));
+            mn->setNeighbour(d, unserializeReferenceAs<core::MapNode>(neighbourReference, map));
         }
     }
-
-    return mapNodes;
 }
 
 } // namespace warmonger

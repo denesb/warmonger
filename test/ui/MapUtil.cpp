@@ -17,7 +17,6 @@
  */
 
 #include "ui/MapUtil.h"
-#include "core/MapGenerator.h"
 #include "test/catch.hpp"
 #include "ui/WorldSurface.h"
 #include "utils/ToString.h"
@@ -221,9 +220,11 @@ TEST_CASE("Move tests", "[moveTo]")
 
 TEST_CASE("", "[mapNodeAtPos][!hide]")
 {
-    std::vector<core::MapNode*> mapNodes = core::generateMapNodes(2);
+    core::World world("uuid0");
+    core::CampaignMap map;
 
-    core::World world;
+    map.generateMapNodes(2);
+    const auto& mapNodes = map.getMapNodes();
 
     ui::WorldSurface surface("./worldsurface-packages/test.wsp", &world);
     surface.activate();
@@ -257,9 +258,11 @@ TEST_CASE("", "[mapNodeAtPos][!hide]")
 
 TEST_CASE("neighboursByPos", "[MapUtil][!hide]")
 {
-    std::vector<core::MapNode*> mapNodes = core::generateMapNodes(2);
+    core::World world("uuid0");
+    core::CampaignMap map;
 
-    core::World world;
+    map.generateMapNodes(2);
+    const auto& mapNodes = map.getMapNodes();
 
     ui::WorldSurface worldSurface("./worldsurface-packages/test.wsp", &world);
     const QSize tileSize = worldSurface.getTileSize();

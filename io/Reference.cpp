@@ -38,7 +38,8 @@ QString serializeReference(core::WObject* obj)
 
     const QMetaObject* rootMetaObj = root->metaObject();
 
-    return QString(rootMetaObj->className()) + "/" + QString(metaObj->className()) + "#" + QString::number(obj->getId());
+    return QString(rootMetaObj->className()) + "/" + QString(metaObj->className()) + "#" +
+        QString::number(obj->getId());
 }
 
 core::WObject* unserializeReference(const QString& reference, core::World* world)
@@ -76,7 +77,7 @@ core::WObject* unserializeReference(const QString& reference, core::CampaignMap*
     std::tie(parentClassName, objectClassName, id) = parseReference(reference);
 
     if (parentClassName.isEmpty() || objectClassName.isEmpty() || id == -1)
-       return nullptr;
+        return nullptr;
 
     if (parentClassName == map->metaObject()->className())
     {

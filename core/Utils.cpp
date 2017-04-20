@@ -21,6 +21,8 @@
 #include <algorithm>
 #include <iterator>
 
+#include "core/Banner.h"
+#include "core/Faction.h"
 #include "utils/Exception.h"
 
 namespace warmonger {
@@ -50,6 +52,45 @@ std::pair<QString, int> splitObjectName(const QString& objectName)
         throw utils::ValueError("Invalid objectName, name " + objectName + " has non-numeric index");
 
     return std::make_pair(parts[0], index);
+}
+
+std::tuple<Banner*, QColor, QColor> nextAvailableCombination(
+    const std::vector<Faction*>& factions, const std::vector<Banner*>& banners, const std::vector<QColor>& colors)
+{
+    typedef std::tuple<Banner*, QColor, QColor> Combination;
+
+    std::vector<Combination> usedCombinations;
+
+    for (const auto& faction : factions)
+    {
+        usedCombinations.emplace_back(faction->getBanner(), faction->getPrimaryColor(), faction->getSecondaryColor());
+    }
+
+    std::vector<Banner*> shuffledBanners(banners);
+    std::vector<QColor> shuffledColors(colors);
+    std::random_device rd;
+    std::mt19937 mtd(rd());
+
+    std::shuffle(shuffledBanners.begin(), shuffledBanners.end(), mtd);
+    std::shuffle(shuffledColors.begin(), shuffledColors.end(), mtd);
+
+    std::uniform_int_distribution<std::size_t> bannersDist(0, banners.size() - 1);
+    std::uniform_int_distribution<std::size_t> colorsDist(0, colors.size() - 1);
+
+    Combination nextCombination;
+    do
+    {
+        std::size_t primaryColorIndex = colorsDist(mtd);
+        std::size_t secondaryColorIndex = colorsDist(mtd);
+
+        if (secondaryColorIndex == primaryColorIndex)
+            secondaryColorIndex = (secondaryColorIndex + 1) % colors.size();
+
+        nextCombination =
+            std::make_tuple(banners.at(bannersDist(mtd)), colors.at(primaryColorIndex), colors.at(secondaryColorIndex));
+    } while (std::find(usedCombinations.begin(), usedCombinations.end(), nextCombination) != usedCombinations.end());
+
+    return nextCombination;
 }
 
 } // namespace core

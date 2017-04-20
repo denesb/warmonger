@@ -23,13 +23,8 @@
 namespace warmonger {
 namespace core {
 
-EntityType::EntityType(long id)
-    : WObject(id)
-{
-}
-
-EntityType::EntityType(QObject* parent)
-    : WObject(parent)
+EntityType::EntityType(QObject* parent, long id)
+    : WObject(parent, id)
 {
 }
 

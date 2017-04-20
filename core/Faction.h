@@ -50,18 +50,14 @@ class Faction : public WObject
 
 public:
     /**
-     * Construct an empty Faction object with the given id.
-     *
-     * \param id the id of the object
-     */
-    explicit Faction(long id);
-
-    /**
-     * Construct an empty Faction object with the given parent.
+     * Construct an empty Faction.
      *
      * \param parent the parent QObject.
+     * \param id the id
+     *
+     * \see WObject::WObject
      */
-    explicit Faction(QObject* parent = nullptr);
+    Faction(QObject* parent, long id = WObject::invalidId);
 
     /**
      * Get the display-name.

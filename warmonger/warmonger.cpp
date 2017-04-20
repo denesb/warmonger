@@ -20,7 +20,6 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
-#include "core/MapGenerator.h"
 #include "io/File.h"
 #include "io/SanityCheck.h"
 #include "ui/SearchPaths.h"
@@ -124,12 +123,9 @@ static std::unique_ptr<Context> createContext(const QString& worldName, const QS
 static std::unique_ptr<core::CampaignMap> generateBackgroundCampaignMap(core::World* world)
 {
     std::unique_ptr<core::CampaignMap> map = std::make_unique<core::CampaignMap>();
-    map->setObjectName("backgroundCampaignMap");
     map->setWorld(world);
 
-    // TODO fix map generation
-    const std::vector<core::MapNode*> nodes = core::generateMapNodes(10);
-    // map->setMapNodes(nodes);
+    // TODO: fix map generation, call into the world rules to generate the map
 
     return map;
 }

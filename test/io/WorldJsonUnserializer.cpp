@@ -27,6 +27,7 @@
 #include "core/WorldComponentType.h"
 #include "io/JsonUtils.h"
 #include "io/WorldJsonUnserializer.h"
+#include "test/Util.h"
 #include "test/catch.hpp"
 #include "utils/Exception.h"
 
@@ -38,14 +39,13 @@ TEST_CASE("World can be serialized to JSON", "[WorldJsonUnerializer]")
 }
 */
 
-TEST_CASE("EntityType can be serialized to JSON", "[WorldJsonUnserializer][JSON][Unserialize][HappyPath]")
+TEST_CASE("EntityType can be unserialized from JSON", "[WorldJsonUnserializer][JSON][Unserialize][HappyPath]")
 {
-    QJsonObject jobj;
-    jobj["name"] = "entityType1";
+    std::unique_ptr<core::World> w;
+    QJsonObject jw;
+    std::tie(w, jw) = makeWorld();
 
-    const QJsonArray jcomponentTypes{"componentType1"};
-
-    jobj["componentTypes"] = jcomponentTypes;
+    QJsonObject jobj = jw["entityTypes"].toArray()[0].toObject();
 
     const QJsonDocument jdoc{jobj};
     const io::WorldJsonUnserializer unserializer;
@@ -53,65 +53,60 @@ TEST_CASE("EntityType can be serialized to JSON", "[WorldJsonUnserializer][JSON]
 
     INFO("The json component-type is: " << rawJson.data());
 
-    auto componentType1{std::make_unique<core::WorldComponentType>()};
-    componentType1->setName("componentType1");
-
-    const std::vector<core::ComponentType*> componentTypes{componentType1.get()};
-
     SECTION("Unserialization succeeds without exceptions")
     {
-        REQUIRE_NOTHROW(unserializer.unserializeEntityType(rawJson, componentTypes));
-        REQUIRE(unserializer.unserializeEntityType(rawJson, componentTypes));
+        REQUIRE_NOTHROW(unserializer.unserializeEntityType(rawJson, w.get()));
+        REQUIRE(unserializer.unserializeEntityType(rawJson, w.get()));
     }
 
     SECTION("Unserialization entity-type")
     {
-        const auto entityType{unserializer.unserializeEntityType(rawJson, componentTypes)};
+        const auto entityType{unserializer.unserializeEntityType(rawJson, w.get())};
 
         REQUIRE(entityType->getName() == jobj["name"].toString());
-        REQUIRE(entityType->getComponentTypes().size() == jcomponentTypes.size());
+        REQUIRE_REFERENCES(jobj["componentTypes"].toArray(), entityType->getComponentTypes());
     }
 }
 
 TEST_CASE("EntityType unserialized from JSON - error paths", "[WorldJsonUnserializer][JSON][Unserialize][ErrorPaths]")
 {
+    auto worlds = makeWorld();
+    core::World* world = worlds.first.get();
+
+    const QString validComponentTypeRef{io::serializeReference(world->getComponentTypes()[0])};
+
     const io::WorldJsonUnserializer unserializer;
-
-    auto componentType1{std::make_unique<core::WorldComponentType>()};
-    componentType1->setName("componentType1");
-
-    const std::vector<core::ComponentType*> componentTypes{componentType1.get()};
 
     SECTION("Invalid Json")
     {
         QString invalidJson{"{\"name\": \"name1\",}"};
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), componentTypes), utils::ValueError);
+            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("No name")
     {
-        QString invalidJson{"{\"componentTypes\": [\"componentType1\"]}"};
+        QString invalidJson{QString("{\"componentTypes\": [\"") + validComponentTypeRef + "\"]}"};
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), componentTypes), utils::ValueError);
+            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Empty name")
     {
-        QString invalidJson{"{\"name\": \"\", \"componentTypes\": [\"componentType1\"]}"};
+        QString invalidJson{QString("{\"name\": \"\", \"componentTypes\": [\"") + validComponentTypeRef + "\"]}"};
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), componentTypes), utils::ValueError);
+            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Name not string")
     {
-        QString invalidJson{"{\"name\": 4, \"componentTypes\": [\"componentType1\"]}"};
+        QString invalidJson{QString("{\"name\": 4, \"componentTypes\": [\"") + validComponentTypeRef + "\"]}"};
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), componentTypes), utils::ValueError);
+            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("No component-types")
@@ -119,7 +114,7 @@ TEST_CASE("EntityType unserialized from JSON - error paths", "[WorldJsonUnserial
         QString invalidJson{"{\"name\": \"name1\"}"};
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), componentTypes), utils::ValueError);
+            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Component-type list is empty")
@@ -127,7 +122,7 @@ TEST_CASE("EntityType unserialized from JSON - error paths", "[WorldJsonUnserial
         QString invalidJson{"{\"name\": \"name1\", \"componentTypes\": []}"};
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), componentTypes), utils::ValueError);
+            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Component-types has empty name")
@@ -136,7 +131,7 @@ TEST_CASE("EntityType unserialized from JSON - error paths", "[WorldJsonUnserial
                             "]}"};
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), componentTypes), utils::ValueError);
+            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Component-type has non-string name")
@@ -144,7 +139,7 @@ TEST_CASE("EntityType unserialized from JSON - error paths", "[WorldJsonUnserial
         QString invalidJson{"{\"name\": \"name1\", \"componentTypes\": [1]}"};
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), componentTypes), utils::ValueError);
+            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Component-type does not exist")
@@ -153,12 +148,15 @@ TEST_CASE("EntityType unserialized from JSON - error paths", "[WorldJsonUnserial
                             "]}"};
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), componentTypes), utils::ValueError);
+            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 }
 
 TEST_CASE("ComponentType unserialized from JSON - happy path", "[WorldJsonUnserializer][JSON][Unserialize][HappyPath]")
 {
+    auto worlds = makeWorld();
+    core::World* world = worlds.first.get();
+
     QString jsonStr{"{"
                     "\"name\": \"componentType1\","
                     "\"fields\": ["
@@ -179,13 +177,13 @@ TEST_CASE("ComponentType unserialized from JSON - happy path", "[WorldJsonUnseri
 
     SECTION("Unserialization succeeds without exceptions")
     {
-        REQUIRE_NOTHROW(unserializer.unserializeComponentType(rawJson));
-        REQUIRE(unserializer.unserializeComponentType(rawJson));
+        REQUIRE_NOTHROW(unserializer.unserializeComponentType(rawJson, world));
+        REQUIRE(unserializer.unserializeComponentType(rawJson, world));
     }
 
     SECTION("Unserialization component-type")
     {
-        const auto componentType{unserializer.unserializeComponentType(rawJson)};
+        const auto componentType{unserializer.unserializeComponentType(rawJson, world)};
 
         const QJsonDocument jdoc{io::parseJson(rawJson)};
         const QJsonObject jobj{jdoc.object()};
@@ -233,97 +231,100 @@ TEST_CASE("ComponentType unserialized from JSON - happy path", "[WorldJsonUnseri
 TEST_CASE(
     "ComponentType unserialized from JSON - error paths", "[WorldJsonUnserializer][JSON][Unserialize][ErrorPaths]")
 {
+    auto worlds = makeWorld();
+    core::World* world = worlds.first.get();
+
     io::WorldJsonUnserializer unserializer;
 
     SECTION("Invalid Json")
     {
         QString invalidJson{"{\"name\": \"name1\",}"};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("No name")
     {
         QString invalidJson{"{\"fields\": [{\"name\": \"f0\", \"type\": \"String\"}]}"};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Empty name")
     {
         QString invalidJson{"{\"name\": \"\", \"fields\": [{\"name\": \"f0\", \"type\": \"String\"}]}"};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Name not string")
     {
         QString invalidJson{"{\"name\": 3, \"fields\": [{\"name\": \"f0\", \"type\": \"String\"}]}"};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("No fields")
     {
         QString invalidJson{"{\"name\": \"name1\"}"};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Fields list is empty")
     {
         QString invalidJson{"{\"name\": \"ct0\", \"fields\": []}"};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Field has empty name")
     {
         QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"\", \"type\": \"String\"}]}"};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Field has non-string name")
     {
         QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": 7.0, \"type\": \"String\"}]}"};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Field has no type")
     {
         QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\"}]}"};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Field has invalid type")
     {
         QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": []}]}"};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Field has empty string type")
     {
         QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": \"\"}]}"};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Field has unknown type")
     {
         QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": \"Unknown\"}]}"};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Field has invalid type")
     {
         QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": \"List\"}]}"};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Complex field type has no id")
@@ -331,7 +332,7 @@ TEST_CASE(
         QString invalidJson{
             "{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": {\"valueType\": \"Integer\"}}]}"};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Complex field type has empty id")
@@ -339,7 +340,7 @@ TEST_CASE(
         QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": {\"id\": \"\", "
                             "\"valueType\": \"Integer\"}}]}"};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Complex field type has unknown id")
@@ -347,7 +348,7 @@ TEST_CASE(
         QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": {\"id\": \"Unknown\", "
                             "\"valueType\": \"Integer\"}}]}"};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Complex field type has invalid id")
@@ -355,6 +356,6 @@ TEST_CASE(
         QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": {\"id\": \"String\", "
                             "\"valueType\": \"Integer\"}}]}"};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 }

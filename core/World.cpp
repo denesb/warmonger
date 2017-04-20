@@ -24,8 +24,9 @@
 namespace warmonger {
 namespace core {
 
-World::World(QObject* parent)
+World::World(const QString& uuid, QObject* parent)
     : QObject(parent)
+    , uuid(uuid)
 {
 }
 
@@ -38,17 +39,17 @@ void World::setDisplayName(const QString& displayName)
     }
 }
 
-void World::addBanner(std::unique_ptr<Banner>&& banner)
+Banner* World::createBanner()
 {
-    banner->setParent(this);
+    auto banner = new Banner(this);
 
-    this->banners.push_back(banner.get());
+    this->banners.push_back(banner);
 
-    wDebug << "Added banner " << banner.get() << " to world " << this;
-
-    banner.reset();
+    wDebug << "Created banner " << banner << " in world " << this;
 
     emit bannersChanged();
+
+    return banner;
 }
 
 QVariantList World::readBanners() const
@@ -61,17 +62,17 @@ QVariantList World::readCivilizations() const
     return utils::toQVariantList(this->civilizations);
 }
 
-void World::addCivilization(std::unique_ptr<Civilization>&& civilization)
+Civilization* World::createCivilization()
 {
-    civilization->setParent(this);
+    auto civilization = new Civilization(this);
 
-    this->civilizations.push_back(civilization.get());
+    this->civilizations.push_back(civilization);
 
-    wDebug << "Added civilization " << civilization.get() << " to world " << this;
-
-    civilization.reset();
+    wDebug << "Created civilization " << civilization << " in world " << this;
 
     emit civilizationsChanged();
+
+    return civilization;
 }
 
 void World::setColors(const std::vector<QColor>& colors)
@@ -88,35 +89,35 @@ QVariantList World::readColors() const
     return utils::toQVariantList(this->colors);
 }
 
-void World::addComponentType(std::unique_ptr<ComponentType>&& componentType)
-{
-    componentType->setParent(this);
-
-    this->componentTypes.push_back(componentType.get());
-
-    wDebug << "Added componentType " << componentType.get() << " to world " << this;
-
-    componentType.reset();
-
-    emit componentTypesChanged();
-}
-
 QVariantList World::readComponentTypes() const
 {
     return utils::toQVariantList(this->componentTypes);
 }
 
-void World::addEntityType(std::unique_ptr<EntityType>&& entityType)
+WorldComponentType* World::createWorldComponentType(long id)
 {
-    entityType->setParent(this);
+    auto componentType = new WorldComponentType(this, id);
 
-    this->entityTypes.push_back(entityType.get());
+    this->componentTypes.push_back(componentType);
 
-    wDebug << "Added entityType " << entityType.get() << " to world " << this;
+    wDebug << "Created componentType " << componentType << " in world " << this;
 
-    entityType.reset();
+    emit componentTypesChanged();
+
+    return componentType;
+}
+
+EntityType* World::createEntityType()
+{
+    auto entityType = new EntityType(this);
+
+    this->entityTypes.push_back(entityType);
+
+    wDebug << "Created entityType " << entityType << " in world " << this;
 
     emit entityTypesChanged();
+
+    return entityType;
 }
 
 QVariantList World::readEntityTypes() const

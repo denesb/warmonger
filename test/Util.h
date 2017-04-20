@@ -11,14 +11,15 @@
 
 #include "core/CampaignMap.h"
 #include "core/World.h"
+#include "io/Reference.h"
 #include "test/catch.hpp"
 
 using namespace warmonger;
 
 std::ostream& operator<<(std::ostream& os, const QString& s);
 
-std::pair<core::World*, QJsonObject> makeWorld();
-std::pair<core::CampaignMap*, QJsonObject> makeMap();
+std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld();
+std::pair<std::unique_ptr<core::CampaignMap>, QJsonObject> makeMap();
 
 /**
  * Compare a QJsonObject to a map.
@@ -46,6 +47,14 @@ std::pair<core::CampaignMap*, QJsonObject> makeMap();
     {                                                                                                                  \
         REQUIRE(list[i] != nullptr);                                                                                   \
         REQUIRE(array[i] == list[i]->objectName());                                                                    \
+    }
+
+#define REQUIRE_REFERENCES(array, list)                                                                                \
+    REQUIRE(array.size() == list.size());                                                                              \
+    for (size_t i = 0; i < list.size(); i++)                                                                           \
+    {                                                                                                                  \
+        REQUIRE(list[i] != nullptr);                                                                                   \
+        REQUIRE(array[i] == ::warmonger::io::serializeReference(list[i]));                                             \
     }
 
 class DestroyWatcher : public QObject

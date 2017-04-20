@@ -28,7 +28,7 @@ TEST_CASE("serializeReference()", "[io][Serialize]")
     core::WObject obj1(nullptr);
     REQUIRE(io::serializeReference(&obj1) == "warmonger::core::WObject#-1");
 
-    core::World w;
+    core::World w("uuid0");
 
     core::WObject* obj2 = new core::WObject(&w);
     REQUIRE(io::serializeReference(obj2) == "warmonger::core::World/warmonger::core::WObject#0");
@@ -42,7 +42,7 @@ TEST_CASE("unserializeReference(core::World*)", "[io][Unserialize]")
     core::World* nullWorld{nullptr};
     REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#0", nullWorld) == nullptr);
 
-    core::World w;
+    core::World w("uuid0");
 
     REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#-1", &w) == nullptr);
     REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#0", &w) == nullptr);
@@ -91,7 +91,7 @@ TEST_CASE("unserializeReference(core::CampaignMap*)", "[io][Unserialize]")
     core::CampaignMap* nullMap{nullptr};
     REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#0", nullMap) == nullptr);
 
-    core::World w;
+    core::World w("uuid0");
     core::CampaignMap m;
 
     m.setWorld(&w);

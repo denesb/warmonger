@@ -50,18 +50,14 @@ class Entity : public WObject
 
 public:
     /**
-     * Create an empty entity with the given id.
-     *
-     * \param id the id of the object
-     */
-    explicit Entity(long id);
-
-    /**
-     * Create an empty entity with the given parent.
+     * Create an empty entity.
      *
      * \param parent the parent QObject
+     * \param id the id
+     *
+     * \see WObject::WObject
      */
-    explicit Entity(QObject* parent = nullptr);
+    Entity(QObject* parent, long id = WObject::invalidId);
 
     /**
      * Get the type

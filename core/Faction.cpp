@@ -23,14 +23,8 @@
 namespace warmonger {
 namespace core {
 
-Faction::Faction(long id)
-    : WObject(id)
-    , civilization(nullptr)
-{
-}
-
-Faction::Faction(QObject* parent)
-    : WObject(parent)
+Faction::Faction(QObject* parent, long id)
+    : WObject(parent, id)
     , civilization(nullptr)
 {
 }

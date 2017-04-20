@@ -16,33 +16,37 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "core/CampaignMap.h"
 #include "test/catch.hpp"
-
-#include "core/MapGenerator.h"
 
 using namespace warmonger;
 
-unsigned int numberOfConnections(const std::vector<core::MapNode*>& nodes);
+static unsigned int numberOfConnections(const std::vector<core::MapNode*>& nodes);
 
-TEST_CASE("generateMapNodes", "[MapGenerator]")
+TEST_CASE("CampaignMap::generateMapNodes()", "[CampaignMap]")
 {
+    core::CampaignMap map;
+
     SECTION("radius == 0")
     {
-        const std::vector<core::MapNode*> nodes = core::generateMapNodes(0);
+        map.generateMapNodes(0);
+        const std::vector<core::MapNode*>& nodes = map.getMapNodes();
 
         REQUIRE(nodes.size() == 0);
     }
 
     SECTION("radius == 1")
     {
-        const std::vector<core::MapNode*> nodes = core::generateMapNodes(1);
+        map.generateMapNodes(1);
+        const std::vector<core::MapNode*>& nodes = map.getMapNodes();
 
         REQUIRE(nodes.size() == 1);
     }
 
     SECTION("radius == 2")
     {
-        const std::vector<core::MapNode*> nodes = core::generateMapNodes(2);
+        map.generateMapNodes(2);
+        const std::vector<core::MapNode*>& nodes = map.getMapNodes();
 
         REQUIRE(nodes.size() == 7);
         REQUIRE(numberOfConnections(nodes) == 24);
@@ -50,7 +54,8 @@ TEST_CASE("generateMapNodes", "[MapGenerator]")
 
     SECTION("radius == 3")
     {
-        const std::vector<core::MapNode*> nodes = core::generateMapNodes(3);
+        map.generateMapNodes(3);
+        const std::vector<core::MapNode*>& nodes = map.getMapNodes();
 
         REQUIRE(nodes.size() == 19);
         REQUIRE(numberOfConnections(nodes) == 84);
@@ -58,14 +63,15 @@ TEST_CASE("generateMapNodes", "[MapGenerator]")
 
     SECTION("radius == 4")
     {
-        const std::vector<core::MapNode*> nodes = core::generateMapNodes(4);
+        map.generateMapNodes(4);
+        const std::vector<core::MapNode*>& nodes = map.getMapNodes();
 
         REQUIRE(nodes.size() == 37);
         REQUIRE(numberOfConnections(nodes) == 180);
     }
 }
 
-unsigned int numberOfConnections(const std::vector<core::MapNode*>& nodes)
+static unsigned int numberOfConnections(const std::vector<core::MapNode*>& nodes)
 {
     unsigned int n{0};
 

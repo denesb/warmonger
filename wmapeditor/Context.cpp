@@ -23,7 +23,6 @@
 #include <QGuiApplication>
 #include <QStringList>
 
-#include "core/MapGenerator.h"
 #include "io/File.h"
 #include "ui/WorldSurface.h"
 #include "utils/Constants.h"
@@ -101,9 +100,8 @@ void Context::create(warmonger::core::World* world)
     map->setDisplayName(campaignMapDisplayName);
     map->setWorld(world);
 
-    // TODO fix map-node generation
-    const std::vector<core::MapNode*> nodes = core::generateMapNodes(10);
-    // map->setMapNodes(nodes);
+    // TODO fix map-node generation, call into world-rules
+    map->generateMapNodes(10);
 
     const std::vector<core::Civilization*>& civilizations = world->getCivilizations();
 
@@ -111,8 +109,11 @@ void Context::create(warmonger::core::World* world)
     std::mt19937 mtd(rd());
     std::uniform_int_distribution<std::size_t> civsDist(0, civilizations.size() - 1);
 
-    map->createFaction(civilizations.at(civsDist(mtd)));
-    map->createFaction(civilizations.at(civsDist(mtd)));
+    auto faction0 = map->createFaction();
+    faction0->setCivilization(civilizations.at(civsDist(mtd)));
+
+    auto faction1 = map->createFaction();
+    faction1->setCivilization(civilizations.at(civsDist(mtd)));
 
     this->setCampaignMap(map);
 }

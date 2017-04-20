@@ -23,13 +23,8 @@
 namespace warmonger {
 namespace core {
 
-ComponentType::ComponentType(long id)
-    : WObject(id)
-{
-}
-
-ComponentType::ComponentType(QObject* parent)
-    : WObject(parent)
+ComponentType::ComponentType(QObject* parent, long id)
+    : WObject(parent, id)
 {
 }
 

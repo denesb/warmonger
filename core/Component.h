@@ -52,18 +52,14 @@ class Component : public WObject
 
 public:
     /**
-     * Create an empty component with the given id.
-     *
-     * \param id the id of the object
-     */
-    explicit Component(long id);
-
-    /**
-     * Create an empty component with the given parent.
+     * Create an empty component.
      *
      * \param parent the parent QObject.
+     * \param id the id
+     *
+     * \see WObject::WObject
      */
-    explicit Component(QObject* parent = nullptr);
+    Component(QObject* parent, long id = WObject::invalidId);
 
     /**
      * Get the type.

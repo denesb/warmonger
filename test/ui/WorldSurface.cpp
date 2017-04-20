@@ -36,7 +36,7 @@ CATCH_TRANSLATE_EXCEPTION(utils::Exception& e)
 
 TEST_CASE("Failed to load surface metadata", "[WorldSurface][!hide]")
 {
-    core::World world;
+    core::World world("uuid0");
 
     SECTION("No package file")
     {

@@ -69,4 +69,9 @@ TEST_CASE("Children ids", "[WObject]")
 
     auto obj7 = new TestWObject2(obj6);
     REQUIRE(obj7->getId() == 7);
+
+    QObject newRoot;
+
+    obj7->setParent(&newRoot);
+    REQUIRE(obj7->getId() == 0);
 }

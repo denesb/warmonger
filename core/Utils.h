@@ -21,11 +21,15 @@
 #ifndef W_CORE_UTIL_H
 #define W_CORE_UTIL_H
 
+#include <QColor>
 #include <QObject>
 #include <QString>
 
 namespace warmonger {
 namespace core {
+
+class Faction;
+class Banner;
 
 /**
  * Create an object-name for the object.
@@ -66,6 +70,18 @@ inline std::pair<QString, int> splitObjectName(const QObject* const obj)
 {
     return splitObjectName(obj->objectName());
 }
+
+/**
+ * Given the existing factions generate a possible combination.
+ *
+ * \param factions the factions, used to determine what combinations all taken
+ * \param banners the available banners
+ * \param colors the available colors
+ *
+ * \return the next possible combination
+ */
+std::tuple<Banner*, QColor, QColor> nextAvailableCombination(
+    const std::vector<Faction*>& factions, const std::vector<Banner*>& banners, const std::vector<QColor>& colors);
 
 } // namespace core
 } // namespace warmonger

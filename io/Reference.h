@@ -24,8 +24,7 @@
 #include <vector>
 
 #include <QString>
-
-class QObject;
+#include <QObject>
 
 namespace warmonger {
 
@@ -83,8 +82,47 @@ core::WObject* unserializeReference(const QString& reference, core::World* world
  */
 core::WObject* unserializeReference(const QString& reference, core::CampaignMap* map);
 
+/**
+ * Unserialize the reference.
+ *
+ * Convenience wrapper for unserializeReference() that returns the object cast
+ * to T*. If the object cannot be cast to T* nullptr will be returned.
+ *
+ * \param reference the serialized reference
+ * \param world the parent of the referenced object
+ *
+ * \returns the referenced object
+ *
+ * \see unserializeReference(const QString&, core::World*)
+ */
+template <class T>
+T* unserializeReferenceAs(const QString& reference, core::World* world)
+{
+    core::WObject* obj = unserializeReference(reference, world);
+    return qobject_cast<T*>(obj);
+}
+
+/**
+ * Unserialize the reference.
+ *
+ * Convenience wrapper for unserializeReference() that returns the object cast
+ * to T*. If the object cannot be cast to T* nullptr will be returned.
+ *
+ * \param reference the serialized reference
+ * \param map the parent of the referenced object
+ *
+ * \returns the referenced object
+ *
+ * \see unserializeReference(const QString&, core::CampaignMap*)
+ */
+template <class T>
+T* unserializeReferenceAs(const QString& reference, core::CampaignMap* map)
+{
+    core::WObject* obj = unserializeReference(reference, map);
+    return qobject_cast<T*>(obj);
+}
+
 } // namespace warmonger
 } // namespace io
 
 #endif // W_IO_REFERENCE_H
-

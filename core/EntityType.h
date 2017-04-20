@@ -58,18 +58,14 @@ class EntityType : public WObject
 
 public:
     /**
-     * Construct an empty entity-type object with the given id.
-     *
-     * \param id the id of the object
-     */
-    explicit EntityType(long id);
-
-    /**
-     * Construct an empty entity-type object with the given parent.
+     * Construct an empty entity-type.
      *
      * \param parent the parent QObject
+     * \param id the id
+     *
+     * \see WObject::WObject
      */
-    explicit EntityType(QObject* parent = nullptr);
+    EntityType(QObject* parent, long id = WObject::invalidId);
 
     /**
      * Get the name.

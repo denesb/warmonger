@@ -23,13 +23,10 @@ using namespace warmonger;
 
 TEST_CASE("Invokable map-editing members", "[CampaignMapEditor]")
 {
-    core::World world;
+    core::World world("uuid0");
 
-    auto civ{std::make_unique<core::Civilization>()};
-    world.addCivilization(std::move(civ));
-
-    auto banner{std::make_unique<core::Banner>()};
-    world.addBanner(std::move(banner));
+    world.createCivilization();
+    world.createBanner();
     world.setColors({QColor("black"), QColor("white"), QColor("gray")});
 
     core::CampaignMap map;

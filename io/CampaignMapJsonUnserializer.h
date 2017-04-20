@@ -42,42 +42,10 @@ namespace io {
 class CampaignMapJsonUnserializer : public CampaignMapUnserializer
 {
 public:
-    /**
-     * Unserialize an campaign-map.
-     *
-     * \param data the raw data
-     *
-     * \return the unserialized campaign-map object
-     */
-    std::unique_ptr<core::CampaignMap> unserializeCampaignMap(
-        const QByteArray& data, core::World* world) const override;
-
-    /**
-     * Unserialize an entity.
-     *
-     * \param data the raw data
-     *
-     * \return the unserialized entity object
-     */
-    std::unique_ptr<core::Entity> unserializeEntity(const QByteArray& data, core::World* world) const override;
-
-    /**
-     * Unserialize an faction.
-     *
-     * \param data the raw data
-     *
-     * \return the unserialized faction object
-     */
-    std::unique_ptr<core::Faction> unserializeFaction(const QByteArray& data, core::World* world) const override;
-
-    /**
-     * Unserialize an map-node.
-     *
-     * \param data the raw data
-     *
-     * \return the unserialized map-node object
-     */
-    std::unique_ptr<core::MapNode> unserializeMapNode(const QByteArray& data, core::World* world) const override;
+    std::unique_ptr<core::CampaignMap> unserializeCampaignMap(const QByteArray& data, core::World* world) const override;
+    core::Entity* unserializeEntity(const QByteArray& data, core::CampaignMap* map) const override;
+    core::Faction* unserializeFaction(const QByteArray& data, core::CampaignMap* map) const override;
+    core::MapNode* unserializeMapNode(const QByteArray& data, core::CampaignMap* map) const override;
 };
 
 } // namespace warmonger

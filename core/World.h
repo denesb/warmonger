@@ -30,7 +30,7 @@
 
 #include "core/Banner.h"
 #include "core/Civilization.h"
-#include "core/ComponentType.h"
+#include "core/WorldComponentType.h"
 #include "core/EntityType.h"
 
 namespace warmonger {
@@ -46,6 +46,7 @@ class World : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName NOTIFY displayNameChanged)
+    Q_PROPERTY(QString uuid READ getUuid CONSTANT)
     Q_PROPERTY(QVariantList banners READ readBanners NOTIFY bannersChanged)
     Q_PROPERTY(QVariantList civilizations READ readCivilizations NOTIFY civilizationsChanged)
     Q_PROPERTY(QVariantList colors READ readColors NOTIFY colorsChanged)
@@ -56,9 +57,20 @@ public:
     /**
      * Constructs an empty world object.
      *
+     * \param uuid the uuid of the world
      * \param parent the parent QObject.
      */
-    explicit World(QObject* parent = nullptr);
+    explicit World(const QString& uuid, QObject* parent = nullptr);
+
+    /**
+     * Get the uuid.
+     *
+     * \return the uuid
+     */
+    const QString getUuid() const
+    {
+        return this->uuid;
+    }
 
     /**
      * Get the display-name.
@@ -102,16 +114,14 @@ public:
     QVariantList readBanners() const;
 
     /**
-     * Add a banner.
+     * Create a new banner.
      *
-     * The world will take ownership over the object.
+     * The world takes ownership of the created object.
      * Will emit the signal World::bannersChanged().
-     * The behaviour is undefined if the civilization is already owned by this
-     * world.
      *
-     * \param banners the new banners
+     * \return the new banner
      */
-    void addBanner(std::unique_ptr<Banner>&& banner);
+    Banner* createBanner();
 
     /**
      * Get the civilizations.
@@ -135,16 +145,14 @@ public:
     QVariantList readCivilizations() const;
 
     /**
-     * Add a civilizations.
+     * Create a new civilization.
      *
-     * The world will take ownership over the object.
+     * The world takes ownership of the created object.
      * Will emit the signal World::civilizationsChanged().
-     * The behaviour is undefined if the civilization is already owned by this
-     * world.
      *
-     * \param civilizations the new civilization
+     * \returns the new civilization
      */
-    void addCivilization(std::unique_ptr<Civilization>&& civilization);
+    Civilization* createCivilization();
 
     /**
      * Get the colors.
@@ -199,16 +207,18 @@ public:
     QVariantList readComponentTypes() const;
 
     /**
-     * Add the component-type.
+     * Create a new world component-type.
      *
-     * The world will take ownership over the object.
+     * The world takes ownership of the created object.
      * Will emit the signal World::componentTypesChanged().
-     * The behaviour is undefined if the component-type is already owned by this
-     * world.
+     * An id value should only be passed when the factions is being
+     * unserialized and it already has a priorly generated id.
      *
-     * \param component-type the new component-type
+     * \param id the id
+     *
+     * \return the new component-type
      */
-    void addComponentType(std::unique_ptr<ComponentType>&& componentType);
+    WorldComponentType* createWorldComponentType(long id = WObject::invalidId);
 
     /**
      * Get the entity-types.
@@ -221,16 +231,14 @@ public:
     }
 
     /**
-     * Add the entity-type.
+     * Create a new entity-type.
      *
-     * The world will take ownership over the object.
+     * The world takes ownership of the created object.
      * Will emit the signal World::entityTypesChanged().
-     * The behaviour is undefined if the civilization is already owned by this
-     * world.
      *
-     * \param entity-type the new entity-type
+     * \return the new entity-type
      */
-    void addEntityType(std::unique_ptr<EntityType>&& entityTpe);
+    EntityType* createEntityType();
 
     /**
      * Get the entity-types as a QVariantList.
@@ -275,6 +283,7 @@ signals:
     void entityTypesChanged();
 
 private:
+    QString uuid;
     QString displayName;
     std::vector<Banner*> banners;
     std::vector<Civilization*> civilizations;

@@ -42,18 +42,14 @@ class Banner : public WObject
 
 public:
     /**
-     * Construct an empty Banner object with the given id.
-     *
-     * \param id the id of the object
-     */
-    explicit Banner(long id);
-
-    /**
-     * Construct an empty Banner object with the given parent.
+     * Construct an empty Banner.
      *
      * \param parent the parent QObject.
+     * \param id the id
+     *
+     * \see WObject::WObject
      */
-    explicit Banner(QObject* parent = nullptr);
+    Banner(QObject* parent, long id = WObject::invalidId);
 
     /**
      * Get the display-name.

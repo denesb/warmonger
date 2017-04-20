@@ -45,18 +45,14 @@ class MapNode : public WObject
 
 public:
     /**
-     * Constructs an empty map-node with the given id.
-     *
-     * \param id the id of the object
-     */
-    explicit MapNode(long id);
-
-    /**
-     * Constructs an empty map-node with the given parent.
+     * Constructs an empty map-node.
      *
      * \param parent the parent QObject.
+     * \param id the id
+     *
+     * \see WObject::WObject
      */
-    explicit MapNode(QObject* parent = nullptr);
+    MapNode(QObject* parent, long id = WObject::invalidId);
 
     /**
      * Get he neighbours of this map.

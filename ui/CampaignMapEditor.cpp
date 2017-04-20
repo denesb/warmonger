@@ -155,7 +155,8 @@ void CampaignMapEditor::setNumberOfFactions(int n)
 
         for (std::size_t i = currentSize; i < newSize; ++i)
         {
-            this->campaignMap->createFaction(civilizations.at(dist(mtd)));
+            auto faction = this->campaignMap->createFaction();
+            faction->setCivilization(civilizations.at(dist(mtd)));
         }
     }
     else if (newSize < currentSize)

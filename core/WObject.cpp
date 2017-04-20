@@ -29,16 +29,11 @@ static long generateId(WObject* obj);
 
 const long WObject::invalidId{-1};
 
-WObject::WObject(long id)
-    : QObject()
-    , id(id)
-{
-}
-
-WObject::WObject(QObject* parent)
+WObject::WObject(QObject* parent, long id)
     : QObject(parent)
-    , id(generateId(this))
 {
+    if (id == WObject::invalidId)
+        this->id = generateId(this);
 }
 
 QObject* getObjectTreeRoot(WObject* obj)

@@ -47,8 +47,11 @@ public:
      * Constructs an empty WorldComponentType.
      *
      * \param parent the parent QObject.
+     * \param id the id
+     *
+     * \see WObject::WObject
      */
-    WorldComponentType(QObject* parent = nullptr);
+    WorldComponentType(QObject* parent, long id = WObject::invalidId);
 
     /**
      * Set the name.
@@ -61,14 +64,14 @@ public:
     void setName(const QString& name);
 
     /**
-     * Set the fields.
+     * Create a new field.
      *
+     * The WorldComponentType takes ownership over the field.
      * Will emit the signal ComponentType::fieldsChanged().
-     * The WorldComponentType takes ownership of the field.
      *
-     * \param fields the fields
+     * \return the new field
      */
-    void addField(std::unique_ptr<Field>&& field);
+    Field* createField();
 
     /**
      * Remove an exising field and renounce ownership.

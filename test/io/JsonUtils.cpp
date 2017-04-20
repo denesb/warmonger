@@ -1,6 +1,4 @@
-/** \file
- * Map-generation related functions.
- *
+/**
  * \copyright (C) 2015-2017 Botond Dénes
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,19 +16,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef W_UTILS_MAP_GENERATOR_H
-#define W_UTILS_MAP_GENERATOR_H
+#include "io/JsonUtils.h"
 
-#include <vector>
+#include "test/catch.hpp"
 
-#include "core/MapNode.h"
+using namespace warmonger;
 
-namespace warmonger {
-namespace core {
-
-std::vector<MapNode*> generateMapNodes(unsigned int radius);
-
-} // namespace core
-} // namespace warmonger
-
-#endif // W_UTILS_MAP_GENERATOR_H
+TEST_CASE("unserializeId()", "[JsonUtils][JSON][Unserialize]")
+{
+    REQUIRE(io::unserializeId(QJsonValue(2)) == 2);
+}

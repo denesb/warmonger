@@ -21,8 +21,8 @@
 namespace warmonger {
 namespace core {
 
-WorldComponentType::WorldComponentType(QObject* parent)
-    : ComponentType(parent)
+WorldComponentType::WorldComponentType(QObject* parent, long id)
+    : ComponentType(parent, id)
 {
 }
 
@@ -35,12 +35,15 @@ void WorldComponentType::setName(const QString& name)
     }
 }
 
-void WorldComponentType::addField(std::unique_ptr<Field>&& field)
+Field* WorldComponentType::createField()
 {
-    field->setParent(this);
-    this->fields.push_back(field.release());
+    auto field = new Field(this);
+
+    this->fields.push_back(field);
 
     emit fieldsChanged();
+
+    return field;
 }
 
 std::unique_ptr<Field> WorldComponentType::removeField(Field* field)

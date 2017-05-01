@@ -57,7 +57,7 @@ public:
      *
      * \see WObject::WObject
      */
-    Entity(QObject* parent, long id = WObject::invalidId);
+    Entity(QObject* parent, int id = WObject::invalidId);
 
     /**
      * Get the type

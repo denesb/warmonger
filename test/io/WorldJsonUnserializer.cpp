@@ -33,19 +33,98 @@
 
 using namespace warmonger;
 
-/*
-TEST_CASE("World can be serialized to JSON", "[WorldJsonUnerializer]")
+TEST_CASE("Banner can be unserialized from JSON", "[WorldJsonUnserializer][JSON][Unserialize][HappyPath]")
 {
+    std::unique_ptr<core::World> world;
+    QJsonObject jworld;
+    std::tie(world, jworld) = makeWorld();
+
+    const QJsonObject jobj = jworld["banners"].toArray()[0].toObject();
+
+    const QJsonDocument jdoc{jobj};
+    const io::WorldJsonUnserializer unserializer;
+    const QByteArray rawJson{jdoc.toJson()};
+
+    INFO("The json banner is: " << rawJson.data());
+
+    SECTION("unserializing Banner doesn't throw")
+    {
+        REQUIRE_NOTHROW(unserializer.unserializeBanner(rawJson, world.get()));
+        REQUIRE(unserializer.unserializeBanner(rawJson, world.get()));
+    }
+
+    SECTION("unserializing Banner")
+    {
+        auto banner = unserializer.unserializeBanner(rawJson, world.get());
+
+        REQUIRE(banner->getId() == jobj["id"].toInt());
+        REQUIRE(banner->getDisplayName() == jobj["displayName"].toString());
+        if (jobj.contains("civilizations"))
+        {
+            REQUIRE_REFERENCES(jobj["civilizations"].toArray(), banner->getCivilizations());
+        }
+        else
+        {
+            REQUIRE(banner->getCivilizations().empty());
+        }
+    }
 }
-*/
+
+TEST_CASE("Banner can't be unserialized from JSON", "[JsonUnserializer]")
+{
+    std::unique_ptr<core::World> world;
+    QJsonObject jworld;
+    std::tie(world, jworld) = makeWorld();
+
+    const io::WorldJsonUnserializer unserializer;
+    QJsonObject jobj = jworld["banners"].toArray()[0].toObject();
+
+    SECTION("invalid JSON")
+    {
+        QString invalidJson{"{\"displayName\": \"name1\",}"};
+        REQUIRE_THROWS_AS(unserializer.unserializeBanner(invalidJson.toLocal8Bit(), world.get()), utils::ValueError);
+    }
+
+    SECTION("unserializing Banner, missing id")
+    {
+        jobj.remove("id");
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world.get()), utils::ValueError);
+    }
+
+    SECTION("unserializing Banner, id not a number")
+    {
+        jobj["id"] = "asd";
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world.get()), utils::ValueError);
+    }
+
+    SECTION("unserializing Banner, missing name")
+    {
+        jobj.remove("displayName");
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world.get()), utils::ValueError);
+    }
+
+    SECTION("unserializing Banner, civilizations is not an array")
+    {
+        jobj["civilizations"] = "asd";
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world.get()), utils::ValueError);
+    }
+}
 
 TEST_CASE("EntityType can be unserialized from JSON", "[WorldJsonUnserializer][JSON][Unserialize][HappyPath]")
 {
-    std::unique_ptr<core::World> w;
-    QJsonObject jw;
-    std::tie(w, jw) = makeWorld();
+    std::unique_ptr<core::World> world;
+    QJsonObject jworld;
+    std::tie(world, jworld) = makeWorld();
 
-    QJsonObject jobj = jw["entityTypes"].toArray()[0].toObject();
+    QJsonObject jobj = jworld["entityTypes"].toArray()[0].toObject();
 
     const QJsonDocument jdoc{jobj};
     const io::WorldJsonUnserializer unserializer;
@@ -55,20 +134,20 @@ TEST_CASE("EntityType can be unserialized from JSON", "[WorldJsonUnserializer][J
 
     SECTION("Unserialization succeeds without exceptions")
     {
-        REQUIRE_NOTHROW(unserializer.unserializeEntityType(rawJson, w.get()));
-        REQUIRE(unserializer.unserializeEntityType(rawJson, w.get()));
+        REQUIRE_NOTHROW(unserializer.unserializeEntityType(rawJson, world.get()));
+        REQUIRE(unserializer.unserializeEntityType(rawJson, world.get()));
     }
 
     SECTION("Unserialization entity-type")
     {
-        const auto entityType{unserializer.unserializeEntityType(rawJson, w.get())};
+        const auto entityType{unserializer.unserializeEntityType(rawJson, world.get())};
 
         REQUIRE(entityType->getName() == jobj["name"].toString());
         REQUIRE_REFERENCES(jobj["componentTypes"].toArray(), entityType->getComponentTypes());
     }
 }
 
-TEST_CASE("EntityType unserialized from JSON - error paths", "[WorldJsonUnserializer][JSON][Unserialize][ErrorPaths]")
+TEST_CASE("EntityType can't be unserialized from JSON", "[WorldJsonUnserializer][JSON][Unserialize][ErrorPaths]")
 {
     auto worlds = makeWorld();
     core::World* world = worlds.first.get();
@@ -81,48 +160,42 @@ TEST_CASE("EntityType unserialized from JSON - error paths", "[WorldJsonUnserial
     {
         QString invalidJson{"{\"name\": \"name1\",}"};
 
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("No name")
     {
         QString invalidJson{QString("{\"componentTypes\": [\"") + validComponentTypeRef + "\"]}"};
 
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Empty name")
     {
         QString invalidJson{QString("{\"name\": \"\", \"componentTypes\": [\"") + validComponentTypeRef + "\"]}"};
 
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Name not string")
     {
         QString invalidJson{QString("{\"name\": 4, \"componentTypes\": [\"") + validComponentTypeRef + "\"]}"};
 
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("No component-types")
     {
         QString invalidJson{"{\"name\": \"name1\"}"};
 
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Component-type list is empty")
     {
         QString invalidJson{"{\"name\": \"name1\", \"componentTypes\": []}"};
 
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Component-types has empty name")
@@ -130,16 +203,14 @@ TEST_CASE("EntityType unserialized from JSON - error paths", "[WorldJsonUnserial
         QString invalidJson{"{\"name\": \"name1\", \"componentTypes\": [\"\""
                             "]}"};
 
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Component-type has non-string name")
     {
         QString invalidJson{"{\"name\": \"name1\", \"componentTypes\": [1]}"};
 
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Component-type does not exist")
@@ -147,8 +218,7 @@ TEST_CASE("EntityType unserialized from JSON - error paths", "[WorldJsonUnserial
         QString invalidJson{"{\"name\": \"name1\", \"componentTypes\": [\"nonExistentcomponentType\""
                             "]}"};
 
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 }
 

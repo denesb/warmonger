@@ -49,7 +49,7 @@ public:
      *
      * \see WObject::WObject
      */
-    Banner(QObject* parent, long id = WObject::invalidId);
+    Banner(QObject* parent, int id = WObject::invalidId);
 
     /**
      * Get the display-name.

@@ -23,8 +23,8 @@
 
 #include <vector>
 
-#include <QString>
 #include <QObject>
+#include <QString>
 
 namespace warmonger {
 

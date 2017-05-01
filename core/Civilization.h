@@ -43,7 +43,7 @@ public:
      *
      * \see WObject::WObject
      */
-    Civilization(QObject* parent, long id = WObject::invalidId);
+    Civilization(QObject* parent, int id = WObject::invalidId);
 
     /**
      * Get the display-name.

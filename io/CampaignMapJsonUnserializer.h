@@ -42,7 +42,8 @@ namespace io {
 class CampaignMapJsonUnserializer : public CampaignMapUnserializer
 {
 public:
-    std::unique_ptr<core::CampaignMap> unserializeCampaignMap(const QByteArray& data, core::World* world) const override;
+    std::unique_ptr<core::CampaignMap> unserializeCampaignMap(
+        const QByteArray& data, core::World* world) const override;
     core::Entity* unserializeEntity(const QByteArray& data, core::CampaignMap* map) const override;
     core::Faction* unserializeFaction(const QByteArray& data, core::CampaignMap* map) const override;
     core::MapNode* unserializeMapNode(const QByteArray& data, core::CampaignMap* map) const override;

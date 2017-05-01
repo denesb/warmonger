@@ -52,7 +52,7 @@ public:
      *
      * \see WObject::WObject
      */
-    MapNode(QObject* parent, long id = WObject::invalidId);
+    MapNode(QObject* parent, int id = WObject::invalidId);
 
     /**
      * Get he neighbours of this map.

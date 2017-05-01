@@ -22,7 +22,7 @@
 namespace warmonger {
 namespace core {
 
-Civilization::Civilization(QObject* parent, long id)
+Civilization::Civilization(QObject* parent, int id)
     : WObject(parent, id)
 {
 }

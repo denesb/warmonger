@@ -183,7 +183,7 @@ public:
      *
      * \returns the new map-node
      */
-    MapNode* createMapNode(long id = WObject::invalidId);
+    MapNode* createMapNode(int id = WObject::invalidId);
 
     /**
      * Remove an exising map-node and renounce ownership.
@@ -214,7 +214,7 @@ public:
      *
      * \returns the newly created entity
      */
-    Entity* createEntity(long id = WObject::invalidId);
+    Entity* createEntity(int id = WObject::invalidId);
 
     /**
      * Remove the entity and renounce ownership.
@@ -242,7 +242,7 @@ public:
      *
      * \returns the newly created faction
      */
-    Faction* createFaction(long id = WObject::invalidId);
+    Faction* createFaction(int id = WObject::invalidId);
 
     /**
      * Remove the faction and renounce ownership.

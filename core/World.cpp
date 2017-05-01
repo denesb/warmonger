@@ -39,9 +39,9 @@ void World::setDisplayName(const QString& displayName)
     }
 }
 
-Banner* World::createBanner()
+Banner* World::createBanner(int id)
 {
-    auto banner = new Banner(this);
+    auto banner = new Banner(this, id);
 
     this->banners.push_back(banner);
 
@@ -94,7 +94,7 @@ QVariantList World::readComponentTypes() const
     return utils::toQVariantList(this->componentTypes);
 }
 
-WorldComponentType* World::createWorldComponentType(long id)
+WorldComponentType* World::createWorldComponentType(int id)
 {
     auto componentType = new WorldComponentType(this, id);
 

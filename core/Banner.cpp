@@ -22,7 +22,7 @@
 namespace warmonger {
 namespace core {
 
-Banner::Banner(QObject* parent, long id)
+Banner::Banner(QObject* parent, int id)
     : WObject(parent, id)
 {
 }

@@ -25,15 +25,17 @@
 namespace warmonger {
 namespace core {
 
-static long generateId(WObject* obj);
+static int generateId(WObject* obj);
 
-const long WObject::invalidId{-1};
+const int WObject::invalidId{-1};
 
-WObject::WObject(QObject* parent, long id)
+WObject::WObject(QObject* parent, int id)
     : QObject(parent)
 {
     if (id == WObject::invalidId)
         this->id = generateId(this);
+    else
+        this->id = id;
 }
 
 QObject* getObjectTreeRoot(WObject* obj)
@@ -52,7 +54,7 @@ QObject* getObjectTreeRoot(WObject* obj)
         return getObjectTreeRoot(wparent);
 }
 
-static long generateId(WObject* obj)
+static int generateId(WObject* obj)
 {
     QObject* root{getObjectTreeRoot(obj)};
 
@@ -68,7 +70,7 @@ static long generateId(WObject* obj)
     if (it != siblings.end())
         siblings.erase(it);
 
-    std::vector<long> ids;
+    std::vector<int> ids;
     std::transform(siblings.cbegin(), siblings.cend(), std::back_inserter(ids), [](const auto& sibling) {
         return sibling->getId();
     });

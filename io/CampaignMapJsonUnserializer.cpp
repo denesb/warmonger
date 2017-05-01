@@ -63,15 +63,13 @@ core::Entity* CampaignMapJsonUnserializer::unserializeEntity(const QByteArray&, 
     return nullptr;
 }
 
-core::Faction* CampaignMapJsonUnserializer::unserializeFaction(
-    const QByteArray& data, core::CampaignMap* map) const
+core::Faction* CampaignMapJsonUnserializer::unserializeFaction(const QByteArray& data, core::CampaignMap* map) const
 {
     QJsonDocument jdoc(parseJson(data));
     return factionFromJson(jdoc.object(), map);
 }
 
-core::MapNode* CampaignMapJsonUnserializer::unserializeMapNode(
-    const QByteArray& data, core::CampaignMap* map) const
+core::MapNode* CampaignMapJsonUnserializer::unserializeMapNode(const QByteArray& data, core::CampaignMap* map) const
 {
     QJsonDocument jdoc(parseJson(data));
 

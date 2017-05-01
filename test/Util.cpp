@@ -41,8 +41,6 @@ void setNames(GameObject obj, QJsonObject& jobj, int i = 0)
     const QString displayName = displayNameTemplate.arg(mo->className()).arg(i);
 
     obj->setObjectName(objectName);
-    jobj["objectName"] = objectName;
-
     obj->setDisplayName(displayName);
     jobj["displayName"] = displayName;
 }
@@ -65,15 +63,14 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
 
     auto componentType0Field1 = componentType0->createField();
     componentType0Field1->setName("listField");
-    componentType0Field1->setType(std::make_unique<core::FieldTypes::List>(std::make_unique<core::FieldTypes::String>()));
+    componentType0Field1->setType(
+        std::make_unique<core::FieldTypes::List>(std::make_unique<core::FieldTypes::String>()));
 
     QJsonObject jcomponentType0;
     jcomponentType0["id"] = 0;
     jcomponentType0["name"] = "componentType0";
-    jcomponentType0["fields"] = QJsonArray{
-        QJsonObject{{"name", "intField"}, {"type", "Integer"}},
-        QJsonObject{{"name", "listField"}, {"type", QJsonObject{{"id", "List"}, {"valueType", "String"}}}}
-    };
+    jcomponentType0["fields"] = QJsonArray{QJsonObject{{"name", "intField"}, {"type", "Integer"}},
+        QJsonObject{{"name", "listField"}, {"type", QJsonObject{{"id", "List"}, {"valueType", "String"}}}}};
 
     auto componentType1 = world->createWorldComponentType(0);
     componentType1->setObjectName(core::createObjectName(componentType1, 1));
@@ -85,9 +82,7 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
     QJsonObject jcomponentType1;
     jcomponentType1["id"] = 1;
     jcomponentType1["name"] = "componentType1";
-    jcomponentType0["fields"] = QJsonArray{
-        QJsonObject{{"name", "realField"}, {"type", "Real"}}
-    };
+    jcomponentType0["fields"] = QJsonArray{QJsonObject{{"name", "realField"}, {"type", "Real"}}};
 
     jworld["componentTypes"] = QJsonArray({jcomponentType0, jcomponentType1});
 
@@ -127,10 +122,13 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
 
     banner0->setCivilizations({civilization0});
     jbanner0["civilizations"] = QJsonArray({io::serializeReference(civilization0)});
+    jbanner0["id"] = banner0->getId();
 
     auto banner1 = world->createBanner();
     QJsonObject jbanner1;
     setNames(banner1, jbanner1, 1);
+
+    jbanner1["id"] = banner1->getId();
 
     jworld["banners"] = QJsonArray({jbanner0, jbanner1});
 
@@ -165,15 +163,13 @@ std::pair<std::unique_ptr<core::CampaignMap>, QJsonObject> makeMap()
     // MapNode neighbours
     mapNode0->setNeighbour(core::Direction::West, mapNode1);
     mapNode1->setNeighbour(core::Direction::East, mapNode0);
-    jmapNode0["neighbours"] = QJsonObject{
-        {"West", io::serializeReference(mapNode1)},
+    jmapNode0["neighbours"] = QJsonObject{{"West", io::serializeReference(mapNode1)},
         {"NorthWest", ""},
         {"NorthEast", ""},
         {"SouthEast", ""},
         {"SouthWest", ""},
         {"East", ""}};
-    jmapNode1["neighbours"] = QJsonObject{
-        {"West", ""},
+    jmapNode1["neighbours"] = QJsonObject{{"West", ""},
         {"NorthWest", ""},
         {"NorthEast", ""},
         {"SouthEast", ""},
@@ -219,9 +215,8 @@ std::pair<std::unique_ptr<core::CampaignMap>, QJsonObject> makeMap()
 
     QJsonObject jentity0;
     jentity0["type"] = io::serializeReference(entityType0);
-    jentity0["components"] = QJsonObject{
-        {io::serializeReference(componentType0), QJsonObject{{"intField", 100}, {"listField", QJsonArray{"str0", "str1"}}}}
-    };
+    jentity0["components"] = QJsonObject{{io::serializeReference(componentType0),
+        QJsonObject{{"intField", 100}, {"listField", QJsonArray{"str0", "str1"}}}}};
 
     jmap["entities"] = QJsonArray({jentity0});
 

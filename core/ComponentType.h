@@ -65,7 +65,7 @@ public:
      *
      * \see WObject::WObject
      */
-    ComponentType(QObject* parent, long id = WObject::invalidId);
+    ComponentType(QObject* parent, int id = WObject::invalidId);
 
     /**
      * Is this component-type built-in?

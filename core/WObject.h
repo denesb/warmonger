@@ -51,7 +51,7 @@ public:
     /**
      * The value of invalid ids.
      */
-    static const long invalidId;
+    static const int invalidId;
 
     /**
      * Create a WObject.
@@ -62,7 +62,7 @@ public:
      * \param parent the parent QObject
      * \param id the id
      */
-    WObject(QObject* parent, long id = WObject::invalidId);
+    WObject(QObject* parent, int id = WObject::invalidId);
 
     /**
      * Get the id.
@@ -71,7 +71,7 @@ public:
      *
      * \return the id
      */
-    long getId() const
+    int getId() const
     {
         return this->id;
     }
@@ -85,7 +85,7 @@ signals:
 private:
     void onParentChanged();
 
-    long id;
+    int id;
 };
 
 /**

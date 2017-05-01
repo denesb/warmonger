@@ -57,7 +57,7 @@ public:
      *
      * \see WObject::WObject
      */
-    Faction(QObject* parent, long id = WObject::invalidId);
+    Faction(QObject* parent, int id = WObject::invalidId);
 
     /**
      * Get the display-name.

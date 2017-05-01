@@ -39,8 +39,7 @@ static std::unique_ptr<core::FieldType> unserializeFieldType(const QJsonValue& j
 static std::unique_ptr<core::FieldType> unserializeSimpleFieldType(const QJsonValue& jval);
 static std::unique_ptr<core::FieldType> unserializeComplexFieldType(const QJsonValue& jval);
 
-core::Banner* WorldJsonUnserializer::unserializeBanner(
-    const QByteArray& data, core::World* world) const
+core::Banner* WorldJsonUnserializer::unserializeBanner(const QByteArray& data, core::World* world) const
 {
     QJsonDocument jdoc(parseJson(data));
     return bannerFromJson(jdoc.object(), world);
@@ -58,8 +57,7 @@ core::ComponentType* WorldJsonUnserializer::unserializeComponentType(const QByte
     return componentTypeFromJson(jdoc.object(), world);
 }
 
-core::EntityType* WorldJsonUnserializer::unserializeEntityType(
-    const QByteArray& data, core::World* world) const
+core::EntityType* WorldJsonUnserializer::unserializeEntityType(const QByteArray& data, core::World* world) const
 {
     QJsonDocument jdoc(parseJson(data));
     return entityTypeFromJson(jdoc.object(), world);
@@ -92,25 +90,39 @@ std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByte
     obj->setColors(colors);
 
     const QJsonArray banners = jobj["banners"].toArray();
-    std::for_each(banners.begin(), banners.end(), [&obj](const auto& val) {
-        bannerFromJson(val.toObject(), obj.get());
-    });
+    std::for_each(
+        banners.begin(), banners.end(), [&obj](const auto& val) { bannerFromJson(val.toObject(), obj.get()); });
 
     return obj;
 }
 
 static core::Banner* bannerFromJson(const QJsonObject& jobj, core::World* world)
 {
-    auto obj = world->createBanner();
+    const int id = jobj["id"].toInt(core::WObject::invalidId);
 
-    obj->setObjectName(jobj["objectName"].toString());
-    obj->setDisplayName(jobj["displayName"].toString());
+    if (id == core::WObject::invalidId)
+        throw utils::ValueError("Failed to unserialize banner, it has no id");
 
-    /*
+    const QString name = jobj["displayName"].toString();
+
+    if (name.isNull() || name.isEmpty())
+        throw utils::ValueError("Failed to unserialize banner, it has missing or empty name");
+
+    std::vector<core::Civilization*> civilizations;
     if (jobj.contains("civilizations"))
-        obj->setCivilizations(fromQJsonArray<std::vector<core::Civilization*>>(
-            jobj["civilizations"].toArray(), ReferenceResolver<core::Civilization>(ctx)));
-            */
+    {
+        if (!jobj["civilizations"].isArray())
+            throw utils::ValueError("Failed to unserialize banner " + name + ", civilizations is not an array");
+
+        auto jcivilizations = jobj["civilizations"].toArray();
+
+        for (auto jcivilization : jcivilizations)
+            civilizations.emplace_back(io::unserializeReferenceAs<core::Civilization>(jcivilization.toString(), world));
+    }
+
+    auto obj = world->createBanner(id);
+    obj->setDisplayName(name);
+    obj->setCivilizations(civilizations);
 
     return obj;
 }

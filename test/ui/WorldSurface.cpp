@@ -96,7 +96,7 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface][!hide]")
     }
 }
 
-TEST_CASE("Missing required images", "[WorldSurface]")
+TEST_CASE("Missing required images", "[WorldSurface][!hide]")
 {
     std::unique_ptr<core::World> world(io::readWorld("./world-packages/world.wwd"));
 

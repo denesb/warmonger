@@ -76,7 +76,7 @@ QVariantList CampaignMap::readEntities() const
     return utils::toQVariantList(this->entities);
 }
 
-MapNode* CampaignMap::createMapNode(long id)
+MapNode* CampaignMap::createMapNode(int id)
 {
     MapNode* mapNode = new MapNode(this, id);
 
@@ -111,7 +111,7 @@ std::unique_ptr<MapNode> CampaignMap::removeMapNode(MapNode* mapNode)
     }
 }
 
-Entity* CampaignMap::createEntity(long id)
+Entity* CampaignMap::createEntity(int id)
 {
     Entity* entity = new Entity(this, id);
 
@@ -146,7 +146,7 @@ std::unique_ptr<Entity> CampaignMap::removeEntity(Entity* entity)
     }
 }
 
-Faction* CampaignMap::createFaction(long id)
+Faction* CampaignMap::createFaction(int id)
 {
     Faction* faction = new Faction(this, id);
 
@@ -190,13 +190,13 @@ void CampaignMap::generateMapNodes(unsigned int radius)
         return;
     }
 
-    std::vector<MapNode*> nodes;
+    std::vector<MapNode*> generatedMapNodes;
 
-    nodes.emplace_back(new MapNode(this));
+    generatedMapNodes.emplace_back(new MapNode(this));
 
     for (unsigned i = 1; i < radius; ++i)
     {
-        addMapNodeRing(nodes, this);
+        addMapNodeRing(generatedMapNodes, this);
     }
 
     for (auto mapNode : this->mapNodes)
@@ -204,7 +204,7 @@ void CampaignMap::generateMapNodes(unsigned int radius)
         delete mapNode;
     }
 
-    this->mapNodes = mapNodes;
+    this->mapNodes = generatedMapNodes;
 
     emit mapNodesChanged();
 }

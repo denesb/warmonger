@@ -30,8 +30,8 @@
 
 #include "core/Banner.h"
 #include "core/Civilization.h"
-#include "core/WorldComponentType.h"
 #include "core/EntityType.h"
+#include "core/WorldComponentType.h"
 
 namespace warmonger {
 namespace core {
@@ -118,10 +118,14 @@ public:
      *
      * The world takes ownership of the created object.
      * Will emit the signal World::bannersChanged().
+     * An id value should only be passed when the factions is being
+     * unserialized and it already has a priorly generated id.
+     *
+     * \param id the id
      *
      * \return the new banner
      */
-    Banner* createBanner();
+    Banner* createBanner(int id = WObject::invalidId);
 
     /**
      * Get the civilizations.
@@ -218,7 +222,7 @@ public:
      *
      * \return the new component-type
      */
-    WorldComponentType* createWorldComponentType(long id = WObject::invalidId);
+    WorldComponentType* createWorldComponentType(int id = WObject::invalidId);
 
     /**
      * Get the entity-types.

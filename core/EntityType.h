@@ -65,7 +65,7 @@ public:
      *
      * \see WObject::WObject
      */
-    EntityType(QObject* parent, long id = WObject::invalidId);
+    EntityType(QObject* parent, int id = WObject::invalidId);
 
     /**
      * Get the name.

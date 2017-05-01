@@ -113,6 +113,8 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
     QJsonObject jcivilization0;
     setNames(civilization0, jcivilization0, 0);
 
+    jcivilization0["id"] = civilization0->getId();
+
     jworld["civilizations"] = QJsonArray({jcivilization0});
 
     // Banner

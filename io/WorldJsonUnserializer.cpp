@@ -129,10 +129,18 @@ static core::Banner* bannerFromJson(const QJsonObject& jobj, core::World* world)
 
 static core::Civilization* civilizationFromJson(const QJsonObject& jobj, core::World* world)
 {
-    auto obj = world->createCivilization();
+    const int id = jobj["id"].toInt(-1);
 
-    obj->setObjectName(jobj["objectName"].toString());
-    obj->setDisplayName(jobj["displayName"].toString());
+    if (id == core::WObject::invalidId)
+        throw utils::ValueError("Failed to unserialize civilization, it has no id");
+
+    const QString name = jobj["displayName"].toString();
+
+    if (name.isNull() || name.isEmpty())
+        throw utils::ValueError("Failed to unserialize banner, it has missing or empty name");
+
+    auto obj = world->createCivilization(id);
+    obj->setDisplayName(name);
 
     return obj;
 }

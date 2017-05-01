@@ -109,12 +109,99 @@ TEST_CASE("Banner can't be unserialized from JSON", "[JsonUnserializer]")
         REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world.get()), utils::ValueError);
     }
 
+    SECTION("unserializing Banner, name not string")
+    {
+        jobj["displayName"] = 123;
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world.get()), utils::ValueError);
+    }
+
     SECTION("unserializing Banner, civilizations is not an array")
     {
         jobj["civilizations"] = "asd";
         QJsonDocument jdoc(jobj);
 
         REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world.get()), utils::ValueError);
+    }
+}
+
+TEST_CASE("Civilization can be unserialized from JSON", "[WorldJsonUnserializer][JSON][Unserialize][HappyPath]")
+{
+    std::unique_ptr<core::World> world;
+    QJsonObject jworld;
+    std::tie(world, jworld) = makeWorld();
+
+    const QJsonObject jobj = jworld["civilizations"].toArray()[0].toObject();
+
+    const QJsonDocument jdoc{jobj};
+    const io::WorldJsonUnserializer unserializer;
+    const QByteArray rawJson{jdoc.toJson()};
+
+    INFO("The json civilization is: " << rawJson.data());
+
+    SECTION("unserializing Civilization doesn't throw")
+    {
+        REQUIRE_NOTHROW(unserializer.unserializeCivilization(rawJson, world.get()));
+        REQUIRE(unserializer.unserializeCivilization(rawJson, world.get()));
+    }
+
+    SECTION("unserializing Civilization")
+    {
+        auto civilization = unserializer.unserializeCivilization(rawJson, world.get());
+
+        REQUIRE(civilization->getId() == jobj["id"].toInt());
+        REQUIRE(civilization->getDisplayName() == jobj["displayName"].toString());
+    }
+}
+
+TEST_CASE("Civilization can't be unserialized from JSON", "[WorldJsonUnserializer][JSON][Unserialize][ErrorPaths]")
+{
+    std::unique_ptr<core::World> world;
+    QJsonObject jworld;
+    std::tie(world, jworld) = makeWorld();
+
+    QJsonObject jobj = jworld["civilizations"].toArray()[0].toObject();
+    const io::WorldJsonUnserializer unserializer;
+
+    SECTION("invalid JSON")
+    {
+        QString invalidJson{"{\"displayName\": \"name1\",}"};
+
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeCivilization(invalidJson.toLocal8Bit(), world.get()), utils::ValueError);
+    }
+
+    SECTION("unserializing Civilization, missing id")
+    {
+        jobj.remove("id");
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(unserializer.unserializeCivilization(jdoc.toJson(), world.get()), utils::ValueError);
+    }
+
+    SECTION("unserializing Civilization, id not a number")
+    {
+        jobj["id"] = "asd";
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(unserializer.unserializeCivilization(jdoc.toJson(), world.get()), utils::ValueError);
+    }
+
+    SECTION("unserializing Civilization, missing name")
+    {
+        jobj.remove("displayName");
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(unserializer.unserializeCivilization(jdoc.toJson(), world.get()), utils::ValueError);
+    }
+
+    SECTION("unserializing Civilization, name not string")
+    {
+        jobj["displayName"] = 123;
+        QJsonDocument jdoc(jobj);
+
+        REQUIRE_THROWS_AS(unserializer.unserializeCivilization(jdoc.toJson(), world.get()), utils::ValueError);
     }
 }
 

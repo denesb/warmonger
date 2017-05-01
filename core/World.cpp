@@ -62,9 +62,9 @@ QVariantList World::readCivilizations() const
     return utils::toQVariantList(this->civilizations);
 }
 
-Civilization* World::createCivilization()
+Civilization* World::createCivilization(int id)
 {
-    auto civilization = new Civilization(this);
+    auto civilization = new Civilization(this, id);
 
     this->civilizations.push_back(civilization);
 

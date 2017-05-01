@@ -153,10 +153,14 @@ public:
      *
      * The world takes ownership of the created object.
      * Will emit the signal World::civilizationsChanged().
+     * An id value should only be passed when the factions is being
+     * unserialized and it already has a priorly generated id.
+     *
+     * \param id the id
      *
      * \returns the new civilization
      */
-    Civilization* createCivilization();
+    Civilization* createCivilization(int id = WObject::invalidId);
 
     /**
      * Get the colors.

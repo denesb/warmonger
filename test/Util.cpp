@@ -50,10 +50,12 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
     auto world{std::make_unique<core::World>("universaly-unique-id-0")};
     QJsonObject jworld;
 
+    jworld["uuid"] = "universaly-unique-id-0";
+
     setNames(world.get(), jworld, 0);
 
     // ComponentType
-    auto componentType0 = world->createWorldComponentType(0);
+    auto componentType0 = world->createWorldComponentType();
     componentType0->setObjectName(core::createObjectName(componentType0, 0));
     componentType0->setName("componentType0");
 
@@ -67,12 +69,12 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
         std::make_unique<core::FieldTypes::List>(std::make_unique<core::FieldTypes::String>()));
 
     QJsonObject jcomponentType0;
-    jcomponentType0["id"] = 0;
+    jcomponentType0["id"] = componentType0->getId();
     jcomponentType0["name"] = "componentType0";
     jcomponentType0["fields"] = QJsonArray{QJsonObject{{"name", "intField"}, {"type", "Integer"}},
         QJsonObject{{"name", "listField"}, {"type", QJsonObject{{"id", "List"}, {"valueType", "String"}}}}};
 
-    auto componentType1 = world->createWorldComponentType(0);
+    auto componentType1 = world->createWorldComponentType();
     componentType1->setObjectName(core::createObjectName(componentType1, 1));
     componentType1->setName("componentType1");
     auto componentType1Field0 = componentType0->createField();
@@ -80,9 +82,18 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
     componentType0Field0->setType(std::make_unique<core::FieldTypes::Real>());
 
     QJsonObject jcomponentType1;
-    jcomponentType1["id"] = 1;
+    jcomponentType1["id"] = componentType1->getId();
     jcomponentType1["name"] = "componentType1";
-    jcomponentType0["fields"] = QJsonArray{QJsonObject{{"name", "realField"}, {"type", "Real"}}};
+    jcomponentType1["fields"] = QJsonArray{QJsonObject{{"name", "intField"}, {"type", "Integer"}},
+        QJsonObject{{"name", "realField"}, {"type", "Real"}},
+        QJsonObject{{"name", "strField"}, {"type", "String"}},
+        QJsonObject{{"name", "refField"}, {"type", "Reference"}},
+        QJsonObject{{"name", "intsListField"}, {"type", QJsonObject{{"id", "List"}, {"valueType", "Integer"}}}},
+        QJsonObject{{"name", "realDictField"}, {"type", QJsonObject{{"id", "Dictionary"}, {"valueType", "Real"}}}},
+        QJsonObject{{"name", "dictOfRefListsField"},
+            {"type",
+                QJsonObject{{"id", "Dictionary"},
+                    {"valueType", QJsonObject{QJsonObject{{"id", "List"}, {"valueType", "Reference"}}}}}}}};
 
     jworld["componentTypes"] = QJsonArray({jcomponentType0, jcomponentType1});
 

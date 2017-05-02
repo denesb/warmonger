@@ -69,20 +69,30 @@ std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByte
     QJsonObject jobj = jdoc.object();
 
     const QString uuid = jobj["uuid"].toString();
+    if (uuid.isNull() || uuid.isEmpty())
+        throw utils::ValueError("Failed to unserialize world, missing or invalid uuid");
+
+    const QString name = jobj["displayName"].toString();
+    if (name.isNull() || name.isEmpty())
+        throw utils::ValueError("Failed to unserialize world, missing or invalid name");
 
     std::unique_ptr<core::World> obj(new core::World(uuid));
-
-    obj->setObjectName(jobj["objectName"].toString());
-
-    obj->setDisplayName(jobj["displayName"].toString());
+    obj->setDisplayName(name);
 
     const QJsonArray civilizations = jobj["civilizations"].toArray();
+    if (civilizations.isEmpty())
+        throw utils::ValueError("Failed to unserialize world, missing, invalid or empty civilizations");
+
     std::for_each(civilizations.begin(), civilizations.end(), [&obj](const auto& val) {
         civilizationFromJson(val.toObject(), obj.get());
     });
 
+    const QJsonArray jcolors = jobj["colors"].toArray();
+    if (jcolors.isEmpty())
+        throw utils::ValueError("Failed to unserialize world, missing, invalid or empty colors");
+
     std::vector<QColor> colors;
-    for (const auto&& color : jobj["colors"].toArray())
+    for (const auto&& color : jcolors)
     {
         colors.emplace_back(color.toString());
     }
@@ -90,8 +100,27 @@ std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByte
     obj->setColors(colors);
 
     const QJsonArray banners = jobj["banners"].toArray();
+    if (banners.isEmpty())
+        throw utils::ValueError("Failed to unserialize world, missing, invalid or empty banners");
+
     std::for_each(
         banners.begin(), banners.end(), [&obj](const auto& val) { bannerFromJson(val.toObject(), obj.get()); });
+
+    const QJsonArray componentTypes = jobj["componentTypes"].toArray();
+    if (componentTypes.isEmpty())
+        throw utils::ValueError("Failed to unserialize world, missing, invalid or empty component-types");
+
+    std::for_each(componentTypes.begin(), componentTypes.end(), [&obj](const auto& val) {
+        componentTypeFromJson(val.toObject(), obj.get());
+    });
+
+    const QJsonArray entityTypes = jobj["entityTypes"].toArray();
+    if (entityTypes.isEmpty())
+        throw utils::ValueError("Failed to unserialize world, missing, invalid or empty entity-types");
+
+    std::for_each(entityTypes.begin(), entityTypes.end(), [&obj](const auto& val) {
+        entityTypeFromJson(val.toObject(), obj.get());
+    });
 
     return obj;
 }
@@ -101,12 +130,12 @@ static core::Banner* bannerFromJson(const QJsonObject& jobj, core::World* world)
     const int id = jobj["id"].toInt(core::WObject::invalidId);
 
     if (id == core::WObject::invalidId)
-        throw utils::ValueError("Failed to unserialize banner, it has no id");
+        throw utils::ValueError("Failed to unserialize banner, it has missing or invalid id");
 
     const QString name = jobj["displayName"].toString();
 
     if (name.isNull() || name.isEmpty())
-        throw utils::ValueError("Failed to unserialize banner, it has missing or empty name");
+        throw utils::ValueError("Failed to unserialize banner, it has missing or invalid name");
 
     std::vector<core::Civilization*> civilizations;
     if (jobj.contains("civilizations"))
@@ -132,7 +161,7 @@ static core::Civilization* civilizationFromJson(const QJsonObject& jobj, core::W
     const int id = jobj["id"].toInt(-1);
 
     if (id == core::WObject::invalidId)
-        throw utils::ValueError("Failed to unserialize civilization, it has no id");
+        throw utils::ValueError("Failed to unserialize civilization, it has missing or invalid id");
 
     const QString name = jobj["displayName"].toString();
 
@@ -147,22 +176,22 @@ static core::Civilization* civilizationFromJson(const QJsonObject& jobj, core::W
 
 static core::ComponentType* componentTypeFromJson(const QJsonObject& jobj, core::World* world)
 {
-    auto componentType = world->createWorldComponentType();
+    const int id = jobj["id"].toInt(core::WObject::invalidId);
+
+    if (id == core::WObject::invalidId)
+        throw utils::ValueError("Failed to unserialize component-type, it has missing or invalid id");
 
     const QString& name{jobj["name"].toString()};
 
     if (name.isNull() || name.isEmpty())
-    {
         throw utils::ValueError("Failed to unserialize component-type, it doesn't have a name property");
-    }
 
     const QJsonArray jfields(jobj["fields"].toArray());
 
     if (jfields.isEmpty())
-    {
         throw utils::ValueError("Failed to unserialize component-type " + name + ", it doesn't have any fields");
-    }
 
+    auto componentType = world->createWorldComponentType(id);
     componentType->setName(name);
 
     for (const auto& jfieldValue : jfields)
@@ -194,7 +223,10 @@ static core::ComponentType* componentTypeFromJson(const QJsonObject& jobj, core:
 
 static core::EntityType* entityTypeFromJson(const QJsonObject& jobj, core::World* world)
 {
-    auto entityType = world->createEntityType();
+    const int id = jobj["id"].toInt(core::WObject::invalidId);
+
+    if (id == core::WObject::invalidId)
+        throw utils::ValueError("Failed to unserialize entity-type, it has missing or invalid id");
 
     const QString& name{jobj["name"].toString()};
 
@@ -203,6 +235,7 @@ static core::EntityType* entityTypeFromJson(const QJsonObject& jobj, core::World
         throw utils::ValueError("Failed to unserialize entity-type, it doesn't have a name property");
     }
 
+    auto entityType = world->createEntityType(id);
     entityType->setName(name);
 
     const QJsonArray jcomponentTypeRefs(jobj["componentTypes"].toArray());

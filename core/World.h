@@ -243,10 +243,14 @@ public:
      *
      * The world takes ownership of the created object.
      * Will emit the signal World::entityTypesChanged().
+     * An id value should only be passed when the factions is being
+     * unserialized and it already has a priorly generated id.
+     *
+     * \param id the id
      *
      * \return the new entity-type
      */
-    EntityType* createEntityType();
+    EntityType* createEntityType(int id = WObject::invalidId);
 
     /**
      * Get the entity-types as a QVariantList.

@@ -107,9 +107,9 @@ WorldComponentType* World::createWorldComponentType(int id)
     return componentType;
 }
 
-EntityType* World::createEntityType()
+EntityType* World::createEntityType(int id)
 {
-    auto entityType = new EntityType(this);
+    auto entityType = new EntityType(this, id);
 
     this->entityTypes.push_back(entityType);
 

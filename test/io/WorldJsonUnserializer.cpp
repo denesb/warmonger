@@ -41,8 +41,8 @@ TEST_CASE("Banner can be unserialized from JSON", "[WorldJsonUnserializer][JSON]
 
     const QJsonObject jobj = jworld["banners"].toArray()[0].toObject();
 
-    const QJsonDocument jdoc{jobj};
     const io::WorldJsonUnserializer unserializer;
+    const QJsonDocument jdoc{jobj};
     const QByteArray rawJson{jdoc.toJson()};
 
     INFO("The json banner is: " << rawJson.data());
@@ -72,57 +72,65 @@ TEST_CASE("Banner can be unserialized from JSON", "[WorldJsonUnserializer][JSON]
 
 TEST_CASE("Banner can't be unserialized from JSON", "[JsonUnserializer]")
 {
-    std::unique_ptr<core::World> world;
+    std::unique_ptr<core::World> worldPtr;
     QJsonObject jworld;
-    std::tie(world, jworld) = makeWorld();
+    std::tie(worldPtr, jworld) = makeWorld();
+    auto world = worldPtr.get();
 
     const io::WorldJsonUnserializer unserializer;
     QJsonObject jobj = jworld["banners"].toArray()[0].toObject();
 
-    SECTION("invalid JSON")
+    SECTION("Invalid JSON")
     {
         QString invalidJson{"{\"displayName\": \"name1\",}"};
-        REQUIRE_THROWS_AS(unserializer.unserializeBanner(invalidJson.toLocal8Bit(), world.get()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeBanner(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
-    SECTION("unserializing Banner, missing id")
+    SECTION("Missing id")
     {
         jobj.remove("id");
         QJsonDocument jdoc(jobj);
 
-        REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world.get()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world), utils::ValueError);
     }
 
-    SECTION("unserializing Banner, id not a number")
+    SECTION("Id not a number")
     {
         jobj["id"] = "asd";
         QJsonDocument jdoc(jobj);
 
-        REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world.get()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world), utils::ValueError);
     }
 
-    SECTION("unserializing Banner, missing name")
+    SECTION("Missing name")
     {
         jobj.remove("displayName");
         QJsonDocument jdoc(jobj);
 
-        REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world.get()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world), utils::ValueError);
     }
 
-    SECTION("unserializing Banner, name not string")
+    SECTION("Empty name")
+    {
+        jobj["displayName"] = "";
+
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+    }
+
+    SECTION("Name not string")
     {
         jobj["displayName"] = 123;
         QJsonDocument jdoc(jobj);
 
-        REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world.get()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world), utils::ValueError);
     }
 
-    SECTION("unserializing Banner, civilizations is not an array")
+    SECTION("Civilizations is not an array")
     {
         jobj["civilizations"] = "asd";
         QJsonDocument jdoc(jobj);
 
-        REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world.get()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world), utils::ValueError);
     }
 }
 
@@ -157,51 +165,58 @@ TEST_CASE("Civilization can be unserialized from JSON", "[WorldJsonUnserializer]
 
 TEST_CASE("Civilization can't be unserialized from JSON", "[WorldJsonUnserializer][JSON][Unserialize][ErrorPaths]")
 {
-    std::unique_ptr<core::World> world;
+    std::unique_ptr<core::World> worldPtr;
     QJsonObject jworld;
-    std::tie(world, jworld) = makeWorld();
+    std::tie(worldPtr, jworld) = makeWorld();
+    auto world = worldPtr.get();
 
     QJsonObject jobj = jworld["civilizations"].toArray()[0].toObject();
     const io::WorldJsonUnserializer unserializer;
 
-    SECTION("invalid JSON")
+    SECTION("Invalid JSON")
     {
         QString invalidJson{"{\"displayName\": \"name1\",}"};
 
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeCivilization(invalidJson.toLocal8Bit(), world.get()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeCivilization(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
-    SECTION("unserializing Civilization, missing id")
+    SECTION("Missing id")
     {
         jobj.remove("id");
         QJsonDocument jdoc(jobj);
 
-        REQUIRE_THROWS_AS(unserializer.unserializeCivilization(jdoc.toJson(), world.get()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeCivilization(jdoc.toJson(), world), utils::ValueError);
     }
 
-    SECTION("unserializing Civilization, id not a number")
+    SECTION("Id not a number")
     {
         jobj["id"] = "asd";
         QJsonDocument jdoc(jobj);
 
-        REQUIRE_THROWS_AS(unserializer.unserializeCivilization(jdoc.toJson(), world.get()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeCivilization(jdoc.toJson(), world), utils::ValueError);
     }
 
-    SECTION("unserializing Civilization, missing name")
+    SECTION("Empty name")
+    {
+        jobj["displayName"] = "";
+
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+    }
+
+    SECTION("Missing name")
     {
         jobj.remove("displayName");
         QJsonDocument jdoc(jobj);
 
-        REQUIRE_THROWS_AS(unserializer.unserializeCivilization(jdoc.toJson(), world.get()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeCivilization(jdoc.toJson(), world), utils::ValueError);
     }
 
-    SECTION("unserializing Civilization, name not string")
+    SECTION("Name not string")
     {
         jobj["displayName"] = 123;
         QJsonDocument jdoc(jobj);
 
-        REQUIRE_THROWS_AS(unserializer.unserializeCivilization(jdoc.toJson(), world.get()), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeCivilization(jdoc.toJson(), world), utils::ValueError);
     }
 }
 
@@ -229,6 +244,7 @@ TEST_CASE("EntityType can be unserialized from JSON", "[WorldJsonUnserializer][J
     {
         const auto entityType{unserializer.unserializeEntityType(rawJson, world.get())};
 
+        REQUIRE(entityType->getId() == jobj["id"].toInt());
         REQUIRE(entityType->getName() == jobj["name"].toString());
         REQUIRE_REFERENCES(jobj["componentTypes"].toArray(), entityType->getComponentTypes());
     }
@@ -236,12 +252,13 @@ TEST_CASE("EntityType can be unserialized from JSON", "[WorldJsonUnserializer][J
 
 TEST_CASE("EntityType can't be unserialized from JSON", "[WorldJsonUnserializer][JSON][Unserialize][ErrorPaths]")
 {
-    auto worlds = makeWorld();
-    core::World* world = worlds.first.get();
-
-    const QString validComponentTypeRef{io::serializeReference(world->getComponentTypes()[0])};
+    std::unique_ptr<core::World> worldPtr;
+    QJsonObject jworld;
+    std::tie(worldPtr, jworld) = makeWorld();
+    auto world = worldPtr.get();
 
     const io::WorldJsonUnserializer unserializer;
+    QJsonObject jobj = jworld["entityTypes"].toArray()[0].toObject();
 
     SECTION("Invalid Json")
     {
@@ -250,62 +267,67 @@ TEST_CASE("EntityType can't be unserialized from JSON", "[WorldJsonUnserializer]
         REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
-    SECTION("No name")
+    SECTION("Missing id")
     {
-        QString invalidJson{QString("{\"componentTypes\": [\"") + validComponentTypeRef + "\"]}"};
+        jobj.remove("id");
 
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+    }
+
+    SECTION("Id not int")
+    {
+        jobj["id"] = "asd";
+
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+    }
+
+    SECTION("Missing name")
+    {
+        jobj.remove("name");
+
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Empty name")
     {
-        QString invalidJson{QString("{\"name\": \"\", \"componentTypes\": [\"") + validComponentTypeRef + "\"]}"};
+        jobj["name"] = "";
 
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Name not string")
     {
-        QString invalidJson{QString("{\"name\": 4, \"componentTypes\": [\"") + validComponentTypeRef + "\"]}"};
+        jobj["name"] = 123;
 
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
-    SECTION("No component-types")
+    SECTION("Missing component-types")
     {
-        QString invalidJson{"{\"name\": \"name1\"}"};
+        jobj.remove("componentTypes");
 
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Component-type list is empty")
     {
-        QString invalidJson{"{\"name\": \"name1\", \"componentTypes\": []}"};
+        jobj["name"] = QJsonArray();
 
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Component-types has empty name")
     {
-        QString invalidJson{"{\"name\": \"name1\", \"componentTypes\": [\"\""
-                            "]}"};
+        jobj["componentTypes"] = QJsonArray{QString{""}};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Component-type has non-string name")
     {
-        QString invalidJson{"{\"name\": \"name1\", \"componentTypes\": [1]}"};
+        jobj["componentTypes"] = QJsonArray{123};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
-    }
-
-    SECTION("Component-type does not exist")
-    {
-        QString invalidJson{"{\"name\": \"name1\", \"componentTypes\": [\"nonExistentcomponentType\""
-                            "]}"};
-
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 }
 
@@ -313,22 +335,13 @@ TEST_CASE("ComponentType unserialized from JSON - happy path", "[WorldJsonUnseri
 {
     auto worlds = makeWorld();
     core::World* world = worlds.first.get();
-
-    QString jsonStr{"{"
-                    "\"name\": \"componentType1\","
-                    "\"fields\": ["
-                    "   {\"name\": \"intField\", \"type\": \"Integer\"},"
-                    "   {\"name\": \"realField\", \"type\": \"Real\"},"
-                    "   {\"name\": \"strField\", \"type\": \"String\"},"
-                    "   {\"name\": \"refField\", \"type\": \"Reference\"},"
-                    "   {\"name\": \"intsListField\", \"type\": {\"id\": \"List\", \"valueType\": \"Integer\"}},"
-                    "   {\"name\": \"realDictField\", \"type\": {\"id\": \"Dictionary\", \"valueType\": \"Real\"}},"
-                    "   {\"name\": \"dictOfRefListsField\", \"type\": {\"id\": \"Dictionary\", \"valueType\": {"
-                    "       \"id\": \"List\", \"valueType\": \"Reference\"}}}"
-                    "]}"};
+    QJsonObject jworld = worlds.second;
 
     const io::WorldJsonUnserializer unserializer;
-    const QByteArray rawJson{jsonStr.toLocal8Bit()};
+
+    const QJsonObject jobj = jworld["componentTypes"].toArray()[1].toObject();
+    const QJsonDocument jdoc{jobj};
+    const QByteArray rawJson{jdoc.toJson()};
 
     INFO("The json component-type is: " << rawJson.data());
 
@@ -346,6 +359,7 @@ TEST_CASE("ComponentType unserialized from JSON - happy path", "[WorldJsonUnseri
         const QJsonObject jobj{jdoc.object()};
         const QJsonArray jfields(jobj["fields"].toArray());
 
+        REQUIRE(componentType->getId() == jobj["id"].toInt());
         REQUIRE(componentType->getName() == jobj["name"].toString());
         REQUIRE(componentType->getFields().size() == jfields.size());
 
@@ -385,13 +399,15 @@ TEST_CASE("ComponentType unserialized from JSON - happy path", "[WorldJsonUnseri
     }
 }
 
-TEST_CASE(
-    "ComponentType unserialized from JSON - error paths", "[WorldJsonUnserializer][JSON][Unserialize][ErrorPaths]")
+TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializer][JSON][Unserialize][ErrorPaths]")
 {
-    auto worlds = makeWorld();
-    core::World* world = worlds.first.get();
+    std::unique_ptr<core::World> worldPtr;
+    QJsonObject jworld;
+    std::tie(worldPtr, jworld) = makeWorld();
+    auto world = worldPtr.get();
 
-    io::WorldJsonUnserializer unserializer;
+    const io::WorldJsonUnserializer unserializer;
+    QJsonObject jobj = jworld["componentTypes"].toArray()[0].toObject();
 
     SECTION("Invalid Json")
     {
@@ -400,119 +416,316 @@ TEST_CASE(
         REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
-    SECTION("No name")
+    SECTION("Missing id")
     {
-        QString invalidJson{"{\"fields\": [{\"name\": \"f0\", \"type\": \"String\"}]}"};
+        jobj.remove("id");
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+    }
+
+    SECTION("Id not int")
+    {
+        jobj["id"] = "asd";
+
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+    }
+
+    SECTION("Missing name")
+    {
+        jobj.remove("name");
+
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Empty name")
     {
-        QString invalidJson{"{\"name\": \"\", \"fields\": [{\"name\": \"f0\", \"type\": \"String\"}]}"};
+        jobj["name"] = "";
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Name not string")
     {
-        QString invalidJson{"{\"name\": 3, \"fields\": [{\"name\": \"f0\", \"type\": \"String\"}]}"};
+        jobj["name"] = 123;
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("No fields")
     {
-        QString invalidJson{"{\"name\": \"name1\"}"};
+        jobj.remove("fields");
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Fields list is empty")
     {
-        QString invalidJson{"{\"name\": \"ct0\", \"fields\": []}"};
+        jobj["fields"] = QJsonArray();
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Field has empty name")
     {
-        QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"\", \"type\": \"String\"}]}"};
+        jobj["fields"] = QJsonArray{
+            QJsonObject{{"name", ""}, {"type", "Integer"}},
+        };
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Field has non-string name")
     {
-        QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": 7.0, \"type\": \"String\"}]}"};
+        jobj["fields"] = QJsonArray{
+            QJsonObject{{"name", 123}, {"type", "Integer"}},
+        };
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Field has no type")
     {
-        QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\"}]}"};
+        jobj["fields"] = QJsonArray{
+            QJsonObject{{"name", "intField"}},
+        };
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
-    SECTION("Field has invalid type")
+    SECTION("Field has non-string type")
     {
-        QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": []}]}"};
+        jobj["fields"] = QJsonArray{
+            QJsonObject{{"name", "intField"}, {"type", 123}},
+        };
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Field has empty string type")
     {
-        QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": \"\"}]}"};
+        jobj["fields"] = QJsonArray{
+            QJsonObject{{"name", "intField"}, {"type", ""}},
+        };
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Field has unknown type")
     {
-        QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": \"Unknown\"}]}"};
+        jobj["fields"] = QJsonArray{
+            QJsonObject{{"name", "intField"}, {"type", "Unknown"}},
+        };
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Field has invalid type")
     {
-        QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": \"List\"}]}"};
+        jobj["fields"] = QJsonArray{
+            QJsonObject{{"name", "intField"}, {"type", "List"}},
+        };
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Complex field type has no id")
     {
-        QString invalidJson{
-            "{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": {\"valueType\": \"Integer\"}}]}"};
+        jobj["fields"] = QJsonArray{
+            QJsonObject{{"name", "intsListField"}, {"type", QJsonObject{{"valueType", "Integer"}}}},
+        };
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Complex field type has empty id")
     {
-        QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": {\"id\": \"\", "
-                            "\"valueType\": \"Integer\"}}]}"};
+        jobj["fields"] = QJsonArray{
+            QJsonObject{{"name", "intsListField"}, {"type", QJsonObject{{"id", ""}, {"valueType", "Integer"}}}},
+        };
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Complex field type has unknown id")
     {
-        QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": {\"id\": \"Unknown\", "
-                            "\"valueType\": \"Integer\"}}]}"};
+        jobj["fields"] = QJsonArray{
+            QJsonObject{{"name", "intsListField"}, {"type", QJsonObject{{"id", "Unknown"}, {"valueType", "Integer"}}}},
+        };
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
-    SECTION("Complex field type has invalid id")
+    SECTION("Complex field type has non-complex id")
     {
-        QString invalidJson{"{\"name\": \"ct0\", \"fields\": [{\"name\": \"f0\", \"type\": {\"id\": \"String\", "
-                            "\"valueType\": \"Integer\"}}]}"};
+        jobj["fields"] = QJsonArray{
+            QJsonObject{{"name", "intsListField"}, {"type", QJsonObject{{"id", "String"}, {"valueType", "Integer"}}}},
+        };
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+    }
+}
+
+TEST_CASE("World can be unserialized from JSON", "[WorldJsonUnserializer][JSON][Unserialize][HappyPath]")
+{
+    const auto worlds = makeWorld();
+    const QJsonObject jobj{worlds.second};
+
+    const QJsonDocument jdoc{jobj};
+    const QByteArray rawJson{jdoc.toJson()};
+
+    INFO("The json world is: " << rawJson.data());
+
+    const io::WorldJsonUnserializer unserializer;
+
+    SECTION("Unserialization succeeds without exceptions")
+    {
+        REQUIRE_NOTHROW(unserializer.unserializeWorld(rawJson));
+        REQUIRE(unserializer.unserializeWorld(rawJson));
+    }
+
+    SECTION("Unserializing World")
+    {
+        const std::unique_ptr<core::World> world(unserializer.unserializeWorld(rawJson));
+
+        REQUIRE(world->getUuid() == jobj["uuid"].toString());
+        REQUIRE(world->getDisplayName() == jobj["displayName"].toString());
+        REQUIRE(world->getBanners().size() == jobj["banners"].toArray().size());
+        REQUIRE(world->getCivilizations().size() == jobj["civilizations"].toArray().size());
+        REQUIRE(world->getColors().size() == jobj["colors"].toArray().size());
+        REQUIRE(world->getComponentTypes().size() == jobj["componentTypes"].toArray().size());
+        REQUIRE(world->getEntityTypes().size() == jobj["entityTypes"].toArray().size());
+
+        const std::vector<QColor>& colors = world->getColors();
+        QJsonArray jcolors = jobj["colors"].toArray();
+        for (std::size_t i = 0; i < colors.size(); ++i)
+        {
+            REQUIRE(colors[i].name() == jcolors[i].toString());
+        }
+    }
+}
+
+TEST_CASE("World can't be unserialized from JSON", "[WorldJsonUnserializer][JSON][Unserialize][ErrorPaths]")
+{
+    const auto worlds = makeWorld();
+    QJsonObject jobj{worlds.second};
+
+    const io::WorldJsonUnserializer unserializer;
+
+    SECTION("Invalid JSON")
+    {
+        QString invalidJson{"{\"displayName\": \"name1\",}"};
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(invalidJson.toLocal8Bit()), utils::ValueError);
+    }
+
+    SECTION("Missing uuid")
+    {
+        jobj.remove("uuid");
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("Uuid not string")
+    {
+        jobj["uuid"] = 123;
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("Missing name")
+    {
+        jobj.remove("displayName");
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("Name not string")
+    {
+        jobj["displayName"] = 123;
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("Missing civilizations")
+    {
+        jobj.remove("civilizations");
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("Civilizations not an array")
+    {
+        jobj["civilizations"] = 123;
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("Missing banners")
+    {
+        jobj.remove("banners");
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("Banners not an array")
+    {
+        jobj["banners"] = 123;
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("Missing colors")
+    {
+        jobj.remove("colors");
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("Colors not an array")
+    {
+        jobj["colors"] = 123;
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("Missing entityTypes")
+    {
+        jobj.remove("entityTypes");
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("EntityTypes not an array")
+    {
+        jobj["entityTypes"] = 123;
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("Missing componentTypes")
+    {
+        jobj.remove("componentTypes");
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("ComponentTypes not an array")
+    {
+        jobj["componentTypes"] = 123;
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
     }
 }

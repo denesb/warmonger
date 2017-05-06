@@ -30,6 +30,8 @@
 
 using namespace warmonger;
 
+static void createEveryFieldType(core::WorldComponentType* componentType, QJsonObject& jcomponentType);
+
 template <class GameObject>
 void setNames(GameObject obj, QJsonObject& jobj, int i = 0)
 {
@@ -40,7 +42,6 @@ void setNames(GameObject obj, QJsonObject& jobj, int i = 0)
     const QString objectName{core::createObjectName(obj, i)};
     const QString displayName = displayNameTemplate.arg(mo->className()).arg(i);
 
-    obj->setObjectName(objectName);
     obj->setDisplayName(displayName);
     jobj["displayName"] = displayName;
 }
@@ -56,7 +57,6 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
 
     // ComponentType
     auto componentType0 = world->createWorldComponentType();
-    componentType0->setObjectName(core::createObjectName(componentType0, 0));
     componentType0->setName("componentType0");
 
     auto componentType0Field0 = componentType0->createField();
@@ -75,25 +75,13 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
         QJsonObject{{"name", "listField"}, {"type", QJsonObject{{"id", "List"}, {"valueType", "String"}}}}};
 
     auto componentType1 = world->createWorldComponentType();
-    componentType1->setObjectName(core::createObjectName(componentType1, 1));
     componentType1->setName("componentType1");
-    auto componentType1Field0 = componentType0->createField();
-    componentType0Field0->setName("realField");
-    componentType0Field0->setType(std::make_unique<core::FieldTypes::Real>());
 
     QJsonObject jcomponentType1;
     jcomponentType1["id"] = componentType1->getId();
     jcomponentType1["name"] = "componentType1";
-    jcomponentType1["fields"] = QJsonArray{QJsonObject{{"name", "intField"}, {"type", "Integer"}},
-        QJsonObject{{"name", "realField"}, {"type", "Real"}},
-        QJsonObject{{"name", "strField"}, {"type", "String"}},
-        QJsonObject{{"name", "refField"}, {"type", "Reference"}},
-        QJsonObject{{"name", "intsListField"}, {"type", QJsonObject{{"id", "List"}, {"valueType", "Integer"}}}},
-        QJsonObject{{"name", "realDictField"}, {"type", QJsonObject{{"id", "Dictionary"}, {"valueType", "Real"}}}},
-        QJsonObject{{"name", "dictOfRefListsField"},
-            {"type",
-                QJsonObject{{"id", "Dictionary"},
-                    {"valueType", QJsonObject{QJsonObject{{"id", "List"}, {"valueType", "Reference"}}}}}}}};
+
+    createEveryFieldType(componentType1, jcomponentType1);
 
     jworld["componentTypes"] = QJsonArray({jcomponentType0, jcomponentType1});
 
@@ -103,17 +91,16 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
     entityType0->addComponentType(componentType0);
 
     QJsonObject jentityType0;
-    jentityType0["id"] = 2;
+    jentityType0["id"] = entityType0->getId();
     jentityType0["name"] = "entityType0";
     jentityType0["componentTypes"] = QJsonArray{io::serializeReference(componentType0)};
 
     auto entityType1 = world->createEntityType();
-    entityType1->setObjectName(core::createObjectName(entityType1, 1));
     entityType1->setName("entityType1");
     entityType1->addComponentType(componentType1);
 
     QJsonObject jentityType1;
-    jentityType1["id"] = 1;
+    jentityType1["id"] = entityType1->getId();
     jentityType1["name"] = "entityType1";
     jentityType1["componentTypes"] = QJsonArray{io::serializeReference(componentType1)};
 
@@ -134,14 +121,15 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
     setNames(banner0, jbanner0, 0);
 
     banner0->setCivilizations({civilization0});
-    jbanner0["civilizations"] = QJsonArray({io::serializeReference(civilization0)});
     jbanner0["id"] = banner0->getId();
+    jbanner0["civilizations"] = QJsonArray({io::serializeReference(civilization0)});
 
     auto banner1 = world->createBanner();
     QJsonObject jbanner1;
     setNames(banner1, jbanner1, 1);
 
     jbanner1["id"] = banner1->getId();
+    jbanner1["civilizations"] = QJsonArray();
 
     jworld["banners"] = QJsonArray({jbanner0, jbanner1});
 
@@ -234,4 +222,50 @@ std::pair<std::unique_ptr<core::CampaignMap>, QJsonObject> makeMap()
     jmap["entities"] = QJsonArray({jentity0});
 
     return std::make_pair(std::move(map), jmap);
+}
+
+static void createEveryFieldType(core::WorldComponentType* componentType, QJsonObject& jcomponentType)
+{
+    using namespace core::FieldTypes;
+
+    auto intField = componentType->createField();
+    intField->setName("intField");
+    intField->setType(std::make_unique<Integer>());
+
+    auto realField = componentType->createField();
+    realField->setName("realField");
+    realField->setType(std::make_unique<Real>());
+
+    auto strField = componentType->createField();
+    strField->setName("strField");
+    strField->setType(std::make_unique<String>());
+
+    auto refField = componentType->createField();
+    refField->setName("refField");
+    refField->setType(std::make_unique<Reference>());
+
+    auto intsListField = componentType->createField();
+    intsListField->setName("intsListField");
+    intsListField->setType(std::make_unique<List>(std::make_unique<Integer>()));
+
+    auto realDictField = componentType->createField();
+    realDictField->setName("realDictField");
+    realDictField->setType(std::make_unique<Dictionary>(std::make_unique<Real>()));
+
+    auto dictOfRefListsField = componentType->createField();
+    dictOfRefListsField->setName("dictOfRefListsField");
+    dictOfRefListsField->setType(std::make_unique<Dictionary>(std::make_unique<List>(std::make_unique<Reference>())));
+
+    jcomponentType["fields"] = QJsonArray{
+        QJsonObject{{"name", "intField"}, {"type", "Integer"}},
+        QJsonObject{{"name", "realField"}, {"type", "Real"}},
+        QJsonObject{{"name", "strField"}, {"type", "String"}},
+        QJsonObject{{"name", "refField"}, {"type", "Reference"}},
+        QJsonObject{{"name", "intsListField"}, {"type", QJsonObject{{"id", "List"}, {"valueType", "Integer"}}}},
+        QJsonObject{{"name", "realDictField"}, {"type", QJsonObject{{"id", "Dictionary"}, {"valueType", "Real"}}}},
+        QJsonObject{{"name", "dictOfRefListsField"},
+            {"type",
+                QJsonObject{{"id", "Dictionary"},
+                    {"valueType", QJsonObject{QJsonObject{{"id", "List"}, {"valueType", "Reference"}}}}}}}};
+
 }

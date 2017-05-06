@@ -148,6 +148,7 @@ set(
     test/io/JsonUtils.cpp
     test/io/Reference.cpp
     test/io/WorldJsonUnserializer.cpp
+    test/io/WorldJsonSerializer.cpp
     test/test_warmonger.cpp
     test/ui/CampaignMapEditor.cpp
     test/ui/MapUtil.cpp

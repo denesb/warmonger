@@ -18,8 +18,11 @@
 
 #include "io/WorldJsonSerializer.h"
 
+#include <QMetaEnum>
+
 #include "core/World.h"
 #include "io/JsonUtils.h"
+#include "io/Reference.h"
 
 namespace warmonger {
 namespace io {
@@ -27,8 +30,9 @@ namespace io {
 static QJsonObject bannerToJson(const core::Banner* const obj);
 static QJsonObject civilizationToJson(const core::Civilization* const obj);
 static QJsonObject componentTypeToJson(const core::ComponentType* const obj);
+static QJsonObject fieldToJson(const core::Field* const obj);
+static QJsonValue fieldTypeToJson(const core::FieldType* const obj);
 static QJsonObject entityTypeToJson(const core::EntityType* const obj);
-static QJsonObject worldToJson(const core::World* const obj);
 
 WorldJsonSerializer::WorldJsonSerializer(QJsonDocument::JsonFormat format)
     : format(format)
@@ -61,41 +65,117 @@ QByteArray WorldJsonSerializer::serializeEntityType(const core::EntityType* cons
 
 QByteArray WorldJsonSerializer::serializeWorld(const core::World* const obj) const
 {
-    QJsonDocument jdoc(worldToJson(obj));
-    return jdoc.toJson(this->format);
+    QJsonObject jobj;
+
+    jobj["uuid"] = obj->getUuid();
+    jobj["displayName"] = obj->getDisplayName();
+    jobj["banners"] = toQJsonArray(obj->getBanners(), bannerToJson);
+    jobj["civilizations"] = toQJsonArray(obj->getCivilizations(), civilizationToJson);
+    jobj["colors"] = toQJsonArray(obj->getColors(), [](const QColor& c) { return c.name(); });
+    jobj["componentTypes"] = toQJsonArray(obj->getComponentTypes(), componentTypeToJson);
+    jobj["entityTypes"] = toQJsonArray(obj->getEntityTypes(), entityTypeToJson);
+
+    return QJsonDocument(jobj).toJson(this->format);
 }
 
 static QJsonObject bannerToJson(const core::Banner* const obj)
 {
-    QJsonObject jobj(namesToJson(obj));
+    QJsonObject jobj;
 
-    jobj["civilizations"] = toQJsonArray(obj->getCivilizations(), qObjectName);
+    jobj["id"] = obj->getId();
+    jobj["displayName"] = obj->getDisplayName();
+    jobj["civilizations"] = toQJsonArray(obj->getCivilizations(), io::serializeReference);
 
     return jobj;
 }
 
 static QJsonObject civilizationToJson(const core::Civilization* const obj)
 {
-    return namesToJson(obj);
+    QJsonObject jobj;
+
+    jobj["id"] = obj->getId();
+    jobj["displayName"] = obj->getDisplayName();
+
+    return jobj;
 }
 
-static QJsonObject componentTypeToJson(const core::ComponentType* const)
+static QJsonObject componentTypeToJson(const core::ComponentType* const obj)
 {
-    return QJsonObject();
+    QJsonObject jobj;
+
+    jobj["id"] = obj->getId();
+    jobj["name"] = obj->getName();
+
+    QJsonArray jfields;
+    auto fields = obj->getFields();
+    std::transform(fields.cbegin(), fields.cend(), std::back_inserter(jfields), fieldToJson);
+
+    jobj["fields"] = jfields;
+
+    return jobj;
 }
 
-static QJsonObject entityTypeToJson(const core::EntityType* const)
+static QJsonObject fieldToJson(const core::Field* const obj)
 {
-    return QJsonObject();
+    QJsonObject jobj;
+
+    jobj["name"] = obj->getName();
+    jobj["type"] = fieldTypeToJson(obj->getType());
+
+    return jobj;
 }
 
-QJsonObject worldToJson(const core::World* obj)
+static QJsonValue fieldTypeToJson(const core::FieldType* const obj)
 {
-    QJsonObject jobj(namesToJson(obj));
+    QJsonValue jval;
 
-    jobj["banners"] = toQJsonArray(obj->getBanners(), bannerToJson);
-    jobj["civilizations"] = toQJsonArray(obj->getCivilizations(), civilizationToJson);
-    jobj["colors"] = toQJsonArray(obj->getColors(), [](const QColor& c) { return c.name(); });
+    const QMetaEnum typeIdMetaEnum{QMetaEnum::fromType<core::Field::TypeId>()};
+    const auto id = obj->id();
+
+    switch(id)
+    {
+        case core::Field::TypeId::Integer:
+        case core::Field::TypeId::Real:
+        case core::Field::TypeId::String:
+        case core::Field::TypeId::Reference:
+        {
+            jval = typeIdMetaEnum.valueToKey(static_cast<int>(id));
+            break;
+        }
+        case core::Field::TypeId::List:
+        {
+            const auto list = static_cast<const core::FieldTypes::List*>(obj);
+            QJsonObject jlistType;
+
+            jlistType["id"] = typeIdMetaEnum.valueToKey(static_cast<int>(id));
+            jlistType["valueType"] = fieldTypeToJson(list->getValueType());
+
+            jval = jlistType;
+            break;
+        }
+        case core::Field::TypeId::Dictionary:
+        {
+            const auto dict = static_cast<const core::FieldTypes::Dictionary*>(obj);
+            QJsonObject jdictType;
+
+            jdictType["id"] = typeIdMetaEnum.valueToKey(static_cast<int>(id));
+            jdictType["valueType"] = fieldTypeToJson(dict->getValueType());
+
+            jval = jdictType;
+            break;
+        }
+    }
+
+    return jval;
+}
+
+static QJsonObject entityTypeToJson(const core::EntityType* const obj)
+{
+    QJsonObject jobj;
+
+    jobj["id"] = obj->getId();
+    jobj["name"] = obj->getName();
+    jobj["componentTypes"] = toQJsonArray(obj->getComponentTypes(), io::serializeReference);
 
     return jobj;
 }

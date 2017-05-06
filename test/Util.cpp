@@ -89,11 +89,13 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
     auto entityType0 = world->createEntityType();
     entityType0->setName("entityType0");
     entityType0->addComponentType(componentType0);
+    entityType0->addComponentType(componentType1);
 
     QJsonObject jentityType0;
     jentityType0["id"] = entityType0->getId();
     jentityType0["name"] = "entityType0";
-    jentityType0["componentTypes"] = QJsonArray{io::serializeReference(componentType0)};
+    jentityType0["componentTypes"] =
+        QJsonArray{io::serializeReference(componentType0), io::serializeReference(componentType1)};
 
     auto entityType1 = world->createEntityType();
     entityType1->setName("entityType1");
@@ -157,9 +159,11 @@ std::pair<std::unique_ptr<core::CampaignMap>, QJsonObject> makeMap()
     // MapNodes
     auto mapNode0 = map->createMapNode();
     QJsonObject jmapNode0;
+    jmapNode0["id"] = mapNode0->getId();
 
     auto mapNode1 = map->createMapNode();
     QJsonObject jmapNode1;
+    jmapNode1["id"] = mapNode1->getId();
 
     // MapNode neighbours
     mapNode0->setNeighbour(core::Direction::West, mapNode1);
@@ -182,6 +186,7 @@ std::pair<std::unique_ptr<core::CampaignMap>, QJsonObject> makeMap()
     // Factions
     auto faction0 = map->createFaction();
     QJsonObject jfaction0;
+    jfaction0["id"] = faction0->getId();
 
     setNames(faction0, jfaction0, 0);
 
@@ -203,21 +208,43 @@ std::pair<std::unique_ptr<core::CampaignMap>, QJsonObject> makeMap()
     faction0->setCivilization(civilization0);
     jfaction0["civilization"] = io::serializeReference(civilization0);
 
-    jmap["factions"] = QJsonArray({jfaction0});
+    jmap["factions"] = QJsonArray{jfaction0};
 
     // Entities
     auto entityType0 = world->getEntityTypes()[0];
     auto componentType0 = entityType0->getComponentTypes()[0];
+    auto componentType1 = entityType0->getComponentTypes()[1];
 
     auto entity0 = map->createEntity();
     entity0->setType(entityType0);
-    (*entity0)[componentType0]->setField("intField", 100);
-    (*entity0)[componentType0]->setField("listField", QVariantList{QString{"str0"}, QString{"str1"}});
+    entity0->getComponent(componentType0)->setField("intField", 100);
+    entity0->getComponent(componentType0)->setField("listField", QVariantList{QString{"str0"}, QString{"str1"}});
+    entity0->getComponent(componentType1)->setField("intField", 200);
+    entity0->getComponent(componentType1)->setField("realField", 20.12);
+    entity0->getComponent(componentType1)->setField("strField", "someStr");
+    entity0->getComponent(componentType1)->setField("refField", io::serializeReference(faction0));
+    entity0->getComponent(componentType1)->setField("intsListField", QVariantList{1, 5, 3});
+    entity0->getComponent(componentType1)->setField("realDictField", QVariantMap{{"key0", 1.2}, {"key1", 3.3243}});
+    entity0->getComponent(componentType1)
+        ->setField("dictOfStrListsField",
+            QVariantMap{
+                {"banners", QVariantList{"banner0", "banner1"}}, {"civilizations", QVariantList{"civilization0"}}});
 
     QJsonObject jentity0;
+    jentity0["id"] = entity0->getId();
     jentity0["type"] = io::serializeReference(entityType0);
     jentity0["components"] = QJsonObject{{io::serializeReference(componentType0),
-        QJsonObject{{"intField", 100}, {"listField", QJsonArray{"str0", "str1"}}}}};
+                                             QJsonObject{{"intField", 100}, {"listField", QJsonArray{"str0", "str1"}}}},
+        {io::serializeReference(componentType1),
+            QJsonObject{{"intField", 200},
+                {"realField", 20.12},
+                {"strField", "someStr"},
+                {"refField", io::serializeReference(faction0)},
+                {"intsListField", QJsonArray{1, 5, 3}},
+                {"realDictField", QJsonObject{{"key0", 1.2}, {"key1", 3.3243}}},
+                {"dictOfStrListsField",
+                    QJsonObject{{"banners", QJsonArray{"banner0", "banner1"}},
+                        {"civilizations", QJsonArray{"civilization0"}}}}}}};
 
     jmap["entities"] = QJsonArray({jentity0});
 
@@ -252,20 +279,18 @@ static void createEveryFieldType(core::WorldComponentType* componentType, QJsonO
     realDictField->setName("realDictField");
     realDictField->setType(std::make_unique<Dictionary>(std::make_unique<Real>()));
 
-    auto dictOfRefListsField = componentType->createField();
-    dictOfRefListsField->setName("dictOfRefListsField");
-    dictOfRefListsField->setType(std::make_unique<Dictionary>(std::make_unique<List>(std::make_unique<Reference>())));
+    auto dictOfStrListsField = componentType->createField();
+    dictOfStrListsField->setName("dictOfStrListsField");
+    dictOfStrListsField->setType(std::make_unique<Dictionary>(std::make_unique<List>(std::make_unique<String>())));
 
-    jcomponentType["fields"] = QJsonArray{
-        QJsonObject{{"name", "intField"}, {"type", "Integer"}},
+    jcomponentType["fields"] = QJsonArray{QJsonObject{{"name", "intField"}, {"type", "Integer"}},
         QJsonObject{{"name", "realField"}, {"type", "Real"}},
         QJsonObject{{"name", "strField"}, {"type", "String"}},
         QJsonObject{{"name", "refField"}, {"type", "Reference"}},
         QJsonObject{{"name", "intsListField"}, {"type", QJsonObject{{"id", "List"}, {"valueType", "Integer"}}}},
         QJsonObject{{"name", "realDictField"}, {"type", QJsonObject{{"id", "Dictionary"}, {"valueType", "Real"}}}},
-        QJsonObject{{"name", "dictOfRefListsField"},
+        QJsonObject{{"name", "dictOfStrListsField"},
             {"type",
                 QJsonObject{{"id", "Dictionary"},
-                    {"valueType", QJsonObject{QJsonObject{{"id", "List"}, {"valueType", "Reference"}}}}}}}};
-
+                    {"valueType", QJsonObject{QJsonObject{{"id", "List"}, {"valueType", "String"}}}}}}}};
 }

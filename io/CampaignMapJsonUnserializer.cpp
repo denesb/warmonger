@@ -32,9 +32,13 @@
 namespace warmonger {
 namespace io {
 
-core::Faction* factionFromJson(const QJsonObject& jobj, core::CampaignMap* map);
-core::MapNode* mapNodeFromJson(const QJsonObject& jobj, core::CampaignMap* map);
-void mapNodesFromJson(const QJsonArray& jarr, core::CampaignMap* map);
+static core::Faction* factionFromJson(const QJsonObject& jobj, core::CampaignMap* map);
+static core::Entity* entityFromJson(const QJsonObject& jobj, core::CampaignMap* map);
+static void componentFromJson(core::Component* component, const QJsonObject& jcomponent, core::CampaignMap* map);
+static QVariant fieldFromJson(const core::FieldType* const fieldType, const QJsonValue& jvalue, core::CampaignMap* map);
+static std::tuple<core::MapNode*, std::map<core::Direction, QString>> mapNodeFromJson(
+    const QJsonObject& jobj, core::CampaignMap* map);
+static void mapNodesFromJson(const QJsonArray& jarr, core::CampaignMap* map);
 
 std::unique_ptr<core::CampaignMap> CampaignMapJsonUnserializer::unserializeCampaignMap(
     const QByteArray& data, core::World* world) const
@@ -44,23 +48,43 @@ std::unique_ptr<core::CampaignMap> CampaignMapJsonUnserializer::unserializeCampa
 
     std::unique_ptr<core::CampaignMap> obj{std::make_unique<core::CampaignMap>()};
 
-    obj->setDisplayName(jobj["displayName"].toString());
+    const QString name{jobj["displayName"].toString()};
+    if (name.isNull() || name.isEmpty())
+        throw utils::ValueError("Failed to unserialize map, it has missing or invalid displayName");
+
+    obj->setDisplayName(name);
 
     obj->setWorld(world);
 
-    mapNodesFromJson(jobj["mapNodes"].toArray(), obj.get());
+    const auto jmapNodes = jobj["mapNodes"].toArray();
+    if (jmapNodes.isEmpty())
+        throw utils::ValueError("Failed to unserialize map, it has missing or invalid mapNodes");
 
-    auto jfactions{jobj["factions"].toArray()};
+    mapNodesFromJson(jmapNodes, obj.get());
+
+    auto jfactions = jobj["factions"].toArray();
+    if (jfactions.isEmpty())
+        throw utils::ValueError("Failed to unserialize map, it has missing or invalid factions");
+
     std::for_each(jfactions.begin(), jfactions.end(), [&obj](const auto& faction) {
         factionFromJson(faction.toObject(), obj.get());
+    });
+
+    auto jentities = jobj["entities"].toArray();
+    if (jentities.isEmpty())
+        throw utils::ValueError("Failed to unserialize map, it has missing or invalid entities");
+
+    std::for_each(jentities.begin(), jentities.end(), [&obj](const auto& entity) {
+        entityFromJson(entity.toObject(), obj.get());
     });
 
     return obj;
 }
 
-core::Entity* CampaignMapJsonUnserializer::unserializeEntity(const QByteArray&, core::CampaignMap*) const
+core::Entity* CampaignMapJsonUnserializer::unserializeEntity(const QByteArray& data, core::CampaignMap* map) const
 {
-    return nullptr;
+    QJsonDocument jdoc(parseJson(data));
+    return entityFromJson(jdoc.object(), map);
 }
 
 core::Faction* CampaignMapJsonUnserializer::unserializeFaction(const QByteArray& data, core::CampaignMap* map) const
@@ -72,18 +96,60 @@ core::Faction* CampaignMapJsonUnserializer::unserializeFaction(const QByteArray&
 core::MapNode* CampaignMapJsonUnserializer::unserializeMapNode(const QByteArray& data, core::CampaignMap* map) const
 {
     QJsonDocument jdoc(parseJson(data));
+    QJsonObject jobj{jdoc.object()};
 
-    return mapNodeFromJson(jdoc.object(), map);
+    const auto mapNodeData = mapNodeFromJson(jobj, map);
+    auto mapNode = std::get<core::MapNode*>(mapNodeData);
+
+    for (auto& neighbour : std::get<1>(mapNodeData))
+    {
+        core::Direction direction{neighbour.first};
+        QString ref{neighbour.second};
+
+        if (!ref.isEmpty())
+        {
+            mapNode->setNeighbour(direction, unserializeReferenceAs<core::MapNode>(ref, map));
+        }
+        else
+        {
+            mapNode->setNeighbour(direction, nullptr);
+        }
+    }
+
+    return mapNode;
 }
 
-core::Faction* factionFromJson(const QJsonObject& jobj, core::CampaignMap* map)
+static core::Faction* factionFromJson(const QJsonObject& jobj, core::CampaignMap* map)
 {
-    const auto id = unserializeIdFrom(jobj);
+    const auto id = jobj["id"].toInt(core::WObject::invalidId);
+
+    if (id == core::WObject::invalidId)
+        throw utils::ValueError("Failed to unserialize faction, it has missing or invalid id");
+
     const auto name = jobj["displayName"].toString();
+
+    if (name.isNull() || name.isEmpty())
+        throw utils::ValueError("Failed to unserialize faction, it has missing or invalid displayName");
+
     const auto primaryColor = QColor(jobj["primaryColor"].toString());
+
+    if (!primaryColor.isValid())
+        throw utils::ValueError("Failed to unserialize faction, it has missing or invalid primaryColor");
+
     const auto secondaryColor = QColor(jobj["secondaryColor"].toString());
+
+    if (!secondaryColor.isValid())
+        throw utils::ValueError("Failed to unserialize faction, it has missing or invalid secondaryColor");
+
     auto banner = unserializeReferenceAs<core::Banner>(jobj["banner"].toString(), map);
+
+    if (banner == nullptr)
+        throw utils::ValueError("Failed to unserialize faction, it has missing or invalid banner");
+
     auto civilization = unserializeReferenceAs<core::Civilization>(jobj["civilization"].toString(), map);
+
+    if (civilization == nullptr)
+        throw utils::ValueError("Failed to unserialize faction, it has missing or invalid civilization");
 
     auto obj = map->createFaction(id);
 
@@ -96,28 +162,175 @@ core::Faction* factionFromJson(const QJsonObject& jobj, core::CampaignMap* map)
     return obj;
 }
 
-core::MapNode* mapNodeFromJson(const QJsonObject& jobj, core::CampaignMap* map)
+static core::Entity* entityFromJson(const QJsonObject& jobj, core::CampaignMap* map)
 {
-    return map->createMapNode(unserializeIdFrom(jobj));
+    const auto id = jobj["id"].toInt(core::WObject::invalidId);
+
+    if (id == core::WObject::invalidId)
+        throw utils::ValueError("Failed to unserialize entity, it has missing or invalid id");
+
+    const auto type = unserializeReferenceAs<core::EntityType>(jobj["type"].toString(), map);
+
+    if (type == nullptr)
+        throw utils::ValueError("Failed to unserialize entity, it has missing or invalid type");
+
+    auto obj = map->createEntity(id);
+
+    obj->setType(type);
+
+    if (!jobj["components"].isObject())
+        throw utils::ValueError("Failed to unserialize entity, it has missing or invalid components");
+
+    const auto jcomponents{jobj["components"].toObject()};
+    for (auto it = jcomponents.begin(); it != jcomponents.end(); ++it)
+    {
+        const auto componentType{io::unserializeReferenceAs<core::ComponentType>(it.key(), map)};
+
+        if (!it.value().isObject())
+            throw utils::ValueError("Failed to unserialize entity, component " + componentType->getName() +
+                " has missing or invalid value");
+
+        componentFromJson(obj->getComponent(componentType), it.value().toObject(), map);
+    }
+
+    return obj;
 }
 
-void mapNodesFromJson(const QJsonArray& jarr, core::CampaignMap* map)
+static void componentFromJson(core::Component* component, const QJsonObject& jcomponent, core::CampaignMap* map)
+{
+    const auto& fields{component->getType()->getFields()};
+    for (const auto field : fields)
+    {
+        const auto jvalue = jcomponent[field->getName()];
+
+        if (jvalue.isUndefined())
+            throw utils::ValueError("Failed to unserialize component, it has missing field");
+
+        component->setField(field->getName(), fieldFromJson(field->getType(), jvalue, map));
+    }
+}
+
+static QVariant fieldFromJson(const core::FieldType* const fieldType, const QJsonValue& jvalue, core::CampaignMap* map)
+{
+    QVariant value;
+
+    switch (fieldType->id())
+    {
+        case core::Field::TypeId::Integer:
+        {
+            if (!jvalue.isDouble() || (static_cast<double>(jvalue.toInt()) != jvalue.toDouble()))
+                throw utils::ValueError("Failed to unserialize integer field, value is not an integer");
+
+            value = jvalue.toInt();
+        }
+        break;
+
+        case core::Field::TypeId::Real:
+        {
+            if (!jvalue.isDouble())
+                throw utils::ValueError("Failed to unserialize real field, value is not a real");
+
+            value = jvalue.toDouble();
+        }
+        break;
+
+        case core::Field::TypeId::String:
+        {
+            if (!jvalue.isString())
+                throw utils::ValueError("Failed to unserialize string field, value is not a string");
+
+            value = jvalue.toString();
+        }
+        break;
+
+        case core::Field::TypeId::Reference:
+        {
+            if (!jvalue.isString())
+                throw utils::ValueError("Failed to unserialize reference field, value is not a string");
+
+            value.setValue(unserializeReference(jvalue.toString(), map));
+        }
+        break;
+
+        case core::Field::TypeId::List:
+        {
+            if (!jvalue.isArray())
+                throw utils::ValueError("Failed to unserialize list field, value is not an array");
+
+            const core::FieldType* valueType = static_cast<const core::FieldTypes::List*>(fieldType)->getValueType();
+            QVariantList list;
+
+            for (auto jelement : jvalue.toArray())
+            {
+                list.push_back(fieldFromJson(valueType, jelement, map));
+            }
+
+            value = list;
+        }
+        break;
+
+        case core::Field::TypeId::Dictionary:
+        {
+            if (!jvalue.isObject())
+                throw utils::ValueError("Failed to unserialize dictionary field, value is not an object");
+
+            const core::FieldType* valueType =
+                static_cast<const core::FieldTypes::Dictionary*>(fieldType)->getValueType();
+            QVariantMap dict;
+
+            auto jobj = jvalue.toObject();
+            for (auto it = jobj.begin(); it != jobj.end(); ++it)
+            {
+                dict.insert(it.key(), fieldFromJson(valueType, it.value(), map));
+            }
+
+            value = dict;
+        }
+        break;
+    }
+
+    return value;
+}
+
+static std::tuple<core::MapNode*, std::map<core::Direction, QString>> mapNodeFromJson(
+    const QJsonObject& jobj, core::CampaignMap* map)
+{
+    const int id = jobj["id"].toInt(core::WObject::invalidId);
+
+    if (id == core::WObject::invalidId)
+        throw utils::ValueError("Failed to unserialize mapNode, it has missing or invalid id");
+
+    const auto jneighbours = jobj["neighbours"].toObject();
+
+    if (jneighbours.isEmpty())
+        throw utils::ValueError("Failed to unserialize mapNode, it has missing or invalid neighbours");
+
+    std::map<core::Direction, QString> neighbours;
+
+    for (auto it = jneighbours.constBegin(); it != jneighbours.constEnd(); it++)
+    {
+        core::Direction direction{core::str2direction(it.key())};
+        QString ref{it.value().toString()};
+
+        neighbours.emplace(direction, ref);
+    }
+
+    return std::make_tuple(map->createMapNode(id), neighbours);
+}
+
+static void mapNodesFromJson(const QJsonArray& jarr, core::CampaignMap* map)
 {
     std::vector<std::tuple<core::MapNode*, core::Direction, QString>> neighbours;
 
     for (QJsonValue jval : jarr)
     {
-        QJsonObject jobj = jval.toObject();
-
-        auto mapNode = mapNodeFromJson(jobj, map);
+        const auto mapNodeData = mapNodeFromJson(jval.toObject(), map);
 
         // for now just store the references to the neighbours
         // they will be resolved after all mapnodes have been processed
-        const QJsonObject jneighbours = jobj["neighbours"].toObject();
-        for (auto it = jneighbours.constBegin(); it != jneighbours.constEnd(); it++)
+        for (auto& neighbour : std::get<1>(mapNodeData))
         {
-            core::Direction d = core::str2direction(it.key());
-            neighbours.push_back(std::make_tuple(mapNode, d, it.value().toString()));
+            neighbours.emplace_back(std::get<core::MapNode*>(mapNodeData), neighbour.first, neighbour.second);
         }
     }
 

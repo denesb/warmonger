@@ -21,9 +21,6 @@
 #include <QJsonObject>
 #include <QJsonValue>
 
-#include "core/ComponentType.h"
-#include "core/EntityType.h"
-#include "core/World.h"
 #include "core/WorldComponentType.h"
 #include "io/JsonUtils.h"
 #include "io/WorldJsonUnserializer.h"
@@ -70,7 +67,7 @@ TEST_CASE("Banner can be unserialized from JSON", "[WorldJsonUnserializer][JSON]
     }
 }
 
-TEST_CASE("Banner can't be unserialized from JSON", "[JsonUnserializer]")
+TEST_CASE("Banner can't be unserialized from JSON", "[WorldJsonUnserializer][JSON][Unserialize][ErrorPaths]")
 {
     std::unique_ptr<core::World> worldPtr;
     QJsonObject jworld;
@@ -114,7 +111,7 @@ TEST_CASE("Banner can't be unserialized from JSON", "[JsonUnserializer]")
     {
         jobj["displayName"] = "";
 
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeBanner(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Name not string")
@@ -395,7 +392,7 @@ TEST_CASE("ComponentType unserialized from JSON - happy path", "[WorldJsonUnseri
 
         const auto innerListType{dynamic_cast<core::FieldTypes::List*>(outerDictType->getValueType())};
         REQUIRE(innerListType != nullptr);
-        REQUIRE(innerListType->getValueType()->id() == core::Field::TypeId::Reference);
+        REQUIRE(innerListType->getValueType()->id() == core::Field::TypeId::String);
     }
 }
 

@@ -46,13 +46,13 @@ QVariant Component::getField(const QString& name) const
 
     if (it == this->fields.end())
     {
-        return it->second;
-    }
-    else
-    {
         wError << "Requested non existent field " << name << " for component " << this;
 
         return QVariant();
+    }
+    else
+    {
+        return it->second;
     }
 }
 

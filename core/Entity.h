@@ -86,26 +86,38 @@ public:
      *
      * An entity can have only one component of a given type so retrieving them
      * is possible by type.
-     * Changing the component will trigger the Entity::componentChanged() signal.
+     * Changing the component will trigger the Entity::componentChanged()
+     * signal.
      *
      * \param componentType the component-type
      *
      * \return the component or nullptr if entity doesn't have componentType
      */
-    Component* operator[](const ComponentType* const componentType);
+    Component* getComponent(const ComponentType* const componentType);
 
     /**
      * Get the component with the given type by it's name
      *
      * An entity can have only one component of a given type so retrieving them
      * is possible by type.
-     * Changing the component will trigger the Entity::componentChanged() signal.
+     * Changing the component will trigger the Entity::componentChanged()
+     * signal.
      *
      * \param componentTypeName the component-type's name
      *
      * \return the component or nullptr if entity doesn't have componentType
      */
-    Component* operator[](const QString& componentTypeName);
+    Component* getComponent(const QString& componentTypeName);
+
+    /**
+     * Get the components.
+     *
+     * \return the components
+     */
+    const std::vector<Component*>& getComponents() const
+    {
+        return this->components;
+    }
 
 signals:
     /**
@@ -120,7 +132,7 @@ signals:
 
 private:
     EntityType* type;
-    std::map<const ComponentType*, std::unique_ptr<Component>> components;
+    std::vector<Component*> components;
 };
 
 } // namespace core

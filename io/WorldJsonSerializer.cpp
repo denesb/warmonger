@@ -132,7 +132,7 @@ static QJsonValue fieldTypeToJson(const core::FieldType* const obj)
     const QMetaEnum typeIdMetaEnum{QMetaEnum::fromType<core::Field::TypeId>()};
     const auto id = obj->id();
 
-    switch(id)
+    switch (id)
     {
         case core::Field::TypeId::Integer:
         case core::Field::TypeId::Real:

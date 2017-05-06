@@ -19,8 +19,8 @@
 #include "core/World.h"
 #include "io/Reference.h"
 #include "io/WorldJsonSerializer.h"
-#include "test/catch.hpp"
 #include "test/Util.h"
+#include "test/catch.hpp"
 
 using namespace warmonger;
 

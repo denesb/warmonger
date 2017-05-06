@@ -145,8 +145,8 @@ set(
     test/core/MapNodeNeighbours.cpp
     test/core/WObject.cpp
     test/io/Context.cpp
-    test/io/JsonUtils.cpp
     test/io/Reference.cpp
+    test/io/CampaignMapJsonUnserializer.cpp
     test/io/WorldJsonUnserializer.cpp
     test/io/WorldJsonSerializer.cpp
     test/test_warmonger.cpp

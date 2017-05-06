@@ -39,11 +39,5 @@ QJsonDocument parseJson(const QByteArray& json)
     return doc;
 }
 
-long unserializeId(const QJsonValue& val)
-{
-    const double id = val.toDouble(-2);
-    return id;
-}
-
 } // namespace warmonger
 } // namespace io

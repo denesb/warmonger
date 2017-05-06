@@ -26,6 +26,7 @@ namespace core {
 
 Entity::Entity(QObject* parent, int id)
     : WObject(parent, id)
+    , type(nullptr)
 {
 }
 
@@ -35,21 +36,28 @@ void Entity::setType(EntityType* type)
         return;
 
     this->type = type;
+
+    qDeleteAll(this->components.begin(), this->components.end());
     this->components.clear();
 
     for (const auto& componentType : this->type->getComponentTypes())
     {
-        const auto result{this->components.emplace(componentType, std::make_unique<Component>(componentType))};
+        auto component = new Component(this);
+        component->setType(componentType);
 
-        QObject::connect(result.first->second.get(), &Component::fieldChanged, this, &Entity::componentChanged);
+        QObject::connect(component, &Component::fieldChanged, this, &Entity::componentChanged);
+
+        this->components.push_back(component);
     }
 
     emit typeChanged();
 }
 
-Component* Entity::operator[](const ComponentType* const componentType)
+Component* Entity::getComponent(const ComponentType* const componentType)
 {
-    const auto it = this->components.find(componentType);
+    const auto it = std::find_if(this->components.begin(),
+        this->components.end(),
+        [componentType](const auto& component) { return component->getType() == componentType; });
 
     if (it == this->components.end())
     {
@@ -58,15 +66,15 @@ Component* Entity::operator[](const ComponentType* const componentType)
     }
     else
     {
-        return it->second.get();
+        return *it;
     }
 }
 
-Component* Entity::operator[](const QString& componentTypeName)
+Component* Entity::getComponent(const QString& componentTypeName)
 {
     const auto it = std::find_if(this->components.begin(),
         this->components.end(),
-        [&componentTypeName](const auto& component) { return component.first->getName() == componentTypeName; });
+        [&componentTypeName](const auto& component) { return component->getType()->getName() == componentTypeName; });
 
     if (it == this->components.end())
     {
@@ -75,7 +83,7 @@ Component* Entity::operator[](const QString& componentTypeName)
     }
     else
     {
-        return it->second.get();
+        return *it;
     }
 }
 

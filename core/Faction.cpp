@@ -25,6 +25,7 @@ namespace core {
 
 Faction::Faction(QObject* parent, int id)
     : WObject(parent, id)
+    , banner(nullptr)
     , civilization(nullptr)
 {
 }

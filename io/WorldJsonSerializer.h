@@ -48,49 +48,10 @@ public:
      */
     WorldJsonSerializer(QJsonDocument::JsonFormat format = QJsonDocument::Indented);
 
-    /**
-     * Serialize an banner.
-     *
-     * \param obj the banner
-     *
-     * \return the raw serialized data
-     */
     QByteArray serializeBanner(const core::Banner* const obj) const override;
-
-    /**
-     * Serialize an civilization.
-     *
-     * \param obj the civilization
-     *
-     * \return the raw serialized data
-     */
     QByteArray serializeCivilization(const core::Civilization* const obj) const override;
-
-    /**
-     * Serialize an component-type.
-     *
-     * \param obj the component-type
-     *
-     * \return the raw serialized data
-     */
     QByteArray serializeComponentType(const core::ComponentType* const obj) const override;
-
-    /**
-     * Serialize an entity-type.
-     *
-     * \param obj the entity-type
-     *
-     * \return the raw serialized data
-     */
     QByteArray serializeEntityType(const core::EntityType* const obj) const override;
-
-    /**
-     * Serialize a world.
-     *
-     * \param obj the world
-     *
-     * \return the raw serialized data
-     */
     QByteArray serializeWorld(const core::World* const obj) const override;
 
 private:

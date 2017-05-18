@@ -20,11 +20,12 @@
 
 #include "core/CampaignMap.h"
 #include "io/JsonUtils.h"
+#include "io/Reference.h"
 
 namespace warmonger {
 namespace io {
 
-static QJsonObject campaignMapToJson(const core::CampaignMap* const obj);
+static QJsonValue fieldToJson(const core::FieldType* const type, const QVariant& value);
 static QJsonObject componentToJson(const core::Component* const obj);
 static QJsonObject entityToJson(const core::Entity* const obj);
 static QJsonObject factionToJson(const core::Faction* const obj);
@@ -37,14 +38,15 @@ CampaignMapJsonSerializer::CampaignMapJsonSerializer(QJsonDocument::JsonFormat f
 
 QByteArray CampaignMapJsonSerializer::serializeCampaignMap(const core::CampaignMap* const obj) const
 {
-    QJsonDocument jdoc(campaignMapToJson(obj));
-    return jdoc.toJson(this->format);
-}
+    QJsonObject jobj;
 
-QByteArray CampaignMapJsonSerializer::serializeComponent(const core::Component* const obj) const
-{
-    QJsonDocument jdoc(componentToJson(obj));
-    return jdoc.toJson(this->format);
+    jobj["displayName"] = obj->getDisplayName();
+    jobj["world"] = obj->getWorld()->getUuid();
+    jobj["mapNodes"] = toQJsonArray(obj->getMapNodes(), mapNodeToJson);
+    jobj["factions"] = toQJsonArray(obj->getFactions(), factionToJson);
+    jobj["entities"] = toQJsonArray(obj->getEntities(), entityToJson);
+
+    return QJsonDocument(jobj).toJson(this->format);
 }
 
 QByteArray CampaignMapJsonSerializer::serializeEntity(const core::Entity* const obj) const
@@ -65,35 +67,112 @@ QByteArray CampaignMapJsonSerializer::serializeMapNode(const core::MapNode* cons
     return jdoc.toJson(this->format);
 }
 
-static QJsonObject campaignMapToJson(const core::CampaignMap* const obj)
+static QJsonValue fieldToJson(const core::FieldType* const type, const QVariant& value)
 {
-    QJsonObject jobj(namesToJson(obj));
+    QJsonValue jval;
 
-    jobj["world"] = obj->getWorld()->objectName();
-    jobj["mapNodes"] = toQJsonArray(obj->getMapNodes(), mapNodeToJson);
-    jobj["factions"] = toQJsonArray(obj->getFactions(), factionToJson);
+    switch (type->id())
+    {
+        case core::Field::TypeId::Integer:
+        {
+            jval = value.toInt();
+        }
+        break;
+
+        case core::Field::TypeId::Real:
+        {
+            jval = value.toDouble();
+        }
+        break;
+
+        case core::Field::TypeId::String:
+        {
+            jval = value.toString();
+        }
+        break;
+
+        case core::Field::TypeId::Reference:
+        {
+            jval = serializeReference(value.value<core::WObject*>());
+        }
+        break;
+
+        case core::Field::TypeId::List:
+        {
+            auto valueType = static_cast<const core::FieldTypes::List*>(type)->getValueType();
+            const auto list = value.toList();
+            QJsonArray jlist;
+
+            for (const auto& element : list)
+            {
+                jlist.push_back(fieldToJson(valueType, element));
+            }
+
+            jval = jlist;
+        }
+        break;
+
+        case core::Field::TypeId::Dictionary:
+        {
+            auto valueType = static_cast<const core::FieldTypes::Dictionary*>(type)->getValueType();
+            const auto dict = value.toMap();
+            QJsonObject jdict;
+
+            for (auto it = dict.begin(); it != dict.end(); ++it)
+            {
+                jdict[it.key()] = fieldToJson(valueType, it.value());
+            }
+
+            jval = jdict;
+        }
+        break;
+    }
+
+    return jval;
+}
+
+static QJsonObject componentToJson(const core::Component* const obj)
+{
+    const auto& fields = obj->getType()->getFields();
+    QJsonObject jobj;
+
+    for (const auto& field : fields)
+    {
+        jobj[field->getName()] = fieldToJson(field->getType(), obj->getField(field->getName()));
+    }
 
     return jobj;
 }
 
-static QJsonObject componentToJson(const core::Component* const)
+static QJsonObject entityToJson(const core::Entity* const obj)
 {
-    return QJsonObject();
-}
+    QJsonObject jobj;
 
-static QJsonObject entityToJson(const core::Entity* const)
-{
-    return QJsonObject();
+    jobj["id"] = obj->getId();
+    jobj["type"] = serializeReference(obj->getType());
+
+    QJsonObject jcomponents;
+    const auto& components = obj->getComponents();
+    for (const auto& component : components)
+    {
+        jcomponents[serializeReference(component->getType())] = componentToJson(component);
+    }
+
+    jobj["components"] = jcomponents;
+
+    return jobj;
 }
 
 static QJsonObject factionToJson(const core::Faction* const obj)
 {
-    QJsonObject jobj(namesToJson(obj));
+    QJsonObject jobj;
 
+    jobj["id"] = obj->getId();
+    jobj["displayName"] = obj->getDisplayName();
     jobj["primaryColor"] = obj->getPrimaryColor().name();
     jobj["secondaryColor"] = obj->getSecondaryColor().name();
-    jobj["banner"] = obj->getBanner()->objectName();
-    jobj["civilization"] = obj->getCivilization()->objectName();
+    jobj["banner"] = serializeReference(obj->getBanner());
+    jobj["civilization"] = serializeReference(obj->getCivilization());
 
     return jobj;
 }
@@ -102,7 +181,7 @@ static QJsonObject mapNodeToJson(const core::MapNode* const obj)
 {
     QJsonObject jobj;
 
-    jobj["objectName"] = obj->objectName();
+    jobj["id"] = obj->getId();
 
     QJsonObject jneighbours;
     for (const auto& neighbour : obj->getNeighbours())
@@ -110,7 +189,7 @@ static QJsonObject mapNodeToJson(const core::MapNode* const obj)
         QString neighbourName{""};
         if (neighbour.second != nullptr)
         {
-            neighbourName = neighbour.second->objectName();
+            neighbourName = serializeReference(neighbour.second);
         }
 
         jneighbours[core::direction2str(neighbour.first)] = neighbourName;

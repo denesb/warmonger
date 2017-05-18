@@ -27,7 +27,6 @@ namespace warmonger {
 
 namespace core {
 class CampaignMap;
-class Component;
 class Entity;
 class Faction;
 class MapNode;
@@ -51,15 +50,6 @@ public:
      * \return the raw serialized data
      */
     virtual QByteArray serializeCampaignMap(const core::CampaignMap* const obj) const = 0;
-
-    /**
-     * Serialize a component.
-     *
-     * \param obj the component
-     *
-     * \return the raw serialized data
-     */
-    virtual QByteArray serializeComponent(const core::Component* const obj) const = 0;
 
     /**
      * Serialize a entity.

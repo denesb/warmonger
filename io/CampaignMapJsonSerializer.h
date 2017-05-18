@@ -58,49 +58,9 @@ public:
      */
     CampaignMapJsonSerializer(QJsonDocument::JsonFormat format = QJsonDocument::Indented);
 
-    /**
-     * Serialize an campaign-map to json.
-     *
-     * \param obj the campaign-map
-     *
-     * \return the raw serialized data
-     */
     QByteArray serializeCampaignMap(const core::CampaignMap* const obj) const override;
-
-    /**
-     * Serialize a component to json.
-     *
-     * \param obj the component
-     *
-     * \return the raw serialized data
-     */
-    QByteArray serializeComponent(const core::Component* const obj) const override;
-
-    /**
-     * Serialize a entity json.
-     *
-     * \param obj the entity
-     *
-     * \return the raw serialized data
-     */
     QByteArray serializeEntity(const core::Entity* const obj) const override;
-
-    /**
-     * Serialize an faction to json.
-     *
-     * \param obj the faction
-     *
-     * \return the raw serialized data
-     */
     QByteArray serializeFaction(const core::Faction* const obj) const override;
-
-    /**
-     * Serialize an map-node to json.
-     *
-     * \param obj the map-node
-     *
-     * \return the raw serialized data
-     */
     QByteArray serializeMapNode(const core::MapNode* const obj) const override;
 
 private:

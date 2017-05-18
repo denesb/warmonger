@@ -222,7 +222,7 @@ std::pair<std::unique_ptr<core::CampaignMap>, QJsonObject> makeMap()
     entity0->getComponent(componentType1)->setField("intField", 200);
     entity0->getComponent(componentType1)->setField("realField", 20.12);
     entity0->getComponent(componentType1)->setField("strField", "someStr");
-    entity0->getComponent(componentType1)->setField("refField", io::serializeReference(faction0));
+    entity0->getComponent(componentType1)->setField("refField", QVariant::fromValue(faction0));
     entity0->getComponent(componentType1)->setField("intsListField", QVariantList{1, 5, 3});
     entity0->getComponent(componentType1)->setField("realDictField", QVariantMap{{"key0", 1.2}, {"key1", 3.3243}});
     entity0->getComponent(componentType1)

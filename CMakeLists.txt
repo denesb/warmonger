@@ -146,6 +146,7 @@ set(
     test/core/WObject.cpp
     test/io/Context.cpp
     test/io/Reference.cpp
+    test/io/CampaignMapJsonSerializer.cpp
     test/io/CampaignMapJsonUnserializer.cpp
     test/io/WorldJsonUnserializer.cpp
     test/io/WorldJsonSerializer.cpp

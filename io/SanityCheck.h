@@ -66,7 +66,7 @@ bool isWorldSane(const QString& path);
  *
  * \see isWorldSane
  */
-bool isCampaignMapSane(const QString& path, core::World* world);
+bool isMapSane(const QString& path, core::World* world);
 
 } // namespace io
 } // namespace warmonger

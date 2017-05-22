@@ -1,5 +1,5 @@
 /** \file
- * CampaignMap unserializer interface.
+ * Map unserializer interface.
  *
  * \copyright (C) 2015-2017 Botond Dénes
  *
@@ -18,8 +18,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef IO_CAMPAIGNMAP_UNSERIALIZER_H
-#define IO_CAMPAIGNMAP_UNSERIALIZER_H
+#ifndef IO_MAP_UNSERIALIZER_H
+#define IO_MAP_UNSERIALIZER_H
 
 #include <memory>
 
@@ -28,7 +28,7 @@
 namespace warmonger {
 
 namespace core {
-class CampaignMap;
+class Map;
 class Entity;
 class Faction;
 class MapNode;
@@ -38,17 +38,17 @@ class World;
 namespace io {
 
 /**
- * CampaignMapUnserializer interface.
+ * MapUnserializer interface.
  *
  * Unserialize the campaign-map and related core game-object.
  */
-class CampaignMapUnserializer
+class MapUnserializer
 {
 public:
     /**
      * Destructor.
      */
-    virtual ~CampaignMapUnserializer()
+    virtual ~MapUnserializer()
     {
     }
 
@@ -60,7 +60,7 @@ public:
      *
      * \return the unserialized campaign-map object
      */
-    virtual std::unique_ptr<core::CampaignMap> unserializeCampaignMap(
+    virtual std::unique_ptr<core::Map> unserializeMap(
         const QByteArray& data, core::World* world) const = 0;
 
     /**
@@ -71,7 +71,7 @@ public:
      *
      * \return the unserialized entity object
      */
-    virtual core::Entity* unserializeEntity(const QByteArray& data, core::CampaignMap* map) const = 0;
+    virtual core::Entity* unserializeEntity(const QByteArray& data, core::Map* map) const = 0;
 
     /**
      * Unserialize the faction and add it to the map.
@@ -81,7 +81,7 @@ public:
      *
      * \return the unserialized faction object
      */
-    virtual core::Faction* unserializeFaction(const QByteArray& data, core::CampaignMap* map) const = 0;
+    virtual core::Faction* unserializeFaction(const QByteArray& data, core::Map* map) const = 0;
 
     /**
      * Unserialize the map-node and add it to the map.
@@ -91,10 +91,10 @@ public:
      *
      * \return the unserialized map-node object
      */
-    virtual core::MapNode* unserializeMapNode(const QByteArray& data, core::CampaignMap* map) const = 0;
+    virtual core::MapNode* unserializeMapNode(const QByteArray& data, core::Map* map) const = 0;
 };
 
 } // namespace warmonger
 } // namespace io
 
-#endif // IO_CAMPAIGNMAP_UNSERIALIZER_H
+#endif // IO_MAP_UNSERIALIZER_H

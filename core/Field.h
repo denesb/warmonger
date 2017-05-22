@@ -67,7 +67,7 @@ public:
     Q_ENUM(TypeId)
 
     /**
-     * Constructs an empty CampaignMap.
+     * Constructs an empty Map.
      *
      * \param parent the parent QObject.
      */

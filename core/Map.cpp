@@ -21,7 +21,7 @@
 
 #include <boost/optional.hpp>
 
-#include "core/CampaignMap.h"
+#include "core/Map.h"
 #include "utils/Logging.h"
 #include "utils/QVariantUtils.h"
 
@@ -30,11 +30,11 @@ namespace core {
 
 const QString factionDisplayNameTemplate{"New Faction %1"};
 
-static void addMapNodeRing(std::vector<MapNode*>& nodes, CampaignMap* map);
-static MapNode* createNeighbour(MapNode* node, const Direction direction, CampaignMap* map);
+static void addMapNodeRing(std::vector<MapNode*>& nodes, Map* map);
+static MapNode* createNeighbour(MapNode* node, const Direction direction, Map* map);
 static void connectWithCommonNeighbour(MapNode* n1, MapNode* n2, const Direction dn1n2, const Direction dn1n3);
 
-CampaignMap::CampaignMap(QObject* parent)
+Map::Map(QObject* parent)
     : QObject(parent)
     , world(nullptr)
     , mapNodeIndex(0)
@@ -43,7 +43,7 @@ CampaignMap::CampaignMap(QObject* parent)
 {
 }
 
-void CampaignMap::setDisplayName(const QString& displayName)
+void Map::setDisplayName(const QString& displayName)
 {
     if (this->displayName != displayName)
     {
@@ -52,7 +52,7 @@ void CampaignMap::setDisplayName(const QString& displayName)
     }
 }
 
-void CampaignMap::setWorld(World* world)
+void Map::setWorld(World* world)
 {
     if (this->world != world)
     {
@@ -61,22 +61,22 @@ void CampaignMap::setWorld(World* world)
     }
 }
 
-QVariantList CampaignMap::readMapNodes() const
+QVariantList Map::readMapNodes() const
 {
     return utils::toQVariantList(this->mapNodes);
 }
 
-QVariantList CampaignMap::readFactions() const
+QVariantList Map::readFactions() const
 {
     return utils::toQVariantList(this->factions);
 }
 
-QVariantList CampaignMap::readEntities() const
+QVariantList Map::readEntities() const
 {
     return utils::toQVariantList(this->entities);
 }
 
-MapNode* CampaignMap::createMapNode(int id)
+MapNode* Map::createMapNode(int id)
 {
     MapNode* mapNode = new MapNode(this, id);
 
@@ -89,7 +89,7 @@ MapNode* CampaignMap::createMapNode(int id)
     return mapNode;
 }
 
-std::unique_ptr<MapNode> CampaignMap::removeMapNode(MapNode* mapNode)
+std::unique_ptr<MapNode> Map::removeMapNode(MapNode* mapNode)
 {
     auto it = std::find(this->mapNodes.cbegin(), this->mapNodes.cend(), mapNode);
     if (it != this->mapNodes.end())
@@ -111,7 +111,7 @@ std::unique_ptr<MapNode> CampaignMap::removeMapNode(MapNode* mapNode)
     }
 }
 
-Entity* CampaignMap::createEntity(int id)
+Entity* Map::createEntity(int id)
 {
     Entity* entity = new Entity(this, id);
 
@@ -124,7 +124,7 @@ Entity* CampaignMap::createEntity(int id)
     return entity;
 }
 
-std::unique_ptr<Entity> CampaignMap::removeEntity(Entity* entity)
+std::unique_ptr<Entity> Map::removeEntity(Entity* entity)
 {
     auto it = std::find(this->entities.cbegin(), this->entities.cend(), entity);
     if (it != this->entities.end())
@@ -146,7 +146,7 @@ std::unique_ptr<Entity> CampaignMap::removeEntity(Entity* entity)
     }
 }
 
-Faction* CampaignMap::createFaction(int id)
+Faction* Map::createFaction(int id)
 {
     Faction* faction = new Faction(this, id);
 
@@ -159,7 +159,7 @@ Faction* CampaignMap::createFaction(int id)
     return faction;
 }
 
-std::unique_ptr<Faction> CampaignMap::removeFaction(Faction* faction)
+std::unique_ptr<Faction> Map::removeFaction(Faction* faction)
 {
     const auto it = std::remove(this->factions.begin(), this->factions.end(), faction);
 
@@ -183,7 +183,7 @@ std::unique_ptr<Faction> CampaignMap::removeFaction(Faction* faction)
     }
 }
 
-void CampaignMap::generateMapNodes(unsigned int radius)
+void Map::generateMapNodes(unsigned int radius)
 {
     if (radius == 0)
     {
@@ -209,7 +209,7 @@ void CampaignMap::generateMapNodes(unsigned int radius)
     emit mapNodesChanged();
 }
 
-static void addMapNodeRing(std::vector<MapNode*>& nodes, CampaignMap* map)
+static void addMapNodeRing(std::vector<MapNode*>& nodes, Map* map)
 {
     std::vector<MapNode*> newNodes;
 
@@ -225,7 +225,7 @@ static void addMapNodeRing(std::vector<MapNode*>& nodes, CampaignMap* map)
     std::copy(newNodes.begin(), newNodes.end(), std::back_inserter(nodes));
 }
 
-static MapNode* createNeighbour(MapNode* node, const Direction direction, CampaignMap* map)
+static MapNode* createNeighbour(MapNode* node, const Direction direction, Map* map)
 {
     MapNode* newNode = new MapNode(map);
 

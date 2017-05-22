@@ -31,14 +31,14 @@
 
 namespace warmonger {
 
-static std::vector<std::unique_ptr<core::CampaignMap>> loadWorldMaps(core::World* world);
+static std::vector<std::unique_ptr<core::Map>> loadWorldMaps(core::World* world);
 
 Context::Context(
     std::unique_ptr<core::World>&& world, std::unique_ptr<ui::WorldSurface>&& worldSurface, QObject* parent)
     : QObject(parent)
     , world(world.release())
     , worldSurface(worldSurface.release())
-    , campaignMap(nullptr)
+    , map(nullptr)
     , disabledPalette(new ui::Palette(QGuiApplication::palette(), QPalette::Disabled, this))
     , activePalette(new ui::Palette(QGuiApplication::palette(), QPalette::Active, this))
     , inactivePalette(new ui::Palette(QGuiApplication::palette(), QPalette::Inactive, this))
@@ -47,60 +47,60 @@ Context::Context(
     this->world->setParent(this);
     this->worldSurface->setParent(this);
 
-    auto campaignMaps = loadWorldMaps(this->world);
+    auto maps = loadWorldMaps(this->world);
 
-    for (auto& campaignMap : campaignMaps)
+    for (auto& map : maps)
     {
-        campaignMap->setParent(this);
-        this->campaignMaps.push_back(campaignMap.release());
+        map->setParent(this);
+        this->maps.push_back(map.release());
     }
 }
 
-void Context::setCampaignMap(core::CampaignMap* campaignMap)
+void Context::setMap(core::Map* map)
 {
-    if (campaignMap->getWorld() != this->world)
+    if (map->getWorld() != this->world)
     {
-        wError << "Cannot set campaign-map " << campaignMap << " with a different world";
+        wError << "Cannot set campaign-map " << map << " with a different world";
         return;
     }
 
-    if (this->campaignMap != campaignMap)
+    if (this->map != map)
     {
-        wInfo << "campaignMap: `" << this->campaignMap << "' -> `" << campaignMap << "'";
+        wInfo << "map: `" << this->map << "' -> `" << map << "'";
 
-        this->campaignMap = campaignMap;
+        this->map = map;
 
-        this->campaignMap->setParent(this);
+        this->map->setParent(this);
 
-        emit campaignMapChanged();
+        emit mapChanged();
     }
 }
 
-QVariantList Context::readCampaignMaps() const
+QVariantList Context::readMaps() const
 {
-    return utils::toQVariantList(this->campaignMaps);
+    return utils::toQVariantList(this->maps);
 }
 
-std::vector<std::unique_ptr<core::CampaignMap>> loadWorldMaps(core::World* world)
+std::vector<std::unique_ptr<core::Map>> loadWorldMaps(core::World* world)
 {
     const QDir mapsDir{utils::worldMapsPath(world->objectName())};
 
     const QStringList nameFilters{"*." + utils::fileExtensions::mapDefinition};
     const QFlags<QDir::Filter> filters = QDir::Files | QDir::Readable;
 
-    std::vector<std::unique_ptr<core::CampaignMap>> campaignMaps;
+    std::vector<std::unique_ptr<core::Map>> maps;
 
     const QStringList mapEntries = mapsDir.entryList(nameFilters, filters);
     for (const QString& mapFile : mapEntries)
     {
         const QString mapPath = mapsDir.absoluteFilePath(mapFile);
 
-        campaignMaps.push_back(io::readCampaignMap(mapPath, world));
+        maps.push_back(io::readMap(mapPath, world));
     }
 
-    wInfo << "Loaded " << campaignMaps.size() << " maps for world `" << world->objectName() << "'";
+    wInfo << "Loaded " << maps.size() << " maps for world `" << world->objectName() << "'";
 
-    return campaignMaps;
+    return maps;
 }
 
 } // namespace warmonger

@@ -32,7 +32,7 @@
 using namespace warmonger;
 
 static std::unique_ptr<Context> createContext(const QString& worldName, const QString& worldSurfaceName);
-static std::unique_ptr<core::CampaignMap> generateBackgroundCampaignMap(core::World* world);
+static std::unique_ptr<core::Map> generateBackgroundMap(core::World* world);
 
 int main(int argc, char* argv[])
 {
@@ -65,12 +65,12 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    std::unique_ptr<core::CampaignMap> backgroundCampaignMap = generateBackgroundCampaignMap(ctx->getWorld());
+    std::unique_ptr<core::Map> backgroundMap = generateBackgroundMap(ctx->getWorld());
 
     QQmlApplicationEngine engine;
 
     engine.rootContext()->setContextProperty("W", ctx.get());
-    engine.rootContext()->setContextProperty("backgroundCampaignMap", backgroundCampaignMap.get());
+    engine.rootContext()->setContextProperty("backgroundMap", backgroundMap.get());
 
     engine.load(QUrl("qrc:/Warmonger.qml"));
 
@@ -120,9 +120,9 @@ static std::unique_ptr<Context> createContext(const QString& worldName, const QS
     return std::make_unique<Context>(std::move(world), std::move(worldSurface));
 }
 
-static std::unique_ptr<core::CampaignMap> generateBackgroundCampaignMap(core::World* world)
+static std::unique_ptr<core::Map> generateBackgroundMap(core::World* world)
 {
-    std::unique_ptr<core::CampaignMap> map = std::make_unique<core::CampaignMap>();
+    std::unique_ptr<core::Map> map = std::make_unique<core::Map>();
     map->setWorld(world);
 
     // TODO: fix map generation, call into the world rules to generate the map

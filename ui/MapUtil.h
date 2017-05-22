@@ -11,7 +11,7 @@
 #include <QPoint>
 #include <QRect>
 
-#include "core/CampaignMap.h"
+#include "core/Map.h"
 #include "core/Hexagon.h"
 #include "core/MapNodeNeighbours.h"
 
@@ -27,7 +27,7 @@ class MapNode;
 
 namespace ui {
 
-class CampaignMapDrawer;
+class MapDrawer;
 class WorldSurface;
 
 /**

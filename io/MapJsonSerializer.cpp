@@ -16,9 +16,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "io/CampaignMapJsonSerializer.h"
+#include "io/MapJsonSerializer.h"
 
-#include "core/CampaignMap.h"
+#include "core/Map.h"
 #include "io/JsonUtils.h"
 #include "io/Reference.h"
 
@@ -31,12 +31,12 @@ static QJsonObject entityToJson(const core::Entity* const obj);
 static QJsonObject factionToJson(const core::Faction* const obj);
 static QJsonObject mapNodeToJson(const core::MapNode* const obj);
 
-CampaignMapJsonSerializer::CampaignMapJsonSerializer(QJsonDocument::JsonFormat format)
+MapJsonSerializer::MapJsonSerializer(QJsonDocument::JsonFormat format)
     : format(format)
 {
 }
 
-QByteArray CampaignMapJsonSerializer::serializeCampaignMap(const core::CampaignMap* const obj) const
+QByteArray MapJsonSerializer::serializeMap(const core::Map* const obj) const
 {
     QJsonObject jobj;
 
@@ -49,19 +49,19 @@ QByteArray CampaignMapJsonSerializer::serializeCampaignMap(const core::CampaignM
     return QJsonDocument(jobj).toJson(this->format);
 }
 
-QByteArray CampaignMapJsonSerializer::serializeEntity(const core::Entity* const obj) const
+QByteArray MapJsonSerializer::serializeEntity(const core::Entity* const obj) const
 {
     QJsonDocument jdoc(entityToJson(obj));
     return jdoc.toJson(this->format);
 }
 
-QByteArray CampaignMapJsonSerializer::serializeFaction(const core::Faction* const obj) const
+QByteArray MapJsonSerializer::serializeFaction(const core::Faction* const obj) const
 {
     QJsonDocument jdoc(factionToJson(obj));
     return jdoc.toJson(this->format);
 }
 
-QByteArray CampaignMapJsonSerializer::serializeMapNode(const core::MapNode* const obj) const
+QByteArray MapJsonSerializer::serializeMapNode(const core::MapNode* const obj) const
 {
     QJsonDocument jdoc(mapNodeToJson(obj));
     return jdoc.toJson(this->format);

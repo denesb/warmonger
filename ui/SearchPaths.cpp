@@ -60,7 +60,7 @@ void setupSearchPaths()
 
     QDir::setSearchPaths(utils::searchPaths::world, worldSearchPath);
     QDir::setSearchPaths(utils::searchPaths::worldSurface, surfaceSearchPath);
-    QDir::setSearchPaths(utils::searchPaths::campaignMap, mapSearchPath);
+    QDir::setSearchPaths(utils::searchPaths::map, mapSearchPath);
 }
 
 static void addSubdirToSearchPath(const QString& worldPath, const QString& subdirName, QStringList& searchPath)

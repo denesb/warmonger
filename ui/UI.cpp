@@ -19,9 +19,9 @@
 #include <QtQml>
 
 #include "ui/Banner.h"
-#include "ui/CampaignMapEditor.h"
-#include "ui/CampaignMapPreview.h"
-#include "ui/CampaignMiniMap.h"
+#include "ui/MapEditor.h"
+#include "ui/MapPreview.h"
+#include "ui/MiniMap.h"
 #include "ui/UI.h"
 #include "utils/Constants.h"
 
@@ -33,9 +33,9 @@ void initUI()
     const char* const applicationName = utils::applicationName.toStdString().c_str();
 
     qmlRegisterType<Banner>(applicationName, 1, 0, "Banner");
-    qmlRegisterType<CampaignMapEditor>(applicationName, 1, 0, "CampaignMapEditor");
-    qmlRegisterType<CampaignMapPreview>(applicationName, 1, 0, "CampaignMapPreview");
-    qmlRegisterType<CampaignMiniMap>(applicationName, 1, 0, "CampaignMiniMap");
+    qmlRegisterType<MapEditor>(applicationName, 1, 0, "MapEditor");
+    qmlRegisterType<MapPreview>(applicationName, 1, 0, "MapPreview");
+    qmlRegisterType<MiniMap>(applicationName, 1, 0, "MiniMap");
 }
 
 } // namespace ui

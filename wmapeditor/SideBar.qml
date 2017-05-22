@@ -70,7 +70,7 @@ Rectangle {
                 margins: 1
             }
 
-            campaignMap: W.campaignMap
+            map: W.map
             worldSurface: W.worldSurface
             windowRect: root.miniMapWindowRect
         }

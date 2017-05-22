@@ -18,7 +18,7 @@
 
 #include "io/Reference.h"
 
-#include "core/CampaignMap.h"
+#include "core/Map.h"
 #include "utils/Logging.h"
 
 namespace warmonger {
@@ -65,7 +65,7 @@ core::WObject* unserializeReference(const QString& reference, core::World* world
     return unserializeReference(objectClassName, id, world);
 }
 
-core::WObject* unserializeReference(const QString& reference, core::CampaignMap* map)
+core::WObject* unserializeReference(const QString& reference, core::Map* map)
 {
     if (map == nullptr)
         return nullptr;

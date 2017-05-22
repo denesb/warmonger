@@ -89,7 +89,7 @@ set(
 set(
     CORE_SRC_FILES
     core/Banner.cpp
-    core/CampaignMap.cpp
+    core/Map.cpp
     core/Civilization.cpp
     core/Component.cpp
     core/ComponentType.cpp
@@ -108,8 +108,8 @@ set(
 
 set(
     IO_SRC_FILES
-    io/CampaignMapJsonSerializer.cpp
-    io/CampaignMapJsonUnserializer.cpp
+    io/MapJsonSerializer.cpp
+    io/MapJsonUnserializer.cpp
     io/File.cpp
     io/JsonUtils.cpp
     io/Reference.cpp
@@ -123,10 +123,10 @@ set(
     ui/Banner.cpp
     ui/BasicMap.cpp
     ui/BasicMiniMap.cpp
-    ui/CampaignMapEditor.cpp
-    ui/CampaignMapPreview.cpp
-    ui/CampaignMapWatcher.cpp
-    ui/CampaignMiniMap.cpp
+    ui/MapEditor.cpp
+    ui/MapPreview.cpp
+    ui/MapWatcher.cpp
+    ui/MiniMap.cpp
     ui/MapUtil.cpp
     ui/MapWindow.cpp
     ui/Palette.cpp
@@ -138,18 +138,18 @@ set(
 set(
     TEST_SRC_FILES
     test/io/File.cpp
-    #test/io/SanityCheck.cpp
+    #test/io/SanityCheck.cpp TODO
     test/Util.cpp
-    test/core/CampaignMap.cpp
+    test/core/Map.cpp
     test/core/MapNodeNeighbours.cpp
     test/core/WObject.cpp
     test/io/Reference.cpp
-    test/io/CampaignMapJsonSerializer.cpp
-    test/io/CampaignMapJsonUnserializer.cpp
+    test/io/MapJsonSerializer.cpp
+    test/io/MapJsonUnserializer.cpp
     test/io/WorldJsonUnserializer.cpp
     test/io/WorldJsonSerializer.cpp
     test/test_warmonger.cpp
-    test/ui/CampaignMapEditor.cpp
+    test/ui/MapEditor.cpp
     test/ui/MapUtil.cpp
     test/ui/MapWindow.cpp
     test/ui/WorldSurface.cpp
@@ -243,13 +243,13 @@ if(BUILD_TOOLS)
     )
 
     add_executable(
-        wcheck_campaignmap
-        tools/wcheck_campaignmap.cpp
+        wcheck_map
+        tools/wcheck_map.cpp
         tools/Utils.cpp
     )
 
     target_link_libraries(
-        wcheck_campaignmap
+        wcheck_map
         ui
         io
         core
@@ -314,8 +314,8 @@ if(BUILD_TESTS)
     )
     execute_process(
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${TEST_DATA}/campaignmap-packages
-        ${CMAKE_BINARY_DIR}/campaignmap-packages
+        ${TEST_DATA}/map-packages
+        ${CMAKE_BINARY_DIR}/map-packages
     )
 endif()
 

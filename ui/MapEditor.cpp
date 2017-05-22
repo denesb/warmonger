@@ -23,8 +23,8 @@
 #include <QMetaEnum>
 #include <QSGSimpleTextureNode>
 
-#include "ui/CampaignMapEditor.h"
-#include "ui/CampaignMapWatcher.h"
+#include "ui/MapEditor.h"
+#include "ui/MapWatcher.h"
 #include "ui/MapUtil.h"
 #include "utils/Constants.h"
 #include "utils/Logging.h"
@@ -33,9 +33,9 @@
 namespace warmonger {
 namespace ui {
 
-CampaignMapEditor::CampaignMapEditor(QQuickItem* parent)
+MapEditor::MapEditor(QQuickItem* parent)
     : BasicMap(parent)
-    , campaignMap(nullptr)
+    , map(nullptr)
     , worldSurface(nullptr)
     , hoverMapNode(nullptr)
     , editingMode(EditingMode::None)
@@ -45,34 +45,34 @@ CampaignMapEditor::CampaignMapEditor(QQuickItem* parent)
     this->setAcceptHoverEvents(true);
 }
 
-void CampaignMapEditor::setCampaignMap(core::CampaignMap* campaignMap)
+void MapEditor::setMap(core::Map* map)
 {
-    if (this->campaignMap != campaignMap)
+    if (this->map != map)
     {
-        wInfo << "campaignMap `" << this->campaignMap << "' -> `" << campaignMap << "'";
+        wInfo << "map `" << this->map << "' -> `" << map << "'";
 
-        if (this->campaignMap != nullptr)
+        if (this->map != nullptr)
         {
-            QObject::disconnect(this->campaignMap, nullptr, this, nullptr);
+            QObject::disconnect(this->map, nullptr, this, nullptr);
             delete this->watcher;
         }
 
-        this->campaignMap = campaignMap;
+        this->map = map;
         this->updateContent();
 
-        if (this->campaignMap)
+        if (this->map)
         {
-            this->watcher = new CampaignMapWatcher(this->campaignMap, this);
-            QObject::connect(this->watcher, &CampaignMapWatcher::changed, this, &CampaignMapEditor::update);
+            this->watcher = new MapWatcher(this->map, this);
+            QObject::connect(this->watcher, &MapWatcher::changed, this, &MapEditor::update);
             QObject::connect(
-                this->campaignMap, &core::CampaignMap::mapNodesChanged, this, &CampaignMapEditor::onMapNodesChanged);
+                this->map, &core::Map::mapNodesChanged, this, &MapEditor::onMapNodesChanged);
         }
 
-        emit campaignMapChanged();
+        emit mapChanged();
     }
 }
 
-void CampaignMapEditor::setWorldSurface(WorldSurface* worldSurface)
+void MapEditor::setWorldSurface(WorldSurface* worldSurface)
 {
     if (this->worldSurface != worldSurface)
     {
@@ -85,7 +85,7 @@ void CampaignMapEditor::setWorldSurface(WorldSurface* worldSurface)
     }
 }
 
-void CampaignMapEditor::setEditingMode(EditingMode editingMode)
+void MapEditor::setEditingMode(EditingMode editingMode)
 {
     if (this->editingMode != editingMode)
     {
@@ -98,7 +98,7 @@ void CampaignMapEditor::setEditingMode(EditingMode editingMode)
     }
 }
 
-QSGNode* CampaignMapEditor::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
+QSGNode* MapEditor::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
 {
     const QMatrix4x4 transform = ui::moveTo(this->getWindowRect().topLeft(), QPoint(0, 0));
 
@@ -137,17 +137,17 @@ QSGNode* CampaignMapEditor::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNod
     return rootNode;
 }
 
-void CampaignMapEditor::setNumberOfFactions(int n)
+void MapEditor::setNumberOfFactions(int n)
 {
-    if (this->campaignMap == nullptr)
+    if (this->map == nullptr)
         return;
 
     std::size_t newSize = static_cast<std::size_t>(n);
-    std::size_t currentSize = this->campaignMap->getFactions().size();
+    std::size_t currentSize = this->map->getFactions().size();
 
     if (newSize > currentSize)
     {
-        const std::vector<core::Civilization*>& civilizations = this->campaignMap->getWorld()->getCivilizations();
+        const std::vector<core::Civilization*>& civilizations = this->map->getWorld()->getCivilizations();
 
         std::random_device rd;
         std::mt19937 mtd(rd());
@@ -155,21 +155,21 @@ void CampaignMapEditor::setNumberOfFactions(int n)
 
         for (std::size_t i = currentSize; i < newSize; ++i)
         {
-            auto faction = this->campaignMap->createFaction();
+            auto faction = this->map->createFaction();
             faction->setCivilization(civilizations.at(dist(mtd)));
         }
     }
     else if (newSize < currentSize)
     {
-        const std::vector<core::Faction*>& factions = this->campaignMap->getFactions();
+        const std::vector<core::Faction*>& factions = this->map->getFactions();
         for (std::size_t i = newSize; i < currentSize; ++i)
         {
-            this->campaignMap->removeFaction(factions.at(i));
+            this->map->removeFaction(factions.at(i));
         }
     }
 }
 
-void CampaignMapEditor::setCurrentFaction(core::Faction* currentFaction)
+void MapEditor::setCurrentFaction(core::Faction* currentFaction)
 {
     if (this->currentFaction != currentFaction)
     {
@@ -181,7 +181,7 @@ void CampaignMapEditor::setCurrentFaction(core::Faction* currentFaction)
     }
 }
 
-void CampaignMapEditor::hoverMoveEvent(QHoverEvent* event)
+void MapEditor::hoverMoveEvent(QHoverEvent* event)
 {
     const QPoint mapPos = this->windowPosToMapPos(event->pos());
     core::MapNode* currentMapNode = mapNodeAtPos(mapPos, this->mapNodesPos, this->worldSurface);
@@ -224,12 +224,12 @@ void CampaignMapEditor::hoverMoveEvent(QHoverEvent* event)
     }
 }
 
-void CampaignMapEditor::hoverEnterEvent(QHoverEvent*)
+void MapEditor::hoverEnterEvent(QHoverEvent*)
 {
     QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 }
 
-void CampaignMapEditor::hoverLeaveEvent(QHoverEvent*)
+void MapEditor::hoverLeaveEvent(QHoverEvent*)
 {
     this->hoverMapNode = nullptr;
     this->hoverPos = boost::none;
@@ -239,32 +239,32 @@ void CampaignMapEditor::hoverLeaveEvent(QHoverEvent*)
     this->update();
 }
 
-void CampaignMapEditor::mousePressEvent(QMouseEvent* event)
+void MapEditor::mousePressEvent(QMouseEvent* event)
 {
     this->doEditingAction(this->windowPosToMapPos(event->pos()));
 
     BasicMap::mousePressEvent(event);
 }
 
-void CampaignMapEditor::updateContent()
+void MapEditor::updateContent()
 {
-    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty() ||
-        this->worldSurface->getWorld() != this->campaignMap->getWorld())
+    if (this->worldSurface == nullptr || this->map == nullptr || this->map->getMapNodes().empty() ||
+        this->worldSurface->getWorld() != this->map->getWorld())
     {
         this->setFlags(0);
     }
     else
     {
         this->setFlags(QQuickItem::ItemHasContents);
-        this->mapNodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->worldSurface->getTileSize());
+        this->mapNodesPos = positionMapNodes(this->map->getMapNodes()[0], this->worldSurface->getTileSize());
         this->updateMapRect();
     }
 }
 
-void CampaignMapEditor::updateMapRect()
+void MapEditor::updateMapRect()
 {
-    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty() ||
-        this->worldSurface->getWorld() != this->campaignMap->getWorld())
+    if (this->worldSurface == nullptr || this->map == nullptr || this->map->getMapNodes().empty() ||
+        this->worldSurface->getWorld() != this->map->getWorld())
     {
         this->setMapRect(QRect(0, 0, 0, 0));
     }
@@ -275,13 +275,13 @@ void CampaignMapEditor::updateMapRect()
     }
 }
 
-void CampaignMapEditor::onMapNodesChanged()
+void MapEditor::onMapNodesChanged()
 {
-    this->mapNodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->worldSurface->getTileSize());
+    this->mapNodesPos = positionMapNodes(this->map->getMapNodes()[0], this->worldSurface->getTileSize());
     this->updateMapRect();
 }
 
-void CampaignMapEditor::doEditingAction(const QPoint&)
+void MapEditor::doEditingAction(const QPoint&)
 {
     switch (this->editingMode)
     {
@@ -302,11 +302,11 @@ void CampaignMapEditor::doEditingAction(const QPoint&)
     }
 }
 
-void CampaignMapEditor::doGrantToCurrentFactionEditingAction()
+void MapEditor::doGrantToCurrentFactionEditingAction()
 {
 }
 
-bool CampaignMapEditor::isCurrentEditingActionPossible() const
+bool MapEditor::isCurrentEditingActionPossible() const
 {
     return true;
 }

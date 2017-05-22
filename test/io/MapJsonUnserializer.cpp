@@ -21,7 +21,7 @@
 #include <QJsonObject>
 #include <QJsonValue>
 
-#include "io/CampaignMapJsonUnserializer.h"
+#include "io/MapJsonUnserializer.h"
 #include "test/Util.h"
 #include "test/catch.hpp"
 #include "utils/Exception.h"
@@ -95,7 +95,7 @@ std::ostream& operator<<(std::ostream& s, const QVariant& v)
     return s;
 }
 
-TEST_CASE("MapNode can be unserialized from JSON", "[CampaignMapJsonUnserializer][JSON][Unserialize][HappyPath]")
+TEST_CASE("MapNode can be unserialized from JSON", "[MapJsonUnserializer][JSON][Unserialize][HappyPath]")
 {
     const auto maps = makeMap();
     const auto map = maps.first.get();
@@ -107,7 +107,7 @@ TEST_CASE("MapNode can be unserialized from JSON", "[CampaignMapJsonUnserializer
 
     INFO("The json map-node is: " << rawJson.data());
 
-    const io::CampaignMapJsonUnserializer unserializer;
+    const io::MapJsonUnserializer unserializer;
 
     SECTION("Unserialization succeeds without exceptions")
     {
@@ -140,13 +140,13 @@ TEST_CASE("MapNode can be unserialized from JSON", "[CampaignMapJsonUnserializer
     }
 }
 
-TEST_CASE("MapNode can't be unserialized from JSON", "[CampaignMapJsonUnserializer][JSON][Unserialize][ErrorPaths]")
+TEST_CASE("MapNode can't be unserialized from JSON", "[MapJsonUnserializer][JSON][Unserialize][ErrorPaths]")
 {
     const auto maps = makeMap();
     const auto map = maps.first.get();
     const auto jmap = maps.second;
 
-    const io::CampaignMapJsonUnserializer unserializer;
+    const io::MapJsonUnserializer unserializer;
     QJsonObject jobj = jmap["mapNodes"].toArray()[0].toObject();
 
     SECTION("Invalid JSON")
@@ -201,7 +201,7 @@ TEST_CASE("MapNode can't be unserialized from JSON", "[CampaignMapJsonUnserializ
     }
 }
 
-TEST_CASE("Faction can be unserialized from JSON", "[CampaignMapJsonUnserializer][JSON][Unserialize][HappyPath]")
+TEST_CASE("Faction can be unserialized from JSON", "[MapJsonUnserializer][JSON][Unserialize][HappyPath]")
 {
     const auto maps = makeMap();
     const auto map = maps.first.get();
@@ -213,7 +213,7 @@ TEST_CASE("Faction can be unserialized from JSON", "[CampaignMapJsonUnserializer
 
     INFO("The json faction is: " << rawJson.data());
 
-    const io::CampaignMapJsonUnserializer unserializer;
+    const io::MapJsonUnserializer unserializer;
 
     SECTION("Unserialization succeeds without exceptions")
     {
@@ -234,13 +234,13 @@ TEST_CASE("Faction can be unserialized from JSON", "[CampaignMapJsonUnserializer
     }
 }
 
-TEST_CASE("Faction can't be unserialized from JSON", "[CampaignMapJsonUnserializer][JSON][Unserialize][ErrorPaths]")
+TEST_CASE("Faction can't be unserialized from JSON", "[MapJsonUnserializer][JSON][Unserialize][ErrorPaths]")
 {
     const auto maps = makeMap();
     const auto map = maps.first.get();
     const auto jmap = maps.second;
 
-    const io::CampaignMapJsonUnserializer unserializer;
+    const io::MapJsonUnserializer unserializer;
     QJsonObject jobj = jmap["factions"].toArray()[0].toObject();
 
     SECTION("Invalid JSON")
@@ -341,7 +341,7 @@ TEST_CASE("Faction can't be unserialized from JSON", "[CampaignMapJsonUnserializ
     }
 }
 
-TEST_CASE("Entity can be unserialized from JSON", "[CampaignMapJsonUnserializer][JSON][Unserialize][HappyPath]")
+TEST_CASE("Entity can be unserialized from JSON", "[MapJsonUnserializer][JSON][Unserialize][HappyPath]")
 {
     const auto maps = makeMap();
     const auto map = maps.first.get();
@@ -353,7 +353,7 @@ TEST_CASE("Entity can be unserialized from JSON", "[CampaignMapJsonUnserializer]
 
     INFO("The json entity is: " << rawJson.data());
 
-    const io::CampaignMapJsonUnserializer unserializer;
+    const io::MapJsonUnserializer unserializer;
 
     SECTION("Unserialization succeeds without exceptions")
     {
@@ -402,13 +402,13 @@ TEST_CASE("Entity can be unserialized from JSON", "[CampaignMapJsonUnserializer]
     }
 }
 
-TEST_CASE("Entity can't be unserialized from JSON", "[CampaignMapJsonUnserializer][JSON][Unserialize][ErrorPaths]")
+TEST_CASE("Entity can't be unserialized from JSON", "[MapJsonUnserializer][JSON][Unserialize][ErrorPaths]")
 {
     const auto maps = makeMap();
     const auto map = maps.first.get();
     const auto jmap = maps.second;
 
-    const io::CampaignMapJsonUnserializer unserializer;
+    const io::MapJsonUnserializer unserializer;
     QJsonObject jobj = jmap["entities"].toArray()[0].toObject();
 
     SECTION("Invalid JSON")
@@ -549,7 +549,7 @@ TEST_CASE("Entity can't be unserialized from JSON", "[CampaignMapJsonUnserialize
     }
 }
 
-TEST_CASE("CampaignMap can be unserialized from JSON", "[CampaignMapJsonUnserializer][JSON][Unserialize][HappyPath]")
+TEST_CASE("Map can be unserialized from JSON", "[MapJsonUnserializer][JSON][Unserialize][HappyPath]")
 {
     const auto maps = makeMap();
     const auto jmap = maps.second;
@@ -560,17 +560,17 @@ TEST_CASE("CampaignMap can be unserialized from JSON", "[CampaignMapJsonUnserial
 
     INFO("The json map is: " << rawJson.data());
 
-    const io::CampaignMapJsonUnserializer unserializer;
+    const io::MapJsonUnserializer unserializer;
 
     SECTION("Unserialization succeeds without exceptions")
     {
-        REQUIRE_NOTHROW(unserializer.unserializeCampaignMap(rawJson, world));
-        REQUIRE(unserializer.unserializeCampaignMap(rawJson, world));
+        REQUIRE_NOTHROW(unserializer.unserializeMap(rawJson, world));
+        REQUIRE(unserializer.unserializeMap(rawJson, world));
     }
 
     SECTION("Unserializing map")
     {
-        const auto map = unserializer.unserializeCampaignMap(rawJson, world);
+        const auto map = unserializer.unserializeMap(rawJson, world);
 
         REQUIRE(map->getDisplayName() == jmap["displayName"].toString());
         REQUIRE(map->getWorld() == world);
@@ -609,7 +609,7 @@ TEST_CASE("CampaignMap can be unserialized from JSON", "[CampaignMapJsonUnserial
     }
 }
 
-TEST_CASE("CampaignMap can't be unserialized from JSON", "[CampaignMapJsonUnserializer][JSON][Unserialize][ErrorPaths]")
+TEST_CASE("Map can't be unserialized from JSON", "[MapJsonUnserializer][JSON][Unserialize][ErrorPaths]")
 {
     const auto maps = makeMap();
     const auto map = maps.first.get();
@@ -617,19 +617,19 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[CampaignMapJsonUnseri
 
     auto jmap = maps.second;
 
-    const io::CampaignMapJsonUnserializer unserializer;
+    const io::MapJsonUnserializer unserializer;
 
     SECTION("Invalid JSON")
     {
         QString invalidJson{"{\"id\": \"1\",}"};
-        REQUIRE_THROWS_AS(unserializer.unserializeCampaignMap(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeMap(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Wrong world")
     {
         core::World w("wrong-uuid");
 
-        REQUIRE_THROWS_AS(unserializer.unserializeCampaignMap(QJsonDocument(jmap).toJson(), &w), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeMap(QJsonDocument(jmap).toJson(), &w), utils::ValueError);
     }
 
     SECTION("Missing name")
@@ -637,7 +637,7 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[CampaignMapJsonUnseri
         jmap.remove("displayName");
         QJsonDocument jdoc(jmap);
 
-        REQUIRE_THROWS_AS(unserializer.unserializeCampaignMap(jdoc.toJson(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeMap(jdoc.toJson(), world), utils::ValueError);
     }
 
     SECTION("Invalid name")
@@ -645,7 +645,7 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[CampaignMapJsonUnseri
         jmap["displayName"] = 123;
         QJsonDocument jdoc(jmap);
 
-        REQUIRE_THROWS_AS(unserializer.unserializeCampaignMap(jdoc.toJson(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeMap(jdoc.toJson(), world), utils::ValueError);
     }
 
     SECTION("Missing mapNodes")
@@ -653,7 +653,7 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[CampaignMapJsonUnseri
         jmap.remove("mapNodes");
         QJsonDocument jdoc(jmap);
 
-        REQUIRE_THROWS_AS(unserializer.unserializeCampaignMap(jdoc.toJson(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeMap(jdoc.toJson(), world), utils::ValueError);
     }
 
     SECTION("Invalid mapNodes")
@@ -661,7 +661,7 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[CampaignMapJsonUnseri
         jmap["mapNodes"] = 123;
         QJsonDocument jdoc(jmap);
 
-        REQUIRE_THROWS_AS(unserializer.unserializeCampaignMap(jdoc.toJson(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeMap(jdoc.toJson(), world), utils::ValueError);
     }
 
     SECTION("Missing factions")
@@ -669,7 +669,7 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[CampaignMapJsonUnseri
         jmap.remove("factions");
         QJsonDocument jdoc(jmap);
 
-        REQUIRE_THROWS_AS(unserializer.unserializeCampaignMap(jdoc.toJson(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeMap(jdoc.toJson(), world), utils::ValueError);
     }
 
     SECTION("Invalid factions")
@@ -677,7 +677,7 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[CampaignMapJsonUnseri
         jmap["factions"] = 123;
         QJsonDocument jdoc(jmap);
 
-        REQUIRE_THROWS_AS(unserializer.unserializeCampaignMap(jdoc.toJson(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeMap(jdoc.toJson(), world), utils::ValueError);
     }
 
     SECTION("Missing entities")
@@ -685,7 +685,7 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[CampaignMapJsonUnseri
         jmap.remove("entities");
         QJsonDocument jdoc(jmap);
 
-        REQUIRE_THROWS_AS(unserializer.unserializeCampaignMap(jdoc.toJson(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeMap(jdoc.toJson(), world), utils::ValueError);
     }
 
     SECTION("Invalid entities")
@@ -693,6 +693,6 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[CampaignMapJsonUnseri
         jmap["entities"] = 123;
         QJsonDocument jdoc(jmap);
 
-        REQUIRE_THROWS_AS(unserializer.unserializeCampaignMap(jdoc.toJson(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeMap(jdoc.toJson(), world), utils::ValueError);
     }
 }

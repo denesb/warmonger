@@ -16,16 +16,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "core/CampaignMap.h"
+#include "core/Map.h"
 #include "test/catch.hpp"
 
 using namespace warmonger;
 
 static unsigned int numberOfConnections(const std::vector<core::MapNode*>& nodes);
 
-TEST_CASE("CampaignMap::generateMapNodes()", "[CampaignMap]")
+TEST_CASE("Map::generateMapNodes()", "[Map]")
 {
-    core::CampaignMap map;
+    core::Map map;
 
     SECTION("radius == 0")
     {

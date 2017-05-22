@@ -19,8 +19,8 @@
 #include <QGuiApplication>
 #include <QSGSimpleTextureNode>
 
-#include "ui/CampaignMapPreview.h"
-#include "ui/CampaignMapWatcher.h"
+#include "ui/MapPreview.h"
+#include "ui/MapWatcher.h"
 #include "ui/MapUtil.h"
 #include "utils/Constants.h"
 #include "utils/Logging.h"
@@ -29,46 +29,46 @@
 namespace warmonger {
 namespace ui {
 
-CampaignMapPreview::CampaignMapPreview(QQuickItem* parent)
+MapPreview::MapPreview(QQuickItem* parent)
     : QQuickItem(parent)
-    , campaignMap(nullptr)
+    , map(nullptr)
     , worldSurface(nullptr)
     , watcher(nullptr)
 {
-    QObject::connect(this, &CampaignMapPreview::widthChanged, this, &CampaignMapPreview::updateTransform);
-    QObject::connect(this, &CampaignMapPreview::heightChanged, this, &CampaignMapPreview::updateTransform);
+    QObject::connect(this, &MapPreview::widthChanged, this, &MapPreview::updateTransform);
+    QObject::connect(this, &MapPreview::heightChanged, this, &MapPreview::updateTransform);
 
     this->updateTransform();
 }
 
-void CampaignMapPreview::setCampaignMap(core::CampaignMap* campaignMap)
+void MapPreview::setMap(core::Map* map)
 {
-    if (this->campaignMap != campaignMap)
+    if (this->map != map)
     {
-        wInfo << "campaignMap `" << this->campaignMap << "' -> `" << campaignMap << "'";
+        wInfo << "map `" << this->map << "' -> `" << map << "'";
 
-        if (this->campaignMap != nullptr)
+        if (this->map != nullptr)
         {
-            QObject::disconnect(this->campaignMap, nullptr, this, nullptr);
+            QObject::disconnect(this->map, nullptr, this, nullptr);
             delete this->watcher;
         }
 
-        this->campaignMap = campaignMap;
+        this->map = map;
         this->updateContent();
 
-        if (this->campaignMap)
+        if (this->map)
         {
-            this->watcher = new CampaignMapWatcher(this->campaignMap, this);
-            QObject::connect(this->watcher, &CampaignMapWatcher::changed, this, &CampaignMapPreview::update);
+            this->watcher = new MapWatcher(this->map, this);
+            QObject::connect(this->watcher, &MapWatcher::changed, this, &MapPreview::update);
             QObject::connect(
-                this->campaignMap, &core::CampaignMap::mapNodesChanged, this, &CampaignMapPreview::onMapNodesChanged);
+                this->map, &core::Map::mapNodesChanged, this, &MapPreview::onMapNodesChanged);
         }
 
-        emit campaignMapChanged();
+        emit mapChanged();
     }
 }
 
-void CampaignMapPreview::setWorldSurface(WorldSurface* worldSurface)
+void MapPreview::setWorldSurface(WorldSurface* worldSurface)
 {
     if (this->worldSurface != worldSurface)
     {
@@ -81,7 +81,7 @@ void CampaignMapPreview::setWorldSurface(WorldSurface* worldSurface)
     }
 }
 
-QSGNode* CampaignMapPreview::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
+QSGNode* MapPreview::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
 {
     QSGClipNode* rootNode;
     QSGTransformNode* transformNode;
@@ -118,26 +118,26 @@ QSGNode* CampaignMapPreview::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNo
     return rootNode;
 }
 
-void CampaignMapPreview::updateContent()
+void MapPreview::updateContent()
 {
-    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty() ||
-        this->worldSurface->getWorld() != this->campaignMap->getWorld())
+    if (this->worldSurface == nullptr || this->map == nullptr || this->map->getMapNodes().empty() ||
+        this->worldSurface->getWorld() != this->map->getWorld())
     {
         this->setFlags(0);
     }
     else
     {
         this->setFlags(QQuickItem::ItemHasContents);
-        this->mapNodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->worldSurface->getTileSize());
+        this->mapNodesPos = positionMapNodes(this->map->getMapNodes()[0], this->worldSurface->getTileSize());
         this->updateMapRect();
         this->updateTransform();
     }
 }
 
-void CampaignMapPreview::updateMapRect()
+void MapPreview::updateMapRect()
 {
-    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty() ||
-        this->worldSurface->getWorld() != this->campaignMap->getWorld())
+    if (this->worldSurface == nullptr || this->map == nullptr || this->map->getMapNodes().empty() ||
+        this->worldSurface->getWorld() != this->map->getWorld())
     {
         this->mapRect = QRect(0, 0, 0, 0);
     }
@@ -148,14 +148,14 @@ void CampaignMapPreview::updateMapRect()
     }
 }
 
-void CampaignMapPreview::onMapNodesChanged()
+void MapPreview::onMapNodesChanged()
 {
-    this->mapNodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->worldSurface->getTileSize());
+    this->mapNodesPos = positionMapNodes(this->map->getMapNodes()[0], this->worldSurface->getTileSize());
     this->updateMapRect();
     this->updateTransform();
 }
 
-void CampaignMapPreview::updateTransform()
+void MapPreview::updateTransform()
 {
     this->transform = ui::centerIn(this->mapRect, QRect(0, 0, this->width(), this->height()));
 }

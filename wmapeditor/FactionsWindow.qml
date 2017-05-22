@@ -134,7 +134,7 @@ Window {
             ListView {
                 id: factionList
 
-                model: W.campaignMap.factions
+                model: W.map.factions
 
                 delegate: factionDelegate
             }
@@ -156,7 +156,7 @@ Window {
         }
 
         SpinBox {
-            value: W.campaignMap.factions.length
+            value: W.map.factions.length
             onEditingFinished: {
                 editor.setNumberOfFactions(value);
             }
@@ -179,6 +179,6 @@ Window {
 
         visible: false
 
-        faction: W.campaignMap.factions[0]
+        faction: W.map.factions[0]
     }
 }

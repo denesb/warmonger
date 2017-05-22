@@ -73,7 +73,7 @@ const QString surfaces{"surfaces"};
 namespace searchPaths {
 
 const QString world{"World"};
-const QString campaignMap{"CampaignMap"};
+const QString map{"Map"};
 const QString worldSurface{"WorldSurface"};
 
 } // namespace searchPaths

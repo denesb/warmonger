@@ -20,7 +20,7 @@
 
 #include <QString>
 
-#include "core/CampaignMap.h"
+#include "core/Map.h"
 #include "core/World.h"
 #include "io/File.h"
 #include "io/SanityCheck.h"
@@ -86,13 +86,13 @@ bool isWorldSane(const QString& path)
     return isWorldSane(*world.get());
 }
 
-bool isCampaignMapSane(const QString& path, core::World* world)
+bool isMapSane(const QString& path, core::World* world)
 {
-    std::unique_ptr<core::CampaignMap> campaignMap;
+    std::unique_ptr<core::Map> map;
 
     try
     {
-        campaignMap = io::readCampaignMap(path, world);
+        map = io::readMap(path, world);
     }
     catch (const std::exception& e)
     {

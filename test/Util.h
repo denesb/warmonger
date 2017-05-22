@@ -9,7 +9,7 @@
 #include <QObject>
 #include <QString>
 
-#include "core/CampaignMap.h"
+#include "core/Map.h"
 #include "core/World.h"
 #include "io/Reference.h"
 #include "test/catch.hpp"
@@ -19,7 +19,7 @@ using namespace warmonger;
 std::ostream& operator<<(std::ostream& os, const QString& s);
 
 std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld();
-std::pair<std::unique_ptr<core::CampaignMap>, QJsonObject> makeMap();
+std::pair<std::unique_ptr<core::Map>, QJsonObject> makeMap();
 
 /**
  * Compare a QJsonObject to a map.

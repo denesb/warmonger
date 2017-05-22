@@ -35,18 +35,18 @@
 namespace warmonger {
 namespace wmapeditor {
 
-const QString campaignMapObjectName{"newCampaignMap"};
-const QString campaignMapDisplayName{"New campaign map"};
+const QString mapObjectName{"newMap"};
+const QString mapDisplayName{"New campaign map"};
 const QString unknownErrorMessage{"Unknown error"};
 
-static QString nextCampaignMapName(const std::vector<core::CampaignMap*>& campaignMaps);
-static QString defaultPath(const core::World* world, const core::CampaignMap* campaignMap);
+static QString nextMapName(const std::vector<core::Map*>& maps);
+static QString defaultPath(const core::World* world, const core::Map* map);
 
 Context::Context(QObject* parent)
     : QObject(parent)
     , world(nullptr)
     , worldSurface(nullptr)
-    , campaignMap(nullptr)
+    , map(nullptr)
     , disabledPalette(new ui::Palette(QGuiApplication::palette(), QPalette::Disabled, this))
     , activePalette(new ui::Palette(QGuiApplication::palette(), QPalette::Active, this))
     , inactivePalette(new ui::Palette(QGuiApplication::palette(), QPalette::Inactive, this))
@@ -60,18 +60,18 @@ QVariantList Context::readWorlds() const
     return utils::toQVariantList(this->worlds);
 }
 
-void Context::setCampaignMap(core::CampaignMap* campaignMap)
+void Context::setMap(core::Map* map)
 {
-    if (this->campaignMap != campaignMap)
+    if (this->map != map)
     {
-        wInfo << "campaignMap: `" << this->campaignMap << "' -> `" << campaignMap << "'";
+        wInfo << "map: `" << this->map << "' -> `" << map << "'";
 
-        this->campaignMap = campaignMap;
-        this->setWorld(this->campaignMap->getWorld());
+        this->map = map;
+        this->setWorld(this->map->getWorld());
 
-        this->campaignMap->setParent(this);
+        this->map->setParent(this);
 
-        emit campaignMapChanged();
+        emit mapChanged();
     }
 }
 
@@ -88,16 +88,16 @@ QVariantList Context::readWorldSurfaces() const
     }
 }
 
-QVariantList Context::readCampaignMaps() const
+QVariantList Context::readMaps() const
 {
-    return utils::toQVariantList(this->campaignMaps);
+    return utils::toQVariantList(this->maps);
 }
 
 void Context::create(warmonger::core::World* world)
 {
-    core::CampaignMap* map = new core::CampaignMap(this);
-    map->setObjectName(nextCampaignMapName(this->campaignMaps));
-    map->setDisplayName(campaignMapDisplayName);
+    core::Map* map = new core::Map(this);
+    map->setObjectName(nextMapName(this->maps));
+    map->setDisplayName(mapDisplayName);
     map->setWorld(world);
 
     // TODO fix map-node generation, call into world-rules
@@ -115,12 +115,12 @@ void Context::create(warmonger::core::World* world)
     auto faction1 = map->createFaction();
     faction1->setCivilization(civilizations.at(civsDist(mtd)));
 
-    this->setCampaignMap(map);
+    this->setMap(map);
 }
 
 bool Context::save()
 {
-    return this->saveAs(this->lastPath.isEmpty() ? defaultPath(this->world, this->campaignMap) : this->lastPath);
+    return this->saveAs(this->lastPath.isEmpty() ? defaultPath(this->world, this->map) : this->lastPath);
 }
 
 bool Context::saveAs(const QString& path)
@@ -129,7 +129,7 @@ bool Context::saveAs(const QString& path)
     {
         this->lastPath = path;
 
-        io::writeCampaignMap(this->campaignMap, path);
+        io::writeMap(this->map, path);
     }
     catch (utils::IOError& e)
     {
@@ -161,7 +161,7 @@ bool Context::load(const QString& path)
         // io::Context ctx(std::function<void(const QString&, const QString&, Context&)>(injector));
 
         // TODO: fix loading campaign-maps with unknnown world
-        // this->setCampaignMap(io::readCampaignMap(path, unserializer).release());
+        // this->setMap(io::readMap(path, unserializer).release());
     }
     catch (utils::IOError& e)
     {
@@ -299,7 +299,7 @@ void Context::loadWorlds()
 
     emit worldsChanged();
     emit worldSurfacesChanged();
-    emit campaignMapsChanged();
+    emit mapsChanged();
 }
 
 void Context::loadMapsFromDir(const QDir& mapsDir, core::World* world)
@@ -314,11 +314,11 @@ void Context::loadMapsFromDir(const QDir& mapsDir, core::World* world)
     {
         const QString mapPath = mapsDir.absoluteFilePath(mapFile);
 
-        core::CampaignMap* map = io::readCampaignMap(mapPath, world).release();
+        core::Map* map = io::readMap(mapPath, world).release();
 
         map->setParent(this);
 
-        this->campaignMaps.push_back(map);
+        this->maps.push_back(map);
         ++n;
     }
 
@@ -347,28 +347,28 @@ void Context::loadSurfacesFromDir(const QDir& surfacesDir, core::World* world)
     wInfo << "Loaded " << n << " surfaces for world `" << world->objectName() << "'";
 }
 
-static QString nextCampaignMapName(const std::vector<core::CampaignMap*>& campaignMaps)
+static QString nextMapName(const std::vector<core::Map*>& maps)
 {
     std::vector<QString> names;
 
-    names.reserve(campaignMaps.size());
+    names.reserve(maps.size());
 
-    for (const core::CampaignMap* campaignMap : campaignMaps)
-        names.push_back(campaignMap->objectName());
+    for (const core::Map* map : maps)
+        names.push_back(map->objectName());
 
     std::size_t postFix{0};
-    QString objectName{campaignMapObjectName + QString::number(postFix)};
+    QString objectName{mapObjectName + QString::number(postFix)};
 
     while (std::find(names.begin(), names.end(), objectName) != names.end())
-        objectName = campaignMapObjectName + QString::number(++postFix);
+        objectName = mapObjectName + QString::number(++postFix);
 
     return objectName;
 }
 
-static QString defaultPath(const core::World* world, const core::CampaignMap* campaignMap)
+static QString defaultPath(const core::World* world, const core::Map* map)
 {
     const QString worldsPath{utils::settingsValue(utils::SettingsKey::worldsDir).toString()};
-    const QString fileName{utils::makeFileName(campaignMap->objectName(), utils::fileExtensions::mapDefinition)};
+    const QString fileName{utils::makeFileName(map->objectName(), utils::fileExtensions::mapDefinition)};
     return utils::makePath(worldsPath, world->objectName(), utils::paths::maps, fileName);
 }
 

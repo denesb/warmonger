@@ -16,12 +16,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "ui/CampaignMapEditor.h"
+#include "ui/MapEditor.h"
 #include "test/catch.hpp"
 
 using namespace warmonger;
 
-TEST_CASE("Invokable map-editing members", "[CampaignMapEditor]")
+TEST_CASE("Invokable map-editing members", "[MapEditor]")
 {
     core::World world("uuid0");
 
@@ -29,13 +29,13 @@ TEST_CASE("Invokable map-editing members", "[CampaignMapEditor]")
     world.createBanner();
     world.setColors({QColor("black"), QColor("white"), QColor("gray")});
 
-    core::CampaignMap map;
+    core::Map map;
     map.setWorld(&world);
 
     ui::WorldSurface surface("./worldsurface-packages/test.wsp", &world);
 
-    ui::CampaignMapEditor mapEditor;
-    mapEditor.setCampaignMap(&map);
+    ui::MapEditor mapEditor;
+    mapEditor.setMap(&map);
     mapEditor.setWorldSurface(&surface);
 
     SECTION("setNumberOfFactions")

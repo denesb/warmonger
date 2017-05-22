@@ -84,32 +84,32 @@ TEST_CASE("isWorldSane", "[SanityCheck]")
     }
 }
 
-TEST_CASE("isCampaignMapSane", "[SanityCheck]")
+TEST_CASE("isMapSane", "[SanityCheck]")
 {
     std::unique_ptr<core::World> world(io::readWorld("./world-packages/world.wwd"));
 
     SECTION("All is good")
     {
-        REQUIRE(io::isCampaignMapSane("./campaignmap-packages/campaignmap.wmd", world.get()));
+        REQUIRE(io::isMapSane("./map-packages/map.wmd", world.get()));
     }
 
     SECTION("Inexistent")
     {
-        REQUIRE(!io::isCampaignMapSane("./campaignmap-packages/inexistent.wmd", world.get()));
+        REQUIRE(!io::isMapSane("./map-packages/inexistent.wmd", world.get()));
     }
 
     SECTION("Invalid JSON")
     {
-        REQUIRE(!io::isCampaignMapSane("./campaignmap-packages/invalidJson.wmd", world.get()));
+        REQUIRE(!io::isMapSane("./map-packages/invalidJson.wmd", world.get()));
     }
 
     SECTION("Unresolved reference")
     {
-        REQUIRE(!io::isCampaignMapSane("./campaignmap-packages/unresolvedReference.wmd", world.get()));
+        REQUIRE(!io::isMapSane("./map-packages/unresolvedReference.wmd", world.get()));
     }
 
     SECTION("Invalid value")
     {
-        REQUIRE(!io::isCampaignMapSane("./campaignmap-packages/invalidValue.wmd", world.get()));
+        REQUIRE(!io::isMapSane("./map-packages/invalidValue.wmd", world.get()));
     }
 }

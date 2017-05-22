@@ -1,5 +1,5 @@
 /** \file
- * CampaignMap JSON unserializer class.
+ * Map JSON unserializer class.
  *
  * \copyright (C) 2015-2017 Botond Dénes
  *
@@ -18,15 +18,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef IO_CAMPAIGNMAP_JSON_UNSERIALIZER_H
-#define IO_CAMPAIGNMAP_JSON_UNSERIALIZER_H
+#ifndef IO_MAP_JSON_UNSERIALIZER_H
+#define IO_MAP_JSON_UNSERIALIZER_H
 
-#include "io/CampaignMapUnserializer.h"
+#include "io/MapUnserializer.h"
 
 namespace warmonger {
 
 namespace core {
-class CampaignMap;
+class Map;
 class Entity;
 class Faction;
 class MapNode;
@@ -39,17 +39,17 @@ namespace io {
  *
  * Unserialize the campaign-map and related core game-object from json.
  */
-class CampaignMapJsonUnserializer : public CampaignMapUnserializer
+class MapJsonUnserializer : public MapUnserializer
 {
 public:
-    std::unique_ptr<core::CampaignMap> unserializeCampaignMap(
+    std::unique_ptr<core::Map> unserializeMap(
         const QByteArray& data, core::World* world) const override;
-    core::Entity* unserializeEntity(const QByteArray& data, core::CampaignMap* map) const override;
-    core::Faction* unserializeFaction(const QByteArray& data, core::CampaignMap* map) const override;
-    core::MapNode* unserializeMapNode(const QByteArray& data, core::CampaignMap* map) const override;
+    core::Entity* unserializeEntity(const QByteArray& data, core::Map* map) const override;
+    core::Faction* unserializeFaction(const QByteArray& data, core::Map* map) const override;
+    core::MapNode* unserializeMapNode(const QByteArray& data, core::Map* map) const override;
 };
 
 } // namespace warmonger
 } // namespace io
 
-#endif // IO_CAMPAIGNMAP_JSON_UNSERIALIZER_H
+#endif // IO_MAP_JSON_UNSERIALIZER_H

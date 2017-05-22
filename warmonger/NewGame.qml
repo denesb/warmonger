@@ -80,12 +80,12 @@ Rectangle {
         width: 400
 
         Component {
-            id: campaignMapDelegate
+            id: mapDelegate
 
             Rectangle {
                 id: wrapper
 
-                width: campaignMapList.width
+                width: mapList.width
                 height: 40
 
                 color: {
@@ -135,13 +135,13 @@ Rectangle {
                 anchors.fill: parent
 
                 ListView {
-                    id: campaignMapList
+                    id: mapList
 
                     currentIndex: -1
 
-                    model: W.campaignMaps
+                    model: W.maps
 
-                    delegate: campaignMapDelegate
+                    delegate: mapDelegate
                 }
             }
         }
@@ -172,7 +172,7 @@ Rectangle {
 
                 Column {
                     Repeater {
-                        model: campaignMapList.currentIndex == -1 ? null : W.campaignMaps[campaignMapList.currentIndex].factions
+                        model: mapList.currentIndex == -1 ? null : W.maps[mapList.currentIndex].factions
 
                         Rectangle {
                             color: W.normalPalette.window
@@ -280,10 +280,10 @@ Rectangle {
 
                     color: W.normalPalette.light
 
-                    CampaignMapPreview {
+                    MapPreview {
                         anchors.fill: parent
 
-                        campaignMap: campaignMapList.currentIndex == -1 ? null : W.campaignMaps[campaignMapList.currentIndex]
+                        map: mapList.currentIndex == -1 ? null : W.maps[mapList.currentIndex]
                         worldSurface: W.worldSurface
                     }
                 }

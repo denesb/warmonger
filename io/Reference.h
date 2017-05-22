@@ -29,7 +29,7 @@
 namespace warmonger {
 
 namespace core {
-class CampaignMap;
+class Map;
 class World;
 class WObject;
 }
@@ -80,7 +80,7 @@ core::WObject* unserializeReference(const QString& reference, core::World* world
  *
  * \returns the referenced object
  */
-core::WObject* unserializeReference(const QString& reference, core::CampaignMap* map);
+core::WObject* unserializeReference(const QString& reference, core::Map* map);
 
 /**
  * Unserialize the reference.
@@ -113,10 +113,10 @@ T* unserializeReferenceAs(const QString& reference, core::World* world)
  *
  * \returns the referenced object
  *
- * \see unserializeReference(const QString&, core::CampaignMap*)
+ * \see unserializeReference(const QString&, core::Map*)
  */
 template <class T>
-T* unserializeReferenceAs(const QString& reference, core::CampaignMap* map)
+T* unserializeReferenceAs(const QString& reference, core::Map* map)
 {
     core::WObject* obj = unserializeReference(reference, map);
     return qobject_cast<T*>(obj);

@@ -19,7 +19,7 @@
 #include <iostream>
 #include <memory>
 
-#include "core/CampaignMap.h"
+#include "core/Map.h"
 #include "io/File.h"
 #include "io/SanityCheck.h"
 #include "tools/Utils.h"
@@ -36,17 +36,17 @@ int main(int argc, char* const argv[])
 {
     if (argc < 3)
     {
-        std::cout << "Usage: wcheck_campaignmap /path/to/world.wwd /path/to/campaignmap.wmd" << std::endl;
+        std::cout << "Usage: wcheck_map /path/to/world.wwd /path/to/map.wmd" << std::endl;
         return 1;
     }
 
     boost::shared_ptr<std::stringstream> logStream = tools::setupLogging();
 
     QString worldPath{argv[1]};
-    QString campaignMapPath{argv[2]};
+    QString mapPath{argv[2]};
 
     wInfo << "world path: " << worldPath;
-    wInfo << "campaign-map path: " << campaignMapPath;
+    wInfo << "campaign-map path: " << mapPath;
 
     if (!io::isWorldSane(worldPath))
     {
@@ -58,7 +58,7 @@ int main(int argc, char* const argv[])
 
     wInfo << "Successfully loaded world " << world.get();
 
-    if (!io::isCampaignMapSane(campaignMapPath, world.get()))
+    if (!io::isMapSane(mapPath, world.get()))
         FAIL(1);
 
     return 0;

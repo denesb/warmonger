@@ -28,7 +28,7 @@
 namespace warmonger {
 
 namespace core {
-class CampaignMap;
+class Map;
 class World;
 }
 
@@ -70,7 +70,7 @@ std::unique_ptr<core::World> readWorld(const QString& path);
  *
  * \throw utils::IOError if the file at path is not writeable
  */
-void writeCampaignMap(const core::CampaignMap* const campaignMap, const QString& path);
+void writeMap(const core::Map* const map, const QString& path);
 
 /**
  * Read the campaign-map from path.
@@ -85,7 +85,7 @@ void writeCampaignMap(const core::CampaignMap* const campaignMap, const QString&
  * \throw utils::IOError if the file at path is not readable
  * \throw utils::ValueError if there is a problem with unserializing
  */
-std::unique_ptr<core::CampaignMap> readCampaignMap(const QString& path, core::World* world);
+std::unique_ptr<core::Map> readMap(const QString& path, core::World* world);
 
 } // namespace warmonger
 } // namespace io

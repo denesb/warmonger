@@ -1,5 +1,5 @@
 /** \file
- * CampaignMapPreview class.
+ * MapPreview class.
  *
  * \copyright (C) 2015-2017 Botond Dénes
  *
@@ -18,57 +18,57 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef W_UI_CAMPAIGN_MAP_PREVIEW_H
-#define W_UI_CAMPAIGN_MAP_PREVIEW_H
+#ifndef W_UI_MAP_PREVIEW_H
+#define W_UI_MAP_PREVIEW_H
 
 #include <QMatrix4x4>
 #include <QtQuick/QQuickItem>
 
-#include "core/CampaignMap.h"
+#include "core/Map.h"
 #include "ui/BasicMap.h"
 #include "ui/WorldSurface.h"
 
 namespace warmonger {
 namespace ui {
 
-class CampaignMapWatcher;
+class MapWatcher;
 
 /**
  * Presents a non-interactive preview of the campaign-map.
  *
- * For the map to be actually drawn the CampaignMapPreview needs a campaign-map
+ * For the map to be actually drawn the MapPreview needs a campaign-map
  * and a matching, actvivated  world-surface (that belongs to the same world)
  * set. When these conditions are not met the QQuickItem::ItemHasContents flag
  * is unset and nothing is going to be drawn on the screen.
  *
- * \see CampaignMapPreview::setCampaignMap
- * \see CampaignMapPreview::setWorldSurface
- * \see core::CampaignMap
+ * \see MapPreview::setMap
+ * \see MapPreview::setWorldSurface
+ * \see core::Map
  * \see WorldSurface
  */
-class CampaignMapPreview : public QQuickItem
+class MapPreview : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(
-        warmonger::core::CampaignMap* campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
+        warmonger::core::Map* map READ getMap WRITE setMap NOTIFY mapChanged)
     Q_PROPERTY(WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
 
 public:
     /**
      * Constructs an empty campaign-map preview.
      */
-    CampaignMapPreview(QQuickItem* parent = nullptr);
+    MapPreview(QQuickItem* parent = nullptr);
 
     /**
      * Get the shown campaign-map
      *
-     * The CampaignMapPreview does not own the campaign-map!
+     * The MapPreview does not own the campaign-map!
      *
      * \return the campaign-map
      */
-    core::CampaignMap* getCampaignMap() const
+    core::Map* getMap() const
     {
-        return this->campaignMap;
+        return this->map;
     }
 
     /**
@@ -76,18 +76,18 @@ public:
      *
      * If all conditions are given for drawing the map, this will trigger a
      * redraw. If this was the missing piece it will trigger the first drawing.
-     * The CampaignMapPreview does not assume ownership of the campaign-map!
-     * Will emit the signal CampaignMapPreview::campaignMapChanged() if the newly
+     * The MapPreview does not assume ownership of the campaign-map!
+     * Will emit the signal MapPreview::mapChanged() if the newly
      * set value is different than the current one.
      *
-     * \param campaignMap the campaign-map
+     * \param map the campaign-map
      */
-    void setCampaignMap(core::CampaignMap* campaignMap);
+    void setMap(core::Map* map);
 
     /**
      * Get the world-surface used for drawing the campign-map.
      *
-     * The CampaignMapPreview does not own the world-surface!
+     * The MapPreview does not own the world-surface!
      *
      * \return the world-surface
      */
@@ -101,8 +101,8 @@ public:
      *
      * If all conditions are given for drawing the map, this will trigger a
      * redraw. If this was the missing piece it will trigger the first drawing.
-     * The CampaignMapPreview does not assume ownership of the world-surface!
-     * Will emit the signal CampaignMapPreview::worldSurfaceChanged() if the
+     * The MapPreview does not assume ownership of the world-surface!
+     * Will emit the signal MapPreview::worldSurfaceChanged() if the
      * newly set value is different than the current one.
      *
      * \param worldSurface the world-surface
@@ -120,7 +120,7 @@ signals:
     /**
      * Emitted when the map-node changes.
      */
-    void campaignMapChanged();
+    void mapChanged();
 
     /**
      * Emitted when the world-surface changes.
@@ -136,14 +136,14 @@ private:
     QRect mapRect;
     QMatrix4x4 transform;
 
-    core::CampaignMap* campaignMap;
+    core::Map* map;
     WorldSurface* worldSurface;
     std::map<core::MapNode*, QPoint> mapNodesPos;
 
-    CampaignMapWatcher* watcher;
+    MapWatcher* watcher;
 };
 
 } // namespace ui
 } // namespace warmonger
 
-#endif // W_UI_CAMPAIGN_MAP_PREVIEW_H
+#endif // W_UI_MAP_PREVIEW_H

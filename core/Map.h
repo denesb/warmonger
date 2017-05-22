@@ -1,5 +1,5 @@
 /** \file
- * CampaignMap class.
+ * Map class.
  *
  * \copyright (C) 2015-2017 Botond Dénes
  *
@@ -18,8 +18,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef CORE_CAMPAIGN_MAP_H
-#define CORE_CAMPAIGN_MAP_H
+#ifndef CORE_MAP_H
+#define CORE_MAP_H
 
 #include <memory>
 #include <vector>
@@ -51,7 +51,7 @@ namespace core {
  * \see warmonger::core::MapNode
  * \see warmonger::core::World
  */
-class CampaignMap : public QObject
+class Map : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
@@ -62,11 +62,11 @@ class CampaignMap : public QObject
 
 public:
     /**
-     * Constructs an empty CampaignMap.
+     * Constructs an empty Map.
      *
      * \param parent the parent QObject.
      */
-    explicit CampaignMap(QObject* parent = nullptr);
+    explicit Map(QObject* parent = nullptr);
 
     /**
      * Get the display-name.
@@ -81,7 +81,7 @@ public:
     /**
      * Set the display-name.
      *
-     * Will emit the signal CampaignMap::displayNameChanged() if the newly set
+     * Will emit the signal Map::displayNameChanged() if the newly set
      * value is different than the current one.
      *
      * \param displayName the new displayName
@@ -101,7 +101,7 @@ public:
     /**
      * Set the world.
      *
-     * Will emit the signal CampaignMap::worldChanged() if the newly set value
+     * Will emit the signal Map::worldChanged() if the newly set value
      * is different than the current one.
      *
      * \param world the new world
@@ -122,7 +122,7 @@ public:
      * Get the map-nodes as a QVariantList.
      *
      * This function is used as a read function for the mapNodes property and is
-     * not supposed to be called from C++ code. Use CampaignMap::getMapNodes()
+     * not supposed to be called from C++ code. Use Map::getMapNodes()
      * instead.
      *
      * \returns the map-nodes
@@ -143,7 +143,7 @@ public:
      * Get the factions as a QVariantList.
      *
      * This function is used as a read function for the mapNodes property and is
-     * not supposed to be called from C++ code. Use CampaignMap::getFactions()
+     * not supposed to be called from C++ code. Use Map::getFactions()
      * instead.
      *
      * \returns the factions
@@ -164,7 +164,7 @@ public:
      * Get the entities as a QVariantList.
      *
      * This function is used as a read function for the mapNodes property and is
-     * not supposed to be called from C++ code. Use CampaignMap::getEntitys()
+     * not supposed to be called from C++ code. Use Map::getEntitys()
      * instead.
      *
      * \returns the entities
@@ -175,7 +175,7 @@ public:
      * Create a new map-node and add it to the map.
      *
      * The map takes ownership of the created object.
-     * Will emit the signal CampaignMap::mapNodesChanged().
+     * Will emit the signal Map::mapNodesChanged().
      * An id value should only be passed when the factions is being
      * unserialized and it already has a priorly generated id.
      *
@@ -193,7 +193,7 @@ public:
      * If the map-node is not found, nothing happens. The map-node will
      * loose all its neighbours. The map-nodes former neighbours are also
      * updated.
-     * Will emit the signal CampaignMap::mapNodesChanged().
+     * Will emit the signal Map::mapNodesChanged().
      *
      * \param mapNode the map-node to be removed
      *
@@ -206,7 +206,7 @@ public:
      * Create a new entity and add it to the map.
      *
      * The map takes ownership of the created object.
-     * Will emit the signal CampaignMap::entitiesChanged().
+     * Will emit the signal Map::entitiesChanged().
      * An id value should only be passed when the entity is being
      * unserialized and it already has a priorly generated id.
      *
@@ -234,7 +234,7 @@ public:
      * Create a new faction and add it to the map.
      *
      * The map takes ownership of the created object.
-     * Will emit the signal CampaignMap::factionsChanged().
+     * Will emit the signal Map::factionsChanged().
      * An id value should only be passed when the factions is being
      * unserialized and it already has a priorly generated id.
      *
@@ -310,4 +310,4 @@ private:
 } // namespace core
 } // namespace warmonger
 
-#endif // CORE_CAMPAIGN_MAP_H
+#endif // CORE_MAP_H

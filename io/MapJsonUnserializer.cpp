@@ -16,13 +16,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "io/CampaignMapJsonUnserializer.h"
+#include "io/MapJsonUnserializer.h"
 
 #include <algorithm>
 #include <memory>
 #include <vector>
 
-#include "core/CampaignMap.h"
+#include "core/Map.h"
 #include "core/Hexagon.h"
 #include "core/World.h"
 #include "io/JsonUtils.h"
@@ -32,15 +32,15 @@
 namespace warmonger {
 namespace io {
 
-static core::Faction* factionFromJson(const QJsonObject& jobj, core::CampaignMap* map);
-static core::Entity* entityFromJson(const QJsonObject& jobj, core::CampaignMap* map);
-static void componentFromJson(core::Component* component, const QJsonObject& jcomponent, core::CampaignMap* map);
-static QVariant fieldFromJson(const core::FieldType* const fieldType, const QJsonValue& jvalue, core::CampaignMap* map);
+static core::Faction* factionFromJson(const QJsonObject& jobj, core::Map* map);
+static core::Entity* entityFromJson(const QJsonObject& jobj, core::Map* map);
+static void componentFromJson(core::Component* component, const QJsonObject& jcomponent, core::Map* map);
+static QVariant fieldFromJson(const core::FieldType* const fieldType, const QJsonValue& jvalue, core::Map* map);
 static std::tuple<core::MapNode*, std::map<core::Direction, QString>> mapNodeFromJson(
-    const QJsonObject& jobj, core::CampaignMap* map);
-static void mapNodesFromJson(const QJsonArray& jarr, core::CampaignMap* map);
+    const QJsonObject& jobj, core::Map* map);
+static void mapNodesFromJson(const QJsonArray& jarr, core::Map* map);
 
-std::unique_ptr<core::CampaignMap> CampaignMapJsonUnserializer::unserializeCampaignMap(
+std::unique_ptr<core::Map> MapJsonUnserializer::unserializeMap(
     const QByteArray& data, core::World* world) const
 {
     QJsonDocument jdoc(parseJson(data));
@@ -49,7 +49,7 @@ std::unique_ptr<core::CampaignMap> CampaignMapJsonUnserializer::unserializeCampa
     if (world->getUuid() != jobj["world"].toString())
         throw utils::ValueError("Failed to unserialize map, world uuid mismatch");
 
-    std::unique_ptr<core::CampaignMap> obj{std::make_unique<core::CampaignMap>()};
+    std::unique_ptr<core::Map> obj{std::make_unique<core::Map>()};
 
     const QString name{jobj["displayName"].toString()};
     if (name.isNull() || name.isEmpty())
@@ -84,19 +84,19 @@ std::unique_ptr<core::CampaignMap> CampaignMapJsonUnserializer::unserializeCampa
     return obj;
 }
 
-core::Entity* CampaignMapJsonUnserializer::unserializeEntity(const QByteArray& data, core::CampaignMap* map) const
+core::Entity* MapJsonUnserializer::unserializeEntity(const QByteArray& data, core::Map* map) const
 {
     QJsonDocument jdoc(parseJson(data));
     return entityFromJson(jdoc.object(), map);
 }
 
-core::Faction* CampaignMapJsonUnserializer::unserializeFaction(const QByteArray& data, core::CampaignMap* map) const
+core::Faction* MapJsonUnserializer::unserializeFaction(const QByteArray& data, core::Map* map) const
 {
     QJsonDocument jdoc(parseJson(data));
     return factionFromJson(jdoc.object(), map);
 }
 
-core::MapNode* CampaignMapJsonUnserializer::unserializeMapNode(const QByteArray& data, core::CampaignMap* map) const
+core::MapNode* MapJsonUnserializer::unserializeMapNode(const QByteArray& data, core::Map* map) const
 {
     QJsonDocument jdoc(parseJson(data));
     QJsonObject jobj{jdoc.object()};
@@ -122,7 +122,7 @@ core::MapNode* CampaignMapJsonUnserializer::unserializeMapNode(const QByteArray&
     return mapNode;
 }
 
-static core::Faction* factionFromJson(const QJsonObject& jobj, core::CampaignMap* map)
+static core::Faction* factionFromJson(const QJsonObject& jobj, core::Map* map)
 {
     const auto id = jobj["id"].toInt(core::WObject::invalidId);
 
@@ -165,7 +165,7 @@ static core::Faction* factionFromJson(const QJsonObject& jobj, core::CampaignMap
     return obj;
 }
 
-static core::Entity* entityFromJson(const QJsonObject& jobj, core::CampaignMap* map)
+static core::Entity* entityFromJson(const QJsonObject& jobj, core::Map* map)
 {
     const auto id = jobj["id"].toInt(core::WObject::invalidId);
 
@@ -199,7 +199,7 @@ static core::Entity* entityFromJson(const QJsonObject& jobj, core::CampaignMap* 
     return obj;
 }
 
-static void componentFromJson(core::Component* component, const QJsonObject& jcomponent, core::CampaignMap* map)
+static void componentFromJson(core::Component* component, const QJsonObject& jcomponent, core::Map* map)
 {
     const auto& fields{component->getType()->getFields()};
     for (const auto field : fields)
@@ -213,7 +213,7 @@ static void componentFromJson(core::Component* component, const QJsonObject& jco
     }
 }
 
-static QVariant fieldFromJson(const core::FieldType* const fieldType, const QJsonValue& jvalue, core::CampaignMap* map)
+static QVariant fieldFromJson(const core::FieldType* const fieldType, const QJsonValue& jvalue, core::Map* map)
 {
     QVariant value;
 
@@ -296,7 +296,7 @@ static QVariant fieldFromJson(const core::FieldType* const fieldType, const QJso
 }
 
 static std::tuple<core::MapNode*, std::map<core::Direction, QString>> mapNodeFromJson(
-    const QJsonObject& jobj, core::CampaignMap* map)
+    const QJsonObject& jobj, core::Map* map)
 {
     const int id = jobj["id"].toInt(core::WObject::invalidId);
 
@@ -321,7 +321,7 @@ static std::tuple<core::MapNode*, std::map<core::Direction, QString>> mapNodeFro
     return std::make_tuple(map->createMapNode(id), neighbours);
 }
 
-static void mapNodesFromJson(const QJsonArray& jarr, core::CampaignMap* map)
+static void mapNodesFromJson(const QJsonArray& jarr, core::Map* map)
 {
     std::vector<std::tuple<core::MapNode*, core::Direction, QString>> neighbours;
 

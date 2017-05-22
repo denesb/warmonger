@@ -27,8 +27,8 @@ Window {
     minimumWidth: 400
     minimumHeight: 400
 
-    property var campaignMaps
-    property var campaignMap
+    property var maps
+    property var map
     signal accepted
     signal rejected
 
@@ -39,14 +39,14 @@ Window {
     property var editor
 
     Component {
-        id: campaignMapDelegate
+        id: mapDelegate
 
         Rectangle {
             id: wrapper
 
             color: ListView.isCurrentItem ? W.normalPalette.highlight : W.normalPalette.window
 
-            width: campaignMapList.width
+            width: mapList.width
             height: 40
 
             Item {
@@ -82,7 +82,7 @@ Window {
     }
 
     Rectangle {
-        id: campaignMapListWrapper
+        id: mapListWrapper
 
         anchors {
             top: parent.top
@@ -99,13 +99,13 @@ Window {
             anchors.fill: parent
 
             ListView {
-                id: campaignMapList
+                id: mapList
 
                 currentIndex: -1
 
-                model: root.campaignMaps.length ? root.campaignMaps : []
+                model: root.maps.length ? root.maps : []
 
-                delegate: campaignMapDelegate
+                delegate: mapDelegate
             }
         }
     }
@@ -127,7 +127,7 @@ Window {
         Button {
             text: "Open"
 
-            enabled: campaignMapList.currentIndex == -1 ? false : true
+            enabled: mapList.currentIndex == -1 ? false : true
             onClicked: {
                 root.accept();
             }
@@ -146,17 +146,17 @@ Window {
     }
 
     function accept() {
-        if(root.campaignMaps.length)
-            root.campaignMap = root.campaignMaps[campaignMapList.currentIndex];
+        if(root.maps.length)
+            root.map = root.maps[mapList.currentIndex];
         else
-            root.campaignMap = null;
+            root.map = null;
 
         root.visible = false;
         root.accepted();
     }
 
     function reject() {
-        root.campaignMap = null;
+        root.map = null;
 
         root.visible = false;
         root.rejected();

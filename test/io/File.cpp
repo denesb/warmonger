@@ -18,7 +18,7 @@
 
 #include <QFile>
 
-#include "io/CampaignMapJsonSerializer.h"
+#include "io/MapJsonSerializer.h"
 #include "io/File.h"
 #include "io/WorldJsonSerializer.h"
 #include "test/Util.h"
@@ -37,17 +37,17 @@ void createWorldFile(const QString& path)
     file.write(serializer.serializeWorld(world));
 }
 
-void createCampaignMapFile(const QString& path)
+void createMapFile(const QString& path)
 {
     const auto maps = makeMap();
     const auto map{maps.first.get()};
 
-    io::CampaignMapJsonSerializer serializer;
+    io::MapJsonSerializer serializer;
 
     QFile file(path);
     file.open(QIODevice::WriteOnly);
 
-    file.write(serializer.serializeCampaignMap(map));
+    file.write(serializer.serializeMap(map));
 }
 
 TEST_CASE("World can be written to file", "[File]")
@@ -88,11 +88,11 @@ TEST_CASE("Map can be written to file", "[File]")
     const auto maps = makeMap();
     const auto map{maps.first.get()};
 
-    const QString path("./write_campaignmap.json");
+    const QString path("./write_map.json");
 
     SECTION("writing Map")
     {
-        REQUIRE_NOTHROW(io::writeCampaignMap(map, path));
+        REQUIRE_NOTHROW(io::writeMap(map, path));
 
         QFile file(path);
         REQUIRE(file.exists() == true);
@@ -103,17 +103,17 @@ TEST_CASE("Map can be written to file", "[File]")
 
 TEST_CASE("Map can be read from file", "[File]")
 {
-    const QString path("./read_campaignmap.json");
+    const QString path("./read_map.json");
 
     const auto worlds = makeWorld();
     const auto world = worlds.first.get();
 
-    createCampaignMapFile(path);
+    createMapFile(path);
 
-    SECTION("reading CampaignMap")
+    SECTION("reading Map")
     {
-        REQUIRE_NOTHROW(io::readCampaignMap(path, world));
-        REQUIRE(io::readCampaignMap(path, world));
+        REQUIRE_NOTHROW(io::readMap(path, world));
+        REQUIRE(io::readMap(path, world));
     }
 
     QFile file(path);

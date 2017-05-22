@@ -20,61 +20,61 @@
 #include <QSGTransformNode>
 
 #include "core/Faction.h"
-#include "ui/CampaignMapWatcher.h"
-#include "ui/CampaignMiniMap.h"
+#include "ui/MapWatcher.h"
+#include "ui/MiniMap.h"
 #include "ui/MapUtil.h"
 #include "utils/Logging.h"
 
 namespace warmonger {
 namespace ui {
 
-CampaignMiniMap::CampaignMiniMap(QQuickItem* parent)
+MiniMap::MiniMap(QQuickItem* parent)
     : BasicMiniMap(parent)
     , worldSurface(nullptr)
-    , campaignMap(nullptr)
+    , map(nullptr)
     , watcher(nullptr)
 {
 }
 
-core::CampaignMap* CampaignMiniMap::getCampaignMap() const
+core::Map* MiniMap::getMap() const
 {
-    return this->campaignMap;
+    return this->map;
 }
 
-void CampaignMiniMap::setCampaignMap(core::CampaignMap* campaignMap)
+void MiniMap::setMap(core::Map* map)
 {
-    if (this->campaignMap != campaignMap)
+    if (this->map != map)
     {
-        wInfo << "campaignMap `" << this->campaignMap << "' -> `" << campaignMap << "'";
+        wInfo << "map `" << this->map << "' -> `" << map << "'";
 
-        if (this->campaignMap != nullptr)
+        if (this->map != nullptr)
         {
             delete this->watcher;
-            QObject::disconnect(this->campaignMap, nullptr, this, nullptr);
+            QObject::disconnect(this->map, nullptr, this, nullptr);
         }
 
-        this->campaignMap = campaignMap;
+        this->map = map;
 
         this->updateContent();
 
-        if (this->campaignMap != nullptr)
+        if (this->map != nullptr)
         {
-            this->watcher = new CampaignMapWatcher(this->campaignMap, this);
-            QObject::connect(this->watcher, &CampaignMapWatcher::changed, this, &CampaignMiniMap::update);
+            this->watcher = new MapWatcher(this->map, this);
+            QObject::connect(this->watcher, &MapWatcher::changed, this, &MiniMap::update);
             QObject::connect(
-                this->campaignMap, &core::CampaignMap::mapNodesChanged, this, &CampaignMiniMap::onMapNodesChanged);
+                this->map, &core::Map::mapNodesChanged, this, &MiniMap::onMapNodesChanged);
         }
 
-        emit campaignMapChanged();
+        emit mapChanged();
     }
 }
 
-WorldSurface* CampaignMiniMap::getWorldSurface() const
+WorldSurface* MiniMap::getWorldSurface() const
 {
     return this->worldSurface;
 }
 
-void CampaignMiniMap::setWorldSurface(WorldSurface* worldSurface)
+void MiniMap::setWorldSurface(WorldSurface* worldSurface)
 {
     if (this->worldSurface != worldSurface)
     {
@@ -87,7 +87,7 @@ void CampaignMiniMap::setWorldSurface(WorldSurface* worldSurface)
     }
 }
 
-QSGNode* CampaignMiniMap::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
+QSGNode* MiniMap::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
 {
     QSGTransformNode* rootNode;
     QSGNode* mapRootNode;
@@ -119,10 +119,10 @@ QSGNode* CampaignMiniMap::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeD
     return rootNode;
 }
 
-void CampaignMiniMap::updateContent()
+void MiniMap::updateContent()
 {
-    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty() ||
-        this->worldSurface->getWorld() != this->campaignMap->getWorld())
+    if (this->worldSurface == nullptr || this->map == nullptr || this->map->getMapNodes().empty() ||
+        this->worldSurface->getWorld() != this->map->getWorld())
     {
         this->setFlags(0);
     }
@@ -130,7 +130,7 @@ void CampaignMiniMap::updateContent()
     {
         this->setFlags(QQuickItem::ItemHasContents);
 
-        this->mapNodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->worldSurface->getTileSize());
+        this->mapNodesPos = positionMapNodes(this->map->getMapNodes()[0], this->worldSurface->getTileSize());
 
         this->updateMapRect();
 
@@ -138,10 +138,10 @@ void CampaignMiniMap::updateContent()
     }
 }
 
-void CampaignMiniMap::updateMapRect()
+void MiniMap::updateMapRect()
 {
-    if (this->worldSurface == nullptr || this->campaignMap == nullptr || this->campaignMap->getMapNodes().empty() ||
-        this->worldSurface->getWorld() != this->campaignMap->getWorld())
+    if (this->worldSurface == nullptr || this->map == nullptr || this->map->getMapNodes().empty() ||
+        this->worldSurface->getWorld() != this->map->getWorld())
     {
         this->setMapRect(QRect(0, 0, 0, 0));
     }
@@ -152,9 +152,9 @@ void CampaignMiniMap::updateMapRect()
     }
 }
 
-void CampaignMiniMap::onMapNodesChanged()
+void MiniMap::onMapNodesChanged()
 {
-    this->mapNodesPos = positionMapNodes(this->campaignMap->getMapNodes()[0], this->worldSurface->getTileSize());
+    this->mapNodesPos = positionMapNodes(this->map->getMapNodes()[0], this->worldSurface->getTileSize());
     this->updateMapRect();
 }
 

@@ -1,5 +1,5 @@
 /** \file
- * CampaignMapEditor class.
+ * MapEditor class.
  *
  * \copyright (C) 2015-2017 Botond Dénes
  *
@@ -18,42 +18,42 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef W_UI_CAMPAIGN_MAP_EDITOR_H
-#define W_UI_CAMPAIGN_MAP_EDITOR_H
+#ifndef W_UI_MAP_EDITOR_H
+#define W_UI_MAP_EDITOR_H
 
 #include <map>
 
 #include <boost/optional.hpp>
 
-#include "core/CampaignMap.h"
+#include "core/Map.h"
 #include "ui/BasicMap.h"
 #include "ui/WorldSurface.h"
 
 namespace warmonger {
 namespace ui {
 
-class CampaignMapWatcher;
+class MapWatcher;
 
 /**
  * Presents an editing widget for a campaign-map.
  *
- * For the map to be actually drawn the CampaignMapEditor needs a campaign-map
+ * For the map to be actually drawn the MapEditor needs a campaign-map
  * and a matching, actvivated  world-surface (that belongs to the same world)
  * set. When these conditions are not met the QQuickItem::ItemHasContents flag
  * is unset and nothing is going to be drawn on the screen.
  *
- * \see CampaignMapEditor::setCampaignMap
- * \see CampaignMapEditor::setWorldSurface
- * \see core::CampaignMap
+ * \see MapEditor::setMap
+ * \see MapEditor::setWorldSurface
+ * \see core::Map
  * \see WorldSurface
  */
-class CampaignMapEditor : public BasicMap
+class MapEditor : public BasicMap
 {
     Q_OBJECT
     Q_PROPERTY(
-        warmonger::core::CampaignMap* campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
+        warmonger::core::Map* map READ getMap WRITE setMap NOTIFY mapChanged)
     Q_PROPERTY(WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
-    Q_PROPERTY(warmonger::ui::CampaignMapEditor::EditingMode editingMode READ getEditingMode WRITE setEditingMode NOTIFY
+    Q_PROPERTY(warmonger::ui::MapEditor::EditingMode editingMode READ getEditingMode WRITE setEditingMode NOTIFY
             editingModeChanged)
     Q_PROPERTY(warmonger::core::Faction* currentFaction READ getCurrentFaction WRITE setCurrentFaction NOTIFY
             currentFactionChanged)
@@ -62,7 +62,7 @@ public:
     /**
      * Editing modes.
      *
-     * \see CampaignMapEditor::setEditingMode()
+     * \see MapEditor::setEditingMode()
      */
     enum class EditingMode
     {
@@ -76,18 +76,18 @@ public:
     /**
      * Constructs an empty map-editor.
      */
-    CampaignMapEditor(QQuickItem* parent = nullptr);
+    MapEditor(QQuickItem* parent = nullptr);
 
     /**
      * Get the edited campaign-map
      *
-     * The CampaignMapEditor does not own the campaign-map!
+     * The MapEditor does not own the campaign-map!
      *
      * \return the campaign-map
      */
-    core::CampaignMap* getCampaignMap() const
+    core::Map* getMap() const
     {
-        return this->campaignMap;
+        return this->map;
     }
 
     /**
@@ -95,18 +95,18 @@ public:
      *
      * If all conditions are given for drawing the map, this will trigger a
      * redraw. If this was the missing piece it will trigger the first drawing.
-     * The CampaignMapEditor does not assume ownership of the campaign-map!
-     * Will emit the signal CampaignMapEditor::campaignMapChanged() if the newly
+     * The MapEditor does not assume ownership of the campaign-map!
+     * Will emit the signal MapEditor::mapChanged() if the newly
      * set value is different than the current one.
      *
-     * \param campaignMap the campaign-map
+     * \param map the campaign-map
      */
-    void setCampaignMap(core::CampaignMap* campaignMap);
+    void setMap(core::Map* map);
 
     /**
      * Get the world-surface used for drawing the campign-map.
      *
-     * The CampaignMapEditor does not own the world-surface!
+     * The MapEditor does not own the world-surface!
      *
      * \return the world-surface
      */
@@ -120,8 +120,8 @@ public:
      *
      * If all conditions are given for drawing the map, this will trigger a
      * redraw. If this was the missing piece it will trigger the first drawing.
-     * The CampaignMapEditor does not assume ownership of the world-surface!
-     * Will emit the signal CampaignMapEditor::worldSurfaceChanged() if the
+     * The MapEditor does not assume ownership of the world-surface!
+     * Will emit the signal MapEditor::worldSurfaceChanged() if the
      * newly set value is different than the current one.
      *
      * \param worldSurface the world-surface
@@ -133,7 +133,7 @@ public:
      *
      * \return the editing-mode
      *
-     * \see CampaignMapEditor::setEditingMode()
+     * \see MapEditor::setEditingMode()
      */
     EditingMode getEditingMode() const
     {
@@ -145,7 +145,7 @@ public:
      *
      * The editing-mode determines what happens when the
      * user clicks on the map-editor.
-     * Will emit the signal CampaignMapEditor::editingModeChanged() if the
+     * Will emit the signal MapEditor::editingModeChanged() if the
      * newly set value is different than the current one.
      *
      * \param editingMode the editing-mode
@@ -189,7 +189,7 @@ public:
      * EditingMode::GrantToCurrentFaction.
      * The current faction can be nullptr (unassigned), in this case the
      * settlements and armies will have no owner.
-     * Will emit the signal CampaignMapEditor::currentFactionChanged() if the
+     * Will emit the signal MapEditor::currentFactionChanged() if the
      * newly set value is different than the current one.
      *
      * \param currentFaction the current faction
@@ -200,7 +200,7 @@ signals:
     /**
      * Emitted when the map-node changes.
      */
-    void campaignMapChanged();
+    void mapChanged();
 
     /**
      * Emitted when the world-surface changes.
@@ -231,7 +231,7 @@ private:
     void doGrantToCurrentFactionEditingAction();
     bool isCurrentEditingActionPossible() const;
 
-    core::CampaignMap* campaignMap;
+    core::Map* map;
     WorldSurface* worldSurface;
     std::map<core::MapNode*, QPoint> mapNodesPos;
 
@@ -241,10 +241,10 @@ private:
     EditingMode editingMode;
     core::Faction* currentFaction;
 
-    CampaignMapWatcher* watcher;
+    MapWatcher* watcher;
 };
 
 } // namespace ui
 } // namespace warmonger
 
-#endif // W_UI_CAMPAIGN_MAP_EDITOR_H
+#endif // W_UI_MAP_EDITOR_H

@@ -26,7 +26,7 @@
 #include <QVariant>
 
 #include "Version.h"
-#include "core/CampaignMap.h"
+#include "core/Map.h"
 #include "core/World.h"
 #include "ui/Palette.h"
 #include "ui/WorldSurface.h"
@@ -48,8 +48,8 @@ class Context : public QObject
     Q_PROPERTY(warmonger::core::World* world READ getWorld CONSTANT)
     Q_PROPERTY(warmonger::ui::WorldSurface* worldSurface READ getWorldSurface CONSTANT)
     Q_PROPERTY(
-        warmonger::core::CampaignMap* campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
-    Q_PROPERTY(QVariantList campaignMaps READ readCampaignMaps NOTIFY campaignMapsChanged)
+        warmonger::core::Map* map READ getMap WRITE setMap NOTIFY mapChanged)
+    Q_PROPERTY(QVariantList maps READ readMaps NOTIFY mapsChanged)
     Q_PROPERTY(QString version READ getVersion CONSTANT)
     Q_PROPERTY(warmonger::ui::Palette* disabledPalette READ getDisabledPalette CONSTANT)
     Q_PROPERTY(warmonger::ui::Palette* inactivePalette READ getActivePalette CONSTANT)
@@ -106,21 +106,21 @@ public:
      *
      * \return the campaign-map
      */
-    core::CampaignMap* getCampaignMap() const
+    core::Map* getMap() const
     {
-        return this->campaignMap;
+        return this->map;
     }
 
     /**
      * Set the campaign-map.
      *
      * The context will take ownership of the map.
-     * Will emit the signal Context::campaignMapChanged() if the newly set
+     * Will emit the signal Context::mapChanged() if the newly set
      * value is different than the current one.
      *
-     * \param campaignMap the new campaign-map
+     * \param map the new campaign-map
      */
-    void setCampaignMap(core::CampaignMap* campaignMap);
+    void setMap(core::Map* map);
 
     /**
      * Get the campaign-maps as a QVariantList.
@@ -130,7 +130,7 @@ public:
      *
      * \returns the campaign-maps
      */
-    QVariantList readCampaignMaps() const;
+    QVariantList readMaps() const;
 
     /**
      * Get the application version.
@@ -194,18 +194,18 @@ signals:
     /**
      * Emitted when the campaign-map changes.
      */
-    void campaignMapChanged();
+    void mapChanged();
 
     /**
      * Emitted when the campaign-maps change.
      */
-    void campaignMapsChanged();
+    void mapsChanged();
 
 private:
     core::World* world;
     ui::WorldSurface* worldSurface;
-    core::CampaignMap* campaignMap;
-    std::vector<core::CampaignMap*> campaignMaps;
+    core::Map* map;
+    std::vector<core::Map*> maps;
     ui::Palette* disabledPalette;
     ui::Palette* activePalette;
     ui::Palette* inactivePalette;

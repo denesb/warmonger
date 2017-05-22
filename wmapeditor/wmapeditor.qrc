@@ -2,7 +2,7 @@
 <RCC version="1.0">
 <qresource>
     <file>BannerDialog.qml</file>
-    <file>CampaignMapsWindow.qml</file>
+    <file>MapsWindow.qml</file>
     <file>FactionsWindow.qml</file>
     <file>MapEditor.qml</file>
     <file>ObjectTypeSelector.qml</file>

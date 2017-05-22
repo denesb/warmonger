@@ -18,7 +18,7 @@
 
 #include "test/catch.hpp"
 
-#include "core/CampaignMap.h"
+#include "core/Map.h"
 #include "io/Reference.h"
 
 using namespace warmonger;
@@ -76,9 +76,9 @@ TEST_CASE("unserializeReference(core::World*)", "[io][Unserialize]")
     REQUIRE(io::unserializeReference("3#warmonger::core::WObject#0", &w) == nullptr);
 
     // other parent specified
-    REQUIRE(io::unserializeReference("warmonger::core::CampaignMap/warmonger::core::WObject#0", &w) == nullptr);
-    REQUIRE(io::unserializeReference("warmonger::core::CampaignMap/warmonger::core::WObject#1", &w) == nullptr);
-    REQUIRE(io::unserializeReference("warmonger::core::CampaignMap/warmonger::core::WObject#2", &w) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#0", &w) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#1", &w) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#2", &w) == nullptr);
 
     // reference has the right id but wrong type
     REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::Civilization#0", &w) == nullptr);
@@ -86,27 +86,27 @@ TEST_CASE("unserializeReference(core::World*)", "[io][Unserialize]")
     REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::Civilization#2", &w) == nullptr);
 }
 
-TEST_CASE("unserializeReference(core::CampaignMap*)", "[io][Unserialize]")
+TEST_CASE("unserializeReference(core::Map*)", "[io][Unserialize]")
 {
-    core::CampaignMap* nullMap{nullptr};
+    core::Map* nullMap{nullptr};
     REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#0", nullMap) == nullptr);
 
     core::World w("uuid0");
-    core::CampaignMap m;
+    core::Map m;
 
     m.setWorld(&w);
 
-    REQUIRE(io::unserializeReference("warmonger::core::CampaignMap/warmonger::core::WObject#-1", &m) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#-1", &m) == nullptr);
 
     core::WObject* obj0 = new core::WObject(&m);
-    REQUIRE(io::unserializeReference("warmonger::core::CampaignMap/warmonger::core::WObject#0", &m) == obj0);
+    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#0", &m) == obj0);
 
     core::WObject* obj1 = new core::WObject(&w);
     REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#0", &m) == obj1);
 
     core::WObject* obj2 = new core::Faction(&m);
-    REQUIRE(io::unserializeReference("warmonger::core::CampaignMap/warmonger::core::Faction#1", &m) == obj2);
-    REQUIRE(io::unserializeReference("warmonger::core::CampaignMap/warmonger::core::WObject#1", &m) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::Faction#1", &m) == obj2);
+    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#1", &m) == nullptr);
 
     core::WObject* obj3 = new core::Civilization(&w);
     REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::Civilization#1", &m) == obj3);

@@ -142,9 +142,9 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
     return std::make_pair(std::move(world), jworld);
 }
 
-std::pair<std::unique_ptr<core::CampaignMap>, QJsonObject> makeMap()
+std::pair<std::unique_ptr<core::Map>, QJsonObject> makeMap()
 {
-    auto map{std::make_unique<core::CampaignMap>()};
+    auto map{std::make_unique<core::Map>()};
     QJsonObject jmap;
 
     setNames(map.get(), jmap, 0);

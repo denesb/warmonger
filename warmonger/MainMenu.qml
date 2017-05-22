@@ -27,10 +27,10 @@ Rectangle {
 
     color: W.normalPalette.window
 
-    CampaignMapPreview {
+    MapPreview {
         anchors.fill: parent
 
-        campaignMap: backgroundCampaignMap
+        map: backgroundMap
         worldSurface: W.worldSurface
 
         Text {

@@ -16,59 +16,59 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "ui/CampaignMapWatcher.h"
-#include "core/CampaignMap.h"
+#include "ui/MapWatcher.h"
+#include "core/Map.h"
 
 namespace warmonger {
 namespace ui {
 
-CampaignMapWatcher::CampaignMapWatcher(const core::CampaignMap* const campaignMap, QObject* parent)
+MapWatcher::MapWatcher(const core::Map* const map, QObject* parent)
     : QObject(parent)
-    , campaignMap(campaignMap)
+    , map(map)
     , mapNodeWatcher(new Watcher(this))
     , entityWatcher(new Watcher(this))
 {
     QObject::connect(
-        this->campaignMap, &core::CampaignMap::mapNodesChanged, this, &CampaignMapWatcher::onMapNodesChanged);
+        this->map, &core::Map::mapNodesChanged, this, &MapWatcher::onMapNodesChanged);
     QObject::connect(
-        this->campaignMap, &core::CampaignMap::entitiesChanged, this, &CampaignMapWatcher::onEntitiesChanged);
+        this->map, &core::Map::entitiesChanged, this, &MapWatcher::onEntitiesChanged);
 
-    QObject::connect(this->mapNodeWatcher, &Watcher::changed, this, &CampaignMapWatcher::changed);
-    QObject::connect(this->entityWatcher, &Watcher::changed, this, &CampaignMapWatcher::changed);
+    QObject::connect(this->mapNodeWatcher, &Watcher::changed, this, &MapWatcher::changed);
+    QObject::connect(this->entityWatcher, &Watcher::changed, this, &MapWatcher::changed);
 
     this->connectMapNodeSignals();
     this->connectEntitySignals();
 }
 
-void CampaignMapWatcher::connectMapNodeSignals()
+void MapWatcher::connectMapNodeSignals()
 {
-    const std::vector<core::MapNode*>& mapNodes = this->campaignMap->getMapNodes();
+    const std::vector<core::MapNode*>& mapNodes = this->map->getMapNodes();
     for (core::MapNode* mapNode : mapNodes)
     {
         QObject::connect(mapNode, &core::MapNode::neighboursChanged, this->mapNodeWatcher, &Watcher::changed);
     }
 }
 
-void CampaignMapWatcher::connectEntitySignals()
+void MapWatcher::connectEntitySignals()
 {
-    const std::vector<core::Entity*>& entities = this->campaignMap->getEntities();
+    const std::vector<core::Entity*>& entities = this->map->getEntities();
     for (core::Entity* entity : entities)
     {
         QObject::connect(entity, &core::Entity::componentChanged, this->entityWatcher, &Watcher::changed);
     }
 }
 
-void CampaignMapWatcher::onMapNodesChanged()
+void MapWatcher::onMapNodesChanged()
 {
-    QObject::disconnect(this->campaignMap, nullptr, this->mapNodeWatcher, nullptr);
+    QObject::disconnect(this->map, nullptr, this->mapNodeWatcher, nullptr);
     this->connectMapNodeSignals();
 
     emit changed();
 }
 
-void CampaignMapWatcher::onEntitiesChanged()
+void MapWatcher::onEntitiesChanged()
 {
-    QObject::disconnect(this->campaignMap, nullptr, this->entityWatcher, nullptr);
+    QObject::disconnect(this->map, nullptr, this->entityWatcher, nullptr);
     this->connectEntitySignals();
 
     emit changed();

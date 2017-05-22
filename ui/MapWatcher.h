@@ -1,5 +1,5 @@
 /** \file
- * CampaignMapWatcher class.
+ * MapWatcher class.
  *
  * \copyright (C) 2015-2017 Botond Dénes
  *
@@ -18,8 +18,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef W_UI_CAMPAIGN_MAP_WATCHER_H
-#define W_UI_CAMPAIGN_MAP_WATCHER_H
+#ifndef W_UI_MAP_WATCHER_H
+#define W_UI_MAP_WATCHER_H
 
 #include <QObject>
 
@@ -27,7 +27,7 @@ namespace warmonger {
 
 namespace core {
 
-class CampaignMap;
+class Map;
 }
 
 namespace ui {
@@ -56,18 +56,18 @@ signals:
  *
  * Only those changes are considered that cause a redraw of the campaign-map.
  */
-class CampaignMapWatcher : public QObject
+class MapWatcher : public QObject
 {
     Q_OBJECT
 
 public:
     /**
-     * Construct a CampaignMapWatcher object.
+     * Construct a MapWatcher object.
      *
-     * \param campaignMap the campaign-map to watch
+     * \param map the campaign-map to watch
      * \parent parent the parent QObject
      */
-    CampaignMapWatcher(const core::CampaignMap* const campaignMap, QObject* parent = nullptr);
+    MapWatcher(const core::Map* const map, QObject* parent = nullptr);
 
 signals:
     /**
@@ -82,7 +82,7 @@ private:
     void onEntitiesChanged();
 
 private:
-    const core::CampaignMap* const campaignMap;
+    const core::Map* const map;
     Watcher* mapNodeWatcher;
     Watcher* entityWatcher;
 };
@@ -90,4 +90,4 @@ private:
 } // namespace ui
 } // namespace warmonger
 
-#endif // W_UI_CAMPAIGN_MAP_WATCHER_H
+#endif // W_UI_MAP_WATCHER_H

@@ -16,21 +16,21 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "core/CampaignMap.h"
-#include "io/CampaignMapJsonSerializer.h"
+#include "core/Map.h"
+#include "io/MapJsonSerializer.h"
 #include "io/Reference.h"
 #include "test/Util.h"
 #include "test/catch.hpp"
 
 using namespace warmonger;
 
-TEST_CASE("MapNode can be serialized to JSON", "[CampaignMapJsonSerializer][JSON][Serialize][HappyPath]")
+TEST_CASE("MapNode can be serialized to JSON", "[MapJsonSerializer][JSON][Serialize][HappyPath]")
 {
     const auto maps = makeMap();
     const auto map = maps.first.get();
     const auto jmap = maps.second;
 
-    const io::CampaignMapJsonSerializer serializer;
+    const io::MapJsonSerializer serializer;
 
     auto mapNode = map->getMapNodes()[0];
     auto jmapNode = jmap["mapNodes"].toArray()[0].toObject();
@@ -45,13 +45,13 @@ TEST_CASE("MapNode can be serialized to JSON", "[CampaignMapJsonSerializer][JSON
     REQUIRE(jobj == jmapNode);
 }
 
-TEST_CASE("Faction can be serialized to JSON", "[CampaignMapJsonSerializer][JSON][Serialize][HappyPath]")
+TEST_CASE("Faction can be serialized to JSON", "[MapJsonSerializer][JSON][Serialize][HappyPath]")
 {
     const auto maps = makeMap();
     const auto map = maps.first.get();
     const auto jmap = maps.second;
 
-    const io::CampaignMapJsonSerializer serializer;
+    const io::MapJsonSerializer serializer;
 
     auto faction = map->getFactions()[0];
     auto jfaction = jmap["factions"].toArray()[0].toObject();
@@ -66,13 +66,13 @@ TEST_CASE("Faction can be serialized to JSON", "[CampaignMapJsonSerializer][JSON
     REQUIRE(jobj == jfaction);
 }
 
-TEST_CASE("Entity can be serialized to JSON", "[CampaignMapJsonSerializer][JSON][Serialize][HappyPath]")
+TEST_CASE("Entity can be serialized to JSON", "[MapJsonSerializer][JSON][Serialize][HappyPath]")
 {
     const auto maps = makeMap();
     const auto map = maps.first.get();
     const auto jmap = maps.second;
 
-    const io::CampaignMapJsonSerializer serializer;
+    const io::MapJsonSerializer serializer;
 
     auto entity = map->getEntities()[0];
     auto jentity = jmap["entities"].toArray()[0].toObject();
@@ -87,15 +87,15 @@ TEST_CASE("Entity can be serialized to JSON", "[CampaignMapJsonSerializer][JSON]
     REQUIRE(jobj == jentity);
 }
 
-TEST_CASE("CampaignMap can be serialized to JSON", "[CampaignMapJsonSerializer][JSON][Serialize][HappyPath]")
+TEST_CASE("Map can be serialized to JSON", "[MapJsonSerializer][JSON][Serialize][HappyPath]")
 {
     const auto maps = makeMap();
     const auto map = maps.first.get();
     const auto jmap = maps.second;
 
-    const io::CampaignMapJsonSerializer serializer;
+    const io::MapJsonSerializer serializer;
 
-    const QByteArray json(serializer.serializeCampaignMap(map));
+    const QByteArray json(serializer.serializeMap(map));
     const QJsonDocument jdoc(QJsonDocument::fromJson(json));
     const QJsonObject jobj(jdoc.object());
 

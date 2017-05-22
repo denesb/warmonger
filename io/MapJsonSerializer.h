@@ -18,18 +18,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef W_IO_CAMPAIGN_MAP_JSON_SERIALIZER_H
-#define W_IO_CAMPAIGN_MAP_JSON_SERIALIZER_H
+#ifndef W_IO_MAP_JSON_SERIALIZER_H
+#define W_IO_MAP_JSON_SERIALIZER_H
 
 #include <QByteArray>
 #include <QJsonDocument>
 
-#include "io/CampaignMapSerializer.h"
+#include "io/MapSerializer.h"
 
 namespace warmonger {
 
 namespace core {
-class CampaignMap;
+class Map;
 class Component;
 class Entity;
 class Faction;
@@ -43,7 +43,7 @@ namespace io {
  *
  * Serialize the campiang-map and related core game-objects.
  */
-class CampaignMapJsonSerializer : public CampaignMapSerializer
+class MapJsonSerializer : public MapSerializer
 {
 public:
     /**
@@ -56,9 +56,9 @@ public:
      *
      * \param format the formatting method to use
      */
-    CampaignMapJsonSerializer(QJsonDocument::JsonFormat format = QJsonDocument::Indented);
+    MapJsonSerializer(QJsonDocument::JsonFormat format = QJsonDocument::Indented);
 
-    QByteArray serializeCampaignMap(const core::CampaignMap* const obj) const override;
+    QByteArray serializeMap(const core::Map* const obj) const override;
     QByteArray serializeEntity(const core::Entity* const obj) const override;
     QByteArray serializeFaction(const core::Faction* const obj) const override;
     QByteArray serializeMapNode(const core::MapNode* const obj) const override;
@@ -70,4 +70,4 @@ private:
 } // namespace warmonger
 } // namespace io
 
-#endif // W_IO_CAMPAIGN_MAP_JSON_SERIALIZER_H
+#endif // W_IO_MAP_JSON_SERIALIZER_H

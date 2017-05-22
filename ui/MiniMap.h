@@ -1,5 +1,5 @@
 /** \file
- * CampaignMiniMap class.
+ * MiniMap class.
  *
  * \copyright (C) 2015-2017 Botond Dénes
  *
@@ -23,7 +23,7 @@
 
 #include <map>
 
-#include "core/CampaignMap.h"
+#include "core/Map.h"
 #include "ui/BasicMiniMap.h"
 #include "ui/WorldSurface.h"
 
@@ -36,21 +36,21 @@ class World;
 
 namespace ui {
 
-class CampaignMapWatcher;
+class MapWatcher;
 
-class CampaignMiniMap : public BasicMiniMap
+class MiniMap : public BasicMiniMap
 {
     Q_OBJECT
 
     Q_PROPERTY(
-        warmonger::core::CampaignMap* campaignMap READ getCampaignMap WRITE setCampaignMap NOTIFY campaignMapChanged)
+        warmonger::core::Map* map READ getMap WRITE setMap NOTIFY mapChanged)
     Q_PROPERTY(
         warmonger::ui::WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
 public:
-    CampaignMiniMap(QQuickItem* parent = nullptr);
+    MiniMap(QQuickItem* parent = nullptr);
 
-    core::CampaignMap* getCampaignMap() const;
-    void setCampaignMap(core::CampaignMap* campaignMap);
+    core::Map* getMap() const;
+    void setMap(core::Map* map);
 
     WorldSurface* getWorldSurface() const;
     void setWorldSurface(WorldSurface* worldSurface);
@@ -58,7 +58,7 @@ public:
     QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* data) override;
 
 signals:
-    void campaignMapChanged();
+    void mapChanged();
     void worldSurfaceChanged();
     void windowRectChanged();
 
@@ -68,10 +68,10 @@ private:
     void onMapNodesChanged();
 
     WorldSurface* worldSurface;
-    core::CampaignMap* campaignMap;
+    core::Map* map;
     std::map<core::MapNode*, QPoint> mapNodesPos;
 
-    CampaignMapWatcher* watcher;
+    MapWatcher* watcher;
 };
 
 } // namespace ui

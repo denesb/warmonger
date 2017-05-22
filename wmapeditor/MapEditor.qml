@@ -42,7 +42,7 @@ ApplicationWindow {
         onTriggered: {
             setStatus("Creating new campaign map...")
             W.create(W.worlds[0]);
-            setTemporaryStatus("Created new map with name: " + W.campaignMap.displayName)
+            setTemporaryStatus("Created new map with name: " + W.map.displayName)
         }
     }
 
@@ -51,26 +51,26 @@ ApplicationWindow {
         text: "O"
         tooltip: "Open Campaign Map"
         onTriggered: {
-            campaignMapsWindow.accepted.connect(onAccepted);
-            campaignMapsWindow.rejected.connect(onRejected);
+            mapsWindow.accepted.connect(onAccepted);
+            mapsWindow.rejected.connect(onRejected);
 
-            campaignMapsWindow.visible = true;
+            mapsWindow.visible = true;
         }
 
         function onAccepted() {
             setStatus("Opening campaign map...");
 
-            console.log(campaignMapsWindow.campaignMap);
-            W.campaignMap = campaignMapsWindow.campaignMap;
+            console.log(mapsWindow.map);
+            W.map = mapsWindow.map;
             console.log("accept");
 
-            campaignMapsWindow.accepted.disconnect(onAccepted);
-            campaignMapsWindow.rejected.disconnect(onRejected);
+            mapsWindow.accepted.disconnect(onAccepted);
+            mapsWindow.rejected.disconnect(onRejected);
         }
 
         function onRejected() {
-            campaignMapsWindow.accepted.disconnect(onAccepted);
-            campaignMapsWindow.rejected.disconnect(onRejected);
+            mapsWindow.accepted.disconnect(onAccepted);
+            mapsWindow.rejected.disconnect(onRejected);
         }
     }
 
@@ -95,7 +95,7 @@ ApplicationWindow {
         iconSource: "icons/terrain-types.svg"
         tooltip: "Terrain Type Editing Mode"
         onTriggered: {
-            mapEditor.editingMode = CampaignMapEditor.TerrainType;
+            mapEditor.editingMode = MapEditor.TerrainType;
         }
     }
 
@@ -105,7 +105,7 @@ ApplicationWindow {
         iconSource: "icons/settlement-types.svg"
         tooltip: "Settlement Type Editing Mode"
         onTriggered: {
-            mapEditor.editingMode = CampaignMapEditor.SettlementType;
+            mapEditor.editingMode = MapEditor.SettlementType;
         }
     }
 
@@ -115,7 +115,7 @@ ApplicationWindow {
         iconSource: "icons/army-types.svg"
         tooltip: "Army Type Editing Mode"
         onTriggered: {
-            mapEditor.editingMode = CampaignMapEditor.ArmyType;
+            mapEditor.editingMode = MapEditor.ArmyType;
         }
     }
 
@@ -133,7 +133,7 @@ ApplicationWindow {
         text: "G"
         tooltip: "Grant to current faction"
         onTriggered: {
-            mapEditor.editingMode = CampaignMapEditor.GrantToCurrentFaction;
+            mapEditor.editingMode = MapEditor.GrantToCurrentFaction;
         }
     }
 
@@ -197,7 +197,7 @@ ApplicationWindow {
             ComboBox {
                 id: currentFactionSelector
 
-                property var factions: W.campaignMap.factions
+                property var factions: W.map.factions
 
                 Layout.preferredWidth: 150
 
@@ -207,7 +207,7 @@ ApplicationWindow {
                     if (index == 0)
                         mapEditor.currentFaction = null;
                     else
-                        mapEditor.currentFaction = W.campaignMap.factions[index];
+                        mapEditor.currentFaction = W.map.factions[index];
                 }
 
                 onFactionsChanged: {
@@ -327,10 +327,10 @@ ApplicationWindow {
             right: sideBarWrapper.left
         }
 
-        CampaignMapEditor {
+        MapEditor {
             id: mapEditor
 
-            campaignMap: W.campaignMap
+            map: W.map
             worldSurface: W.worldSurface
             windowPos: sideBar.miniMapWindowPos
             objectType: sideBar.objectType
@@ -340,10 +340,10 @@ ApplicationWindow {
         }
     }
 
-    CampaignMapsWindow {
-        id: campaignMapsWindow
+    MapsWindow {
+        id: mapsWindow
 
-        campaignMaps: W.campaignMaps
+        maps: W.maps
 
         visible: false
     }

@@ -18,15 +18,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef W_IO_CAMPAIGN_MAP_SERIALIZER_H
-#define W_IO_CAMPAIGN_MAP_SERIALIZER_H
+#ifndef W_IO_MAP_SERIALIZER_H
+#define W_IO_MAP_SERIALIZER_H
 
 #include <QByteArray>
 
 namespace warmonger {
 
 namespace core {
-class CampaignMap;
+class Map;
 class Entity;
 class Faction;
 class MapNode;
@@ -39,7 +39,7 @@ namespace io {
  *
  * Serialize the campiang-map and related core game-objects.
  */
-class CampaignMapSerializer
+class MapSerializer
 {
 public:
     /**
@@ -49,7 +49,7 @@ public:
      *
      * \return the raw serialized data
      */
-    virtual QByteArray serializeCampaignMap(const core::CampaignMap* const obj) const = 0;
+    virtual QByteArray serializeMap(const core::Map* const obj) const = 0;
 
     /**
      * Serialize a entity.
@@ -82,4 +82,4 @@ public:
 } // namespace warmonger
 } // namespace io
 
-#endif // W_IO_CAMPAIGN_MAP_SERIALIZER_H
+#endif // W_IO_MAP_SERIALIZER_H

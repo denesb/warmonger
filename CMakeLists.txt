@@ -110,7 +110,6 @@ set(
     IO_SRC_FILES
     io/CampaignMapJsonSerializer.cpp
     io/CampaignMapJsonUnserializer.cpp
-    io/Context.cpp
     io/File.cpp
     io/JsonUtils.cpp
     io/Reference.cpp
@@ -144,7 +143,6 @@ set(
     test/core/CampaignMap.cpp
     test/core/MapNodeNeighbours.cpp
     test/core/WObject.cpp
-    test/io/Context.cpp
     test/io/Reference.cpp
     test/io/CampaignMapJsonSerializer.cpp
     test/io/CampaignMapJsonUnserializer.cpp

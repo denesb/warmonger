@@ -138,7 +138,7 @@ set(
 
 set(
     TEST_SRC_FILES
-    #test/io/File.cpp TODO fix serialization/unserialization tests before
+    test/io/File.cpp
     #test/io/SanityCheck.cpp
     test/Util.cpp
     test/core/CampaignMap.cpp

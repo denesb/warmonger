@@ -46,6 +46,9 @@ std::unique_ptr<core::CampaignMap> CampaignMapJsonUnserializer::unserializeCampa
     QJsonDocument jdoc(parseJson(data));
     QJsonObject jobj = jdoc.object();
 
+    if (world->getUuid() != jobj["world"].toString())
+        throw utils::ValueError("Failed to unserialize map, world uuid mismatch");
+
     std::unique_ptr<core::CampaignMap> obj{std::make_unique<core::CampaignMap>()};
 
     const QString name{jobj["displayName"].toString()};

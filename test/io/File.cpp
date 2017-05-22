@@ -26,40 +26,40 @@
 
 void createWorldFile(const QString& path)
 {
-    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
-    const std::unique_ptr<core::World> world{worlds.first};
+    const auto worlds = makeWorld();
+    const auto world = worlds.first.get();
 
     io::WorldJsonSerializer serializer;
 
     QFile file(path);
     file.open(QIODevice::WriteOnly);
 
-    file.write(serializer.serializeWorld(world.get()));
+    file.write(serializer.serializeWorld(world));
 }
 
 void createCampaignMapFile(const QString& path)
 {
-    const std::pair<core::CampaignMap*, QJsonObject> campaignMaps = makeMap();
-    const std::unique_ptr<core::CampaignMap> campaignMap{campaignMaps.first};
+    const auto maps = makeMap();
+    const auto map{maps.first.get()};
 
     io::CampaignMapJsonSerializer serializer;
 
     QFile file(path);
     file.open(QIODevice::WriteOnly);
 
-    file.write(serializer.serializeCampaignMap(campaignMap.get()));
+    file.write(serializer.serializeCampaignMap(map));
 }
 
 TEST_CASE("World can be written to file", "[File]")
 {
-    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
-    const std::unique_ptr<core::World> world{worlds.first};
+    const auto worlds = makeWorld();
+    const auto world = worlds.first.get();
 
     const QString path("./write_world.json");
 
     SECTION("writing World")
     {
-        io::writeWorld(world.get(), path);
+        REQUIRE_NOTHROW(io::writeWorld(world, path));
 
         QFile file(path);
         REQUIRE(file.exists() == true);
@@ -75,9 +75,8 @@ TEST_CASE("World can be read from file", "[File]")
 
     SECTION("reading World")
     {
-        std::unique_ptr<core::World> world = io::readWorld(path);
-
-        REQUIRE(world);
+        REQUIRE_NOTHROW(io::readWorld(path));
+        REQUIRE(io::readWorld(path));
     }
 
     QFile file(path);
@@ -86,14 +85,14 @@ TEST_CASE("World can be read from file", "[File]")
 
 TEST_CASE("Map can be written to file", "[File]")
 {
-    const std::pair<core::CampaignMap*, QJsonObject> campaignMaps = makeMap();
-    const std::unique_ptr<core::CampaignMap> campaignMap{campaignMaps.first};
+    const auto maps = makeMap();
+    const auto map{maps.first.get()};
 
     const QString path("./write_campaignmap.json");
 
     SECTION("writing Map")
     {
-        io::writeCampaignMap(campaignMap.get(), path);
+        REQUIRE_NOTHROW(io::writeCampaignMap(map, path));
 
         QFile file(path);
         REQUIRE(file.exists() == true);
@@ -106,17 +105,15 @@ TEST_CASE("Map can be read from file", "[File]")
 {
     const QString path("./read_campaignmap.json");
 
-    const std::pair<core::World*, QJsonObject> worlds = makeWorld();
-    core::World* world{worlds.first};
+    const auto worlds = makeWorld();
+    const auto world = worlds.first.get();
 
     createCampaignMapFile(path);
 
     SECTION("reading CampaignMap")
     {
-        std::unique_ptr<core::CampaignMap> campaignMap = io::readCampaignMap(path, world);
-
-        REQUIRE(campaignMap);
-        REQUIRE(campaignMap->getWorld() != nullptr);
+        REQUIRE_NOTHROW(io::readCampaignMap(path, world));
+        REQUIRE(io::readCampaignMap(path, world));
     }
 
     QFile file(path);

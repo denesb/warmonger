@@ -625,6 +625,13 @@ TEST_CASE("CampaignMap can't be unserialized from JSON", "[CampaignMapJsonUnseri
         REQUIRE_THROWS_AS(unserializer.unserializeCampaignMap(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
+    SECTION("Wrong world")
+    {
+        core::World w("wrong-uuid");
+
+        REQUIRE_THROWS_AS(unserializer.unserializeCampaignMap(QJsonDocument(jmap).toJson(), &w), utils::ValueError);
+    }
+
     SECTION("Missing name")
     {
         jmap.remove("displayName");

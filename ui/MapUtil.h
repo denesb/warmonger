@@ -11,8 +11,8 @@
 #include <QPoint>
 #include <QRect>
 
-#include "core/Map.h"
 #include "core/Hexagon.h"
+#include "core/Map.h"
 #include "core/MapNodeNeighbours.h"
 
 class QSGNode;

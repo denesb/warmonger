@@ -22,8 +22,8 @@
 #include <memory>
 #include <vector>
 
-#include "core/Map.h"
 #include "core/Hexagon.h"
+#include "core/Map.h"
 #include "core/World.h"
 #include "io/JsonUtils.h"
 #include "io/Reference.h"
@@ -40,8 +40,7 @@ static std::tuple<core::MapNode*, std::map<core::Direction, QString>> mapNodeFro
     const QJsonObject& jobj, core::Map* map);
 static void mapNodesFromJson(const QJsonArray& jarr, core::Map* map);
 
-std::unique_ptr<core::Map> MapJsonUnserializer::unserializeMap(
-    const QByteArray& data, core::World* world) const
+std::unique_ptr<core::Map> MapJsonUnserializer::unserializeMap(const QByteArray& data, core::World* world) const
 {
     QJsonDocument jdoc(parseJson(data));
     QJsonObject jobj = jdoc.object();

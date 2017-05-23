@@ -60,8 +60,7 @@ public:
      *
      * \return the unserialized campaign-map object
      */
-    virtual std::unique_ptr<core::Map> unserializeMap(
-        const QByteArray& data, core::World* world) const = 0;
+    virtual std::unique_ptr<core::Map> unserializeMap(const QByteArray& data, core::World* world) const = 0;
 
     /**
      * Unserialize the entity and add it to the map.

@@ -47,8 +47,7 @@ class Context : public QObject
     Q_OBJECT
     Q_PROPERTY(warmonger::core::World* world READ getWorld CONSTANT)
     Q_PROPERTY(warmonger::ui::WorldSurface* worldSurface READ getWorldSurface CONSTANT)
-    Q_PROPERTY(
-        warmonger::core::Map* map READ getMap WRITE setMap NOTIFY mapChanged)
+    Q_PROPERTY(warmonger::core::Map* map READ getMap WRITE setMap NOTIFY mapChanged)
     Q_PROPERTY(QVariantList maps READ readMaps NOTIFY mapsChanged)
     Q_PROPERTY(QString version READ getVersion CONSTANT)
     Q_PROPERTY(warmonger::ui::Palette* disabledPalette READ getDisabledPalette CONSTANT)

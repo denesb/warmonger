@@ -21,7 +21,6 @@
 #include <QQmlContext>
 
 #include "io/File.h"
-#include "io/SanityCheck.h"
 #include "ui/SearchPaths.h"
 #include "ui/UI.h"
 #include "utils/Exception.h"
@@ -90,11 +89,6 @@ static std::unique_ptr<Context> createContext(const QString& worldName, const QS
     {
         throw utils::Exception(
             utils::MsgBuilder() << "Loading world " << worldName << " from " << worldPath << " failed: " << e.what());
-    }
-
-    if (!io::isWorldSane(*world.get()))
-    {
-        throw utils::Exception(utils::MsgBuilder() << "Loaded world " << *world.get() << "is not sane");
     }
 
     wInfo << "Loaded world " << worldName << " from " << worldPath;

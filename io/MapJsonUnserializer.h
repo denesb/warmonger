@@ -42,8 +42,7 @@ namespace io {
 class MapJsonUnserializer : public MapUnserializer
 {
 public:
-    std::unique_ptr<core::Map> unserializeMap(
-        const QByteArray& data, core::World* world) const override;
+    std::unique_ptr<core::Map> unserializeMap(const QByteArray& data, core::World* world) const override;
     core::Entity* unserializeEntity(const QByteArray& data, core::Map* map) const override;
     core::Faction* unserializeFaction(const QByteArray& data, core::Map* map) const override;
     core::MapNode* unserializeMapNode(const QByteArray& data, core::Map* map) const override;

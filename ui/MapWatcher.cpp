@@ -28,10 +28,8 @@ MapWatcher::MapWatcher(const core::Map* const map, QObject* parent)
     , mapNodeWatcher(new Watcher(this))
     , entityWatcher(new Watcher(this))
 {
-    QObject::connect(
-        this->map, &core::Map::mapNodesChanged, this, &MapWatcher::onMapNodesChanged);
-    QObject::connect(
-        this->map, &core::Map::entitiesChanged, this, &MapWatcher::onEntitiesChanged);
+    QObject::connect(this->map, &core::Map::mapNodesChanged, this, &MapWatcher::onMapNodesChanged);
+    QObject::connect(this->map, &core::Map::entitiesChanged, this, &MapWatcher::onEntitiesChanged);
 
     QObject::connect(this->mapNodeWatcher, &Watcher::changed, this, &MapWatcher::changed);
     QObject::connect(this->entityWatcher, &Watcher::changed, this, &MapWatcher::changed);

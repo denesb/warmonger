@@ -20,9 +20,9 @@
 
 #include "core/Map.h"
 #include "core/World.h"
+#include "io/File.h"
 #include "io/MapJsonSerializer.h"
 #include "io/MapJsonUnserializer.h"
-#include "io/File.h"
 #include "io/WorldJsonSerializer.h"
 #include "io/WorldJsonUnserializer.h"
 #include "utils/Exception.h"

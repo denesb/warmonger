@@ -21,7 +21,6 @@
 
 #include "core/Map.h"
 #include "io/File.h"
-#include "io/SanityCheck.h"
 #include "tools/Utils.h"
 #include "utils/Logging.h"
 
@@ -48,18 +47,30 @@ int main(int argc, char* const argv[])
     wInfo << "world path: " << worldPath;
     wInfo << "campaign-map path: " << mapPath;
 
-    if (!io::isWorldSane(worldPath))
-    {
-        wError << "World is not sane";
-        FAIL(1);
-    }
+    std::unique_ptr<core::World> world;
 
-    std::unique_ptr<core::World> world(io::readWorld(worldPath));
+    try
+    {
+        world = io::readWorld(worldPath);
+    }
+    catch (const std::exception& e)
+    {
+        wError << "Unexpected exception while trying to load world: " << e.what()
+               << " - the world probably isn't right";
+        return 1;
+    }
 
     wInfo << "Successfully loaded world " << world.get();
 
-    if (!io::isMapSane(mapPath, world.get()))
-        FAIL(1);
+    try
+    {
+        io::readMap(mapPath, world.get());
+    }
+    catch (const std::exception& e)
+    {
+        wError << "Unexpected exception while trying to load map: " << e.what() << " - the map probably isn't right";
+        return false;
+    }
 
     return 0;
 }

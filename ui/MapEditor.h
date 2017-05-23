@@ -50,8 +50,7 @@ class MapWatcher;
 class MapEditor : public BasicMap
 {
     Q_OBJECT
-    Q_PROPERTY(
-        warmonger::core::Map* map READ getMap WRITE setMap NOTIFY mapChanged)
+    Q_PROPERTY(warmonger::core::Map* map READ getMap WRITE setMap NOTIFY mapChanged)
     Q_PROPERTY(WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
     Q_PROPERTY(warmonger::ui::MapEditor::EditingMode editingMode READ getEditingMode WRITE setEditingMode NOTIFY
             editingModeChanged)

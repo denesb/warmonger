@@ -18,8 +18,8 @@
 
 #include <QFile>
 
-#include "io/MapJsonSerializer.h"
 #include "io/File.h"
+#include "io/MapJsonSerializer.h"
 #include "io/WorldJsonSerializer.h"
 #include "test/Util.h"
 #include "test/catch.hpp"

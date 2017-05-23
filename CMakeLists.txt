@@ -113,7 +113,6 @@ set(
     io/File.cpp
     io/JsonUtils.cpp
     io/Reference.cpp
-    io/SanityCheck.cpp
     io/WorldJsonSerializer.cpp
     io/WorldJsonUnserializer.cpp
 )
@@ -138,7 +137,6 @@ set(
 set(
     TEST_SRC_FILES
     test/io/File.cpp
-    #test/io/SanityCheck.cpp TODO
     test/Util.cpp
     test/core/Map.cpp
     test/core/MapNodeNeighbours.cpp

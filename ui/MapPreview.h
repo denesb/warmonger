@@ -49,8 +49,7 @@ class MapWatcher;
 class MapPreview : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(
-        warmonger::core::Map* map READ getMap WRITE setMap NOTIFY mapChanged)
+    Q_PROPERTY(warmonger::core::Map* map READ getMap WRITE setMap NOTIFY mapChanged)
     Q_PROPERTY(WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
 
 public:

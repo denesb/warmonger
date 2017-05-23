@@ -21,7 +21,8 @@
 
 #include <QString>
 
-#include "io/SanityCheck.h"
+#include "core/World.h"
+#include "io/File.h"
 #include "tools/Utils.h"
 #include "utils/Logging.h"
 
@@ -47,8 +48,16 @@ int main(int argc, char* const argv[])
 
     wInfo << "path: " << path;
 
-    if (!io::isWorldSane(path))
-        FAIL(1);
+    try
+    {
+        io::readWorld(path);
+    }
+    catch (const std::exception& e)
+    {
+        wError << "Unexpected exception while trying to load world: " << e.what()
+               << " - the world probably isn't right";
+        return 1;
+    }
 
     return 0;
 }

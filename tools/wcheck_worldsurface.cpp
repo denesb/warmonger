@@ -20,7 +20,6 @@
 #include <memory>
 
 #include "io/File.h"
-#include "io/SanityCheck.h"
 #include "tools/Utils.h"
 #include "ui/WorldSurface.h"
 #include "utils/Exception.h"
@@ -49,12 +48,6 @@ int main(int argc, char* const argv[])
     wInfo << "world path: " << worldPath;
     wInfo << "world-surface path: " << worldSurfacePath;
 
-    if (!io::isWorldSane(worldPath))
-    {
-        wError << "World is not sane";
-        FAIL(1);
-    }
-
     std::unique_ptr<core::World> world;
 
     try
@@ -63,7 +56,8 @@ int main(int argc, char* const argv[])
     }
     catch (std::exception& e)
     {
-        wError << "Caught exception while trying to read world: " << e.what();
+        wError << "Unexpected exception while trying to load world: " << e.what()
+               << " - the world probably isn't right";
         FAIL(1);
     }
 

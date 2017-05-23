@@ -24,8 +24,8 @@
 #include <QSGSimpleTextureNode>
 
 #include "ui/MapEditor.h"
-#include "ui/MapWatcher.h"
 #include "ui/MapUtil.h"
+#include "ui/MapWatcher.h"
 #include "utils/Constants.h"
 #include "utils/Logging.h"
 #include "utils/QVariantUtils.h"
@@ -64,8 +64,7 @@ void MapEditor::setMap(core::Map* map)
         {
             this->watcher = new MapWatcher(this->map, this);
             QObject::connect(this->watcher, &MapWatcher::changed, this, &MapEditor::update);
-            QObject::connect(
-                this->map, &core::Map::mapNodesChanged, this, &MapEditor::onMapNodesChanged);
+            QObject::connect(this->map, &core::Map::mapNodesChanged, this, &MapEditor::onMapNodesChanged);
         }
 
         emit mapChanged();

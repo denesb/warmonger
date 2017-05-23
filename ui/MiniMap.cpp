@@ -20,9 +20,9 @@
 #include <QSGTransformNode>
 
 #include "core/Faction.h"
+#include "ui/MapUtil.h"
 #include "ui/MapWatcher.h"
 #include "ui/MiniMap.h"
-#include "ui/MapUtil.h"
 #include "utils/Logging.h"
 
 namespace warmonger {
@@ -61,8 +61,7 @@ void MiniMap::setMap(core::Map* map)
         {
             this->watcher = new MapWatcher(this->map, this);
             QObject::connect(this->watcher, &MapWatcher::changed, this, &MiniMap::update);
-            QObject::connect(
-                this->map, &core::Map::mapNodesChanged, this, &MiniMap::onMapNodesChanged);
+            QObject::connect(this->map, &core::Map::mapNodesChanged, this, &MiniMap::onMapNodesChanged);
         }
 
         emit mapChanged();

@@ -47,8 +47,7 @@ class Context : public QObject
     Q_OBJECT
     Q_PROPERTY(warmonger::core::World* world READ getWorld NOTIFY worldChanged)
     Q_PROPERTY(warmonger::ui::WorldSurface* worldSurface READ getWorldSurface NOTIFY worldSurfaceChanged)
-    Q_PROPERTY(
-        warmonger::core::Map* map READ getMap WRITE setMap NOTIFY mapChanged)
+    Q_PROPERTY(warmonger::core::Map* map READ getMap WRITE setMap NOTIFY mapChanged)
     Q_PROPERTY(QVariantList worlds READ readWorlds NOTIFY worldsChanged)
     Q_PROPERTY(QVariantList worldSurfaces READ readWorldSurfaces NOTIFY worldSurfacesChanged)
     Q_PROPERTY(QVariantList maps READ readMaps NOTIFY mapsChanged)

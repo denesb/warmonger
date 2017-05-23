@@ -22,7 +22,7 @@
 #include "io/MapJsonSerializer.h"
 #include "io/WorldJsonSerializer.h"
 #include "test/Util.h"
-#include "test/catch.hpp"
+#include <catch.hpp>
 
 void createWorldFile(const QString& path)
 {

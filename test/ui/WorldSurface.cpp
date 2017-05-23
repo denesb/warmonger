@@ -18,7 +18,7 @@
 
 #include <QFile>
 
-#include "test/catch.hpp"
+#include <catch.hpp>
 
 #include "io/File.h"
 #include "ui/WorldSurface.h"

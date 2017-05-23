@@ -8,11 +8,11 @@
 #include <QJsonObject>
 #include <QObject>
 #include <QString>
+#include <catch.hpp>
 
 #include "core/Map.h"
 #include "core/World.h"
 #include "io/Reference.h"
-#include "test/catch.hpp"
 
 using namespace warmonger;
 

@@ -20,7 +20,7 @@
 #include "io/MapJsonSerializer.h"
 #include "io/Reference.h"
 #include "test/Util.h"
-#include "test/catch.hpp"
+#include <catch.hpp>
 
 using namespace warmonger;
 

@@ -26,7 +26,7 @@ content.
 Warmonger is a hexagon-based wargame, with action happens is happening on the
 campaign map and battles being resolved on the battle map.
 
-See the [design overview](docs/OVERVIEW.md) for more details.
+See the [design overview](doc/OVERVIEW.md) for more details.
 
 ## Contributing
 

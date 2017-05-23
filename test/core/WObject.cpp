@@ -17,7 +17,7 @@
  */
 
 #include "test/core/WObject.h"
-#include "test/catch.hpp"
+#include <catch.hpp>
 
 using namespace warmonger;
 

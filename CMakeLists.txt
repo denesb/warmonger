@@ -73,65 +73,67 @@ configure_file(Version.h.in Version.h @ONLY)
 # or Q_GADGET
 set(CMAKE_AUTOMOC OFF)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(Boost_USE_STATIC_LIBS ON)
+
+include_directories(src)
+include_directories(thirdparty)
 
 # Source files
 
 set(
     UTILS_SRC_FILES
-    utils/Logging.cpp
-    utils/Settings.cpp
-    utils/ToString.cpp
-    utils/Utils.cpp
+    src/utils/Logging.cpp
+    src/utils/Settings.cpp
+    src/utils/ToString.cpp
+    src/utils/Utils.cpp
 )
 
 set(
     CORE_SRC_FILES
-    core/Banner.cpp
-    core/Map.cpp
-    core/Civilization.cpp
-    core/Component.cpp
-    core/ComponentType.cpp
-    core/Entity.cpp
-    core/EntityType.cpp
-    core/Faction.cpp
-    core/Field.cpp
-    core/Hexagon.cpp
-    core/MapNode.cpp
-    core/MapNodeNeighbours.cpp
-    core/Utils.cpp
-    core/WObject.cpp
-    core/World.cpp
-    core/WorldComponentType.cpp
+    src/core/Banner.cpp
+    src/core/Map.cpp
+    src/core/Civilization.cpp
+    src/core/Component.cpp
+    src/core/ComponentType.cpp
+    src/core/Entity.cpp
+    src/core/EntityType.cpp
+    src/core/Faction.cpp
+    src/core/Field.cpp
+    src/core/Hexagon.cpp
+    src/core/MapNode.cpp
+    src/core/MapNodeNeighbours.cpp
+    src/core/Utils.cpp
+    src/core/WObject.cpp
+    src/core/World.cpp
+    src/core/WorldComponentType.cpp
 )
 
 set(
     IO_SRC_FILES
-    io/MapJsonSerializer.cpp
-    io/MapJsonUnserializer.cpp
-    io/File.cpp
-    io/JsonUtils.cpp
-    io/Reference.cpp
-    io/WorldJsonSerializer.cpp
-    io/WorldJsonUnserializer.cpp
+    src/io/MapJsonSerializer.cpp
+    src/io/MapJsonUnserializer.cpp
+    src/io/File.cpp
+    src/io/JsonUtils.cpp
+    src/io/Reference.cpp
+    src/io/WorldJsonSerializer.cpp
+    src/io/WorldJsonUnserializer.cpp
 )
 
 set(
     UI_SRC_FILES
-    ui/Banner.cpp
-    ui/BasicMap.cpp
-    ui/BasicMiniMap.cpp
-    ui/MapEditor.cpp
-    ui/MapPreview.cpp
-    ui/MapWatcher.cpp
-    ui/MiniMap.cpp
-    ui/MapUtil.cpp
-    ui/MapWindow.cpp
-    ui/Palette.cpp
-    ui/SearchPaths.cpp
-    ui/UI.cpp
-    ui/WorldSurface.cpp
+    src/ui/Banner.cpp
+    src/ui/BasicMap.cpp
+    src/ui/BasicMiniMap.cpp
+    src/ui/MapEditor.cpp
+    src/ui/MapPreview.cpp
+    src/ui/MapWatcher.cpp
+    src/ui/MiniMap.cpp
+    src/ui/MapUtil.cpp
+    src/ui/MapWindow.cpp
+    src/ui/Palette.cpp
+    src/ui/SearchPaths.cpp
+    src/ui/UI.cpp
+    src/ui/WorldSurface.cpp
 )
 
 set(
@@ -192,9 +194,9 @@ WARMONGER_AUTOMOC(ui)
 
 add_executable(
     wmapeditor
-    wmapeditor/Context.cpp
-    wmapeditor/wmapeditor.cpp
-    wmapeditor/wmapeditor.qrc
+    src/wmapeditor/Context.cpp
+    src/wmapeditor/wmapeditor.cpp
+    src/wmapeditor/wmapeditor.qrc
 )
 WARMONGER_AUTOMOC(wmapeditor)
 
@@ -209,9 +211,9 @@ target_link_libraries(
 
 add_executable(
     warmonger
-    warmonger/Context.cpp
-    warmonger/warmonger.cpp
-    warmonger/warmonger.qrc
+    src/warmonger/Context.cpp
+    src/warmonger/warmonger.cpp
+    src/warmonger/warmonger.qrc
 )
 WARMONGER_AUTOMOC(warmonger)
 
@@ -227,8 +229,8 @@ target_link_libraries(
 if(BUILD_TOOLS)
     add_executable(
         wcheck_world
-        tools/wcheck_world.cpp
-        tools/Utils.cpp
+        src/tools/wcheck_world.cpp
+        src/tools/Utils.cpp
     )
 
     target_link_libraries(
@@ -242,8 +244,8 @@ if(BUILD_TOOLS)
 
     add_executable(
         wcheck_map
-        tools/wcheck_map.cpp
-        tools/Utils.cpp
+        src/tools/wcheck_map.cpp
+        src/tools/Utils.cpp
     )
 
     target_link_libraries(
@@ -257,8 +259,8 @@ if(BUILD_TOOLS)
 
     add_executable(
         wcheck_worldsurface
-        tools/Utils.cpp
-        tools/wcheck_worldsurface.cpp
+        src/tools/Utils.cpp
+        src/tools/wcheck_worldsurface.cpp
     )
 
     target_link_libraries(
@@ -272,7 +274,7 @@ if(BUILD_TOOLS)
 
     add_executable(
         wcreate_default_settings
-        tools/wcreate_default_settings.cpp
+        src/tools/wcreate_default_settings.cpp
     )
 
     target_link_libraries(

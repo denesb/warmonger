@@ -25,8 +25,8 @@
 #include "io/JsonUtils.h"
 #include "io/WorldJsonUnserializer.h"
 #include "test/Util.h"
-#include "test/catch.hpp"
 #include "utils/Exception.h"
+#include <catch.hpp>
 
 using namespace warmonger;
 

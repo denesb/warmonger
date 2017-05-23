@@ -22,7 +22,7 @@
 
 #include <boost/log/sinks.hpp>
 
-#include "test/catch.hpp"
+#include <catch.hpp>
 
 #include "utils/Logging.h"
 

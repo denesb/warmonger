@@ -16,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "test/catch.hpp"
+#include <catch.hpp>
 
 #include "ui/MapWindow.h"
 #include "utils/ToString.h"

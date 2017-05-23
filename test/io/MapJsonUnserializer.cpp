@@ -23,8 +23,8 @@
 
 #include "io/MapJsonUnserializer.h"
 #include "test/Util.h"
-#include "test/catch.hpp"
 #include "utils/Exception.h"
+#include <catch.hpp>
 
 using namespace warmonger;
 

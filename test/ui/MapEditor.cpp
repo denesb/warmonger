@@ -17,7 +17,7 @@
  */
 
 #include "ui/MapEditor.h"
-#include "test/catch.hpp"
+#include <catch.hpp>
 
 using namespace warmonger;
 

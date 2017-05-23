@@ -17,9 +17,9 @@
  */
 
 #include "ui/MapUtil.h"
-#include "test/catch.hpp"
 #include "ui/WorldSurface.h"
 #include "utils/ToString.h"
+#include <catch.hpp>
 
 using namespace warmonger;
 

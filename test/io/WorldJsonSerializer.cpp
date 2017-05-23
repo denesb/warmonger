@@ -20,7 +20,7 @@
 #include "io/Reference.h"
 #include "io/WorldJsonSerializer.h"
 #include "test/Util.h"
-#include "test/catch.hpp"
+#include <catch.hpp>
 
 using namespace warmonger;
 

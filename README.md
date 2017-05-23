@@ -55,6 +55,12 @@ interested feel free to drop me a line at dns dot botond at gmail dot com.
 
 Version numbers refer to the minimum supported version of each dependency.
 
+### Other thirdparty libraries used
+
+ * [catch](https://github.com/philsquared/Catch)
+
+Kudos to the authors and contributors of all this awesome, freely available stuff.
+
 ## Other awesome strategy game projects
  * [Battle for Wesnoth](https://www.wesnoth.org/)
  * [0 A.D.](https://play0ad.com/)

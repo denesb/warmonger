@@ -72,12 +72,12 @@ std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByte
     if (uuid.isNull() || uuid.isEmpty())
         throw utils::ValueError("Failed to unserialize world, missing or invalid uuid");
 
-    const QString name = jobj["displayName"].toString();
+    const QString name = jobj["name"].toString();
     if (name.isNull() || name.isEmpty())
         throw utils::ValueError("Failed to unserialize world, missing or invalid name");
 
     std::unique_ptr<core::World> obj(new core::World(uuid));
-    obj->setDisplayName(name);
+    obj->setName(name);
 
     const QJsonArray civilizations = jobj["civilizations"].toArray();
     if (civilizations.isEmpty())
@@ -132,7 +132,7 @@ static core::Banner* bannerFromJson(const QJsonObject& jobj, core::World* world)
     if (id == core::WObject::invalidId)
         throw utils::ValueError("Failed to unserialize banner, it has missing or invalid id");
 
-    const QString name = jobj["displayName"].toString();
+    const QString name = jobj["name"].toString();
 
     if (name.isNull() || name.isEmpty())
         throw utils::ValueError("Failed to unserialize banner, it has missing or invalid name");
@@ -150,7 +150,7 @@ static core::Banner* bannerFromJson(const QJsonObject& jobj, core::World* world)
     }
 
     auto obj = world->createBanner(id);
-    obj->setDisplayName(name);
+    obj->setName(name);
     obj->setCivilizations(civilizations);
 
     return obj;
@@ -163,13 +163,13 @@ static core::Civilization* civilizationFromJson(const QJsonObject& jobj, core::W
     if (id == core::WObject::invalidId)
         throw utils::ValueError("Failed to unserialize civilization, it has missing or invalid id");
 
-    const QString name = jobj["displayName"].toString();
+    const QString name = jobj["name"].toString();
 
     if (name.isNull() || name.isEmpty())
         throw utils::ValueError("Failed to unserialize banner, it has missing or empty name");
 
     auto obj = world->createCivilization(id);
-    obj->setDisplayName(name);
+    obj->setName(name);
 
     return obj;
 }

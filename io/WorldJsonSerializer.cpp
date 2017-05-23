@@ -68,7 +68,7 @@ QByteArray WorldJsonSerializer::serializeWorld(const core::World* const obj) con
     QJsonObject jobj;
 
     jobj["uuid"] = obj->getUuid();
-    jobj["displayName"] = obj->getDisplayName();
+    jobj["name"] = obj->getName();
     jobj["banners"] = toQJsonArray(obj->getBanners(), bannerToJson);
     jobj["civilizations"] = toQJsonArray(obj->getCivilizations(), civilizationToJson);
     jobj["colors"] = toQJsonArray(obj->getColors(), [](const QColor& c) { return c.name(); });
@@ -83,7 +83,7 @@ static QJsonObject bannerToJson(const core::Banner* const obj)
     QJsonObject jobj;
 
     jobj["id"] = obj->getId();
-    jobj["displayName"] = obj->getDisplayName();
+    jobj["name"] = obj->getName();
     jobj["civilizations"] = toQJsonArray(obj->getCivilizations(), io::serializeReference);
 
     return jobj;
@@ -94,7 +94,7 @@ static QJsonObject civilizationToJson(const core::Civilization* const obj)
     QJsonObject jobj;
 
     jobj["id"] = obj->getId();
-    jobj["displayName"] = obj->getDisplayName();
+    jobj["name"] = obj->getName();
 
     return jobj;
 }

@@ -226,7 +226,7 @@ TEST_CASE("Faction can be unserialized from JSON", "[MapJsonUnserializer][JSON][
         const auto faction{unserializer.unserializeFaction(jdoc.toJson(), map)};
 
         REQUIRE(faction->getId() == jobj["id"].toInt());
-        REQUIRE(faction->getDisplayName() == jobj["displayName"].toString());
+        REQUIRE(faction->getName() == jobj["name"].toString());
         REQUIRE(faction->getPrimaryColor().name() == jobj["primaryColor"].toString());
         REQUIRE(faction->getSecondaryColor().name() == jobj["secondaryColor"].toString());
         REQUIRE(faction->getBanner() == io::unserializeReference(jobj["banner"].toString(), map));
@@ -267,7 +267,7 @@ TEST_CASE("Faction can't be unserialized from JSON", "[MapJsonUnserializer][JSON
 
     SECTION("Missing name")
     {
-        jobj.remove("displayName");
+        jobj.remove("name");
         QJsonDocument jdoc(jobj);
 
         REQUIRE_THROWS_AS(unserializer.unserializeFaction(jdoc.toJson(), map), utils::ValueError);
@@ -275,7 +275,7 @@ TEST_CASE("Faction can't be unserialized from JSON", "[MapJsonUnserializer][JSON
 
     SECTION("Empty name")
     {
-        jobj["displayName"] = "";
+        jobj["name"] = "";
 
         REQUIRE_THROWS_AS(unserializer.unserializeFaction(QJsonDocument(jobj).toJson(), map), utils::ValueError);
     }
@@ -572,7 +572,7 @@ TEST_CASE("Map can be unserialized from JSON", "[MapJsonUnserializer][JSON][Unse
     {
         const auto map = unserializer.unserializeMap(rawJson, world);
 
-        REQUIRE(map->getDisplayName() == jmap["displayName"].toString());
+        REQUIRE(map->getName() == jmap["name"].toString());
         REQUIRE(map->getWorld() == world);
 
         const auto jmapNodes = jmap["mapNodes"].toArray();
@@ -634,7 +634,7 @@ TEST_CASE("Map can't be unserialized from JSON", "[MapJsonUnserializer][JSON][Un
 
     SECTION("Missing name")
     {
-        jmap.remove("displayName");
+        jmap.remove("name");
         QJsonDocument jdoc(jmap);
 
         REQUIRE_THROWS_AS(unserializer.unserializeMap(jdoc.toJson(), world), utils::ValueError);
@@ -642,7 +642,7 @@ TEST_CASE("Map can't be unserialized from JSON", "[MapJsonUnserializer][JSON][Un
 
     SECTION("Invalid name")
     {
-        jmap["displayName"] = 123;
+        jmap["name"] = 123;
         QJsonDocument jdoc(jmap);
 
         REQUIRE_THROWS_AS(unserializer.unserializeMap(jdoc.toJson(), world), utils::ValueError);

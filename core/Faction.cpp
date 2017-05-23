@@ -30,12 +30,12 @@ Faction::Faction(QObject* parent, int id)
 {
 }
 
-void Faction::setDisplayName(const QString& displayName)
+void Faction::setName(const QString& name)
 {
-    if (this->displayName != displayName)
+    if (this->name != name)
     {
-        this->displayName = displayName;
-        emit displayNameChanged();
+        this->name = name;
+        emit nameChanged();
     }
 }
 

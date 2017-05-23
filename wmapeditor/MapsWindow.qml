@@ -63,7 +63,7 @@ Window {
 
                     color: wrapper.ListView.isCurrentItem ? W.normalPalette.highlightedText : W.normalPalette.windowText
 
-                    text: model.modelData.displayName
+                    text: model.modelData.name
                 }
             }
 

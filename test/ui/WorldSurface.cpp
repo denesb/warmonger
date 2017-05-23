@@ -140,7 +140,7 @@ TEST_CASE("Can use Surface", "[WorldSurface][!hide]")
     SECTION("Can read metadata")
     {
         REQUIRE(s.objectName() == "test");
-        REQUIRE(s.getDisplayName() == "Test surface");
+        REQUIRE(s.getName() == "Test surface");
         REQUIRE(s.getDescription() == "Surface used for testing");
     }
 

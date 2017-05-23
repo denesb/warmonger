@@ -70,7 +70,7 @@ Window {
 
             ComboBox {
                 model: W.world.banners
-                textRole: "displayName"
+                textRole: "name"
 
                 width: 200
 

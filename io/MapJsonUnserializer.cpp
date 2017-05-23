@@ -51,11 +51,11 @@ std::unique_ptr<core::Map> MapJsonUnserializer::unserializeMap(
 
     std::unique_ptr<core::Map> obj{std::make_unique<core::Map>()};
 
-    const QString name{jobj["displayName"].toString()};
+    const QString name{jobj["name"].toString()};
     if (name.isNull() || name.isEmpty())
-        throw utils::ValueError("Failed to unserialize map, it has missing or invalid displayName");
+        throw utils::ValueError("Failed to unserialize map, it has missing or invalid name");
 
-    obj->setDisplayName(name);
+    obj->setName(name);
 
     obj->setWorld(world);
 
@@ -129,10 +129,10 @@ static core::Faction* factionFromJson(const QJsonObject& jobj, core::Map* map)
     if (id == core::WObject::invalidId)
         throw utils::ValueError("Failed to unserialize faction, it has missing or invalid id");
 
-    const auto name = jobj["displayName"].toString();
+    const auto name = jobj["name"].toString();
 
     if (name.isNull() || name.isEmpty())
-        throw utils::ValueError("Failed to unserialize faction, it has missing or invalid displayName");
+        throw utils::ValueError("Failed to unserialize faction, it has missing or invalid name");
 
     const auto primaryColor = QColor(jobj["primaryColor"].toString());
 
@@ -156,7 +156,7 @@ static core::Faction* factionFromJson(const QJsonObject& jobj, core::Map* map)
 
     auto obj = map->createFaction(id);
 
-    obj->setDisplayName(name);
+    obj->setName(name);
     obj->setPrimaryColor(primaryColor);
     obj->setSecondaryColor(secondaryColor);
     obj->setBanner(banner);

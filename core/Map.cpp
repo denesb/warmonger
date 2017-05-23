@@ -28,7 +28,7 @@
 namespace warmonger {
 namespace core {
 
-const QString factionDisplayNameTemplate{"New Faction %1"};
+const QString factionNameTemplate{"New Faction %1"};
 
 static void addMapNodeRing(std::vector<MapNode*>& nodes, Map* map);
 static MapNode* createNeighbour(MapNode* node, const Direction direction, Map* map);
@@ -43,12 +43,12 @@ Map::Map(QObject* parent)
 {
 }
 
-void Map::setDisplayName(const QString& displayName)
+void Map::setName(const QString& name)
 {
-    if (this->displayName != displayName)
+    if (this->name != name)
     {
-        this->displayName = displayName;
-        emit displayNameChanged();
+        this->name = name;
+        emit nameChanged();
     }
 }
 

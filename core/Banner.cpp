@@ -27,12 +27,12 @@ Banner::Banner(QObject* parent, int id)
 {
 }
 
-void Banner::setDisplayName(const QString& displayName)
+void Banner::setName(const QString& name)
 {
-    if (this->displayName != displayName)
+    if (this->name != name)
     {
-        this->displayName = displayName;
-        emit displayNameChanged();
+        this->name = name;
+        emit nameChanged();
     }
 }
 

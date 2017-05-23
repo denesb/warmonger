@@ -57,10 +57,10 @@ Window {
 
                     textColor: W.normalPalette.windowText
 
-                    text: model.modelData.displayName
+                    text: model.modelData.name
 
                     onEditingFinished: {
-                        model.modelData.displayName = text
+                        model.modelData.name = text
                     }
                 }
 
@@ -70,7 +70,7 @@ Window {
                     }
 
                     model: W.world.civilizations
-                    textRole: "displayName"
+                    textRole: "name"
 
                     onActivated: {
                         model.modelData.civilization = W.world.civilizations[index];

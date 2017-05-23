@@ -45,7 +45,7 @@ namespace core {
 class World : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString displayName READ getDisplayName NOTIFY displayNameChanged)
+    Q_PROPERTY(QString name READ getName NOTIFY nameChanged)
     Q_PROPERTY(QString uuid READ getUuid CONSTANT)
     Q_PROPERTY(QVariantList banners READ readBanners NOTIFY bannersChanged)
     Q_PROPERTY(QVariantList civilizations READ readCivilizations NOTIFY civilizationsChanged)
@@ -73,24 +73,24 @@ public:
     }
 
     /**
-     * Get the display-name.
+     * Get the name.
      *
-     * \returns the displayName
+     * \returns the name
      */
-    const QString& getDisplayName() const
+    const QString& getName() const
     {
-        return this->displayName;
+        return this->name;
     }
 
     /**
-     * Set the display-name.
+     * Set the name.
      *
-     * Will emit the signal World::displayNameChanged() if the newly set value
+     * Will emit the signal World::nameChanged() if the newly set value
      * is different than the current one.
      *
-     * \param displayName the new displayName
+     * \param name the new name
      */
-    void setDisplayName(const QString& displayName);
+    void setName(const QString& name);
 
     /**
      * Get the banners.
@@ -265,9 +265,9 @@ public:
 
 signals:
     /**
-     * Emitted when the display-name changes.
+     * Emitted when the name changes.
      */
-    void displayNameChanged();
+    void nameChanged();
 
     /**
      * Emitted when the banners change.
@@ -296,7 +296,7 @@ signals:
 
 private:
     QString uuid;
-    QString displayName;
+    QString name;
     std::vector<Banner*> banners;
     std::vector<Civilization*> civilizations;
     std::vector<QColor> colors;

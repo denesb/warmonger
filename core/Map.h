@@ -54,7 +54,7 @@ namespace core {
 class Map : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
+    Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(World* world READ getWorld WRITE setWorld NOTIFY worldChanged)
     Q_PROPERTY(QVariantList mapNodes READ readMapNodes NOTIFY mapNodesChanged)
     Q_PROPERTY(QVariantList factions READ readFactions NOTIFY factionsChanged)
@@ -69,24 +69,24 @@ public:
     explicit Map(QObject* parent = nullptr);
 
     /**
-     * Get the display-name.
+     * Get the name.
      *
-     * \returns the displayName
+     * \returns the name
      */
-    const QString& getDisplayName() const
+    const QString& getName() const
     {
-        return this->displayName;
+        return this->name;
     }
 
     /**
-     * Set the display-name.
+     * Set the name.
      *
-     * Will emit the signal Map::displayNameChanged() if the newly set
+     * Will emit the signal Map::nameChanged() if the newly set
      * value is different than the current one.
      *
-     * \param displayName the new displayName
+     * \param name the new name
      */
-    void setDisplayName(const QString& displayName);
+    void setName(const QString& name);
 
     /**
      * Get the world.
@@ -272,9 +272,9 @@ public:
 
 signals:
     /**
-     * Emitted when the display-name changes.
+     * Emitted when the name changes.
      */
-    void displayNameChanged();
+    void nameChanged();
 
     /**
      * Emitted when the world changes.
@@ -297,7 +297,7 @@ signals:
     void entitiesChanged();
 
 private:
-    QString displayName;
+    QString name;
     World* world;
     unsigned int mapNodeIndex;
     unsigned int entityIndex;

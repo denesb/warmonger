@@ -35,15 +35,15 @@ static void createEveryFieldType(core::WorldComponentType* componentType, QJsonO
 template <class GameObject>
 void setNames(GameObject obj, QJsonObject& jobj, int i = 0)
 {
-    static const QString displayNameTemplate{"%1_displayName_%2"};
+    static const QString nameTemplate{"%1_name_%2"};
 
     const QMetaObject* mo = obj->metaObject();
 
     const QString objectName{core::createObjectName(obj, i)};
-    const QString displayName = displayNameTemplate.arg(mo->className()).arg(i);
+    const QString name = nameTemplate.arg(mo->className()).arg(i);
 
-    obj->setDisplayName(displayName);
-    jobj["displayName"] = displayName;
+    obj->setName(name);
+    jobj["name"] = name;
 }
 
 std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()

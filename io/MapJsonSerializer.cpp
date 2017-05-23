@@ -40,7 +40,7 @@ QByteArray MapJsonSerializer::serializeMap(const core::Map* const obj) const
 {
     QJsonObject jobj;
 
-    jobj["displayName"] = obj->getDisplayName();
+    jobj["name"] = obj->getName();
     jobj["world"] = obj->getWorld()->getUuid();
     jobj["mapNodes"] = toQJsonArray(obj->getMapNodes(), mapNodeToJson);
     jobj["factions"] = toQJsonArray(obj->getFactions(), factionToJson);
@@ -168,7 +168,7 @@ static QJsonObject factionToJson(const core::Faction* const obj)
     QJsonObject jobj;
 
     jobj["id"] = obj->getId();
-    jobj["displayName"] = obj->getDisplayName();
+    jobj["name"] = obj->getName();
     jobj["primaryColor"] = obj->getPrimaryColor().name();
     jobj["secondaryColor"] = obj->getSecondaryColor().name();
     jobj["banner"] = serializeReference(obj->getBanner());

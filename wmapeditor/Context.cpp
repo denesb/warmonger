@@ -36,7 +36,7 @@ namespace warmonger {
 namespace wmapeditor {
 
 const QString mapObjectName{"newMap"};
-const QString mapDisplayName{"New campaign map"};
+const QString mapName{"New campaign map"};
 const QString unknownErrorMessage{"Unknown error"};
 
 static QString nextMapName(const std::vector<core::Map*>& maps);
@@ -97,7 +97,7 @@ void Context::create(warmonger::core::World* world)
 {
     core::Map* map = new core::Map(this);
     map->setObjectName(nextMapName(this->maps));
-    map->setDisplayName(mapDisplayName);
+    map->setName(mapName);
     map->setWorld(world);
 
     // TODO fix map-node generation, call into world-rules

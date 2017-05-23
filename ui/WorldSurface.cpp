@@ -338,10 +338,10 @@ void WorldSurface::parseHeader(const QByteArray& header)
 
     this->setObjectName(jobj["objectName"].toString());
 
-    this->displayName = jobj["displayName"].toString();
+    this->name = jobj["name"].toString();
     this->description = jobj["description"].toString();
 
-    emit displayNameChanged();
+    emit nameChanged();
     emit descriptionChanged();
 }
 

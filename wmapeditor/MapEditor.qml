@@ -42,7 +42,7 @@ ApplicationWindow {
         onTriggered: {
             setStatus("Creating new campaign map...")
             W.create(W.worlds[0]);
-            setTemporaryStatus("Created new map with name: " + W.map.displayName)
+            setTemporaryStatus("Created new map with name: " + W.map.name)
         }
     }
 
@@ -201,7 +201,7 @@ ApplicationWindow {
 
                 Layout.preferredWidth: 150
 
-                textRole: "displayName"
+                textRole: "name"
 
                 onActivated: {
                     if (index == 0)
@@ -211,7 +211,7 @@ ApplicationWindow {
                 }
 
                 onFactionsChanged: {
-                    factions.unshift({"displayName": "None"});
+                    factions.unshift({"name": "None"});
                     model = factions;
                 }
             }

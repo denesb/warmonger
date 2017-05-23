@@ -55,7 +55,7 @@ TEST_CASE("Banner can be unserialized from JSON", "[WorldJsonUnserializer][JSON]
         auto banner = unserializer.unserializeBanner(rawJson, world.get());
 
         REQUIRE(banner->getId() == jobj["id"].toInt());
-        REQUIRE(banner->getDisplayName() == jobj["displayName"].toString());
+        REQUIRE(banner->getName() == jobj["name"].toString());
         if (jobj.contains("civilizations"))
         {
             REQUIRE_REFERENCES(jobj["civilizations"].toArray(), banner->getCivilizations());
@@ -79,7 +79,7 @@ TEST_CASE("Banner can't be unserialized from JSON", "[WorldJsonUnserializer][JSO
 
     SECTION("Invalid JSON")
     {
-        QString invalidJson{"{\"displayName\": \"name1\",}"};
+        QString invalidJson{"{\"name\": \"name1\",}"};
         REQUIRE_THROWS_AS(unserializer.unserializeBanner(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
@@ -101,7 +101,7 @@ TEST_CASE("Banner can't be unserialized from JSON", "[WorldJsonUnserializer][JSO
 
     SECTION("Missing name")
     {
-        jobj.remove("displayName");
+        jobj.remove("name");
         QJsonDocument jdoc(jobj);
 
         REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world), utils::ValueError);
@@ -109,14 +109,14 @@ TEST_CASE("Banner can't be unserialized from JSON", "[WorldJsonUnserializer][JSO
 
     SECTION("Empty name")
     {
-        jobj["displayName"] = "";
+        jobj["name"] = "";
 
         REQUIRE_THROWS_AS(unserializer.unserializeBanner(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Name not string")
     {
-        jobj["displayName"] = 123;
+        jobj["name"] = 123;
         QJsonDocument jdoc(jobj);
 
         REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world), utils::ValueError);
@@ -156,7 +156,7 @@ TEST_CASE("Civilization can be unserialized from JSON", "[WorldJsonUnserializer]
         auto civilization = unserializer.unserializeCivilization(rawJson, world.get());
 
         REQUIRE(civilization->getId() == jobj["id"].toInt());
-        REQUIRE(civilization->getDisplayName() == jobj["displayName"].toString());
+        REQUIRE(civilization->getName() == jobj["name"].toString());
     }
 }
 
@@ -172,7 +172,7 @@ TEST_CASE("Civilization can't be unserialized from JSON", "[WorldJsonUnserialize
 
     SECTION("Invalid JSON")
     {
-        QString invalidJson{"{\"displayName\": \"name1\",}"};
+        QString invalidJson{"{\"name\": \"name1\",}"};
 
         REQUIRE_THROWS_AS(unserializer.unserializeCivilization(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
@@ -195,14 +195,14 @@ TEST_CASE("Civilization can't be unserialized from JSON", "[WorldJsonUnserialize
 
     SECTION("Empty name")
     {
-        jobj["displayName"] = "";
+        jobj["name"] = "";
 
         REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Missing name")
     {
-        jobj.remove("displayName");
+        jobj.remove("name");
         QJsonDocument jdoc(jobj);
 
         REQUIRE_THROWS_AS(unserializer.unserializeCivilization(jdoc.toJson(), world), utils::ValueError);
@@ -210,7 +210,7 @@ TEST_CASE("Civilization can't be unserialized from JSON", "[WorldJsonUnserialize
 
     SECTION("Name not string")
     {
-        jobj["displayName"] = 123;
+        jobj["name"] = 123;
         QJsonDocument jdoc(jobj);
 
         REQUIRE_THROWS_AS(unserializer.unserializeCivilization(jdoc.toJson(), world), utils::ValueError);
@@ -598,7 +598,7 @@ TEST_CASE("World can be unserialized from JSON", "[WorldJsonUnserializer][JSON][
         const std::unique_ptr<core::World> world(unserializer.unserializeWorld(rawJson));
 
         REQUIRE(world->getUuid() == jobj["uuid"].toString());
-        REQUIRE(world->getDisplayName() == jobj["displayName"].toString());
+        REQUIRE(world->getName() == jobj["name"].toString());
         REQUIRE(world->getBanners().size() == jobj["banners"].toArray().size());
         REQUIRE(world->getCivilizations().size() == jobj["civilizations"].toArray().size());
         REQUIRE(world->getColors().size() == jobj["colors"].toArray().size());
@@ -623,7 +623,7 @@ TEST_CASE("World can't be unserialized from JSON", "[WorldJsonUnserializer][JSON
 
     SECTION("Invalid JSON")
     {
-        QString invalidJson{"{\"displayName\": \"name1\",}"};
+        QString invalidJson{"{\"name\": \"name1\",}"};
 
         REQUIRE_THROWS_AS(unserializer.unserializeWorld(invalidJson.toLocal8Bit()), utils::ValueError);
     }
@@ -644,14 +644,14 @@ TEST_CASE("World can't be unserialized from JSON", "[WorldJsonUnserializer][JSON
 
     SECTION("Missing name")
     {
-        jobj.remove("displayName");
+        jobj.remove("name");
 
         REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
     }
 
     SECTION("Name not string")
     {
-        jobj["displayName"] = 123;
+        jobj["name"] = 123;
 
         REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
     }

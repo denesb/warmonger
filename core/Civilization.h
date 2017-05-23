@@ -32,7 +32,7 @@ namespace core {
 class Civilization : public WObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
+    Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)
 
 public:
     /**
@@ -46,30 +46,30 @@ public:
     Civilization(QObject* parent, int id = WObject::invalidId);
 
     /**
-     * Get the display-name.
+     * Get the name.
      *
-     * \returns the displayName
+     * \returns the name
      */
-    QString getDisplayName() const;
+    QString getName() const;
 
     /**
-     * Set the display-name.
+     * Set the name.
      *
-     * Will emit the signal World::displayNameChanged() if the newly set value
+     * Will emit the signal World::nameChanged() if the newly set value
      * is different than the current one.
      *
-     * \param displayName the new displayName
+     * \param name the new name
      */
-    void setDisplayName(const QString& displayName);
+    void setName(const QString& name);
 
 signals:
     /**
-     * Emitted when the display-name changes.
+     * Emitted when the name changes.
      */
-    void displayNameChanged();
+    void nameChanged();
 
 private:
-    QString displayName;
+    QString name;
 };
 
 } // namespace core

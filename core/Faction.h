@@ -42,7 +42,7 @@ namespace core {
 class Faction : public WObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString displayName READ getDisplayName WRITE setDisplayName NOTIFY displayNameChanged)
+    Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QColor primaryColor READ getPrimaryColor WRITE setPrimaryColor NOTIFY primaryColorChanged)
     Q_PROPERTY(QColor secondaryColor READ getSecondaryColor WRITE setSecondaryColor NOTIFY secondaryColorChanged)
     Q_PROPERTY(Banner* banner READ getBanner WRITE setBanner NOTIFY bannerChanged)
@@ -60,24 +60,24 @@ public:
     Faction(QObject* parent, int id = WObject::invalidId);
 
     /**
-     * Get the display-name.
+     * Get the name.
      *
-     * \returns the displayName
+     * \returns the name
      */
-    const QString& getDisplayName() const
+    const QString& getName() const
     {
-        return this->displayName;
+        return this->name;
     }
 
     /**
-     * Set the display-name.
+     * Set the name.
      *
-     * Will emit the signal Faction::displayNameChanged() if the newly set value
+     * Will emit the signal Faction::nameChanged() if the newly set value
      * is different than the current one.
      *
-     * \param displayName the new displayName
+     * \param name the new name
      */
-    void setDisplayName(const QString& displayName);
+    void setName(const QString& name);
 
     /**
      * Get the primary-color.
@@ -180,9 +180,9 @@ public:
 
 signals:
     /**
-     * Emitted when the display-name changes.
+     * Emitted when the name changes.
      */
-    void displayNameChanged();
+    void nameChanged();
 
     /**
      * Emitted when the primary-color change.
@@ -205,7 +205,7 @@ signals:
     void civilizationChanged();
 
 private:
-    QString displayName;
+    QString name;
     QColor primaryColor;
     QColor secondaryColor;
     Banner* banner;

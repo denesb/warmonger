@@ -109,7 +109,7 @@ Rectangle {
 
                         color: wrapper.ListView.isCurrentItem ? W.normalPalette.highlightedText : W.normalPalette.windowText
 
-                        text: model.modelData.displayName
+                        text: model.modelData.name
                     }
                 }
 
@@ -194,10 +194,10 @@ Rectangle {
 
                                     textColor: W.normalPalette.windowText
 
-                                    text: model.modelData.displayName
+                                    text: model.modelData.name
 
                                     onEditingFinished: {
-                                        model.modelData.displayName = text
+                                        model.modelData.name = text
                                     }
                                 }
 
@@ -209,7 +209,7 @@ Rectangle {
                                     Layout.preferredWidth: 150
 
                                     model: W.world.civilizations
-                                    textRole: "displayName"
+                                    textRole: "name"
 
                                     onActivated: {
                                         model.modelData.civilization = W.world.civilizations[index];

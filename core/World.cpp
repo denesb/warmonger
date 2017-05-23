@@ -30,12 +30,12 @@ World::World(const QString& uuid, QObject* parent)
 {
 }
 
-void World::setDisplayName(const QString& displayName)
+void World::setName(const QString& name)
 {
-    if (this->displayName != displayName)
+    if (this->name != name)
     {
-        this->displayName = displayName;
-        emit displayNameChanged();
+        this->name = name;
+        emit nameChanged();
     }
 }
 

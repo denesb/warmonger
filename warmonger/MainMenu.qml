@@ -46,7 +46,7 @@ Rectangle {
 
             color: W.normalPalette.windowText
 
-            text: "Warmonger - " + W.world.displayName
+            text: "Warmonger - " + W.world.name
         }
 
         Text {

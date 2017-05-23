@@ -27,17 +27,17 @@ Civilization::Civilization(QObject* parent, int id)
 {
 }
 
-QString Civilization::getDisplayName() const
+QString Civilization::getName() const
 {
-    return this->displayName;
+    return this->name;
 }
 
-void Civilization::setDisplayName(const QString& displayName)
+void Civilization::setName(const QString& name)
 {
-    if (this->displayName != displayName)
+    if (this->name != name)
     {
-        this->displayName = displayName;
-        emit displayNameChanged();
+        this->name = name;
+        emit nameChanged();
     }
 }
 

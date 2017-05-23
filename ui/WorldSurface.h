@@ -62,7 +62,7 @@ namespace ui {
 class WorldSurface : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString displayName READ getDisplayName NOTIFY displayNameChanged)
+    Q_PROPERTY(QString name READ getName NOTIFY nameChanged)
     Q_PROPERTY(QString description READ getDescription NOTIFY descriptionChanged)
     Q_PROPERTY(QSize tileSize READ getTileSize NOTIFY tileSizeChanged)
     Q_PROPERTY(QColor normalGridColor READ getNormalGridColor NOTIFY normalGridColorChanged)
@@ -81,7 +81,7 @@ public:
      * Constructs an inactive world-surface.
      *
      * Loads the metadata from the disk. The metadata contains the
-     * display-name and description.
+     * name and description.
      * Call WorldSurface::activate() to activate the surface.
      *
      * \param path the path to the surface package file (.wsp)
@@ -106,13 +106,13 @@ public:
     }
 
     /**
-     * Get the display-name.
+     * Get the name.
      *
-     * \return the display-name
+     * \return the name
      */
-    QString getDisplayName() const
+    QString getName() const
     {
-        return this->displayName;
+        return this->name;
     }
 
     /**
@@ -333,9 +333,9 @@ public:
 
 signals:
     /**
-     * Emitted when the display-name changes.
+     * Emitted when the name changes.
      */
-    void displayNameChanged();
+    void nameChanged();
 
     /**
      * Emitted when the description changes.
@@ -371,7 +371,7 @@ private:
     void parseHeader(const QByteArray& header);
 
     const QString path;
-    QString displayName;
+    QString name;
     QString description;
     core::World* world;
 

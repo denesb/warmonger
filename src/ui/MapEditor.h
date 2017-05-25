@@ -22,8 +22,7 @@
 #define W_UI_MAP_EDITOR_H
 
 #include <map>
-
-#include <boost/optional.hpp>
+#include <experimental/optional>
 
 #include "core/Map.h"
 #include "ui/BasicMap.h"
@@ -235,7 +234,7 @@ private:
     std::map<core::MapNode*, QPoint> mapNodesPos;
 
     core::MapNode* hoverMapNode;
-    boost::optional<QPoint> hoverPos;
+    std::experimental::optional<QPoint> hoverPos;
 
     EditingMode editingMode;
     core::Faction* currentFaction;

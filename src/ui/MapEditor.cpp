@@ -185,7 +185,7 @@ void MapEditor::hoverMoveEvent(QHoverEvent* event)
     const QPoint mapPos = this->windowPosToMapPos(event->pos());
     core::MapNode* currentMapNode = mapNodeAtPos(mapPos, this->mapNodesPos, this->worldSurface);
 
-    boost::optional<QPoint> currentHoverPos;
+    std::experimental::optional<QPoint> currentHoverPos;
 
     if (currentMapNode == nullptr)
     {
@@ -201,7 +201,7 @@ void MapEditor::hoverMoveEvent(QHoverEvent* event)
         }
         else
         {
-            currentHoverPos = boost::none;
+            currentHoverPos = std::experimental::nullopt;
         }
     }
     else
@@ -231,7 +231,7 @@ void MapEditor::hoverEnterEvent(QHoverEvent*)
 void MapEditor::hoverLeaveEvent(QHoverEvent*)
 {
     this->hoverMapNode = nullptr;
-    this->hoverPos = boost::none;
+    this->hoverPos = std::experimental::nullopt;
 
     QGuiApplication::restoreOverrideCursor();
 

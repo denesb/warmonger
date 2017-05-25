@@ -19,12 +19,19 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <backward.hpp>
 
 #include "ui/SearchPaths.h"
 #include "ui/UI.h"
 #include "utils/Logging.h"
 #include "utils/Settings.h"
 #include "wmapeditor/Context.h"
+
+namespace backward {
+
+backward::SignalHandling sh;
+
+} // namespace backward
 
 using namespace warmonger;
 

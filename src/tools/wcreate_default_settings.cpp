@@ -18,10 +18,17 @@
 
 #include <QDir>
 #include <QSettings>
+#include <backward.hpp>
 
 #include "utils/Logging.h"
 #include "utils/Settings.h"
 #include "utils/Utils.h"
+
+namespace backward {
+
+backward::SignalHandling sh;
+
+} // namespace backward
 
 using namespace warmonger;
 

@@ -19,6 +19,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <backward.hpp>
 
 #include "io/File.h"
 #include "ui/SearchPaths.h"
@@ -27,6 +28,12 @@
 #include "utils/Logging.h"
 #include "utils/Settings.h"
 #include "warmonger/Context.h"
+
+namespace backward {
+
+backward::SignalHandling sh;
+
+} // namespace backward
 
 using namespace warmonger;
 

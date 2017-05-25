@@ -21,7 +21,6 @@
 #include <fstream>
 
 #include <boost/log/sinks.hpp>
-
 #include <catch.hpp>
 
 #include "utils/Logging.h"

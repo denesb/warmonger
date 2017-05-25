@@ -18,11 +18,18 @@
 
 #include <iostream>
 #include <memory>
+#include <backward.hpp>
 
 #include "core/Map.h"
 #include "io/File.h"
 #include "tools/Utils.h"
 #include "utils/Logging.h"
+
+namespace backward {
+
+backward::SignalHandling sh;
+
+} // namespace backward
 
 using namespace warmonger;
 

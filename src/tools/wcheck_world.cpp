@@ -20,11 +20,18 @@
 #include <memory>
 
 #include <QString>
+#include <backward.hpp>
 
 #include "core/World.h"
 #include "io/File.h"
 #include "tools/Utils.h"
 #include "utils/Logging.h"
+
+namespace backward {
+
+backward::SignalHandling sh;
+
+} // namespace backward
 
 using namespace warmonger;
 

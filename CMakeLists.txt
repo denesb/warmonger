@@ -24,7 +24,6 @@ option(BUILD_TOOLS "Build development tools" OFF)
 option(BUILD_TESTS "Build unit test suite" OFF)
 
 include_directories(
-    ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/thirdparty
     ${PROJECT_BINARY_DIR}
@@ -139,21 +138,21 @@ set(
 
 set(
     TEST_SRC_FILES
-    test/io/File.cpp
-    test/Util.cpp
-    test/core/Map.cpp
-    test/core/MapNodeNeighbours.cpp
-    test/core/WObject.cpp
-    test/io/Reference.cpp
-    test/io/MapJsonSerializer.cpp
-    test/io/MapJsonUnserializer.cpp
-    test/io/WorldJsonUnserializer.cpp
-    test/io/WorldJsonSerializer.cpp
-    test/test_warmonger.cpp
-    test/ui/MapEditor.cpp
-    test/ui/MapUtil.cpp
-    test/ui/MapWindow.cpp
-    test/ui/WorldSurface.cpp
+    src/test/io/File.cpp
+    src/test/Util.cpp
+    src/test/core/Map.cpp
+    src/test/core/MapNodeNeighbours.cpp
+    src/test/core/WObject.cpp
+    src/test/io/Reference.cpp
+    src/test/io/MapJsonSerializer.cpp
+    src/test/io/MapJsonUnserializer.cpp
+    src/test/io/WorldJsonUnserializer.cpp
+    src/test/io/WorldJsonSerializer.cpp
+    src/test/test_warmonger.cpp
+    src/test/ui/MapEditor.cpp
+    src/test/ui/MapUtil.cpp
+    src/test/ui/MapWindow.cpp
+    src/test/ui/WorldSurface.cpp
 )
 
 file(GLOB_RECURSE ALL_HEADER_FILES ${PROJECT_SOURCE_DIR}/*.h)
@@ -289,7 +288,7 @@ if(BUILD_TESTS)
     add_executable(
         test_warmonger
         ${TEST_SRC_FILES}
-        test/test_warmonger.cpp
+        src/test/test_warmonger.cpp
     )
     WARMONGER_AUTOMOC(test_warmonger)
 
@@ -302,7 +301,7 @@ if(BUILD_TESTS)
         ${COMMON_EXTERNAL_LIBS}
     )
 
-    set(TEST_DATA "${CMAKE_SOURCE_DIR}/test/data")
+    set(TEST_DATA "${CMAKE_SOURCE_DIR}/src/test/data")
     execute_process(
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${TEST_DATA}/worldsurface-packages

@@ -38,27 +38,27 @@ interested feel free to drop me a line at dns dot botond at gmail dot com.
 
 ### Build
 
-* C++14 compliant C++ compiler (tested with gcc 6.2)
-* CMake
-* boost 1.58 (boost::log and boost::optional)
-* Qt 5.5 (QtCore and QtQuick)
-* KF5Archive
+ * C++14 compliant C++ compiler (tested with gcc 6.2)
+ * CMake
+ * Qt 5.5 (QtCore and QtQuick)
+ * KF5Archive
 
 ### Formate the code
 
-* clang-format (clang-tools)
+ * clang-format (clang-tools)
 
 ### Generate documentation
 
-* doxygen 1.8
-* graphviz
+ * doxygen 1.8
+ * graphviz
 
 Version numbers refer to the minimum supported version of each dependency.
 
-### Other thirdparty libraries used
+### Other thirdparty libraries used (bundled)
 
  * [catch](https://github.com/philsquared/Catch)
  * [backward-cpp](https://github.com/bombela/backward-cpp)
+ * [spdlog](https://github.com/gabime/spdlog)
 
 Kudos to the authors and contributors of all this awesome, freely available stuff.
 

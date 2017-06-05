@@ -16,7 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <boost/log/sinks.hpp>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/ostream_sink.h>
 
 #include "tools/Utils.h"
 #include "utils/Logging.h"
@@ -24,23 +25,14 @@
 namespace warmonger {
 namespace tools {
 
-boost::shared_ptr<std::stringstream> setupLogging()
+std::shared_ptr<std::stringstream> setupLogging()
 {
-    utils::initLogging();
+    auto stream = std::make_shared<std::stringstream>();
+    auto sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(*stream.get());
 
-    // Construct the sink
-    typedef boost::log::sinks::synchronous_sink<boost::log::sinks::text_ostream_backend> TextSink;
-    boost::shared_ptr<TextSink> sink = boost::make_shared<TextSink>();
+    utils::initLogging(spdlog::create(utils::loggerName, {sink}));
 
-    boost::shared_ptr<std::stringstream> logStream = boost::make_shared<std::stringstream>();
-
-    // Add a stream to write log to
-    sink->locked_backend()->add_stream(logStream);
-
-    // Register the sink in the logging core
-    boost::log::core::get()->add_sink(sink);
-
-    return logStream;
+    return stream;
 }
 
 } // namespace tools

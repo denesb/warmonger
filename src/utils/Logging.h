@@ -21,26 +21,61 @@
 #ifndef W_UTILS_LOGGING_H
 #define W_UTILS_LOGGING_H
 
-#include <cstdlib>
+#include <sstream>
 
-#include <boost/log/trivial.hpp>
+#include <spdlog/spdlog.h>
 
 #include "utils/ToString.h"
 
 namespace warmonger {
 namespace utils {
 
-std::string trimSrcFilePath(const char* fileName);
+const char loggerName[] = "console";
 
-void initLogging();
+void initLogging(std::shared_ptr<spdlog::logger> logger = nullptr);
 
-#define wLog(lvl) BOOST_LOG_TRIVIAL(lvl) << warmonger::utils::trimSrcFilePath(__FILE__) << ":" << __LINE__ << " "
-#define wTrace wLog(trace) << __PRETTY_FUNCTION__ << " "
-#define wDebug wLog(debug) << __FUNCTION__ << "() "
-#define wInfo wLog(info)
-#define wWarning wLog(warning)
-#define wError wLog(error)
-#define wFatal wLog(fatal)
+enum class LogLevel : char
+{
+    Trace,
+    Debug,
+    Info,
+    Warning,
+    Error
+};
+
+struct LogEntry
+{
+    LogEntry(LogLevel level, const char* file, const char* function, int line);
+    ~LogEntry();
+
+    template <typename T>
+    inline LogEntry& operator<<(T&& v)
+    {
+        this->msg << v;
+        return *this;
+    }
+
+    LogLevel level;
+    std::string file;
+    const char* function;
+    int line;
+    std::stringstream msg;
+};
+
+#define wLog(lvl) ::warmonger::utils::LogEntry(lvl, __FILE__, __FUNCTION__, __LINE__)
+#define wTrace wLog(::warmonger::utils::LogLevel::Trace)
+#define wDebug wLog(::warmonger::utils::LogLevel::Debug)
+#define wInfo wLog(::warmonger::utils::LogLevel::Info)
+#define wWarning wLog(::warmonger::utils::LogLevel::Warning)
+#define wError wLog(::warmonger::utils::LogLevel::Error)
+
+/* TODO: make it work with the spdlog streaming style
+#define wTrace ::spdlog::get(::warmonger::utils::loggerName)->trace() << __PRETTY__FUNCTION__
+#define wDebug ::spdlog::get(::warmonger::utils::loggerName)->debug()
+#define wInfo ::spdlog::get(::warmonger::utils::loggerName)->info()
+#define wWarning ::spdlog::get(::warmonger::utils::loggerName)->warning()
+#define wError ::spdlog::get(::warmonger::utils::loggerName)->error()
+*/
 
 } // namespace utils
 } // namespace warmonger

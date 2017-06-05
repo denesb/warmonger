@@ -23,7 +23,12 @@ project(Warmonger)
 option(BUILD_TOOLS "Build development tools" OFF)
 option(BUILD_TESTS "Build unit test suite" OFF)
 
-include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR})
+include_directories(
+    ${PROJECT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/src
+    ${PROJECT_SOURCE_DIR}/thirdparty
+    ${PROJECT_BINARY_DIR}
+)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -73,10 +78,6 @@ configure_file(Version.h.in Version.h @ONLY)
 # or Q_GADGET
 set(CMAKE_AUTOMOC OFF)
 set(CMAKE_AUTORCC ON)
-set(Boost_USE_STATIC_LIBS ON)
-
-include_directories(src)
-include_directories(thirdparty)
 
 # Source files
 
@@ -162,7 +163,7 @@ file(GLOB_RECURSE ALL_SOURCE_FILES ${PROJECT_SOURCE_DIR}/*.cpp)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Quick REQUIRED)
 find_package(KF5Archive REQUIRED)
-find_package(Boost REQUIRED COMPONENTS log)
+find_package(Threads)
 
 include(warmonger_automoc.cmake)
 
@@ -170,7 +171,7 @@ set(
     COMMON_EXTERNAL_LIBS
     Qt5::Quick
     Qt5::Core
-    Boost::log
+    ${CMAKE_THREAD_LIBS_INIT}
 )
 
 # Targets

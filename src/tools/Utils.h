@@ -2,8 +2,7 @@
 #define W_WWRAPPER_UTILS_H
 
 #include <sstream>
-
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #define FAIL(retcode)                                                                                                  \
     std::cerr << logStream->str() << "Sanity check failed" << std::endl;                                               \
@@ -12,7 +11,7 @@
 namespace warmonger {
 namespace tools {
 
-boost::shared_ptr<std::stringstream> setupLogging();
+std::shared_ptr<std::stringstream> setupLogging();
 
 } // namespace tools
 } // namespace warmonger

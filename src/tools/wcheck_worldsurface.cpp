@@ -16,9 +16,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <backward.hpp>
 #include <iostream>
 #include <memory>
-#include <backward.hpp>
 
 #include "io/File.h"
 #include "tools/Utils.h"
@@ -47,7 +47,7 @@ int main(int argc, char* const argv[])
         return 1;
     }
 
-    boost::shared_ptr<std::stringstream> logStream = tools::setupLogging();
+    std::shared_ptr<std::stringstream> logStream = tools::setupLogging();
 
     QString worldPath{argv[1]};
     QString worldSurfacePath{argv[2]};

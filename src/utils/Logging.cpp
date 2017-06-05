@@ -25,6 +25,55 @@ namespace warmonger {
 namespace utils {
 
 const std::string noFile("-");
+static std::shared_ptr<spdlog::logger> wLogger;
+
+static std::string trimSrcFilePath(const char* fileName);
+static void qtMessageHandler(QtMsgType type, const QMessageLogContext& ctx, const QString& msg);
+
+void initLogging(std::shared_ptr<spdlog::logger> logger)
+{
+    if (!logger)
+        wLogger = spdlog::stdout_color_mt(loggerName);
+    else
+        wLogger = logger;
+
+    spdlog::set_level(spdlog::level::debug);
+    qInstallMessageHandler(qtMessageHandler);
+}
+
+LogEntry::LogEntry(LogLevel level, const char* file, const char* function, int line)
+    : level(level)
+    , file(trimSrcFilePath(file))
+    , function(function)
+    , line(line)
+{
+}
+
+LogEntry::~LogEntry()
+{
+    switch (this->level)
+    {
+        case LogLevel::Trace:
+            wLogger->trace("[{}:{} {}()] {}", this->file, this->line, this->function, this->msg.str());
+            break;
+
+        case LogLevel::Debug:
+            wLogger->debug("[{}:{} {}()] {}", this->file, this->line, this->function, this->msg.str());
+            break;
+
+        case LogLevel::Info:
+            wLogger->info("[{}:{} {}()] {}", this->file, this->line, this->function, this->msg.str());
+            break;
+
+        case LogLevel::Warning:
+            wLogger->warn("[{}:{} {}()] {}", this->file, this->line, this->function, this->msg.str());
+            break;
+
+        case LogLevel::Error:
+            wLogger->error("[{}:{} {}()] {}", this->file, this->line, this->function, this->msg.str());
+            break;
+    }
+}
 
 std::string trimSrcFilePath(const char* fileName)
 {
@@ -42,35 +91,25 @@ std::string trimSrcFilePath(const char* fileName)
     }
 }
 
-static void qtMessageHandler(QtMsgType type, const QMessageLogContext& ctx, const QString& msg);
-
-void initLogging()
-{
-    qInstallMessageHandler(qtMessageHandler);
-}
-
 static void qtMessageHandler(QtMsgType type, const QMessageLogContext& ctx, const QString& msg)
 {
     switch (type)
     {
         case QtDebugMsg:
-            BOOST_LOG_TRIVIAL(debug) << trimSrcFilePath(ctx.file) << ":" << ctx.line << " " << msg.toStdString();
+            wLogger->debug("[{}:{}] {}", trimSrcFilePath(ctx.file), ctx.line, msg.toStdString());
             break;
 
         case QtInfoMsg:
-            BOOST_LOG_TRIVIAL(info) << trimSrcFilePath(ctx.file) << ":" << ctx.line << " " << msg.toStdString();
+            wLogger->info("[{}:{}] {}", trimSrcFilePath(ctx.file), ctx.line, msg.toStdString());
             break;
 
         case QtWarningMsg:
-            BOOST_LOG_TRIVIAL(warning) << trimSrcFilePath(ctx.file) << ":" << ctx.line << " " << msg.toStdString();
+            wLogger->warn("[{}:{}] {}", trimSrcFilePath(ctx.file), ctx.line, msg.toStdString());
             break;
 
         case QtCriticalMsg:
-            BOOST_LOG_TRIVIAL(error) << trimSrcFilePath(ctx.file) << ":" << ctx.line << " " << msg.toStdString();
-            break;
-
         case QtFatalMsg:
-            BOOST_LOG_TRIVIAL(fatal) << trimSrcFilePath(ctx.file) << ":" << ctx.line << " " << msg.toStdString();
+            wLogger->error("[{}:{}] {}", trimSrcFilePath(ctx.file), ctx.line, msg.toStdString());
             break;
     }
 }

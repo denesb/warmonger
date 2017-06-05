@@ -49,7 +49,7 @@ int main(int argc, char* const argv[])
         return 1;
     }
 
-    boost::shared_ptr<std::stringstream> logStream = tools::setupLogging();
+    std::shared_ptr<std::stringstream> logStream = tools::setupLogging();
 
     QString path{argv[1]};
 
@@ -63,7 +63,7 @@ int main(int argc, char* const argv[])
     {
         wError << "Unexpected exception while trying to load world: " << e.what()
                << " - the world probably isn't right";
-        return 1;
+        FAIL(1);
     }
 
     return 0;

@@ -16,9 +16,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <backward.hpp>
 #include <iostream>
 #include <memory>
-#include <backward.hpp>
 
 #include "core/Map.h"
 #include "io/File.h"
@@ -46,7 +46,7 @@ int main(int argc, char* const argv[])
         return 1;
     }
 
-    boost::shared_ptr<std::stringstream> logStream = tools::setupLogging();
+    std::shared_ptr<std::stringstream> logStream = tools::setupLogging();
 
     QString worldPath{argv[1]};
     QString mapPath{argv[2]};
@@ -64,7 +64,7 @@ int main(int argc, char* const argv[])
     {
         wError << "Unexpected exception while trying to load world: " << e.what()
                << " - the world probably isn't right";
-        return 1;
+        FAIL(1);
     }
 
     wInfo << "Successfully loaded world " << world.get();
@@ -76,7 +76,7 @@ int main(int argc, char* const argv[])
     catch (const std::exception& e)
     {
         wError << "Unexpected exception while trying to load map: " << e.what() << " - the map probably isn't right";
-        return false;
+        FAIL(1);
     }
 
     return 0;

@@ -21,8 +21,8 @@
 #ifndef W_UI_MAP_EDITOR_H
 #define W_UI_MAP_EDITOR_H
 
-#include <map>
 #include <experimental/optional>
+#include <map>
 
 #include "core/Map.h"
 #include "ui/BasicMap.h"

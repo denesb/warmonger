@@ -115,6 +115,88 @@ signals:
     void fieldsChanged();
 };
 
+/**
+ * A registry of all the built-in component-types.
+ *
+ * Use BuiltInComponentTypeRegistry::registerComponentType to register built-in
+ * component-types.
+ */
+class BuiltInComponentTypeRegistry
+{
+public:
+    typedef std::function<std::unique_ptr<ComponentType>(QObject*, int)> ComponentTypeFactory;
+
+    static BuiltInComponentTypeRegistry& instance()
+    {
+        static BuiltInComponentTypeRegistry instance;
+        return instance;
+    }
+
+    /**
+     * Register a built-in component-type.
+     *
+     * Generate an id for the registered component-type. The id is only valid
+     * while the program is running (not persistent).
+     *
+     * \returns the registration id of the component-type
+     */
+    template <class T>
+    int registerComponentType()
+    {
+        struct ComponentTypeFactory
+        {
+            std::unique_ptr<ComponentType> operator()(QObject* parent, int id) const
+            {
+                return std::make_unique<T>(parent, id);
+            }
+        };
+
+        this->factories.emplace_back(ComponentTypeFactory());
+        return this->factories.size();
+    }
+
+    /**
+     * Get the list of factory functions that can create all the register
+     * built-in component-types.
+     *
+     * \returns the list of factory functions
+     */
+    const std::vector<ComponentTypeFactory>& getFactories() const
+    {
+        return this->factories;
+    }
+
+private:
+    std::vector<ComponentTypeFactory> factories;
+};
+
+struct FieldParams
+{
+    template <class T>
+    FieldParams(const QString& name, T* type)
+        : name(name)
+        , type(type)
+    {
+    }
+
+    QString name;
+    FieldType* type;
+};
+
+struct FieldsHelper
+{
+    FieldsHelper(std::initializer_list<FieldParams> fieldParams);
+
+    inline const std::vector<Field*>& getFields() const
+    {
+        return this->fields;
+    }
+
+private:
+    QObject parent;
+    std::vector<Field*> fields;
+};
+
 } // namespace core
 } // namespace warmonger
 

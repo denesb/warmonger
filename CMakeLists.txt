@@ -91,7 +91,6 @@ set(
 set(
     CORE_SRC_FILES
     src/core/Banner.cpp
-    src/core/Map.cpp
     src/core/Civilization.cpp
     src/core/Component.cpp
     src/core/ComponentType.cpp
@@ -100,8 +99,10 @@ set(
     src/core/Faction.cpp
     src/core/Field.cpp
     src/core/Hexagon.cpp
+    src/core/Map.cpp
     src/core/MapNode.cpp
     src/core/MapNodeNeighbours.cpp
+    src/core/PositionComponentType.cpp
     src/core/Utils.cpp
     src/core/WObject.cpp
     src/core/World.cpp
@@ -155,8 +156,8 @@ set(
     src/test/ui/WorldSurface.cpp
 )
 
-file(GLOB_RECURSE ALL_HEADER_FILES ${PROJECT_SOURCE_DIR}/*.h)
-file(GLOB_RECURSE ALL_SOURCE_FILES ${PROJECT_SOURCE_DIR}/*.cpp)
+file(GLOB_RECURSE ALL_HEADER_FILES ${PROJECT_SOURCE_DIR}/src/*.h)
+file(GLOB_RECURSE ALL_SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
 # Libraries
 find_package(Qt5Core REQUIRED)

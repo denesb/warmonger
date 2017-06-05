@@ -1,8 +1,8 @@
 #ifndef W_WWRAPPER_UTILS_H
 #define W_WWRAPPER_UTILS_H
 
-#include <sstream>
 #include <memory>
+#include <sstream>
 
 #define FAIL(retcode)                                                                                                  \
     std::cerr << logStream->str() << "Sanity check failed" << std::endl;                                               \

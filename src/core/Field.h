@@ -67,11 +67,18 @@ public:
     Q_ENUM(TypeId)
 
     /**
-     * Constructs an empty Map.
+     * Constructs an empty Field.
      *
      * \param parent the parent QObject.
      */
     Field(QObject* parent = nullptr);
+
+    /**
+     * Constructs a Field.
+     *
+     * \param parent the parent QObject.
+     */
+    Field(const QString& name, std::unique_ptr<FieldType>&& type, QObject* parent = nullptr);
 
     /**
      * Get the name.

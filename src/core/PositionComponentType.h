@@ -1,4 +1,6 @@
-/**
+/** \file
+ * PositionComponentType class.
+ *
  * \copyright (C) 2015-2017 Botond Dénes
  *
  * This program is free software; you can redistribute it and/or modify
@@ -15,31 +17,42 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+#ifndef W_CORE_POSITION_COMPONENT_TYPE_H
+#define W_CORE_POSITION_COMPONENT_TYPE_H
 
 #include "core/ComponentType.h"
-
-#include "utils/QVariantUtils.h"
 
 namespace warmonger {
 namespace core {
 
-ComponentType::ComponentType(QObject* parent, int id)
-    : WObject(parent, id)
+/**
+ * Position component-type.
+ *
+ * Defines the position of an entity on the map.
+ * For an overview of the Entity-Component-Systems design pattern (ECS) and how
+ * warmonger implements it see \ref docs/ECS.md.
+ */
+class PositionComponentType : public ComponentType
 {
-}
+    Q_OBJECT
 
-QVariantList ComponentType::readFields() const
-{
-    return utils::toQVariantList(this->getFields());
-}
+public:
+    using ComponentType::ComponentType;
 
-FieldsHelper::FieldsHelper(std::initializer_list<FieldParams> fieldParams)
-{
-    for (auto& param : fieldParams)
+    bool isBuiltIn() const override
     {
-        this->fields.push_back(new Field(param.name, std::unique_ptr<FieldType>(param.type), &this->parent));
+        return true;
     }
-}
+
+    QString getName() const override
+    {
+        return "Position";
+    }
+
+    std::vector<Field*> getFields() const override;
+};
 
 } // namespace core
 } // namespace warmonger
+
+#endif // W_CORE_POSITION_COMPONENT_TYPE_H

@@ -26,6 +26,14 @@ Field::Field(QObject* parent)
 {
 }
 
+Field::Field(const QString& name, std::unique_ptr<FieldType>&& type, QObject* parent)
+    : QObject(parent)
+    , name(name)
+    , type(type.release())
+{
+    this->type->setParent(this);
+}
+
 void Field::setName(const QString& name)
 {
     if (this->name != name)

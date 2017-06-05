@@ -71,3 +71,4 @@ Kudos to the authors and contributors of all this awesome, freely available stuf
  * [Wyrmsun](https://andrettin.github.io/)
  * [FreeCiv](http://www.freeciv.org/)
  * [FreeCol](http://www.freecol.org/)
+ * [VCMI - HOMM 3 WOG recreated](http://vcmi.eu/)

@@ -1,5 +1,5 @@
 /**
- * \copyright (C) 2015-2017 Botond Dénes
+ * Copyright (C) 2015-2017 Botond Dénes
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,29 +16,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "core/ComponentType.h"
-
-#include "utils/QVariantUtils.h"
+#include "core/PositionComponentType.h"
 
 namespace warmonger {
 namespace core {
 
-ComponentType::ComponentType(QObject* parent, int id)
-    : WObject(parent, id)
-{
-}
+const int id{BuiltInComponentTypeRegistry::instance().registerComponentType<PositionComponentType>()};
 
-QVariantList ComponentType::readFields() const
+std::vector<Field*> PositionComponentType::getFields() const
 {
-    return utils::toQVariantList(this->getFields());
-}
+    static const FieldsHelper fieldsHelper{{"node", new FieldTypes::Reference()}};
 
-FieldsHelper::FieldsHelper(std::initializer_list<FieldParams> fieldParams)
-{
-    for (auto& param : fieldParams)
-    {
-        this->fields.push_back(new Field(param.name, std::unique_ptr<FieldType>(param.type), &this->parent));
-    }
+    return fieldsHelper.getFields();
 }
 
 } // namespace core

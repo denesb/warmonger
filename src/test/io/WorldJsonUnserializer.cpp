@@ -22,6 +22,7 @@
 #include <QJsonValue>
 
 #include "core/WorldComponentType.h"
+#include "core/PositionComponentType.h"
 #include "io/JsonUtils.h"
 #include "io/WorldJsonUnserializer.h"
 #include "test/Util.h"
@@ -602,7 +603,13 @@ TEST_CASE("World can be unserialized from JSON", "[WorldJsonUnserializer][JSON][
         REQUIRE(world->getBanners().size() == jobj["banners"].toArray().size());
         REQUIRE(world->getCivilizations().size() == jobj["civilizations"].toArray().size());
         REQUIRE(world->getColors().size() == jobj["colors"].toArray().size());
-        REQUIRE(world->getComponentTypes().size() == jobj["componentTypes"].toArray().size());
+
+        const auto& componentTypes{world->getComponentTypes()};
+        const auto worldComponentTypes = std::count_if(
+            componentTypes.cbegin(), componentTypes.cend(), [](const auto& ct) { return !ct->isBuiltIn(); });
+
+        REQUIRE(worldComponentTypes == jobj["componentTypes"].toArray().size());
+
         REQUIRE(world->getEntityTypes().size() == jobj["entityTypes"].toArray().size());
 
         const std::vector<QColor>& colors = world->getColors();
@@ -610,6 +617,14 @@ TEST_CASE("World can be unserialized from JSON", "[WorldJsonUnserializer][JSON][
         for (std::size_t i = 0; i < colors.size(); ++i)
         {
             REQUIRE(colors[i].name() == jcolors[i].toString());
+        }
+
+        const auto& builtInObjectIds{world->getBuiltInObjectIds()};
+        const QJsonObject jBuiltInObjectIds{jobj["builtInObjectIds"].toObject()};
+
+        for (auto it = jBuiltInObjectIds.begin(); it != jBuiltInObjectIds.end(); ++it)
+        {
+            REQUIRE(builtInObjectIds.at(it.key()) == it.value().toInt());
         }
     }
 }
@@ -722,6 +737,27 @@ TEST_CASE("World can't be unserialized from JSON", "[WorldJsonUnserializer][JSON
     SECTION("ComponentTypes not an array")
     {
         jobj["componentTypes"] = 123;
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("Missing builtInObjectIds")
+    {
+        jobj.remove("builtInObjectIds");
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("BuiltInObjectIds not an array")
+    {
+        jobj["builtInObjectIds"] = 123;
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("Invalid builtInObjectId")
+    {
+        jobj["builtInObjectIds"] = QJsonObject{{core::PositionComponentType::staticMetaObject.className(), "asd"}};
 
         REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
     }

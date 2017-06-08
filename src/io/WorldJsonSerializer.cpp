@@ -68,11 +68,28 @@ QByteArray WorldJsonSerializer::serializeWorld(const core::World* const obj) con
     QJsonObject jobj;
 
     jobj["uuid"] = obj->getUuid();
+
+    QJsonObject jBuildInObjectIds;
+    for (const auto builtInObjectId : obj->getBuiltInObjectIds())
+    {
+        jBuildInObjectIds[builtInObjectId.first] = builtInObjectId.second;
+    }
+    jobj["builtInObjectIds"] = jBuildInObjectIds;
+
     jobj["name"] = obj->getName();
     jobj["banners"] = toQJsonArray(obj->getBanners(), bannerToJson);
     jobj["civilizations"] = toQJsonArray(obj->getCivilizations(), civilizationToJson);
     jobj["colors"] = toQJsonArray(obj->getColors(), [](const QColor& c) { return c.name(); });
-    jobj["componentTypes"] = toQJsonArray(obj->getComponentTypes(), componentTypeToJson);
+
+    const auto& componentTypes{obj->getComponentTypes()};
+    std::vector<core::ComponentType*> worldComponentTypes;
+    std::copy_if(
+        componentTypes.cbegin(), componentTypes.cend(), std::back_inserter(worldComponentTypes), [](const auto& ct) {
+            return !ct->isBuiltIn();
+        });
+
+    jobj["componentTypes"] = toQJsonArray(worldComponentTypes, componentTypeToJson);
+
     jobj["entityTypes"] = toQJsonArray(obj->getEntityTypes(), entityTypeToJson);
 
     return QJsonDocument(jobj).toJson(this->format);

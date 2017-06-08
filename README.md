@@ -38,12 +38,12 @@ interested feel free to drop me a line at dns dot botond at gmail dot com.
 
 ### Build
 
- * C++14 compliant C++ compiler (tested with gcc 6.2)
+ * C++14 compliant C++ compiler (tested with gcc 5.4)
  * CMake
  * Qt 5.5 (QtCore and QtQuick)
  * KF5Archive
 
-### Formate the code
+### Format the code
 
  * clang-format (clang-tools)
 

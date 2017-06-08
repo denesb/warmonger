@@ -124,8 +124,13 @@ signals:
 class BuiltInComponentTypeRegistry
 {
 public:
-    typedef std::function<std::unique_ptr<ComponentType>(QObject*, int)> ComponentTypeFactory;
+    typedef std::function<ComponentType*(QObject*, int)> ComponentTypeFactory;
 
+    /**
+     * Get the static registry instance.
+     *
+     * \returns the instance
+     */
     static BuiltInComponentTypeRegistry& instance()
     {
         static BuiltInComponentTypeRegistry instance;
@@ -143,31 +148,30 @@ public:
     template <class T>
     int registerComponentType()
     {
-        struct ComponentTypeFactory
+        struct ConcreteComponentTypeFactory
         {
-            std::unique_ptr<ComponentType> operator()(QObject* parent, int id) const
+            ComponentType* operator()(QObject* parent, int id) const
             {
-                return std::make_unique<T>(parent, id);
+                return new T(parent, id);
             }
         };
 
-        this->factories.emplace_back(ComponentTypeFactory());
-        return this->factories.size();
+        this->componentTypes.emplace_back(T::staticMetaObject.className(), ConcreteComponentTypeFactory());
+        return this->componentTypes.size();
     }
 
     /**
-     * Get the list of factory functions that can create all the register
-     * built-in component-types.
+     * Get the list of all registered built-in component-types.
      *
-     * \returns the list of factory functions
+     * \returns list of tuples composed of the name and a factory function
      */
-    const std::vector<ComponentTypeFactory>& getFactories() const
+    const std::vector<std::tuple<QString, ComponentTypeFactory>>& getComponentTypes() const
     {
-        return this->factories;
+        return this->componentTypes;
     }
 
 private:
-    std::vector<ComponentTypeFactory> factories;
+    std::vector<std::tuple<QString, ComponentTypeFactory>> componentTypes;
 };
 
 struct FieldParams

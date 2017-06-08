@@ -23,6 +23,7 @@
 #include "core/EntityType.h"
 #include "core/Hexagon.h"
 #include "core/MapNode.h"
+#include "core/PositionComponentType.h"
 #include "core/Utils.h"
 #include "core/WorldComponentType.h"
 #include "io/Reference.h"
@@ -48,10 +49,13 @@ void setNames(GameObject obj, QJsonObject& jobj, int i = 0)
 
 std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
 {
-    auto world{std::make_unique<core::World>("universaly-unique-id-0")};
+    const QString positionComponentType{core::PositionComponentType::staticMetaObject.className()};
+    auto world{
+        std::make_unique<core::World>("universaly-unique-id-0", std::map<QString, int>{{positionComponentType, 10}})};
     QJsonObject jworld;
 
     jworld["uuid"] = "universaly-unique-id-0";
+    jworld["builtInObjectIds"] = QJsonObject{{positionComponentType, 10}};
 
     setNames(world.get(), jworld, 0);
 

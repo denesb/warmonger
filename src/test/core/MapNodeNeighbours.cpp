@@ -19,10 +19,11 @@
 #include <map>
 #include <memory>
 
+#include <catch.hpp>
+
 #include "core/MapNode.h"
 #include "core/MapNodeNeighbours.h"
 #include "core/World.h"
-#include <catch.hpp>
 
 using namespace warmonger;
 

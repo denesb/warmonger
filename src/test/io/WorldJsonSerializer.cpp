@@ -74,7 +74,14 @@ TEST_CASE("ComponentType can be serialized to JSON", "[WorldJsonSerializer][JSON
 
     const io::WorldJsonSerializer serializer;
 
-    auto componentType = world->getComponentTypes()[1];
+    const auto& componentTypes{world->getComponentTypes()};
+    std::vector<core::ComponentType*> worldComponentTypes;
+    std::copy_if(
+        componentTypes.cbegin(), componentTypes.cend(), std::back_inserter(worldComponentTypes), [](const auto& ct) {
+            return !ct->isBuiltIn();
+        });
+
+    auto componentType = worldComponentTypes[1];
     const auto jcomponentType = jworld["componentTypes"].toArray()[1].toObject();
 
     QByteArray json(serializer.serializeComponentType(componentType));

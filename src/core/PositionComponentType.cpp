@@ -25,7 +25,7 @@ const int id{BuiltInComponentTypeRegistry::instance().registerComponentType<Posi
 
 std::vector<Field*> PositionComponentType::getFields() const
 {
-    static const FieldsHelper fieldsHelper{{"node", new FieldTypes::Reference()}};
+    static const FieldsHelper fieldsHelper{{"mapNode", new FieldTypes::Reference()}};
 
     return fieldsHelper.getFields();
 }

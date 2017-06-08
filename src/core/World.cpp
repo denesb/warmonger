@@ -17,6 +17,7 @@
  */
 
 #include "core/World.h"
+
 #include "core/Utils.h"
 #include "utils/Logging.h"
 #include "utils/QVariantUtils.h"
@@ -24,10 +25,31 @@
 namespace warmonger {
 namespace core {
 
-World::World(const QString& uuid, QObject* parent)
+World::World(const QString& uuid, const std::map<QString, int>& builtInObjectIds, QObject* parent)
     : QObject(parent)
     , uuid(uuid)
+    , builtInObjectIds(builtInObjectIds)
 {
+    const auto& builtInComponentTypes = BuiltInComponentTypeRegistry::instance().getComponentTypes();
+
+    for (const auto& builtInComponentType : builtInComponentTypes)
+    {
+        const auto it = this->builtInObjectIds.find(std::get<0>(builtInComponentType));
+
+        if (it == this->builtInObjectIds.end())
+        {
+            this->componentTypes.push_back(std::get<1>(builtInComponentType)(this, WObject::invalidId));
+            this->builtInObjectIds.emplace(std::get<0>(builtInComponentType), this->componentTypes.back()->getId());
+        }
+        else
+        {
+            this->componentTypes.push_back(std::get<1>(builtInComponentType)(this, it->second));
+        }
+    }
+
+    // Just to make sure the next wobjects are created with id 1000+,
+    // thus reserving the range 0-998.
+    this->dummy = new WObject(this, 999);
 }
 
 void World::setName(const QString& name)

@@ -60,7 +60,9 @@ public:
      * \param uuid the uuid of the world
      * \param parent the parent QObject.
      */
-    explicit World(const QString& uuid, QObject* parent = nullptr);
+    World(const QString& uuid,
+        const std::map<QString, int>& builtInObjectIds = std::map<QString, int>(),
+        QObject* parent = nullptr);
 
     /**
      * Get the uuid.
@@ -263,6 +265,19 @@ public:
      */
     QVariantList readEntityTypes() const;
 
+    /**
+     * Get the built-in object id mapping.
+     *
+     * This mapping is used to permanently pin a certain built-in object to
+     * the id it's first given when created.
+     *
+     * \returns the id mapping
+     */
+    const std::map<QString, int>& getBuiltInObjectIds() const
+    {
+        return this->builtInObjectIds;
+    }
+
 signals:
     /**
      * Emitted when the name changes.
@@ -302,6 +317,8 @@ private:
     std::vector<QColor> colors;
     std::vector<ComponentType*> componentTypes;
     std::vector<EntityType*> entityTypes;
+    std::map<QString, int> builtInObjectIds;
+    WObject* dummy;
 };
 
 } // namespace core

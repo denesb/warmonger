@@ -72,11 +72,28 @@ std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByte
     if (uuid.isNull() || uuid.isEmpty())
         throw utils::ValueError("Failed to unserialize world, missing or invalid uuid");
 
+    std::map<QString, int>  builtInObjectIds;
+    const QJsonObject jBuiltInObjectIds{jobj["builtInObjectIds"].toObject()};
+
+    if (jBuiltInObjectIds.isEmpty())
+        throw utils::ValueError("Failed to unserialize world, missing or invalid built-in object-ids");
+
+    for (auto it = jBuiltInObjectIds.begin(); it != jBuiltInObjectIds.end(); ++it)
+    {
+        const int id{it.value().toInt(core::WObject::invalidId)};
+
+        if (id == core::WObject::invalidId)
+            throw utils::ValueError("Failed to unserialize world, invalid built-in object-id");
+
+        builtInObjectIds.emplace(it.key(), id);
+    }
+
+    auto obj{std::make_unique<core::World>(uuid, builtInObjectIds)};
+
     const QString name = jobj["name"].toString();
     if (name.isNull() || name.isEmpty())
         throw utils::ValueError("Failed to unserialize world, missing or invalid name");
 
-    std::unique_ptr<core::World> obj(new core::World(uuid));
     obj->setName(name);
 
     const QJsonArray civilizations = jobj["civilizations"].toArray();

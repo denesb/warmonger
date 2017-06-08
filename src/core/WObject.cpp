@@ -25,8 +25,6 @@
 namespace warmonger {
 namespace core {
 
-const int minimumGeneratedId{1000};
-
 static int generateId(WObject* obj);
 
 const int WObject::invalidId{-1};
@@ -79,7 +77,7 @@ static int generateId(WObject* obj)
 
     if (ids.empty())
     {
-        return minimumGeneratedId;
+        return 0;
     }
     else
     {

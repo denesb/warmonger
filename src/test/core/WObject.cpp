@@ -45,28 +45,28 @@ TEST_CASE("Children ids", "[WObject]")
     QObject root;
 
     auto obj0 = new TestWObject1(&root);
-    REQUIRE(obj0->getId() == 1000);
+    REQUIRE(obj0->getId() == 0);
 
     auto obj1 = new TestWObject1(&root);
-    REQUIRE(obj1->getId() == 1001);
+    REQUIRE(obj1->getId() == 1);
 
     auto obj2 = new TestWObject1(&root);
-    REQUIRE(obj2->getId() == 1002);
+    REQUIRE(obj2->getId() == 2);
 
     delete obj1;
 
     auto obj3 = new TestWObject1(&root);
-    REQUIRE(obj3->getId() == 1003);
+    REQUIRE(obj3->getId() == 3);
 
     auto obj4 = new TestWObject2(&root);
-    REQUIRE(obj4->getId() == 1004);
+    REQUIRE(obj4->getId() == 4);
 
     auto obj5 = new TestWObject2(&root);
-    REQUIRE(obj5->getId() == 1005);
+    REQUIRE(obj5->getId() == 5);
 
     auto obj6 = new TestWObject2(obj2);
-    REQUIRE(obj6->getId() == 1006);
+    REQUIRE(obj6->getId() == 6);
 
     auto obj7 = new TestWObject2(obj6);
-    REQUIRE(obj7->getId() == 1007);
+    REQUIRE(obj7->getId() == 7);
 }

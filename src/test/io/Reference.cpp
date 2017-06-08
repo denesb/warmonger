@@ -31,65 +31,65 @@ TEST_CASE("serializeReference()", "[io][Serialize]")
     core::World w("uuid0");
 
     core::WObject* obj2 = new core::WObject(&w);
-    REQUIRE(io::serializeReference(obj2) == "warmonger::core::World/warmonger::core::WObject#0");
+    REQUIRE(io::serializeReference(obj2) == "warmonger::core::World/warmonger::core::WObject#1000");
 
     core::WObject* obj3 = new core::WObject(obj2);
-    REQUIRE(io::serializeReference(obj3) == "warmonger::core::World/warmonger::core::WObject#1");
+    REQUIRE(io::serializeReference(obj3) == "warmonger::core::World/warmonger::core::WObject#1001");
 }
 
 TEST_CASE("unserializeReference(core::World*)", "[io][Unserialize]")
 {
     core::World* nullWorld{nullptr};
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#0", nullWorld) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1000", nullWorld) == nullptr);
 
     core::World w("uuid0");
 
     REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#-1", &w) == nullptr);
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#0", &w) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1000", &w) == nullptr);
 
     core::WObject* obj0 = new core::WObject(&w);
 
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#0", &w) == obj0);
+    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1000", &w) == obj0);
 
     core::WObject* obj1 = new core::WObject(&w);
 
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#0", &w) == obj0);
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1", &w) == obj1);
+    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1000", &w) == obj0);
+    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1001", &w) == obj1);
 
     core::WObject* obj2 = new core::WObject(obj0);
 
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#0", &w) == obj0);
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1", &w) == obj1);
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#2", &w) == obj2);
+    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1000", &w) == obj0);
+    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1001", &w) == obj1);
+    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1002", &w) == obj2);
 
     core::Civilization* obj3 = new core::Civilization(obj0);
 
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::Civilization#3", &w) == obj3);
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#3", &w) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::Civilization#1003", &w) == obj3);
+    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1003", &w) == nullptr);
 
     // malformed references
     REQUIRE(io::unserializeReference("warmonger::core::WObject", &w) == nullptr);
-    REQUIRE(io::unserializeReference("warmonger::core::WObject#0", &w) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::WObject#1000", &w) == nullptr);
     REQUIRE(io::unserializeReference("", &w) == nullptr);
-    REQUIRE(io::unserializeReference("warmonger::core::World/ab/warmonger::core::WObject#0", &w) == nullptr);
-    REQUIRE(io::unserializeReference("warmonger::core::WObject#sdasd#0", &w) == nullptr);
-    REQUIRE(io::unserializeReference("3#warmonger::core::WObject#0", &w) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::World/ab/warmonger::core::WObject#1000", &w) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::WObject#sdasd#1000", &w) == nullptr);
+    REQUIRE(io::unserializeReference("3#warmonger::core::WObject#1000", &w) == nullptr);
 
     // other parent specified
-    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#0", &w) == nullptr);
-    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#1", &w) == nullptr);
-    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#2", &w) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#1000", &w) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#1001", &w) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#1002", &w) == nullptr);
 
     // reference has the right id but wrong type
-    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::Civilization#0", &w) == nullptr);
-    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::Civilization#1", &w) == nullptr);
-    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::Civilization#2", &w) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::Civilization#1000", &w) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::Civilization#1001", &w) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::Civilization#1002", &w) == nullptr);
 }
 
 TEST_CASE("unserializeReference(core::Map*)", "[io][Unserialize]")
 {
     core::Map* nullMap{nullptr};
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#0", nullMap) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1000", nullMap) == nullptr);
 
     core::World w("uuid0");
     core::Map m;
@@ -99,30 +99,30 @@ TEST_CASE("unserializeReference(core::Map*)", "[io][Unserialize]")
     REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#-1", &m) == nullptr);
 
     core::WObject* obj0 = new core::WObject(&m);
-    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#0", &m) == obj0);
+    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#1000", &m) == obj0);
 
     core::WObject* obj1 = new core::WObject(&w);
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#0", &m) == obj1);
+    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1000", &m) == obj1);
 
     core::WObject* obj2 = new core::Faction(&m);
-    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::Faction#1", &m) == obj2);
-    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#1", &m) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::Faction#1001", &m) == obj2);
+    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#1001", &m) == nullptr);
 
     core::WObject* obj3 = new core::Civilization(&w);
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::Civilization#1", &m) == obj3);
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1", &m) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::Civilization#1001", &m) == obj3);
+    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1001", &m) == nullptr);
 
     // unknown parent specified
-    REQUIRE(io::unserializeReference("warmonger::core::ASDASD/warmonger::core::WObject#0", &m) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::ASDASD/warmonger::core::WObject#1000", &m) == nullptr);
 
     // no parent specified
-    REQUIRE(io::unserializeReference("warmonger::core::WObject#0", &m) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::WObject#1000", &m) == nullptr);
 
     // malformed references
     REQUIRE(io::unserializeReference("warmonger::core::WObject", &m) == nullptr);
-    REQUIRE(io::unserializeReference("warmonger::core::WObject#0", &m) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::WObject#1000", &m) == nullptr);
     REQUIRE(io::unserializeReference("", &m) == nullptr);
-    REQUIRE(io::unserializeReference("warmonger::core::World/ab/warmonger::core::WObject#0", &m) == nullptr);
-    REQUIRE(io::unserializeReference("warmonger::core::WObject#sdasd#0", &m) == nullptr);
-    REQUIRE(io::unserializeReference("3#warmonger::core::WObject#0", &m) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::World/ab/warmonger::core::WObject#1000", &m) == nullptr);
+    REQUIRE(io::unserializeReference("warmonger::core::WObject#sdasd#1000", &m) == nullptr);
+    REQUIRE(io::unserializeReference("3#warmonger::core::WObject#1000", &m) == nullptr);
 }

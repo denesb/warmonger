@@ -21,7 +21,26 @@
 namespace warmonger {
 namespace core {
 
-const int positionId{BuiltInComponentTypeRegistry::instance().registerComponentType<PositionComponentType>()};
+template <class T>
+struct ConcreteComponentTypeFactory
+{
+    static std::tuple<QString, std::function<ComponentType*(QObject*, int)>> create()
+    {
+        return std::make_tuple(T::staticMetaObject.className(), ConcreteComponentTypeFactory<T>());
+    }
+
+    ComponentType* operator()(QObject* parent, int id) const
+    {
+        return new T(parent, id);
+    }
+};
+
+std::vector<std::tuple<QString, std::function<ComponentType*(QObject*, int)>>> getBuiltInComponentTypesFactories()
+{
+    return std::vector<std::tuple<QString, std::function<ComponentType*(QObject*, int)>>>{
+        ConcreteComponentTypeFactory<PositionComponentType>::create(),
+        ConcreteComponentTypeFactory<EditComponentType>::create()};
+}
 
 std::vector<Field*> PositionComponentType::getFields() const
 {
@@ -29,8 +48,6 @@ std::vector<Field*> PositionComponentType::getFields() const
 
     return fieldsHelper.getFields();
 }
-
-const int editId{BuiltInComponentTypeRegistry::instance().registerComponentType<EditComponentType>()};
 
 std::vector<Field*> EditComponentType::getFields() const
 {

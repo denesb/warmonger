@@ -115,65 +115,6 @@ signals:
     void fieldsChanged();
 };
 
-/**
- * A registry of all the built-in component-types.
- *
- * Use BuiltInComponentTypeRegistry::registerComponentType to register built-in
- * component-types.
- */
-class BuiltInComponentTypeRegistry
-{
-public:
-    typedef std::function<ComponentType*(QObject*, int)> ComponentTypeFactory;
-
-    /**
-     * Get the static registry instance.
-     *
-     * \returns the instance
-     */
-    static BuiltInComponentTypeRegistry& instance()
-    {
-        static BuiltInComponentTypeRegistry instance;
-        return instance;
-    }
-
-    /**
-     * Register a built-in component-type.
-     *
-     * Generate an id for the registered component-type. The id is only valid
-     * while the program is running (not persistent).
-     *
-     * \returns the registration id of the component-type
-     */
-    template <class T>
-    int registerComponentType()
-    {
-        struct ConcreteComponentTypeFactory
-        {
-            ComponentType* operator()(QObject* parent, int id) const
-            {
-                return new T(parent, id);
-            }
-        };
-
-        this->componentTypes.emplace_back(T::staticMetaObject.className(), ConcreteComponentTypeFactory());
-        return this->componentTypes.size();
-    }
-
-    /**
-     * Get the list of all registered built-in component-types.
-     *
-     * \returns list of tuples composed of the name and a factory function
-     */
-    const std::vector<std::tuple<QString, ComponentTypeFactory>>& getComponentTypes() const
-    {
-        return this->componentTypes;
-    }
-
-private:
-    std::vector<std::tuple<QString, ComponentTypeFactory>> componentTypes;
-};
-
 struct FieldParams
 {
     template <class T>

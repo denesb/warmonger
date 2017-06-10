@@ -100,6 +100,7 @@ set(
     src/core/Faction.cpp
     src/core/Field.cpp
     src/core/Hexagon.cpp
+    src/core/LuaWorldRules.cpp
     src/core/Map.cpp
     src/core/MapNode.cpp
     src/core/MapNodeNeighbours.cpp

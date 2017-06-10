@@ -25,6 +25,8 @@
 namespace warmonger {
 namespace core {
 
+std::vector<std::tuple<QString, std::function<ComponentType*(QObject*, int)>>> getBuiltInComponentTypesFactories();
+
 /**
  * Position component-type.
  *

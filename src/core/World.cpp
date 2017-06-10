@@ -18,6 +18,7 @@
 
 #include "core/World.h"
 
+#include "core/BuiltInComponentTypes.h"
 #include "core/Utils.h"
 #include "utils/Logging.h"
 #include "utils/QVariantUtils.h"
@@ -30,7 +31,7 @@ World::World(const QString& uuid, const std::map<QString, int>& builtInObjectIds
     , uuid(uuid)
     , builtInObjectIds(builtInObjectIds)
 {
-    const auto& builtInComponentTypes = BuiltInComponentTypeRegistry::instance().getComponentTypes();
+    const auto& builtInComponentTypes = getBuiltInComponentTypesFactories();
 
     for (const auto& builtInComponentType : builtInComponentTypes)
     {
@@ -40,10 +41,16 @@ World::World(const QString& uuid, const std::map<QString, int>& builtInObjectIds
         {
             this->componentTypes.push_back(std::get<1>(builtInComponentType)(this, WObject::invalidId));
             this->builtInObjectIds.emplace(std::get<0>(builtInComponentType), this->componentTypes.back()->getId());
+
+            wDebug << "Created built-in component-type " << std::get<0>(builtInComponentType) << " with generated id "
+                   << this->componentTypes.back()->getId();
         }
         else
         {
             this->componentTypes.push_back(std::get<1>(builtInComponentType)(this, it->second));
+
+            wDebug << "Created built-in component-type " << std::get<0>(builtInComponentType) << " with saved id "
+                   << it->second;
         }
     }
 

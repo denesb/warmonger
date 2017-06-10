@@ -27,10 +27,28 @@
 namespace warmonger {
 namespace core {
 
-class LuaWorldRules
+/**
+ * World-rules implementation for rules written in Lua.
+ */
+class LuaWorldRules : public WorldRules
 {
 public:
+    /**
+     * Create and initialize the world rules for the world.
+     *
+     * Loads the rules associated with the world and initializes them.
+     *
+     * \param world the world
+     *
+     * \throws IOError if the rules can't be loaded
+     * \throws ValueError if the rules can't be parsed or initialization fails
+     */
     LuaWorldRules(core::World* world);
+
+    World* getWorld() override
+    {
+        return this->world;
+    }
 
     std::unique_ptr<core::Map> generateMap(int size) override;
 

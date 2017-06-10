@@ -33,7 +33,7 @@ QJsonDocument parseJson(const QByteArray& json)
 
     if (parseError.error != QJsonParseError::NoError)
     {
-        throw utils::ValueError(parseError.errorString() + " at " + parseError.offset);
+        throw utils::ValueError(parseError.errorString() + " at offset " + QString::number(parseError.offset));
     }
 
     return doc;

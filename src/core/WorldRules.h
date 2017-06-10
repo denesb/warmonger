@@ -27,10 +27,30 @@ namespace core {
 class Map;
 class World;
 
+/**
+ * World-rules interface.
+ *
+ * World-rules provide a bridge between the game rules loaded from the world
+ * and the game-engine.
+ * All calls into the game rules go through this interface.
+ */
 class WorldRules
 {
 public:
+    /**
+     * Get the world.
+     *
+     * \returns the world
+     */
     virtual World* getWorld() = 0;
+
+    /**
+     * Generate a map.
+     *
+     * \param size the radius of the map
+     *
+     * \returns the generated map
+     */
     virtual std::unique_ptr<core::Map> generateMap(int size) = 0;
 };
 

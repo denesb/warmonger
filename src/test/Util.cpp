@@ -56,6 +56,12 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
     jworld["uuid"] = "universaly-unique-id-0";
     jworld["builtInObjectIds"] = QJsonObject{{positionComponentType, 0}, {editComponentType, 1}};
 
+    world->setRulesEntryPoint("rules.lua");
+    jworld["rulesEntryPoint"] = "rules.lua";
+
+    world->setRulesType(core::RulesType::Lua);
+    jworld["rulesType"] = "Lua";
+
     setNames(world.get(), jworld, 0);
 
     // ComponentType

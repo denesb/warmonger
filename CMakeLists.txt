@@ -108,6 +108,7 @@ set(
     src/core/WObject.cpp
     src/core/World.cpp
     src/core/WorldComponentType.cpp
+    src/core/WorldRules.cpp
 )
 
 set(

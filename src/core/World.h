@@ -32,6 +32,7 @@
 #include "core/Civilization.h"
 #include "core/EntityType.h"
 #include "core/WorldComponentType.h"
+#include "core/WorldRules.h"
 
 namespace warmonger {
 namespace core {
@@ -278,6 +279,46 @@ public:
         return this->builtInObjectIds;
     }
 
+    /**
+     * Get the rules entry point.
+     *
+     * \return the entry point
+     */
+    QString getRulesEntryPoint() const
+    {
+        return this->rulesEntryPoint;
+    }
+
+    /**
+     * Set the rules entry point.
+     *
+     * Will emit the signal World::rulesEntryPointChanged() if the newly set
+     * value is different than the current one.
+     *
+     * \param rulesEntryPoint the new entry point
+     */
+    void setRulesEntryPoint(const QString& rulesEntryPoint);
+
+    /**
+     * Get the rules type.
+     *
+     * \return the type
+     */
+    RulesType getRulesType() const
+    {
+        return this->rulesType;
+    }
+
+    /**
+     * Set the rules type.
+     *
+     * Will emit the signal World::rulesTypeChanged() if the newly set
+     * value is different than the current one.
+     *
+     * \param rulesType the type
+     */
+    void setRulesType(const RulesType rulesType);
+
 signals:
     /**
      * Emitted when the name changes.
@@ -309,6 +350,16 @@ signals:
      */
     void entityTypesChanged();
 
+    /**
+     * Emitted when the rules entry point changes.
+     */
+    void rulesEntryPointChanged();
+
+    /**
+     * Emitted when the rules type changes.
+     */
+    void rulesTypeChanged();
+
 private:
     QString uuid;
     QString name;
@@ -319,6 +370,8 @@ private:
     std::vector<EntityType*> entityTypes;
     std::map<QString, int> builtInObjectIds;
     WObject* dummy;
+    QString rulesEntryPoint;
+    RulesType rulesType;
 };
 
 } // namespace core

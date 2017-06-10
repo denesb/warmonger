@@ -77,6 +77,8 @@ QByteArray WorldJsonSerializer::serializeWorld(const core::World* const obj) con
     jobj["builtInObjectIds"] = jBuildInObjectIds;
 
     jobj["name"] = obj->getName();
+    jobj["rulesEntryPoint"] = obj->getRulesEntryPoint();
+    jobj["rulesType"] = core::rulesTypeToString(obj->getRulesType());
     jobj["banners"] = toQJsonArray(obj->getBanners(), bannerToJson);
     jobj["civilizations"] = toQJsonArray(obj->getCivilizations(), civilizationToJson);
     jobj["colors"] = toQJsonArray(obj->getColors(), [](const QColor& c) { return c.name(); });

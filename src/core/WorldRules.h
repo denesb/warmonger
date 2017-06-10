@@ -21,6 +21,10 @@
 #ifndef W_CORE_WORLD_RULES_H
 #define W_CORE_WORLD_RULES_H
 
+#include <memory>
+
+#include <QString>
+
 namespace warmonger {
 namespace core {
 
@@ -53,6 +57,49 @@ public:
      */
     virtual std::unique_ptr<core::Map> generateMap(int size) = 0;
 };
+
+/**
+ * The types of rules recognised by warmonger.
+ */
+enum class RulesType
+{
+    Lua
+};
+
+/**
+ * Convert the rules-type to string.
+ *
+ * \param the type
+ *
+ * \returns the string representation
+ */
+QString rulesTypeToString(RulesType type);
+
+/**
+ * Parse the rules-type from a string.
+ *
+ * \param the string
+ *
+ * \returns the rules-type
+ *
+ * \throws utils::ValueError if the parsing fails
+ */
+RulesType rulesTypeFromString(const QString& str);
+
+/**
+ * Create and initialize the world rules for the world.
+ *
+ * Loads the rules associated with the world and initializes them.
+ * The rules object will be created as a children of the world.
+ *
+ * \param world the world
+ *
+ * \returns the created world-rules object, ready to use
+ *
+ * \throws IOError if the rules can't be loaded
+ * \throws ValueError if the rules can't be parsed or initialization fails
+ */
+WorldRules* createWorldRules(core::World* world);
 
 } // namespace core
 } // namespace warmonger

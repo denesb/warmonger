@@ -18,12 +18,23 @@
 
 #include "core/LuaWorldRules.h"
 
+#include "core/Map.h"
+
 namespace warmonger {
 namespace core {
 
 LuaWorldRules::LuaWorldRules(core::World* world)
     : world(world)
 {
+}
+
+std::unique_ptr<core::Map> LuaWorldRules::generateMap(int)
+{
+    auto map{std::make_unique<core::Map>()};
+
+    map->setWorld(world);
+
+    return map;
 }
 
 } // namespace core

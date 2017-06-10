@@ -600,6 +600,8 @@ TEST_CASE("World can be unserialized from JSON", "[WorldJsonUnserializer][JSON][
 
         REQUIRE(world->getUuid() == jobj["uuid"].toString());
         REQUIRE(world->getName() == jobj["name"].toString());
+        REQUIRE(world->getRulesEntryPoint() == jobj["rulesEntryPoint"].toString());
+        REQUIRE(rulesTypeToString(world->getRulesType()) == jobj["rulesType"].toString());
         REQUIRE(world->getBanners().size() == jobj["banners"].toArray().size());
         REQUIRE(world->getCivilizations().size() == jobj["civilizations"].toArray().size());
         REQUIRE(world->getColors().size() == jobj["colors"].toArray().size());
@@ -758,6 +760,38 @@ TEST_CASE("World can't be unserialized from JSON", "[WorldJsonUnserializer][JSON
     SECTION("Invalid builtInObjectId")
     {
         jobj["builtInObjectIds"] = QJsonObject{{core::PositionComponentType::staticMetaObject.className(), "asd"}};
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("Missing rulesEntryPoint")
+    {
+        jobj.remove("rulesEntryPoint");
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("Invalid rulesEntryPoint")
+    {
+        jobj["rulesEntryPoint"] = 123;
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("Missing rulesType")
+    {
+        jobj.remove("rulesType");
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+    }
+
+    SECTION("Invalid rulesType")
+    {
+        jobj["rulesType"] = 123;
+
+        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
+
+        jobj["rulesType"] = "NonExisting";
 
         REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
     }

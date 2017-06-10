@@ -96,6 +96,18 @@ std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByte
 
     obj->setName(name);
 
+    const QString rulesEntryPoint{jobj["rulesEntryPoint"].toString()};
+    if (rulesEntryPoint.isNull() || rulesEntryPoint.isEmpty())
+        throw utils::ValueError("Failed to unserialize world, missing or invalid rules entry point");
+
+    obj->setRulesEntryPoint(rulesEntryPoint);
+
+    const QString rulesType{jobj["rulesType"].toString()};
+    if (rulesType.isNull() || rulesType.isEmpty())
+        throw utils::ValueError("Failed to unserialize world, missing or invalid rules type");
+
+    obj->setRulesType(core::rulesTypeFromString(rulesType));
+
     const QJsonArray civilizations = jobj["civilizations"].toArray();
     if (civilizations.isEmpty())
         throw utils::ValueError("Failed to unserialize world, missing, invalid or empty civilizations");

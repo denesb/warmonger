@@ -154,5 +154,23 @@ QVariantList World::readEntityTypes() const
     return utils::toQVariantList(this->entityTypes);
 }
 
+void World::setRulesEntryPoint(const QString& rulesEntryPoint)
+{
+    if (this->rulesEntryPoint != rulesEntryPoint)
+    {
+        this->rulesEntryPoint = rulesEntryPoint;
+        emit rulesEntryPointChanged();
+    }
+}
+
+void World::setRulesType(const RulesType rulesType)
+{
+    if (this->rulesType != rulesType)
+    {
+        this->rulesType = rulesType;
+        emit rulesTypeChanged();
+    }
+}
+
 } // namespace core
 } // namespace warmonger

@@ -22,7 +22,6 @@
 #define W_CORE_LUA_WORLD_RULES_H
 
 #include "core/World.h"
-#include "core/WorldRules.h"
 
 namespace warmonger {
 namespace core {

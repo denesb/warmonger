@@ -32,46 +32,6 @@ class Faction;
 class Banner;
 
 /**
- * Create an object-name for the object.
- *
- * The object-name will look like:
- *      className:id
- * Where className is the name of the object's class (namespaces stripped) and
- * the id is the passed in id.
- *
- * \param object the object to generate name for
- * \param id the id
- *
- * \returns the created name
- */
-QString createObjectName(const QObject* const object, int id);
-
-/**
- * Split the object-name into class-name and id.
- *
- * \param objectName the object-name to split
- *
- * \returns the object-name components (class-name and id)
- *
- * \see createObjectName
- */
-std::pair<QString, int> splitObjectName(const QString& objectName);
-
-/**
- * Split the object-name into class-name and id.
- *
- * \param obj the object whose objectName to split
- *
- * \returns the object-name components (class-name and id)
- *
- * \see createObjectName
- */
-inline std::pair<QString, int> splitObjectName(const QObject* const obj)
-{
-    return splitObjectName(obj->objectName());
-}
-
-/**
  * Given the existing factions generate a possible combination.
  *
  * \param factions the factions, used to determine what combinations all taken

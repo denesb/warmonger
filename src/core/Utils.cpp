@@ -28,32 +28,6 @@
 namespace warmonger {
 namespace core {
 
-QString createObjectName(const QObject* const object, int index)
-{
-    const QMetaObject* metaObject{object->metaObject()};
-
-    const QString fullClassName{metaObject->className()};
-
-    return fullClassName.section("::", -1) + ":" + QString::number(index);
-}
-
-std::pair<QString, int> splitObjectName(const QString& objectName)
-{
-    const QStringList parts{objectName.split(':')};
-
-    if (parts.size() != 2)
-        throw utils::ValueError("Invalid objectName format, name " + objectName + " has more than one : characters");
-
-    bool conversionSucceded{false};
-
-    const int index{parts[1].toInt(&conversionSucceded)};
-
-    if (!conversionSucceded)
-        throw utils::ValueError("Invalid objectName, name " + objectName + " has non-numeric index");
-
-    return std::make_pair(parts[0], index);
-}
-
 std::tuple<Banner*, QColor, QColor> nextAvailableCombination(
     const std::vector<Faction*>& factions, const std::vector<Banner*>& banners, const std::vector<QColor>& colors)
 {

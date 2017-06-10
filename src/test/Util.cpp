@@ -38,10 +38,7 @@ void setNames(GameObject obj, QJsonObject& jobj, int i = 0)
 {
     static const QString nameTemplate{"%1_name_%2"};
 
-    const QMetaObject* mo = obj->metaObject();
-
-    const QString objectName{core::createObjectName(obj, i)};
-    const QString name = nameTemplate.arg(mo->className()).arg(i);
+    const QString name = nameTemplate.arg(obj->metaObject()->className()).arg(i);
 
     obj->setName(name);
     jobj["name"] = name;

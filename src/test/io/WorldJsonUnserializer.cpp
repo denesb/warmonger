@@ -21,8 +21,8 @@
 #include <QJsonObject>
 #include <QJsonValue>
 
+#include "core/BuiltInComponentTypes.h"
 #include "core/WorldComponentType.h"
-#include "core/PositionComponentType.h"
 #include "io/JsonUtils.h"
 #include "io/WorldJsonUnserializer.h"
 #include "test/Util.h"

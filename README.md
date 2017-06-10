@@ -59,6 +59,7 @@ Version numbers refer to the minimum supported version of each dependency.
  * [catch](https://github.com/philsquared/Catch)
  * [backward-cpp](https://github.com/bombela/backward-cpp)
  * [spdlog](https://github.com/gabime/spdlog)
+ * [sol2](https://github.com/ThePhD/sol2)
 
 Kudos to the authors and contributors of all this awesome, freely available stuff.
 

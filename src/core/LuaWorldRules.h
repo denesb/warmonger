@@ -1,5 +1,7 @@
-/**
- * Copyright (C) 2015-2017 Botond Dénes
+/** \file
+ * LuaWorldRules class.
+ *
+ * \copyright (C) 2015-2017 Botond Dénes
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,19 +18,27 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "core/PositionComponentType.h"
+#ifndef W_CORE_LUA_WORLD_RULES_H
+#define W_CORE_LUA_WORLD_RULES_H
+
+#include "core/World.h"
+#include "core/WorldRules.h"
 
 namespace warmonger {
 namespace core {
 
-const int id{BuiltInComponentTypeRegistry::instance().registerComponentType<PositionComponentType>()};
-
-std::vector<Field*> PositionComponentType::getFields() const
+class LuaWorldRules
 {
-    static const FieldsHelper fieldsHelper{{"mapNode", new FieldTypes::Reference()}};
+public:
+    LuaWorldRules(core::World* world);
 
-    return fieldsHelper.getFields();
-}
+    std::unique_ptr<core::Map> generateMap(int size) override;
+
+private:
+    World* world;
+};
 
 } // namespace core
 } // namespace warmonger
+
+#endif // W_CORE_LUA_WORLD_RULES_H

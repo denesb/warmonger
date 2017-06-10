@@ -91,6 +91,7 @@ set(
 set(
     CORE_SRC_FILES
     src/core/Banner.cpp
+    src/core/BuiltInComponentTypes.cpp
     src/core/Civilization.cpp
     src/core/Component.cpp
     src/core/ComponentType.cpp
@@ -102,7 +103,6 @@ set(
     src/core/Map.cpp
     src/core/MapNode.cpp
     src/core/MapNodeNeighbours.cpp
-    src/core/PositionComponentType.cpp
     src/core/Utils.cpp
     src/core/WObject.cpp
     src/core/World.cpp

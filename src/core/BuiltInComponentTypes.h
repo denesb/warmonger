@@ -1,5 +1,5 @@
 /** \file
- * PositionComponentType class.
+ * Built-in component-types.
  *
  * \copyright (C) 2015-2017 Botond Dénes
  *
@@ -17,8 +17,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#ifndef W_CORE_POSITION_COMPONENT_TYPE_H
-#define W_CORE_POSITION_COMPONENT_TYPE_H
+#ifndef W_CORE_BUILTIN_COMPONENT_TYPES_H
+#define W_CORE_BUILTIN_COMPONENT_TYPES_H
 
 #include "core/ComponentType.h"
 
@@ -46,7 +46,33 @@ public:
 
     QString getName() const override
     {
-        return "Position";
+        return "position";
+    }
+
+    std::vector<Field*> getFields() const override;
+};
+
+/**
+ * Edit component-type.
+ *
+ * Defines how the entity having this component can be edited by the map
+ * -editor.
+ */
+class EditComponentType : public ComponentType
+{
+    Q_OBJECT
+
+public:
+    using ComponentType::ComponentType;
+
+    bool isBuiltIn() const override
+    {
+        return true;
+    }
+
+    QString getName() const override
+    {
+        return "edit";
     }
 
     std::vector<Field*> getFields() const override;
@@ -55,4 +81,4 @@ public:
 } // namespace core
 } // namespace warmonger
 
-#endif // W_CORE_POSITION_COMPONENT_TYPE_H
+#endif // W_CORE_BUILTIN_COMPONENT_TYPES_H

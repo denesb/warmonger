@@ -19,11 +19,11 @@
 #include "test/Util.h"
 
 #include "core/Banner.h"
+#include "core/BuiltInComponentTypes.h"
 #include "core/Civilization.h"
 #include "core/EntityType.h"
 #include "core/Hexagon.h"
 #include "core/MapNode.h"
-#include "core/PositionComponentType.h"
 #include "core/Utils.h"
 #include "core/WorldComponentType.h"
 #include "io/Reference.h"
@@ -47,12 +47,14 @@ void setNames(GameObject obj, QJsonObject& jobj, int i = 0)
 std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
 {
     const QString positionComponentType{core::PositionComponentType::staticMetaObject.className()};
-    auto world{
-        std::make_unique<core::World>("universaly-unique-id-0", std::map<QString, int>{{positionComponentType, 10}})};
+    const QString editComponentType{core::EditComponentType::staticMetaObject.className()};
+
+    auto world{std::make_unique<core::World>(
+        "universaly-unique-id-0", std::map<QString, int>{{positionComponentType, 0}, {editComponentType, 1}})};
     QJsonObject jworld;
 
     jworld["uuid"] = "universaly-unique-id-0";
-    jworld["builtInObjectIds"] = QJsonObject{{positionComponentType, 10}};
+    jworld["builtInObjectIds"] = QJsonObject{{positionComponentType, 0}, {editComponentType, 1}};
 
     setNames(world.get(), jworld, 0);
 

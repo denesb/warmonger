@@ -72,7 +72,7 @@ std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByte
     if (uuid.isNull() || uuid.isEmpty())
         throw utils::ValueError("Failed to unserialize world, missing or invalid uuid");
 
-    std::map<QString, int>  builtInObjectIds;
+    std::map<QString, int> builtInObjectIds;
     const QJsonObject jBuiltInObjectIds{jobj["builtInObjectIds"].toObject()};
 
     if (jBuiltInObjectIds.isEmpty())

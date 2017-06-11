@@ -137,7 +137,7 @@ static void log(LogLevel level, const std::string& file, const char* function, i
             s << " ";
 
         if (function)
-            s << " " << function;
+            s << function << "()";
 
         s << "] ";
     }

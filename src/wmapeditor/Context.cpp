@@ -296,7 +296,7 @@ void Context::loadWorlds()
         catch (const utils::Exception& e)
         {
             // TODO: show this error on the GUI as well
-            wError << "Failed load world " << worldDefinitionPath << ": " << e.getMessage();
+            wError << "Failed to load world " << worldDefinitionPath << ": " << e.getMessage();
             continue;
         }
 

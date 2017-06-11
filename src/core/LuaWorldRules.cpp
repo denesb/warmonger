@@ -68,11 +68,11 @@ std::unique_ptr<core::Map> LuaWorldRules::generateMap(unsigned int size)
 
 static void exposeAPI(sol::state& lua, core::World*)
 {
-    lua.set_function("wTrace", wLuaTrace);
-    lua.set_function("wDebug", wLuaDebug);
-    lua.set_function("wInfo", wLuaInfo);
-    lua.set_function("wWarning", wLuaWarning);
-    lua.set_function("wError", wLuaError);
+    lua.set_function("w_trace", wLuaTrace);
+    lua.set_function("w_debug", wLuaDebug);
+    lua.set_function("w_info", wLuaInfo);
+    lua.set_function("w_warning", wLuaWarning);
+    lua.set_function("w_error", wLuaError);
 }
 
 static void wLuaLog(sol::this_state ts, utils::LogLevel logLevel, const std::string& msg)

@@ -16,14 +16,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "utils/Settings.h"
+
 #include <functional>
 #include <map>
 
 #include <QCoreApplication>
 #include <QSettings>
 
+#include "Version.h"
 #include "utils/Constants.h"
-#include "utils/Settings.h"
 
 namespace warmonger {
 namespace utils {
@@ -53,6 +55,7 @@ void initSettings()
     QCoreApplication::setOrganizationName(organizationName);
     QCoreApplication::setOrganizationDomain(organizationDomain);
     QCoreApplication::setApplicationName(applicationName);
+    QCoreApplication::setApplicationVersion(version);
 }
 
 QVariant settingsValue(const SettingsKey key)

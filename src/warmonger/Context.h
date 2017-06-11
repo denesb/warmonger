@@ -138,7 +138,7 @@ public:
      */
     QString getVersion() const
     {
-        return QString(version.c_str());
+        return version;
     }
 
     /**

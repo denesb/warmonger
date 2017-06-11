@@ -80,6 +80,15 @@ public:
     Context(QObject* parent = nullptr);
 
     /**
+     * Add world to the world list.
+     *
+     * The world is added to the list of worlds. This list is built by scanning
+     * the worlds dir provided in the settings and any other world added
+     * explicitely.
+     */
+    void addWorld(const QString& path);
+
+    /**
      * Get the current world.
      *
      * Will be nullptr when there is no world selected.
@@ -276,6 +285,7 @@ public:
     {
         return this->lastErrorCategory;
     }
+
     /**
      * Get the error message for the last failed operation.
      *

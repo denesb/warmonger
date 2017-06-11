@@ -55,7 +55,7 @@ public:
      *
      * \returns the generated map
      */
-    virtual std::unique_ptr<core::Map> generateMap(int size) = 0;
+    virtual std::unique_ptr<core::Map> generateMap(unsigned int size) = 0;
 };
 
 /**
@@ -92,6 +92,7 @@ RulesType rulesTypeFromString(const QString& str);
  * Loads the rules associated with the world and initializes them.
  * The rules object will be created as a children of the world.
  *
+ * \param basePath base path for relative paths in the rules
  * \param world the world
  *
  * \returns the created world-rules object, ready to use
@@ -99,7 +100,7 @@ RulesType rulesTypeFromString(const QString& str);
  * \throws IOError if the rules can't be loaded
  * \throws ValueError if the rules can't be parsed or initialization fails
  */
-WorldRules* createWorldRules(core::World* world);
+WorldRules* createWorldRules(const QString& basePath, core::World* world);
 
 } // namespace core
 } // namespace warmonger

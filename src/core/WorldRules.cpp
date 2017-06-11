@@ -48,12 +48,12 @@ RulesType rulesTypeFromString(const QString& str)
     }
 }
 
-WorldRules* createWorldRules(core::World* world)
+WorldRules* createWorldRules(const QString& basePath, core::World* world)
 {
     switch (world->getRulesType())
     {
         case RulesType::Lua:
-            return new LuaWorldRules(world);
+            return new LuaWorldRules(basePath, world);
     }
 
     throw utils::ValueError("Cannot create world-rules for unknown rules type: " +

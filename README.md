@@ -42,6 +42,7 @@ interested feel free to drop me a line at dns dot botond at gmail dot com.
  * CMake
  * Qt 5.5 (QtCore and QtQuick)
  * KF5Archive
+ * lua 5.3
 
 ### Format the code
 

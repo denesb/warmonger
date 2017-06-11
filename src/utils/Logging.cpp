@@ -24,11 +24,11 @@
 namespace warmonger {
 namespace utils {
 
-const std::string noFile("-");
 static std::shared_ptr<spdlog::logger> wLogger;
 
 static std::string trimSrcFilePath(const char* fileName);
 static void qtMessageHandler(QtMsgType type, const QMessageLogContext& ctx, const QString& msg);
+static void log(LogLevel level, const std::string& file, const char* function, int line, const std::string& msg);
 
 void initLogging(std::shared_ptr<spdlog::logger> logger)
 {
@@ -51,34 +51,13 @@ LogEntry::LogEntry(LogLevel level, const char* file, const char* function, int l
 
 LogEntry::~LogEntry()
 {
-    switch (this->level)
-    {
-        case LogLevel::Trace:
-            wLogger->trace("[{}:{} {}()] {}", this->file, this->line, this->function, this->msg.str());
-            break;
-
-        case LogLevel::Debug:
-            wLogger->debug("[{}:{} {}()] {}", this->file, this->line, this->function, this->msg.str());
-            break;
-
-        case LogLevel::Info:
-            wLogger->info("[{}:{} {}()] {}", this->file, this->line, this->function, this->msg.str());
-            break;
-
-        case LogLevel::Warning:
-            wLogger->warn("[{}:{} {}()] {}", this->file, this->line, this->function, this->msg.str());
-            break;
-
-        case LogLevel::Error:
-            wLogger->error("[{}:{} {}()] {}", this->file, this->line, this->function, this->msg.str());
-            break;
-    }
+    log(this->level, this->file, this->function, this->line, this->msg.str());
 }
 
 std::string trimSrcFilePath(const char* fileName)
 {
     if (fileName == nullptr)
-        return noFile;
+        return std::string();
 
     const std::string path(fileName);
     if (path.compare(0, basePath.size(), basePath) == 0)
@@ -93,25 +72,78 @@ std::string trimSrcFilePath(const char* fileName)
 
 static void qtMessageHandler(QtMsgType type, const QMessageLogContext& ctx, const QString& msg)
 {
+    LogLevel lvl;
     switch (type)
     {
         case QtDebugMsg:
-            wLogger->debug("[{}:{}] {}", trimSrcFilePath(ctx.file), ctx.line, msg.toStdString());
+            lvl = LogLevel::Debug;
             break;
 
         case QtInfoMsg:
-            wLogger->info("[{}:{}] {}", trimSrcFilePath(ctx.file), ctx.line, msg.toStdString());
+            lvl = LogLevel::Info;
             break;
 
         case QtWarningMsg:
-            wLogger->warn("[{}:{}] {}", trimSrcFilePath(ctx.file), ctx.line, msg.toStdString());
+            lvl = LogLevel::Warning;
             break;
 
         case QtCriticalMsg:
         case QtFatalMsg:
-            wLogger->error("[{}:{}] {}", trimSrcFilePath(ctx.file), ctx.line, msg.toStdString());
+            lvl = LogLevel::Error;
             break;
     }
+
+    log(lvl, trimSrcFilePath(ctx.file), nullptr, ctx.line, msg.toStdString());
+}
+
+static void log(LogLevel level, const std::string& file, const char* function, int line, const std::string& msg)
+{
+    spdlog::level::level_enum lvl;
+    switch (level)
+    {
+        case LogLevel::Trace:
+            lvl = spdlog::level::trace;
+            break;
+
+        case LogLevel::Debug:
+            lvl = spdlog::level::debug;
+            break;
+
+        case LogLevel::Info:
+            lvl = spdlog::level::info;
+            break;
+
+        case LogLevel::Warning:
+            lvl = spdlog::level::warn;
+            break;
+
+        case LogLevel::Error:
+            lvl = spdlog::level::err;
+            break;
+    }
+
+    std::stringstream s;
+
+    if (!file.empty() || function)
+    {
+        s << "[";
+        if (!file.empty())
+            s << file;
+
+        if (line >= 0)
+            s << ":" << line;
+
+        if (!file.empty() && function && line >= 0)
+            s << " ";
+
+        if (function)
+            s << " " << function;
+
+        s << "] ";
+    }
+    s << msg;
+
+    wLogger->log(lvl, s.str());
 }
 
 } // namespace utils

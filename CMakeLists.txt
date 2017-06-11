@@ -23,12 +23,6 @@ project(Warmonger)
 option(BUILD_TOOLS "Build development tools" OFF)
 option(BUILD_TESTS "Build unit test suite" OFF)
 
-include_directories(
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/thirdparty
-    ${PROJECT_BINARY_DIR}
-)
-
 set(CMAKE_CXX_STANDARD 14)
 
 add_compile_options(
@@ -165,14 +159,23 @@ file(GLOB_RECURSE ALL_SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Quick REQUIRED)
 find_package(KF5Archive REQUIRED)
-find_package(Threads)
+find_package(Threads REQUIRED)
+find_package(Lua REQUIRED)
 
 include(warmonger_automoc.cmake)
+
+include_directories(
+    ${PROJECT_SOURCE_DIR}/src
+    ${PROJECT_SOURCE_DIR}/thirdparty
+    ${PROJECT_BINARY_DIR}
+    ${LUA_INCLUDE_DIR}
+)
 
 set(
     COMMON_EXTERNAL_LIBS
     Qt5::Quick
     Qt5::Core
+    ${LUA_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
 )
 

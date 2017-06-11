@@ -61,8 +61,7 @@ int main(int argc, char* const argv[])
     }
     catch (const std::exception& e)
     {
-        wError << "Unexpected exception while trying to load world: " << e.what()
-               << " - the world probably isn't right";
+        wError << "Unexpected exception while trying to load world: " << e.what();
         FAIL(1);
     }
 

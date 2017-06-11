@@ -55,6 +55,22 @@ Context::Context(QObject* parent)
     this->loadWorlds();
 }
 
+void Context::addWorld(const QString& path)
+{
+    wInfo << "Adding world " << path;
+
+    try
+    {
+        this->worlds.push_back(io::readWorld(path).release());
+        this->worlds.back()->setParent(this);
+    }
+    catch (const utils::Exception& e)
+    {
+        // TODO: show this error on the GUI as well
+        wError << "Failed to add world " << world << ": " << e.getMessage();
+    }
+}
+
 QVariantList Context::readWorlds() const
 {
     return utils::toQVariantList(this->worlds);
@@ -271,7 +287,18 @@ void Context::loadWorlds()
         const QString worldDefinitionPath =
             worldPath + "/" + fileInfo.baseName() + "." + utils::fileExtensions::worldDefinition;
 
-        core::World* world = io::readWorld(worldDefinitionPath).release();
+        core::World* world{nullptr};
+
+        try
+        {
+            world = io::readWorld(worldDefinitionPath).release();
+        }
+        catch (const utils::Exception& e)
+        {
+            // TODO: show this error on the GUI as well
+            wError << "Failed load world " << worldDefinitionPath << ": " << e.getMessage();
+            continue;
+        }
 
         wInfo << "Loaded world " << worldDefinitionPath;
 

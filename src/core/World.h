@@ -319,6 +319,29 @@ public:
      */
     void setRulesType(const RulesType rulesType);
 
+    /**
+     * Load the rules from basePath.
+     *
+     * The base-path is used to resolve relative path within the rules,
+     * including the entry point.
+     *
+     * \param basePath the basePath
+     *
+     * \throws IOError if the rules can't be loaded
+     * \throws ValueError if the rules can't be parsed or initialization fails
+     */
+    void loadRules(const QString& basePath);
+
+    /**
+     * Get the world-rules.
+     *
+     * \returns the rules
+     */
+    WorldRules* getRules() const
+    {
+        return this->rules;
+    }
+
 signals:
     /**
      * Emitted when the name changes.
@@ -372,6 +395,7 @@ private:
     WObject* dummy;
     QString rulesEntryPoint;
     RulesType rulesType;
+    WorldRules* rules;
 };
 
 } // namespace core

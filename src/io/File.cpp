@@ -17,6 +17,7 @@
  */
 
 #include <QFile>
+#include <QFileInfo>
 
 #include "core/Map.h"
 #include "core/World.h"
@@ -25,6 +26,7 @@
 #include "io/MapJsonUnserializer.h"
 #include "io/WorldJsonSerializer.h"
 #include "io/WorldJsonUnserializer.h"
+#include "utils/Constants.h"
 #include "utils/Exception.h"
 
 namespace warmonger {
@@ -53,8 +55,24 @@ std::unique_ptr<core::World> readWorld(const QString& path)
 
     io::WorldJsonUnserializer unserializer;
 
-    const QByteArray data = file.readAll();
-    return unserializer.unserializeWorld(data);
+    auto world{unserializer.unserializeWorld(file.readAll())};
+
+    QFileInfo fileInfo(file);
+
+    QString basePath;
+
+    if (fileInfo.suffix() == utils::fileExtensions::worldDefinition)
+    {
+        basePath = fileInfo.canonicalPath();
+    }
+    else
+    {
+        basePath = ":/worldRules";
+    }
+
+    world->loadRules(basePath);
+
+    return world;
 }
 
 void writeMap(const core::Map* const map, const QString& path)
@@ -80,8 +98,7 @@ std::unique_ptr<core::Map> readMap(const QString& path, core::World* world)
 
     io::MapJsonUnserializer unserializer;
 
-    const QByteArray data = file.readAll();
-    return unserializer.unserializeMap(data, world);
+    return unserializer.unserializeMap(file.readAll(), world);
 }
 
 } // namespace warmonger

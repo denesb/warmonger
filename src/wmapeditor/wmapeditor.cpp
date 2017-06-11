@@ -16,6 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <QCommandLineParser>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -39,6 +40,22 @@ int main(int argc, char* argv[])
 {
     QGuiApplication app(argc, argv);
 
+    QCommandLineParser parser;
+    bool parserBuilt{true};
+
+    parser.setApplicationDescription("Warmonger map editor");
+    parserBuilt &= parser.addOption(QCommandLineOption({"w", "world"}, "The world to use", "world"));
+    parser.addPositionalArgument("map", "The map to edit");
+    parser.addHelpOption();
+    parser.addVersionOption();
+
+    assert(parserBuilt);
+
+    parser.process(app);
+
+    const auto world{parser.value("world")};
+    const auto map{parser.value("map")};
+
     utils::initSettings();
     utils::initLogging();
 
@@ -46,9 +63,15 @@ int main(int argc, char* argv[])
     ui::initUI();
 
     QQmlApplicationEngine engine;
-    wmapeditor::Context* ctx = new wmapeditor::Context(&engine);
+    wmapeditor::Context ctx;
 
-    engine.rootContext()->setContextProperty("W", ctx);
+    if (!world.isEmpty())
+        ctx.addWorld(world);
+
+    if (!map.isEmpty())
+        ctx.load(map);
+
+    engine.rootContext()->setContextProperty("W", &ctx);
 
     engine.load(QUrl("qrc:/MapEditor.qml"));
 

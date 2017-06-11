@@ -23,6 +23,10 @@
 
 #include "core/World.h"
 
+namespace sol {
+class state;
+}
+
 namespace warmonger {
 namespace core {
 
@@ -33,26 +37,30 @@ class LuaWorldRules : public WorldRules
 {
 public:
     /**
-     * Create and initialize the world rules for the world.
+     * Create and initialize the world rules object.
      *
      * Loads the rules associated with the world and initializes them.
      *
+     * \param basePath base path for relative paths in the rules
      * \param world the world
      *
      * \throws IOError if the rules can't be loaded
      * \throws ValueError if the rules can't be parsed or initialization fails
      */
-    LuaWorldRules(core::World* world);
+    LuaWorldRules(const QString& basePath, core::World* world);
 
     World* getWorld() override
     {
         return this->world;
     }
 
-    std::unique_ptr<core::Map> generateMap(int size) override;
+    std::unique_ptr<core::Map> generateMap(unsigned int size) override;
 
 private:
     World* world;
+    std::unique_ptr<sol::state> state; // to avoid exposing the massive sol.hpp
+    std::function<void()> initHook;
+    std::function<void(int)> generateMapHook;
 };
 
 } // namespace core

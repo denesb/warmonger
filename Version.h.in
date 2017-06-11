@@ -1,11 +1,13 @@
 #ifndef W_VERSION_H
 #define W_VERSION_H
 
+#include <QString>
+
 namespace warmonger {
 
 const std::string basePath{"@PROJECT_SOURCE_DIR@"};
-const std::string version{"@VERSION@"};
-const std::string gitCommit{"@GIT_COMMIT_HASH@"};
+const QString version{"@VERSION@"};
+const QString gitCommit{"@GIT_COMMIT_HASH@"};
 
 } // namespace warmonger
 

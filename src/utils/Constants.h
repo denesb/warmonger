@@ -40,6 +40,9 @@ namespace fileExtensions {
 // Warmonger World Definition
 const QString worldDefinition{"wwd"};
 
+// Warmonger World Package
+const QString worldPackage{"wwp"};
+
 // Warmonger Map Definition
 const QString mapDefinition{"wmd"};
 

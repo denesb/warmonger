@@ -59,7 +59,7 @@ public:
 private:
     World* world;
     std::unique_ptr<sol::state> state; // to avoid exposing the massive sol.hpp
-    std::function<void()> initHook;
+    std::function<void(World*)> initHook;
     std::function<void(int)> generateMapHook;
 };
 

@@ -24,6 +24,70 @@
 #include "utils/Logging.h"
 #include "utils/Utils.h"
 
+namespace sol {
+
+template <>
+struct lua_type_of<QString> : std::integral_constant<sol::type, sol::type::string>
+{
+};
+
+template <>
+struct lua_type_of<QColor> : std::integral_constant<sol::type, sol::type::string>
+{
+};
+
+namespace stack {
+
+template <>
+struct getter<QString>
+{
+    static QString get(lua_State* L, int index, record& tracking)
+    {
+        tracking.use(1);
+        std::size_t len;
+        const auto str = lua_tolstring(L, index, &len);
+        return QString::fromLocal8Bit(str, len);
+    }
+};
+
+template <>
+struct pusher<QString>
+{
+    static int push(lua_State* L, const QString& str)
+    {
+        const QByteArray data = str.toLocal8Bit();
+        lua_pushlstring(L, data.data(), data.size());
+        return 1;
+    }
+};
+
+template <>
+struct getter<QColor>
+{
+    static QColor get(lua_State* L, int index, record& tracking)
+    {
+        tracking.use(1);
+        std::size_t len;
+        const auto str = lua_tolstring(L, index, &len);
+        return QColor(QString::fromLocal8Bit(str, len));
+    }
+};
+
+template <>
+struct pusher<QColor>
+{
+    static int push(lua_State* L, const QColor& color)
+    {
+        const QByteArray data = color.name().toLocal8Bit();
+        lua_pushlstring(L, data.data(), data.size());
+        return 1;
+    }
+};
+
+} // namespace stack
+
+} // namespace sol
+
 namespace warmonger {
 namespace core {
 
@@ -53,7 +117,7 @@ LuaWorldRules::LuaWorldRules(const QString& basePath, core::World* world)
     this->initHook = lua["init"];
     this->generateMapHook = lua["generate_map"];
 
-    this->initHook();
+    this->initHook(this->world);
 }
 
 std::unique_ptr<core::Map> LuaWorldRules::generateMap(unsigned int size)
@@ -73,6 +137,51 @@ static void exposeAPI(sol::state& lua, core::World*)
     lua.set_function("w_info", wLuaInfo);
     lua.set_function("w_warning", wLuaWarning);
     lua.set_function("w_error", wLuaError);
+
+    lua.new_usertype<Civilization>("civilization",
+        sol::meta_function::construct,
+        sol::no_constructor,
+        "name",
+        sol::property(&Civilization::getName));
+
+    lua.new_usertype<Banner>("banner",
+        sol::meta_function::construct,
+        sol::no_constructor,
+        "name",
+        sol::property(&Banner::getName),
+        "civilizations",
+        sol::property(&Banner::getCivilizations));
+
+    // TODO: expose the TypeId enum?
+    lua.new_usertype<Field>("field",
+        sol::meta_function::construct,
+        sol::no_constructor,
+        "name",
+        sol::property(&Field::getName),
+        "type",
+        sol::property(&Field::getType));
+
+    lua.new_usertype<ComponentType>("component_type",
+        sol::meta_function::construct,
+        sol::no_constructor,
+        "name",
+        sol::property(&ComponentType::getName),
+        "fields",
+        sol::property(&ComponentType::getFields));
+
+    lua.new_usertype<World>("world",
+        sol::meta_function::construct,
+        sol::no_constructor,
+        "name",
+        sol::property(&World::getName),
+        "uuid",
+        sol::property(&World::getUuid),
+        "banners",
+        sol::property(&World::getBanners),
+        "civilizations",
+        sol::property(&World::getCivilizations),
+        "colors",
+        sol::property(&World::getColors));
 }
 
 static void wLuaLog(sol::this_state ts, utils::LogLevel logLevel, const std::string& msg)

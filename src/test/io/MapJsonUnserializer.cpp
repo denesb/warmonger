@@ -539,9 +539,9 @@ TEST_CASE("Entity can't be unserialized from JSON", "[MapJsonUnserializer][JSON]
         REQUIRE_THROWS_AS(unserializer.unserializeEntity(QJsonDocument(jobj).toJson(), map), utils::ValueError);
     }
 
-    SECTION("Dictionary field is invalid")
+    SECTION("Map field is invalid")
     {
-        jcomponent["realDictField"] = 123;
+        jcomponent["realMapField"] = 123;
         jcomponents[io::serializeReference(componentType1)] = jcomponent;
         jobj["components"] = jcomponents;
 

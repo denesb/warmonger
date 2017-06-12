@@ -17,12 +17,12 @@
  */
 
 #include <QFile>
+#include <catch.hpp>
 
 #include "io/File.h"
 #include "io/MapJsonSerializer.h"
 #include "io/WorldJsonSerializer.h"
 #include "test/Util.h"
-#include <catch.hpp>
 
 void createWorldFile(const QString& path)
 {
@@ -35,6 +35,11 @@ void createWorldFile(const QString& path)
     file.open(QIODevice::WriteOnly);
 
     file.write(serializer.serializeWorld(world));
+
+    QFile rulesFile(world->getRulesEntryPoint());
+    rulesFile.open(QIODevice::WriteOnly);
+
+    rulesFile.write("function init(W) w_debug(\"init\"); end");
 }
 
 void createMapFile(const QString& path)
@@ -55,7 +60,7 @@ TEST_CASE("World can be written to file", "[File]")
     const auto worlds = makeWorld();
     const auto world = worlds.first.get();
 
-    const QString path("./write_world.json");
+    const QString path("./write_world.wwd");
 
     SECTION("writing World")
     {
@@ -70,7 +75,7 @@ TEST_CASE("World can be written to file", "[File]")
 
 TEST_CASE("World can be read from file", "[File]")
 {
-    const QString path("./read_world.json");
+    const QString path("./read_world.wwd");
     createWorldFile(path);
 
     SECTION("reading World")
@@ -88,7 +93,7 @@ TEST_CASE("Map can be written to file", "[File]")
     const auto maps = makeMap();
     const auto map{maps.first.get()};
 
-    const QString path("./write_map.json");
+    const QString path("./write_map.wmd");
 
     SECTION("writing Map")
     {
@@ -103,7 +108,7 @@ TEST_CASE("Map can be written to file", "[File]")
 
 TEST_CASE("Map can be read from file", "[File]")
 {
-    const QString path("./read_map.json");
+    const QString path("./read_map.wmd");
 
     const auto worlds = makeWorld();
     const auto world = worlds.first.get();

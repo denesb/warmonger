@@ -172,13 +172,13 @@ static QJsonValue fieldTypeToJson(const core::FieldType* const obj)
             jval = jlistType;
             break;
         }
-        case core::Field::TypeId::Dictionary:
+        case core::Field::TypeId::Map:
         {
-            const auto dict = static_cast<const core::FieldTypes::Dictionary*>(obj);
+            const auto map = static_cast<const core::FieldTypes::Map*>(obj);
             QJsonObject jdictType;
 
             jdictType["id"] = typeIdMetaEnum.valueToKey(static_cast<int>(id));
-            jdictType["valueType"] = fieldTypeToJson(dict->getValueType());
+            jdictType["valueType"] = fieldTypeToJson(map->getValueType());
 
             jval = jdictType;
             break;

@@ -379,19 +379,19 @@ TEST_CASE("ComponentType unserialized from JSON - happy path", "[WorldJsonUnseri
         REQUIRE(listType != nullptr);
         REQUIRE(listType->getValueType()->id() == core::Field::TypeId::Integer);
 
-        REQUIRE(fields[5]->getType()->id() == core::Field::TypeId::Dictionary);
+        REQUIRE(fields[5]->getType()->id() == core::Field::TypeId::Map);
 
-        const auto dictType{dynamic_cast<core::FieldTypes::Dictionary*>(fields[5]->getType())};
-        REQUIRE(dictType != nullptr);
-        REQUIRE(dictType->getValueType()->id() == core::Field::TypeId::Real);
+        const auto mapType{dynamic_cast<core::FieldTypes::Map*>(fields[5]->getType())};
+        REQUIRE(mapType != nullptr);
+        REQUIRE(mapType->getValueType()->id() == core::Field::TypeId::Real);
 
-        REQUIRE(fields[6]->getType()->id() == core::Field::TypeId::Dictionary);
+        REQUIRE(fields[6]->getType()->id() == core::Field::TypeId::Map);
 
-        const auto outerDictType{dynamic_cast<core::FieldTypes::Dictionary*>(fields[6]->getType())};
-        REQUIRE(outerDictType != nullptr);
-        REQUIRE(outerDictType->getValueType()->id() == core::Field::TypeId::List);
+        const auto outerMapType{dynamic_cast<core::FieldTypes::Map*>(fields[6]->getType())};
+        REQUIRE(outerMapType != nullptr);
+        REQUIRE(outerMapType->getValueType()->id() == core::Field::TypeId::List);
 
-        const auto innerListType{dynamic_cast<core::FieldTypes::List*>(outerDictType->getValueType())};
+        const auto innerListType{dynamic_cast<core::FieldTypes::List*>(outerMapType->getValueType())};
         REQUIRE(innerListType != nullptr);
         REQUIRE(innerListType->getValueType()->id() == core::Field::TypeId::String);
     }

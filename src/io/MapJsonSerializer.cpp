@@ -112,18 +112,18 @@ static QJsonValue fieldToJson(const core::FieldType* const type, const QVariant&
         }
         break;
 
-        case core::Field::TypeId::Dictionary:
+        case core::Field::TypeId::Map:
         {
-            auto valueType = static_cast<const core::FieldTypes::Dictionary*>(type)->getValueType();
-            const auto dict = value.toMap();
-            QJsonObject jdict;
+            auto valueType = static_cast<const core::FieldTypes::Map*>(type)->getValueType();
+            const auto map = value.toMap();
+            QJsonObject jmap;
 
-            for (auto it = dict.begin(); it != dict.end(); ++it)
+            for (auto it = map.begin(); it != map.end(); ++it)
             {
-                jdict[it.key()] = fieldToJson(valueType, it.value());
+                jmap[it.key()] = fieldToJson(valueType, it.value());
             }
 
-            jval = jdict;
+            jval = jmap;
         }
         break;
     }

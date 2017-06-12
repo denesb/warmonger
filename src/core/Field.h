@@ -62,7 +62,7 @@ public:
         String,
         Reference,
         List,
-        Dictionary
+        Map
     };
     Q_ENUM(TypeId)
 
@@ -243,14 +243,14 @@ private:
  *
  * Corresponds to a QVariantMap
  */
-class Dictionary : public FieldType
+class Map : public FieldType
 {
 public:
-    Dictionary(std::unique_ptr<FieldType>&& valueType);
+    Map(std::unique_ptr<FieldType>&& valueType);
 
     Field::TypeId id() const override
     {
-        return Field::TypeId::Dictionary;
+        return Field::TypeId::Map;
     }
 
     FieldType* getValueType() const

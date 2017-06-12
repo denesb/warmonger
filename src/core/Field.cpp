@@ -59,7 +59,7 @@ List::List(std::unique_ptr<FieldType>&& valueType)
     this->valueType->setParent(this);
 }
 
-Dictionary::Dictionary(std::unique_ptr<FieldType>&& valueType)
+Map::Map(std::unique_ptr<FieldType>&& valueType)
     : valueType(valueType.release())
 {
     this->valueType->setParent(this);

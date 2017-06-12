@@ -343,7 +343,7 @@ static std::unique_ptr<core::FieldType> unserializeSimpleFieldType(const QJsonVa
         case core::Field::TypeId::Reference:
             return std::make_unique<core::FieldTypes::Reference>();
         case core::Field::TypeId::List:
-        case core::Field::TypeId::Dictionary:
+        case core::Field::TypeId::Map:
             throw utils::ValueError("Failed to unserialize field-type, `" + typeStr + "' is not a simple type");
     }
 
@@ -380,8 +380,8 @@ static std::unique_ptr<core::FieldType> unserializeComplexFieldType(const QJsonV
             throw utils::ValueError("Failed to unserialize field-type, `" + typeIdStr + "' is not a complex type");
         case core::Field::TypeId::List:
             return std::make_unique<core::FieldTypes::List>(unserializeFieldType(jcompositeType["valueType"]));
-        case core::Field::TypeId::Dictionary:
-            return std::make_unique<core::FieldTypes::Dictionary>(unserializeFieldType(jcompositeType["valueType"]));
+        case core::Field::TypeId::Map:
+            return std::make_unique<core::FieldTypes::Map>(unserializeFieldType(jcompositeType["valueType"]));
     }
 
     throw utils::ValueError("Failed to unserialize field-type, type has invalid value");

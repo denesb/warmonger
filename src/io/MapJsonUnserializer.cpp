@@ -271,22 +271,22 @@ static QVariant fieldFromJson(const core::FieldType* const fieldType, const QJso
         }
         break;
 
-        case core::Field::TypeId::Dictionary:
+        case core::Field::TypeId::Map:
         {
             if (!jvalue.isObject())
                 throw utils::ValueError("Failed to unserialize dictionary field, value is not an object");
 
             const core::FieldType* valueType =
-                static_cast<const core::FieldTypes::Dictionary*>(fieldType)->getValueType();
-            QVariantMap dict;
+                static_cast<const core::FieldTypes::Map*>(fieldType)->getValueType();
+            QVariantMap mapVal;
 
             auto jobj = jvalue.toObject();
             for (auto it = jobj.begin(); it != jobj.end(); ++it)
             {
-                dict.insert(it.key(), fieldFromJson(valueType, it.value(), map));
+                mapVal.insert(it.key(), fieldFromJson(valueType, it.value(), map));
             }
 
-            value = dict;
+            value = mapVal;
         }
         break;
     }

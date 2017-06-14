@@ -62,15 +62,12 @@ TEST_CASE("World can be written to file", "[File]")
 
     const QString path("./write_world.wwd");
 
-    SECTION("writing World")
-    {
-        REQUIRE_NOTHROW(io::writeWorld(world, path));
+    REQUIRE_NOTHROW(io::writeWorld(world, path));
 
-        QFile file(path);
-        REQUIRE(file.exists() == true);
+    QFile file(path);
+    REQUIRE(file.exists() == true);
 
-        file.remove();
-    }
+    file.remove();
 }
 
 TEST_CASE("World can be read from file", "[File]")
@@ -78,14 +75,31 @@ TEST_CASE("World can be read from file", "[File]")
     const QString path("./read_world.wwd");
     createWorldFile(path);
 
-    SECTION("reading World")
-    {
-        REQUIRE_NOTHROW(io::readWorld(path));
-        REQUIRE(io::readWorld(path));
-    }
+    REQUIRE_NOTHROW(io::readWorld(path));
+    REQUIRE(io::readWorld(path));
 
     QFile file(path);
     file.remove();
+}
+
+TEST_CASE("World can be written to a file and read back", "[File]")
+{
+    const QString path("./write_read_world.wwd");
+    const auto worlds = makeWorld();
+    const auto world = worlds.first.get();
+
+    REQUIRE_NOTHROW(io::writeWorld(world, path));
+
+    QFile rulesFile(world->getRulesEntryPoint());
+    rulesFile.open(QIODevice::WriteOnly);
+    rulesFile.write("function init(W) w_debug(\"init\"); end");
+    rulesFile.flush();
+
+    REQUIRE_NOTHROW(io::readWorld(path));
+
+    QFile file(path);
+    file.remove();
+    rulesFile.remove();
 }
 
 TEST_CASE("Map can be written to file", "[File]")
@@ -95,15 +109,12 @@ TEST_CASE("Map can be written to file", "[File]")
 
     const QString path("./write_map.wmd");
 
-    SECTION("writing Map")
-    {
-        REQUIRE_NOTHROW(io::writeMap(map, path));
+    REQUIRE_NOTHROW(io::writeMap(map, path));
 
-        QFile file(path);
-        REQUIRE(file.exists() == true);
+    QFile file(path);
+    REQUIRE(file.exists() == true);
 
-        file.remove();
-    }
+    file.remove();
 }
 
 TEST_CASE("Map can be read from file", "[File]")
@@ -115,11 +126,23 @@ TEST_CASE("Map can be read from file", "[File]")
 
     createMapFile(path);
 
-    SECTION("reading Map")
-    {
-        REQUIRE_NOTHROW(io::readMap(path, world));
-        REQUIRE(io::readMap(path, world));
-    }
+    REQUIRE_NOTHROW(io::readMap(path, world));
+    REQUIRE(io::readMap(path, world));
+
+    QFile file(path);
+    file.remove();
+}
+
+TEST_CASE("Map can be written and read from file", "[File]")
+{
+    const QString path("./write_read_map.wmd");
+
+    const auto maps = makeMap();
+    const auto map{maps.first.get()};
+    const auto world{map->getWorld()};
+
+    REQUIRE_NOTHROW(io::writeMap(map, path));
+    REQUIRE_NOTHROW(io::readMap(path, world));
 
     QFile file(path);
     file.remove();

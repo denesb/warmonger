@@ -218,6 +218,8 @@ static void exposeAPI(sol::state& lua, core::World*)
 
     Component* (Entity::*getComponentByType)(const ComponentType* const);
     Component* (Entity::*getComponentByName)(const QString&);
+    std::unique_ptr<Component> (Entity::*removeComponentByType)(const ComponentType* const);
+    std::unique_ptr<Component> (Entity::*removeComponentByName)(const QString&);
 
     lua.new_usertype<Entity>("entity",
         sol::meta_function::construct,
@@ -225,7 +227,11 @@ static void exposeAPI(sol::state& lua, core::World*)
         "components",
         sol::property(&Entity::getComponents),
         "get_component",
-        sol::overload(getComponentByType, getComponentByName));
+        sol::overload(getComponentByType, getComponentByName),
+        "create_component",
+        &Entity::createComponent,
+        "remove_component",
+        sol::overload(removeComponentByType, removeComponentByName));
 
     lua.new_usertype<Map>("map",
         sol::meta_function::construct,

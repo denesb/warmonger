@@ -44,6 +44,7 @@ public:
     typedef std::map<Direction, MapNode*> NeighbourMap;
     typedef NeighbourMap::iterator iterator;
     typedef NeighbourMap::const_iterator const_iterator;
+    typedef std::pair<Direction, MapNode*> value_type;
 
     /**
      * Construct an empty neighbours object.
@@ -54,6 +55,14 @@ public:
      * Construct an empty neighbours object from the initializer list.
      */
     MapNodeNeighbours(std::initializer_list<std::pair<Direction, MapNode*>> init);
+
+    /**
+     * Get the size (always 6).
+     */
+    std::size_t size() const
+    {
+        return 6;
+    }
 
     iterator begin();
     const_iterator begin() const;

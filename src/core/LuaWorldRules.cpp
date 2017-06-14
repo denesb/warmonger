@@ -27,14 +27,13 @@
 namespace sol {
 
 template <>
-struct lua_type_of<QString> : std::integral_constant<sol::type, sol::type::string>
-{
-};
+struct lua_type_of<QString> : std::integral_constant<sol::type, sol::type::string> {};
 
 template <>
-struct lua_type_of<QColor> : std::integral_constant<sol::type, sol::type::string>
-{
-};
+struct lua_type_of<QColor> : std::integral_constant<sol::type, sol::type::string> {};
+
+template <>
+struct is_container<::warmonger::core::MapNodeNeighbours> : std::false_type {};
 
 namespace stack {
 
@@ -100,6 +99,13 @@ static void inline wLuaInfo(sol::this_state ts, const std::string& msg);
 static void inline wLuaWarning(sol::this_state ts, const std::string& msg);
 static void inline wLuaError(sol::this_state ts, const std::string& msg);
 
+static MapNode* getWestNeighbour(const MapNodeNeighbours& neighbours);
+static MapNode* getNorthWestNeighbour(const MapNodeNeighbours& neighbours);
+static MapNode* getNorthEastNeighbour(const MapNodeNeighbours& neighbours);
+static MapNode* getEastNeighbour(const MapNodeNeighbours& neighbours);
+static MapNode* getSouthEastNeighbour(const MapNodeNeighbours& neighbours);
+static MapNode* getSouthWestNeighbour(const MapNodeNeighbours& neighbours);
+
 LuaWorldRules::LuaWorldRules(const QString& basePath, core::World* world)
     : world(world)
     , state(std::make_unique<sol::state>())
@@ -152,22 +158,11 @@ static void exposeAPI(sol::state& lua, core::World*)
         "civilizations",
         sol::property(&Banner::getCivilizations));
 
-    // TODO: expose the TypeId enum?
-    lua.new_usertype<Field>("field",
-        sol::meta_function::construct,
-        sol::no_constructor,
-        "name",
-        sol::property(&Field::getName),
-        "type",
-        sol::property(&Field::getType));
-
     lua.new_usertype<ComponentType>("component_type",
         sol::meta_function::construct,
         sol::no_constructor,
         "name",
-        sol::property(&ComponentType::getName),
-        "fields",
-        sol::property(&ComponentType::getFields));
+        sol::property(&ComponentType::getName));
 
     lua.new_usertype<World>("world",
         sol::meta_function::construct,
@@ -181,7 +176,68 @@ static void exposeAPI(sol::state& lua, core::World*)
         "civilizations",
         sol::property(&World::getCivilizations),
         "colors",
-        sol::property(&World::getColors));
+        sol::property(&World::getColors),
+        "component_types",
+        sol::property(&World::getComponentTypes));
+
+    lua.new_usertype<MapNodeNeighbours>("map_node_neighbours",
+        sol::meta_function::construct,
+        sol::no_constructor,
+        "west",
+        sol::property(getWestNeighbour),
+        "north_west",
+        sol::property(getNorthWestNeighbour),
+        "north_east",
+        sol::property(getNorthEastNeighbour),
+        "east",
+        sol::property(getEastNeighbour),
+        "south_east",
+        sol::property(getSouthEastNeighbour),
+        "south_west",
+        sol::property(getSouthWestNeighbour));
+
+    lua.new_usertype<MapNode>("map_node",
+        sol::meta_function::construct,
+        sol::no_constructor,
+        "neighbours",
+        sol::property(&MapNode::getNeighbours));
+
+    lua.new_usertype<Faction>("faction",
+        sol::meta_function::construct,
+        sol::no_constructor,
+        "name",
+        sol::property(&Faction::getName),
+        "primaryColor",
+        sol::property(&Faction::getPrimaryColor),
+        "secondaryColor",
+        sol::property(&Faction::getSecondaryColor),
+        "banner",
+        sol::property(&Faction::getBanner),
+        "civilization",
+        sol::property(&Faction::getCivilization));
+
+    Component* (Entity::*getComponentByType)(const ComponentType* const);
+    Component* (Entity::*getComponentByName)(const QString&);
+
+    lua.new_usertype<Entity>("entity",
+        sol::meta_function::construct,
+        sol::no_constructor,
+        "components",
+        sol::property(&Entity::getComponents),
+        "get_component",
+        sol::overload(getComponentByType, getComponentByName));
+
+    lua.new_usertype<Map>("map",
+        sol::meta_function::construct,
+        sol::no_constructor,
+        "name",
+        sol::property(&Map::getName),
+        "map_nodes",
+        sol::property(&Map::getMapNodes),
+        "factions",
+        sol::property(&Map::getFactions),
+        "entities",
+        sol::property(&Map::getEntities));
 }
 
 static void wLuaLog(sol::this_state ts, utils::LogLevel logLevel, const std::string& msg)
@@ -235,6 +291,36 @@ static void inline wLuaWarning(sol::this_state ts, const std::string& msg)
 static void inline wLuaError(sol::this_state ts, const std::string& msg)
 {
     wLuaLog(ts, utils::LogLevel::Error, msg);
+}
+
+static MapNode* getWestNeighbour(const MapNodeNeighbours& neighbours)
+{
+    return neighbours.at(Direction::West);
+}
+
+static MapNode* getNorthWestNeighbour(const MapNodeNeighbours& neighbours)
+{
+    return neighbours.at(Direction::NorthWest);
+}
+
+static MapNode* getNorthEastNeighbour(const MapNodeNeighbours& neighbours)
+{
+    return neighbours.at(Direction::NorthEast);
+}
+
+static MapNode* getEastNeighbour(const MapNodeNeighbours& neighbours)
+{
+    return neighbours.at(Direction::East);
+}
+
+static MapNode* getSouthEastNeighbour(const MapNodeNeighbours& neighbours)
+{
+    return neighbours.at(Direction::SouthEast);
+}
+
+static MapNode* getSouthWestNeighbour(const MapNodeNeighbours& neighbours)
+{
+    return neighbours.at(Direction::SouthWest);
 }
 
 } // namespace core

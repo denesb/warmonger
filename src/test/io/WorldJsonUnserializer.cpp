@@ -198,7 +198,7 @@ TEST_CASE("Civilization can't be unserialized from JSON", "[WorldJsonUnserialize
     {
         jobj["name"] = "";
 
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(unserializer.unserializeCivilization(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Missing name")
@@ -215,117 +215,6 @@ TEST_CASE("Civilization can't be unserialized from JSON", "[WorldJsonUnserialize
         QJsonDocument jdoc(jobj);
 
         REQUIRE_THROWS_AS(unserializer.unserializeCivilization(jdoc.toJson(), world), utils::ValueError);
-    }
-}
-
-TEST_CASE("EntityType can be unserialized from JSON", "[WorldJsonUnserializer][JSON][Unserialize][HappyPath]")
-{
-    std::unique_ptr<core::World> world;
-    QJsonObject jworld;
-    std::tie(world, jworld) = makeWorld();
-
-    QJsonObject jobj = jworld["entityTypes"].toArray()[0].toObject();
-
-    const QJsonDocument jdoc{jobj};
-    const io::WorldJsonUnserializer unserializer;
-    const QByteArray rawJson{jdoc.toJson()};
-
-    INFO("The json component-type is: " << rawJson.data());
-
-    SECTION("Unserialization succeeds without exceptions")
-    {
-        REQUIRE_NOTHROW(unserializer.unserializeEntityType(rawJson, world.get()));
-        REQUIRE(unserializer.unserializeEntityType(rawJson, world.get()));
-    }
-
-    SECTION("Unserialization entity-type")
-    {
-        const auto entityType{unserializer.unserializeEntityType(rawJson, world.get())};
-
-        REQUIRE(entityType->getId() == jobj["id"].toInt());
-        REQUIRE(entityType->getName() == jobj["name"].toString());
-        REQUIRE_REFERENCES(jobj["componentTypes"].toArray(), entityType->getComponentTypes());
-    }
-}
-
-TEST_CASE("EntityType can't be unserialized from JSON", "[WorldJsonUnserializer][JSON][Unserialize][ErrorPaths]")
-{
-    std::unique_ptr<core::World> worldPtr;
-    QJsonObject jworld;
-    std::tie(worldPtr, jworld) = makeWorld();
-    auto world = worldPtr.get();
-
-    const io::WorldJsonUnserializer unserializer;
-    QJsonObject jobj = jworld["entityTypes"].toArray()[0].toObject();
-
-    SECTION("Invalid Json")
-    {
-        QString invalidJson{"{\"name\": \"name1\",}"};
-
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(invalidJson.toLocal8Bit(), world), utils::ValueError);
-    }
-
-    SECTION("Missing id")
-    {
-        jobj.remove("id");
-
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
-    }
-
-    SECTION("Id not int")
-    {
-        jobj["id"] = "asd";
-
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
-    }
-
-    SECTION("Missing name")
-    {
-        jobj.remove("name");
-
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
-    }
-
-    SECTION("Empty name")
-    {
-        jobj["name"] = "";
-
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
-    }
-
-    SECTION("Name not string")
-    {
-        jobj["name"] = 123;
-
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
-    }
-
-    SECTION("Missing component-types")
-    {
-        jobj.remove("componentTypes");
-
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
-    }
-
-    SECTION("Component-type list is empty")
-    {
-        jobj["name"] = QJsonArray();
-
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
-    }
-
-    SECTION("Component-types has empty name")
-    {
-        jobj["componentTypes"] = QJsonArray{QString{""}};
-
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
-    }
-
-    SECTION("Component-type has non-string name")
-    {
-        jobj["componentTypes"] = QJsonArray{123};
-
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 }
 
@@ -418,35 +307,40 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
     {
         jobj.remove("id");
 
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Id not int")
     {
         jobj["id"] = "asd";
 
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Missing name")
     {
         jobj.remove("name");
 
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Empty name")
     {
         jobj["name"] = "";
 
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Name not string")
     {
         jobj["name"] = 123;
 
-        REQUIRE_THROWS_AS(unserializer.unserializeEntityType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("No fields")
@@ -612,8 +506,6 @@ TEST_CASE("World can be unserialized from JSON", "[WorldJsonUnserializer][JSON][
 
         REQUIRE(worldComponentTypes == jobj["componentTypes"].toArray().size());
 
-        REQUIRE(world->getEntityTypes().size() == jobj["entityTypes"].toArray().size());
-
         const std::vector<QColor>& colors = world->getColors();
         QJsonArray jcolors = jobj["colors"].toArray();
         for (std::size_t i = 0; i < colors.size(); ++i)
@@ -711,20 +603,6 @@ TEST_CASE("World can't be unserialized from JSON", "[WorldJsonUnserializer][JSON
     SECTION("Colors not an array")
     {
         jobj["colors"] = 123;
-
-        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
-    }
-
-    SECTION("Missing entityTypes")
-    {
-        jobj.remove("entityTypes");
-
-        REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
-    }
-
-    SECTION("EntityTypes not an array")
-    {
-        jobj["entityTypes"] = 123;
 
         REQUIRE_THROWS_AS(unserializer.unserializeWorld(QJsonDocument(jobj).toJson()), utils::ValueError);
     }

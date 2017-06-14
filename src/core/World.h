@@ -30,7 +30,6 @@
 
 #include "core/Banner.h"
 #include "core/Civilization.h"
-#include "core/EntityType.h"
 #include "core/WorldComponentType.h"
 #include "core/WorldRules.h"
 
@@ -41,7 +40,7 @@ namespace core {
  * Defines a game world.
  *
  * A world defines the content all its behaviour besides the core game rules.
- * It defines the available civilizations, entity-types and component-types.
+ * It defines the available civilizations and component-types.
  */
 class World : public QObject
 {
@@ -51,7 +50,6 @@ class World : public QObject
     Q_PROPERTY(QVariantList banners READ readBanners NOTIFY bannersChanged)
     Q_PROPERTY(QVariantList civilizations READ readCivilizations NOTIFY civilizationsChanged)
     Q_PROPERTY(QVariantList colors READ readColors NOTIFY colorsChanged)
-    Q_PROPERTY(QVariantList entityTypes READ readEntityTypes NOTIFY entityTypesChanged)
     Q_PROPERTY(QVariantList componentTypes READ readComponentTypes NOTIFY componentTypesChanged)
 
 public:
@@ -232,41 +230,6 @@ public:
     WorldComponentType* createWorldComponentType(int id = WObject::invalidId);
 
     /**
-     * Get the entity-types.
-     *
-     * \return the entity-types
-     */
-    const std::vector<EntityType*>& getEntityTypes() const
-    {
-        return this->entityTypes;
-    }
-
-    /**
-     * Create a new entity-type.
-     *
-     * The world takes ownership of the created object.
-     * Will emit the signal World::entityTypesChanged().
-     * An id value should only be passed when the factions is being
-     * unserialized and it already has a priorly generated id.
-     *
-     * \param id the id
-     *
-     * \return the new entity-type
-     */
-    EntityType* createEntityType(int id = WObject::invalidId);
-
-    /**
-     * Get the entity-types as a QVariantList.
-     *
-     * This function is used as a read function for the mapNodes property and is
-     * not supposed to be called from C++ code. Use World::getArmyTypes()
-     * instead.
-     *
-     * \returns the entity-types
-     */
-    QVariantList readEntityTypes() const;
-
-    /**
      * Get the built-in object id mapping.
      *
      * This mapping is used to permanently pin a certain built-in object to
@@ -369,11 +332,6 @@ signals:
     void componentTypesChanged();
 
     /**
-     * Emitted when the unit-types change.
-     */
-    void entityTypesChanged();
-
-    /**
      * Emitted when the rules entry point changes.
      */
     void rulesEntryPointChanged();
@@ -390,7 +348,6 @@ private:
     std::vector<Civilization*> civilizations;
     std::vector<QColor> colors;
     std::vector<ComponentType*> componentTypes;
-    std::vector<EntityType*> entityTypes;
     std::map<QString, int> builtInObjectIds;
     WObject* dummy;
     QString rulesEntryPoint;

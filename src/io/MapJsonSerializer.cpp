@@ -136,10 +136,16 @@ static QJsonObject componentToJson(const core::Component* const obj)
     const auto& fields = obj->getType()->getFields();
     QJsonObject jobj;
 
+    jobj["type"] = io::serializeReference(obj->getType());
+
+    QJsonObject jfields;
+
     for (const auto& field : fields)
     {
-        jobj[field->getName()] = fieldToJson(field->getType(), obj->getField(field->getName()));
+        jfields[field->getName()] = fieldToJson(field->getType(), obj->getField(field->getName()));
     }
+
+    jobj["fields"] = jfields;
 
     return jobj;
 }
@@ -149,13 +155,12 @@ static QJsonObject entityToJson(const core::Entity* const obj)
     QJsonObject jobj;
 
     jobj["id"] = obj->getId();
-    jobj["type"] = serializeReference(obj->getType());
 
-    QJsonObject jcomponents;
+    QJsonArray jcomponents;
     const auto& components = obj->getComponents();
     for (const auto& component : components)
     {
-        jcomponents[serializeReference(component->getType())] = componentToJson(component);
+        jcomponents.push_back(componentToJson(component));
     }
 
     jobj["components"] = jcomponents;

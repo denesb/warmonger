@@ -37,7 +37,6 @@ public:
     core::Banner* unserializeBanner(const QByteArray& data, core::World* world) const override;
     core::Civilization* unserializeCivilization(const QByteArray& data, core::World* world) const override;
     core::ComponentType* unserializeComponentType(const QByteArray& data, core::World* world) const override;
-    core::EntityType* unserializeEntityType(const QByteArray& data, core::World* world) const override;
     std::unique_ptr<core::World> unserializeWorld(const QByteArray& data) const override;
 };
 

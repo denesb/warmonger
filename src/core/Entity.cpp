@@ -26,31 +26,7 @@ namespace core {
 
 Entity::Entity(QObject* parent, int id)
     : WObject(parent, id)
-    , type(nullptr)
 {
-}
-
-void Entity::setType(EntityType* type)
-{
-    if (this->type == type)
-        return;
-
-    this->type = type;
-
-    qDeleteAll(this->components.begin(), this->components.end());
-    this->components.clear();
-
-    for (const auto& componentType : this->type->getComponentTypes())
-    {
-        auto component = new Component(this);
-        component->setType(componentType);
-
-        QObject::connect(component, &Component::fieldChanged, this, &Entity::componentChanged);
-
-        this->components.push_back(component);
-    }
-
-    emit typeChanged();
 }
 
 Component* Entity::getComponent(const ComponentType* const componentType)
@@ -84,6 +60,73 @@ Component* Entity::getComponent(const QString& componentTypeName)
     else
     {
         return *it;
+    }
+}
+
+Component* Entity::createComponent(ComponentType* const componentType)
+{
+    auto component{new Component(this)};
+
+    component->setType(componentType);
+
+    const auto it = std::find_if(this->components.begin(),
+        this->components.end(),
+        [componentType](const auto& component) { return component->getType() == componentType; });
+
+    if (it == this->components.end())
+    {
+        this->components.push_back(component);
+    }
+    else
+    {
+        delete *it;
+        *it = component;
+    }
+
+    emit componentChanged();
+
+    return component;
+}
+
+std::unique_ptr<Component> Entity::removeComponent(const ComponentType* const componentType)
+{
+    const auto it = std::remove_if(this->components.begin(),
+        this->components.end(),
+        [componentType](const auto& component) { return component->getType() == componentType; });
+
+    if (it == this->components.end())
+    {
+        return std::unique_ptr<Component>();
+    }
+    else
+    {
+        auto component = *it;
+        component->setParent(nullptr);
+
+        this->components.erase(it);
+
+        return std::unique_ptr<Component>(component);
+    }
+}
+
+std::unique_ptr<Component> Entity::removeComponent(const QString& componentTypeName)
+{
+    const auto it = std::remove_if(this->components.begin(),
+        this->components.end(),
+        [&componentTypeName](const auto& component) { return component->getType()->getName() == componentTypeName; });
+
+    if (it == this->components.end())
+    {
+        return std::unique_ptr<Component>();
+    }
+    else
+    {
+        auto component = *it;
+        component->setParent(nullptr);
+
+        this->components.erase(it);
+
+        return std::unique_ptr<Component>(component);
     }
 }
 

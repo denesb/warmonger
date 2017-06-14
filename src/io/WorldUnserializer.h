@@ -32,7 +32,6 @@ namespace core {
 class Banner;
 class Civilization;
 class ComponentType;
-class EntityType;
 class World;
 }
 
@@ -79,16 +78,6 @@ public:
      * \return the unserialized component-type object
      */
     virtual core::ComponentType* unserializeComponentType(const QByteArray& data, core::World* world) const = 0;
-
-    /**
-     * Unserialize the entity-type and add it to the world.
-     *
-     * \param data the raw data
-     * \param world the world
-     *
-     * \return the unserialized entity-type object
-     */
-    virtual core::EntityType* unserializeEntityType(const QByteArray& data, core::World* world) const = 0;
 
     /**
      * Unserialize the world.

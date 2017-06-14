@@ -34,7 +34,7 @@ namespace io {
 
 static core::Faction* factionFromJson(const QJsonObject& jobj, core::Map* map);
 static core::Entity* entityFromJson(const QJsonObject& jobj, core::Map* map);
-static void componentFromJson(core::Component* component, const QJsonObject& jcomponent, core::Map* map);
+static void componentFromJson(const QJsonObject& jcomponent, core::Entity* entity, core::Map* map);
 static QVariant fieldFromJson(const core::FieldType* const fieldType, const QJsonValue& jvalue, core::Map* map);
 static std::tuple<core::MapNode*, std::map<core::Direction, QString>> mapNodeFromJson(
     const QJsonObject& jobj, core::Map* map);
@@ -171,42 +171,44 @@ static core::Entity* entityFromJson(const QJsonObject& jobj, core::Map* map)
     if (id == core::WObject::invalidId)
         throw utils::ValueError("Failed to unserialize entity, it has missing or invalid id");
 
-    const auto type = unserializeReferenceAs<core::EntityType>(jobj["type"].toString(), map);
-
-    if (type == nullptr)
-        throw utils::ValueError("Failed to unserialize entity, it has missing or invalid type");
-
     auto obj = map->createEntity(id);
 
-    obj->setType(type);
-
-    if (!jobj["components"].isObject())
+    if (!jobj["components"].isArray())
         throw utils::ValueError("Failed to unserialize entity, it has missing or invalid components");
 
-    const auto jcomponents{jobj["components"].toObject()};
-    for (auto it = jcomponents.begin(); it != jcomponents.end(); ++it)
+    const auto jcomponents = jobj["components"].toArray();
+    for (const auto& jcomponent : jcomponents)
     {
-        const auto componentType{io::unserializeReferenceAs<core::ComponentType>(it.key(), map)};
+        if (!jcomponent.isObject())
+            throw utils::ValueError("Failed to unserialize entity, component is not an object");
 
-        if (!it.value().isObject())
-            throw utils::ValueError("Failed to unserialize entity, component " + componentType->getName() +
-                " has missing or invalid value");
-
-        componentFromJson(obj->getComponent(componentType), it.value().toObject(), map);
+        componentFromJson(jcomponent.toObject(), obj, map);
     }
 
     return obj;
 }
 
-static void componentFromJson(core::Component* component, const QJsonObject& jcomponent, core::Map* map)
+static void componentFromJson(const QJsonObject& jcomponent, core::Entity* entity, core::Map* map)
 {
+    const QString componentTypeName{jcomponent["type"].toString()};
+    if (componentTypeName.isNull() || componentTypeName.isEmpty())
+        throw utils::ValueError("Failed to unserialize component, invalid or missing type");
+
+    const auto componentType{io::unserializeReferenceAs<core::ComponentType>(componentTypeName, map)};
+    auto component{entity->createComponent(componentType)};
+
+    if (!jcomponent["fields"].isObject())
+        throw utils::ValueError("Failed to unserialize component, fields is invalid or missing");
+
+    const auto jfields{jcomponent["fields"].toObject()};
+
     const auto& fields{component->getType()->getFields()};
     for (const auto field : fields)
     {
-        const auto jvalue = jcomponent[field->getName()];
+        const auto jvalue = jfields[field->getName()];
 
         if (jvalue.isUndefined())
-            throw utils::ValueError("Failed to unserialize component, it has missing field");
+            throw utils::ValueError("Failed to unserialize component, field " + field->getName() + " is missing");
 
         component->setField(field->getName(), fieldFromJson(field->getType(), jvalue, map));
     }
@@ -276,8 +278,7 @@ static QVariant fieldFromJson(const core::FieldType* const fieldType, const QJso
             if (!jvalue.isObject())
                 throw utils::ValueError("Failed to unserialize dictionary field, value is not an object");
 
-            const core::FieldType* valueType =
-                static_cast<const core::FieldTypes::Map*>(fieldType)->getValueType();
+            const core::FieldType* valueType = static_cast<const core::FieldTypes::Map*>(fieldType)->getValueType();
             QVariantMap mapVal;
 
             auto jobj = jvalue.toObject();

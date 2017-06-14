@@ -366,24 +366,24 @@ TEST_CASE("Entity can be unserialized from JSON", "[MapJsonUnserializer][JSON][U
         const auto entity{unserializer.unserializeEntity(jdoc.toJson(), map)};
 
         REQUIRE(entity->getId() == jobj["id"].toInt());
-        REQUIRE(entity->getType() == io::unserializeReference(jobj["type"].toString(), map));
 
         const auto& components{entity->getComponents()};
-        const auto jcomponents{jobj["components"].toObject()};
+        const auto jcomponents = jobj["components"].toArray();
 
         REQUIRE(jcomponents.size() == components.size());
 
-        for (auto it = jcomponents.begin(); it != jcomponents.end(); ++it)
+        for (const auto jcomponentValue : jcomponents)
         {
-            const auto componentType{io::unserializeReferenceAs<core::ComponentType>(it.key(), map)};
-            const auto jcomponent{it->toObject()};
+            const auto jcomponent{jcomponentValue.toObject()};
+            const auto componentType{io::unserializeReferenceAs<core::ComponentType>(jcomponent["type"].toString(), map)};
+            const auto jfields{jcomponent["fields"].toObject()};
 
             REQUIRE(entity->getComponent(componentType));
 
             for (auto field : componentType->getFields())
             {
                 const auto fieldName{field->getName()};
-                const auto val{jcomponent[fieldName]};
+                const auto val{jfields[fieldName]};
                 const auto fieldType{field->getType()};
 
                 INFO("The field name is " << fieldName);
@@ -433,21 +433,6 @@ TEST_CASE("Entity can't be unserialized from JSON", "[MapJsonUnserializer][JSON]
         REQUIRE_THROWS_AS(unserializer.unserializeEntity(jdoc.toJson(), map), utils::ValueError);
     }
 
-    SECTION("Missing type")
-    {
-        jobj.remove("type");
-        QJsonDocument jdoc(jobj);
-
-        REQUIRE_THROWS_AS(unserializer.unserializeEntity(jdoc.toJson(), map), utils::ValueError);
-    }
-
-    SECTION("Invalid type")
-    {
-        jobj["type"] = 123;
-
-        REQUIRE_THROWS_AS(unserializer.unserializeEntity(QJsonDocument(jobj).toJson(), map), utils::ValueError);
-    }
-
     SECTION("Missing components")
     {
         jobj.remove("components");
@@ -463,14 +448,51 @@ TEST_CASE("Entity can't be unserialized from JSON", "[MapJsonUnserializer][JSON]
         REQUIRE_THROWS_AS(unserializer.unserializeEntity(QJsonDocument(jobj).toJson(), map), utils::ValueError);
     }
 
-    auto entityType0 = map->getWorld()->getEntityTypes()[0];
-    auto componentType1 = entityType0->getComponentTypes()[1];
-    auto jcomponents = jobj["components"].toObject();
-    auto jcomponent = jcomponents[io::serializeReference(componentType1)].toObject();
+    const auto& componentTypes = map->getWorld()->getComponentTypes();
+    auto componentType1 = componentTypes[componentTypes.size() - 1];
+    auto jcomponents = jobj["components"].toArray();
+    auto jcomponent = jcomponents[1].toObject();
+    auto jfields = jcomponent["fields"].toObject();
 
     SECTION("Invalid component")
     {
-        jcomponents[io::serializeReference(componentType1)] = 123;
+        jcomponents[0] = 123;
+        jobj["components"] = jcomponents;
+
+        REQUIRE_THROWS_AS(unserializer.unserializeEntity(QJsonDocument(jobj).toJson(), map), utils::ValueError);
+    }
+
+    SECTION("Missing type")
+    {
+        jcomponent.remove("type");
+        jcomponents[1] = jcomponent;
+        jobj["components"] = jcomponents;
+
+        REQUIRE_THROWS_AS(unserializer.unserializeEntity(QJsonDocument(jobj).toJson(), map), utils::ValueError);
+    }
+
+    SECTION("Invalid type")
+    {
+        jcomponent["type"] = 123;
+        jcomponents[1] = jcomponent;
+        jobj["components"] = jcomponents;
+
+        REQUIRE_THROWS_AS(unserializer.unserializeEntity(QJsonDocument(jobj).toJson(), map), utils::ValueError);
+    }
+
+    SECTION("Missing fields")
+    {
+        jcomponent.remove("fields");
+        jcomponents[1] = jcomponent;
+        jobj["components"] = jcomponents;
+
+        REQUIRE_THROWS_AS(unserializer.unserializeEntity(QJsonDocument(jobj).toJson(), map), utils::ValueError);
+    }
+
+    SECTION("Invalid fields")
+    {
+        jcomponent["fields"] = 123;
+        jcomponents[1] = jcomponent;
         jobj["components"] = jcomponents;
 
         REQUIRE_THROWS_AS(unserializer.unserializeEntity(QJsonDocument(jobj).toJson(), map), utils::ValueError);
@@ -478,8 +500,9 @@ TEST_CASE("Entity can't be unserialized from JSON", "[MapJsonUnserializer][JSON]
 
     SECTION("A field is missing")
     {
-        jcomponent.remove("intField");
-        jcomponents[io::serializeReference(componentType1)] = jcomponent;
+        jfields.remove("intField");
+        jcomponent["fields"] = jfields;
+        jcomponents[1] = jcomponent;
         jobj["components"] = jcomponents;
 
         REQUIRE_THROWS_AS(unserializer.unserializeEntity(QJsonDocument(jobj).toJson(), map), utils::ValueError);
@@ -487,8 +510,9 @@ TEST_CASE("Entity can't be unserialized from JSON", "[MapJsonUnserializer][JSON]
 
     SECTION("Integer field is invalid")
     {
-        jcomponent["intField"] = "123";
-        jcomponents[io::serializeReference(componentType1)] = jcomponent;
+        jfields["intField"] = "123";
+        jcomponent["fields"] = jfields;
+        jcomponents[1] = jcomponent;
         jobj["components"] = jcomponents;
 
         REQUIRE_THROWS_AS(unserializer.unserializeEntity(QJsonDocument(jobj).toJson(), map), utils::ValueError);
@@ -496,8 +520,9 @@ TEST_CASE("Entity can't be unserialized from JSON", "[MapJsonUnserializer][JSON]
 
     SECTION("Integer field is real")
     {
-        jcomponent["intField"] = 123.23;
-        jcomponents[io::serializeReference(componentType1)] = jcomponent;
+        jfields["intField"] = 123.23;
+        jcomponent["fields"] = jfields;
+        jcomponents[1] = jcomponent;
         jobj["components"] = jcomponents;
 
         REQUIRE_THROWS_AS(unserializer.unserializeEntity(QJsonDocument(jobj).toJson(), map), utils::ValueError);
@@ -505,8 +530,9 @@ TEST_CASE("Entity can't be unserialized from JSON", "[MapJsonUnserializer][JSON]
 
     SECTION("Real field is invalid")
     {
-        jcomponent["realField"] = QJsonArray();
-        jcomponents[io::serializeReference(componentType1)] = jcomponent;
+        jfields["realField"] = QJsonArray();
+        jcomponent["fields"] = jfields;
+        jcomponents[1] = jcomponent;
         jobj["components"] = jcomponents;
 
         REQUIRE_THROWS_AS(unserializer.unserializeEntity(QJsonDocument(jobj).toJson(), map), utils::ValueError);
@@ -514,8 +540,9 @@ TEST_CASE("Entity can't be unserialized from JSON", "[MapJsonUnserializer][JSON]
 
     SECTION("String field is invalid")
     {
-        jcomponent["strField"] = 123;
-        jcomponents[io::serializeReference(componentType1)] = jcomponent;
+        jfields["strField"] = 123;
+        jcomponent["fields"] = jfields;
+        jcomponents[1] = jcomponent;
         jobj["components"] = jcomponents;
 
         REQUIRE_THROWS_AS(unserializer.unserializeEntity(QJsonDocument(jobj).toJson(), map), utils::ValueError);
@@ -523,8 +550,9 @@ TEST_CASE("Entity can't be unserialized from JSON", "[MapJsonUnserializer][JSON]
 
     SECTION("Reference field is invalid")
     {
-        jcomponent["refField"] = 123;
-        jcomponents[io::serializeReference(componentType1)] = jcomponent;
+        jfields["refField"] = 123;
+        jcomponent["fields"] = jfields;
+        jcomponents[1] = jcomponent;
         jobj["components"] = jcomponents;
 
         REQUIRE_THROWS_AS(unserializer.unserializeEntity(QJsonDocument(jobj).toJson(), map), utils::ValueError);
@@ -532,8 +560,9 @@ TEST_CASE("Entity can't be unserialized from JSON", "[MapJsonUnserializer][JSON]
 
     SECTION("List field is invalid")
     {
-        jcomponent["intsListField"] = 123;
-        jcomponents[io::serializeReference(componentType1)] = jcomponent;
+        jfields["intsListField"] = 123;
+        jcomponent["fields"] = jfields;
+        jcomponents[1] = jcomponent;
         jobj["components"] = jcomponents;
 
         REQUIRE_THROWS_AS(unserializer.unserializeEntity(QJsonDocument(jobj).toJson(), map), utils::ValueError);
@@ -541,8 +570,9 @@ TEST_CASE("Entity can't be unserialized from JSON", "[MapJsonUnserializer][JSON]
 
     SECTION("Map field is invalid")
     {
-        jcomponent["realMapField"] = 123;
-        jcomponents[io::serializeReference(componentType1)] = jcomponent;
+        jfields["realMapField"] = 123;
+        jcomponent["fields"] = jfields;
+        jcomponents[1] = jcomponent;
         jobj["components"] = jcomponents;
 
         REQUIRE_THROWS_AS(unserializer.unserializeEntity(QJsonDocument(jobj).toJson(), map), utils::ValueError);

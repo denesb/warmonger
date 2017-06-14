@@ -21,7 +21,6 @@
 #include <QJsonObject>
 #include <QMetaEnum>
 
-#include "core/EntityType.h"
 #include "core/World.h"
 #include "core/WorldComponentType.h"
 #include "io/JsonUtils.h"
@@ -34,7 +33,6 @@ namespace io {
 static core::Banner* bannerFromJson(const QJsonObject& jobj, core::World* world);
 static core::Civilization* civilizationFromJson(const QJsonObject& jobj, core::World* world);
 static core::ComponentType* componentTypeFromJson(const QJsonObject& jobj, core::World* world);
-static core::EntityType* entityTypeFromJson(const QJsonObject& jobj, core::World* world);
 static std::unique_ptr<core::FieldType> unserializeFieldType(const QJsonValue& jval);
 static std::unique_ptr<core::FieldType> unserializeSimpleFieldType(const QJsonValue& jval);
 static std::unique_ptr<core::FieldType> unserializeComplexFieldType(const QJsonValue& jval);
@@ -55,12 +53,6 @@ core::ComponentType* WorldJsonUnserializer::unserializeComponentType(const QByte
 {
     QJsonDocument jdoc(parseJson(data));
     return componentTypeFromJson(jdoc.object(), world);
-}
-
-core::EntityType* WorldJsonUnserializer::unserializeEntityType(const QByteArray& data, core::World* world) const
-{
-    QJsonDocument jdoc(parseJson(data));
-    return entityTypeFromJson(jdoc.object(), world);
 }
 
 std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByteArray& data) const
@@ -141,14 +133,6 @@ std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByte
 
     std::for_each(componentTypes.begin(), componentTypes.end(), [&obj](const auto& val) {
         componentTypeFromJson(val.toObject(), obj.get());
-    });
-
-    const QJsonArray entityTypes = jobj["entityTypes"].toArray();
-    if (entityTypes.isEmpty())
-        throw utils::ValueError("Failed to unserialize world, missing, invalid or empty entity-types");
-
-    std::for_each(entityTypes.begin(), entityTypes.end(), [&obj](const auto& val) {
-        entityTypeFromJson(val.toObject(), obj.get());
     });
 
     return obj;
@@ -248,55 +232,6 @@ static core::ComponentType* componentTypeFromJson(const QJsonObject& jobj, core:
     }
 
     return componentType;
-}
-
-static core::EntityType* entityTypeFromJson(const QJsonObject& jobj, core::World* world)
-{
-    const int id = jobj["id"].toInt(core::WObject::invalidId);
-
-    if (id == core::WObject::invalidId)
-        throw utils::ValueError("Failed to unserialize entity-type, it has missing or invalid id");
-
-    const QString& name{jobj["name"].toString()};
-
-    if (name.isNull() || name.isEmpty())
-    {
-        throw utils::ValueError("Failed to unserialize entity-type, it doesn't have a name property");
-    }
-
-    auto entityType = world->createEntityType(id);
-    entityType->setName(name);
-
-    const QJsonArray jcomponentTypeRefs(jobj["componentTypes"].toArray());
-
-    if (jcomponentTypeRefs.isEmpty())
-    {
-        throw utils::ValueError("Failed to unserialize entity-type " + name + ", it doesn't have any component-types");
-    }
-
-    for (const auto& jcomponentTypeRef : jcomponentTypeRefs)
-    {
-        const QString ref{jcomponentTypeRef.toString()};
-
-        if (ref.isEmpty())
-        {
-            throw utils::ValueError("Failed to unserialize entity-type " + ref + ", it has an empty component-type");
-        }
-
-        auto componentType = unserializeReferenceAs<core::ComponentType>(ref, world);
-
-        if (componentType)
-        {
-            entityType->addComponentType(componentType);
-        }
-        else
-        {
-            throw utils::ValueError(
-                "Failed to unserialize entity-type " + name + ", it has a non-existent component-type " + ref);
-        }
-    }
-
-    return entityType;
 }
 
 static std::unique_ptr<core::FieldType> unserializeFieldType(const QJsonValue& jval)

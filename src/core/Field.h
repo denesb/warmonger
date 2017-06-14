@@ -264,6 +264,45 @@ private:
 
 } // namspace FieldTypes
 
+class WObject;
+
+/*
+class FieldValue
+{
+public:
+
+    Field::TypeId getTypeId() const
+    {
+        return this->typeId;
+    }
+
+    std::experimental::optional<int&> getAsInteger();
+    std::experimental::optional<double&> getAsReal();
+    std::experimental::optional<QString&> getAsString();
+    std::experimental::optional<WObject*&> getAsReference();
+    std::experimental::optional<std::vector<FieldValue>&> getAsList();
+    std::experimental::optional<std::map<QString, FieldValue>&> getAsMap();
+
+    void setAsInteger(int integer);
+    void setAsReal(double real);
+    void setAsString(const QString& string);
+    void setAsReference(WObject* reference);
+    void setAsList(const std::vector<FieldValue>& list);
+    void setAsMap(const std::map<QString, FieldValue>& map);
+private:
+    union
+    {
+        int integer;
+        double real;
+        QString string;
+        WObject* reference;
+        std::vector<FieldValue> list;
+        std::map<QString, FieldValue> map;
+    } value;
+    Field::TypeId typeId;
+};
+*/
+
 } // namespace core
 } // namespace warmonger
 

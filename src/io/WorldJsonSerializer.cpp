@@ -32,7 +32,6 @@ static QJsonObject civilizationToJson(const core::Civilization* const obj);
 static QJsonObject componentTypeToJson(const core::ComponentType* const obj);
 static QJsonObject fieldToJson(const core::Field* const obj);
 static QJsonValue fieldTypeToJson(const core::FieldType* const obj);
-static QJsonObject entityTypeToJson(const core::EntityType* const obj);
 
 WorldJsonSerializer::WorldJsonSerializer(QJsonDocument::JsonFormat format)
     : format(format)
@@ -54,12 +53,6 @@ QByteArray WorldJsonSerializer::serializeCivilization(const core::Civilization* 
 QByteArray WorldJsonSerializer::serializeComponentType(const core::ComponentType* const obj) const
 {
     QJsonDocument jdoc(componentTypeToJson(obj));
-    return jdoc.toJson(this->format);
-}
-
-QByteArray WorldJsonSerializer::serializeEntityType(const core::EntityType* const obj) const
-{
-    QJsonDocument jdoc(entityTypeToJson(obj));
     return jdoc.toJson(this->format);
 }
 
@@ -91,8 +84,6 @@ QByteArray WorldJsonSerializer::serializeWorld(const core::World* const obj) con
         });
 
     jobj["componentTypes"] = toQJsonArray(worldComponentTypes, componentTypeToJson);
-
-    jobj["entityTypes"] = toQJsonArray(obj->getEntityTypes(), entityTypeToJson);
 
     return QJsonDocument(jobj).toJson(this->format);
 }
@@ -186,17 +177,6 @@ static QJsonValue fieldTypeToJson(const core::FieldType* const obj)
     }
 
     return jval;
-}
-
-static QJsonObject entityTypeToJson(const core::EntityType* const obj)
-{
-    QJsonObject jobj;
-
-    jobj["id"] = obj->getId();
-    jobj["name"] = obj->getName();
-    jobj["componentTypes"] = toQJsonArray(obj->getComponentTypes(), io::serializeReference);
-
-    return jobj;
 }
 
 } // namespace warmonger

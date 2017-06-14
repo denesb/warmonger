@@ -29,7 +29,6 @@ namespace core {
 class Banner;
 class Civilization;
 class ComponentType;
-class EntityType;
 class World;
 }
 
@@ -69,15 +68,6 @@ public:
      * \return the raw serialized data
      */
     virtual QByteArray serializeComponentType(const core::ComponentType* const obj) const = 0;
-
-    /**
-     * Serialize an entity-type.
-     *
-     * \param obj the entity-type
-     *
-     * \return the raw serialized data
-     */
-    virtual QByteArray serializeEntityType(const core::EntityType* const obj) const = 0;
 
     /**
      * Serialize an world.

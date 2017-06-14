@@ -90,7 +90,6 @@ set(
     src/core/Component.cpp
     src/core/ComponentType.cpp
     src/core/Entity.cpp
-    src/core/EntityType.cpp
     src/core/Faction.cpp
     src/core/Field.cpp
     src/core/Hexagon.cpp

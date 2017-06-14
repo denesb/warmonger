@@ -24,8 +24,6 @@
 #include <memory>
 
 #include "core/Component.h"
-#include "core/EntityType.h"
-#include "core/WObject.h"
 
 namespace warmonger {
 namespace core {
@@ -38,6 +36,8 @@ namespace core {
  *
  * Entities have a set of components, defined by their entity-types. The
  * components of an entity defines how it interacts with the systems.
+ * An entity can have only one component of a given type so retrieving them
+ * is possible by type or name.
  *
  * \see warmonger::core::Component
  * \see warmonger::core::ComponentType
@@ -60,32 +60,8 @@ public:
     Entity(QObject* parent, int id = WObject::invalidId);
 
     /**
-     * Get the type
-     *
-     * \returns the entity-type
-     */
-    EntityType* getType() const
-    {
-        return this->type;
-    }
-
-    /**
-     * Set the type.
-     *
-     * If the type is changed all current components are discarded and new ones
-     * are created according to the new type.
-     * Will emit the signal Entity::typeChanged() if the newly set value
-     * is different than the current one.
-     *
-     * \param type the type
-     */
-    void setType(EntityType* type);
-
-    /**
      * Get the component with the given type
      *
-     * An entity can have only one component of a given type so retrieving them
-     * is possible by type.
      * Changing the component will trigger the Entity::componentChanged()
      * signal.
      *
@@ -98,8 +74,6 @@ public:
     /**
      * Get the component with the given type by it's name
      *
-     * An entity can have only one component of a given type so retrieving them
-     * is possible by type.
      * Changing the component will trigger the Entity::componentChanged()
      * signal.
      *
@@ -108,6 +82,46 @@ public:
      * \return the component or nullptr if entity doesn't have componentType
      */
     Component* getComponent(const QString& componentTypeName);
+
+    /**
+     * Create a new component with the given type.
+     *
+     * The Entity takes ownership of the created component. If the Entity
+     * already has a component with the given type it's replaced with the
+     * new component.
+     * Will emit Entity::componentsChanged().
+     *
+     * \param componentType the type of the component
+     *
+     * \returns the newly created component
+     */
+    Component* createComponent(ComponentType* const componentType);
+
+    /**
+     * Remove the component with the given type.
+     *
+     * If the Entity doesn't have a component with the given type nothing is
+     * done. Either way tha result of this method is that the Entity won't have
+     * and entity with the given type.
+     *
+     * \param componentType the type of the component
+     *
+     * \returns the removed component or nullptr if no component was removed
+     */
+    std::unique_ptr<Component> removeComponent(const ComponentType* const componentType);
+
+    /**
+     * Remove the component with the given type by it's name.
+     *
+     * If the Entity doesn't have a component with the given type nothing is
+     * done. Either way tha result of this method is that the Entity won't have
+     * and entity with the given type.
+     *
+     * \param componentType the type of the component
+     *
+     * \returns the removed component or nullptr if no component was removed
+     */
+    std::unique_ptr<Component> removeComponent(const QString& componentTypeName);
 
     /**
      * Get the components.
@@ -121,17 +135,11 @@ public:
 
 signals:
     /**
-     * Emitted when the type changes.
-     */
-    void typeChanged();
-
-    /**
      * Emitted when one of the components change.
      */
     void componentChanged();
 
 private:
-    EntityType* type;
     std::vector<Component*> components;
 };
 

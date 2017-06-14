@@ -94,27 +94,6 @@ TEST_CASE("ComponentType can be serialized to JSON", "[WorldJsonSerializer][JSON
     REQUIRE(jobj == jcomponentType);
 }
 
-TEST_CASE("EntityType can be serialized to JSON", "[WorldJsonSerializer][JSON][Serialize][HappyPath]")
-{
-    auto worlds = makeWorld();
-    const QJsonObject jworld = worlds.second;
-    auto world = worlds.first.get();
-
-    const io::WorldJsonSerializer serializer;
-
-    auto entityType = world->getEntityTypes()[1];
-    const auto jentityType = jworld["entityTypes"].toArray()[1].toObject();
-
-    QByteArray json(serializer.serializeEntityType(entityType));
-    const QJsonDocument jdoc(QJsonDocument::fromJson(json));
-    const QJsonObject jobj(jdoc.object());
-
-    INFO("The actual entity-type json is : " << jdoc.toJson().data());
-    INFO("The expected entity-type json is : " << QJsonDocument(jentityType).toJson().data());
-
-    REQUIRE(jobj == jentityType);
-}
-
 TEST_CASE("World can be serialized to JSON", "[WorldJsonSerializer][JSON][Serialize][HappyPath]")
 {
     auto worlds = makeWorld();

@@ -137,24 +137,6 @@ WorldComponentType* World::createWorldComponentType(int id)
     return componentType;
 }
 
-EntityType* World::createEntityType(int id)
-{
-    auto entityType = new EntityType(this, id);
-
-    this->entityTypes.push_back(entityType);
-
-    wDebug << "Created entityType " << entityType << " in world " << this;
-
-    emit entityTypesChanged();
-
-    return entityType;
-}
-
-QVariantList World::readEntityTypes() const
-{
-    return utils::toQVariantList(this->entityTypes);
-}
-
 void World::setRulesEntryPoint(const QString& rulesEntryPoint)
 {
     if (this->rulesEntryPoint != rulesEntryPoint)

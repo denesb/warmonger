@@ -30,6 +30,8 @@ class state;
 namespace warmonger {
 namespace core {
 
+class Map;
+
 /**
  * World-rules implementation for rules written in Lua.
  */
@@ -60,7 +62,7 @@ private:
     World* world;
     std::unique_ptr<sol::state> state; // to avoid exposing the massive sol.hpp
     std::function<void(World*)> initHook;
-    std::function<void(int)> generateMapHook;
+    std::function<void(Map*, int)> generateMapHook;
 };
 
 } // namespace core

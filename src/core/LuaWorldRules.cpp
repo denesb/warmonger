@@ -27,13 +27,19 @@
 namespace sol {
 
 template <>
-struct lua_type_of<QString> : std::integral_constant<sol::type, sol::type::string> {};
+struct lua_type_of<QString> : std::integral_constant<sol::type, sol::type::string>
+{
+};
 
 template <>
-struct lua_type_of<QColor> : std::integral_constant<sol::type, sol::type::string> {};
+struct lua_type_of<QColor> : std::integral_constant<sol::type, sol::type::string>
+{
+};
 
 template <>
-struct is_container<::warmonger::core::MapNodeNeighbours> : std::false_type {};
+struct is_container<::warmonger::core::MapNodeNeighbours> : std::false_type
+{
+};
 
 namespace stack {
 
@@ -91,20 +97,8 @@ namespace warmonger {
 namespace core {
 
 static void exposeAPI(sol::state& lua, core::World* world);
-
+static void exposeComponentTypes(sol::state& lua, const std::vector<ComponentType*>& componentTypes);
 static void wLuaLog(sol::this_state ts, utils::LogLevel logLevel, const std::string& msg);
-static void inline wLuaTrace(sol::this_state ts, const std::string& msg);
-static void inline wLuaDebug(sol::this_state ts, const std::string& msg);
-static void inline wLuaInfo(sol::this_state ts, const std::string& msg);
-static void inline wLuaWarning(sol::this_state ts, const std::string& msg);
-static void inline wLuaError(sol::this_state ts, const std::string& msg);
-
-static MapNode* getWestNeighbour(const MapNodeNeighbours& neighbours);
-static MapNode* getNorthWestNeighbour(const MapNodeNeighbours& neighbours);
-static MapNode* getNorthEastNeighbour(const MapNodeNeighbours& neighbours);
-static MapNode* getEastNeighbour(const MapNodeNeighbours& neighbours);
-static MapNode* getSouthEastNeighbour(const MapNodeNeighbours& neighbours);
-static MapNode* getSouthWestNeighbour(const MapNodeNeighbours& neighbours);
 
 LuaWorldRules::LuaWorldRules(const QString& basePath, core::World* world)
     : world(world)
@@ -117,6 +111,8 @@ LuaWorldRules::LuaWorldRules(const QString& basePath, core::World* world)
     const auto entryPoint = utils::makePath(basePath, this->world->getRulesEntryPoint()).toStdString();
 
     wInfo << "Loading lua world rules from entry point " << entryPoint;
+
+    lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::table, sol::lib::math);
 
     lua.script_file(entryPoint);
 
@@ -133,16 +129,23 @@ std::unique_ptr<core::Map> LuaWorldRules::generateMap(unsigned int size)
     map->setWorld(world);
     map->generateMapNodes(size);
 
+    this->generateMapHook(map.get(), size);
+
     return map;
 }
 
-static void exposeAPI(sol::state& lua, core::World*)
+static void exposeAPI(sol::state& lua, core::World* world)
 {
-    lua.set_function("w_trace", wLuaTrace);
-    lua.set_function("w_debug", wLuaDebug);
-    lua.set_function("w_info", wLuaInfo);
-    lua.set_function("w_warning", wLuaWarning);
-    lua.set_function("w_error", wLuaError);
+    lua.set_function(
+        "w_trace", [](sol::this_state ts, const std::string& msg) { wLuaLog(ts, utils::LogLevel::Trace, msg); });
+    lua.set_function(
+        "w_debug", [](sol::this_state ts, const std::string& msg) { wLuaLog(ts, utils::LogLevel::Debug, msg); });
+    lua.set_function(
+        "w_info", [](sol::this_state ts, const std::string& msg) { wLuaLog(ts, utils::LogLevel::Info, msg); });
+    lua.set_function(
+        "w_warning", [](sol::this_state ts, const std::string& msg) { wLuaLog(ts, utils::LogLevel::Warning, msg); });
+    lua.set_function(
+        "w_error", [](sol::this_state ts, const std::string& msg) { wLuaLog(ts, utils::LogLevel::Error, msg); });
 
     lua.new_usertype<Civilization>("civilization",
         sol::meta_function::construct,
@@ -184,17 +187,17 @@ static void exposeAPI(sol::state& lua, core::World*)
         sol::meta_function::construct,
         sol::no_constructor,
         "west",
-        sol::property(getWestNeighbour),
+        sol::property([](const MapNodeNeighbours& neighbours) { return neighbours.at(Direction::West); }),
         "north_west",
-        sol::property(getNorthWestNeighbour),
+        sol::property([](const MapNodeNeighbours& neighbours) { return neighbours.at(Direction::NorthWest); }),
         "north_east",
-        sol::property(getNorthEastNeighbour),
+        sol::property([](const MapNodeNeighbours& neighbours) { return neighbours.at(Direction::NorthEast); }),
         "east",
-        sol::property(getEastNeighbour),
+        sol::property([](const MapNodeNeighbours& neighbours) { return neighbours.at(Direction::East); }),
         "south_east",
-        sol::property(getSouthEastNeighbour),
+        sol::property([](const MapNodeNeighbours& neighbours) { return neighbours.at(Direction::SouthEast); }),
         "south_west",
-        sol::property(getSouthWestNeighbour));
+        sol::property([](const MapNodeNeighbours& neighbours) { return neighbours.at(Direction::SouthWest); }));
 
     lua.new_usertype<MapNode>("map_node",
         sol::meta_function::construct,
@@ -216,34 +219,78 @@ static void exposeAPI(sol::state& lua, core::World*)
         "civilization",
         sol::property(&Faction::getCivilization));
 
-    Component* (Entity::*getComponentByType)(const ComponentType* const);
-    Component* (Entity::*getComponentByName)(const QString&);
-    std::unique_ptr<Component> (Entity::*removeComponentByType)(const ComponentType* const);
-    std::unique_ptr<Component> (Entity::*removeComponentByName)(const QString&);
+    exposeComponentTypes(lua, world->getComponentTypes());
 
-    lua.new_usertype<Entity>("entity",
+    lua.new_usertype<Entity>(
+        "entity",
         sol::meta_function::construct,
         sol::no_constructor,
         "components",
         sol::property(&Entity::getComponents),
         "get_component",
-        sol::overload(getComponentByType, getComponentByName),
+        sol::overload([](Entity*, const ComponentType* const) { return sol::object(sol::nil); },
+            [](Entity*, const QString&) { return sol::object(sol::nil); }),
         "create_component",
         &Entity::createComponent,
         "remove_component",
-        sol::overload(removeComponentByType, removeComponentByName));
+        sol::overload([](Entity* entity, const ComponentType* const type) { return entity->removeComponent(type); },
+            [](Entity* entity, const QString& typeName) { return entity->removeComponent(typeName); }));
 
     lua.new_usertype<Map>("map",
         sol::meta_function::construct,
         sol::no_constructor,
         "name",
         sol::property(&Map::getName),
+        "world",
+        sol::property(&Map::getWorld),
         "map_nodes",
         sol::property(&Map::getMapNodes),
         "factions",
         sol::property(&Map::getFactions),
         "entities",
-        sol::property(&Map::getEntities));
+        sol::property(&Map::getEntities),
+        "create_entity",
+        [](Map* const map) { return map->createEntity(); });
+}
+
+static void exposeComponentTypes(sol::state& lua, const std::vector<ComponentType*>& componentTypes)
+{
+    for (const auto componentType : componentTypes)
+    {
+        wDebug << "Exposing component-type " << componentType->getName();
+        auto& lcomponentType = lua.new_usertype<Component>(componentType->getName().toStdString());
+
+        for (const auto field : componentType->getFields())
+        {
+            switch (field->getType()->id())
+            {
+                case Field::TypeId::Integer:
+                    lcomponentType[field->getName().toStdString()] =
+                        sol::property([](const Component* const component,
+                                          const QString& name) { return component->getField(name).toInt(); },
+                            [](Component* const component, const QString& name, int value) {
+                                component->setField(name, value);
+                            });
+                    break;
+                case Field::TypeId::Real:
+                    // lcomponentType[field->getName().toStdString()] = sol::property(getRealFieldValue, setRealValue)
+                    break;
+                case Field::TypeId::String:
+                    // lcomponentType[field->getName().toStdString()] = sol::property(getStringFieldValue,
+                    // setStringValue)
+                    break;
+                case Field::TypeId::Reference:
+                    // TODO: reference
+                    break;
+                case Field::TypeId::List:
+                    // TODO: list
+                    break;
+                case Field::TypeId::Map:
+                    // TODO: map
+                    break;
+            }
+        }
+    }
 }
 
 static void wLuaLog(sol::this_state ts, utils::LogLevel logLevel, const std::string& msg)
@@ -272,61 +319,6 @@ static void wLuaLog(sol::this_state ts, utils::LogLevel logLevel, const std::str
     {
         utils::LogEntry(logLevel, info.short_src, info.name, info.currentline) << msg;
     }
-}
-
-static void inline wLuaTrace(sol::this_state ts, const std::string& msg)
-{
-    wLuaLog(ts, utils::LogLevel::Trace, msg);
-}
-
-static void inline wLuaDebug(sol::this_state ts, const std::string& msg)
-{
-    wLuaLog(ts, utils::LogLevel::Debug, msg);
-}
-
-static void inline wLuaInfo(sol::this_state ts, const std::string& msg)
-{
-    wLuaLog(ts, utils::LogLevel::Info, msg);
-}
-
-static void inline wLuaWarning(sol::this_state ts, const std::string& msg)
-{
-    wLuaLog(ts, utils::LogLevel::Warning, msg);
-}
-
-static void inline wLuaError(sol::this_state ts, const std::string& msg)
-{
-    wLuaLog(ts, utils::LogLevel::Error, msg);
-}
-
-static MapNode* getWestNeighbour(const MapNodeNeighbours& neighbours)
-{
-    return neighbours.at(Direction::West);
-}
-
-static MapNode* getNorthWestNeighbour(const MapNodeNeighbours& neighbours)
-{
-    return neighbours.at(Direction::NorthWest);
-}
-
-static MapNode* getNorthEastNeighbour(const MapNodeNeighbours& neighbours)
-{
-    return neighbours.at(Direction::NorthEast);
-}
-
-static MapNode* getEastNeighbour(const MapNodeNeighbours& neighbours)
-{
-    return neighbours.at(Direction::East);
-}
-
-static MapNode* getSouthEastNeighbour(const MapNodeNeighbours& neighbours)
-{
-    return neighbours.at(Direction::SouthEast);
-}
-
-static MapNode* getSouthWestNeighbour(const MapNodeNeighbours& neighbours)
-{
-    return neighbours.at(Direction::SouthWest);
 }
 
 } // namespace core

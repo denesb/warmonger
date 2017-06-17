@@ -375,7 +375,8 @@ TEST_CASE("Entity can be unserialized from JSON", "[MapJsonUnserializer][JSON][U
         for (const auto jcomponentValue : jcomponents)
         {
             const auto jcomponent{jcomponentValue.toObject()};
-            const auto componentType{io::unserializeReferenceAs<core::ComponentType>(jcomponent["type"].toString(), map)};
+            const auto componentType{
+                io::unserializeReferenceAs<core::ComponentType>(jcomponent["type"].toString(), map)};
             const auto jfields{jcomponent["fields"].toObject()};
 
             REQUIRE(entity->getComponent(componentType));

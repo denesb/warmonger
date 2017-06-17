@@ -65,6 +65,7 @@ Component* Entity::getComponent(const QString& componentTypeName)
 
 Component* Entity::createComponent(ComponentType* const componentType)
 {
+    wDebug << "Creating new component " << componentType->getName() << " in entity " << this;
     auto component{new Component(this)};
 
     component->setType(componentType);
@@ -79,6 +80,7 @@ Component* Entity::createComponent(ComponentType* const componentType)
     }
     else
     {
+        wDebug << "Overwriting previously existing component with new one";
         delete *it;
         *it = component;
     }

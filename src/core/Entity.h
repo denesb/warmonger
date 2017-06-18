@@ -34,14 +34,12 @@ namespace core {
  * For an overview of the Entity-Component-Systems design pattern (ECS) and how
  * warmonger implements it see \ref docs/ECS.md.
  *
- * Entities have a set of components, defined by their entity-types. The
- * components of an entity defines how it interacts with the systems.
- * An entity can have only one component of a given type so retrieving them
- * is possible by type or name.
+ * Entities have a set of components, The components of an entity defines how it
+ * interacts with the systems.  An entity can have only one component of a given
+ * type so retrieving them is possible by type or name.
  *
  * \see warmonger::core::Component
  * \see warmonger::core::ComponentType
- * \see warmonger::core::EntityType
  * \see warmonger::core::World
  */
 class Entity : public WObject

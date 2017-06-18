@@ -96,9 +96,10 @@ struct pusher<QColor>
 namespace warmonger {
 namespace core {
 
-static void exposeAPI(sol::state& lua, core::World* world);
-static void exposeComponentTypes(sol::state& lua, const std::vector<ComponentType*>& componentTypes);
+static void exposeAPI(sol::state& lua);
 static void wLuaLog(sol::this_state ts, utils::LogLevel logLevel, const std::string& msg);
+static sol::object getField(const Component* const component, sol::stack_object key, sol::this_state L);
+static void setField(Component* const component, sol::stack_object key, sol::stack_object value, sol::this_state L);
 
 LuaWorldRules::LuaWorldRules(const QString& basePath, core::World* world)
     : world(world)
@@ -106,7 +107,7 @@ LuaWorldRules::LuaWorldRules(const QString& basePath, core::World* world)
 {
     sol::state& lua = *this->state.get();
 
-    exposeAPI(lua, this->world);
+    exposeAPI(lua);
 
     const auto entryPoint = utils::makePath(basePath, this->world->getRulesEntryPoint()).toStdString();
 
@@ -134,7 +135,7 @@ std::unique_ptr<core::Map> LuaWorldRules::generateMap(unsigned int size)
     return map;
 }
 
-static void exposeAPI(sol::state& lua, core::World* world)
+static void exposeAPI(sol::state& lua)
 {
     lua.set_function(
         "w_trace", [](sol::this_state ts, const std::string& msg) { wLuaLog(ts, utils::LogLevel::Trace, msg); });
@@ -219,7 +220,17 @@ static void exposeAPI(sol::state& lua, core::World* world)
         "civilization",
         sol::property(&Faction::getCivilization));
 
-    exposeComponentTypes(lua, world->getComponentTypes());
+    lua.new_usertype<Component>(
+        "component",
+        sol::meta_function::construct,
+        sol::no_constructor,
+        "type",
+        sol::property(&Component::getType),
+        sol::meta_function::index,
+        getField,
+        sol::meta_function::new_index,
+        setField
+    );
 
     lua.new_usertype<Entity>(
         "entity",
@@ -253,46 +264,6 @@ static void exposeAPI(sol::state& lua, core::World* world)
         [](Map* const map) { return map->createEntity(); });
 }
 
-static void exposeComponentTypes(sol::state& lua, const std::vector<ComponentType*>& componentTypes)
-{
-    for (const auto componentType : componentTypes)
-    {
-        wDebug << "Exposing component-type " << componentType->getName();
-        auto& lcomponentType = lua.new_usertype<Component>(componentType->getName().toStdString());
-
-        for (const auto field : componentType->getFields())
-        {
-            switch (field->getType()->id())
-            {
-                case Field::TypeId::Integer:
-                    lcomponentType[field->getName().toStdString()] =
-                        sol::property([](const Component* const component,
-                                          const QString& name) { return component->getField(name).toInt(); },
-                            [](Component* const component, const QString& name, int value) {
-                                component->setField(name, value);
-                            });
-                    break;
-                case Field::TypeId::Real:
-                    // lcomponentType[field->getName().toStdString()] = sol::property(getRealFieldValue, setRealValue)
-                    break;
-                case Field::TypeId::String:
-                    // lcomponentType[field->getName().toStdString()] = sol::property(getStringFieldValue,
-                    // setStringValue)
-                    break;
-                case Field::TypeId::Reference:
-                    // TODO: reference
-                    break;
-                case Field::TypeId::List:
-                    // TODO: list
-                    break;
-                case Field::TypeId::Map:
-                    // TODO: map
-                    break;
-            }
-        }
-    }
-}
-
 static void wLuaLog(sol::this_state ts, utils::LogLevel logLevel, const std::string& msg)
 {
     lua_State* L = ts;
@@ -318,6 +289,80 @@ static void wLuaLog(sol::this_state ts, utils::LogLevel logLevel, const std::str
     else
     {
         utils::LogEntry(logLevel, info.short_src, info.name, info.currentline) << msg;
+    }
+}
+
+static sol::object getField(const Component* const component, sol::stack_object key, sol::this_state L)
+{
+    auto maybeFieldName = key.as<sol::optional<QString>>();
+    if (!maybeFieldName)
+    {
+        wWarning << "Attempt to index field with non-string key";
+        return sol::object(L, sol::in_place, sol::lua_nil);
+    }
+
+    const auto value{component->getField(*maybeFieldName)};
+
+    if (value.isNull())
+        return sol::object(L, sol::in_place, sol::lua_nil);
+
+    switch (value.type())
+    //switch (field->getType()->id())
+    {
+        //case Field::TypeId::Integer:
+        case QVariant::Int:
+            return sol::object(L, sol::in_place, value.toInt());
+        //case Field::TypeId::Real:
+        case QVariant::Double:
+            return sol::object(L, sol::in_place, value.toDouble());
+        //case Field::TypeId::String:
+        case QVariant::String:
+            return sol::object(L, sol::in_place, value.toString());
+            /*
+        case Field::TypeId::Reference:
+            // TODO: reference
+            wWarning << "Reference field is not supported yet";
+            return sol::object(L, sol::in_place, sol::lua_nil);
+        case Field::TypeId::List:
+            // TODO: list
+            wWarning << "List field is not supported yet";
+            return sol::object(L, sol::in_place, sol::lua_nil);
+        case Field::TypeId::Map:
+            // TODO: map
+            wWarning << "Map field is not supported yet";
+            return sol::object(L, sol::in_place, sol::lua_nil);
+            */
+        default:
+            wWarning << "Field value type is not supported yet";
+            return sol::object(L, sol::in_place, sol::lua_nil);
+    }
+}
+
+static void setField(Component* const component, sol::stack_object key, sol::stack_object value, sol::this_state)
+{
+    auto maybeFieldName = key.as<sol::optional<QString>>();
+    if (!maybeFieldName)
+    {
+        wWarning << "Attempt to index field with non-string key";
+        return;
+    }
+
+    // TODO a more sofisticated type detection possibly using the Lua type enum
+    if (auto maybeInteger = value.as<sol::optional<int>>())
+    {
+        component->setField(*maybeFieldName, *maybeInteger);
+    }
+    else if (auto maybeReal = value.as<sol::optional<double>>())
+    {
+        component->setField(*maybeFieldName, *maybeReal);
+    }
+    else if (auto maybeString = value.as<sol::optional<QString>>())
+    {
+        component->setField(*maybeFieldName, *maybeString);
+    }
+    else // TODO: reference, list, map
+    {
+        wWarning << "Attempt to set value of unsupported type to field `" << *maybeFieldName << "'";
     }
 }
 

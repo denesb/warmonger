@@ -220,8 +220,7 @@ static void exposeAPI(sol::state& lua)
         "civilization",
         sol::property(&Faction::getCivilization));
 
-    lua.new_usertype<Component>(
-        "component",
+    lua.new_usertype<Component>("component",
         sol::meta_function::construct,
         sol::no_constructor,
         "type",
@@ -229,8 +228,7 @@ static void exposeAPI(sol::state& lua)
         sol::meta_function::index,
         getField,
         sol::meta_function::new_index,
-        setField
-    );
+        setField);
 
     lua.new_usertype<Entity>(
         "entity",
@@ -307,31 +305,31 @@ static sol::object getField(const Component* const component, sol::stack_object 
         return sol::object(L, sol::in_place, sol::lua_nil);
 
     switch (value.type())
-    //switch (field->getType()->id())
+    // switch (field->getType()->id())
     {
-        //case Field::TypeId::Integer:
+        // case Field::TypeId::Integer:
         case QVariant::Int:
             return sol::object(L, sol::in_place, value.toInt());
-        //case Field::TypeId::Real:
+        // case Field::TypeId::Real:
         case QVariant::Double:
             return sol::object(L, sol::in_place, value.toDouble());
-        //case Field::TypeId::String:
+        // case Field::TypeId::String:
         case QVariant::String:
             return sol::object(L, sol::in_place, value.toString());
-            /*
-        case Field::TypeId::Reference:
-            // TODO: reference
-            wWarning << "Reference field is not supported yet";
-            return sol::object(L, sol::in_place, sol::lua_nil);
-        case Field::TypeId::List:
-            // TODO: list
-            wWarning << "List field is not supported yet";
-            return sol::object(L, sol::in_place, sol::lua_nil);
-        case Field::TypeId::Map:
-            // TODO: map
-            wWarning << "Map field is not supported yet";
-            return sol::object(L, sol::in_place, sol::lua_nil);
-            */
+        /*
+    case Field::TypeId::Reference:
+        // TODO: reference
+        wWarning << "Reference field is not supported yet";
+        return sol::object(L, sol::in_place, sol::lua_nil);
+    case Field::TypeId::List:
+        // TODO: list
+        wWarning << "List field is not supported yet";
+        return sol::object(L, sol::in_place, sol::lua_nil);
+    case Field::TypeId::Map:
+        // TODO: map
+        wWarning << "Map field is not supported yet";
+        return sol::object(L, sol::in_place, sol::lua_nil);
+        */
         default:
             wWarning << "Field value type is not supported yet";
             return sol::object(L, sol::in_place, sol::lua_nil);

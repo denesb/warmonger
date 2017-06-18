@@ -25,6 +25,8 @@
 namespace warmonger {
 namespace core {
 
+static Field* getFieldDefinition(const ComponentType* const type, const QString& name);
+
 Component::Component(QObject* parent, int id)
     : WObject(parent, id)
     , type(nullptr)
@@ -42,29 +44,48 @@ void Component::setType(ComponentType* type)
 
 QVariant Component::getField(const QString& name) const
 {
-    const auto it = this->fields.find(name);
-
-    if (it == this->fields.end())
+    const auto field{getFieldDefinition(this->type, name)};
+    if (!field)
     {
-        wWarning << "Requested non-existing field `" << name << "' from `" << type->getName() << "' component";
+        wWarning << "Attempt to get value of non-existing field `" << name << "' from `" << type->getName()
+                 << "' component";
         return QVariant();
     }
     else
     {
-        return it->second;
+        const auto it = this->fields.find(name);
+        return it == this->fields.end() ? QVariant() : it->second;
     }
 }
 
 void Component::setField(const QString& name, const QVariant& value)
 {
-    auto& currentValue = this->fields[name];
-
-    if (currentValue != value)
+    const auto field{getFieldDefinition(this->type, name)};
+    if (!field)
     {
-        currentValue = value;
-
-        emit fieldChanged();
+        wWarning << "Attempt to get value of non-existing field `" << name << "' from `" << type->getName()
+                 << "' component";
     }
+    else
+    {
+        // TODO: type validation
+        auto& currentValue = this->fields[name];
+
+        if (currentValue != value)
+        {
+            currentValue = value;
+
+            emit fieldChanged();
+        }
+    }
+}
+
+static Field* getFieldDefinition(const ComponentType* const type, const QString& name)
+{
+    const auto& fields = type->getFields();
+    const auto it =
+        std::find_if(fields.begin(), fields.end(), [&name](const auto& field) { return field->getName() == name; });
+    return it == fields.end() ? nullptr : *it;
 }
 
 } // namespace core

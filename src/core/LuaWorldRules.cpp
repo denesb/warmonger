@@ -192,8 +192,7 @@ static void exposeAPI(sol::state& lua)
         "component_types",
         sol::property(&World::getComponentTypes));
 
-    lua.new_usertype<MapNodeNeighbours>(
-        "map_node_neighbours",
+    lua.new_usertype<MapNodeNeighbours>("map_node_neighbours",
         sol::meta_function::construct,
         sol::no_constructor,
         "west",
@@ -253,8 +252,7 @@ static void exposeAPI(sol::state& lua)
         sol::meta_function::new_index,
         setField);
 
-    lua.new_usertype<Entity>(
-        "entity",
+    lua.new_usertype<Entity>("entity",
         sol::meta_function::construct,
         sol::no_constructor,
         "components",
@@ -332,23 +330,19 @@ static sol::object getField(const Component* const component, sol::stack_object 
         return sol::object(L, sol::in_place, sol::lua_nil);
     }
 
-    const auto value{component->getField(*maybeFieldName)};
+    const auto value{component->field(*maybeFieldName)};
 
-    if (value.isNull())
+    if (value->isNull())
         return sol::object(L, sol::in_place, sol::lua_nil);
 
-    switch (value.type())
-    // switch (field->getType()->id())
+    switch (value->getTypeId())
     {
-        // case Field::TypeId::Integer:
-        case QVariant::Int:
-            return sol::object(L, sol::in_place, value.toInt());
-        // case Field::TypeId::Real:
-        case QVariant::Double:
-            return sol::object(L, sol::in_place, value.toDouble());
-        // case Field::TypeId::String:
-        case QVariant::String:
-            return sol::object(L, sol::in_place, value.toString());
+        case Field::TypeId::Integer:
+            return sol::object(L, sol::in_place, value->asInteger());
+        case Field::TypeId::Real:
+            return sol::object(L, sol::in_place, value->asReal());
+        case Field::TypeId::String:
+            return sol::object(L, sol::in_place, value->asString());
         /*
     case Field::TypeId::Reference:
         // TODO: reference
@@ -381,15 +375,15 @@ static void setField(Component* const component, sol::stack_object key, sol::sta
     // TODO a more sofisticated type detection possibly using the Lua type enum
     if (auto maybeInteger = value.as<sol::optional<int>>())
     {
-        component->setField(*maybeFieldName, *maybeInteger);
+        component->field(*maybeFieldName)->set(*maybeInteger);
     }
     else if (auto maybeReal = value.as<sol::optional<double>>())
     {
-        component->setField(*maybeFieldName, *maybeReal);
+        component->field(*maybeFieldName)->set(*maybeReal);
     }
     else if (auto maybeString = value.as<sol::optional<QString>>())
     {
-        component->setField(*maybeFieldName, *maybeString);
+        component->field(*maybeFieldName)->set(*maybeString);
     }
     else // TODO: reference, list, map
     {

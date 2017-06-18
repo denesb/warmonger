@@ -35,7 +35,7 @@ namespace io {
 static core::Faction* factionFromJson(const QJsonObject& jobj, core::Map* map);
 static core::Entity* entityFromJson(const QJsonObject& jobj, core::Map* map);
 static void componentFromJson(const QJsonObject& jcomponent, core::Entity* entity, core::Map* map);
-static QVariant fieldFromJson(const core::FieldType* const fieldType, const QJsonValue& jvalue, core::Map* map);
+static core::FieldValue fieldFromJson(const core::FieldType* const fieldType, const QJsonValue& jvalue, core::Map* map);
 static std::tuple<core::MapNode*, std::map<core::Direction, QString>> mapNodeFromJson(
     const QJsonObject& jobj, core::Map* map);
 static void mapNodesFromJson(const QJsonArray& jarr, core::Map* map);
@@ -210,13 +210,13 @@ static void componentFromJson(const QJsonObject& jcomponent, core::Entity* entit
         if (jvalue.isUndefined())
             throw utils::ValueError("Failed to unserialize component, field " + field->getName() + " is missing");
 
-        component->setField(field->getName(), fieldFromJson(field->getType(), jvalue, map));
+        *component->field(field->getName()) = fieldFromJson(field->getType(), jvalue, map);
     }
 }
 
-static QVariant fieldFromJson(const core::FieldType* const fieldType, const QJsonValue& jvalue, core::Map* map)
+static core::FieldValue fieldFromJson(const core::FieldType* const fieldType, const QJsonValue& jvalue, core::Map* map)
 {
-    QVariant value;
+    core::FieldValue value;
 
     switch (fieldType->id())
     {
@@ -252,7 +252,7 @@ static QVariant fieldFromJson(const core::FieldType* const fieldType, const QJso
             if (!jvalue.isString())
                 throw utils::ValueError("Failed to unserialize reference field, value is not a string");
 
-            value.setValue(unserializeReference(jvalue.toString(), map));
+            value = unserializeReference(jvalue.toString(), map);
         }
         break;
 
@@ -262,14 +262,12 @@ static QVariant fieldFromJson(const core::FieldType* const fieldType, const QJso
                 throw utils::ValueError("Failed to unserialize list field, value is not an array");
 
             const core::FieldType* valueType = static_cast<const core::FieldTypes::List*>(fieldType)->getValueType();
-            QVariantList list;
+            auto& list = value.makeList();
 
             for (auto jelement : jvalue.toArray())
             {
-                list.push_back(fieldFromJson(valueType, jelement, map));
+                list.emplace_back(fieldFromJson(valueType, jelement, map));
             }
-
-            value = list;
         }
         break;
 
@@ -279,15 +277,13 @@ static QVariant fieldFromJson(const core::FieldType* const fieldType, const QJso
                 throw utils::ValueError("Failed to unserialize dictionary field, value is not an object");
 
             const core::FieldType* valueType = static_cast<const core::FieldTypes::Map*>(fieldType)->getValueType();
-            QVariantMap mapVal;
+            auto& mapVal = value.makeMap();
 
             auto jobj = jvalue.toObject();
             for (auto it = jobj.begin(); it != jobj.end(); ++it)
             {
-                mapVal.insert(it.key(), fieldFromJson(valueType, it.value(), map));
+                mapVal.emplace(it.key(), fieldFromJson(valueType, it.value(), map));
             }
-
-            value = mapVal;
         }
         break;
     }

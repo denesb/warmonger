@@ -18,8 +18,6 @@
 
 #include "core/Component.h"
 
-#include <QVariant>
-
 #include "utils/Logging.h"
 
 namespace warmonger {
@@ -38,45 +36,46 @@ void Component::setType(ComponentType* type)
     if (this->type != type)
     {
         this->type = type;
+
+        this->fields.clear();
+        const auto& fieldDefs{this->type->getFields()};
+
+        for (auto& fieldDef : fieldDefs)
+        {
+            this->fields.emplace(fieldDef->getName(), FieldValue());
+        }
+
         emit typeChanged();
     }
 }
 
-QVariant Component::getField(const QString& name) const
+FieldValue* Component::field(const QString& name)
 {
     const auto field{getFieldDefinition(this->type, name)};
     if (!field)
     {
         wWarning << "Attempt to get value of non-existing field `" << name << "' from `" << type->getName()
                  << "' component";
-        return QVariant();
+        return nullptr;
     }
     else
     {
-        const auto it = this->fields.find(name);
-        return it == this->fields.end() ? QVariant() : it->second;
+        return &(this->fields[name]);
     }
 }
 
-void Component::setField(const QString& name, const QVariant& value)
+const FieldValue* Component::field(const QString& name) const
 {
     const auto field{getFieldDefinition(this->type, name)};
     if (!field)
     {
         wWarning << "Attempt to get value of non-existing field `" << name << "' from `" << type->getName()
                  << "' component";
+        return nullptr;
     }
     else
     {
-        // TODO: type validation
-        auto& currentValue = this->fields[name];
-
-        if (currentValue != value)
-        {
-            currentValue = value;
-
-            emit fieldChanged();
-        }
+        return &(this->fields.at(name));
     }
 }
 

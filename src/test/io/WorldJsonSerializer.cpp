@@ -16,9 +16,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "io/WorldJsonSerializer.h"
 #include "core/World.h"
 #include "io/Reference.h"
-#include "io/WorldJsonSerializer.h"
 #include "test/Util.h"
 #include <catch.hpp>
 

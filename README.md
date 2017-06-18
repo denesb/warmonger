@@ -44,6 +44,11 @@ interested feel free to drop me a line at dns dot botond at gmail dot com.
  * KF5Archive
  * lua 5.3
 
+#### Install dependencies on Ubuntu
+    sudo apt install cmake qtbase5-dev qtdeclarative5-dev libkf5archive-dev liblua5.3-dev
+    sudo apt install doxygen graphviz clang-format
+
+
 ### Format the code
 
  * clang-format (clang-tools)

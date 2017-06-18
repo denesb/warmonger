@@ -23,7 +23,6 @@
 #include <vector>
 
 #include <QString>
-#include <QVariant>
 
 #include "core/ComponentType.h"
 #include "core/WObject.h"
@@ -82,27 +81,18 @@ public:
     void setType(ComponentType* type);
 
     /**
-     * Get the field wth the given name.
+     * Get the field value with the given name.
      *
-     * If this component doesn't have a field with the given name an invalid
-     * QVariant will be returned.
+     * If this component doesn't have a field with the given name a nullptr
+     * will be returned.
      *
      * \param name the name of the field
      *
      * \returns the property value
      */
-    QVariant getField(const QString& name) const;
+    FieldValue* field(const QString& name);
 
-    /**
-     * Set the field with the given name.
-     *
-     * Will emit the signal Component::fieldChanged() if the newly set value
-     * is different than the current one.
-     *
-     * \param name the name of the field
-     * \param value the new value of the field
-     */
-    void setField(const QString& name, const QVariant& value);
+    const FieldValue* field(const QString& name) const;
 
 signals:
     /**
@@ -117,7 +107,7 @@ signals:
 
 private:
     ComponentType* type;
-    std::map<const QString, QVariant> fields;
+    std::map<QString, FieldValue> fields;
 };
 
 } // namespace core

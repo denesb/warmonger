@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "core/Map.h"
 #include "io/MapJsonSerializer.h"
+#include "core/Map.h"
 #include "io/Reference.h"
 #include "test/Util.h"
 #include <catch.hpp>

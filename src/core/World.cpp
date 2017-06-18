@@ -30,6 +30,7 @@ World::World(const QString& uuid, const std::map<QString, int>& builtInObjectIds
     : QObject{parent}
     , uuid{uuid}
     , builtInObjectIds{builtInObjectIds}
+    , rulesType{RulesType::Lua}
     , rules{nullptr}
 {
     const auto& builtInComponentTypes = getBuiltInComponentTypesFactories();

@@ -21,11 +21,12 @@
 #include "core/Map.h"
 #include "io/JsonUtils.h"
 #include "io/Reference.h"
+#include "utils/Exception.h"
 
 namespace warmonger {
 namespace io {
 
-static QJsonValue fieldToJson(const core::FieldType* const type, const QVariant& value);
+static QJsonValue fieldToJson(const core::FieldType* const type, const core::FieldValue& value);
 static QJsonObject componentToJson(const core::Component* const obj);
 static QJsonObject entityToJson(const core::Entity* const obj);
 static QJsonObject factionToJson(const core::Faction* const obj);
@@ -67,40 +68,43 @@ QByteArray MapJsonSerializer::serializeMapNode(const core::MapNode* const obj) c
     return jdoc.toJson(this->format);
 }
 
-static QJsonValue fieldToJson(const core::FieldType* const type, const QVariant& value)
+static QJsonValue fieldToJson(const core::FieldType* const type, const core::FieldValue& value)
 {
     QJsonValue jval;
+
+    if (type->id() != value.getTypeId())
+        throw utils::ValueError("Type Id mismatch for field");
 
     switch (type->id())
     {
         case core::Field::TypeId::Integer:
         {
-            jval = value.toInt();
+            jval = value.asInteger();
         }
         break;
 
         case core::Field::TypeId::Real:
         {
-            jval = value.toDouble();
+            jval = value.asReal();
         }
         break;
 
         case core::Field::TypeId::String:
         {
-            jval = value.toString();
+            jval = value.asString();
         }
         break;
 
         case core::Field::TypeId::Reference:
         {
-            jval = serializeReference(value.value<core::WObject*>());
+            jval = serializeReference(value.asReference());
         }
         break;
 
         case core::Field::TypeId::List:
         {
             auto valueType = static_cast<const core::FieldTypes::List*>(type)->getValueType();
-            const auto list = value.toList();
+            const auto& list = value.asList();
             QJsonArray jlist;
 
             for (const auto& element : list)
@@ -115,12 +119,12 @@ static QJsonValue fieldToJson(const core::FieldType* const type, const QVariant&
         case core::Field::TypeId::Map:
         {
             auto valueType = static_cast<const core::FieldTypes::Map*>(type)->getValueType();
-            const auto map = value.toMap();
+            const auto& map = value.asMap();
             QJsonObject jmap;
 
-            for (auto it = map.begin(); it != map.end(); ++it)
+            for (const auto& element : map)
             {
-                jmap[it.key()] = fieldToJson(valueType, it.value());
+                jmap[element.first] = fieldToJson(valueType, element.second);
             }
 
             jval = jmap;
@@ -142,7 +146,7 @@ static QJsonObject componentToJson(const core::Component* const obj)
 
     for (const auto& field : fields)
     {
-        jfields[field->getName()] = fieldToJson(field->getType(), obj->getField(field->getName()));
+        jfields[field->getName()] = fieldToJson(field->getType(), *obj->field(field->getName()));
     }
 
     jobj["fields"] = jfields;

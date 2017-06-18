@@ -389,14 +389,33 @@ TEST_CASE("Entity can be unserialized from JSON", "[MapJsonUnserializer][JSON][U
 
                 INFO("The field name is " << fieldName);
 
-                if (fieldType->id() == core::Field::TypeId::Reference)
+                auto fieldValue{entity->getComponent(componentType)->field(fieldName)};
+
+                switch (fieldType->id())
                 {
-                    REQUIRE(io::unserializeReference(val.toString(), map) ==
-                        entity->getComponent(componentType)->getField(fieldName).value<core::WObject*>());
-                }
-                else
-                {
-                    REQUIRE(val.toVariant() == entity->getComponent(componentType)->getField(fieldName));
+                    case core::Field::TypeId::Integer:
+                        REQUIRE(val.toInt() == fieldValue->asInteger());
+                        break;
+
+                    case core::Field::TypeId::Real:
+                        REQUIRE(val.toDouble() == fieldValue->asReal());
+                        break;
+
+                    case core::Field::TypeId::String:
+                        REQUIRE(val.toString() == fieldValue->asString());
+                        break;
+
+                    case core::Field::TypeId::Reference:
+                        REQUIRE(io::unserializeReference(val.toString(), map) == fieldValue->asReference());
+                        break;
+
+                    case core::Field::TypeId::List:
+                        // REQUIRE(val.toString() == *fieldValue->asString()); TODO
+                        break;
+
+                    case core::Field::TypeId::Map:
+                        // REQUIRE(val.toString() == *fieldValue->asString()); TODO
+                        break;
                 }
             }
         }

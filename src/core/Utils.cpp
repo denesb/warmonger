@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <random>
 
 #include "core/Banner.h"
 #include "core/Faction.h"

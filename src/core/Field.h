@@ -24,6 +24,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QVariant>
 
 namespace warmonger {
 namespace core {
@@ -266,42 +267,205 @@ private:
 
 class WObject;
 
-/*
+/**
+ * Type-erased union-like holder of a field value.
+ *
+ * Field types from Field::TypeId are mapped to C++ types as follows:
+ *
+ * Field::TypeId            | C++ type
+ * ------------------------ | -----------------------------
+ * Field::TypeId::Integer   | int
+ * Field::TypeId::Real      | double
+ * Field::TypeId::String    | QString
+ * Field::TypeId::Reference | WObject*
+ * Field::TypeId::List      | std::vector<FieldValue>
+ * Field::TypeId::Map       | std::map<QString, FieldValue>
+ *
+ * Constructor overloads and assignment operator overloads are provided for
+ * each supported type to conveniently construct or assign any supported
+ * values. For non-trivial types move constructors and move assignment
+ * operators are also provided.
+ * To access the stored value use the _as_ (asInteger(), asReal(), etc.)
+ * methods, they have both modifiable and const versions.
+ * A default constructed FieldValue will have a null value, isNull() will
+ * return _true_. Null fields don't have a type yet, so calling getTypeId()
+ * will return a random value.
+ * To prepare the storage of a certain value use the _make_ (makeInteger(),
+ * makeReal(), etc.) methods. These will prepare a default-constructed value
+ * with the provided type and return a modifiable pointer to it.
+ */
 class FieldValue
 {
 public:
+    using Reference = WObject*;
+    using List = std::vector<FieldValue>;
+    using Map = std::map<QString, FieldValue>;
+
+    /**
+     * Construct a null field value.
+     */
+    FieldValue();
+
+    /**
+     * @name Construct directly from a value.
+     *
+     * @{
+     */
+    FieldValue(int integer);
+    FieldValue(double real);
+    FieldValue(QString string);
+    FieldValue(Reference reference);
+    FieldValue(List list);
+    FieldValue(Map map);
+    /** @} */
+
+    ~FieldValue();
+
+    FieldValue(const FieldValue& other);
+    FieldValue& operator=(const FieldValue& other);
+
+    FieldValue(FieldValue&& other);
+    FieldValue& operator=(FieldValue&& other);
+
+    FieldValue& operator=(int integer);
+    FieldValue& operator=(double real);
+    FieldValue& operator=(const QString& string);
+    FieldValue& operator=(QString&& string);
+    FieldValue& operator=(Reference reference);
+    FieldValue& operator=(const List& list);
+    FieldValue& operator=(List&& list);
+    FieldValue& operator=(const Map& map);
+    FieldValue& operator=(Map&& map);
+
+    /**
+     * @name Accessors.
+     *
+     * Will return a reference to the underlying value or will
+     * throw utils::ValueError if the value is not of ther requested
+     * type.
+     * @{
+     */
+    int& asInteger();
+    double& asReal();
+    QString& asString();
+    Reference& asReference();
+    List& asList();
+    Map& asMap();
+    /** @} */
+
+    /**
+     * @name Const accessors.
+     *
+     * Will return a const reference to the underlying value or will
+     * throw utils::ValueError if the value is not of ther requested
+     * type.
+     * @{
+     */
+    const int& asInteger() const;
+    const double& asReal() const;
+    const QString& asString() const;
+    const Reference& asReference() const;
+    const List& asList() const;
+    const Map& asMap() const;
+    /** @} */
+
+    QVariant toQVariant() const;
+
+    /**
+     * @name Set the underlying value.
+     *
+     * Will change the type of the FieldValue to the type of the value
+     * set.
+     *
+     * @{
+     */
+    void set(int integer);
+    void set(double real);
+    void set(QString string);
+    void set(Reference reference);
+    void set(List list);
+    void set(Map map);
+    /** @} */
+
+    /**
+     * @name Change the underlying type.
+     *
+     * A reference is returned to the default initialized value.
+     * Note that this will erase any previously stored value.
+     * @{
+     */
+    int& makeInteger();
+    double& makeReal();
+    QString& makeString();
+    WObject*& makeReference();
+    List& makeList();
+    Map& makeMap();
+    /** @} */
 
     Field::TypeId getTypeId() const
     {
         return this->typeId;
     }
 
-    std::experimental::optional<int&> getAsInteger();
-    std::experimental::optional<double&> getAsReal();
-    std::experimental::optional<QString&> getAsString();
-    std::experimental::optional<WObject*&> getAsReference();
-    std::experimental::optional<std::vector<FieldValue>&> getAsList();
-    std::experimental::optional<std::map<QString, FieldValue>&> getAsMap();
-
-    void setAsInteger(int integer);
-    void setAsReal(double real);
-    void setAsString(const QString& string);
-    void setAsReference(WObject* reference);
-    void setAsList(const std::vector<FieldValue>& list);
-    void setAsMap(const std::map<QString, FieldValue>& map);
-private:
-    union
+    bool isNull() const
     {
-        int integer;
-        double real;
-        QString string;
-        WObject* reference;
-        std::vector<FieldValue> list;
-        std::map<QString, FieldValue> map;
-    } value;
+        return this->null;
+    }
+
+    /**
+     * @name Type query methods.
+     * @{
+     */
+
+    bool isInteger() const
+    {
+        return !this->null && this->typeId == Field::TypeId::Integer;
+    }
+
+    bool isReal() const
+    {
+        return !this->null && this->typeId == Field::TypeId::Real;
+    }
+
+    bool isString() const
+    {
+        return !this->null && this->typeId == Field::TypeId::String;
+    }
+
+    bool isReference() const
+    {
+        return !this->null && this->typeId == Field::TypeId::Reference;
+    }
+
+    bool isList() const
+    {
+        return !this->null && this->typeId == Field::TypeId::List;
+    }
+
+    bool isMap() const
+    {
+        return !this->null && this->typeId == Field::TypeId::Map;
+    }
+
+    /** @} */
+
+    /**
+     * Equivalent to FieldValue::isNull().
+     */
+    bool operator!() const
+    {
+        return this->null;
+    }
+
+private:
+    void destroy();
+
+    static const std::size_t bufSize;
+
+    std::unique_ptr<char[]> buf;
     Field::TypeId typeId;
+    bool null;
 };
-*/
 
 } // namespace core
 } // namespace warmonger

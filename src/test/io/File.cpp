@@ -39,7 +39,8 @@ void createWorldFile(const QString& path)
     QFile rulesFile(world->getRulesEntryPoint());
     rulesFile.open(QIODevice::WriteOnly);
 
-    rulesFile.write("function init(W) w_debug(\"init\"); end");
+    rulesFile.write("function world_init() w_debug(\"world_init\"); end");
+    rulesFile.flush();
 }
 
 void createMapFile(const QString& path)
@@ -92,7 +93,7 @@ TEST_CASE("World can be written to a file and read back", "[File]")
 
     QFile rulesFile(world->getRulesEntryPoint());
     rulesFile.open(QIODevice::WriteOnly);
-    rulesFile.write("function init(W) w_debug(\"init\"); end");
+    rulesFile.write("function world_init() w_debug(\"world_init\"); end");
     rulesFile.flush();
 
     REQUIRE_NOTHROW(io::readWorld(path));

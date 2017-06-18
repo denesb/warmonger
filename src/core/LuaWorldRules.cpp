@@ -115,12 +115,15 @@ LuaWorldRules::LuaWorldRules(const QString& basePath, core::World* world)
 
     lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::table, sol::lib::math);
 
+    lua["W"] = this->world;
+
     lua.script_file(entryPoint);
 
-    this->initHook = lua["init"];
+    this->worldInitHook = lua["world_init"];
     this->generateMapHook = lua["generate_map"];
+    this->mapInitHook = lua["map_init"];
 
-    this->initHook(this->world);
+    this->worldInitHook();
 }
 
 std::unique_ptr<core::Map> LuaWorldRules::generateMap(unsigned int size)
@@ -133,6 +136,11 @@ std::unique_ptr<core::Map> LuaWorldRules::generateMap(unsigned int size)
     this->generateMapHook(map.get(), size);
 
     return map;
+}
+
+void LuaWorldRules::mapInit(Map* map)
+{
+    this->mapInitHook(map);
 }
 
 static void exposeAPI(sol::state& lua)

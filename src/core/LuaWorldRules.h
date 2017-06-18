@@ -58,11 +58,14 @@ public:
 
     std::unique_ptr<core::Map> generateMap(unsigned int size) override;
 
+    void mapInit(Map* map) override;
+
 private:
     World* world;
     std::unique_ptr<sol::state> state; // to avoid exposing the massive sol.hpp
-    std::function<void(World*)> initHook;
+    std::function<void()> worldInitHook;
     std::function<void(Map*, int)> generateMapHook;
+    std::function<void(Map*)> mapInitHook;
 };
 
 } // namespace core

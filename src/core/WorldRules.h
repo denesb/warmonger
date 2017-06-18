@@ -56,6 +56,13 @@ public:
      * \returns the generated map
      */
     virtual std::unique_ptr<core::Map> generateMap(unsigned int size) = 0;
+
+    /**
+     * Do any map-related initialization.
+     *
+     * \param map the map
+     */
+    virtual void mapInit(Map* map) = 0;
 };
 
 /**

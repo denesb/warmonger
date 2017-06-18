@@ -184,21 +184,36 @@ static void exposeAPI(sol::state& lua)
         "component_types",
         sol::property(&World::getComponentTypes));
 
-    lua.new_usertype<MapNodeNeighbours>("map_node_neighbours",
+    lua.new_usertype<MapNodeNeighbours>(
+        "map_node_neighbours",
         sol::meta_function::construct,
         sol::no_constructor,
         "west",
-        sol::property([](const MapNodeNeighbours& neighbours) { return neighbours.at(Direction::West); }),
+        sol::property([](const MapNodeNeighbours& neighbours) { return neighbours.at(Direction::West); },
+            [](MapNodeNeighbours& neighbours, MapNode* neighbour) { return neighbours[Direction::West] = neighbour; }),
         "north_west",
-        sol::property([](const MapNodeNeighbours& neighbours) { return neighbours.at(Direction::NorthWest); }),
+        sol::property([](const MapNodeNeighbours& neighbours) { return neighbours.at(Direction::NorthWest); },
+            [](MapNodeNeighbours& neighbours, MapNode* neighbour) {
+                return neighbours[Direction::NorthWest] = neighbour;
+            }),
         "north_east",
-        sol::property([](const MapNodeNeighbours& neighbours) { return neighbours.at(Direction::NorthEast); }),
+        sol::property([](const MapNodeNeighbours& neighbours) { return neighbours.at(Direction::NorthEast); },
+            [](MapNodeNeighbours& neighbours, MapNode* neighbour) {
+                return neighbours[Direction::NorthEast] = neighbour;
+            }),
         "east",
-        sol::property([](const MapNodeNeighbours& neighbours) { return neighbours.at(Direction::East); }),
+        sol::property([](const MapNodeNeighbours& neighbours) { return neighbours.at(Direction::East); },
+            [](MapNodeNeighbours& neighbours, MapNode* neighbour) { return neighbours[Direction::East] = neighbour; }),
         "south_east",
-        sol::property([](const MapNodeNeighbours& neighbours) { return neighbours.at(Direction::SouthEast); }),
+        sol::property([](const MapNodeNeighbours& neighbours) { return neighbours.at(Direction::SouthEast); },
+            [](MapNodeNeighbours& neighbours, MapNode* neighbour) {
+                return neighbours[Direction::SouthEast] = neighbour;
+            }),
         "south_west",
-        sol::property([](const MapNodeNeighbours& neighbours) { return neighbours.at(Direction::SouthWest); }));
+        sol::property([](const MapNodeNeighbours& neighbours) { return neighbours.at(Direction::SouthWest); },
+            [](MapNodeNeighbours& neighbours, MapNode* neighbour) {
+                return neighbours[Direction::SouthWest] = neighbour;
+            }));
 
     lua.new_usertype<MapNode>("map_node",
         sol::meta_function::construct,
@@ -210,15 +225,15 @@ static void exposeAPI(sol::state& lua)
         sol::meta_function::construct,
         sol::no_constructor,
         "name",
-        sol::property(&Faction::getName),
+        sol::property(&Faction::getName, &Faction::setName),
         "primaryColor",
-        sol::property(&Faction::getPrimaryColor),
+        sol::property(&Faction::getPrimaryColor, &Faction::setPrimaryColor),
         "secondaryColor",
-        sol::property(&Faction::getSecondaryColor),
+        sol::property(&Faction::getSecondaryColor, &Faction::setSecondaryColor),
         "banner",
-        sol::property(&Faction::getBanner),
+        sol::property(&Faction::getBanner, &Faction::setBanner),
         "civilization",
-        sol::property(&Faction::getCivilization));
+        sol::property(&Faction::getCivilization, &Faction::setCivilization));
 
     lua.new_usertype<Component>("component",
         sol::meta_function::construct,
@@ -237,8 +252,8 @@ static void exposeAPI(sol::state& lua)
         "components",
         sol::property(&Entity::getComponents),
         "get_component",
-        sol::overload([](Entity*, const ComponentType* const) { return sol::object(sol::nil); },
-            [](Entity*, const QString&) { return sol::object(sol::nil); }),
+        sol::overload(sol::resolve<Component*(const ComponentType* const)>(&Entity::getComponent),
+            sol::resolve<Component*(const QString&)>(&Entity::getComponent)),
         "create_component",
         &Entity::createComponent,
         "remove_component",
@@ -249,17 +264,27 @@ static void exposeAPI(sol::state& lua)
         sol::meta_function::construct,
         sol::no_constructor,
         "name",
-        sol::property(&Map::getName),
+        sol::property(&Map::getName, &Map::setName),
         "world",
         sol::property(&Map::getWorld),
         "map_nodes",
         sol::property(&Map::getMapNodes),
+        "create_map_node",
+        [](Map* const map) { return map->createMapNode(); },
+        "remove_map_node",
+        [](Map* const map, MapNode* mapNode) { map->removeMapNode(mapNode); },
         "factions",
         sol::property(&Map::getFactions),
+        "create_faction",
+        [](Map* const map) { return map->createFaction(); },
+        "remove_faction",
+        [](Map* const map, Faction* faction) { map->removeFaction(faction); },
         "entities",
         sol::property(&Map::getEntities),
         "create_entity",
-        [](Map* const map) { return map->createEntity(); });
+        [](Map* const map) { return map->createEntity(); },
+        "remove_entity",
+        [](Map* const map, Entity* entity) { map->removeEntity(entity); });
 }
 
 static void wLuaLog(sol::this_state ts, utils::LogLevel logLevel, const std::string& msg)

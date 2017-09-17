@@ -121,7 +121,7 @@ set(
     src/ui/BasicMap.cpp
     src/ui/BasicMiniMap.cpp
     src/ui/MapEditor.cpp
-    src/ui/MapPreview.cpp
+    src/ui/MapView.cpp
     src/ui/MapWatcher.cpp
     src/ui/MiniMap.cpp
     src/ui/MapUtil.cpp

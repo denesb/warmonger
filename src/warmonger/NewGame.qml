@@ -280,7 +280,7 @@ Rectangle {
 
                     color: W.normalPalette.light
 
-                    MapPreview {
+                    MapView {
                         anchors.fill: parent
 
                         map: mapList.currentIndex == -1 ? null : W.maps[mapList.currentIndex]

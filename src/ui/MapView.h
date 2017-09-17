@@ -1,5 +1,5 @@
 /** \file
- * MapPreview class.
+ * MapView class.
  *
  * \copyright (C) 2015-2017 Botond Dénes
  *
@@ -36,17 +36,17 @@ class MapWatcher;
 /**
  * Presents a non-interactive preview of the campaign-map.
  *
- * For the map to be actually drawn the MapPreview needs a campaign-map
+ * For the map to be actually drawn the MapView needs a campaign-map
  * and a matching, actvivated  world-surface (that belongs to the same world)
  * set. When these conditions are not met the QQuickItem::ItemHasContents flag
  * is unset and nothing is going to be drawn on the screen.
  *
- * \see MapPreview::setMap
- * \see MapPreview::setWorldSurface
+ * \see MapView::setMap
+ * \see MapView::setWorldSurface
  * \see core::Map
  * \see WorldSurface
  */
-class MapPreview : public QQuickItem
+class MapView : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(warmonger::core::Map* map READ getMap WRITE setMap NOTIFY mapChanged)
@@ -56,12 +56,12 @@ public:
     /**
      * Constructs an empty campaign-map preview.
      */
-    MapPreview(QQuickItem* parent = nullptr);
+    MapView(QQuickItem* parent = nullptr);
 
     /**
      * Get the shown campaign-map
      *
-     * The MapPreview does not own the campaign-map!
+     * The MapView does not own the campaign-map!
      *
      * \return the campaign-map
      */
@@ -75,8 +75,8 @@ public:
      *
      * If all conditions are given for drawing the map, this will trigger a
      * redraw. If this was the missing piece it will trigger the first drawing.
-     * The MapPreview does not assume ownership of the campaign-map!
-     * Will emit the signal MapPreview::mapChanged() if the newly
+     * The MapView does not assume ownership of the campaign-map!
+     * Will emit the signal MapView::mapChanged() if the newly
      * set value is different than the current one.
      *
      * \param map the campaign-map
@@ -86,7 +86,7 @@ public:
     /**
      * Get the world-surface used for drawing the campign-map.
      *
-     * The MapPreview does not own the world-surface!
+     * The MapView does not own the world-surface!
      *
      * \return the world-surface
      */
@@ -100,8 +100,8 @@ public:
      *
      * If all conditions are given for drawing the map, this will trigger a
      * redraw. If this was the missing piece it will trigger the first drawing.
-     * The MapPreview does not assume ownership of the world-surface!
-     * Will emit the signal MapPreview::worldSurfaceChanged() if the
+     * The MapView does not assume ownership of the world-surface!
+     * Will emit the signal MapView::worldSurfaceChanged() if the
      * newly set value is different than the current one.
      *
      * \param worldSurface the world-surface

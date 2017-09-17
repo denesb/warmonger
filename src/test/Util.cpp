@@ -214,7 +214,8 @@ std::pair<std::unique_ptr<core::Map>, QJsonObject> makeMap()
     component1->field("intsListField")->set(core::FieldValue::List{1, 5, 3});
     component1->field("realMapField")->set(core::FieldValue::Map{{"key0", 1.2}, {"key1", 3.3243}});
     component1->field("mapOfStrListsField")
-        ->set(core::FieldValue::Map{{"banners", core::FieldValue::List{core::FieldValue("banner0"), core::FieldValue("banner1")}},
+        ->set(core::FieldValue::Map{
+            {"banners", core::FieldValue::List{core::FieldValue("banner0"), core::FieldValue("banner1")}},
             {"civilizations", core::FieldValue::List{{core::FieldValue("civilization0")}}}});
 
     QJsonObject jentity0;

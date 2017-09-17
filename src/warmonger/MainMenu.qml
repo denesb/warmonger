@@ -27,7 +27,7 @@ Rectangle {
 
     color: W.normalPalette.window
 
-    MapPreview {
+    MapView {
         anchors.fill: parent
 
         map: backgroundMap

@@ -20,7 +20,7 @@
 
 #include "ui/Banner.h"
 #include "ui/MapEditor.h"
-#include "ui/MapPreview.h"
+#include "ui/MapView.h"
 #include "ui/MiniMap.h"
 #include "ui/UI.h"
 #include "utils/Constants.h"
@@ -34,7 +34,7 @@ void initUI()
 
     qmlRegisterType<Banner>(applicationName, 1, 0, "Banner");
     qmlRegisterType<MapEditor>(applicationName, 1, 0, "MapEditor");
-    qmlRegisterType<MapPreview>(applicationName, 1, 0, "MapPreview");
+    qmlRegisterType<MapView>(applicationName, 1, 0, "MapView");
     qmlRegisterType<MiniMap>(applicationName, 1, 0, "MiniMap");
 }
 

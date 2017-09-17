@@ -19,7 +19,7 @@
 #include <QGuiApplication>
 #include <QSGSimpleTextureNode>
 
-#include "ui/MapPreview.h"
+#include "ui/MapView.h"
 #include "ui/MapUtil.h"
 #include "ui/MapWatcher.h"
 #include "utils/Constants.h"
@@ -29,19 +29,19 @@
 namespace warmonger {
 namespace ui {
 
-MapPreview::MapPreview(QQuickItem* parent)
+MapView::MapView(QQuickItem* parent)
     : QQuickItem(parent)
     , map(nullptr)
     , worldSurface(nullptr)
     , watcher(nullptr)
 {
-    QObject::connect(this, &MapPreview::widthChanged, this, &MapPreview::updateTransform);
-    QObject::connect(this, &MapPreview::heightChanged, this, &MapPreview::updateTransform);
+    QObject::connect(this, &MapView::widthChanged, this, &MapView::updateTransform);
+    QObject::connect(this, &MapView::heightChanged, this, &MapView::updateTransform);
 
     this->updateTransform();
 }
 
-void MapPreview::setMap(core::Map* map)
+void MapView::setMap(core::Map* map)
 {
     if (this->map != map)
     {
@@ -59,15 +59,15 @@ void MapPreview::setMap(core::Map* map)
         if (this->map)
         {
             this->watcher = new MapWatcher(this->map, this);
-            QObject::connect(this->watcher, &MapWatcher::changed, this, &MapPreview::update);
-            QObject::connect(this->map, &core::Map::mapNodesChanged, this, &MapPreview::onMapNodesChanged);
+            QObject::connect(this->watcher, &MapWatcher::changed, this, &MapView::update);
+            QObject::connect(this->map, &core::Map::mapNodesChanged, this, &MapView::onMapNodesChanged);
         }
 
         emit mapChanged();
     }
 }
 
-void MapPreview::setWorldSurface(WorldSurface* worldSurface)
+void MapView::setWorldSurface(WorldSurface* worldSurface)
 {
     if (this->worldSurface != worldSurface)
     {
@@ -80,7 +80,7 @@ void MapPreview::setWorldSurface(WorldSurface* worldSurface)
     }
 }
 
-QSGNode* MapPreview::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
+QSGNode* MapView::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
 {
     QSGClipNode* rootNode;
     QSGTransformNode* transformNode;
@@ -117,7 +117,7 @@ QSGNode* MapPreview::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
     return rootNode;
 }
 
-void MapPreview::updateContent()
+void MapView::updateContent()
 {
     if (this->worldSurface == nullptr || this->map == nullptr || this->map->getMapNodes().empty() ||
         this->worldSurface->getWorld() != this->map->getWorld())
@@ -133,7 +133,7 @@ void MapPreview::updateContent()
     }
 }
 
-void MapPreview::updateMapRect()
+void MapView::updateMapRect()
 {
     if (this->worldSurface == nullptr || this->map == nullptr || this->map->getMapNodes().empty() ||
         this->worldSurface->getWorld() != this->map->getWorld())
@@ -147,14 +147,14 @@ void MapPreview::updateMapRect()
     }
 }
 
-void MapPreview::onMapNodesChanged()
+void MapView::onMapNodesChanged()
 {
     this->mapNodesPos = positionMapNodes(this->map->getMapNodes()[0], this->worldSurface->getTileSize());
     this->updateMapRect();
     this->updateTransform();
 }
 
-void MapPreview::updateTransform()
+void MapView::updateTransform()
 {
     this->transform = ui::centerIn(this->mapRect, QRect(0, 0, this->width(), this->height()));
 }

@@ -21,6 +21,8 @@
 #ifndef W_CORE_LUA_WORLD_RULES_H
 #define W_CORE_LUA_WORLD_RULES_H
 
+#include <functional>
+
 #include "core/World.h"
 
 namespace sol {

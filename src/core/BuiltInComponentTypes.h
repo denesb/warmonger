@@ -20,6 +20,8 @@
 #ifndef W_CORE_BUILTIN_COMPONENT_TYPES_H
 #define W_CORE_BUILTIN_COMPONENT_TYPES_H
 
+#include <functional>
+
 #include "core/ComponentType.h"
 
 namespace warmonger {

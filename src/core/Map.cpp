@@ -19,8 +19,6 @@
 #include <algorithm>
 #include <random>
 
-#include <boost/optional.hpp>
-
 #include "core/Map.h"
 #include "utils/Logging.h"
 #include "utils/QVariantUtils.h"

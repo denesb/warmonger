@@ -60,7 +60,7 @@ public:
  * Edit component-type.
  *
  * Defines how the entity having this component can be edited by the map
- * -editor.
+ * editor.
  */
 class EditComponentType : public ComponentType
 {
@@ -77,6 +77,45 @@ public:
     QString getName() const override
     {
         return "edit";
+    }
+
+    std::vector<Field*> getFields() const override;
+};
+
+/**
+ * Graphics component-type.
+ *
+ * Defines how the entity having this component can be rendered.
+ * It has the following fields:
+ * - path the path to the image.
+ * - x the x offset from the upper-left corner of parent.
+ * - y the y offset from the upper-left corner of parent.
+ * - z depth-ordering, larger z values will be more to the foreground.
+ * - parent the parent ebtity of this entity.
+ *
+ * Note:
+ * Offsets are in pixels.
+ * The parent allows entities to be organized in a tree. When the root
+ * object changes position, all its children also change position
+ * automatically. If the entity doesn't have a parent its position
+ * component will be used to determine the position. If it doesn't have
+ * a position component either it won't be rendered at all.
+ */
+class GraphicsComponentType : public ComponentType
+{
+    Q_OBJECT
+
+public:
+    using ComponentType::ComponentType;
+
+    bool isBuiltIn() const override
+    {
+        return true;
+    }
+
+    QString getName() const override
+    {
+        return "graphics";
     }
 
     std::vector<Field*> getFields() const override;

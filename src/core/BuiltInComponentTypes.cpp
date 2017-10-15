@@ -39,7 +39,8 @@ std::vector<std::tuple<QString, std::function<ComponentType*(QObject*, int)>>> g
 {
     return std::vector<std::tuple<QString, std::function<ComponentType*(QObject*, int)>>>{
         ConcreteComponentTypeFactory<PositionComponentType>::create(),
-        ConcreteComponentTypeFactory<EditComponentType>::create()};
+        ConcreteComponentTypeFactory<EditComponentType>::create(),
+        ConcreteComponentTypeFactory<GraphicsComponentType>::create()};
 }
 
 std::vector<Field*> PositionComponentType::getFields() const
@@ -53,6 +54,18 @@ std::vector<Field*> EditComponentType::getFields() const
 {
     static const FieldsHelper fieldsHelper{
         {"editableComponents", new FieldTypes::List(std::make_unique<core::FieldTypes::Reference>())}};
+
+    return fieldsHelper.getFields();
+}
+
+std::vector<Field*> GraphicsComponentType::getFields() const
+{
+    static const FieldsHelper fieldsHelper{
+        {"path", new FieldTypes::String()},
+        {"x", new FieldTypes::Integer()},
+        {"y", new FieldTypes::Integer()},
+        {"z", new FieldTypes::Integer()},
+        {"parent", new FieldTypes::Reference()}};
 
     return fieldsHelper.getFields();
 }

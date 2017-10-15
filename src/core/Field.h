@@ -200,9 +200,9 @@ public:
 };
 
 /**
- * Reference to a FieldType
+ * Reference to a WObject
  *
- * Corresponds to a FieldType*.
+ * Corresponds to a WObject*.
  */
 class Reference : public FieldType
 {

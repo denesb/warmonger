@@ -19,6 +19,7 @@
 #include <QPainter>
 
 #include "ui/Banner.h"
+#include "utils/Utils.h"
 
 namespace warmonger {
 namespace ui {
@@ -91,7 +92,7 @@ static QImage createBannerImage(WorldSurface* worldSurface, core::Banner* banner
     if (worldSurface == nullptr || banner == nullptr || !color.isValid())
         return QImage();
 
-    QImage image(worldSurface->getObjectImagePath(banner));
+    QImage image(worldSurface->getImage(utils::makePath(QStringLiteral("banners"), banner->getName())));
 
     const QRgb rgb = color.rgb();
     const QSize size = image.size();

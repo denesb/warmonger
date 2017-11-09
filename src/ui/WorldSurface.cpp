@@ -20,6 +20,7 @@
 #include <set>
 
 #include <QFile>
+#include <QHash>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QQuickWindow>
@@ -34,70 +35,150 @@
 #include "utils/Logging.h"
 #include "utils/Utils.h"
 
+namespace std {
+
+template <>
+struct hash<QString>
+{
+    std::size_t operator()(const QString& key) const
+    {
+        return qHash(key);
+    }
+};
+
+template <>
+struct hash<pair<QString, QQuickWindow*>>
+{
+    std::size_t operator()(const pair<QString, QQuickWindow*>& key) const
+    {
+        // FIXME make it not collide across windows
+        return qHash(key.first);
+    }
+};
+}
+
 namespace warmonger {
 namespace ui {
 
 namespace {
 
-const QString resourceSchema{"qrc"};
 const QString fileExtension{"png"};
-const QString prefix{":"};
+const QString hexagonMask{"hexagonMask.png"};
 
-namespace path {
-
-const QString surface{utils::makePath(prefix, "surface")};
-
-const QString hexagonMask{utils::makePath(surface, QString("hexagonMask.png"))};
-
-const QString mapEditor{utils::makePath(surface, "MapEditor")};
-
-} // namespace path
 } // anonymus namespace
 
-static QString objectPath(const QObject* const object);
-static QString imagePath(WorldSurface::Image image);
-static void checkMissingImages(const WorldSurface* const surface);
+static bool hasAllMandatoryImages(const WorldSurface& surface);
 static QSGTexture* createTexture(const QImage& image, QQuickWindow* window);
 
-const std::vector<WorldSurface::Image> staticImages{};
+const std::vector<QString> staticImages{};
 
-const std::set<QString> visualClasses{"warmonger::core::ArmyType",
-    "warmonger::core::Banner",
-    "warmonger::core::SettlementType",
-    "warmonger::core::TerrainType",
-    "warmonger::core::UnitType"};
+class WorldSurface::Storage
+{
+public:
+    struct Header
+    {
+        QString name;
+        QString description;
+    };
+
+    struct Body
+    {
+        int tileWidth;
+        int tileHeight;
+    };
+
+    Storage(const QString& path)
+        : path(path)
+    {
+    }
+
+    virtual Header load() = 0;
+    virtual Body activate() = 0;
+    virtual void deactivate() = 0;
+
+    QSGTexture* getTexture(const QString& path, QQuickWindow* window) const;
+    QImage getImage(const QString& path) const;
+    virtual QUrl getImageUrl(const QString& path) const = 0;
+
+    const QString& getPath() const
+    {
+        return this->path;
+    }
+
+    const QString& getName() const
+    {
+        return this->name;
+    }
+
+protected:
+    Header parseHeader(const QByteArray& header);
+    void cache(const QString& path, const QImage& image) const
+    {
+        this->imageCache.insert({path, image});
+    }
+    QImage lookup(const QString& path) const
+    {
+        auto it = this->imageCache.find(path);
+        return it == this->imageCache.end() ? QImage() : it->second;
+    }
+
+    virtual QImage loadImage(const QString& path) const = 0;
+
+private:
+    QString path;
+    QString name;
+    mutable std::unordered_map<QString, QImage> imageCache;
+    mutable std::unordered_map<std::pair<QString, QQuickWindow*>,
+        std::unique_ptr<QSGTexture, utils::DelayedQObjectDeleter>>
+        textures;
+};
+
+class DirectoryStorage : public WorldSurface::Storage
+{
+    using WorldSurface::Storage::Storage;
+
+    Header load() override;
+    Body activate() override;
+    void deactivate() override;
+    QUrl getImageUrl(const QString& path) const override;
+
+private:
+    QImage loadImage(const QString& path) const override;
+};
+
+class ArchiveStorage : public WorldSurface::Storage
+{
+    // TODO maybe make dynamic so that multiple surfaces can be loaded
+    // side-by-side
+    static const QString rootPath;
+
+public:
+    using WorldSurface::Storage::Storage;
+
+    Header load() override;
+    Body activate() override;
+    void deactivate() override;
+    QUrl getImageUrl(const QString& path) const override;
+
+private:
+    QImage loadImage(const QString& path) const override;
+
+    QByteArray resourceData;
+};
+
+const QString ArchiveStorage::rootPath{":/surface"};
 
 WorldSurface::WorldSurface(const QString& path, core::World* world, QObject* parent)
     : QObject(parent)
     , path(path)
     , world(world)
 {
-    KTar package(this->path);
-    if (!package.open(QIODevice::ReadOnly))
-    {
-        throw utils::IOError("Failed to open surface package " + this->path + ". " + package.device()->errorString());
-    }
+    if (path.endsWith(utils::fileExtensions::surfaceDefinition))
+        this->storage = std::make_unique<DirectoryStorage>(path);
+    else
+        this->storage = std::make_unique<ArchiveStorage>(path);
 
-    const KArchiveDirectory* rootDir = package.directory();
-    const QStringList entries = rootDir->entries();
-    const auto& it = std::find_if(entries.cbegin(), entries.cend(), [](const QString& s) {
-        return s.endsWith("." + utils::fileExtensions::surfaceMetadata);
-    });
-
-    if (it == entries.cend())
-    {
-        throw utils::IOError("No metadata file found in surface package " + this->path);
-    }
-
-    const KArchiveEntry* headerEntry = rootDir->entry(*it);
-    if (headerEntry->isDirectory())
-    {
-        throw utils::IOError("Metadata file is not a file in surface package " + this->path);
-    }
-
-    const KArchiveFile* headerFile = dynamic_cast<const KArchiveFile*>(headerEntry);
-
-    this->parseHeader(headerFile->data());
+    this->storage->load();
 }
 
 WorldSurface::~WorldSurface()
@@ -150,199 +231,40 @@ bool WorldSurface::hexContains(const QPointF& p) const
 
 void WorldSurface::activate()
 {
-    KTar package(this->path);
-    if (!package.open(QIODevice::ReadOnly))
-    {
-        throw utils::IOError("Failed to open surface package " + this->path + ": " + package.device()->errorString());
-    }
-    const KArchiveDirectory* rootDir = package.directory();
-    const QStringList entries = rootDir->entries();
-    const QString rccEntryName = this->objectName() + "." + utils::fileExtensions::qResourceData;
+    auto body = storage->activate();
 
-    if (std::find(entries.cbegin(), entries.cend(), rccEntryName) == entries.cend())
-    {
-        throw utils::IOError("No rcc file found in surface package " + this->path);
-    }
-
-    const KArchiveEntry* rccEntry = rootDir->entry(rccEntryName);
-    if (rccEntry->isDirectory())
-    {
-        throw utils::IOError("rcc file is not a file in surface package " + this->path);
-    }
-
-    const KArchiveFile* rccFile = dynamic_cast<const KArchiveFile*>(rccEntry);
-    this->resourceData = rccFile->data();
-
-    const unsigned char* data = reinterpret_cast<const uchar*>(this->resourceData.data());
-    if (!QResource::registerResource(data))
-    {
-        throw utils::IOError("Failed to register  " + this->path);
-    }
-
-    QFile jfile(utils::makePath(
-        path::surface, utils::makeFileName(this->objectName(), utils::fileExtensions::surfaceDefinition)));
-    if (!jfile.open(QIODevice::ReadOnly))
-    {
-        throw utils::IOError(
-            "Failed to open surface definition from package " + this->path + ": " + jfile.errorString());
-    }
-
-    QJsonParseError parseError;
-    const QJsonDocument jdoc = QJsonDocument::fromJson(jfile.readAll(), &parseError);
-
-    if (parseError.error != QJsonParseError::NoError)
-    {
-        throw utils::ValueError("Error parsing surface definition file from surface package " + this->path + ". " +
-            parseError.errorString() + " at " + parseError.offset);
-    }
-
-    const QJsonObject jobj = jdoc.object();
-
-    this->tileWidth = jobj["tileWidth"].toInt();
-    this->tileHeight = jobj["tileHeight"].toInt();
-    this->normalGridColor = QColor(jobj["normalGridColor"].toString());
-    this->focusGridColor = QColor(jobj["focusGridColor"].toString());
+    this->tileWidth = body.tileWidth;
+    this->tileHeight = body.tileHeight;
+    this->hexMask = storage->getImage(hexagonMask);
 
     emit tileWidthChanged();
     emit tileHeightChanged();
     emit tileSizeChanged();
-    emit normalGridColorChanged();
-    emit focusGridColorChanged();
-
-    if (!this->hexMask.load(path::hexagonMask))
-    {
-        throw utils::IOError("Hexagon mask not found in surface package " + this->path);
-    }
-
-    checkMissingImages(this);
-
-    wInfo << "Succesfully activated surface " << this->objectName();
 }
 
 void WorldSurface::deactivate()
 {
-    const unsigned char* data = reinterpret_cast<const uchar*>(this->resourceData.data());
-    if (!QResource::unregisterResource(data))
-    {
-        throw utils::IOError("Failed to unregister  " + this->path);
-    }
-
-    wInfo << "Succesfully deactivated surface " << this->objectName();
+    this->storage->deactivate();
 }
 
-QSGTexture* WorldSurface::getTexture(const QObject* object, QQuickWindow* window)
+QSGTexture* WorldSurface::getTexture(const QString& path, QQuickWindow* window) const
 {
-    QSGTexture* texture{nullptr};
-
-    const auto textureKey = std::make_pair(object, window);
-    const auto it = this->objectTextures.find(textureKey);
-
-    if (it == this->objectTextures.end())
-    {
-        texture = createTexture(QImage(objectPath(object)), window);
-
-        if (texture != nullptr)
-        {
-            this->objectTextures.emplace(
-                textureKey, std::unique_ptr<QSGTexture, utils::DelayedQObjectDeleter>(texture));
-            wDebug << "Created texture for " << object;
-        }
-    }
-    else
-    {
-        texture = it->second.get();
-    }
-
-    return texture;
+    return storage->getTexture(path, window);
 }
 
-QSGTexture* WorldSurface::getTexture(Image image, QQuickWindow* window)
+QImage WorldSurface::getImage(const QString& path) const
 {
-    QSGTexture* texture{nullptr};
-
-    const QString path(imagePath(image));
-    const auto textureKey = std::make_pair(path, window);
-    const auto it = this->staticTextures.find(textureKey);
-
-    if (it == this->staticTextures.end())
-    {
-        texture = createTexture(QImage(path), window);
-
-        if (texture != nullptr)
-        {
-            this->staticTextures.emplace(
-                textureKey, std::unique_ptr<QSGTexture, utils::DelayedQObjectDeleter>(texture));
-            wDebug << "Created texture for " << path;
-        }
-    }
-    else
-    {
-        texture = it->second.get();
-    }
-
-    return texture;
+    return storage->getImage(path);
 }
 
-QUrl WorldSurface::getObjectImageUrl(const QObject* object) const
+QUrl WorldSurface::getImageUrl(const QString& path) const
 {
-    const QString fullClassName{object->metaObject()->className()};
-    if (visualClasses.find(fullClassName) == visualClasses.end())
-    {
-        return QUrl();
-    }
-    else
-    {
-        const QString className = fullClassName.section("::", -1);
-        return QUrl(resourceSchema +
-            utils::makePath(path::surface, className, utils::makeFileName(object->objectName(), fileExtension)));
-    }
+    return storage->getImageUrl(path);
 }
 
-QString WorldSurface::getObjectImagePath(const QObject* object) const
+QString WorldSurface::getBannerImagePath(const core::Banner* const banner) const
 {
-    const QString fullClassName{object->metaObject()->className()};
-    if (visualClasses.find(fullClassName) == visualClasses.end())
-    {
-        return QString();
-    }
-    else
-    {
-        const QString className = fullClassName.section("::", -1);
-        return QString(
-            utils::makePath(path::surface, className, utils::makeFileName(object->objectName(), fileExtension)));
-    }
-}
-
-QUrl WorldSurface::getImageUrl(Image image) const
-{
-    return QUrl(resourceSchema + getImagePath(image));
-}
-
-QString WorldSurface::getImagePath(Image image) const
-{
-    return imagePath(image);
-}
-
-void WorldSurface::parseHeader(const QByteArray& header)
-{
-    QJsonParseError parseError;
-    QJsonDocument jdoc = QJsonDocument::fromJson(header, &parseError);
-
-    if (parseError.error != QJsonParseError::NoError)
-    {
-        throw utils::ValueError("Error parsing surface meta file from surface package " + this->path + ". " +
-            parseError.errorString() + " at " + parseError.offset);
-    }
-
-    QJsonObject jobj = jdoc.object();
-
-    this->setObjectName(jobj["objectName"].toString());
-
-    this->name = jobj["name"].toString();
-    this->description = jobj["description"].toString();
-
-    emit nameChanged();
-    emit descriptionChanged();
+    return utils::makeFileName(utils::makePath(QStringLiteral("banners"), banner->getName()), fileExtension);
 }
 
 bool isWorldSurfaceSane(const QString& path, core::World* world)
@@ -369,42 +291,234 @@ bool isWorldSurfaceSane(const QString& path, core::World* world)
         return false;
     }
 
-    return true;
+    return hasAllMandatoryImages(*worldSurface);
 }
 
-static QString objectPath(const QObject* const object)
-{
-    const QString fullClassName{object->metaObject()->className()};
-    const QString className = fullClassName.section("::", -1);
+// Local functions
 
-    return utils::makePath(path::surface, className, utils::makeFileName(object->objectName(), fileExtension));
+QSGTexture* WorldSurface::Storage::getTexture(const QString& path, QQuickWindow* window) const
+{
+    QSGTexture* texture{nullptr};
+
+    const auto textureKey = std::make_pair(path, window);
+    const auto it = this->textures.find(textureKey);
+
+    if (it == this->textures.end())
+    {
+        texture = createTexture(this->getImage(path), window);
+
+        if (texture != nullptr)
+        {
+            this->textures.emplace(textureKey, std::unique_ptr<QSGTexture, utils::DelayedQObjectDeleter>(texture));
+            wDebug << "Created texture for " << path;
+        }
+    }
+    else
+    {
+        texture = it->second.get();
+    }
+
+    return texture;
 }
 
-static QString imagePath(WorldSurface::Image)
+QImage WorldSurface::Storage::getImage(const QString& path) const
 {
-    return QString();
+    auto image = this->lookup(path);
+
+    if (image.isNull())
+    {
+        return loadImage(path);
+    }
+
+    return image;
 }
 
-static void checkMissingImages(const WorldSurface* const surface)
+WorldSurface::Storage::Header WorldSurface::Storage::parseHeader(const QByteArray& rawHeader)
 {
-    const auto isObjectImageMissing = [&surface](
-        QObject* object) { return QImage(surface->getObjectImagePath(object)).isNull(); };
+    QJsonParseError parseError;
+    QJsonDocument jdoc = QJsonDocument::fromJson(rawHeader, &parseError);
 
-    const auto isStaticImageMissing = [&surface](
-        WorldSurface::Image image) { return QImage(surface->getImagePath(image)).isNull(); };
+    if (parseError.error != QJsonParseError::NoError)
+    {
+        throw utils::ValueError("Error parsing surface meta file from surface package " + this->path + ". " +
+            parseError.errorString() + " at " + parseError.offset);
+    }
 
-    const core::World* world = surface->getWorld();
+    QJsonObject jobj = jdoc.object();
+
+    WorldSurface::Storage::Header header;
+
+    header.name = jobj["name"].toString();
+    header.description = jobj["description"].toString();
+
+    this->name = header.name;
+
+    return header;
+}
+
+WorldSurface::Storage::Header DirectoryStorage::load()
+{
+    QFile metaFile(
+        utils::makePath(this->getPath(), utils::makeFileName(this->getName(), utils::fileExtensions::surfaceMetadata)));
+    if (!metaFile.open(QIODevice::ReadOnly))
+    {
+        throw utils::IOError(
+            "Failed to open surface metadata from directory " + this->getPath() + ": " + metaFile.errorString());
+    }
+    return parseHeader(metaFile.readAll());
+}
+
+WorldSurface::Storage::Body DirectoryStorage::activate()
+{
+    return Body();
+}
+
+void DirectoryStorage::deactivate()
+{
+}
+
+QImage DirectoryStorage::loadImage(const QString& path) const
+{
+    return QImage(utils::makePath(this->getPath(), path));
+}
+
+QUrl DirectoryStorage::getImageUrl(const QString& path) const
+{
+    return QUrl::fromLocalFile(utils::makePath(this->getPath(), path));
+}
+
+WorldSurface::Storage::Header ArchiveStorage::load()
+{
+    KTar package(this->getPath());
+    if (!package.open(QIODevice::ReadOnly))
+    {
+        throw utils::IOError(
+            "Failed to open surface package " + this->getPath() + ". " + package.device()->errorString());
+    }
+
+    const KArchiveDirectory* rootDir = package.directory();
+    const QStringList entries = rootDir->entries();
+    const auto& it = std::find_if(entries.cbegin(), entries.cend(), [](const QString& s) {
+        return s.endsWith("." + utils::fileExtensions::surfaceMetadata);
+    });
+
+    if (it == entries.cend())
+    {
+        throw utils::IOError("No metadata file found in surface package " + this->getPath());
+    }
+
+    const KArchiveEntry* headerEntry = rootDir->entry(*it);
+    if (headerEntry->isDirectory())
+    {
+        throw utils::IOError("Metadata file is not a file in surface package " + this->getPath());
+    }
+
+    const KArchiveFile* headerFile = dynamic_cast<const KArchiveFile*>(headerEntry);
+
+    return this->parseHeader(headerFile->data());
+}
+
+WorldSurface::Storage::Body ArchiveStorage::activate()
+{
+    KTar package(this->getPath());
+    if (!package.open(QIODevice::ReadOnly))
+    {
+        throw utils::IOError(
+            "Failed to open surface package " + this->getPath() + ": " + package.device()->errorString());
+    }
+    const KArchiveDirectory* rootDir = package.directory();
+    const QStringList entries = rootDir->entries();
+    const QString rccEntryName = this->getName() + "." + utils::fileExtensions::qResourceData;
+
+    if (std::find(entries.cbegin(), entries.cend(), rccEntryName) == entries.cend())
+    {
+        throw utils::IOError("No rcc file found in surface package " + this->getPath());
+    }
+
+    const KArchiveEntry* rccEntry = rootDir->entry(rccEntryName);
+    if (rccEntry->isDirectory())
+    {
+        throw utils::IOError("rcc file is not a file in surface package " + this->getPath());
+    }
+
+    const KArchiveFile* rccFile = dynamic_cast<const KArchiveFile*>(rccEntry);
+    this->resourceData = rccFile->data();
+
+    const unsigned char* data = reinterpret_cast<const uchar*>(this->resourceData.data());
+    if (!QResource::registerResource(data))
+    {
+        throw utils::IOError("Failed to register  " + this->getPath());
+    }
+
+    QFile jfile(utils::makePath(
+        ArchiveStorage::rootPath, utils::makeFileName(this->getName(), utils::fileExtensions::surfaceDefinition)));
+    if (!jfile.open(QIODevice::ReadOnly))
+    {
+        throw utils::IOError(
+            "Failed to open surface definition from package " + this->getPath() + ": " + jfile.errorString());
+    }
+
+    QJsonParseError parseError;
+    const QJsonDocument jdoc = QJsonDocument::fromJson(jfile.readAll(), &parseError);
+
+    if (parseError.error != QJsonParseError::NoError)
+    {
+        throw utils::ValueError("Error parsing surface definition file from surface package " + this->getPath() + ". " +
+            parseError.errorString() + " at " + parseError.offset);
+    }
+
+    const QJsonObject jobj = jdoc.object();
+
+    Body body;
+
+    body.tileWidth = jobj["tileWidth"].toInt();
+    body.tileHeight = jobj["tileHeight"].toInt();
+
+    return body;
+}
+
+void ArchiveStorage::deactivate()
+{
+    const unsigned char* data = reinterpret_cast<const uchar*>(this->resourceData.data());
+    if (!QResource::unregisterResource(data))
+    {
+        throw utils::IOError("Failed to unregister  " + this->getPath());
+    }
+
+    wInfo << "Succesfully deactivated surface " << this->getName();
+}
+
+QImage ArchiveStorage::loadImage(const QString& path) const
+{
+    return QImage(utils::makePath(QStringLiteral(":"), path));
+}
+
+QUrl ArchiveStorage::getImageUrl(const QString& path) const
+{
+    return QUrl::fromLocalFile(QStringLiteral("qrc://") + path);
+}
+
+static bool hasAllMandatoryImages(const WorldSurface& surface)
+{
+    const auto isImageMissing = [&](const QString& path) { return surface.getImage(path).isNull(); };
+
+    const auto isBannerImageMissing = [&](
+        const core::Banner* b) { return isImageMissing(surface.getBannerImagePath(b)); };
+
+    const core::World* world = surface.getWorld();
 
     const auto& banner = world->getBanners();
-    if (std::any_of(banner.cbegin(), banner.cend(), isObjectImageMissing))
+    if (std::any_of(banner.cbegin(), banner.cend(), isBannerImageMissing))
     {
-        throw utils::IOError("Failed to find one or more banner images");
+        return false;
     }
 
-    if (std::any_of(staticImages.cbegin(), staticImages.cend(), isStaticImageMissing))
+    if (std::any_of(staticImages.cbegin(), staticImages.cend(), isImageMissing))
     {
-        throw utils::IOError("Failed to find one or more static images");
+        return false;
     }
+
+    return true;
 }
 
 static QSGTexture* createTexture(const QImage& image, QQuickWindow* window)

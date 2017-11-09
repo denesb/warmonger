@@ -160,8 +160,6 @@ TEST_CASE("Can use Surface", "[WorldSurface][!hide]")
         // REQUIRE(f.open(QIODevice::ReadOnly) == true);
         REQUIRE(s.getTileWidth() == 110);
         REQUIRE(s.getTileHeight() == 128);
-        REQUIRE(s.getNormalGridColor().name() == "#000000");
-        REQUIRE(s.getFocusGridColor().name() == "#d59037");
         REQUIRE(s.hexContains(QPoint(0, 0)) == false);
         REQUIRE(s.hexContains(QPoint(109, 127)) == false);
         REQUIRE(s.hexContains(QPoint(55, 64)) == true);

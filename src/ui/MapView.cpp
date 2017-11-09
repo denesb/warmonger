@@ -16,10 +16,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "ui/MapView.h"
+
 #include <QGuiApplication>
 #include <QSGSimpleTextureNode>
 
-#include "ui/MapView.h"
 #include "ui/MapUtil.h"
 #include "ui/MapWatcher.h"
 #include "utils/Constants.h"

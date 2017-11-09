@@ -671,5 +671,53 @@ void FieldValue::destroy()
     this->null = true;
 }
 
+bool operator==(const FieldValue& a, const FieldValue& b)
+{
+    if (a.getTypeId() != b.getTypeId())
+        return false;
+
+    switch (a.getTypeId())
+    {
+        case Field::TypeId::Integer:
+            return a.asInteger() == b.asInteger();
+        case Field::TypeId::Real:
+            return a.asReal() == b.asReal();
+        case Field::TypeId::String:
+            return a.asString() == b.asString();
+        case Field::TypeId::Reference:
+            return a.asReference() == b.asReference();
+        case Field::TypeId::List:
+            return a.asList() == b.asList();
+        case Field::TypeId::Map:
+            return a.asMap() == b.asMap();
+    }
+
+    return false;
+}
+
+bool operator<(const FieldValue& a, const FieldValue& b)
+{
+    if (a.getTypeId() != b.getTypeId())
+        throw utils::ValueError("Cannot compare fields of different types");
+
+    switch (a.getTypeId())
+    {
+        case Field::TypeId::Integer:
+            return a.asInteger() < b.asInteger();
+        case Field::TypeId::Real:
+            return a.asReal() < b.asReal();
+        case Field::TypeId::String:
+            return a.asString() < b.asString();
+        case Field::TypeId::Reference:
+            return a.asReference() < b.asReference();
+        case Field::TypeId::List:
+            return a.asList() < b.asList();
+        case Field::TypeId::Map:
+            return a.asMap() < b.asMap();
+    }
+
+    return false;
+}
+
 } // namespace core
 } // namespace warmonger

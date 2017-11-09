@@ -141,6 +141,61 @@ private:
     std::vector<Component*> components;
 };
 
+/**
+ * Convenience wrapper over Entity for C++ users.
+ */
+class EntityWrapper
+{
+public:
+    EntityWrapper(Entity* entity)
+        : entity(entity)
+    {
+    }
+
+    ComponentWrapper operator[](const ComponentType* const componentType)
+    {
+        return this->entity->getComponent(componentType);
+    }
+
+    ComponentWrapper operator[](const QString& componentTypeName)
+    {
+        return this->entity->getComponent(componentTypeName);
+    }
+
+    bool hasComponent(const QString& componentTypeName)
+    {
+        return this->entity->getComponent(componentTypeName);
+    }
+
+    ComponentWrapper createComponent(ComponentType* const componentType)
+    {
+        return this->entity->createComponent(componentType);
+    }
+
+    std::unique_ptr<Component> removeComponent(const ComponentType* const componentType)
+    {
+        return this->entity->removeComponent(componentType);
+    }
+
+    std::unique_ptr<Component> removeComponent(const QString& componentTypeName)
+    {
+        return this->entity->removeComponent(componentTypeName);
+    }
+
+    const std::vector<Component*>& getComponents() const
+    {
+        return this->entity->getComponents();
+    }
+
+    Entity* wrapped()
+    {
+        return this->entity;
+    }
+
+private:
+    Entity* entity;
+};
+
 } // namespace core
 } // namespace warmonger
 

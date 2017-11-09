@@ -457,6 +457,36 @@ public:
         return this->null;
     }
 
+    operator int() const
+    {
+        return this->asInteger();
+    }
+
+    operator double() const
+    {
+        return this->asReal();
+    }
+
+    operator const QString&() const
+    {
+        return this->asString();
+    }
+
+    operator Reference() const
+    {
+        return this->asReference();
+    }
+
+    operator const List&() const
+    {
+        return this->asList();
+    }
+
+    operator const Map&() const
+    {
+        return this->asMap();
+    }
+
 private:
     void destroy();
 
@@ -466,6 +496,9 @@ private:
     Field::TypeId typeId;
     bool null;
 };
+
+bool operator==(const FieldValue& a, const FieldValue& b);
+bool operator<(const FieldValue& a, const FieldValue& b);
 
 } // namespace core
 } // namespace warmonger

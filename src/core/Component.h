@@ -85,6 +85,8 @@ public:
      *
      * If this component doesn't have a field with the given name a nullptr
      * will be returned.
+     * TODO: Consider using std::string_view as the key, as QString
+     * conversion to-from char* is expensive.
      *
      * \param name the name of the field
      *
@@ -108,6 +110,55 @@ signals:
 private:
     ComponentType* type;
     std::map<QString, FieldValue> fields;
+};
+
+/**
+ * Convenience wrapper over Component for C++ users.
+ *
+ * C++ users will almost always work with built-in component-types,
+ * hence we can assume that lookups will always succeed and dereference
+ * results unconditionally.
+ */
+class ComponentWrapper
+{
+public:
+    ComponentWrapper(Component* component)
+        : component(component)
+    {
+    }
+
+    ComponentType* getType() const
+    {
+        return this->component->getType();
+    }
+
+    void setType(ComponentType* type)
+    {
+        this->component->setType(type);
+    }
+
+    FieldValue& operator[](const QString& name)
+    {
+        return *this->component->field(name);
+    }
+
+    const FieldValue& operator[](const QString& name) const
+    {
+        return *this->component->field(name);
+    }
+
+    bool operator!() const
+    {
+        return !this->component;
+    }
+
+    Component* wrapped()
+    {
+        return component;
+    }
+
+private:
+    Component* component;
 };
 
 } // namespace core

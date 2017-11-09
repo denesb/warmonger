@@ -60,8 +60,7 @@ std::vector<Field*> EditComponentType::getFields() const
 
 std::vector<Field*> GraphicsComponentType::getFields() const
 {
-    static const FieldsHelper fieldsHelper{
-        {"path", new FieldTypes::String()},
+    static const FieldsHelper fieldsHelper{{"path", new FieldTypes::String()},
         {"x", new FieldTypes::Integer()},
         {"y", new FieldTypes::Integer()},
         {"z", new FieldTypes::Integer()},

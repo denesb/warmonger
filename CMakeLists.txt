@@ -121,12 +121,13 @@ set(
     src/ui/BasicMap.cpp
     src/ui/BasicMiniMap.cpp
     src/ui/MapEditor.cpp
+    src/ui/MapUtil.cpp
     src/ui/MapView.cpp
     src/ui/MapWatcher.cpp
-    src/ui/MiniMap.cpp
-    src/ui/MapUtil.cpp
     src/ui/MapWindow.cpp
+    src/ui/MiniMap.cpp
     src/ui/Palette.cpp
+    src/ui/Render.cpp
     src/ui/SearchPaths.cpp
     src/ui/UI.cpp
     src/ui/WorldSurface.cpp

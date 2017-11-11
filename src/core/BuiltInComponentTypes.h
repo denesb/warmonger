@@ -100,6 +100,8 @@ public:
  * automatically. If the entity doesn't have a parent its position
  * component will be used to determine the position. If it doesn't have
  * a position component either it won't be rendered at all.
+ * The path is meant to be an opaque handle to a graphic resource that
+ * both the world-rules and the rendering layer understands.
  */
 class GraphicsComponentType : public ComponentType
 {

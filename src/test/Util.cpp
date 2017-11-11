@@ -71,18 +71,17 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
 
     auto componentType0Field0 = componentType0->createField();
     componentType0Field0->setName("intField");
-    componentType0Field0->setType(std::make_unique<core::FieldTypes::Integer>());
+    componentType0Field0->setType(core::Field::Type::Integer);
 
     auto componentType0Field1 = componentType0->createField();
     componentType0Field1->setName("listField");
-    componentType0Field1->setType(
-        std::make_unique<core::FieldTypes::List>(std::make_unique<core::FieldTypes::String>()));
+    componentType0Field1->setType(core::Field::Type::List);
 
     QJsonObject jcomponentType0;
     jcomponentType0["id"] = componentType0->getId();
     jcomponentType0["name"] = "componentType0";
-    jcomponentType0["fields"] = QJsonArray{QJsonObject{{"name", "intField"}, {"type", "Integer"}},
-        QJsonObject{{"name", "listField"}, {"type", QJsonObject{{"id", "List"}, {"valueType", "String"}}}}};
+    jcomponentType0["fields"] = QJsonArray{
+        QJsonObject{{"name", "intField"}, {"type", "Integer"}}, QJsonObject{{"name", "listField"}, {"type", "List"}}};
 
     auto componentType1 = world->createWorldComponentType();
     componentType1->setName("componentType1");
@@ -213,12 +212,8 @@ std::pair<std::unique_ptr<core::Map>, QJsonObject> makeMap()
     component1->field("realField")->set(20.12);
     component1->field("strField")->set("someStr");
     component1->field("refField")->set(faction0);
-    component1->field("intsListField")->set(core::FieldValue::List{1, 5, 3});
-    component1->field("realMapField")->set(core::FieldValue::Map{{"key0", 1.2}, {"key1", 3.3243}});
-    component1->field("mapOfStrListsField")
-        ->set(core::FieldValue::Map{
-            {"banners", core::FieldValue::List{core::FieldValue("banner0"), core::FieldValue("banner1")}},
-            {"civilizations", core::FieldValue::List{{core::FieldValue("civilization0")}}}});
+    component1->field("listField")->set(core::FieldValue::List{1, 5, 3});
+    component1->field("mapField")->set(core::FieldValue::Map{{"key0", 1.2}, {"key1", 3.3243}});
 
     QJsonObject jentity0;
     jentity0["id"] = entity0->getId();
@@ -231,11 +226,8 @@ std::pair<std::unique_ptr<core::Map>, QJsonObject> makeMap()
                         {"realField", 20.12},
                         {"strField", "someStr"},
                         {"refField", io::serializeReference(faction0)},
-                        {"intsListField", QJsonArray{1, 5, 3}},
-                        {"realMapField", QJsonObject{{"key0", 1.2}, {"key1", 3.3243}}},
-                        {"mapOfStrListsField",
-                            QJsonObject{{"banners", QJsonArray{"banner0", "banner1"}},
-                                {"civilizations", QJsonArray{"civilization0"}}}}}}}};
+                        {"listField", QJsonArray{1, 5, 3}},
+                        {"mapField", QJsonObject{{"key0", 1.2}, {"key1", 3.3243}}}}}}};
 
     jmap["entities"] = QJsonArray({jentity0});
 
@@ -244,44 +236,36 @@ std::pair<std::unique_ptr<core::Map>, QJsonObject> makeMap()
 
 static void createEveryFieldType(core::WorldComponentType* componentType, QJsonObject& jcomponentType)
 {
-    using namespace core::FieldTypes;
+    using FT = core::Field::Type;
 
     auto intField = componentType->createField();
     intField->setName("intField");
-    intField->setType(std::make_unique<Integer>());
+    intField->setType(FT::Integer);
 
     auto realField = componentType->createField();
     realField->setName("realField");
-    realField->setType(std::make_unique<Real>());
+    realField->setType(FT::Real);
 
     auto strField = componentType->createField();
     strField->setName("strField");
-    strField->setType(std::make_unique<String>());
+    strField->setType(FT::String);
 
     auto refField = componentType->createField();
     refField->setName("refField");
-    refField->setType(std::make_unique<Reference>());
+    refField->setType(FT::Reference);
 
-    auto intsListField = componentType->createField();
-    intsListField->setName("intsListField");
-    intsListField->setType(std::make_unique<List>(std::make_unique<Integer>()));
+    auto listField = componentType->createField();
+    listField->setName("listField");
+    listField->setType(FT::List);
 
-    auto realMapField = componentType->createField();
-    realMapField->setName("realMapField");
-    realMapField->setType(std::make_unique<Map>(std::make_unique<Real>()));
-
-    auto mapOfStrListsField = componentType->createField();
-    mapOfStrListsField->setName("mapOfStrListsField");
-    mapOfStrListsField->setType(std::make_unique<Map>(std::make_unique<List>(std::make_unique<String>())));
+    auto mapField = componentType->createField();
+    mapField->setName("mapField");
+    mapField->setType(FT::Map);
 
     jcomponentType["fields"] = QJsonArray{QJsonObject{{"name", "intField"}, {"type", "Integer"}},
         QJsonObject{{"name", "realField"}, {"type", "Real"}},
         QJsonObject{{"name", "strField"}, {"type", "String"}},
         QJsonObject{{"name", "refField"}, {"type", "Reference"}},
-        QJsonObject{{"name", "intsListField"}, {"type", QJsonObject{{"id", "List"}, {"valueType", "Integer"}}}},
-        QJsonObject{{"name", "realMapField"}, {"type", QJsonObject{{"id", "Map"}, {"valueType", "Real"}}}},
-        QJsonObject{{"name", "mapOfStrListsField"},
-            {"type",
-                QJsonObject{
-                    {"id", "Map"}, {"valueType", QJsonObject{QJsonObject{{"id", "List"}, {"valueType", "String"}}}}}}}};
+        QJsonObject{{"name", "listField"}, {"type", "List"}},
+        QJsonObject{{"name", "mapField"}, {"type", "Map"}}};
 }

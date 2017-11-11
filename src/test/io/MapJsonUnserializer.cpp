@@ -385,35 +385,34 @@ TEST_CASE("Entity can be unserialized from JSON", "[MapJsonUnserializer][JSON][U
             {
                 const auto fieldName{field->getName()};
                 const auto val{jfields[fieldName]};
-                const auto fieldType{field->getType()};
 
                 INFO("The field name is " << fieldName);
 
                 auto fieldValue{entity->getComponent(componentType)->field(fieldName)};
 
-                switch (fieldType->id())
+                switch (field->getType())
                 {
-                    case core::Field::TypeId::Integer:
+                    case core::Field::Type::Integer:
                         REQUIRE(val.toInt() == fieldValue->asInteger());
                         break;
 
-                    case core::Field::TypeId::Real:
+                    case core::Field::Type::Real:
                         REQUIRE(val.toDouble() == fieldValue->asReal());
                         break;
 
-                    case core::Field::TypeId::String:
+                    case core::Field::Type::String:
                         REQUIRE(val.toString() == fieldValue->asString());
                         break;
 
-                    case core::Field::TypeId::Reference:
+                    case core::Field::Type::Reference:
                         REQUIRE(io::unserializeReference(val.toString(), map) == fieldValue->asReference());
                         break;
 
-                    case core::Field::TypeId::List:
+                    case core::Field::Type::List:
                         // REQUIRE(val.toString() == *fieldValue->asString()); TODO
                         break;
 
-                    case core::Field::TypeId::Map:
+                    case core::Field::Type::Map:
                         // REQUIRE(val.toString() == *fieldValue->asString()); TODO
                         break;
                 }
@@ -580,7 +579,7 @@ TEST_CASE("Entity can't be unserialized from JSON", "[MapJsonUnserializer][JSON]
 
     SECTION("List field is invalid")
     {
-        jfields["intsListField"] = 123;
+        jfields["listField"] = 123;
         jcomponent["fields"] = jfields;
         jcomponents[1] = jcomponent;
         jobj["components"] = jcomponents;
@@ -590,7 +589,7 @@ TEST_CASE("Entity can't be unserialized from JSON", "[MapJsonUnserializer][JSON]
 
     SECTION("Map field is invalid")
     {
-        jfields["realMapField"] = 123;
+        jfields["mapField"] = 123;
         jcomponent["fields"] = jfields;
         jcomponents[1] = jcomponent;
         jobj["components"] = jcomponents;

@@ -117,15 +117,14 @@ signals:
 
 struct FieldParams
 {
-    template <class T>
-    FieldParams(const QString& name, T* type)
+    FieldParams(const QString& name, Field::Type type)
         : name(name)
         , type(type)
     {
     }
 
     QString name;
-    FieldType* type;
+    Field::Type type;
 };
 
 struct FieldsHelper

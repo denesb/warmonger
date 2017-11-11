@@ -33,9 +33,6 @@ namespace io {
 static core::Banner* bannerFromJson(const QJsonObject& jobj, core::World* world);
 static core::Civilization* civilizationFromJson(const QJsonObject& jobj, core::World* world);
 static core::ComponentType* componentTypeFromJson(const QJsonObject& jobj, core::World* world);
-static std::unique_ptr<core::FieldType> unserializeFieldType(const QJsonValue& jval);
-static std::unique_ptr<core::FieldType> unserializeSimpleFieldType(const QJsonValue& jval);
-static std::unique_ptr<core::FieldType> unserializeComplexFieldType(const QJsonValue& jval);
 
 core::Banner* WorldJsonUnserializer::unserializeBanner(const QByteArray& data, core::World* world) const
 {
@@ -228,98 +225,20 @@ static core::ComponentType* componentTypeFromJson(const QJsonObject& jobj, core:
         auto field = componentType->createField();
 
         field->setName(fieldName);
-        field->setType(unserializeFieldType(fieldType));
+
+        {
+            const QMetaEnum typeIdMetaEnum{QMetaEnum::fromType<core::Field::Type>()};
+            bool ok{true};
+            auto e = typeIdMetaEnum.keyToValue(jfield["type"].toString().toLocal8Bit().data(), &ok);
+
+            if (!ok)
+                throw utils::ValueError("Failed to unserialize field-type, type has invalid value");
+
+            field->setType(static_cast<core::Field::Type>(e));
+        }
     }
 
     return componentType;
-}
-
-static std::unique_ptr<core::FieldType> unserializeFieldType(const QJsonValue& jval)
-{
-    if (jval.isString())
-    {
-        return unserializeSimpleFieldType(jval);
-    }
-    else if (jval.isObject())
-    {
-        return unserializeComplexFieldType(jval);
-    }
-
-    throw utils::ValueError("Failed to unserialize field-type, type has invalid value");
-}
-
-static std::unique_ptr<core::FieldType> unserializeSimpleFieldType(const QJsonValue& jval)
-{
-    const QMetaEnum typeIdMetaEnum{QMetaEnum::fromType<core::Field::TypeId>()};
-    const QString typeStr{jval.toString()};
-
-    if (typeStr.isEmpty())
-    {
-        throw utils::ValueError("Failed to unserialize field-type, type has empty value");
-    }
-
-    bool ok;
-    const int val{typeIdMetaEnum.keyToValue(typeStr.toLocal8Bit().data(), &ok)};
-
-    if (!ok)
-    {
-        throw utils::ValueError(
-            "Failed to unserialize field-type, unknown type `" + typeStr + "' specified as type id");
-    }
-
-    switch (static_cast<core::Field::TypeId>(val))
-    {
-        case core::Field::TypeId::Integer:
-            return std::make_unique<core::FieldTypes::Integer>();
-        case core::Field::TypeId::Real:
-            return std::make_unique<core::FieldTypes::Real>();
-        case core::Field::TypeId::String:
-            return std::make_unique<core::FieldTypes::String>();
-        case core::Field::TypeId::Reference:
-            return std::make_unique<core::FieldTypes::Reference>();
-        case core::Field::TypeId::List:
-        case core::Field::TypeId::Map:
-            throw utils::ValueError("Failed to unserialize field-type, `" + typeStr + "' is not a simple type");
-    }
-
-    throw utils::ValueError("Failed to unserialize field-type, type has invalid value");
-}
-
-static std::unique_ptr<core::FieldType> unserializeComplexFieldType(const QJsonValue& jval)
-{
-    const QMetaEnum typeIdMetaEnum{QMetaEnum::fromType<core::Field::TypeId>()};
-    const QJsonObject jcompositeType{jval.toObject()};
-
-    const QString typeIdStr{jcompositeType["id"].toString()};
-
-    if (typeIdStr.isEmpty())
-    {
-        throw utils::ValueError("Failed to unserialize field-type, type id is missing or empty");
-    }
-
-    bool ok;
-    const int val{typeIdMetaEnum.keyToValue(typeIdStr.toLocal8Bit().data(), &ok)};
-
-    if (!ok)
-    {
-        throw utils::ValueError(
-            "Failed to unserialize field-type, unknown type `" + typeIdStr + "' specified as type id");
-    }
-
-    switch (static_cast<core::Field::TypeId>(val))
-    {
-        case core::Field::TypeId::Integer:
-        case core::Field::TypeId::Real:
-        case core::Field::TypeId::String:
-        case core::Field::TypeId::Reference:
-            throw utils::ValueError("Failed to unserialize field-type, `" + typeIdStr + "' is not a complex type");
-        case core::Field::TypeId::List:
-            return std::make_unique<core::FieldTypes::List>(unserializeFieldType(jcompositeType["valueType"]));
-        case core::Field::TypeId::Map:
-            return std::make_unique<core::FieldTypes::Map>(unserializeFieldType(jcompositeType["valueType"]));
-    }
-
-    throw utils::ValueError("Failed to unserialize field-type, type has invalid value");
 }
 
 } // namespace warmonger

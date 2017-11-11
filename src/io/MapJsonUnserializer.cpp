@@ -35,7 +35,8 @@ namespace io {
 static core::Faction* factionFromJson(const QJsonObject& jobj, core::Map* map);
 static core::Entity* entityFromJson(const QJsonObject& jobj, core::Map* map);
 static void componentFromJson(const QJsonObject& jcomponent, core::Entity* entity, core::Map* map);
-static core::FieldValue fieldFromJson(const core::FieldType* const fieldType, const QJsonValue& jvalue, core::Map* map);
+static core::FieldValue fieldFromJson(const QJsonValue& jvalue, core::Map* map, core::Field::Type fieldType);
+static core::FieldValue fieldFromJson(const QJsonValue& jvalue, core::Map* map);
 static std::tuple<core::MapNode*, std::map<core::Direction, QString>> mapNodeFromJson(
     const QJsonObject& jobj, core::Map* map);
 static void mapNodesFromJson(const QJsonArray& jarr, core::Map* map);
@@ -210,17 +211,17 @@ static void componentFromJson(const QJsonObject& jcomponent, core::Entity* entit
         if (jvalue.isUndefined())
             throw utils::ValueError("Failed to unserialize component, field " + field->getName() + " is missing");
 
-        *component->field(field->getName()) = fieldFromJson(field->getType(), jvalue, map);
+        *component->field(field->getName()) = fieldFromJson(jvalue, map, field->getType());
     }
 }
 
-static core::FieldValue fieldFromJson(const core::FieldType* const fieldType, const QJsonValue& jvalue, core::Map* map)
+static core::FieldValue fieldFromJson(const QJsonValue& jvalue, core::Map* map, core::Field::Type fieldType)
 {
     core::FieldValue value;
 
-    switch (fieldType->id())
+    switch (fieldType)
     {
-        case core::Field::TypeId::Integer:
+        case core::Field::Type::Integer:
         {
             if (!jvalue.isDouble() || (static_cast<double>(jvalue.toInt()) != jvalue.toDouble()))
                 throw utils::ValueError("Failed to unserialize integer field, value is not an integer");
@@ -229,7 +230,7 @@ static core::FieldValue fieldFromJson(const core::FieldType* const fieldType, co
         }
         break;
 
-        case core::Field::TypeId::Real:
+        case core::Field::Type::Real:
         {
             if (!jvalue.isDouble())
                 throw utils::ValueError("Failed to unserialize real field, value is not a real");
@@ -238,7 +239,7 @@ static core::FieldValue fieldFromJson(const core::FieldType* const fieldType, co
         }
         break;
 
-        case core::Field::TypeId::String:
+        case core::Field::Type::String:
         {
             if (!jvalue.isString())
                 throw utils::ValueError("Failed to unserialize string field, value is not a string");
@@ -247,7 +248,7 @@ static core::FieldValue fieldFromJson(const core::FieldType* const fieldType, co
         }
         break;
 
-        case core::Field::TypeId::Reference:
+        case core::Field::Type::Reference:
         {
             if (!jvalue.isString())
                 throw utils::ValueError("Failed to unserialize reference field, value is not a string");
@@ -256,33 +257,87 @@ static core::FieldValue fieldFromJson(const core::FieldType* const fieldType, co
         }
         break;
 
-        case core::Field::TypeId::List:
+        case core::Field::Type::List:
         {
             if (!jvalue.isArray())
                 throw utils::ValueError("Failed to unserialize list field, value is not an array");
 
-            const core::FieldType* valueType = static_cast<const core::FieldTypes::List*>(fieldType)->getValueType();
             auto& list = value.makeList();
 
             for (auto jelement : jvalue.toArray())
             {
-                list.emplace_back(fieldFromJson(valueType, jelement, map));
+                list.emplace_back(fieldFromJson(jelement, map));
             }
         }
         break;
 
-        case core::Field::TypeId::Map:
+        case core::Field::Type::Map:
         {
             if (!jvalue.isObject())
                 throw utils::ValueError("Failed to unserialize dictionary field, value is not an object");
 
-            const core::FieldType* valueType = static_cast<const core::FieldTypes::Map*>(fieldType)->getValueType();
             auto& mapVal = value.makeMap();
 
             auto jobj = jvalue.toObject();
             for (auto it = jobj.begin(); it != jobj.end(); ++it)
             {
-                mapVal.emplace(it.key(), fieldFromJson(valueType, it.value(), map));
+                mapVal.emplace(it.key(), fieldFromJson(it.value(), map));
+            }
+        }
+        break;
+    }
+
+    return value;
+}
+
+static core::FieldValue fieldFromJson(const QJsonValue& jvalue, core::Map* map)
+{
+    core::FieldValue value;
+
+    switch (jvalue.type())
+    {
+        case QJsonValue::Undefined:
+        case QJsonValue::Null:
+            throw utils::ValueError("Null json value");
+
+        case QJsonValue::Bool:
+            throw utils::ValueError("Boolean json values are not supported");
+
+        case QJsonValue::Double:
+        {
+            value = jvalue.toDouble();
+        }
+        break;
+
+        case QJsonValue::String:
+        {
+            auto str = jvalue.toString();
+            if (isReference(str))
+                value = unserializeReference(str, map);
+            else
+                value = str;
+        }
+        break;
+
+        case QJsonValue::Array:
+        {
+            auto& list = value.makeList();
+
+            for (auto jelement : jvalue.toArray())
+            {
+                list.emplace_back(fieldFromJson(jelement, map));
+            }
+        }
+        break;
+
+        case QJsonValue::Object:
+        {
+            auto& mapVal = value.makeMap();
+
+            auto jobj = jvalue.toObject();
+            for (auto it = jobj.begin(); it != jobj.end(); ++it)
+            {
+                mapVal.emplace(it.key(), fieldFromJson(it.value(), map));
             }
         }
         break;

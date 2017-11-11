@@ -94,6 +94,16 @@ core::WObject* unserializeReference(const QString& reference, core::Map* map)
     }
 }
 
+bool isReference(const QString& str)
+{
+    QString parentClassName;
+    QString objectClassName;
+    long id;
+    std::tie(parentClassName, objectClassName, id) = parseReference(str);
+
+    return id != -1l;
+}
+
 static std::tuple<QString, QString, long> parseReference(const QString& reference)
 {
     const QStringList objects{reference.split('/')};
@@ -105,8 +115,6 @@ static std::tuple<QString, QString, long> parseReference(const QString& referenc
 
     if (objects.size() != 2 || parts.size() != 2 || objectClassName.isEmpty() || idStr.isEmpty())
     {
-        wWarning << "Malformed object reference found: " << reference;
-
         return std::make_tuple(QString(), QString(), -1l);
     }
     else

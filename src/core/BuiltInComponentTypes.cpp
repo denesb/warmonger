@@ -45,26 +45,25 @@ std::vector<std::tuple<QString, std::function<ComponentType*(QObject*, int)>>> g
 
 std::vector<Field*> PositionComponentType::getFields() const
 {
-    static const FieldsHelper fieldsHelper{{"mapNode", new FieldTypes::Reference()}};
+    static const FieldsHelper fieldsHelper{{"mapNode", Field::Type::Reference}};
 
     return fieldsHelper.getFields();
 }
 
 std::vector<Field*> EditComponentType::getFields() const
 {
-    static const FieldsHelper fieldsHelper{
-        {"editableComponents", new FieldTypes::List(std::make_unique<core::FieldTypes::Reference>())}};
+    static const FieldsHelper fieldsHelper{{"editableComponents", Field::Type::List}};
 
     return fieldsHelper.getFields();
 }
 
 std::vector<Field*> GraphicsComponentType::getFields() const
 {
-    static const FieldsHelper fieldsHelper{{"path", new FieldTypes::String()},
-        {"x", new FieldTypes::Integer()},
-        {"y", new FieldTypes::Integer()},
-        {"z", new FieldTypes::Integer()},
-        {"parent", new FieldTypes::Reference()}};
+    static const FieldsHelper fieldsHelper{{"path", Field::Type::String},
+        {"x", Field::Type::Integer},
+        {"y", Field::Type::Integer},
+        {"z", Field::Type::Integer},
+        {"parent", Field::Type::Reference}};
 
     return fieldsHelper.getFields();
 }

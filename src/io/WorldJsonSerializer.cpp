@@ -32,7 +32,6 @@ static QJsonObject bannerToJson(const core::Banner* const obj);
 static QJsonObject civilizationToJson(const core::Civilization* const obj);
 static QJsonObject componentTypeToJson(const core::ComponentType* const obj);
 static QJsonObject fieldToJson(const core::Field* const obj);
-static QJsonValue fieldTypeToJson(const core::FieldType* const obj);
 
 WorldJsonSerializer::WorldJsonSerializer(QJsonDocument::JsonFormat format)
     : format(format)
@@ -120,53 +119,12 @@ static QJsonObject fieldToJson(const core::Field* const obj)
     QJsonObject jobj;
 
     jobj["name"] = obj->getName();
-    jobj["type"] = fieldTypeToJson(obj->getType());
+
+    const QMetaEnum typeIdMetaEnum{QMetaEnum::fromType<core::Field::Type>()};
+
+    jobj["type"] = typeIdMetaEnum.valueToKey(static_cast<int>(obj->getType()));
 
     return jobj;
-}
-
-static QJsonValue fieldTypeToJson(const core::FieldType* const obj)
-{
-    QJsonValue jval;
-
-    const QMetaEnum typeIdMetaEnum{QMetaEnum::fromType<core::Field::TypeId>()};
-    const auto id = obj->id();
-
-    switch (id)
-    {
-        case core::Field::TypeId::Integer:
-        case core::Field::TypeId::Real:
-        case core::Field::TypeId::String:
-        case core::Field::TypeId::Reference:
-        {
-            jval = typeIdMetaEnum.valueToKey(static_cast<int>(id));
-            break;
-        }
-        case core::Field::TypeId::List:
-        {
-            const auto list = static_cast<const core::FieldTypes::List*>(obj);
-            QJsonObject jlistType;
-
-            jlistType["id"] = typeIdMetaEnum.valueToKey(static_cast<int>(id));
-            jlistType["valueType"] = fieldTypeToJson(list->getValueType());
-
-            jval = jlistType;
-            break;
-        }
-        case core::Field::TypeId::Map:
-        {
-            const auto map = static_cast<const core::FieldTypes::Map*>(obj);
-            QJsonObject jdictType;
-
-            jdictType["id"] = typeIdMetaEnum.valueToKey(static_cast<int>(id));
-            jdictType["valueType"] = fieldTypeToJson(map->getValueType());
-
-            jval = jdictType;
-            break;
-        }
-    }
-
-    return jval;
 }
 
 } // namespace warmonger

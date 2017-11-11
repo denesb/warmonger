@@ -37,7 +37,7 @@ FieldsHelper::FieldsHelper(std::initializer_list<FieldParams> fieldParams)
 {
     for (auto& param : fieldParams)
     {
-        this->fields.push_back(new Field(param.name, std::unique_ptr<FieldType>(param.type), &this->parent));
+        this->fields.push_back(new Field(param.name, param.type, &this->parent));
     }
 }
 

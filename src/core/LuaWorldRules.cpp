@@ -335,24 +335,24 @@ static sol::object getField(const Component* const component, sol::stack_object 
     if (value->isNull())
         return sol::object(L, sol::in_place, sol::lua_nil);
 
-    switch (value->getTypeId())
+    switch (value->getType())
     {
-        case Field::TypeId::Integer:
+        case Field::Type::Integer:
             return sol::object(L, sol::in_place, value->asInteger());
-        case Field::TypeId::Real:
+        case Field::Type::Real:
             return sol::object(L, sol::in_place, value->asReal());
-        case Field::TypeId::String:
+        case Field::Type::String:
             return sol::object(L, sol::in_place, value->asString());
         /*
-    case Field::TypeId::Reference:
+    case Field::Type::Reference:
         // TODO: reference
         wWarning << "Reference field is not supported yet";
         return sol::object(L, sol::in_place, sol::lua_nil);
-    case Field::TypeId::List:
+    case Field::Type::List:
         // TODO: list
         wWarning << "List field is not supported yet";
         return sol::object(L, sol::in_place, sol::lua_nil);
-    case Field::TypeId::Map:
+    case Field::Type::Map:
         // TODO: map
         wWarning << "Map field is not supported yet";
         return sol::object(L, sol::in_place, sol::lua_nil);

@@ -48,15 +48,16 @@ class Field : public QObject
     /**
      * The type of the field.
      */
-    Q_PROPERTY(FieldType* type READ getType NOTIFY typeChanged)
+    Q_PROPERTY(Field::Type type READ getType NOTIFY typeChanged)
 
 public:
     /**
      * The type id of a field-type.
      *
      * This enum contains the supported types for component fields.
+     * TODO: Add boolean type
      */
-    enum class TypeId
+    enum class Type
     {
         Integer,
         Real,
@@ -65,7 +66,7 @@ public:
         List,
         Map
     };
-    Q_ENUM(TypeId)
+    Q_ENUM(Type)
 
     /**
      * Constructs an empty Field.
@@ -79,7 +80,7 @@ public:
      *
      * \param parent the parent QObject.
      */
-    Field(const QString& name, std::unique_ptr<FieldType>&& type, QObject* parent = nullptr);
+    Field(const QString& name, Type type, QObject* parent = nullptr);
 
     /**
      * Get the name.
@@ -106,7 +107,7 @@ public:
      *
      * \returns the type
      */
-    FieldType* getType() const
+    Type getType() const
     {
         return this->type;
     }
@@ -120,7 +121,7 @@ public:
      *
      * \param name the name
      */
-    void setType(std::unique_ptr<FieldType>&& type);
+    void setType(Type type);
 
 signals:
     /**
@@ -135,151 +136,24 @@ signals:
 
 private:
     QString name;
-    FieldType* type;
+    Type type;
 };
-
-/**
- * FieldType interface.
- */
-class FieldType : public QObject
-{
-public:
-    using QObject::QObject;
-
-    virtual Field::TypeId id() const = 0;
-};
-
-namespace FieldTypes {
-
-/**
- * Integral numeric type.
- *
- * Corresponds to int.
- */
-class Integer : public FieldType
-{
-public:
-    using FieldType::FieldType;
-
-    Field::TypeId id() const override
-    {
-        return Field::TypeId::Integer;
-    }
-};
-
-/**
- * Real numeric type.
- *
- * Corresponds to double.
- */
-class Real : public FieldType
-{
-public:
-    using FieldType::FieldType;
-
-    Field::TypeId id() const override
-    {
-        return Field::TypeId::Real;
-    }
-};
-
-/**
- * String.
- *
- * Corresponds to QString.
- */
-class String : public FieldType
-{
-public:
-    using FieldType::FieldType;
-
-    Field::TypeId id() const override
-    {
-        return Field::TypeId::String;
-    }
-};
-
-/**
- * Reference to a WObject
- *
- * Corresponds to a WObject*.
- */
-class Reference : public FieldType
-{
-public:
-    using FieldType::FieldType;
-
-    Field::TypeId id() const override
-    {
-        return Field::TypeId::Reference;
-    }
-};
-
-/**
- * List of elements.
- *
- * Corresponds to a QVariantList
- */
-class List : public FieldType
-{
-public:
-    List(std::unique_ptr<FieldType>&& valueType);
-
-    Field::TypeId id() const override
-    {
-        return Field::TypeId::List;
-    }
-
-    FieldType* getValueType() const
-    {
-        return valueType;
-    }
-
-private:
-    FieldType* valueType;
-};
-
-/**
- * Associative container mapping string keys to values.
- *
- * Corresponds to a QVariantMap
- */
-class Map : public FieldType
-{
-public:
-    Map(std::unique_ptr<FieldType>&& valueType);
-
-    Field::TypeId id() const override
-    {
-        return Field::TypeId::Map;
-    }
-
-    FieldType* getValueType() const
-    {
-        return valueType;
-    }
-
-private:
-    FieldType* valueType;
-};
-
-} // namspace FieldTypes
 
 class WObject;
 
 /**
  * Type-erased union-like holder of a field value.
  *
- * Field types from Field::TypeId are mapped to C++ types as follows:
+ * Field types from Field::Type are mapped to C++ types as follows:
  *
- * Field::TypeId            | C++ type
- * ------------------------ | -----------------------------
- * Field::TypeId::Integer   | int
- * Field::TypeId::Real      | double
- * Field::TypeId::String    | QString
- * Field::TypeId::Reference | WObject*
- * Field::TypeId::List      | std::vector<FieldValue>
- * Field::TypeId::Map       | std::map<QString, FieldValue>
+ * Field::Type            | C++ type
+ * -----------------------| -----------------------------
+ * Field::Type::Integer   | int
+ * Field::Type::Real      | double
+ * Field::Type::String    | QString
+ * Field::Type::Reference | WObject*
+ * Field::Type::List      | std::vector<FieldValue>
+ * Field::Type::Map       | std::map<QString, FieldValue>
  *
  * Constructor overloads and assignment operator overloads are provided for
  * each supported type to conveniently construct or assign any supported
@@ -288,7 +162,7 @@ class WObject;
  * To access the stored value use the _as_ (asInteger(), asReal(), etc.)
  * methods, they have both modifiable and const versions.
  * A default constructed FieldValue will have a null value, isNull() will
- * return _true_. Null fields don't have a type yet, so calling getTypeId()
+ * return _true_. Null fields don't have a type yet, so calling getType()
  * will return a random value.
  * To prepare the storage of a certain value use the _make_ (makeInteger(),
  * makeReal(), etc.) methods. These will prepare a default-constructed value
@@ -402,9 +276,9 @@ public:
     Map& makeMap();
     /** @} */
 
-    Field::TypeId getTypeId() const
+    Field::Type getType() const
     {
-        return this->typeId;
+        return this->type;
     }
 
     bool isNull() const
@@ -419,32 +293,32 @@ public:
 
     bool isInteger() const
     {
-        return !this->null && this->typeId == Field::TypeId::Integer;
+        return !this->null && this->type == Field::Type::Integer;
     }
 
     bool isReal() const
     {
-        return !this->null && this->typeId == Field::TypeId::Real;
+        return !this->null && this->type == Field::Type::Real;
     }
 
     bool isString() const
     {
-        return !this->null && this->typeId == Field::TypeId::String;
+        return !this->null && this->type == Field::Type::String;
     }
 
     bool isReference() const
     {
-        return !this->null && this->typeId == Field::TypeId::Reference;
+        return !this->null && this->type == Field::Type::Reference;
     }
 
     bool isList() const
     {
-        return !this->null && this->typeId == Field::TypeId::List;
+        return !this->null && this->type == Field::Type::List;
     }
 
     bool isMap() const
     {
-        return !this->null && this->typeId == Field::TypeId::Map;
+        return !this->null && this->type == Field::Type::Map;
     }
 
     /** @} */
@@ -493,7 +367,7 @@ private:
     static const std::size_t bufSize;
 
     std::unique_ptr<char[]> buf;
-    Field::TypeId typeId;
+    Field::Type type;
     bool null;
 };
 

@@ -122,6 +122,11 @@ T* unserializeReferenceAs(const QString& reference, core::Map* map)
     return qobject_cast<T*>(obj);
 }
 
+/**
+ * Is the string a serialized reference?
+ */
+bool isReference(const QString& str);
+
 } // namespace warmonger
 } // namespace io
 

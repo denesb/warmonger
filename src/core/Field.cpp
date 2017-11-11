@@ -29,12 +29,11 @@ Field::Field(QObject* parent)
 {
 }
 
-Field::Field(const QString& name, std::unique_ptr<FieldType>&& type, QObject* parent)
+Field::Field(const QString& name, Type type, QObject* parent)
     : QObject(parent)
     , name(name)
-    , type(type.release())
+    , type(type)
 {
-    this->type->setParent(this);
 }
 
 void Field::setName(const QString& name)
@@ -46,29 +45,14 @@ void Field::setName(const QString& name)
     }
 }
 
-void Field::setType(std::unique_ptr<FieldType>&& type)
+void Field::setType(Type type)
 {
-    type->setParent(this);
-    this->type = type.release();
-
-    emit typeChanged();
+    if (this->type != type)
+    {
+        this->type = type;
+        emit typeChanged();
+    }
 }
-
-namespace FieldTypes {
-
-List::List(std::unique_ptr<FieldType>&& valueType)
-    : valueType(valueType.release())
-{
-    this->valueType->setParent(this);
-}
-
-Map::Map(std::unique_ptr<FieldType>&& valueType)
-    : valueType(valueType.release())
-{
-    this->valueType->setParent(this);
-}
-
-} // namespace FieldTypes
 
 const std::size_t FieldValue::bufSize{std::max({sizeof(int),
     sizeof(double),
@@ -85,7 +69,7 @@ FieldValue::FieldValue()
 
 FieldValue::FieldValue(int integer)
     : buf(new char[FieldValue::bufSize])
-    , typeId(Field::TypeId::Integer)
+    , type(Field::Type::Integer)
     , null(false)
 {
     *reinterpret_cast<int*>(this->buf.get()) = integer;
@@ -93,7 +77,7 @@ FieldValue::FieldValue(int integer)
 
 FieldValue::FieldValue(double real)
     : buf(new char[FieldValue::bufSize])
-    , typeId(Field::TypeId::Real)
+    , type(Field::Type::Real)
     , null(false)
 {
     *reinterpret_cast<double*>(this->buf.get()) = real;
@@ -101,7 +85,7 @@ FieldValue::FieldValue(double real)
 
 FieldValue::FieldValue(QString string)
     : buf(new char[FieldValue::bufSize])
-    , typeId(Field::TypeId::String)
+    , type(Field::Type::String)
     , null(false)
 {
     new (this->buf.get()) QString(std::move(string));
@@ -109,7 +93,7 @@ FieldValue::FieldValue(QString string)
 
 FieldValue::FieldValue(Reference reference)
     : buf(new char[FieldValue::bufSize])
-    , typeId(Field::TypeId::Reference)
+    , type(Field::Type::Reference)
     , null(false)
 {
     *reinterpret_cast<Reference*>(this->buf.get()) = reference;
@@ -117,7 +101,7 @@ FieldValue::FieldValue(Reference reference)
 
 FieldValue::FieldValue(List list)
     : buf(new char[FieldValue::bufSize])
-    , typeId(Field::TypeId::List)
+    , type(Field::Type::List)
     , null(false)
 {
     new (this->buf.get()) List(std::move(list));
@@ -125,7 +109,7 @@ FieldValue::FieldValue(List list)
 
 FieldValue::FieldValue(Map map)
     : buf(new char[FieldValue::bufSize])
-    , typeId(Field::TypeId::Map)
+    , type(Field::Type::Map)
     , null(false)
 {
     new (this->buf.get()) Map(std::move(map));
@@ -138,26 +122,26 @@ FieldValue::~FieldValue()
 
 FieldValue::FieldValue(const FieldValue& other)
     : buf(new char[FieldValue::bufSize])
-    , typeId(other.typeId)
+    , type(other.type)
     , null(other.null)
 {
-    switch (this->typeId)
+    switch (this->type)
     {
-        case Field::TypeId::Integer:
-        case Field::TypeId::Real:
-        case Field::TypeId::Reference:
+        case Field::Type::Integer:
+        case Field::Type::Real:
+        case Field::Type::Reference:
             memcpy(this->buf.get(), other.buf.get(), bufSize);
             break;
 
-        case Field::TypeId::String:
+        case Field::Type::String:
             new (this->buf.get()) QString(*reinterpret_cast<QString*>(other.buf.get()));
             break;
 
-        case Field::TypeId::List:
+        case Field::Type::List:
             new (this->buf.get()) List(*reinterpret_cast<List*>(other.buf.get()));
             break;
 
-        case Field::TypeId::Map:
+        case Field::Type::Map:
             new (this->buf.get()) Map(*reinterpret_cast<Map*>(other.buf.get()));
             break;
     }
@@ -165,40 +149,40 @@ FieldValue::FieldValue(const FieldValue& other)
 
 FieldValue& FieldValue::operator=(const FieldValue& other)
 {
-    const bool sameType{!this->null && this->typeId != other.typeId};
+    const bool sameType{!this->null && this->type != other.type};
 
     if (!sameType)
         this->destroy();
 
-    this->typeId = other.typeId;
+    this->type = other.type;
     this->null = other.null;
 
     if (this->null)
         return *this;
 
-    switch (this->typeId)
+    switch (this->type)
     {
-        case Field::TypeId::Integer:
-        case Field::TypeId::Real:
-        case Field::TypeId::Reference:
+        case Field::Type::Integer:
+        case Field::Type::Real:
+        case Field::Type::Reference:
             memcpy(this->buf.get(), other.buf.get(), bufSize);
             break;
 
-        case Field::TypeId::String:
+        case Field::Type::String:
             if (sameType)
                 *reinterpret_cast<QString*>(this->buf.get()) = *reinterpret_cast<QString*>(other.buf.get());
             else
                 new (this->buf.get()) QString(*reinterpret_cast<QString*>(other.buf.get()));
             break;
 
-        case Field::TypeId::List:
+        case Field::Type::List:
             if (sameType)
                 *reinterpret_cast<List*>(this->buf.get()) = *reinterpret_cast<List*>(other.buf.get());
             else
                 new (this->buf.get()) List(*reinterpret_cast<List*>(other.buf.get()));
             break;
 
-        case Field::TypeId::Map:
+        case Field::Type::Map:
             if (sameType)
                 *reinterpret_cast<Map*>(this->buf.get()) = *reinterpret_cast<Map*>(other.buf.get());
             else
@@ -211,7 +195,7 @@ FieldValue& FieldValue::operator=(const FieldValue& other)
 
 FieldValue::FieldValue(FieldValue&& other)
     : buf(std::move(other.buf))
-    , typeId(other.typeId)
+    , type(other.type)
     , null(other.null)
 {
     other.null = true;
@@ -222,7 +206,7 @@ FieldValue& FieldValue::operator=(FieldValue&& other)
     this->destroy();
 
     this->buf = std::move(other.buf);
-    this->typeId = other.typeId;
+    this->type = other.type;
     this->null = other.null;
 
     other.null = true;
@@ -236,7 +220,7 @@ FieldValue& FieldValue::operator=(int integer)
         this->destroy();
 
     this->null = false;
-    this->typeId = Field::TypeId::Integer;
+    this->type = Field::Type::Integer;
     *reinterpret_cast<int*>(this->buf.get()) = integer;
 
     return *this;
@@ -248,7 +232,7 @@ FieldValue& FieldValue::operator=(double real)
         this->destroy();
 
     this->null = false;
-    this->typeId = Field::TypeId::Real;
+    this->type = Field::Type::Real;
     *reinterpret_cast<double*>(this->buf.get()) = real;
 
     return *this;
@@ -267,7 +251,7 @@ FieldValue& FieldValue::operator=(const QString& string)
     }
 
     this->null = false;
-    this->typeId = Field::TypeId::String;
+    this->type = Field::Type::String;
 
     return *this;
 }
@@ -285,7 +269,7 @@ FieldValue& FieldValue::operator=(QString&& string)
     }
 
     this->null = false;
-    this->typeId = Field::TypeId::String;
+    this->type = Field::Type::String;
 
     return *this;
 }
@@ -296,7 +280,7 @@ FieldValue& FieldValue::operator=(Reference reference)
         this->destroy();
 
     this->null = false;
-    this->typeId = Field::TypeId::Reference;
+    this->type = Field::Type::Reference;
     *reinterpret_cast<Reference*>(this->buf.get()) = reference;
 
     return *this;
@@ -315,7 +299,7 @@ FieldValue& FieldValue::operator=(const List& list)
     }
 
     this->null = false;
-    this->typeId = Field::TypeId::List;
+    this->type = Field::Type::List;
 
     return *this;
 }
@@ -333,7 +317,7 @@ FieldValue& FieldValue::operator=(List&& list)
     }
 
     this->null = false;
-    this->typeId = Field::TypeId::List;
+    this->type = Field::Type::List;
 
     return *this;
 }
@@ -351,7 +335,7 @@ FieldValue& FieldValue::operator=(const Map& map)
     }
 
     this->null = false;
-    this->typeId = Field::TypeId::Map;
+    this->type = Field::Type::Map;
 
     return *this;
 }
@@ -369,7 +353,7 @@ FieldValue& FieldValue::operator=(Map&& map)
     }
 
     this->null = false;
-    this->typeId = Field::TypeId::Map;
+    this->type = Field::Type::Map;
 
     return *this;
 }
@@ -471,29 +455,29 @@ const FieldValue::Map& FieldValue::asMap() const
 
 QVariant FieldValue::toQVariant() const
 {
-    switch (this->typeId)
+    switch (this->type)
     {
-        case Field::TypeId::Integer:
+        case Field::Type::Integer:
         {
             return QVariant(this->asInteger());
         }
 
-        case Field::TypeId::Real:
+        case Field::Type::Real:
         {
             return QVariant(this->asReal());
         }
 
-        case Field::TypeId::Reference:
+        case Field::Type::Reference:
         {
             return QVariant::fromValue(this->asReference());
         }
 
-        case Field::TypeId::String:
+        case Field::Type::String:
         {
             return QVariant(this->asString());
         }
 
-        case Field::TypeId::List:
+        case Field::Type::List:
         {
             QVariantList qvlist;
             const auto& list = this->asList();
@@ -506,7 +490,7 @@ QVariant FieldValue::toQVariant() const
             return qvlist;
         }
 
-        case Field::TypeId::Map:
+        case Field::Type::Map:
         {
             QVariantMap qvmap;
             const auto& map = this->asMap();
@@ -563,7 +547,7 @@ int& FieldValue::makeInteger()
     {
         this->destroy();
         this->null = false;
-        this->typeId = Field::TypeId::Integer;
+        this->type = Field::Type::Integer;
         return *(new (this->buf.get()) int);
     }
 }
@@ -578,7 +562,7 @@ double& FieldValue::makeReal()
     {
         this->destroy();
         this->null = false;
-        this->typeId = Field::TypeId::Real;
+        this->type = Field::Type::Real;
         return *(new (this->buf.get()) double);
     }
 }
@@ -593,7 +577,7 @@ QString& FieldValue::makeString()
     {
         this->destroy();
         this->null = false;
-        this->typeId = Field::TypeId::String;
+        this->type = Field::Type::String;
         return *(new (this->buf.get()) QString);
     }
 }
@@ -608,7 +592,7 @@ FieldValue::Reference& FieldValue::makeReference()
     {
         this->destroy();
         this->null = false;
-        this->typeId = Field::TypeId::Reference;
+        this->type = Field::Type::Reference;
         return *(new (this->buf.get()) Reference);
     }
 }
@@ -623,7 +607,7 @@ FieldValue::List& FieldValue::makeList()
     {
         this->destroy();
         this->null = false;
-        this->typeId = Field::TypeId::List;
+        this->type = Field::Type::List;
         return *(new (this->buf.get()) List);
     }
 }
@@ -638,7 +622,7 @@ FieldValue::Map& FieldValue::makeMap()
     {
         this->destroy();
         this->null = false;
-        this->typeId = Field::TypeId::Map;
+        this->type = Field::Type::Map;
         return *(new (this->buf.get()) Map);
     }
 }
@@ -648,22 +632,22 @@ void FieldValue::destroy()
     if (this->null)
         return;
 
-    switch (typeId)
+    switch (type)
     {
-        case Field::TypeId::Integer:
-        case Field::TypeId::Real:
-        case Field::TypeId::Reference:
+        case Field::Type::Integer:
+        case Field::Type::Real:
+        case Field::Type::Reference:
             break;
 
-        case Field::TypeId::String:
+        case Field::Type::String:
             reinterpret_cast<QString*>(this->buf.get())->~QString();
             break;
 
-        case Field::TypeId::List:
+        case Field::Type::List:
             reinterpret_cast<List*>(this->buf.get())->~vector<FieldValue>();
             break;
 
-        case Field::TypeId::Map:
+        case Field::Type::Map:
             reinterpret_cast<Map*>(this->buf.get())->~map<QString, FieldValue>();
             break;
     }
@@ -673,22 +657,22 @@ void FieldValue::destroy()
 
 bool operator==(const FieldValue& a, const FieldValue& b)
 {
-    if (a.getTypeId() != b.getTypeId())
+    if (a.getType() != b.getType())
         return false;
 
-    switch (a.getTypeId())
+    switch (a.getType())
     {
-        case Field::TypeId::Integer:
+        case Field::Type::Integer:
             return a.asInteger() == b.asInteger();
-        case Field::TypeId::Real:
+        case Field::Type::Real:
             return a.asReal() == b.asReal();
-        case Field::TypeId::String:
+        case Field::Type::String:
             return a.asString() == b.asString();
-        case Field::TypeId::Reference:
+        case Field::Type::Reference:
             return a.asReference() == b.asReference();
-        case Field::TypeId::List:
+        case Field::Type::List:
             return a.asList() == b.asList();
-        case Field::TypeId::Map:
+        case Field::Type::Map:
             return a.asMap() == b.asMap();
     }
 
@@ -697,22 +681,22 @@ bool operator==(const FieldValue& a, const FieldValue& b)
 
 bool operator<(const FieldValue& a, const FieldValue& b)
 {
-    if (a.getTypeId() != b.getTypeId())
+    if (a.getType() != b.getType())
         throw utils::ValueError("Cannot compare fields of different types");
 
-    switch (a.getTypeId())
+    switch (a.getType())
     {
-        case Field::TypeId::Integer:
+        case Field::Type::Integer:
             return a.asInteger() < b.asInteger();
-        case Field::TypeId::Real:
+        case Field::Type::Real:
             return a.asReal() < b.asReal();
-        case Field::TypeId::String:
+        case Field::Type::String:
             return a.asString() < b.asString();
-        case Field::TypeId::Reference:
+        case Field::Type::Reference:
             return a.asReference() < b.asReference();
-        case Field::TypeId::List:
+        case Field::Type::List:
             return a.asList() < b.asList();
-        case Field::TypeId::Map:
+        case Field::Type::Map:
             return a.asMap() < b.asMap();
     }
 

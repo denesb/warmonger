@@ -257,32 +257,12 @@ TEST_CASE("ComponentType unserialized from JSON - happy path", "[WorldJsonUnseri
             REQUIRE(fields[i]->getName() == jfields[i].toObject()["name"].toString());
         }
 
-        REQUIRE(fields[0]->getType()->id() == core::Field::TypeId::Integer);
-        REQUIRE(fields[1]->getType()->id() == core::Field::TypeId::Real);
-        REQUIRE(fields[2]->getType()->id() == core::Field::TypeId::String);
-        REQUIRE(fields[3]->getType()->id() == core::Field::TypeId::Reference);
-
-        REQUIRE(fields[4]->getType()->id() == core::Field::TypeId::List);
-
-        const auto listType{dynamic_cast<core::FieldTypes::List*>(fields[4]->getType())};
-        REQUIRE(listType != nullptr);
-        REQUIRE(listType->getValueType()->id() == core::Field::TypeId::Integer);
-
-        REQUIRE(fields[5]->getType()->id() == core::Field::TypeId::Map);
-
-        const auto mapType{dynamic_cast<core::FieldTypes::Map*>(fields[5]->getType())};
-        REQUIRE(mapType != nullptr);
-        REQUIRE(mapType->getValueType()->id() == core::Field::TypeId::Real);
-
-        REQUIRE(fields[6]->getType()->id() == core::Field::TypeId::Map);
-
-        const auto outerMapType{dynamic_cast<core::FieldTypes::Map*>(fields[6]->getType())};
-        REQUIRE(outerMapType != nullptr);
-        REQUIRE(outerMapType->getValueType()->id() == core::Field::TypeId::List);
-
-        const auto innerListType{dynamic_cast<core::FieldTypes::List*>(outerMapType->getValueType())};
-        REQUIRE(innerListType != nullptr);
-        REQUIRE(innerListType->getValueType()->id() == core::Field::TypeId::String);
+        REQUIRE(fields[0]->getType() == core::Field::Type::Integer);
+        REQUIRE(fields[1]->getType() == core::Field::Type::Real);
+        REQUIRE(fields[2]->getType() == core::Field::Type::String);
+        REQUIRE(fields[3]->getType() == core::Field::Type::Reference);
+        REQUIRE(fields[4]->getType() == core::Field::Type::List);
+        REQUIRE(fields[5]->getType() == core::Field::Type::Map);
     }
 }
 
@@ -413,56 +393,6 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
     {
         jobj["fields"] = QJsonArray{
             QJsonObject{{"name", "intField"}, {"type", "Unknown"}},
-        };
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
-    }
-
-    SECTION("Field has invalid type")
-    {
-        jobj["fields"] = QJsonArray{
-            QJsonObject{{"name", "intField"}, {"type", "List"}},
-        };
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
-    }
-
-    SECTION("Complex field type has no id")
-    {
-        jobj["fields"] = QJsonArray{
-            QJsonObject{{"name", "intsListField"}, {"type", QJsonObject{{"valueType", "Integer"}}}},
-        };
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
-    }
-
-    SECTION("Complex field type has empty id")
-    {
-        jobj["fields"] = QJsonArray{
-            QJsonObject{{"name", "intsListField"}, {"type", QJsonObject{{"id", ""}, {"valueType", "Integer"}}}},
-        };
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
-    }
-
-    SECTION("Complex field type has unknown id")
-    {
-        jobj["fields"] = QJsonArray{
-            QJsonObject{{"name", "intsListField"}, {"type", QJsonObject{{"id", "Unknown"}, {"valueType", "Integer"}}}},
-        };
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
-    }
-
-    SECTION("Complex field type has non-complex id")
-    {
-        jobj["fields"] = QJsonArray{
-            QJsonObject{{"name", "intsListField"}, {"type", QJsonObject{{"id", "String"}, {"valueType", "Integer"}}}},
         };
 
         REQUIRE_THROWS_AS(

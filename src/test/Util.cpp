@@ -47,13 +47,15 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
 {
     const QString positionComponentType{core::PositionComponentType::staticMetaObject.className()};
     const QString editComponentType{core::EditComponentType::staticMetaObject.className()};
+    const QString graphicsComponentType{core::GraphicsComponentType::staticMetaObject.className()};
 
     auto world{std::make_unique<core::World>(
         "universaly-unique-id-0", std::map<QString, int>{{positionComponentType, 0}, {editComponentType, 1}})};
     QJsonObject jworld;
 
     jworld["uuid"] = "universaly-unique-id-0";
-    jworld["builtInObjectIds"] = QJsonObject{{positionComponentType, 0}, {editComponentType, 1}};
+    jworld["builtInObjectIds"] =
+        QJsonObject{{positionComponentType, 0}, {editComponentType, 1}, {graphicsComponentType, 2}};
 
     world->setRulesEntryPoint("rules.lua");
     jworld["rulesEntryPoint"] = "rules.lua";

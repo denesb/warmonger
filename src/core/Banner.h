@@ -41,6 +41,15 @@ class Banner : public WObject
     Q_PROPERTY(QVariantList civilizations READ readCivilizations NOTIFY civilizationsChanged)
 
 public:
+    template <class Visitor>
+    static auto describe(Visitor&& visitor)
+    {
+        return visitor.template visitParent<WObject>()
+            .visitMember("name", &Banner::getName, &Banner::setName)
+            .visitMember("civilizations", &Banner::getCivilizations, &Banner::setCivilizations)
+            .visitConstructor("parent", "id");
+    }
+
     /**
      * Construct an empty Banner.
      *

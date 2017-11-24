@@ -35,6 +35,14 @@ class Civilization : public WObject
     Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)
 
 public:
+    template <class Visitor>
+    static auto describe(Visitor&& visitor)
+    {
+        return visitor.template visitParent<WObject>()
+            .visitMember("name", &Civilization::getName, &Civilization::setName)
+            .visitConstructor("parent", "id");
+    }
+
     /**
      * Creates an empty civilization.
      *

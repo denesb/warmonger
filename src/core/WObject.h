@@ -48,6 +48,14 @@ class WObject : public QObject
     Q_PROPERTY(long id READ getId NOTIFY idChanged)
 
 public:
+    template <typename Visitor>
+    static auto describe(Visitor&& visitor)
+    {
+        return visitor.template visitParent<QObject>()
+            .visitMember("id", &WObject::getId)
+            .visitConstructor("parent", "id");
+    }
+
     /**
      * The value of invalid ids.
      */

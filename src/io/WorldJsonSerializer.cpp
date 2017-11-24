@@ -21,6 +21,7 @@
 #include <QMetaEnum>
 
 #include "core/World.h"
+#include "io/JsonSerializer.hpp"
 #include "io/JsonUtils.h"
 #include "io/Reference.h"
 
@@ -90,23 +91,12 @@ QByteArray WorldJsonSerializer::serializeWorld(const core::World* const obj) con
 
 static QJsonObject bannerToJson(const core::Banner* const obj)
 {
-    QJsonObject jobj;
-
-    jobj["id"] = obj->getId();
-    jobj["name"] = obj->getName();
-    jobj["civilizations"] = toQJsonArray(obj->getCivilizations(), io::serializeReference);
-
-    return jobj;
+    return serializeToJson(*obj);
 }
 
 static QJsonObject civilizationToJson(const core::Civilization* const obj)
 {
-    QJsonObject jobj;
-
-    jobj["id"] = obj->getId();
-    jobj["name"] = obj->getName();
-
-    return jobj;
+    return serializeToJson(*obj);
 }
 
 static QJsonObject componentTypeToJson(const core::ComponentType* const obj)

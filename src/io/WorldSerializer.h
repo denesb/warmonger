@@ -28,7 +28,7 @@ namespace warmonger {
 namespace core {
 class Banner;
 class Civilization;
-class ComponentType;
+class WorldComponentType;
 class World;
 }
 
@@ -61,13 +61,13 @@ public:
     virtual QByteArray serializeCivilization(const core::Civilization* const obj) const = 0;
 
     /**
-     * Serialize an component-type.
+     * Serialize a world component-type.
      *
-     * \param obj the component-type
+     * \param obj the world component-type
      *
      * \return the raw serialized data
      */
-    virtual QByteArray serializeComponentType(const core::ComponentType* const obj) const = 0;
+    virtual QByteArray serializeWorldComponentType(const core::WorldComponentType* const obj) const = 0;
 
     /**
      * Serialize an world.

@@ -30,7 +30,7 @@ namespace io {
 
 static QJsonObject bannerToJson(const core::Banner* const obj);
 static QJsonObject civilizationToJson(const core::Civilization* const obj);
-static QJsonObject componentTypeToJson(const core::ComponentType* const obj);
+static QJsonObject worldComponentTypeToJson(const core::WorldComponentType* const obj);
 static QJsonObject fieldToJson(const core::Field* const obj);
 
 WorldJsonSerializer::WorldJsonSerializer(QJsonDocument::JsonFormat format)
@@ -50,9 +50,9 @@ QByteArray WorldJsonSerializer::serializeCivilization(const core::Civilization* 
     return jdoc.toJson(this->format);
 }
 
-QByteArray WorldJsonSerializer::serializeComponentType(const core::ComponentType* const obj) const
+QByteArray WorldJsonSerializer::serializeWorldComponentType(const core::WorldComponentType* const obj) const
 {
-    QJsonDocument jdoc(componentTypeToJson(obj));
+    QJsonDocument jdoc(worldComponentTypeToJson(obj));
     return jdoc.toJson(this->format);
 }
 
@@ -75,7 +75,7 @@ QByteArray WorldJsonSerializer::serializeWorld(const core::World* const obj) con
     jobj["banners"] = toQJsonArray(obj->getBanners(), bannerToJson);
     jobj["civilizations"] = toQJsonArray(obj->getCivilizations(), civilizationToJson);
     jobj["colors"] = toQJsonArray(obj->getColors(), [](const QColor& c) { return c.name(); });
-    jobj["componentTypes"] = toQJsonArray(obj->getWorldComponentTypes(), componentTypeToJson);
+    jobj["componentTypes"] = toQJsonArray(obj->getWorldComponentTypes(), worldComponentTypeToJson);
 
     return QJsonDocument(jobj).toJson(this->format);
 }
@@ -90,7 +90,7 @@ static QJsonObject civilizationToJson(const core::Civilization* const obj)
     return serializeToJson(*obj);
 }
 
-static QJsonObject componentTypeToJson(const core::ComponentType* const obj)
+static QJsonObject worldComponentTypeToJson(const core::WorldComponentType* const obj)
 {
     QJsonObject jobj;
 

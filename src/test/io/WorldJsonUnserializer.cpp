@@ -234,13 +234,13 @@ TEST_CASE("ComponentType unserialized from JSON - happy path", "[WorldJsonUnseri
 
     SECTION("Unserialization succeeds without exceptions")
     {
-        REQUIRE_NOTHROW(unserializer.unserializeComponentType(rawJson, world));
-        REQUIRE(unserializer.unserializeComponentType(rawJson, world));
+        REQUIRE_NOTHROW(unserializer.unserializeWorldComponentType(rawJson, world));
+        REQUIRE(unserializer.unserializeWorldComponentType(rawJson, world));
     }
 
     SECTION("Unserialization component-type")
     {
-        const auto componentType{unserializer.unserializeComponentType(rawJson, world)};
+        const auto componentType{unserializer.unserializeWorldComponentType(rawJson, world)};
 
         const QJsonDocument jdoc{io::parseJson(rawJson)};
         const QJsonObject jobj{jdoc.object()};
@@ -280,7 +280,8 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
     {
         QString invalidJson{"{\"name\": \"name1\",}"};
 
-        REQUIRE_THROWS_AS(unserializer.unserializeComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
+        REQUIRE_THROWS_AS(
+            unserializer.unserializeWorldComponentType(invalidJson.toLocal8Bit(), world), utils::ValueError);
     }
 
     SECTION("Missing id")
@@ -288,7 +289,7 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
         jobj.remove("id");
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+            unserializer.unserializeWorldComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Id not int")
@@ -296,7 +297,7 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
         jobj["id"] = "asd";
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+            unserializer.unserializeWorldComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Missing name")
@@ -304,7 +305,7 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
         jobj.remove("name");
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+            unserializer.unserializeWorldComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Empty name")
@@ -312,7 +313,7 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
         jobj["name"] = "";
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+            unserializer.unserializeWorldComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Name not string")
@@ -320,7 +321,7 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
         jobj["name"] = 123;
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+            unserializer.unserializeWorldComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("No fields")
@@ -328,7 +329,7 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
         jobj.remove("fields");
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+            unserializer.unserializeWorldComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Fields list is empty")
@@ -336,7 +337,7 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
         jobj["fields"] = QJsonArray();
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+            unserializer.unserializeWorldComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Field has empty name")
@@ -346,7 +347,7 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
         };
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+            unserializer.unserializeWorldComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Field has non-string name")
@@ -356,7 +357,7 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
         };
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+            unserializer.unserializeWorldComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Field has no type")
@@ -366,7 +367,7 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
         };
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+            unserializer.unserializeWorldComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Field has non-string type")
@@ -376,7 +377,7 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
         };
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+            unserializer.unserializeWorldComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Field has empty string type")
@@ -386,7 +387,7 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
         };
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+            unserializer.unserializeWorldComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
     SECTION("Field has unknown type")
@@ -396,7 +397,7 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
         };
 
         REQUIRE_THROWS_AS(
-            unserializer.unserializeComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
+            unserializer.unserializeWorldComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 }
 

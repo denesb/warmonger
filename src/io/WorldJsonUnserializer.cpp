@@ -32,7 +32,7 @@ namespace io {
 
 static core::Banner* bannerFromJson(const QJsonObject& jobj, core::World* world);
 static core::Civilization* civilizationFromJson(const QJsonObject& jobj, core::World* world);
-static core::ComponentType* componentTypeFromJson(const QJsonObject& jobj, core::World* world);
+static core::WorldComponentType* worldComponentTypeFromJson(const QJsonObject& jobj, core::World* world);
 
 core::Banner* WorldJsonUnserializer::unserializeBanner(const QByteArray& data, core::World* world) const
 {
@@ -46,10 +46,11 @@ core::Civilization* WorldJsonUnserializer::unserializeCivilization(const QByteAr
     return civilizationFromJson(jdoc.object(), world);
 }
 
-core::ComponentType* WorldJsonUnserializer::unserializeComponentType(const QByteArray& data, core::World* world) const
+core::WorldComponentType* WorldJsonUnserializer::unserializeWorldComponentType(
+    const QByteArray& data, core::World* world) const
 {
     QJsonDocument jdoc(parseJson(data));
-    return componentTypeFromJson(jdoc.object(), world);
+    return worldComponentTypeFromJson(jdoc.object(), world);
 }
 
 std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByteArray& data) const
@@ -124,12 +125,12 @@ std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByte
     std::for_each(
         banners.begin(), banners.end(), [&obj](const auto& val) { bannerFromJson(val.toObject(), obj.get()); });
 
-    const QJsonArray componentTypes = jobj["componentTypes"].toArray();
-    if (componentTypes.isEmpty())
+    const QJsonArray worldComponentTypes = jobj["componentTypes"].toArray();
+    if (worldComponentTypes.isEmpty())
         throw utils::ValueError("Failed to unserialize world, missing, invalid or empty component-types");
 
-    std::for_each(componentTypes.begin(), componentTypes.end(), [&obj](const auto& val) {
-        componentTypeFromJson(val.toObject(), obj.get());
+    std::for_each(worldComponentTypes.begin(), worldComponentTypes.end(), [&obj](const auto& val) {
+        worldComponentTypeFromJson(val.toObject(), obj.get());
     });
 
     return obj;
@@ -184,7 +185,7 @@ static core::Civilization* civilizationFromJson(const QJsonObject& jobj, core::W
     return obj;
 }
 
-static core::ComponentType* componentTypeFromJson(const QJsonObject& jobj, core::World* world)
+static core::WorldComponentType* worldComponentTypeFromJson(const QJsonObject& jobj, core::World* world)
 {
     const int id = jobj["id"].toInt(core::WObject::invalidId);
 

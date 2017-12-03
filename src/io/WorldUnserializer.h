@@ -31,7 +31,7 @@ namespace warmonger {
 namespace core {
 class Banner;
 class Civilization;
-class ComponentType;
+class WorldComponentType;
 class World;
 }
 
@@ -70,14 +70,15 @@ public:
     virtual core::Civilization* unserializeCivilization(const QByteArray& data, core::World* world) const = 0;
 
     /**
-     * Unserialize the component-type and add it to the world.
+     * Unserialize the world component-type and add it to the world.
      *
      * \param data the raw data
      * \param world the world
      *
-     * \return the unserialized component-type object
+     * \return the unserialized world component-type object
      */
-    virtual core::ComponentType* unserializeComponentType(const QByteArray& data, core::World* world) const = 0;
+    virtual core::WorldComponentType* unserializeWorldComponentType(
+        const QByteArray& data, core::World* world) const = 0;
 
     /**
      * Unserialize the world.

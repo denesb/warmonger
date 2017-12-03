@@ -50,7 +50,7 @@ public:
 
     QByteArray serializeBanner(const core::Banner* const obj) const override;
     QByteArray serializeCivilization(const core::Civilization* const obj) const override;
-    QByteArray serializeComponentType(const core::ComponentType* const obj) const override;
+    QByteArray serializeWorldComponentType(const core::WorldComponentType* const obj) const override;
     QByteArray serializeWorld(const core::World* const obj) const override;
 
 private:

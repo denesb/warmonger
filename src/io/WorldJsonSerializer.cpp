@@ -31,7 +31,6 @@ namespace io {
 static QJsonObject bannerToJson(const core::Banner* const obj);
 static QJsonObject civilizationToJson(const core::Civilization* const obj);
 static QJsonObject worldComponentTypeToJson(const core::WorldComponentType* const obj);
-static QJsonObject fieldToJson(const core::Field* const obj);
 
 WorldJsonSerializer::WorldJsonSerializer(QJsonDocument::JsonFormat format)
     : format(format)
@@ -91,22 +90,6 @@ static QJsonObject civilizationToJson(const core::Civilization* const obj)
 }
 
 static QJsonObject worldComponentTypeToJson(const core::WorldComponentType* const obj)
-{
-    QJsonObject jobj;
-
-    jobj["id"] = obj->getId();
-    jobj["name"] = obj->getName();
-
-    QJsonArray jfields;
-    auto fields = obj->getFields();
-    std::transform(fields.cbegin(), fields.cend(), std::back_inserter(jfields), fieldToJson);
-
-    jobj["fields"] = jfields;
-
-    return jobj;
-}
-
-static QJsonObject fieldToJson(const core::Field* const obj)
 {
     return serializeToJson(*obj);
 }

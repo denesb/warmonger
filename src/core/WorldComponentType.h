@@ -43,6 +43,14 @@ class WorldComponentType : public ComponentType
     Q_OBJECT
 
 public:
+    template <class Visitor>
+    static auto describe(Visitor&& visitor)
+    {
+        return visitor.template visitParent<WObject>()
+            .visitMember("name", &WorldComponentType::getName)
+            .visitMember("fields", &WorldComponentType::getFields);
+    }
+
     /**
      * Constructs an empty WorldComponentType.
      *

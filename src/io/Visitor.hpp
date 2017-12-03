@@ -78,7 +78,7 @@ public:
     }
 
     template <typename CG, typename TG, typename CS, typename TS>
-    auto visitMember(const char* name, TG (CG::*getter)() const, void (CS::*setter)(const TS&))
+    auto visitMember(const char* name, TG (CG::*getter)() const, void (CS::*setter)(TS))
     {
         static_assert(std::is_same<CG, CS>::value, "Getter and Setter must be a member of the same class");
         static_assert(

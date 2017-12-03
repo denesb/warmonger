@@ -26,6 +26,7 @@
 
 #include "io/Visitor.hpp"
 #include "io/Reference.h"
+#include "utils/Exception.h"
 
 namespace warmonger {
 namespace io {
@@ -146,8 +147,11 @@ typename std::enable_if<std::is_enum<T>::value, QJsonValue>::type
 serializeValueToJson(T value, const QObject&)
 {
     const QMetaEnum metaEnum{QMetaEnum::fromType<T>()};
-
-    return QString(metaEnum.valueToKey(static_cast<int>(value)));
+    auto str = metaEnum.valueToKey(static_cast<int>(value));
+    if (!str)
+        throw utils::ValueError(
+            "Cannot serialize unknown enum value: " + QString::number(static_cast<int>(value)));
+    return QString(str);
 }
 
 } // namespace io

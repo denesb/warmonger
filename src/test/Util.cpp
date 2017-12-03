@@ -60,7 +60,7 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
     world->setRulesEntryPoint("rules.lua");
     jworld["rulesEntryPoint"] = "rules.lua";
 
-    world->setRulesType(core::RulesType::Lua);
+    world->setRulesType(core::WorldRules::Type::Lua);
     jworld["rulesType"] = "Lua";
 
     setNames(world.get(), jworld, 0);

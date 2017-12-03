@@ -274,7 +274,7 @@ public:
      *
      * \return the type
      */
-    RulesType getRulesType() const
+    WorldRules::Type getRulesType() const
     {
         return this->rulesType;
     }
@@ -287,7 +287,7 @@ public:
      *
      * \param rulesType the type
      */
-    void setRulesType(const RulesType rulesType);
+    void setRulesType(const WorldRules::Type rulesType);
 
     /**
      * Load the rules from basePath.
@@ -358,7 +358,7 @@ private:
     std::map<QString, int> builtInObjectIds;
     WObject* dummy;
     QString rulesEntryPoint;
-    RulesType rulesType;
+    WorldRules::Type rulesType;
     WorldRules* rules;
 };
 

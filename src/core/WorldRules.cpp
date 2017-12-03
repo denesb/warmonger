@@ -18,41 +18,43 @@
 
 #include "core/WorldRules.h"
 
+#include <QMetaEnum>
+
 #include "core/LuaWorldRules.h"
 #include "utils/Exception.h"
 
 namespace warmonger {
 namespace core {
 
-QString rulesTypeToString(RulesType type)
+QString rulesTypeToString(WorldRules::Type type)
 {
-    switch (type)
-    {
-        case RulesType::Lua:
-            return "Lua";
-    }
+    const QMetaEnum metaEnum{QMetaEnum::fromType<WorldRules::Type>()};
 
-    throw utils::ValueError(
-        "Cannot convert unknown rules-type: " + QString::number(static_cast<int>(type)) + " to string");
+    const auto str = metaEnum.valueToKey(static_cast<int>(type));
+    if (!str)
+        throw utils::ValueError(
+            "Cannot convert unknown rules-type: " + QString::number(static_cast<int>(type)) + " to string");
+    return QString(str);
 }
 
-RulesType rulesTypeFromString(const QString& str)
+WorldRules::Type rulesTypeFromString(const QString& str)
 {
-    if (str == "Lua")
-    {
-        return RulesType::Lua;
-    }
-    else
-    {
+    const QMetaEnum metaEnum{QMetaEnum::fromType<WorldRules::Type>()};
+
+    bool ok{true};
+    const auto value = metaEnum.keyToValue(str.toLocal8Bit().data(), &ok);
+
+    if (!ok)
         throw utils::ValueError("Cannot parse unknown rules-type: " + str + " from string");
-    }
+
+    return static_cast<WorldRules::Type>(value);
 }
 
 WorldRules* createWorldRules(const QString& basePath, core::World* world)
 {
     switch (world->getRulesType())
     {
-        case RulesType::Lua:
+        case WorldRules::Type::Lua:
             return new LuaWorldRules(basePath, world);
     }
 

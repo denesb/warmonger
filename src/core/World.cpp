@@ -30,7 +30,7 @@ World::World(const QString& uuid, const std::map<QString, int>& builtInObjectIds
     : QObject{parent}
     , uuid{uuid}
     , builtInObjectIds{builtInObjectIds}
-    , rulesType{RulesType::Lua}
+    , rulesType{WorldRules::Type::Lua}
     , rules{nullptr}
 {
     const auto& builtInComponentTypes = getBuiltInComponentTypesFactories();
@@ -158,7 +158,7 @@ void World::setRulesEntryPoint(const QString& rulesEntryPoint)
     }
 }
 
-void World::setRulesType(const RulesType rulesType)
+void World::setRulesType(const WorldRules::Type rulesType)
 {
     if (this->rulesType != rulesType)
     {

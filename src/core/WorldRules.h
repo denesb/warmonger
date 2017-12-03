@@ -24,6 +24,7 @@
 #include <memory>
 
 #include <QString>
+#include <QObject>
 
 namespace warmonger {
 namespace core {
@@ -40,7 +41,17 @@ class World;
  */
 class WorldRules
 {
+    Q_GADGET
 public:
+    /**
+     * The types of rules recognised by warmonger.
+     */
+    enum class Type
+    {
+        Lua
+    };
+    Q_ENUM(Type);
+
     /**
      * Get the world.
      *
@@ -66,21 +77,13 @@ public:
 };
 
 /**
- * The types of rules recognised by warmonger.
- */
-enum class RulesType
-{
-    Lua
-};
-
-/**
  * Convert the rules-type to string.
  *
  * \param the type
  *
  * \returns the string representation
  */
-QString rulesTypeToString(RulesType type);
+QString rulesTypeToString(WorldRules::Type type);
 
 /**
  * Parse the rules-type from a string.
@@ -91,7 +94,7 @@ QString rulesTypeToString(RulesType type);
  *
  * \throws utils::ValueError if the parsing fails
  */
-RulesType rulesTypeFromString(const QString& str);
+WorldRules::Type rulesTypeFromString(const QString& str);
 
 /**
  * Create and initialize the world rules for the world.

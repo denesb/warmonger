@@ -31,10 +31,10 @@ namespace warmonger {
 namespace io {
 
 QJsonValue serializeValueToJson(int value, const QObject&);
-QJsonValue serializeValueToJson(QString value, const QObject&);
+QJsonValue serializeValueToJson(const QString& value, const QObject&);
 
 template <typename T>
-QJsonValue serializeValueToJson(std::vector<T> value, const QObject& obj);
+QJsonValue serializeValueToJson(const std::vector<T>& value, const QObject& obj);
 
 template <typename T>
 typename std::enable_if<std::is_base_of<QObject, T>::value && !std::is_base_of<core::WObject, T>::value, QJsonValue>::type
@@ -106,19 +106,19 @@ QJsonValue serializeValueToJson(int value, const QObject&)
     return value;
 }
 
-QJsonValue serializeValueToJson(QString value, const QObject&)
+QJsonValue serializeValueToJson(const QString& value, const QObject&)
 {
     return value;
 }
 
 template <typename T>
-QJsonValue serializeValueToJson(std::vector<T> value, const QObject& obj)
+QJsonValue serializeValueToJson(const std::vector<T>& value, const QObject& obj)
 {
     QJsonArray jarr;
 
     for (auto& element : value)
     {
-        jarr.append(serializeValueToJson(std::move(element), obj));
+        jarr.append(serializeValueToJson(element, obj));
     }
 
     return jarr;

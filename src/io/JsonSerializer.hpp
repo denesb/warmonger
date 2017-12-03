@@ -39,6 +39,9 @@ QJsonValue serializeValueToJson(std::vector<T> value, const QObject& obj);
 template <typename T, typename = std::enable_if<std::is_base_of<core::WObject, T>::value>>
 QJsonValue serializeValueToJson(T* value, const QObject& obj);
 
+template <typename T, typename = std::enable_if<std::is_enum<T>::value>>
+QJsonValue serializeValueToJson(T value, const QObject& obj);
+
 template<typename T, typename Member>
 void serializeMemberToJsonImpl(const T& obj, QJsonObject& jobj, const Member& member)
 {
@@ -122,6 +125,14 @@ QJsonValue serializeValueToJson(T* value, const QObject& obj)
         return serializeToJson(*value);
     else
         return serializeReference(value);
+}
+
+template <typename T, typename = std::enable_if<std::is_enum<T>::value>>
+QJsonValue serializeValueToJson(T value, const QObject&)
+{
+    const QMetaEnum metaEnum{QMetaEnum::fromType<T>()};
+
+    return QString(metaEnum.valueToKey(static_cast<int>(value)));
 }
 
 } // namespace io

@@ -20,6 +20,8 @@
 #define W_IO_JSON_SERIALIZER_HPP
 
 #include <utility>
+#include <vector>
+#include <map>
 
 #include <QJsonObject>
 #include <QJsonArray>
@@ -33,9 +35,13 @@ namespace io {
 
 QJsonValue serializeValueToJson(int value, const QObject&);
 QJsonValue serializeValueToJson(const QString& value, const QObject&);
+QJsonValue serializeValueToJson(const QColor& value, const QObject&);
 
 template <typename T>
 QJsonValue serializeValueToJson(const std::vector<T>& value, const QObject& obj);
+
+template <typename K, typename T>
+QJsonValue serializeValueToJson(const std::map<K, T>& value, const QObject& obj);
 
 template <typename T>
 typename std::enable_if<std::is_base_of<QObject, T>::value && !std::is_base_of<core::WObject, T>::value, QJsonValue>::type
@@ -112,17 +118,36 @@ QJsonValue serializeValueToJson(const QString& value, const QObject&)
     return value;
 }
 
+QJsonValue serializeValueToJson(const QColor& value, const QObject&)
+{
+    return value.name();
+}
+
 template <typename T>
 QJsonValue serializeValueToJson(const std::vector<T>& value, const QObject& obj)
 {
     QJsonArray jarr;
 
-    for (auto& element : value)
+    for (const auto& element : value)
     {
         jarr.append(serializeValueToJson(element, obj));
     }
 
     return jarr;
+}
+
+template <typename K, typename T>
+QJsonValue serializeValueToJson(const std::map<K, T>& value, const QObject& obj)
+{
+    QJsonObject jobj;
+
+    for (const auto& element : value)
+    {
+        auto jkey = serializeValueToJson(element.first, obj);
+        jobj[jkey.toString()] = serializeValueToJson(element.second, obj);
+    }
+
+    return jobj;
 }
 
 template <typename T>

@@ -57,26 +57,7 @@ QByteArray WorldJsonSerializer::serializeWorldComponentType(const core::WorldCom
 
 QByteArray WorldJsonSerializer::serializeWorld(const core::World* const obj) const
 {
-    QJsonObject jobj;
-
-    jobj["uuid"] = obj->getUuid();
-
-    QJsonObject jBuildInObjectIds;
-    for (const auto builtInObjectId : obj->getBuiltInObjectIds())
-    {
-        jBuildInObjectIds[builtInObjectId.first] = builtInObjectId.second;
-    }
-    jobj["builtInObjectIds"] = jBuildInObjectIds;
-
-    jobj["name"] = obj->getName();
-    jobj["rulesEntryPoint"] = obj->getRulesEntryPoint();
-    jobj["rulesType"] = core::rulesTypeToString(obj->getRulesType());
-    jobj["banners"] = toQJsonArray(obj->getBanners(), bannerToJson);
-    jobj["civilizations"] = toQJsonArray(obj->getCivilizations(), civilizationToJson);
-    jobj["colors"] = toQJsonArray(obj->getColors(), [](const QColor& c) { return c.name(); });
-    jobj["componentTypes"] = toQJsonArray(obj->getWorldComponentTypes(), worldComponentTypeToJson);
-
-    return QJsonDocument(jobj).toJson(this->format);
+    return QJsonDocument(serializeToJson(*obj)).toJson(this->format);
 }
 
 static QJsonObject bannerToJson(const core::Banner* const obj)

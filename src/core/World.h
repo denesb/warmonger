@@ -53,6 +53,21 @@ class World : public QObject
     Q_PROPERTY(QVariantList componentTypes READ readComponentTypes NOTIFY componentTypesChanged)
 
 public:
+    template <class Visitor>
+    static auto describe(Visitor&& visitor)
+    {
+        return visitor.template visitParent<QObject>()
+            .visitMember("name", &World::getName)
+            .visitMember("uuid", &World::getUuid)
+            .visitMember("builtInObjectIds", &World::getBuiltInObjectIds)
+            .visitMember("rulesEntryPoint", &World::getRulesEntryPoint)
+            .visitMember("rulesType", &World::getRulesType)
+            .visitMember("banners", &World::getBanners)
+            .visitMember("civilizations", &World::getCivilizations)
+            .visitMember("colors", &World::getColors)
+            .visitMember("componentTypes", &World::getWorldComponentTypes);
+    }
+
     /**
      * Constructs an empty world object.
      *

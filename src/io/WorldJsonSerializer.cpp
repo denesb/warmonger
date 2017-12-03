@@ -28,10 +28,6 @@
 namespace warmonger {
 namespace io {
 
-static QJsonObject bannerToJson(const core::Banner* const obj);
-static QJsonObject civilizationToJson(const core::Civilization* const obj);
-static QJsonObject worldComponentTypeToJson(const core::WorldComponentType* const obj);
-
 WorldJsonSerializer::WorldJsonSerializer(QJsonDocument::JsonFormat format)
     : format(format)
 {
@@ -39,40 +35,22 @@ WorldJsonSerializer::WorldJsonSerializer(QJsonDocument::JsonFormat format)
 
 QByteArray WorldJsonSerializer::serializeBanner(const core::Banner* const obj) const
 {
-    QJsonDocument jdoc(bannerToJson(obj));
-    return jdoc.toJson(this->format);
+    return QJsonDocument(serializeToJson(*obj)).toJson(this->format);
 }
 
 QByteArray WorldJsonSerializer::serializeCivilization(const core::Civilization* const obj) const
 {
-    QJsonDocument jdoc(civilizationToJson(obj));
-    return jdoc.toJson(this->format);
+    return QJsonDocument(serializeToJson(*obj)).toJson(this->format);
 }
 
 QByteArray WorldJsonSerializer::serializeWorldComponentType(const core::WorldComponentType* const obj) const
 {
-    QJsonDocument jdoc(worldComponentTypeToJson(obj));
-    return jdoc.toJson(this->format);
+    return QJsonDocument(serializeToJson(*obj)).toJson(this->format);
 }
 
 QByteArray WorldJsonSerializer::serializeWorld(const core::World* const obj) const
 {
     return QJsonDocument(serializeToJson(*obj)).toJson(this->format);
-}
-
-static QJsonObject bannerToJson(const core::Banner* const obj)
-{
-    return serializeToJson(*obj);
-}
-
-static QJsonObject civilizationToJson(const core::Civilization* const obj)
-{
-    return serializeToJson(*obj);
-}
-
-static QJsonObject worldComponentTypeToJson(const core::WorldComponentType* const obj)
-{
-    return serializeToJson(*obj);
 }
 
 } // namespace warmonger

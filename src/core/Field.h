@@ -51,6 +51,15 @@ class Field : public QObject
     Q_PROPERTY(Field::Type type READ getType NOTIFY typeChanged)
 
 public:
+    template <class Visitor>
+    static auto describe(Visitor&& visitor)
+    {
+        return visitor.template visitParent<QObject>()
+            .visitMember("name", &Field::getName, &Field::setName)
+            .visitMember("type", &Field::getType, &Field::setType)
+            .visitConstructor("parent");
+    }
+
     /**
      * The type id of a field-type.
      *

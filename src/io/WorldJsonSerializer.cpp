@@ -116,15 +116,7 @@ static QJsonObject componentTypeToJson(const core::ComponentType* const obj)
 
 static QJsonObject fieldToJson(const core::Field* const obj)
 {
-    QJsonObject jobj;
-
-    jobj["name"] = obj->getName();
-
-    const QMetaEnum typeIdMetaEnum{QMetaEnum::fromType<core::Field::Type>()};
-
-    jobj["type"] = typeIdMetaEnum.valueToKey(static_cast<int>(obj->getType()));
-
-    return jobj;
+    return serializeToJson(*obj);
 }
 
 } // namespace warmonger

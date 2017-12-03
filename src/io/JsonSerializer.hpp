@@ -37,6 +37,10 @@ template <typename T>
 QJsonValue serializeValueToJson(std::vector<T> value, const QObject& obj);
 
 template <typename T>
+typename std::enable_if<std::is_base_of<QObject, T>::value && !std::is_base_of<core::WObject, T>::value, QJsonValue>::type
+serializeValueToJson(T* value, const QObject& obj);
+
+template <typename T>
 typename std::enable_if<std::is_base_of<core::WObject, T>::value, QJsonValue>::type
 serializeValueToJson(T* value, const QObject& obj);
 
@@ -118,6 +122,13 @@ QJsonValue serializeValueToJson(std::vector<T> value, const QObject& obj)
     }
 
     return jarr;
+}
+
+template <typename T>
+typename std::enable_if<std::is_base_of<QObject, T>::value && !std::is_base_of<core::WObject, T>::value, QJsonValue>::type
+serializeValueToJson(T* value, const QObject&)
+{
+    return serializeToJson(*value);
 }
 
 template <typename T>

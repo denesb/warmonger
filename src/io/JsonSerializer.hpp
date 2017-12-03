@@ -30,14 +30,14 @@
 namespace warmonger {
 namespace io {
 
-QJsonValue serializeValueToJson(int value, const core::WObject&);
-QJsonValue serializeValueToJson(QString value, const core::WObject&);
+QJsonValue serializeValueToJson(int value, const QObject&);
+QJsonValue serializeValueToJson(QString value, const QObject&);
 
 template <typename T>
-QJsonValue serializeValueToJson(std::vector<T> value, const core::WObject& obj);
+QJsonValue serializeValueToJson(std::vector<T> value, const QObject& obj);
 
 template <typename T, typename = std::enable_if<std::is_base_of<core::WObject, T>::value>>
-QJsonValue serializeValueToJson(T* value, const core::WObject& obj);
+QJsonValue serializeValueToJson(T* value, const QObject& obj);
 
 template<typename T, typename Member>
 void serializeMemberToJsonImpl(const T& obj, QJsonObject& jobj, const Member& member)
@@ -92,18 +92,18 @@ QJsonObject serializeToJson(const T& obj)
 
 // Implementations
 
-QJsonValue serializeValueToJson(int value, const core::WObject&)
+QJsonValue serializeValueToJson(int value, const QObject&)
 {
     return value;
 }
 
-QJsonValue serializeValueToJson(QString value, const core::WObject&)
+QJsonValue serializeValueToJson(QString value, const QObject&)
 {
     return value;
 }
 
 template <typename T>
-QJsonValue serializeValueToJson(std::vector<T> value, const core::WObject& obj)
+QJsonValue serializeValueToJson(std::vector<T> value, const QObject& obj)
 {
     QJsonArray jarr;
 
@@ -116,7 +116,7 @@ QJsonValue serializeValueToJson(std::vector<T> value, const core::WObject& obj)
 }
 
 template <typename T, typename = std::enable_if<std::is_base_of<core::WObject, T>::value>>
-QJsonValue serializeValueToJson(T* value, const core::WObject& obj)
+QJsonValue serializeValueToJson(T* value, const QObject& obj)
 {
     if (value->parent() == &obj)
         return serializeToJson(*value);

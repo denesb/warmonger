@@ -205,6 +205,13 @@ public:
     }
 
     /**
+     * Get the world component-types.
+     *
+     * This list excludes any built-in component-types.
+     */
+    std::vector<WorldComponentType*> getWorldComponentTypes() const;
+
+    /**
      * Get the component-types as a QVariantList.
      *
      * This function is used as a read function for the mapNodes property and is

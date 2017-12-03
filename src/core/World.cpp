@@ -120,6 +120,17 @@ QVariantList World::readColors() const
     return utils::toQVariantList(this->colors);
 }
 
+std::vector<WorldComponentType*> World::getWorldComponentTypes() const
+{
+    std::vector<core::WorldComponentType*> worldComponentTypes;
+    for (auto* ct : this->componentTypes)
+    {
+        if (!ct->isBuiltIn())
+            worldComponentTypes.push_back(static_cast<core::WorldComponentType*>(ct));
+    }
+    return worldComponentTypes;
+}
+
 QVariantList World::readComponentTypes() const
 {
     return utils::toQVariantList(this->componentTypes);

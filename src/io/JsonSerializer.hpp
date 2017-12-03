@@ -25,6 +25,7 @@
 
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QMetaEnum>
 
 #include "io/Visitor.hpp"
 #include "io/Reference.h"

@@ -18,12 +18,8 @@
 
 #include "io/WorldJsonSerializer.h"
 
-#include <QMetaEnum>
-
 #include "core/World.h"
 #include "io/JsonSerializer.hpp"
-#include "io/JsonUtils.h"
-#include "io/Reference.h"
 
 namespace warmonger {
 namespace io {

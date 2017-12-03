@@ -23,8 +23,8 @@
 
 #include <memory>
 
-#include <QString>
 #include <QObject>
+#include <QString>
 
 namespace warmonger {
 namespace core {

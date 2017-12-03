@@ -36,11 +36,13 @@ QJsonValue serializeValueToJson(QString value, const QObject&);
 template <typename T>
 QJsonValue serializeValueToJson(std::vector<T> value, const QObject& obj);
 
-template <typename T, typename = typename std::enable_if<std::is_base_of<core::WObject, T>::value>::type>
-QJsonValue serializeValueToJson(T* value, const QObject& obj);
+template <typename T>
+typename std::enable_if<std::is_base_of<core::WObject, T>::value, QJsonValue>::type
+serializeValueToJson(T* value, const QObject& obj);
 
-template <typename T, typename = typename std::enable_if<std::is_enum<T>::value>::type>
-QJsonValue serializeValueToJson(T value, const QObject& obj);
+template <typename T>
+typename std::enable_if<std::is_enum<T>::value, QJsonValue>::type
+serializeValueToJson(T value, const QObject& obj);
 
 template<typename T, typename Member>
 void serializeMemberToJsonImpl(const T& obj, QJsonObject& jobj, const Member& member)
@@ -118,8 +120,9 @@ QJsonValue serializeValueToJson(std::vector<T> value, const QObject& obj)
     return jarr;
 }
 
-template <typename T, typename = typename std::enable_if<std::is_base_of<core::WObject, T>::value>::type>
-QJsonValue serializeValueToJson(T* value, const QObject& obj)
+template <typename T>
+typename std::enable_if<std::is_base_of<core::WObject, T>::value, QJsonValue>::type
+serializeValueToJson(T* value, const QObject& obj)
 {
     if (value->parent() == &obj)
         return serializeToJson(*value);
@@ -127,8 +130,9 @@ QJsonValue serializeValueToJson(T* value, const QObject& obj)
         return serializeReference(value);
 }
 
-template <typename T, typename = typename std::enable_if<std::is_enum<T>::value>::type>
-QJsonValue serializeValueToJson(T value, const QObject&)
+template <typename T>
+typename std::enable_if<std::is_enum<T>::value, QJsonValue>::type
+serializeValueToJson(T value, const QObject&)
 {
     const QMetaEnum metaEnum{QMetaEnum::fromType<T>()};
 

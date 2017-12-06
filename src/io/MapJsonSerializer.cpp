@@ -19,6 +19,7 @@
 #include "io/MapJsonSerializer.h"
 
 #include "core/Map.h"
+#include "io/JsonSerializer.hpp"
 #include "io/JsonUtils.h"
 #include "io/Reference.h"
 #include "utils/Exception.h"
@@ -173,16 +174,7 @@ static QJsonObject entityToJson(const core::Entity* const obj)
 
 static QJsonObject factionToJson(const core::Faction* const obj)
 {
-    QJsonObject jobj;
-
-    jobj["id"] = obj->getId();
-    jobj["name"] = obj->getName();
-    jobj["primaryColor"] = obj->getPrimaryColor().name();
-    jobj["secondaryColor"] = obj->getSecondaryColor().name();
-    jobj["banner"] = serializeReference(obj->getBanner());
-    jobj["civilization"] = serializeReference(obj->getCivilization());
-
-    return jobj;
+    return serializeToJson(*obj);
 }
 
 static QJsonObject mapNodeToJson(const core::MapNode* const obj)

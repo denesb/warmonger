@@ -57,32 +57,32 @@ typename std::enable_if<std::is_enum<T>::value, QJsonValue>::type
 serializeValueToJson(T value, const QObject& obj);
 
 template<typename T, typename Member>
-void serializeMemberToJsonImpl(const T& obj, QJsonObject& jobj, const Member& member)
+inline void serializeMemberToJsonImpl(const T& obj, QJsonObject& jobj, const Member& member)
 {
     jobj[member.name] = serializeValueToJson(member.getter(obj), obj);
 }
 
 template<typename T, typename LastMember>
-void serializeMembersToJsonImpl(const T& obj, QJsonObject& jobj, const LastMember& lastMember)
+inline void serializeMembersToJsonImpl(const T& obj, QJsonObject& jobj, const LastMember& lastMember)
 {
     serializeMemberToJsonImpl(obj, jobj, lastMember);
 }
 
 template<typename T, typename FirstMember, typename ...Members>
-void serializeMembersToJsonImpl(const T& obj, QJsonObject& jobj, const FirstMember& firstMember, const Members&... members)
+inline void serializeMembersToJsonImpl(const T& obj, QJsonObject& jobj, const FirstMember& firstMember, const Members&... members)
 {
     serializeMemberToJsonImpl(obj, jobj, firstMember);
     serializeMembersToJsonImpl(obj, jobj, members...);
 }
 
 template<typename T, typename Members, std::size_t... I>
-void serializeMembersToJsonImpl(const T& obj, QJsonObject& jobj, const Members& members, std::index_sequence<I...>)
+inline void serializeMembersToJsonImpl(const T& obj, QJsonObject& jobj, const Members& members, std::index_sequence<I...>)
 {
     serializeMembersToJsonImpl(obj, jobj, std::get<I>(members)...);
 }
 
 template<typename T, typename Members>
-void serializeMembersToJson(const T& obj, QJsonObject& jobj, const Members& members)
+inline void serializeMembersToJson(const T& obj, QJsonObject& jobj, const Members& members)
 {
     return serializeMembersToJsonImpl(obj, jobj, members, std::make_index_sequence<std::tuple_size<Members>::value>());
 }
@@ -91,13 +91,13 @@ template <typename T>
 QJsonObject serializeToJson(const T& obj);
 
 template <>
-QJsonObject serializeToJson<QObject>(const QObject&)
+inline QJsonObject serializeToJson<QObject>(const QObject&)
 {
     return QJsonObject();
 }
 
 template <typename T>
-QJsonObject serializeToJson(const T& obj)
+inline QJsonObject serializeToJson(const T& obj)
 {
     auto description = T::describe(Visitor<T>());
     using Description = decltype(description);
@@ -109,23 +109,23 @@ QJsonObject serializeToJson(const T& obj)
 
 // Implementations
 
-QJsonValue serializeValueToJson(int value, const QObject&)
+inline QJsonValue serializeValueToJson(int value, const QObject&)
 {
     return value;
 }
 
-QJsonValue serializeValueToJson(const QString& value, const QObject&)
+inline QJsonValue serializeValueToJson(const QString& value, const QObject&)
 {
     return value;
 }
 
-QJsonValue serializeValueToJson(const QColor& value, const QObject&)
+inline QJsonValue serializeValueToJson(const QColor& value, const QObject&)
 {
     return value.name();
 }
 
 template <typename T>
-QJsonValue serializeValueToJson(const std::vector<T>& value, const QObject& obj)
+inline QJsonValue serializeValueToJson(const std::vector<T>& value, const QObject& obj)
 {
     QJsonArray jarr;
 
@@ -138,7 +138,7 @@ QJsonValue serializeValueToJson(const std::vector<T>& value, const QObject& obj)
 }
 
 template <typename K, typename T>
-QJsonValue serializeValueToJson(const std::map<K, T>& value, const QObject& obj)
+inline QJsonValue serializeValueToJson(const std::map<K, T>& value, const QObject& obj)
 {
     QJsonObject jobj;
 
@@ -152,14 +152,14 @@ QJsonValue serializeValueToJson(const std::map<K, T>& value, const QObject& obj)
 }
 
 template <typename T>
-typename std::enable_if<std::is_base_of<QObject, T>::value && !std::is_base_of<core::WObject, T>::value, QJsonValue>::type
+inline typename std::enable_if<std::is_base_of<QObject, T>::value && !std::is_base_of<core::WObject, T>::value, QJsonValue>::type
 serializeValueToJson(T* value, const QObject&)
 {
     return serializeToJson(*value);
 }
 
 template <typename T>
-typename std::enable_if<std::is_base_of<core::WObject, T>::value, QJsonValue>::type
+inline typename std::enable_if<std::is_base_of<core::WObject, T>::value, QJsonValue>::type
 serializeValueToJson(T* value, const QObject& obj)
 {
     if (value->parent() == &obj)
@@ -169,7 +169,7 @@ serializeValueToJson(T* value, const QObject& obj)
 }
 
 template <typename T>
-typename std::enable_if<std::is_enum<T>::value, QJsonValue>::type
+inline typename std::enable_if<std::is_enum<T>::value, QJsonValue>::type
 serializeValueToJson(T value, const QObject&)
 {
     const QMetaEnum metaEnum{QMetaEnum::fromType<T>()};

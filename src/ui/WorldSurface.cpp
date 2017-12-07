@@ -32,9 +32,9 @@
 #include "ui/WorldSurface.h"
 #include "utils/Constants.h"
 #include "utils/Exception.h"
+#include "utils/Hash.h"
 #include "utils/Logging.h"
 #include "utils/Utils.h"
-#include "utils/Hash.h"
 
 namespace std {
 

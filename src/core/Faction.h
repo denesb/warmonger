@@ -49,6 +49,17 @@ class Faction : public WObject
     Q_PROPERTY(Civilization* civilization READ getCivilization WRITE setCivilization NOTIFY civilizationChanged)
 
 public:
+    template <class Visitor>
+    static auto describe(Visitor&& visitor)
+    {
+        return visitor.template visitParent<WObject>()
+            .visitMember("name", &Faction::getName)
+            .visitMember("primaryColor", &Faction::getPrimaryColor)
+            .visitMember("secondaryColor", &Faction::getSecondaryColor)
+            .visitMember("banner", &Faction::getBanner)
+            .visitMember("civilization", &Faction::getCivilization);
+    }
+
     /**
      * Construct an empty Faction.
      *

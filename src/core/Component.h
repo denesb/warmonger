@@ -20,12 +20,14 @@
 #ifndef W_CORE_COMPONENT_H
 #define W_CORE_COMPONENT_H
 
+#include <unordered_map>
 #include <vector>
 
 #include <QString>
 
 #include "core/ComponentType.h"
 #include "core/WObject.h"
+#include "utils/Hash.h"
 
 namespace warmonger {
 namespace core {
@@ -96,6 +98,14 @@ public:
 
     const FieldValue* field(const QString& name) const;
 
+    /**
+     * Get all fields of this component.
+     */
+    const std::unordered_map<QString, FieldValue>& getFields() const
+    {
+        return this->fields;
+    }
+
 signals:
     /**
      * Emitted when the type changes.
@@ -109,7 +119,7 @@ signals:
 
 private:
     ComponentType* type;
-    std::map<QString, FieldValue> fields;
+    std::unordered_map<QString, FieldValue> fields;
 };
 
 /**

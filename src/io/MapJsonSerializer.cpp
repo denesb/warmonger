@@ -33,7 +33,6 @@ static QJsonValue serializeValueToJson(const core::FieldValue& value, const QObj
 
 namespace io {
 
-static QJsonObject componentToJson(const core::Component* const obj);
 static QJsonObject entityToJson(const core::Entity* const obj);
 static QJsonObject factionToJson(const core::Faction* const obj);
 static QJsonObject mapNodeToJson(const core::MapNode* const obj);
@@ -74,27 +73,9 @@ QByteArray MapJsonSerializer::serializeMapNode(const core::MapNode* const obj) c
     return jdoc.toJson(this->format);
 }
 
-static QJsonObject componentToJson(const core::Component* const obj)
-{
-    return serializeToJson(*obj);
-}
-
 static QJsonObject entityToJson(const core::Entity* const obj)
 {
-    QJsonObject jobj;
-
-    jobj["id"] = obj->getId();
-
-    QJsonArray jcomponents;
-    const auto& components = obj->getComponents();
-    for (const auto& component : components)
-    {
-        jcomponents.push_back(componentToJson(component));
-    }
-
-    jobj["components"] = jcomponents;
-
-    return jobj;
+    return serializeToJson(*obj);
 }
 
 static QJsonObject factionToJson(const core::Faction* const obj)

@@ -47,6 +47,13 @@ class Entity : public WObject
     Q_OBJECT
 
 public:
+    template <class Visitor>
+    static auto describe(Visitor&& visitor)
+    {
+        return visitor.template visitParent<WObject>()
+            .visitMember("components", &Entity::getComponents);
+    }
+
     /**
      * Create an empty entity.
      *

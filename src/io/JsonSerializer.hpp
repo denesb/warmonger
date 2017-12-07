@@ -22,6 +22,7 @@
 #include <utility>
 #include <vector>
 #include <map>
+#include <unordered_map>
 
 #include <QJsonObject>
 #include <QJsonArray>
@@ -43,6 +44,9 @@ QJsonValue serializeValueToJson(const std::vector<T>& value, const QObject& obj)
 
 template <typename K, typename T>
 QJsonValue serializeValueToJson(const std::map<K, T>& value, const QObject& obj);
+
+template <typename K, typename T>
+QJsonValue serializeValueToJson(const std::unordered_map<K, T>& value, const QObject& obj);
 
 template <typename T>
 typename std::enable_if<std::is_base_of<QObject, T>::value && !std::is_base_of<core::WObject, T>::value, QJsonValue>::type
@@ -137,18 +141,28 @@ inline QJsonValue serializeValueToJson(const std::vector<T>& value, const QObjec
     return jarr;
 }
 
-template <typename K, typename T>
-inline QJsonValue serializeValueToJson(const std::map<K, T>& value, const QObject& obj)
+template <typename AssociativeContainer>
+inline QJsonValue serializeContainer(const AssociativeContainer& value, const QObject& obj)
 {
     QJsonObject jobj;
-
     for (const auto& element : value)
     {
         auto jkey = serializeValueToJson(element.first, obj);
         jobj[jkey.toString()] = serializeValueToJson(element.second, obj);
     }
-
     return jobj;
+}
+
+template <typename K, typename T>
+inline QJsonValue serializeValueToJson(const std::map<K, T>& value, const QObject& obj)
+{
+    return serializeContainer(value, obj);
+}
+
+template <typename K, typename T>
+inline QJsonValue serializeValueToJson(const std::unordered_map<K, T>& value, const QObject& obj)
+{
+    return serializeContainer(value, obj);
 }
 
 template <typename T>

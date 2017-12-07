@@ -73,12 +73,13 @@ Kudos to the authors and contributors of all this awesome, freely available stuf
     sudo dnf install doxygen graphviz clang
 
 ## Other awesome strategy game projects
- * [Battle for Wesnoth](https://www.wesnoth.org/)
  * [0 A.D.](https://play0ad.com/)
- * [OpenRA](http://www.openra.net/)
- * [TripleA](http://www.triplea-game.org/)
- * [OpenAge](http://openage.sft.mx/)
- * [Wyrmsun](https://andrettin.github.io/)
+ * [Battle for Wesnoth](https://www.wesnoth.org/)
  * [FreeCiv](http://www.freeciv.org/)
  * [FreeCol](http://www.freecol.org/)
+ * [OpenAge](http://openage.sft.mx/)
+ * [OpenRA](http://www.openra.net/)
+ * [TripleA](http://www.triplea-game.org/)
  * [VCMI - HOMM 3 WOG recreated](http://vcmi.eu/)
+ * [Wargus](https://wargus.github.io/)
+ * [Wyrmsun](https://andrettin.github.io/)

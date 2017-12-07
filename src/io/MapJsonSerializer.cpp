@@ -69,68 +69,6 @@ QByteArray MapJsonSerializer::serializeMapNode(const core::MapNode* const obj) c
     return jdoc.toJson(this->format);
 }
 
-static QJsonValue fieldToJson(const core::FieldValue& value)
-{
-    QJsonValue jval;
-
-    switch (value.getType())
-    {
-        case core::Field::Type::Integer:
-        {
-            jval = value.asInteger();
-        }
-        break;
-
-        case core::Field::Type::Real:
-        {
-            jval = value.asReal();
-        }
-        break;
-
-        case core::Field::Type::String:
-        {
-            jval = value.asString();
-        }
-        break;
-
-        case core::Field::Type::Reference:
-        {
-            jval = serializeReference(value.asReference());
-        }
-        break;
-
-        case core::Field::Type::List:
-        {
-            const auto& list = value.asList();
-            QJsonArray jlist;
-
-            for (const auto& element : list)
-            {
-                jlist.push_back(fieldToJson(element));
-            }
-
-            jval = jlist;
-        }
-        break;
-
-        case core::Field::Type::Map:
-        {
-            const auto& map = value.asMap();
-            QJsonObject jmap;
-
-            for (const auto& element : map)
-            {
-                jmap[element.first] = fieldToJson(element.second);
-            }
-
-            jval = jmap;
-        }
-        break;
-    }
-
-    return jval;
-}
-
 static QJsonObject componentToJson(const core::Component* const obj)
 {
     const auto& fields = obj->getType()->getFields();
@@ -198,6 +136,68 @@ static QJsonObject mapNodeToJson(const core::MapNode* const obj)
     jobj["neighbours"] = jneighbours;
 
     return jobj;
+}
+
+static QJsonValue fieldToJson(const core::FieldValue& value)
+{
+    QJsonValue jval;
+
+    switch (value.getType())
+    {
+        case core::Field::Type::Integer:
+        {
+            jval = value.asInteger();
+        }
+        break;
+
+        case core::Field::Type::Real:
+        {
+            jval = value.asReal();
+        }
+        break;
+
+        case core::Field::Type::String:
+        {
+            jval = value.asString();
+        }
+        break;
+
+        case core::Field::Type::Reference:
+        {
+            jval = serializeReference(value.asReference());
+        }
+        break;
+
+        case core::Field::Type::List:
+        {
+            const auto& list = value.asList();
+            QJsonArray jlist;
+
+            for (const auto& element : list)
+            {
+                jlist.push_back(fieldToJson(element));
+            }
+
+            jval = jlist;
+        }
+        break;
+
+        case core::Field::Type::Map:
+        {
+            const auto& map = value.asMap();
+            QJsonObject jmap;
+
+            for (const auto& element : map)
+            {
+                jmap[element.first] = fieldToJson(element.second);
+            }
+
+            jval = jmap;
+        }
+        break;
+    }
+
+    return jval;
 }
 
 } // namespace warmonger

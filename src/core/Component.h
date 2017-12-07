@@ -52,6 +52,14 @@ class Component : public WObject
     Q_PROPERTY(ComponentType* type READ getType NOTIFY typeChanged)
 
 public:
+    template <class Visitor>
+    static auto describe(Visitor&& visitor)
+    {
+        return visitor.template visitParent<WObject>()
+            .visitMember("type", &Component::getType)
+            .visitMember("fields", &Component::getFields);
+    }
+
     /**
      * Create an empty component.
      *

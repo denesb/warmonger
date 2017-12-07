@@ -57,6 +57,14 @@ class ComponentType : public WObject
     Q_PROPERTY(QVariantList fields READ readFields NOTIFY fieldsChanged)
 
 public:
+    template <class Visitor>
+    static auto describe(Visitor&& visitor)
+    {
+        return visitor.template visitParent<WObject>()
+            .visitMember("name", &ComponentType::getName)
+            .visitMember("fields", &ComponentType::getFields);
+    }
+
     /**
      * Constructs an empty ComponentType.
      *

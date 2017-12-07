@@ -25,9 +25,14 @@
 #include "utils/Exception.h"
 
 namespace warmonger {
+namespace core {
+
+static QJsonValue serializeValueToJson(const core::FieldValue& value, const QObject& obj);
+
+} // namespace core
+
 namespace io {
 
-static QJsonValue fieldToJson(const core::FieldValue& value);
 static QJsonObject componentToJson(const core::Component* const obj);
 static QJsonObject entityToJson(const core::Entity* const obj);
 static QJsonObject factionToJson(const core::Faction* const obj);
@@ -71,25 +76,7 @@ QByteArray MapJsonSerializer::serializeMapNode(const core::MapNode* const obj) c
 
 static QJsonObject componentToJson(const core::Component* const obj)
 {
-    const auto& fields = obj->getType()->getFields();
-    QJsonObject jobj;
-
-    jobj["type"] = io::serializeReference(obj->getType());
-
-    QJsonObject jfields;
-
-    for (const auto& field : fields)
-    {
-        auto& fieldValue = *obj->field(field->getName());
-        if (fieldValue.getType() != field->getType())
-            throw utils::ValueError("Type Id mismatch for field");
-
-        jfields[field->getName()] = fieldToJson(fieldValue);
-    }
-
-    jobj["fields"] = jfields;
-
-    return jobj;
+    return serializeToJson(*obj);
 }
 
 static QJsonObject entityToJson(const core::Entity* const obj)
@@ -138,7 +125,11 @@ static QJsonObject mapNodeToJson(const core::MapNode* const obj)
     return jobj;
 }
 
-static QJsonValue fieldToJson(const core::FieldValue& value)
+} // namespace io
+
+namespace core {
+
+static QJsonValue serializeValueToJson(const core::FieldValue& value, const QObject& obj)
 {
     QJsonValue jval;
 
@@ -164,7 +155,7 @@ static QJsonValue fieldToJson(const core::FieldValue& value)
 
         case core::Field::Type::Reference:
         {
-            jval = serializeReference(value.asReference());
+            jval = io::serializeReference(value.asReference());
         }
         break;
 
@@ -175,7 +166,7 @@ static QJsonValue fieldToJson(const core::FieldValue& value)
 
             for (const auto& element : list)
             {
-                jlist.push_back(fieldToJson(element));
+                jlist.push_back(serializeValueToJson(element, obj));
             }
 
             jval = jlist;
@@ -189,7 +180,7 @@ static QJsonValue fieldToJson(const core::FieldValue& value)
 
             for (const auto& element : map)
             {
-                jmap[element.first] = fieldToJson(element.second);
+                jmap[element.first] = serializeValueToJson(element.second, obj);
             }
 
             jval = jmap;
@@ -200,5 +191,5 @@ static QJsonValue fieldToJson(const core::FieldValue& value)
     return jval;
 }
 
+} // namespace core
 } // namespace warmonger
-} // namespace io

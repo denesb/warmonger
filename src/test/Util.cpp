@@ -218,9 +218,11 @@ std::pair<std::unique_ptr<core::Map>, QJsonObject> makeMap()
     QJsonObject jentity0;
     jentity0["id"] = entity0->getId();
     jentity0["components"] =
-        QJsonArray{QJsonObject{{"type", io::serializeReference(componentType0)},
+        QJsonArray{QJsonObject{{"id", component0->getId()},
+                       {"type", io::serializeReference(componentType0)},
                        {"fields", QJsonObject{{"intField", 100}, {"listField", QJsonArray{"str0", "str1"}}}}},
-            QJsonObject{{"type", io::serializeReference(componentType1)},
+            QJsonObject{{"id", component1->getId()},
+                {"type", io::serializeReference(componentType1)},
                 {"fields",
                     QJsonObject{{"intField", 200},
                         {"realField", 20.12},

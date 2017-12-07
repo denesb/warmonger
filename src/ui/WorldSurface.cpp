@@ -34,17 +34,9 @@
 #include "utils/Exception.h"
 #include "utils/Logging.h"
 #include "utils/Utils.h"
+#include "utils/Hash.h"
 
 namespace std {
-
-template <>
-struct hash<QString>
-{
-    std::size_t operator()(const QString& key) const
-    {
-        return qHash(key);
-    }
-};
 
 template <>
 struct hash<pair<QString, QQuickWindow*>>

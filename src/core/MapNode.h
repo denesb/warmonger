@@ -44,6 +44,13 @@ class MapNode : public WObject
     Q_OBJECT
 
 public:
+    template <class Visitor>
+    static auto describe(Visitor&& visitor)
+    {
+        return visitor.template visitParent<WObject>()
+            .visitMember("neighbours", &MapNode::getNeighbours);
+    }
+
     /**
      * Constructs an empty map-node.
      *

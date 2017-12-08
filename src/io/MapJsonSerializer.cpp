@@ -28,6 +28,7 @@ namespace warmonger {
 namespace core {
 
 static QJsonValue serializeValueToJson(const core::FieldValue& value, const QObject& obj);
+static QJsonValue serializeValueToJson(const core::MapNodeNeighbours& value, const QObject& obj);
 
 } // namespace core
 
@@ -85,25 +86,7 @@ static QJsonObject factionToJson(const core::Faction* const obj)
 
 static QJsonObject mapNodeToJson(const core::MapNode* const obj)
 {
-    QJsonObject jobj;
-
-    jobj["id"] = obj->getId();
-
-    QJsonObject jneighbours;
-    for (const auto& neighbour : obj->getNeighbours())
-    {
-        QString neighbourName{""};
-        if (neighbour.second != nullptr)
-        {
-            neighbourName = serializeReference(neighbour.second);
-        }
-
-        jneighbours[core::direction2str(neighbour.first)] = neighbourName;
-    }
-
-    jobj["neighbours"] = jneighbours;
-
-    return jobj;
+    return serializeToJson(*obj);
 }
 
 } // namespace io
@@ -170,6 +153,22 @@ static QJsonValue serializeValueToJson(const core::FieldValue& value, const QObj
     }
 
     return jval;
+}
+
+static QJsonValue serializeValueToJson(const core::MapNodeNeighbours& value, const QObject&)
+{
+    QJsonObject jneighbours;
+    for (const auto& neighbour : value)
+    {
+        QString neighbourName{""};
+        if (neighbour.second != nullptr)
+        {
+            neighbourName = io::serializeReference(neighbour.second);
+        }
+
+        jneighbours[core::direction2str(neighbour.first)] = neighbourName;
+    }
+    return jneighbours;
 }
 
 } // namespace core

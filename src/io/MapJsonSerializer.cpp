@@ -45,15 +45,7 @@ MapJsonSerializer::MapJsonSerializer(QJsonDocument::JsonFormat format)
 
 QByteArray MapJsonSerializer::serializeMap(const core::Map* const obj) const
 {
-    QJsonObject jobj;
-
-    jobj["name"] = obj->getName();
-    jobj["world"] = obj->getWorld()->getUuid();
-    jobj["mapNodes"] = toQJsonArray(obj->getMapNodes(), mapNodeToJson);
-    jobj["factions"] = toQJsonArray(obj->getFactions(), factionToJson);
-    jobj["entities"] = toQJsonArray(obj->getEntities(), entityToJson);
-
-    return QJsonDocument(jobj).toJson(this->format);
+    return QJsonDocument(serializeToJson(*obj)).toJson(this->format);
 }
 
 QByteArray MapJsonSerializer::serializeEntity(const core::Entity* const obj) const

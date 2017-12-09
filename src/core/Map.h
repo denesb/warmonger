@@ -61,6 +61,17 @@ class Map : public QObject
     Q_PROPERTY(QVariantList entities READ readEntities NOTIFY entitiesChanged)
 
 public:
+    template <class Visitor>
+    static auto describe(Visitor&& visitor)
+    {
+        return visitor.template visitParent<QObject>()
+            .visitMember("name", &Map::getName)
+            .visitMember("world", &Map::getWorld)
+            .visitMember("mapNodes", &Map::getMapNodes)
+            .visitMember("factions", &Map::getFactions)
+            .visitMember("entities", &Map::getEntities);
+    }
+
     /**
      * Constructs an empty Map.
      *

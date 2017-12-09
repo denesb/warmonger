@@ -34,10 +34,6 @@ static QJsonValue serializeValueToJson(const core::MapNodeNeighbours& value, con
 
 namespace io {
 
-static QJsonObject entityToJson(const core::Entity* const obj);
-static QJsonObject factionToJson(const core::Faction* const obj);
-static QJsonObject mapNodeToJson(const core::MapNode* const obj);
-
 MapJsonSerializer::MapJsonSerializer(QJsonDocument::JsonFormat format)
     : format(format)
 {
@@ -50,35 +46,17 @@ QByteArray MapJsonSerializer::serializeMap(const core::Map* const obj) const
 
 QByteArray MapJsonSerializer::serializeEntity(const core::Entity* const obj) const
 {
-    QJsonDocument jdoc(entityToJson(obj));
-    return jdoc.toJson(this->format);
+    return QJsonDocument(serializeToJson(*obj)).toJson(this->format);
 }
 
 QByteArray MapJsonSerializer::serializeFaction(const core::Faction* const obj) const
 {
-    QJsonDocument jdoc(factionToJson(obj));
-    return jdoc.toJson(this->format);
+    return QJsonDocument(serializeToJson(*obj)).toJson(this->format);
 }
 
 QByteArray MapJsonSerializer::serializeMapNode(const core::MapNode* const obj) const
 {
-    QJsonDocument jdoc(mapNodeToJson(obj));
-    return jdoc.toJson(this->format);
-}
-
-static QJsonObject entityToJson(const core::Entity* const obj)
-{
-    return serializeToJson(*obj);
-}
-
-static QJsonObject factionToJson(const core::Faction* const obj)
-{
-    return serializeToJson(*obj);
-}
-
-static QJsonObject mapNodeToJson(const core::MapNode* const obj)
-{
-    return serializeToJson(*obj);
+    return QJsonDocument(serializeToJson(*obj)).toJson(this->format);
 }
 
 } // namespace io

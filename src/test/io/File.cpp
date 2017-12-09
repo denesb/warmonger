@@ -46,7 +46,7 @@ void createWorldFile(const QString& path)
 void createMapFile(const QString& path)
 {
     const auto maps = makeMap();
-    const auto map{maps.first.get()};
+    const auto map{std::get<0>(maps).get()};
 
     io::MapJsonSerializer serializer;
 
@@ -106,7 +106,7 @@ TEST_CASE("World can be written to a file and read back", "[File]")
 TEST_CASE("Map can be written to file", "[File]")
 {
     const auto maps = makeMap();
-    const auto map{maps.first.get()};
+    const auto map{std::get<0>(maps).get()};
 
     const QString path("./write_map.wmd");
 
@@ -139,7 +139,7 @@ TEST_CASE("Map can be written and read from file", "[File]")
     const QString path("./write_read_map.wmd");
 
     const auto maps = makeMap();
-    const auto map{maps.first.get()};
+    const auto map{std::get<0>(maps).get()};
     const auto world{map->getWorld()};
 
     REQUIRE_NOTHROW(io::writeMap(map, path));

@@ -19,7 +19,7 @@ using namespace warmonger;
 std::ostream& operator<<(std::ostream& os, const QString& s);
 
 std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld();
-std::pair<std::unique_ptr<core::Map>, QJsonObject> makeMap();
+std::tuple<std::unique_ptr<core::Map>, std::unique_ptr<core::World>, QJsonObject> makeMap();
 
 /**
  * Compare a QJsonObject to a map.

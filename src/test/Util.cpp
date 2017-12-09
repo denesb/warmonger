@@ -128,7 +128,7 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
     return std::make_pair(std::move(world), jworld);
 }
 
-std::pair<std::unique_ptr<core::Map>, QJsonObject> makeMap()
+std::tuple<std::unique_ptr<core::Map>, std::unique_ptr<core::World>, QJsonObject> makeMap()
 {
     auto map{std::make_unique<core::Map>()};
     QJsonObject jmap;
@@ -136,9 +136,7 @@ std::pair<std::unique_ptr<core::Map>, QJsonObject> makeMap()
     setNames(map.get(), jmap, 0);
 
     auto worlds{makeWorld()};
-    core::World* world = worlds.first.release();
-    // FIXME: memory-leak, fix
-    // world->setParent(map.get());
+    core::World* world = worlds.first.get();
 
     map->setWorld(world);
     jmap["world"] = world->getUuid();
@@ -234,7 +232,7 @@ std::pair<std::unique_ptr<core::Map>, QJsonObject> makeMap()
 
     jmap["entities"] = QJsonArray({jentity0});
 
-    return std::make_pair(std::move(map), jmap);
+    return std::make_tuple(std::move(map), std::move(worlds.first), jmap);
 }
 
 static void createEveryFieldType(core::WorldComponentType* componentType, QJsonObject& jcomponentType)

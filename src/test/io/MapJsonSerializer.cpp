@@ -27,8 +27,8 @@ using namespace warmonger;
 TEST_CASE("MapNode can be serialized to JSON", "[MapJsonSerializer][JSON][Serialize][HappyPath]")
 {
     const auto maps = makeMap();
-    const auto map = maps.first.get();
-    const auto jmap = maps.second;
+    const auto map = std::get<0>(maps).get();
+    const auto& jmap = std::get<2>(maps);
 
     const io::MapJsonSerializer serializer;
 
@@ -48,8 +48,8 @@ TEST_CASE("MapNode can be serialized to JSON", "[MapJsonSerializer][JSON][Serial
 TEST_CASE("Faction can be serialized to JSON", "[MapJsonSerializer][JSON][Serialize][HappyPath]")
 {
     const auto maps = makeMap();
-    const auto map = maps.first.get();
-    const auto jmap = maps.second;
+    const auto map = std::get<0>(maps).get();
+    const auto& jmap = std::get<2>(maps);
 
     const io::MapJsonSerializer serializer;
 
@@ -69,8 +69,8 @@ TEST_CASE("Faction can be serialized to JSON", "[MapJsonSerializer][JSON][Serial
 TEST_CASE("Entity can be serialized to JSON", "[MapJsonSerializer][JSON][Serialize][HappyPath]")
 {
     const auto maps = makeMap();
-    const auto map = maps.first.get();
-    const auto jmap = maps.second;
+    const auto map = std::get<0>(maps).get();
+    const auto& jmap = std::get<2>(maps);
 
     const io::MapJsonSerializer serializer;
 
@@ -90,8 +90,8 @@ TEST_CASE("Entity can be serialized to JSON", "[MapJsonSerializer][JSON][Seriali
 TEST_CASE("Map can be serialized to JSON", "[MapJsonSerializer][JSON][Serialize][HappyPath]")
 {
     const auto maps = makeMap();
-    const auto map = maps.first.get();
-    const auto jmap = maps.second;
+    const auto map = std::get<0>(maps).get();
+    const auto& jmap = std::get<2>(maps);
 
     const io::MapJsonSerializer serializer;
 

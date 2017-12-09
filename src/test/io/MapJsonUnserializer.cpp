@@ -98,8 +98,8 @@ std::ostream& operator<<(std::ostream& s, const QVariant& v)
 TEST_CASE("MapNode can be unserialized from JSON", "[MapJsonUnserializer][JSON][Unserialize][HappyPath]")
 {
     const auto maps = makeMap();
-    const auto map = maps.first.get();
-    const auto jmap = maps.second;
+    const auto map = std::get<0>(maps).get();
+    const auto& jmap = std::get<2>(maps);
 
     const auto jobj = jmap["mapNodes"].toArray()[0].toObject();
     const QJsonDocument jdoc{jobj};
@@ -143,8 +143,8 @@ TEST_CASE("MapNode can be unserialized from JSON", "[MapJsonUnserializer][JSON][
 TEST_CASE("MapNode can't be unserialized from JSON", "[MapJsonUnserializer][JSON][Unserialize][ErrorPaths]")
 {
     const auto maps = makeMap();
-    const auto map = maps.first.get();
-    const auto jmap = maps.second;
+    const auto map = std::get<0>(maps).get();
+    const auto& jmap = std::get<2>(maps);
 
     const io::MapJsonUnserializer unserializer;
     QJsonObject jobj = jmap["mapNodes"].toArray()[0].toObject();
@@ -204,8 +204,8 @@ TEST_CASE("MapNode can't be unserialized from JSON", "[MapJsonUnserializer][JSON
 TEST_CASE("Faction can be unserialized from JSON", "[MapJsonUnserializer][JSON][Unserialize][HappyPath]")
 {
     const auto maps = makeMap();
-    const auto map = maps.first.get();
-    const auto jmap = maps.second;
+    const auto map = std::get<0>(maps).get();
+    const auto& jmap = std::get<2>(maps);
 
     const auto jobj = jmap["factions"].toArray()[0].toObject();
     const QJsonDocument jdoc{jobj};
@@ -237,8 +237,8 @@ TEST_CASE("Faction can be unserialized from JSON", "[MapJsonUnserializer][JSON][
 TEST_CASE("Faction can't be unserialized from JSON", "[MapJsonUnserializer][JSON][Unserialize][ErrorPaths]")
 {
     const auto maps = makeMap();
-    const auto map = maps.first.get();
-    const auto jmap = maps.second;
+    const auto map = std::get<0>(maps).get();
+    const auto& jmap = std::get<2>(maps);
 
     const io::MapJsonUnserializer unserializer;
     QJsonObject jobj = jmap["factions"].toArray()[0].toObject();
@@ -344,8 +344,8 @@ TEST_CASE("Faction can't be unserialized from JSON", "[MapJsonUnserializer][JSON
 TEST_CASE("Entity can be unserialized from JSON", "[MapJsonUnserializer][JSON][Unserialize][HappyPath]")
 {
     const auto maps = makeMap();
-    const auto map = maps.first.get();
-    const auto jmap = maps.second;
+    const auto map = std::get<0>(maps).get();
+    const auto& jmap = std::get<2>(maps);
 
     const auto jobj = jmap["entities"].toArray()[0].toObject();
     const QJsonDocument jdoc{jobj};
@@ -424,8 +424,8 @@ TEST_CASE("Entity can be unserialized from JSON", "[MapJsonUnserializer][JSON][U
 TEST_CASE("Entity can't be unserialized from JSON", "[MapJsonUnserializer][JSON][Unserialize][ErrorPaths]")
 {
     const auto maps = makeMap();
-    const auto map = maps.first.get();
-    const auto jmap = maps.second;
+    const auto map = std::get<0>(maps).get();
+    const auto& jmap = std::get<2>(maps);
 
     const io::MapJsonUnserializer unserializer;
     QJsonObject jobj = jmap["entities"].toArray()[0].toObject();
@@ -601,8 +601,8 @@ TEST_CASE("Entity can't be unserialized from JSON", "[MapJsonUnserializer][JSON]
 TEST_CASE("Map can be unserialized from JSON", "[MapJsonUnserializer][JSON][Unserialize][HappyPath]")
 {
     const auto maps = makeMap();
-    const auto jmap = maps.second;
-    auto world = maps.first->getWorld();
+    const auto& jmap = std::get<2>(maps);
+    const auto world = std::get<1>(maps).get();
 
     const QJsonDocument jdoc{jmap};
     const QByteArray rawJson{jdoc.toJson()};
@@ -624,13 +624,13 @@ TEST_CASE("Map can be unserialized from JSON", "[MapJsonUnserializer][JSON][Unse
         REQUIRE(map->getName() == jmap["name"].toString());
         REQUIRE(map->getWorld() == world);
 
-        const auto jmapNodes = jmap["mapNodes"].toArray();
+        const auto& jmapNodes = jmap["mapNodes"].toArray();
         const auto& mapNodes = map->getMapNodes();
         REQUIRE(map->getMapNodes().size() == jmapNodes.size());
 
         for (const auto& jmapNodeVal : jmapNodes)
         {
-            const auto jmapNode = jmapNodeVal.toObject();
+            const auto& jmapNode = jmapNodeVal.toObject();
 
             const auto mapNodeIt = std::find_if(mapNodes.cbegin(), mapNodes.cend(), [&jmapNode](const auto& mapNode) {
                 return mapNode->getId() == jmapNode["id"].toInt();
@@ -661,10 +661,10 @@ TEST_CASE("Map can be unserialized from JSON", "[MapJsonUnserializer][JSON][Unse
 TEST_CASE("Map can't be unserialized from JSON", "[MapJsonUnserializer][JSON][Unserialize][ErrorPaths]")
 {
     const auto maps = makeMap();
-    const auto map = maps.first.get();
-    auto world = maps.first->getWorld();
+    const auto map = std::get<0>(maps).get();
+    const auto world = std::get<1>(maps).get();
 
-    auto jmap = maps.second;
+    auto jmap = std::get<2>(maps);
 
     const io::MapJsonUnserializer unserializer;
 

@@ -47,8 +47,7 @@ public:
     template <class Visitor>
     static auto describe(Visitor&& visitor)
     {
-        return visitor.template visitParent<WObject>()
-            .visitMember("neighbours", &MapNode::getNeighbours);
+        return visitor.template visitParent<WObject>().visitMember("neighbours", &MapNode::getNeighbours);
     }
 
     /**

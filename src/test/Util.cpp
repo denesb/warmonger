@@ -137,8 +137,8 @@ std::pair<std::unique_ptr<core::Map>, QJsonObject> makeMap()
 
     auto worlds{makeWorld()};
     core::World* world = worlds.first.release();
-    //FIXME: memory-leak, fix
-    //world->setParent(map.get());
+    // FIXME: memory-leak, fix
+    // world->setParent(map.get());
 
     map->setWorld(world);
     jmap["world"] = world->getUuid();

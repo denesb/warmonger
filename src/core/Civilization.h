@@ -38,9 +38,8 @@ public:
     template <class Visitor>
     static auto describe(Visitor&& visitor)
     {
-        return visitor.template visitParent<WObject>()
-            .visitMember("name", &Civilization::getName, &Civilization::setName)
-            .visitConstructor("parent", "id");
+        return visitor.template visitParent<WObject>().visitMember(
+            "name", &Civilization::getName, &Civilization::setName);
     }
 
     /**

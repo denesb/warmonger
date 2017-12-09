@@ -107,7 +107,7 @@ inline QJsonObject serializeToJson(const T& obj)
     using Description = decltype(description);
 
     QJsonObject jobj = serializeToJson<typename Description::ParentClass>(obj);
-    serializeMembersToJson(obj, jobj, description.getMembers());
+    serializeMembersToJson(obj, jobj, description.getMembers().asTuple());
     return jobj;
 }
 

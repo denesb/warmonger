@@ -51,9 +51,7 @@ public:
     template <typename Visitor>
     static auto describe(Visitor&& visitor)
     {
-        return visitor.template visitParent<QObject>()
-            .visitMember("id", &WObject::getId)
-            .visitConstructor("parent", "id");
+        return visitor.template visitParent<QObject>().visitMember("id", &WObject::getId);
     }
 
     /**

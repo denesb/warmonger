@@ -179,6 +179,14 @@ public:
     Civilization* createCivilization(int id = WObject::invalidId);
 
     /**
+     * Add a new civilization to the world.
+     *
+     * The world must already own this civilization, i.e. it must have
+     * been created with the world as its parent.
+     */
+    void addCivilization(std::unique_ptr<Civilization> civilization);
+
+    /**
      * Get the colors.
      *
      * \return the colors

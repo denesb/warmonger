@@ -106,6 +106,15 @@ Civilization* World::createCivilization(int id)
     return civilization;
 }
 
+void World::addCivilization(std::unique_ptr<Civilization> civilization)
+{
+    assert(civilization->parent() == this);
+
+    this->civilizations.push_back(civilization.release());
+    wDebug << "Added civilization " << civilizations.back() << " to world " << this;
+    emit civilizationsChanged();
+}
+
 void World::setColors(const std::vector<QColor>& colors)
 {
     if (this->colors != colors)

@@ -167,9 +167,12 @@ inline QJsonValue serializeValueToJson(const std::unordered_map<K, T>& value, co
 
 template <typename T>
 inline typename std::enable_if<std::is_base_of<QObject, T>::value && !std::is_base_of<core::WObject, T>::value, QJsonValue>::type
-serializeValueToJson(T* value, const QObject&)
+serializeValueToJson(T* value, const QObject& obj)
 {
-    return serializeToJson(*value);
+    if (value->parent() == &obj)
+        return serializeToJson(*value);
+    else
+        return value->property("uuid").toString();
 }
 
 template <typename T>

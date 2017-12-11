@@ -194,13 +194,6 @@ TEST_CASE("Civilization can't be unserialized from JSON", "[WorldJsonUnserialize
         REQUIRE_THROWS_AS(unserializer.unserializeCivilization(jdoc.toJson(), world), utils::ValueError);
     }
 
-    SECTION("Empty name")
-    {
-        jobj["name"] = "";
-
-        REQUIRE_THROWS_AS(unserializer.unserializeCivilization(QJsonDocument(jobj).toJson(), world), utils::ValueError);
-    }
-
     SECTION("Missing name")
     {
         jobj.remove("name");

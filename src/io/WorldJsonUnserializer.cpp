@@ -23,6 +23,7 @@
 
 #include "core/World.h"
 #include "core/WorldComponentType.h"
+#include "io/JsonUnserializer.hpp"
 #include "io/JsonUtils.h"
 #include "io/Reference.h"
 #include "utils/Exception.h"
@@ -169,20 +170,17 @@ static core::Banner* bannerFromJson(const QJsonObject& jobj, core::World* world)
 
 static core::Civilization* civilizationFromJson(const QJsonObject& jobj, core::World* world)
 {
-    const int id = jobj["id"].toInt(-1);
-
-    if (id == core::WObject::invalidId)
-        throw utils::ValueError("Failed to unserialize civilization, it has missing or invalid id");
-
-    const QString name = jobj["name"].toString();
-
-    if (name.isNull() || name.isEmpty())
-        throw utils::ValueError("Failed to unserialize banner, it has missing or empty name");
-
-    auto obj = world->createCivilization(id);
-    obj->setName(name);
-
-    return obj;
+    try
+    {
+        auto civPtr = unserializeFromJson<core::Civilization>(jobj, world);
+        auto civ = civPtr.get();
+        world->addCivilization(std::move(civPtr));
+        return civ;
+    }
+    catch (...)
+    {
+        std::throw_with_nested(utils::ValueError("Failed to unserialize civilization"));
+    }
 }
 
 static core::WorldComponentType* worldComponentTypeFromJson(const QJsonObject& jobj, core::World* world)

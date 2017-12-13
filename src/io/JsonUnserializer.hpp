@@ -130,12 +130,17 @@ std::unique_ptr<T> unserializeFromJson(const QJsonObject& jobj, QObject* parent)
 
 // Implementations
 
+inline QJsonValue getKey(const QJsonObject& jobj, const char* key)
+{
+    if (!jobj.contains(key))
+        throw utils::ValueError(QString("Object doesn't have key %1").arg(key));
+
+    return jobj[key];
+}
+
 int unserializeValueFromJson(const QJsonObject& jobj, const char* name, QObject*, typeTag<int>)
 {
-    if (!jobj.contains(name))
-        throw utils::ValueError(QString("Object doesn't have key %1").arg(name));
-
-    auto jval = jobj[name];
+    auto jval = getKey(jobj, name);
 
     if (!jval.isDouble())
         throw utils::ValueError(QString("Value for key %1 is not a number").arg(name));
@@ -146,10 +151,7 @@ int unserializeValueFromJson(const QJsonObject& jobj, const char* name, QObject*
 
 QString unserializeValueFromJson(const QJsonObject& jobj, const char* name, QObject*, typeTag<QString>)
 {
-    if (!jobj.contains(name))
-        throw utils::ValueError(QString("Object doesn't have key %1").arg(name));
-
-    auto jval = jobj[name];
+    auto jval = getKey(jobj, name);
 
     if (!jval.isString())
         throw utils::ValueError(QString("Value for key %1 is not string").arg(name));

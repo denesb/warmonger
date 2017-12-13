@@ -83,6 +83,17 @@ Banner* World::createBanner(int id)
     return banner;
 }
 
+Banner* World::addBanner(std::unique_ptr<Banner> banner)
+{
+    assert(banner->parent() == this);
+
+    this->banners.push_back(banner.release());
+    wDebug << "Added banner " << banners.back() << " to world " << this;
+    emit bannersChanged();
+
+    return this->banners.back();
+}
+
 QVariantList World::readBanners() const
 {
     return utils::toQVariantList(this->banners);

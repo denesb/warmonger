@@ -144,6 +144,16 @@ public:
     Banner* createBanner(int id = WObject::invalidId);
 
     /**
+     * Add a new banner to the world.
+     *
+     * The world must already own this banner, i.e. it must have been
+     * created with the world as its parent.
+     *
+     * \returns the added banner
+     */
+    Banner* addBanner(std::unique_ptr<Banner> banner);
+
+    /**
      * Get the civilizations.
      *
      * \return the civilizations

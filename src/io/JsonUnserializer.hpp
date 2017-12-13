@@ -33,15 +33,12 @@ namespace io {
 template <typename T>
 struct typeTag {};
 
-template <typename Def>
-inline auto makeTag(Def)
-{
-    return typeTag<typename Def::Type>{};
-}
+int unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<int>);
 
-int unserializeValueFromJson(const QJsonObject& jobj, const char* name, QObject* parent, typeTag<int>);
-QString unserializeValueFromJson(const QJsonObject& jobj, const char* name, QObject* parent, typeTag<QString>);
-QObject* unserializeValueFromJson(const QJsonObject& jobj, const char* name, QObject* parent, typeTag<QObject*>);
+QString unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<QString>);
+
+template <typename T>
+T unserializeValueFromJson(const QJsonObject& jobj, const char* name, QObject* parent);
 
 /*
 template<typename ConstructorArgDef>
@@ -60,7 +57,7 @@ auto unserializeConstructorArgsFromJson(const QJsonObject& jobj, const Construct
 template<typename ConstructorArgDefs, std::size_t... I>
 inline auto unserializeConstructorArgsFromJsonImpl(const QJsonObject& jobj, QObject* parent, const ConstructorArgDefs& defs, std::index_sequence<I...>)
 {
-    return std::make_tuple(unserializeValueFromJson(jobj, std::get<I>(defs).name, parent, makeTag(std::get<I>(defs)))...);
+    return std::make_tuple(unserializeValueFromJson<typename StripType<decltype(std::get<I>(defs))>::Type>(jobj, std::get<I>(defs).name, parent)...);
 }
 
 template <typename ConstructorArgDefs>
@@ -87,7 +84,7 @@ inline void unserializeMemberFromJsonImpl(const QJsonObject& jobj, T& obj, const
     if (!def.setter)
         return;
 
-    def.setter(obj, unserializeValueFromJson(jobj, def.name, &obj, makeTag(def)));
+    def.setter(obj, unserializeValueFromJson<typename MemberDef::Type>(jobj, def.name, &obj));
 }
 
 template<typename T, typename MemberDef>
@@ -138,31 +135,42 @@ inline QJsonValue getKey(const QJsonObject& jobj, const char* key)
     return jobj[key];
 }
 
-int unserializeValueFromJson(const QJsonObject& jobj, const char* name, QObject*, typeTag<int>)
+inline int unserializeValueFromJson(const QJsonValue& jval, QObject*, typeTag<int>)
 {
-    auto jval = getKey(jobj, name);
-
     if (!jval.isDouble())
-        throw utils::ValueError(QString("Value for key %1 is not a number").arg(name));
+        throw utils::ValueError("Value is not a number");
 
     //TODO: validate that it's a whole number (no trimming)
     return jval.toInt();
 }
 
-QString unserializeValueFromJson(const QJsonObject& jobj, const char* name, QObject*, typeTag<QString>)
+inline QString unserializeValueFromJson(const QJsonValue& jval, QObject*, typeTag<QString>)
 {
-    auto jval = getKey(jobj, name);
-
     if (!jval.isString())
-        throw utils::ValueError(QString("Value for key %1 is not string").arg(name));
+        throw utils::ValueError("Value is not string");
 
     return jval.toString();
 }
 
-QObject* unserializeValueFromJson(const QJsonObject&, const char* name, QObject* parent, typeTag<QObject*>)
+template <typename T>
+inline T unserializeValueFromJson(const QJsonObject& jobj, const char* name, QObject* parent)
 {
-    assert(strncmp(name, "parent", 6) == 0);
-    return parent;
+    try
+    {
+        return unserializeValueFromJson(getKey(jobj, name), parent, typeTag<T>{});
+    }
+    catch (...)
+    {
+        std::throw_with_nested(utils::ValueError(QString("Failed to unserialize member %1").arg(name)));
+    }
+}
+
+template <>
+inline QObject* unserializeValueFromJson<QObject*>(const QJsonObject&, const char* name, QObject* parent)
+{
+	// The only supported QObject* is the special reserved parent.
+	assert(strncmp(name, "parent", 6) == 0);
+	return parent;
 }
 
 } // namespace io

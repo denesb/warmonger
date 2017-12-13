@@ -183,8 +183,10 @@ public:
      *
      * The world must already own this civilization, i.e. it must have
      * been created with the world as its parent.
+     *
+     * \returns the added civilization
      */
-    void addCivilization(std::unique_ptr<Civilization> civilization);
+    Civilization* addCivilization(std::unique_ptr<Civilization> civilization);
 
     /**
      * Get the colors.

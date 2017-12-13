@@ -172,10 +172,7 @@ static core::Civilization* civilizationFromJson(const QJsonObject& jobj, core::W
 {
     try
     {
-        auto civPtr = unserializeFromJson<core::Civilization>(jobj, world);
-        auto civ = civPtr.get();
-        world->addCivilization(std::move(civPtr));
-        return civ;
+        return world->addCivilization(unserializeFromJson<core::Civilization>(jobj, world));
     }
     catch (...)
     {

@@ -70,6 +70,11 @@ void World::setName(const QString& name)
     }
 }
 
+QVariantList World::readBanners() const
+{
+    return utils::toQVariantList(this->banners);
+}
+
 Banner* World::createBanner(int id)
 {
     auto banner = new Banner(this, id);
@@ -92,11 +97,6 @@ Banner* World::addBanner(std::unique_ptr<Banner> banner)
     emit bannersChanged();
 
     return this->banners.back();
-}
-
-QVariantList World::readBanners() const
-{
-    return utils::toQVariantList(this->banners);
 }
 
 QVariantList World::readCivilizations() const

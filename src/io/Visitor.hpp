@@ -111,17 +111,9 @@ template <typename... ConstructorArgDefs>
 class ConstructorArgs
 {
 public:
-    ConstructorArgs() = default;
-
-    ConstructorArgs(std::tuple<ConstructorArgDefs...>&& constructorArgs)
-        : constructorArgs(std::forward<std::tuple<ConstructorArgDefs...>>(constructorArgs))
+    ConstructorArgs(ConstructorArgDefs&&... constructorArgs)
+        : constructorArgs(std::make_tuple(std::forward<ConstructorArgDefs>(constructorArgs)...))
     {
-    }
-
-    template <typename T>
-    auto visitConstructorArg(const char* name)
-    {
-        return appendConstructorArg(ConstructorArg<T>(name));
     }
 
     const std::tuple<ConstructorArgDefs...>& asTuple() const
@@ -130,18 +122,10 @@ public:
     }
 
 private:
-    template <typename ConstructorArgDef>
-    auto appendConstructorArg(ConstructorArgDef&& constructorArg)
-    {
-        auto newConstructorArg = std::make_tuple<ConstructorArgDef>(std::forward<ConstructorArgDef>(constructorArg));
-        auto allConstructorArgs = std::tuple_cat(std::move(constructorArgs), std::move(newConstructorArg));
-        return ConstructorArgs<ConstructorArgDefs..., ConstructorArgDef>(std::move(allConstructorArgs));
-    }
-
     std::tuple<ConstructorArgDefs...> constructorArgs;
 };
 
-template <typename Class, typename Parent, typename Members = Members<>, typename ConstructorArgs = ConstructorArgs<>>
+template <typename Class, typename Parent, typename ClassMembers = Members<>, typename ClassConstructorArgs = ConstructorArgs<>>
 class ClassDescription
 {
 public:
@@ -150,9 +134,9 @@ public:
 
     ClassDescription() = default;
 
-    ClassDescription(Members&& members, ConstructorArgs&& constructorArgs)
-        : members(std::forward<Members>(members))
-        , constructorArgs(std::forward<ConstructorArgs>(constructorArgs))
+    ClassDescription(ClassMembers&& members, ClassConstructorArgs&& constructorArgs)
+        : members(std::forward<ClassMembers>(members))
+        , constructorArgs(std::forward<ClassConstructorArgs>(constructorArgs))
     {
     }
 
@@ -161,7 +145,7 @@ public:
     {
         static_assert(std::is_same<C, Class>::value, "Member must belong to the visited class");
         auto newMembers = this->members.visitMember(name, getter);
-        return ClassDescription<Class, Parent, decltype(newMembers), ConstructorArgs>(std::move(newMembers), std::move(this->constructorArgs));
+        return ClassDescription<Class, Parent, decltype(newMembers), ClassConstructorArgs>(std::move(newMembers), std::move(this->constructorArgs));
     }
 
     template <typename CG, typename TG, typename CS, typename TS>
@@ -172,29 +156,30 @@ public:
             std::is_same<StripType<TG>, StripType<TS>>::value, "Getter and Setter must operate on the same type");
         static_assert(std::is_same<CG, Class>::value, "Member must belong to the visited class");
         auto newMembers = this->members.visitMember(name, getter, setter);
-        return ClassDescription<Class, Parent, decltype(newMembers), ConstructorArgs>(std::move(newMembers), std::move(this->constructorArgs));
+        return ClassDescription<Class, Parent, decltype(newMembers), ClassConstructorArgs>(std::move(newMembers), std::move(this->constructorArgs));
     }
 
-    template <typename T>
-    auto visitConstructorArg(const char* name)
+    template <typename... ArgTypes>
+    auto visitConstructor(ConstructorArg<ArgTypes>&&... args)
     {
-        auto newConstructorArgs = this->constructorArgs.template visitConstructorArg<T>(name);
-        return ClassDescription<Class, Parent, Members, decltype(newConstructorArgs)>(std::move(this->members), std::move(newConstructorArgs));
+        static_assert(std::tuple_size<StripType<decltype(this->constructorArgs.asTuple())>>::value == 0, "Constructor already defined");
+        auto constructorArgs = ConstructorArgs<ConstructorArg<ArgTypes>...>(std::forward<ConstructorArg<ArgTypes>>(args)...);
+        return ClassDescription<Class, Parent, ClassMembers, decltype(constructorArgs)>(std::move(this->members), std::move(constructorArgs));
     }
 
-    Members getMembers()
+    ClassMembers getMembers()
     {
         return this->members;
     }
 
-    ConstructorArgs getConstructorArgs()
+    ClassConstructorArgs getConstructorArgs()
     {
         return this->constructorArgs;
     }
 
 private:
-    Members members;
-    ConstructorArgs constructorArgs;
+    ClassMembers members;
+    ClassConstructorArgs constructorArgs;
 };
 
 template <class Class>

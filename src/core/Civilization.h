@@ -40,8 +40,7 @@ public:
     {
         return visitor.template visitParent<WObject>()
             .visitMember("name", &Civilization::getName, &Civilization::setName)
-            .template visitConstructorArg<QObject*>("parent")
-            .template visitConstructorArg<int>("id");
+            .template visitConstructor<QObject*, int>("parent", "id");
     }
 
     /**

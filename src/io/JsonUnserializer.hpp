@@ -40,20 +40,6 @@ QString unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTa
 template <typename T>
 T unserializeValueFromJson(const QJsonObject& jobj, const char* name, QObject* parent);
 
-/*
-template<typename ConstructorArgDef>
-auto unserializeConstructorArgsFromJson(const QJsonObject& jobj, const ConstructorArgDef& def)
-{
-   return unserializeValueFromJson(jobj, def.name, nullptr, typename typeTag<ConstructorArgDef::Type>);
-}
-
-template<typename ConstructorArgDef, typename... ConstructorArgDefs>
-auto unserializeConstructorArgsFromJson(const QJsonObject& jobj, const ConstructorArgDef& firstDef, const ConstructorArgDefs... defs)
-{
-   return unserializeValueFromJson(jobj, def.name, nullptr, typename typeTag<ConstructorArgDef::Type>);
-}
-*/
-
 template<typename ConstructorArgDefs, std::size_t... I>
 inline auto unserializeConstructorArgsFromJsonImpl(const QJsonObject& jobj, QObject* parent, const ConstructorArgDefs& defs, std::index_sequence<I...>)
 {

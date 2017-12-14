@@ -21,10 +21,12 @@
 
 #include <memory>
 #include <cassert>
+#include <vector>
 
 #include <QJsonObject>
 
 #include "io/Visitor.hpp"
+#include "io/Reference.h"
 #include "utils/Exception.h"
 
 namespace warmonger {
@@ -36,6 +38,13 @@ struct typeTag {};
 int unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<int>);
 
 QString unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<QString>);
+
+template <typename T>
+typename std::enable_if<std::is_base_of<core::WObject, T>::value, T>::type
+unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<QObject*>);
+
+template <typename T>
+std::vector<T> unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<std::vector<T>>);
 
 template <typename T>
 T unserializeValueFromJson(const QJsonObject& jobj, const char* name, QObject* parent);
@@ -136,6 +145,40 @@ inline QString unserializeValueFromJson(const QJsonValue& jval, QObject*, typeTa
         throw utils::ValueError("Value is not string");
 
     return jval.toString();
+}
+
+template <typename T>
+inline typename std::enable_if<std::is_base_of<core::WObject, T>::value, T*>::type
+unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<T*>)
+{
+    if (jval.isObject())
+    {
+        //TODO: implement owned object unserialization.
+        return nullptr;
+    }
+
+    if (!jval.isString())
+        throw utils::ValueError("Expected reference type but value is not string");
+
+    return unserializeReferenceAs<T>(jval.toString(), parent);
+}
+
+template <typename T>
+inline std::vector<T> unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<std::vector<T>>)
+{
+    if (!jval.isArray())
+        throw utils::ValueError(QString("Value is not array"));
+
+    auto jarr = jval.toArray();
+    std::vector<T> array;
+    array.reserve(jarr.size());
+
+    for (const auto& jelement : jarr)
+    {
+        array.emplace_back(unserializeValueFromJson(jelement, parent, typeTag<T>{}));
+    }
+
+    return array;
 }
 
 template <typename T>

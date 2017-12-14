@@ -139,33 +139,14 @@ std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByte
 
 static core::Banner* bannerFromJson(const QJsonObject& jobj, core::World* world)
 {
-    const int id = jobj["id"].toInt(core::WObject::invalidId);
-
-    if (id == core::WObject::invalidId)
-        throw utils::ValueError("Failed to unserialize banner, it has missing or invalid id");
-
-    const QString name = jobj["name"].toString();
-
-    if (name.isNull() || name.isEmpty())
-        throw utils::ValueError("Failed to unserialize banner, it has missing or invalid name");
-
-    std::vector<core::Civilization*> civilizations;
-    if (jobj.contains("civilizations"))
+    try
     {
-        if (!jobj["civilizations"].isArray())
-            throw utils::ValueError("Failed to unserialize banner " + name + ", civilizations is not an array");
-
-        auto jcivilizations = jobj["civilizations"].toArray();
-
-        for (auto jcivilization : jcivilizations)
-            civilizations.emplace_back(io::unserializeReferenceAs<core::Civilization>(jcivilization.toString(), world));
+        return world->addBanner(unserializeFromJson<core::Banner>(jobj, world));
     }
-
-    auto obj = world->createBanner(id);
-    obj->setName(name);
-    obj->setCivilizations(civilizations);
-
-    return obj;
+    catch (...)
+    {
+        std::throw_with_nested(utils::ValueError("Failed to unserialize banner"));
+    }
 }
 
 static core::Civilization* civilizationFromJson(const QJsonObject& jobj, core::World* world)

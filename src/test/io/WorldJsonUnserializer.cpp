@@ -108,13 +108,6 @@ TEST_CASE("Banner can't be unserialized from JSON", "[WorldJsonUnserializer][JSO
         REQUIRE_THROWS_AS(unserializer.unserializeBanner(jdoc.toJson(), world), utils::ValueError);
     }
 
-    SECTION("Empty name")
-    {
-        jobj["name"] = "";
-
-        REQUIRE_THROWS_AS(unserializer.unserializeBanner(QJsonDocument(jobj).toJson(), world), utils::ValueError);
-    }
-
     SECTION("Name not string")
     {
         jobj["name"] = 123;

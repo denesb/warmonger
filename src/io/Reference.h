@@ -123,6 +123,35 @@ T* unserializeReferenceAs(const QString& reference, core::Map* map)
 }
 
 /**
+ * Unserialize the reference.
+ *
+ * Convencience version for the case when the type of the parent is
+ * not known.
+ *
+ * \returns the resolved reference or nullptr if the type of the
+ * parent is neither a core::World or core::Map or if the reference
+ * cannot be resolved.
+ */
+core::WObject* unserializeReference(const QString& reference, QObject* parent);
+
+/**
+ * Unserialize the reference.
+ *
+ * Convencience version for the case when the type of the parent is
+ * not known.
+ *
+ * \returns the resolved reference as T* or nullptr if the type of the
+ * parent is neither a core::World or core::Map, or if the reference
+ * cannot be resolved, or if the resolved object cannot be casted to T*.
+ */
+template <class T>
+T* unserializeReferenceAs(const QString& reference, QObject* parent)
+{
+    core::WObject* obj = unserializeReference(reference, parent);
+    return qobject_cast<T*>(obj);
+}
+
+/**
  * Is the string a serialized reference?
  */
 bool isReference(const QString& str);

@@ -94,6 +94,20 @@ core::WObject* unserializeReference(const QString& reference, core::Map* map)
     }
 }
 
+core::WObject* unserializeReference(const QString& reference, QObject* parent)
+{
+    if (parent == nullptr)
+        return nullptr;
+
+    if (auto world = qobject_cast<core::World*>(parent))
+        return unserializeReference(reference, world);
+
+    if (auto map = qobject_cast<core::Map*>(parent))
+        return unserializeReference(reference, map);
+
+    return unserializeReference(reference, parent->parent());
+}
+
 bool isReference(const QString& str)
 {
     QString parentClassName;

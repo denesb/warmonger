@@ -82,6 +82,16 @@ public:
     Field* createField();
 
     /**
+     * Add a new field.
+     *
+     * The WorldComponentType must already own this field.
+     * Will emit the signal ComponentType::fieldsChanged().
+     *
+     * \return the added field
+     */
+    Field* addField(std::unique_ptr<Field> field);
+
+    /**
      * Remove an exising field and renounce ownership.
      *
      * The field is removed and it's returned as an std::unique_ptr

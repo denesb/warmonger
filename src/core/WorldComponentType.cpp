@@ -18,6 +18,8 @@
 
 #include "core/WorldComponentType.h"
 
+#include <cassert>
+
 namespace warmonger {
 namespace core {
 
@@ -44,6 +46,18 @@ Field* WorldComponentType::createField()
     emit fieldsChanged();
 
     return field;
+}
+
+Field* WorldComponentType::addField(std::unique_ptr<Field> field)
+{
+    assert(field->parent() == this);
+    this->fields.push_back(field.release());
+
+    auto f = fields.back();
+
+    emit fieldsChanged();
+
+    return f;
 }
 
 std::unique_ptr<Field> WorldComponentType::removeField(Field* field)

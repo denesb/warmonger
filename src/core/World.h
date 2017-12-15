@@ -272,6 +272,16 @@ public:
     WorldComponentType* createWorldComponentType(int id = WObject::invalidId);
 
     /**
+     * Add a new world component-type to the world.
+     *
+     * The world must already own this component-type, i.e. it must have
+     * been created with the world as its parent.
+     *
+     * \returns the added world component-type
+     */
+    WorldComponentType* addWorldComponentType(std::unique_ptr<WorldComponentType> worldComponentType);
+
+    /**
      * Get the built-in object id mapping.
      *
      * This mapping is used to permanently pin a certain built-in object to

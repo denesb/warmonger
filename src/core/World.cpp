@@ -18,6 +18,8 @@
 
 #include "core/World.h"
 
+#include <cassert>
+
 #include "core/BuiltInComponentTypes.h"
 #include "core/Utils.h"
 #include "utils/Logging.h"
@@ -164,11 +166,26 @@ WorldComponentType* World::createWorldComponentType(int id)
 
     this->componentTypes.push_back(componentType);
 
-    wDebug << "Created componentType " << componentType << " in world " << this;
+    wDebug << "Created WorldComponentType " << componentType << " in world " << this;
 
     emit componentTypesChanged();
 
     return componentType;
+}
+
+WorldComponentType* World::addWorldComponentType(std::unique_ptr<WorldComponentType> worldComponentType)
+{
+    assert(worldComponentType->parent() == this);
+
+    auto wct = worldComponentType.get();
+
+    this->componentTypes.push_back(worldComponentType.release());
+
+    wDebug << "Added WorldComponentType " << componentTypes.back() << " to world " << this;
+
+    emit componentTypesChanged();
+
+    return wct;
 }
 
 void World::setRulesEntryPoint(const QString& rulesEntryPoint)

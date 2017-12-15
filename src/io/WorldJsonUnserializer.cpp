@@ -143,9 +143,9 @@ static core::Banner* bannerFromJson(const QJsonObject& jobj, core::World* world)
     {
         return world->addBanner(unserializeFromJson<core::Banner>(jobj, world));
     }
-    catch (...)
+    catch (utils::ValueError& e)
     {
-        std::throw_with_nested(utils::ValueError("Failed to unserialize banner"));
+        throw utils::ValueError(e, "Failed to unserialize banner");
     }
 }
 
@@ -155,9 +155,9 @@ static core::Civilization* civilizationFromJson(const QJsonObject& jobj, core::W
     {
         return world->addCivilization(unserializeFromJson<core::Civilization>(jobj, world));
     }
-    catch (...)
+    catch (utils::ValueError& e)
     {
-        std::throw_with_nested(utils::ValueError("Failed to unserialize civilization"));
+        throw utils::ValueError(e, "Failed to unserialize civilization");
     }
 }
 

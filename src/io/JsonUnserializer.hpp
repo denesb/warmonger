@@ -40,19 +40,25 @@ int unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<in
 QString unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<QString>);
 
 template <typename T>
-typename std::enable_if<std::is_base_of<core::WObject, T>::value, T>::type
-unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<QObject*>);
+std::unique_ptr<T> unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<std::unique_ptr<T>>);
+
+template <typename T>
+T* unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<T*>);
 
 template <typename T>
 std::vector<T> unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<std::vector<T>>);
 
 template <typename T>
-T unserializeValueFromJson(const QJsonObject& jobj, const char* name, QObject* parent);
+typename std::enable_if<std::is_enum<T>::value, T>::type
+unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<T>);
+
+template <typename T>
+auto unserializeKeyFromJson(const QJsonObject& jobj, const char* name, QObject* parent);
 
 template<typename ConstructorArgDefs, std::size_t... I>
 inline auto unserializeConstructorArgsFromJsonImpl(const QJsonObject& jobj, QObject* parent, const ConstructorArgDefs& defs, std::index_sequence<I...>)
 {
-    return std::make_tuple(unserializeValueFromJson<typename StripType<decltype(std::get<I>(defs))>::Type>(jobj, std::get<I>(defs).name, parent)...);
+    return std::make_tuple(unserializeKeyFromJson<typename StripType<decltype(std::get<I>(defs))>::Type>(jobj, std::get<I>(defs).name, parent)...);
 }
 
 template <typename ConstructorArgDefs>
@@ -73,13 +79,28 @@ inline std::unique_ptr<T> createObject(Args&& args)
     return createObjectImpl<T>(std::forward<Args>(args), std::make_index_sequence<std::tuple_size<Args>::value>());
 }
 
+template <typename C, typename T1, typename T2>
+inline void invokeSetter(C& obj, const std::function<void(C&, T1)>& setter, T2&& value)
+{
+    setter(obj, std::move(std::forward<T2>(value)));
+}
+
+template <typename C, typename T1, typename T2, typename T3>
+inline void invokeSetter(C& obj, const std::function<T1(C&, std::unique_ptr<T2>)>& setter, T3&& value)
+{
+    for (auto& e : value)
+    {
+        setter(obj, std::move(std::move(e)));
+    }
+}
+
 template<typename T, typename MemberDef>
 inline void unserializeMemberFromJsonImpl(const QJsonObject& jobj, T& obj, const MemberDef& def)
 {
     if (!def.setter)
         return;
 
-    def.setter(obj, unserializeValueFromJson<typename MemberDef::Type>(jobj, def.name, &obj));
+    invokeSetter(obj, def.setter, unserializeKeyFromJson<typename MemberDef::TypeSet>(jobj, def.name, &obj));
 }
 
 template<typename T, typename MemberDef>
@@ -135,8 +156,12 @@ inline int unserializeValueFromJson(const QJsonValue& jval, QObject*, typeTag<in
     if (!jval.isDouble())
         throw utils::ValueError("Value is not a number");
 
-    //TODO: validate that it's a whole number (no trimming)
-    return jval.toInt();
+    const double d = jval.toDouble();
+    const int i = d;
+    if (static_cast<double>(i) != d)
+        throw utils::ValueError("Value is not an integer");
+
+    return i;
 }
 
 inline QString unserializeValueFromJson(const QJsonValue& jval, QObject*, typeTag<QString>)
@@ -148,15 +173,17 @@ inline QString unserializeValueFromJson(const QJsonValue& jval, QObject*, typeTa
 }
 
 template <typename T>
-inline typename std::enable_if<std::is_base_of<core::WObject, T>::value, T*>::type
-unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<T*>)
+inline std::unique_ptr<T> unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<std::unique_ptr<T>>)
 {
-    if (jval.isObject())
-    {
-        //TODO: implement owned object unserialization.
-        return nullptr;
-    }
+    if (!jval.isObject())
+        throw utils::ValueError("Expected object but value is not object");
 
+    return unserializeFromJson<T>(jval.toObject(), parent);
+}
+
+template <typename T>
+inline T* unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<T*>)
+{
     if (!jval.isString())
         throw utils::ValueError("Expected reference type but value is not string");
 
@@ -172,8 +199,7 @@ inline std::vector<T> unserializeValueFromJson(const QJsonValue& jval, QObject* 
     auto jarr = jval.toArray();
     std::vector<T> array;
     array.reserve(jarr.size());
-
-    for (const auto& jelement : jarr)
+    for (auto jelement : jarr)
     {
         array.emplace_back(unserializeValueFromJson(jelement, parent, typeTag<T>{}));
     }
@@ -182,24 +208,41 @@ inline std::vector<T> unserializeValueFromJson(const QJsonValue& jval, QObject* 
 }
 
 template <typename T>
-inline T unserializeValueFromJson(const QJsonObject& jobj, const char* name, QObject* parent)
+inline typename std::enable_if<std::is_enum<T>::value, T>::type
+unserializeValueFromJson(const QJsonValue& jval, QObject*, typeTag<T>)
+{
+    if (!jval.isString())
+        throw utils::ValueError("Expected enum type but value is not string");
+
+    const QMetaEnum metaEnum{QMetaEnum::fromType<T>()};
+    bool ok{true};
+    auto e = metaEnum.keyToValue(jval.toString().toLocal8Bit().data(), &ok);
+
+    if (!ok)
+        throw utils::ValueError("Failed to unserialize enum");
+
+    return static_cast<T>(e);
+}
+
+template <typename T>
+inline auto unserializeKeyFromJson(const QJsonObject& jobj, const char* name, QObject* parent)
 {
     try
     {
         return unserializeValueFromJson(getKey(jobj, name), parent, typeTag<T>{});
     }
-    catch (...)
+    catch (const utils::ValueError& e)
     {
-        std::throw_with_nested(utils::ValueError(QString("Failed to unserialize member %1").arg(name)));
+        throw utils::ValueError(e, QString("Failed to unserialize member ``%1''").arg(name));
     }
 }
 
 template <>
-inline QObject* unserializeValueFromJson<QObject*>(const QJsonObject&, const char* name, QObject* parent)
+inline auto unserializeKeyFromJson<QObject*>(const QJsonObject&, const char* name, QObject* parent)
 {
-	// The only supported QObject* is the special reserved parent.
-	assert(strncmp(name, "parent", 6) == 0);
-	return parent;
+    // The only supported QObject* is the special reserved parent.
+    assert(strncmp(name, "parent", 6) == 0);
+    return parent;
 }
 
 } // namespace io

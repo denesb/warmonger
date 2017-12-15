@@ -56,7 +56,8 @@ public:
     {
         return visitor.template visitParent<QObject>()
             .visitMember("name", &Field::getName, &Field::setName)
-            .visitMember("type", &Field::getType, &Field::setType);
+            .visitMember("type", &Field::getType, &Field::setType)
+            .template visitConstructor<QObject*>("parent");
     }
 
     /**

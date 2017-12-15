@@ -47,8 +47,9 @@ public:
     static auto describe(Visitor&& visitor)
     {
         return visitor.template visitParent<WObject>()
-            .visitMember("name", &WorldComponentType::getName)
-            .visitMember("fields", &WorldComponentType::getFields);
+            .visitMember("name", &WorldComponentType::getName, &WorldComponentType::setName)
+            .visitMember("fields", &WorldComponentType::getFields, &WorldComponentType::addField)
+            .template visitConstructor<QObject*, int>("parent", "id");
     }
 
     /**

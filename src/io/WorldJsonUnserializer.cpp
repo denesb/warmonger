@@ -163,59 +163,14 @@ static core::Civilization* civilizationFromJson(const QJsonObject& jobj, core::W
 
 static core::WorldComponentType* worldComponentTypeFromJson(const QJsonObject& jobj, core::World* world)
 {
-    const int id = jobj["id"].toInt(core::WObject::invalidId);
-
-    if (id == core::WObject::invalidId)
-        throw utils::ValueError("Failed to unserialize component-type, it has missing or invalid id");
-
-    const QString& name{jobj["name"].toString()};
-
-    if (name.isNull() || name.isEmpty())
-        throw utils::ValueError("Failed to unserialize component-type, it doesn't have a name property");
-
-    const QJsonArray jfields(jobj["fields"].toArray());
-
-    if (jfields.isEmpty())
-        throw utils::ValueError("Failed to unserialize component-type " + name + ", it doesn't have any fields");
-
-    auto componentType = world->createWorldComponentType(id);
-    componentType->setName(name);
-
-    for (const auto& jfieldValue : jfields)
+    try
     {
-        const QJsonObject jfield{jfieldValue.toObject()};
-        const QString fieldName{jfield["name"].toString()};
-
-        if (fieldName.isNull() || fieldName.isEmpty())
-        {
-            throw utils::ValueError("Failed to unserialize component-type " + name + ", it has a field without name");
-        }
-
-        const QJsonValue fieldType{jfield["type"]};
-
-        if (fieldType.isUndefined() || (!fieldType.isString() && !fieldType.isObject()))
-        {
-            throw utils::ValueError("Failed to unserialize component-type " + name + ", the field " + fieldName +
-                " has invalid or missing");
-        }
-
-        auto field = componentType->createField();
-
-        field->setName(fieldName);
-
-        {
-            const QMetaEnum typeIdMetaEnum{QMetaEnum::fromType<core::Field::Type>()};
-            bool ok{true};
-            auto e = typeIdMetaEnum.keyToValue(jfield["type"].toString().toLocal8Bit().data(), &ok);
-
-            if (!ok)
-                throw utils::ValueError("Failed to unserialize field-type, type has invalid value");
-
-            field->setType(static_cast<core::Field::Type>(e));
-        }
+        return world->addWorldComponentType(unserializeFromJson<core::WorldComponentType>(jobj, world));
     }
-
-    return componentType;
+    catch (utils::ValueError& e)
+    {
+        throw utils::ValueError(e, "Failed to unserialize world component-type");
+    }
 }
 
 } // namespace warmonger

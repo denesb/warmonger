@@ -31,6 +31,12 @@
 
 using namespace warmonger;
 
+std::ostream& operator<<(std::ostream& os, const utils::Exception& e)
+{
+    os << e.what();
+    return os;
+}
+
 TEST_CASE("Banner can be unserialized from JSON", "[WorldJsonUnserializer][JSON][Unserialize][HappyPath]")
 {
     std::unique_ptr<core::World> world;
@@ -294,14 +300,6 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
             unserializer.unserializeWorldComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
     }
 
-    SECTION("Empty name")
-    {
-        jobj["name"] = "";
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeWorldComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
-    }
-
     SECTION("Name not string")
     {
         jobj["name"] = 123;
@@ -313,24 +311,6 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
     SECTION("No fields")
     {
         jobj.remove("fields");
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeWorldComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
-    }
-
-    SECTION("Fields list is empty")
-    {
-        jobj["fields"] = QJsonArray();
-
-        REQUIRE_THROWS_AS(
-            unserializer.unserializeWorldComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);
-    }
-
-    SECTION("Field has empty name")
-    {
-        jobj["fields"] = QJsonArray{
-            QJsonObject{{"name", ""}, {"type", "Integer"}},
-        };
 
         REQUIRE_THROWS_AS(
             unserializer.unserializeWorldComponentType(QJsonDocument(jobj).toJson(), world), utils::ValueError);

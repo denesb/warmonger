@@ -76,6 +76,21 @@ public:
     {
     }
 
+    explicit Exception(const Exception& e, const char* message)
+        : message(nestMessage(e.what(), message))
+    {
+    }
+
+    explicit Exception(const Exception& e, const std::string& message)
+        : message(nestMessage(e.what(), message))
+    {
+    }
+
+    explicit Exception(const Exception& e, const QString& message)
+        : message(nestMessage(e.what(), message.toStdString()))
+    {
+    }
+
     QString getMessage() const noexcept
     {
         return QString::fromStdString(this->message);
@@ -87,6 +102,11 @@ public:
     }
 
 protected:
+    std::string nestMessage(const std::string& nestedMessage, const std::string& thisMessage)
+    {
+        return thisMessage + "\n  caused by: " + nestedMessage;
+    }
+
     const std::string message;
 };
 

@@ -28,12 +28,25 @@ struct NoSetter
 {
 };
 
-template <typename C, typename T, typename TG, typename TS>
+template <typename T>
+using StripType = typename std::remove_reference<typename std::decay<T>::type>::type;
+
+template <typename T, typename U>
+struct RebindContainer;
+
+template <typename T, typename U>
+struct RebindContainer<std::vector<T>, U>
+{
+    using Type = std::vector<U>;
+};
+
+template <typename C, typename TG, typename TS, typename TGetter, typename TSetter>
 struct Member
 {
-    using Type = T;
-    using Getter = std::function<TG(const C&)>;
-    using Setter = std::function<void(C&, TS)>;
+    using TypeGet = TG;
+    using TypeSet = TS;
+    using Getter = TGetter;
+    using Setter = TSetter;
 
     Member(const char* name, Getter getter, Setter setter = Setter())
         : name(name)
@@ -47,12 +60,19 @@ struct Member
     Setter setter;
 };
 
+template <typename C, typename TG, typename TS>
+using NormalMember = Member<C, StripType<TG>, StripType<TS>, std::function<TG(const C&)>, std::function<void(C&, TS)>>;
+
+template <typename C, typename TG, typename TS1, typename TS2>
+using MemberWithPiecewiseSetter = Member<C,
+      StripType<TG>,
+      typename RebindContainer<StripType<TG>, std::unique_ptr<TS2>>::Type,
+      std::function<TG(const C&)>,
+      std::function<TS1(C&, std::unique_ptr<TS2>)>>;
+
 struct NoParent
 {
 };
-
-template <typename T>
-using StripType = typename std::remove_reference<typename std::decay<T>::type>::type;
 
 template <typename... MemberDefs>
 class Members
@@ -68,13 +88,19 @@ public:
     template <typename C, typename T>
     auto visitMember(const char* name, T (C::*getter)() const)
     {
-        return appendMember(Member<C, StripType<T>, T, NoSetter>(name, getter));
+        return appendMember(NormalMember<C, T, NoSetter>(name, getter));
     }
 
     template <typename CG, typename TG, typename CS, typename TS>
     auto visitMember(const char* name, TG (CG::*getter)() const, void (CS::*setter)(TS))
     {
-        return appendMember(Member<CG, StripType<TG>, TG, TS>(name, getter, setter));
+        return appendMember(NormalMember<CG, TG, TS>(name, getter, setter));
+    }
+
+    template <typename CG, typename TG, typename CS, typename TS1, typename TS2>
+    auto visitMember(const char* name, TG (CG::*getter)() const, TS1 (CS::*setter)(std::unique_ptr<TS2>))
+    {
+        return appendMember(MemberWithPiecewiseSetter<CG, TG, TS1, TS2>(name, getter, setter));
     }
 
     const std::tuple<MemberDefs...>& asTuple() const
@@ -154,6 +180,19 @@ public:
         static_assert(std::is_same<CG, CS>::value, "Getter and Setter must be a member of the same class");
         static_assert(
             std::is_same<StripType<TG>, StripType<TS>>::value, "Getter and Setter must operate on the same type");
+        static_assert(std::is_same<CG, Class>::value, "Member must belong to the visited class");
+        auto newMembers = this->members.visitMember(name, getter, setter);
+        return ClassDescription<Class, Parent, decltype(newMembers), ClassConstructorArgs>(std::move(newMembers), std::move(this->constructorArgs));
+    }
+
+    template <typename CG, typename TG, typename CS, typename TS1, typename TS2>
+    auto visitMember(const char* name, TG (CG::*getter)() const, TS1 (CS::*setter)(std::unique_ptr<TS2>))
+    {
+        static_assert(std::is_same<CG, CS>::value, "Getter and Setter must be a member of the same class");
+        static_assert(
+            std::is_same<StripType<TS1>, StripType<TS2>*>::value, "Piecewise setter must take std::unique_ptr to the same type it returns");
+        static_assert(
+            std::is_same<typename StripType<TG>::value_type, StripType<TS1>>::value, "Getter and Setter must operate on the same type");
         static_assert(std::is_same<CG, Class>::value, "Member must belong to the visited class");
         auto newMembers = this->members.visitMember(name, getter, setter);
         return ClassDescription<Class, Parent, decltype(newMembers), ClassConstructorArgs>(std::move(newMembers), std::move(this->constructorArgs));

@@ -26,6 +26,7 @@
 
 #include <QColor>
 #include <QJsonObject>
+#include <QMetaEnum>
 
 #include "io/Visitor.hpp"
 #include "io/Reference.h"

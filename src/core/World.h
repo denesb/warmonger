@@ -57,15 +57,16 @@ public:
     static auto describe(Visitor&& visitor)
     {
         return visitor.template visitParent<QObject>()
-            .visitMember("name", &World::getName)
+            .visitMember("name", &World::getName, &World::setName)
             .visitMember("uuid", &World::getUuid)
             .visitMember("builtInObjectIds", &World::getBuiltInObjectIds)
-            .visitMember("rulesEntryPoint", &World::getRulesEntryPoint)
-            .visitMember("rulesType", &World::getRulesType)
-            .visitMember("banners", &World::getBanners)
-            .visitMember("civilizations", &World::getCivilizations)
-            .visitMember("colors", &World::getColors)
-            .visitMember("componentTypes", &World::getWorldComponentTypes);
+            .visitMember("rulesEntryPoint", &World::getRulesEntryPoint, &World::setRulesEntryPoint)
+            .visitMember("rulesType", &World::getRulesType, &World::setRulesType)
+            .visitMember("banners", &World::getBanners, &World::addBanner)
+            .visitMember("civilizations", &World::getCivilizations, &World::addCivilization)
+            .visitMember("colors", &World::getColors, &World::setColors)
+            .visitMember("componentTypes", &World::getWorldComponentTypes, &World::addWorldComponentType)
+            .template visitConstructor<QString, std::map<QString, int>, QObject*>("uuid", "builtInObjectIds", "parent");
     }
 
     /**

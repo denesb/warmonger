@@ -296,6 +296,14 @@ inline auto unserializeKeyFromJson<QObject*>(const QJsonObject&, const char* nam
     return parent;
 }
 
+template <>
+inline auto unserializeKeyFromJson<NoSetter>(const QJsonObject&, const char*, QObject*)
+{
+    // The returned value is ignored but we need to return some
+    // non-void type to avoid complicating the code further.
+    return NoSetter{};
+}
+
 } // namespace io
 } // namespace warmonger
 

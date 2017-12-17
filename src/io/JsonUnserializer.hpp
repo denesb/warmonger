@@ -120,7 +120,7 @@ template<typename T, typename FirstMemberDef, typename ...MemberDefs>
 inline void unserializeMembersFromJsonImpl(const QJsonObject& jobj, T& obj, const FirstMemberDef& firstDef, const MemberDefs&... defs)
 {
     unserializeMemberFromJsonImpl(jobj, obj, firstDef);
-    unserializeMemberFromJsonImpl(jobj, obj, defs...);
+    unserializeMembersFromJsonImpl(jobj, obj, defs...);
 }
 
 template <typename T, typename MemberDefs, std::size_t... I>

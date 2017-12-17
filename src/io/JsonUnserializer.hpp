@@ -19,8 +19,9 @@
 #ifndef W_IO_JSON_UNSERIALIZER_HPP
 #define W_IO_JSON_UNSERIALIZER_HPP
 
-#include <memory>
 #include <cassert>
+#include <map>
+#include <memory>
 #include <vector>
 
 #include <QJsonObject>
@@ -47,6 +48,9 @@ T* unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<T*>
 
 template <typename T>
 std::vector<T> unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<std::vector<T>>);
+
+template <typename T>
+std::map<QString, T> unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<std::map<QString, T>>);
 
 template <typename T>
 typename std::enable_if<std::is_enum<T>::value, T>::type
@@ -205,6 +209,30 @@ inline std::vector<T> unserializeValueFromJson(const QJsonValue& jval, QObject* 
     }
 
     return array;
+}
+
+template <typename T>
+std::map<QString, T> unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<std::map<QString, T>>)
+{
+    if (!jval.isObject())
+        throw utils::ValueError(QString("Expected map but value is not object"));
+
+    const auto jobj = jval.toObject();
+    std::map<QString, T> map;
+
+    for (auto it = jobj.begin(); it != jobj.end(); ++it)
+    {
+        try
+        {
+            map.emplace(it.key(), unserializeValueFromJson(it.value(), parent, typeTag<T>{}));
+        }
+        catch (const utils::ValueError& e)
+        {
+            throw utils::ValueError(e, QStringLiteral("Failed to unserialize element with key ``%1''").arg(it.key()));
+        }
+    }
+
+    return map;
 }
 
 template <typename T>

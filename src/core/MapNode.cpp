@@ -27,16 +27,7 @@ MapNode::MapNode(QObject* parent, int id)
 {
 }
 
-void MapNode::setNeighbours(const MapNodeNeighbours& neighbours)
-{
-    if (this->neighbours != neighbours)
-    {
-        this->neighbours = neighbours;
-        emit neighboursChanged();
-    }
-}
-
-void MapNode::setNeighbours(MapNodeNeighbours&& neighbours)
+void MapNode::setNeighbours(MapNodeNeighbours neighbours)
 {
     if (this->neighbours != neighbours)
     {

@@ -78,17 +78,7 @@ public:
      *
      * \param neighbours the neigbours
      */
-    void setNeighbours(const MapNodeNeighbours& neighbours);
-
-    /**
-     * Set the neighbours (move version).
-     *
-     * Will emit the signal MapNode::neighboursChanged() if the newly set value
-     * is different than the current one.
-     *
-     * \param neighbours the neigbours
-     */
-    void setNeighbours(MapNodeNeighbours&& neighbours);
+    void setNeighbours(MapNodeNeighbours neighbours);
 
     /**
      * Get the neighbours for the given direction.

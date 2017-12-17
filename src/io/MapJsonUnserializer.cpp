@@ -25,6 +25,7 @@
 #include "core/Hexagon.h"
 #include "core/Map.h"
 #include "core/World.h"
+#include "io/JsonUnserializer.hpp"
 #include "io/JsonUtils.h"
 #include "io/Reference.h"
 #include "utils/Exception.h"
@@ -124,45 +125,14 @@ core::MapNode* MapJsonUnserializer::unserializeMapNode(const QByteArray& data, c
 
 static core::Faction* factionFromJson(const QJsonObject& jobj, core::Map* map)
 {
-    const auto id = jobj["id"].toInt(core::WObject::invalidId);
-
-    if (id == core::WObject::invalidId)
-        throw utils::ValueError("Failed to unserialize faction, it has missing or invalid id");
-
-    const auto name = jobj["name"].toString();
-
-    if (name.isNull() || name.isEmpty())
-        throw utils::ValueError("Failed to unserialize faction, it has missing or invalid name");
-
-    const auto primaryColor = QColor(jobj["primaryColor"].toString());
-
-    if (!primaryColor.isValid())
-        throw utils::ValueError("Failed to unserialize faction, it has missing or invalid primaryColor");
-
-    const auto secondaryColor = QColor(jobj["secondaryColor"].toString());
-
-    if (!secondaryColor.isValid())
-        throw utils::ValueError("Failed to unserialize faction, it has missing or invalid secondaryColor");
-
-    auto banner = unserializeReferenceAs<core::Banner>(jobj["banner"].toString(), map);
-
-    if (banner == nullptr)
-        throw utils::ValueError("Failed to unserialize faction, it has missing or invalid banner");
-
-    auto civilization = unserializeReferenceAs<core::Civilization>(jobj["civilization"].toString(), map);
-
-    if (civilization == nullptr)
-        throw utils::ValueError("Failed to unserialize faction, it has missing or invalid civilization");
-
-    auto obj = map->createFaction(id);
-
-    obj->setName(name);
-    obj->setPrimaryColor(primaryColor);
-    obj->setSecondaryColor(secondaryColor);
-    obj->setBanner(banner);
-    obj->setCivilization(civilization);
-
-    return obj;
+    try
+    {
+        return map->addFaction(unserializeFromJson<core::Faction>(jobj, map));
+    }
+    catch (utils::ValueError& e)
+    {
+        throw utils::ValueError(e, "Failed to unserialize faction");
+    }
 }
 
 static core::Entity* entityFromJson(const QJsonObject& jobj, core::Map* map)

@@ -53,11 +53,12 @@ public:
     static auto describe(Visitor&& visitor)
     {
         return visitor.template visitParent<WObject>()
-            .visitMember("name", &Faction::getName)
-            .visitMember("primaryColor", &Faction::getPrimaryColor)
-            .visitMember("secondaryColor", &Faction::getSecondaryColor)
-            .visitMember("banner", &Faction::getBanner)
-            .visitMember("civilization", &Faction::getCivilization);
+            .visitMember("name", &Faction::getName, &Faction::setName)
+            .visitMember("primaryColor", &Faction::getPrimaryColor, &Faction::setPrimaryColor)
+            .visitMember("secondaryColor", &Faction::getSecondaryColor, &Faction::setSecondaryColor)
+            .visitMember("banner", &Faction::getBanner, &Faction::setBanner)
+            .visitMember("civilization", &Faction::getCivilization, &Faction::setCivilization)
+            .template visitConstructor<QObject*, int>("parent", "id");
     }
 
     /**

@@ -273,13 +273,6 @@ TEST_CASE("Faction can't be unserialized from JSON", "[MapJsonUnserializer][JSON
         REQUIRE_THROWS_AS(unserializer.unserializeFaction(jdoc.toJson(), map), utils::ValueError);
     }
 
-    SECTION("Empty name")
-    {
-        jobj["name"] = "";
-
-        REQUIRE_THROWS_AS(unserializer.unserializeFaction(QJsonDocument(jobj).toJson(), map), utils::ValueError);
-    }
-
     SECTION("Missing primaryColor")
     {
         jobj.remove("primaryColor");

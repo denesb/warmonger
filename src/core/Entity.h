@@ -102,6 +102,17 @@ public:
     Component* createComponent(ComponentType* const componentType);
 
     /**
+     * Add a new compoennt to the entity.
+     *
+     * The entity must already own this component, i.e. it must have
+     * been created with the entity as its parent.
+     * Will emit the signal Entity::componentChanged().
+     *
+     * \returns the added component
+     */
+    Component* addComponent(std::unique_ptr<Component> component);
+
+    /**
      * Remove the component with the given type.
      *
      * If the Entity doesn't have a component with the given type nothing is

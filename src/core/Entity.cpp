@@ -90,6 +90,21 @@ Component* Entity::createComponent(ComponentType* const componentType)
     return component;
 }
 
+Component* Entity::addComponent(std::unique_ptr<Component> component)
+{
+    assert(component->parent() == this);
+
+    auto c = component.get();
+
+    this->components.push_back(component.release());
+
+    wDebug << "Added component " << c << " to entity " << this;
+
+    emit componentChanged();
+
+    return c;
+}
+
 std::unique_ptr<Component> Entity::removeComponent(const ComponentType* const componentType)
 {
     const auto it = std::remove_if(this->components.begin(),

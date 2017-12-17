@@ -24,6 +24,7 @@
 #include <memory>
 #include <vector>
 
+#include <QColor>
 #include <QJsonObject>
 
 #include "io/Visitor.hpp"
@@ -39,6 +40,8 @@ struct typeTag {};
 int unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<int>);
 
 QString unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<QString>);
+
+QColor unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<QColor>);
 
 template <typename T>
 std::unique_ptr<T> unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<std::unique_ptr<T>>);
@@ -174,6 +177,19 @@ inline QString unserializeValueFromJson(const QJsonValue& jval, QObject*, typeTa
         throw utils::ValueError("Value is not string");
 
     return jval.toString();
+}
+
+inline QColor unserializeValueFromJson(const QJsonValue& jval, QObject*, typeTag<QColor>)
+{
+    if (!jval.isString())
+        throw utils::ValueError("Expected color but value is not string");
+
+    QColor color(jval.toString());
+
+    if (!color.isValid())
+        throw utils::ValueError(QStringLiteral("``%1'' is not a valid color name").arg(jval.toString()));
+
+    return color;
 }
 
 template <typename T>

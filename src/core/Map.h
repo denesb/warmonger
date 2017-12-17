@@ -256,6 +256,17 @@ public:
     Faction* createFaction(int id = WObject::invalidId);
 
     /**
+     * Add a new faction to the map.
+     *
+     * The map must already own this faction, i.e. it must have been
+     * created with the world as its parent.
+     * Will emit the signal Map::factionsChanged().
+     *
+     * \returns the added faction
+     */
+    Faction* addFaction(std::unique_ptr<Faction> faction);
+
+    /**
      * Remove the faction and renounce ownership.
      *
      * The faction is removed and it's returned as an std::unique_ptr and

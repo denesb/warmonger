@@ -157,6 +157,21 @@ Faction* Map::createFaction(int id)
     return faction;
 }
 
+Faction* Map::addFaction(std::unique_ptr<Faction> faction)
+{
+    assert(faction->parent() == this);
+
+    auto f = faction.get();
+
+    this->factions.push_back(faction.release());
+
+    wDebug << "Added faction " << f << " to world " << this;
+
+    emit factionsChanged();
+
+    return f;
+}
+
 std::unique_ptr<Faction> Map::removeFaction(Faction* faction)
 {
     const auto it = std::remove(this->factions.begin(), this->factions.end(), faction);

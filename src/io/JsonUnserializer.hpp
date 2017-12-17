@@ -214,14 +214,21 @@ template <typename T>
 inline std::vector<T> unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<std::vector<T>>)
 {
     if (!jval.isArray())
-        throw utils::ValueError(QString("Value is not array"));
+        throw utils::ValueError(QString("Expected vector but value is not array"));
 
     auto jarr = jval.toArray();
     std::vector<T> array;
     array.reserve(jarr.size());
-    for (auto jelement : jarr)
+    for (int i = 0; i < jarr.size(); ++i)
     {
-        array.emplace_back(unserializeValueFromJson(jelement, parent, typeTag<T>{}));
+        try
+        {
+            array.emplace_back(unserializeValueFromJson(jarr[i], parent, typeTag<T>{}));
+        }
+        catch (const utils::ValueError& e)
+        {
+            throw utils::ValueError(e, QStringLiteral("Failed to unserialize array element with index %1").arg(i));
+        }
     }
 
     return array;

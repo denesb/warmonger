@@ -39,6 +39,8 @@ static core::FieldValue unserializeValueFromJson(const QJsonValue& jvalue, QObje
 static std::tuple<core::MapNode*, std::map<core::Direction, QString>> mapNodeFromJson(
     const QJsonObject& jobj, core::Map* map);
 static void mapNodesFromJson(const QJsonArray& jarr, core::Map* map);
+static core::MapNodeNeighbours unserializeValueFromJson(
+    const QJsonValue& jvalue, QObject* parent, typeTag<core::MapNodeNeighbours>);
 
 std::unique_ptr<core::Map> MapJsonUnserializer::unserializeMap(const QByteArray& data, core::World* world) const
 {
@@ -97,28 +99,14 @@ core::Faction* MapJsonUnserializer::unserializeFaction(const QByteArray& data, c
 
 core::MapNode* MapJsonUnserializer::unserializeMapNode(const QByteArray& data, core::Map* map) const
 {
-    QJsonDocument jdoc(parseJson(data));
-    QJsonObject jobj{jdoc.object()};
-
-    const auto mapNodeData = mapNodeFromJson(jobj, map);
-    auto mapNode = std::get<core::MapNode*>(mapNodeData);
-
-    for (auto& neighbour : std::get<1>(mapNodeData))
+    try
     {
-        core::Direction direction{neighbour.first};
-        QString ref{neighbour.second};
-
-        if (!ref.isEmpty())
-        {
-            mapNode->setNeighbour(direction, unserializeReferenceAs<core::MapNode>(ref, map));
-        }
-        else
-        {
-            mapNode->setNeighbour(direction, nullptr);
-        }
+        return map->addMapNode(unserializeFromJson<core::MapNode>(parseJson(data).object(), map));
     }
-
-    return mapNode;
+    catch (utils::ValueError& e)
+    {
+        throw utils::ValueError(e, "Failed to unserialize faction");
+    }
 }
 
 static core::Faction* factionFromJson(const QJsonObject& jobj, core::Map* map)
@@ -261,6 +249,20 @@ static void mapNodesFromJson(const QJsonArray& jarr, core::Map* map)
             mn->setNeighbour(d, unserializeReferenceAs<core::MapNode>(neighbourReference, map));
         }
     }
+}
+
+static core::MapNodeNeighbours unserializeValueFromJson(
+    const QJsonValue& jvalue, QObject* parent, typeTag<core::MapNodeNeighbours>)
+{
+    core::MapNodeNeighbours neighbours;
+    const auto neighboursMap = unserializeValueFromJson(jvalue, parent, typeTag<std::map<QString, core::MapNode*>>{});
+
+    for (const auto& neighbour : neighboursMap)
+    {
+        neighbours[core::str2direction(neighbour.first)] = neighbour.second;
+    }
+
+    return neighbours;
 }
 
 } // namespace warmonger

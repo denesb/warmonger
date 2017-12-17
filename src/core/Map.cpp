@@ -87,6 +87,21 @@ MapNode* Map::createMapNode(int id)
     return mapNode;
 }
 
+MapNode* Map::addMapNode(std::unique_ptr<MapNode> mapNode)
+{
+    assert(mapNode->parent() == this);
+
+    auto mn = mapNode.get();
+
+    this->mapNodes.push_back(mapNode.release());
+
+    wDebug << "Added mapNode " << mn << " to map " << this;
+
+    emit mapNodesChanged();
+
+    return mn;
+}
+
 std::unique_ptr<MapNode> Map::removeMapNode(MapNode* mapNode)
 {
     auto it = std::find(this->mapNodes.cbegin(), this->mapNodes.cend(), mapNode);

@@ -197,6 +197,17 @@ public:
     MapNode* createMapNode(int id = WObject::invalidId);
 
     /**
+     * Add a new mapNode to the map.
+     *
+     * The map must already own this mapNode, i.e. it must have been
+     * created with the map as its parent.
+     * Will emit the signal Map::mapNodesChanged().
+     *
+     * \returns the added mapNode
+     */
+    MapNode* addMapNode(std::unique_ptr<MapNode> mapNode);
+
+    /**
      * Remove an exising map-node and renounce ownership.
      *
      * The map-node is removed and it's returned as an std::unique_ptr

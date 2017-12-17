@@ -22,6 +22,7 @@
 #include <cassert>
 #include <map>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 #include <QColor>
@@ -55,6 +56,9 @@ std::vector<T> unserializeValueFromJson(const QJsonValue& jval, QObject* parent,
 
 template <typename T>
 std::map<QString, T> unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<std::map<QString, T>>);
+
+template <typename T>
+std::unordered_map<QString, T> unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<std::unordered_map<QString, T>>);
 
 template <typename T>
 typename std::enable_if<std::is_enum<T>::value, T>::type
@@ -235,14 +239,14 @@ inline std::vector<T> unserializeValueFromJson(const QJsonValue& jval, QObject* 
     return array;
 }
 
-template <typename T>
-std::map<QString, T> unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<std::map<QString, T>>)
+template <typename AssociativeContainer, typename T>
+inline AssociativeContainer unserializeValueFromJson(const QJsonValue& jval, QObject* parent)
 {
     if (!jval.isObject())
         throw utils::ValueError(QString("Expected map but value is not object"));
 
     const auto jobj = jval.toObject();
-    std::map<QString, T> map;
+    AssociativeContainer map;
 
     for (auto it = jobj.begin(); it != jobj.end(); ++it)
     {
@@ -257,6 +261,18 @@ std::map<QString, T> unserializeValueFromJson(const QJsonValue& jval, QObject* p
     }
 
     return map;
+}
+
+template <typename T>
+std::map<QString, T> unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<std::map<QString, T>>)
+{
+    return unserializeValueFromJson<std::map<QString, T>, T>(jval, parent);
+}
+
+template <typename T>
+std::unordered_map<QString, T> unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<std::unordered_map<QString, T>>)
+{
+    return unserializeValueFromJson<std::unordered_map<QString, T>, T>(jval, parent);
 }
 
 template <typename T>

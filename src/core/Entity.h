@@ -50,7 +50,9 @@ public:
     template <class Visitor>
     static auto describe(Visitor&& visitor)
     {
-        return visitor.template visitParent<WObject>().visitMember("components", &Entity::getComponents);
+        return visitor.template visitParent<WObject>()
+            .visitMember("components", &Entity::getComponents, &Entity::addComponent)
+            .template visitConstructor<QObject*, int>("parent", "id");
     }
 
     /**

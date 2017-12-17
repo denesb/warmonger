@@ -56,8 +56,9 @@ public:
     static auto describe(Visitor&& visitor)
     {
         return visitor.template visitParent<WObject>()
-            .visitMember("type", &Component::getType)
-            .visitMember("fields", &Component::getFields);
+            .visitMember("type", &Component::getType, &Component::setType)
+            .visitMember("fields", &Component::getFields, &Component::setFields)
+            .template visitConstructor<QObject*, int>("parent", "id");
     }
 
     /**

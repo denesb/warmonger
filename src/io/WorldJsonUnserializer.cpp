@@ -18,61 +18,18 @@
 
 #include "io/WorldJsonUnserializer.h"
 
-#include <QJsonObject>
-#include <QMetaEnum>
-
 #include "core/World.h"
-#include "core/WorldComponentType.h"
 #include "io/JsonUnserializer.hpp"
 #include "io/JsonUtils.h"
-#include "io/Reference.h"
-#include "utils/Exception.h"
 
 namespace warmonger {
 namespace io {
 
-static core::Banner* bannerFromJson(const QJsonObject& jobj, core::World* world);
-static core::Civilization* civilizationFromJson(const QJsonObject& jobj, core::World* world);
-static core::WorldComponentType* worldComponentTypeFromJson(const QJsonObject& jobj, core::World* world);
-
 core::Banner* WorldJsonUnserializer::unserializeBanner(const QByteArray& data, core::World* world) const
 {
-    QJsonDocument jdoc(parseJson(data));
-    return bannerFromJson(jdoc.object(), world);
-}
-
-core::Civilization* WorldJsonUnserializer::unserializeCivilization(const QByteArray& data, core::World* world) const
-{
-    QJsonDocument jdoc(parseJson(data));
-    return civilizationFromJson(jdoc.object(), world);
-}
-
-core::WorldComponentType* WorldJsonUnserializer::unserializeWorldComponentType(
-    const QByteArray& data, core::World* world) const
-{
-    QJsonDocument jdoc(parseJson(data));
-    return worldComponentTypeFromJson(jdoc.object(), world);
-}
-
-std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByteArray& data) const
-{
-    QJsonDocument jdoc(parseJson(data));
-
     try
     {
-        return unserializeFromJson<core::World>(jdoc.object(), nullptr);
-    }
-    catch (utils::ValueError& e)
-    {
-        throw utils::ValueError(e, "Failed to unserialize world");
-    }
-}
-
-static core::Banner* bannerFromJson(const QJsonObject& jobj, core::World* world)
-{
-    try
-    {
-        return world->addBanner(unserializeFromJson<core::Banner>(jobj, world));
+        return world->addBanner(unserializeFromJson<core::Banner>(parseJson(data).object(), world));
     }
     catch (utils::ValueError& e)
     {
@@ -80,11 +37,11 @@ static core::Banner* bannerFromJson(const QJsonObject& jobj, core::World* world)
     }
 }
 
-static core::Civilization* civilizationFromJson(const QJsonObject& jobj, core::World* world)
+core::Civilization* WorldJsonUnserializer::unserializeCivilization(const QByteArray& data, core::World* world) const
 {
     try
     {
-        return world->addCivilization(unserializeFromJson<core::Civilization>(jobj, world));
+        return world->addCivilization(unserializeFromJson<core::Civilization>(parseJson(data).object(), world));
     }
     catch (utils::ValueError& e)
     {
@@ -92,15 +49,29 @@ static core::Civilization* civilizationFromJson(const QJsonObject& jobj, core::W
     }
 }
 
-static core::WorldComponentType* worldComponentTypeFromJson(const QJsonObject& jobj, core::World* world)
+core::WorldComponentType* WorldJsonUnserializer::unserializeWorldComponentType(
+    const QByteArray& data, core::World* world) const
 {
     try
     {
-        return world->addWorldComponentType(unserializeFromJson<core::WorldComponentType>(jobj, world));
+        return world->addWorldComponentType(
+            unserializeFromJson<core::WorldComponentType>(parseJson(data).object(), world));
     }
     catch (utils::ValueError& e)
     {
         throw utils::ValueError(e, "Failed to unserialize world component-type");
+    }
+}
+
+std::unique_ptr<core::World> WorldJsonUnserializer::unserializeWorld(const QByteArray& data) const
+{
+    try
+    {
+        return unserializeFromJson<core::World>(parseJson(data).object(), nullptr);
+    }
+    catch (utils::ValueError& e)
+    {
+        throw utils::ValueError(e, "Failed to unserialize world");
     }
 }
 

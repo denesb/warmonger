@@ -79,6 +79,12 @@ const FieldValue* Component::field(const QString& name) const
     }
 }
 
+void Component::setFields(std::unordered_map<QString, FieldValue> fields)
+{
+    this->fields = std::move(fields);
+    emit fieldChanged();
+}
+
 static Field* getFieldDefinition(const ComponentType* const type, const QString& name)
 {
     const auto& fields = type->getFields();

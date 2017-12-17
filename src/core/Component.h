@@ -114,6 +114,14 @@ public:
         return this->fields;
     }
 
+    /**
+     * Set all fields of this component.
+     *
+     * All previous fields are discarded.
+     * Will emit fieldsChanged().
+     */
+    void setFields(std::unordered_map<QString, FieldValue> fields);
+
 signals:
     /**
      * Emitted when the type changes.

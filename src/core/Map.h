@@ -228,6 +228,17 @@ public:
     Entity* createEntity(int id = WObject::invalidId);
 
     /**
+     * Add a new entity to the map.
+     *
+     * The map must already own this entity, i.e. it must have been
+     * created with the map as its parent.
+     * Will emit the signal Map::entitysChanged().
+     *
+     * \returns the added entity
+     */
+    Entity* addEntity(std::unique_ptr<Entity> entity);
+
+    /**
      * Remove the entity and renounce ownership.
      *
      * The entity is removed and it's returned as an std::unique_ptr and
@@ -259,7 +270,7 @@ public:
      * Add a new faction to the map.
      *
      * The map must already own this faction, i.e. it must have been
-     * created with the world as its parent.
+     * created with the map as its parent.
      * Will emit the signal Map::factionsChanged().
      *
      * \returns the added faction

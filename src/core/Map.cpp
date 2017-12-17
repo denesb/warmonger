@@ -122,6 +122,21 @@ Entity* Map::createEntity(int id)
     return entity;
 }
 
+Entity* Map::addEntity(std::unique_ptr<Entity> entity)
+{
+    assert(entity->parent() == this);
+
+    auto e = entity.get();
+
+    this->entities.push_back(entity.release());
+
+    wDebug << "Added entity " << e << " to map " << this;
+
+    emit entitiesChanged();
+
+    return e;
+}
+
 std::unique_ptr<Entity> Map::removeEntity(Entity* entity)
 {
     auto it = std::find(this->entities.cbegin(), this->entities.cend(), entity);
@@ -165,7 +180,7 @@ Faction* Map::addFaction(std::unique_ptr<Faction> faction)
 
     this->factions.push_back(faction.release());
 
-    wDebug << "Added faction " << f << " to world " << this;
+    wDebug << "Added faction " << f << " to map " << this;
 
     emit factionsChanged();
 

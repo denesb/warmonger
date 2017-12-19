@@ -36,53 +36,34 @@ namespace io {
 static core::Faction* factionFromJson(const QJsonObject& jobj, core::Map* map);
 static core::Entity* entityFromJson(const QJsonObject& jobj, core::Map* map);
 static core::FieldValue unserializeValueFromJson(const QJsonValue& jvalue, QObject* parent, typeTag<core::FieldValue>);
-static std::tuple<core::MapNode*, std::map<core::Direction, QString>> mapNodeFromJson(
-    const QJsonObject& jobj, core::Map* map);
-static void mapNodesFromJson(const QJsonArray& jarr, core::Map* map);
+static std::tuple<std::unique_ptr<core::MapNode>, std::map<core::Direction, QString>> mapNodeFromJson(
+    const QJsonObject& jobj, QObject* parent);
+static std::vector<std::unique_ptr<core::MapNode>> unserializeValueFromJson(
+    const QJsonValue& jvalue, QObject* parent, typeTag<std::vector<std::unique_ptr<core::MapNode>>>);
 static core::MapNodeNeighbours unserializeValueFromJson(
     const QJsonValue& jvalue, QObject* parent, typeTag<core::MapNodeNeighbours>);
 
 std::unique_ptr<core::Map> MapJsonUnserializer::unserializeMap(const QByteArray& data, core::World* world) const
 {
-    QJsonDocument jdoc(parseJson(data));
-    QJsonObject jobj = jdoc.object();
+    QJsonObject jobj = parseJson(data).object();
 
     if (world->getUuid() != jobj["world"].toString())
         throw utils::ValueError("Failed to unserialize map, world uuid mismatch");
 
-    std::unique_ptr<core::Map> obj{std::make_unique<core::Map>()};
+    auto map = std::make_unique<core::Map>();
+    map->setWorld(world);
 
-    const QString name{jobj["name"].toString()};
-    if (name.isNull() || name.isEmpty())
-        throw utils::ValueError("Failed to unserialize map, it has missing or invalid name");
+    try
+    {
+        auto description = core::Map::describe(Visitor<core::Map>());
+        unserializeMembersFromJson(jobj, *map, description.getMembers().asTuple());
+    }
+    catch (utils::ValueError& e)
+    {
+        throw utils::ValueError(e, "Failed to unserialize map");
+    }
 
-    obj->setName(name);
-
-    obj->setWorld(world);
-
-    const auto jmapNodes = jobj["mapNodes"].toArray();
-    if (jmapNodes.isEmpty())
-        throw utils::ValueError("Failed to unserialize map, it has missing or invalid mapNodes");
-
-    mapNodesFromJson(jmapNodes, obj.get());
-
-    auto jfactions = jobj["factions"].toArray();
-    if (jfactions.isEmpty())
-        throw utils::ValueError("Failed to unserialize map, it has missing or invalid factions");
-
-    std::for_each(jfactions.begin(), jfactions.end(), [&obj](const auto& faction) {
-        factionFromJson(faction.toObject(), obj.get());
-    });
-
-    auto jentities = jobj["entities"].toArray();
-    if (jentities.isEmpty())
-        throw utils::ValueError("Failed to unserialize map, it has missing or invalid entities");
-
-    std::for_each(jentities.begin(), jentities.end(), [&obj](const auto& entity) {
-        entityFromJson(entity.toObject(), obj.get());
-    });
-
-    return obj;
+    return map;
 }
 
 core::Entity* MapJsonUnserializer::unserializeEntity(const QByteArray& data, core::Map* map) const
@@ -192,8 +173,8 @@ static core::FieldValue unserializeValueFromJson(const QJsonValue& jvalue, QObje
     return value;
 }
 
-static std::tuple<core::MapNode*, std::map<core::Direction, QString>> mapNodeFromJson(
-    const QJsonObject& jobj, core::Map* map)
+static std::tuple<std::unique_ptr<core::MapNode>, std::map<core::Direction, QString>> mapNodeFromJson(
+    const QJsonObject& jobj, QObject* parent)
 {
     const int id = jobj["id"].toInt(core::WObject::invalidId);
 
@@ -215,22 +196,29 @@ static std::tuple<core::MapNode*, std::map<core::Direction, QString>> mapNodeFro
         neighbours.emplace(direction, ref);
     }
 
-    return std::make_tuple(map->createMapNode(id), neighbours);
+    return std::make_tuple(std::make_unique<core::MapNode>(parent, id), neighbours);
 }
 
-static void mapNodesFromJson(const QJsonArray& jarr, core::Map* map)
+static std::vector<std::unique_ptr<core::MapNode>> unserializeValueFromJson(
+    const QJsonValue& jvalue, QObject* parent, typeTag<std::vector<std::unique_ptr<core::MapNode>>>)
 {
+    if (!jvalue.isArray())
+        throw utils::ValueError(QString("Expected vector but value is not array"));
+
+    std::vector<std::unique_ptr<core::MapNode>> mapNodes;
     std::vector<std::tuple<core::MapNode*, core::Direction, QString>> neighbours;
 
-    for (QJsonValue jval : jarr)
+    const auto jarr = jvalue.toArray();
+    for (QJsonValue jelement : jarr)
     {
-        const auto mapNodeData = mapNodeFromJson(jval.toObject(), map);
+        auto mapNodeData = mapNodeFromJson(jelement.toObject(), parent);
+        mapNodes.emplace_back(std::move(std::get<0>(mapNodeData)));
 
         // for now just store the references to the neighbours
         // they will be resolved after all mapnodes have been processed
         for (auto& neighbour : std::get<1>(mapNodeData))
         {
-            neighbours.emplace_back(std::get<core::MapNode*>(mapNodeData), neighbour.first, neighbour.second);
+            neighbours.emplace_back(mapNodes.back().get(), neighbour.first, neighbour.second);
         }
     }
 
@@ -246,9 +234,11 @@ static void mapNodesFromJson(const QJsonArray& jarr, core::Map* map)
         }
         else
         {
-            mn->setNeighbour(d, unserializeReferenceAs<core::MapNode>(neighbourReference, map));
+            mn->setNeighbour(d, unserializeReferenceAs<core::MapNode>(neighbourReference, parent));
         }
     }
+
+    return mapNodes;
 }
 
 static core::MapNodeNeighbours unserializeValueFromJson(

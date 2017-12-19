@@ -65,11 +65,12 @@ public:
     static auto describe(Visitor&& visitor)
     {
         return visitor.template visitParent<QObject>()
-            .visitMember("name", &Map::getName)
+            .visitMember("name", &Map::getName, &Map::setName)
             .visitMember("world", &Map::getWorld)
-            .visitMember("mapNodes", &Map::getMapNodes)
-            .visitMember("factions", &Map::getFactions)
-            .visitMember("entities", &Map::getEntities);
+            .visitMember("mapNodes", &Map::getMapNodes, &Map::addMapNode)
+            .visitMember("factions", &Map::getFactions, &Map::addFaction)
+            .visitMember("entities", &Map::getEntities, &Map::addEntity)
+            .template visitConstructor<QObject*>("parent");
     }
 
     /**

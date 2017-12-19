@@ -46,51 +46,28 @@ namespace stack {
 template <>
 struct getter<QString>
 {
-    static QString get(lua_State* L, int index, record& tracking)
-    {
-        tracking.use(1);
-        std::size_t len;
-        const auto str = lua_tolstring(L, index, &len);
-        return QString::fromLocal8Bit(str, len);
-    }
+    static QString get(lua_State* L, int index, record& tracking);
 };
 
 template <>
 struct pusher<QString>
 {
-    static int push(lua_State* L, const QString& str)
-    {
-        const QByteArray data = str.toLocal8Bit();
-        lua_pushlstring(L, data.data(), data.size());
-        return 1;
-    }
+    static int push(lua_State* L, const QString& str);
 };
 
 template <>
 struct getter<QColor>
 {
-    static QColor get(lua_State* L, int index, record& tracking)
-    {
-        tracking.use(1);
-        std::size_t len;
-        const auto str = lua_tolstring(L, index, &len);
-        return QColor(QString::fromLocal8Bit(str, len));
-    }
+    static QColor get(lua_State* L, int index, record& tracking);
 };
 
 template <>
 struct pusher<QColor>
 {
-    static int push(lua_State* L, const QColor& color)
-    {
-        const QByteArray data = color.name().toLocal8Bit();
-        lua_pushlstring(L, data.data(), data.size());
-        return 1;
-    }
+    static int push(lua_State* L, const QColor& color);
 };
 
 } // namespace stack
-
 } // namespace sol
 
 namespace warmonger {
@@ -332,3 +309,39 @@ static FieldValue* getField(Component* const component, sol::stack_object key, s
 
 } // namespace core
 } // namespace warmonger
+
+namespace sol {
+namespace stack {
+
+QString getter<QString>::get(lua_State* L, int index, record& tracking)
+{
+    tracking.use(1);
+    std::size_t len;
+    const auto str = lua_tolstring(L, index, &len);
+    return QString::fromLocal8Bit(str, len);
+}
+
+int pusher<QString>::push(lua_State* L, const QString& str)
+{
+    const QByteArray data = str.toLocal8Bit();
+    lua_pushlstring(L, data.data(), data.size());
+    return 1;
+}
+
+QColor getter<QColor>::get(lua_State* L, int index, record& tracking)
+{
+    tracking.use(1);
+    std::size_t len;
+    const auto str = lua_tolstring(L, index, &len);
+    return QColor(QString::fromLocal8Bit(str, len));
+}
+
+int pusher<QColor>::push(lua_State* L, const QColor& color)
+{
+    const QByteArray data = color.name().toLocal8Bit();
+    lua_pushlstring(L, data.data(), data.size());
+    return 1;
+}
+
+} // namespace stack
+} // namespace sol

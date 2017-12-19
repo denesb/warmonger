@@ -33,8 +33,6 @@
 namespace warmonger {
 namespace io {
 
-static core::Faction* factionFromJson(const QJsonObject& jobj, core::Map* map);
-static core::Entity* entityFromJson(const QJsonObject& jobj, core::Map* map);
 static core::FieldValue unserializeValueFromJson(const QJsonValue& jvalue, QObject* parent, typeTag<core::FieldValue>);
 static std::tuple<std::unique_ptr<core::MapNode>, std::map<core::Direction, QString>> mapNodeFromJson(
     const QJsonObject& jobj, QObject* parent);
@@ -68,14 +66,26 @@ std::unique_ptr<core::Map> MapJsonUnserializer::unserializeMap(const QByteArray&
 
 core::Entity* MapJsonUnserializer::unserializeEntity(const QByteArray& data, core::Map* map) const
 {
-    QJsonDocument jdoc(parseJson(data));
-    return entityFromJson(jdoc.object(), map);
+    try
+    {
+        return map->addEntity(unserializeFromJson<core::Entity>(parseJson(data).object(), map));
+    }
+    catch (utils::ValueError& e)
+    {
+        throw utils::ValueError(e, "Failed to unserialize entity");
+    }
 }
 
 core::Faction* MapJsonUnserializer::unserializeFaction(const QByteArray& data, core::Map* map) const
 {
-    QJsonDocument jdoc(parseJson(data));
-    return factionFromJson(jdoc.object(), map);
+    try
+    {
+        return map->addFaction(unserializeFromJson<core::Faction>(parseJson(data).object(), map));
+    }
+    catch (utils::ValueError& e)
+    {
+        throw utils::ValueError(e, "Failed to unserialize faction");
+    }
 }
 
 core::MapNode* MapJsonUnserializer::unserializeMapNode(const QByteArray& data, core::Map* map) const
@@ -87,30 +97,6 @@ core::MapNode* MapJsonUnserializer::unserializeMapNode(const QByteArray& data, c
     catch (utils::ValueError& e)
     {
         throw utils::ValueError(e, "Failed to unserialize faction");
-    }
-}
-
-static core::Faction* factionFromJson(const QJsonObject& jobj, core::Map* map)
-{
-    try
-    {
-        return map->addFaction(unserializeFromJson<core::Faction>(jobj, map));
-    }
-    catch (utils::ValueError& e)
-    {
-        throw utils::ValueError(e, "Failed to unserialize faction");
-    }
-}
-
-static core::Entity* entityFromJson(const QJsonObject& jobj, core::Map* map)
-{
-    try
-    {
-        return map->addEntity(unserializeFromJson<core::Entity>(jobj, map));
-    }
-    catch (utils::ValueError& e)
-    {
-        throw utils::ValueError(e, "Failed to unserialize entity");
     }
 }
 

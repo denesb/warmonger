@@ -106,10 +106,10 @@ set(
 
 set(
     IO_SRC_FILES
+    src/io/File.cpp
+    src/io/JsonUnserializer.cpp
     src/io/MapJsonSerializer.cpp
     src/io/MapJsonUnserializer.cpp
-    src/io/File.cpp
-    src/io/JsonUtils.cpp
     src/io/Reference.cpp
     src/io/WorldJsonSerializer.cpp
     src/io/WorldJsonUnserializer.cpp

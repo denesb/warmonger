@@ -18,17 +18,9 @@
 
 #include "io/MapJsonUnserializer.h"
 
-#include <algorithm>
-#include <memory>
-#include <vector>
-
 #include "core/Hexagon.h"
 #include "core/Map.h"
-#include "core/World.h"
 #include "io/JsonUnserializer.hpp"
-#include "io/JsonUtils.h"
-#include "io/Reference.h"
-#include "utils/Exception.h"
 
 namespace warmonger {
 namespace io {

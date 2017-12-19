@@ -26,6 +26,7 @@
 #include <vector>
 
 #include <QColor>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QMetaEnum>
 
@@ -35,6 +36,8 @@
 
 namespace warmonger {
 namespace io {
+
+QJsonDocument parseJson(const QByteArray& json);
 
 template <typename T>
 struct typeTag {};

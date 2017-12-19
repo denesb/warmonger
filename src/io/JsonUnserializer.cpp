@@ -16,11 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "io/JsonUtils.h"
-
-#include <QJsonDocument>
-
-#include "utils/Exception.h"
+#include "io/JsonUnserializer.hpp"
 
 namespace warmonger {
 namespace io {
@@ -39,5 +35,5 @@ QJsonDocument parseJson(const QByteArray& json)
     return doc;
 }
 
-} // namespace warmonger
 } // namespace io
+} // namespace warmonger

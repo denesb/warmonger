@@ -25,12 +25,14 @@
 
 #include <QString>
 
-#include "core/ComponentType.h"
+#include "core/Field.h"
 #include "core/WObject.h"
 #include "utils/Hash.h"
 
 namespace warmonger {
 namespace core {
+
+class ComponentType;
 
 /**
  * The component of a game entity.

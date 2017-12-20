@@ -18,6 +18,7 @@
 
 #include "core/Component.h"
 
+#include "core/ComponentType.h"
 #include "utils/Logging.h"
 
 namespace warmonger {

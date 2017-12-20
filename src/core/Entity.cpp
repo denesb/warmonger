@@ -18,6 +18,7 @@
 
 #include "core/Entity.h"
 
+#include "core/ComponentType.h"
 #include "utils/Logging.h"
 #include "utils/QVariantUtils.h"
 

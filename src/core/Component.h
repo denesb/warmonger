@@ -40,7 +40,8 @@ class ComponentType;
  * For an overview of the Entity-Component-Systems design pattern (ECS) and how
  * warmonger implements it see \ref docs/ECS.md.
  *
- * Components have a set of fields defined by their component-type.
+ * Components have a set of fields defined by their component-type. The
+ * type of a component cannot be changed once it's created.
  *
  * \see warmonger::core::ComponentType
  */
@@ -51,27 +52,24 @@ class Component : public WObject
     /**
      * The type of the component
      */
-    Q_PROPERTY(ComponentType* type READ getType NOTIFY typeChanged)
+    Q_PROPERTY(ComponentType* type READ getType CONSTANT)
 
 public:
     template <class Visitor>
     static auto describe(Visitor&& visitor)
     {
         return visitor.template visitParent<WObject>()
-            .visitMember("type", &Component::getType, &Component::setType)
+            .visitMember("type", &Component::getType)
             .visitMember("fields", &Component::getFields, &Component::setFields)
-            .template visitConstructor<QObject*, int>("parent", "id");
+            .template visitConstructor<ComponentType*, QObject*, int>("type", "parent", "id");
     }
 
     /**
-     * Create an empty component.
-     *
-     * \param parent the parent QObject.
-     * \param id the id
+     * Create an component with the specified type.
      *
      * \see WObject::WObject
      */
-    Component(QObject* parent, int id = WObject::invalidId);
+    Component(ComponentType* type, QObject* parent, int id = WObject::invalidId);
 
     /**
      * Get the type.
@@ -82,16 +80,6 @@ public:
     {
         return this->type;
     }
-
-    /**
-     * Set the type.
-     *
-     * Will emit the signal Component::componentChanged() if the newly set value
-     * is different than the current one.
-     *
-     * \param type the type
-     */
-    void setType(ComponentType* type);
 
     /**
      * Get the field value with the given name.
@@ -127,11 +115,6 @@ public:
 
 signals:
     /**
-     * Emitted when the type changes.
-     */
-    void typeChanged();
-
-    /**
      * Emitted when a field's value changes.
      */
     void fieldChanged();
@@ -159,11 +142,6 @@ public:
     ComponentType* getType() const
     {
         return this->component->getType();
-    }
-
-    void setType(ComponentType* type)
-    {
-        this->component->setType(type);
     }
 
     FieldValue& operator[](const QString& name)

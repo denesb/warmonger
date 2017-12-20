@@ -67,9 +67,7 @@ Component* Entity::getComponent(const QString& componentTypeName)
 Component* Entity::createComponent(ComponentType* const componentType)
 {
     wDebug << "Creating new component " << componentType->getName() << " in entity " << this;
-    auto component{new Component(this)};
-
-    component->setType(componentType);
+    auto component{new Component(componentType, this)};
 
     const auto it = std::find_if(this->components.begin(),
         this->components.end(),

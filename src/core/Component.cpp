@@ -26,27 +26,16 @@ namespace core {
 
 static Field* getFieldDefinition(const ComponentType* const type, const QString& name);
 
-Component::Component(QObject* parent, int id)
+Component::Component(ComponentType* type, QObject* parent, int id)
     : WObject(parent, id)
-    , type(nullptr)
+    , type(type)
 {
-}
+    this->fields.clear();
+    const auto& fieldDefs{this->type->getFields()};
 
-void Component::setType(ComponentType* type)
-{
-    if (this->type != type)
+    for (auto& fieldDef : fieldDefs)
     {
-        this->type = type;
-
-        this->fields.clear();
-        const auto& fieldDefs{this->type->getFields()};
-
-        for (auto& fieldDef : fieldDefs)
-        {
-            this->fields.emplace(fieldDef->getName(), FieldValue());
-        }
-
-        emit typeChanged();
+        this->fields.emplace(fieldDef->getName(), FieldValue());
     }
 }
 

@@ -43,7 +43,7 @@ void setNames(GameObject obj, QJsonObject& jobj, int i = 0)
     jobj["name"] = name;
 }
 
-std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
+std::tuple<std::unique_ptr<core::World>, QJsonObject, FileKeeper> makeWorld()
 {
     const QString positionComponentType{core::PositionComponentType::staticMetaObject.className()};
     const QString editComponentType{core::EditComponentType::staticMetaObject.className()};
@@ -62,6 +62,10 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
 
     world->setRulesType(core::WorldRules::Type::Lua);
     jworld["rulesType"] = "Lua";
+
+    FileKeeper rulesFile(world->getRulesEntryPoint(), "function world_init() w_debug(\"world_init\"); end");
+
+    world->loadRules(".");
 
     setNames(world.get(), jworld, 0);
 
@@ -125,10 +129,10 @@ std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld()
     world->setColors({QColor("#000000"), QColor("#ffffff")});
     jworld["colors"] = QJsonArray({"#000000", "#ffffff"});
 
-    return std::make_pair(std::move(world), jworld);
+    return std::make_tuple(std::move(world), jworld, std::move(rulesFile));
 }
 
-std::tuple<std::unique_ptr<core::Map>, std::unique_ptr<core::World>, QJsonObject> makeMap()
+std::tuple<std::unique_ptr<core::Map>, std::unique_ptr<core::World>, QJsonObject, FileKeeper> makeMap()
 {
     auto map{std::make_unique<core::Map>()};
     QJsonObject jmap;
@@ -136,7 +140,7 @@ std::tuple<std::unique_ptr<core::Map>, std::unique_ptr<core::World>, QJsonObject
     setNames(map.get(), jmap, 0);
 
     auto worlds{makeWorld()};
-    core::World* world = worlds.first.get();
+    core::World* world = std::get<0>(worlds).get();
 
     map->setWorld(world);
     jmap["world"] = world->getUuid();
@@ -232,7 +236,10 @@ std::tuple<std::unique_ptr<core::Map>, std::unique_ptr<core::World>, QJsonObject
 
     jmap["entities"] = QJsonArray({jentity0});
 
-    return std::make_tuple(std::move(map), std::move(worlds.first), jmap);
+    return std::make_tuple(std::move(map),
+        std::get<std::unique_ptr<core::World>>(std::move(worlds)),
+        jmap,
+        std::get<FileKeeper>(std::move(worlds)));
 }
 
 static void createEveryFieldType(core::WorldComponentType* componentType, QJsonObject& jcomponentType)

@@ -41,7 +41,8 @@ TEST_CASE("Banner can be unserialized from JSON", "[WorldJsonUnserializer][JSON]
 {
     std::unique_ptr<core::World> world;
     QJsonObject jworld;
-    std::tie(world, jworld) = makeWorld();
+    FileKeeper rulesFile;
+    std::tie(world, jworld, rulesFile) = makeWorld();
 
     const QJsonObject jobj = jworld["banners"].toArray()[0].toObject();
 
@@ -78,7 +79,8 @@ TEST_CASE("Banner can't be unserialized from JSON", "[WorldJsonUnserializer][JSO
 {
     std::unique_ptr<core::World> worldPtr;
     QJsonObject jworld;
-    std::tie(worldPtr, jworld) = makeWorld();
+    FileKeeper rulesFile;
+    std::tie(worldPtr, jworld, rulesFile) = makeWorld();
     auto world = worldPtr.get();
 
     const io::WorldJsonUnserializer unserializer;
@@ -135,7 +137,8 @@ TEST_CASE("Civilization can be unserialized from JSON", "[WorldJsonUnserializer]
 {
     std::unique_ptr<core::World> world;
     QJsonObject jworld;
-    std::tie(world, jworld) = makeWorld();
+    FileKeeper rulesFile;
+    std::tie(world, jworld, rulesFile) = makeWorld();
 
     const QJsonObject jobj = jworld["civilizations"].toArray()[0].toObject();
 
@@ -164,7 +167,8 @@ TEST_CASE("Civilization can't be unserialized from JSON", "[WorldJsonUnserialize
 {
     std::unique_ptr<core::World> worldPtr;
     QJsonObject jworld;
-    std::tie(worldPtr, jworld) = makeWorld();
+    FileKeeper rulesFile;
+    std::tie(worldPtr, jworld, rulesFile) = makeWorld();
     auto world = worldPtr.get();
 
     QJsonObject jobj = jworld["civilizations"].toArray()[0].toObject();
@@ -213,8 +217,8 @@ TEST_CASE("Civilization can't be unserialized from JSON", "[WorldJsonUnserialize
 TEST_CASE("ComponentType unserialized from JSON - happy path", "[WorldJsonUnserializer][JSON][Unserialize][HappyPath]")
 {
     auto worlds = makeWorld();
-    core::World* world = worlds.first.get();
-    QJsonObject jworld = worlds.second;
+    core::World* world = std::get<std::unique_ptr<core::World>>(worlds).get();
+    QJsonObject jworld = std::get<QJsonObject>(worlds);
 
     const io::WorldJsonUnserializer unserializer;
 
@@ -262,7 +266,8 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
 {
     std::unique_ptr<core::World> worldPtr;
     QJsonObject jworld;
-    std::tie(worldPtr, jworld) = makeWorld();
+    FileKeeper rulesFile;
+    std::tie(worldPtr, jworld, rulesFile) = makeWorld();
     auto world = worldPtr.get();
 
     const io::WorldJsonUnserializer unserializer;
@@ -370,7 +375,7 @@ TEST_CASE("ComponentType can't be unserialized from JSON", "[WorldJsonUnserializ
 TEST_CASE("World can be unserialized from JSON", "[WorldJsonUnserializer][JSON][Unserialize][HappyPath]")
 {
     const auto worlds = makeWorld();
-    const QJsonObject jobj{worlds.second};
+    const QJsonObject jobj{std::get<QJsonObject>(worlds)};
 
     const QJsonDocument jdoc{jobj};
     const QByteArray rawJson{jdoc.toJson()};
@@ -423,7 +428,7 @@ TEST_CASE("World can be unserialized from JSON", "[WorldJsonUnserializer][JSON][
 TEST_CASE("World can't be unserialized from JSON", "[WorldJsonUnserializer][JSON][Unserialize][ErrorPaths]")
 {
     const auto worlds = makeWorld();
-    QJsonObject jobj{worlds.second};
+    QJsonObject jobj{std::get<QJsonObject>(worlds)};
 
     const io::WorldJsonUnserializer unserializer;
 

@@ -58,6 +58,8 @@ public:
         return this->world;
     }
 
+    std::unique_ptr<Component> createComponent(ComponentType* type, int id) override;
+
     std::unique_ptr<core::Map> generateMap(unsigned int size) override;
 
     void mapInit(Map* map) override;

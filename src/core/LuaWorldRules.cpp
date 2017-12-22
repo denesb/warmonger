@@ -73,6 +73,20 @@ struct pusher<QColor>
 namespace warmonger {
 namespace core {
 
+class LuaWorldComponent : public Component
+{
+public:
+    LuaWorldComponent(ComponentType* type, QObject* parent, int id);
+
+    FieldValue* field(const QString& name) override;
+    const FieldValue* field(const QString& name) const override;
+    std::unordered_map<QString, FieldValue> getFields() const override;
+    void setFields(std::unordered_map<QString, FieldValue> fields) override;
+
+private:
+    std::unordered_map<QString, FieldValue> fields;
+};
+
 static void exposeAPI(sol::state& lua);
 static void wLuaLog(sol::this_state ts, utils::LogLevel logLevel, const std::string& msg);
 static FieldValue* getField(Component* const component, sol::stack_object key, sol::this_state L);
@@ -102,6 +116,11 @@ LuaWorldRules::LuaWorldRules(const QString& basePath, core::World* world)
     this->worldInitHook();
 }
 
+std::unique_ptr<Component> LuaWorldRules::createComponent(ComponentType* type, int id)
+{
+    return std::make_unique<LuaWorldComponent>(type, nullptr, id);
+}
+
 std::unique_ptr<core::Map> LuaWorldRules::generateMap(unsigned int size)
 {
     auto map{std::make_unique<core::Map>()};
@@ -117,6 +136,50 @@ std::unique_ptr<core::Map> LuaWorldRules::generateMap(unsigned int size)
 void LuaWorldRules::mapInit(Map* map)
 {
     this->mapInitHook(map);
+}
+
+LuaWorldComponent::LuaWorldComponent(ComponentType* type, QObject* parent, int id)
+    : Component(type, parent, id)
+{
+    auto fieldDefs = type->getFields();
+    for (auto& fieldDef : fieldDefs)
+    {
+        this->fields.emplace(fieldDef->getName(), FieldValue{});
+    }
+}
+
+FieldValue* LuaWorldComponent::field(const QString& name)
+{
+    auto it = this->fields.find(name);
+    if (it == this->fields.end())
+    {
+        wWarning << "Attempt to get value of non-existing field `" << name << "' from " << this->type->getName()
+                 << " component";
+        return nullptr;
+    }
+    return &it->second;
+}
+
+const FieldValue* LuaWorldComponent::field(const QString& name) const
+{
+    auto it = this->fields.find(name);
+    if (it == this->fields.end())
+    {
+        wWarning << "Attempt to get value of non-existing field `" << name << "' from " << this->type->getName()
+                 << " component";
+        return nullptr;
+    }
+    return &it->second;
+}
+
+std::unordered_map<QString, FieldValue> LuaWorldComponent::getFields() const
+{
+    return this->fields;
+}
+
+void LuaWorldComponent::setFields(std::unordered_map<QString, FieldValue> fields)
+{
+    this->checkAndSetFields(std::move(fields), this->fields);
 }
 
 static void exposeAPI(sol::state& lua)

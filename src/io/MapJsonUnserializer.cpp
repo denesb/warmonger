@@ -25,6 +25,8 @@
 namespace warmonger {
 namespace io {
 
+static std::unique_ptr<core::Component> unserializeValueFromJson(
+    const QJsonValue& jvalue, QObject* parent, typeTag<std::unique_ptr<core::Component>>);
 static core::FieldValue unserializeValueFromJson(const QJsonValue& jvalue, QObject* parent, typeTag<core::FieldValue>);
 static std::tuple<std::unique_ptr<core::MapNode>, std::map<core::Direction, QString>> mapNodeFromJson(
     const QJsonObject& jobj, QObject* parent);
@@ -90,6 +92,25 @@ core::MapNode* MapJsonUnserializer::unserializeMapNode(const QByteArray& data, c
     {
         throw utils::ValueError(e, "Failed to unserialize faction");
     }
+}
+
+static std::unique_ptr<core::Component> unserializeValueFromJson(
+    const QJsonValue& jvalue, QObject* parent, typeTag<std::unique_ptr<core::Component>>)
+{
+    if (!jvalue.isObject())
+        throw utils::ValueError("Expected object type but value is not object");
+
+    const auto jobj = jvalue.toObject();
+    auto type = unserializeKeyFromJson<core::ComponentType*>(jobj, "type", parent);
+    auto id = unserializeKeyFromJson<int>(jobj, "id", parent);
+
+    auto component = type->createComponent(id);
+    component->setParent(parent);
+
+    auto description = core::Component::describe(Visitor<core::Component>());
+    unserializeMembersFromJson(jobj, *component, description.getMembers().asTuple());
+
+    return component;
 }
 
 static core::FieldValue unserializeValueFromJson(const QJsonValue& jvalue, QObject* parent, typeTag<core::FieldValue>)

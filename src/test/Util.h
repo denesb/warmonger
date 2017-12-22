@@ -4,6 +4,7 @@
 #include <ostream>
 #include <string>
 
+#include <QFile>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QObject>
@@ -18,8 +19,35 @@ using namespace warmonger;
 
 std::ostream& operator<<(std::ostream& os, const QString& s);
 
-std::pair<std::unique_ptr<core::World>, QJsonObject> makeWorld();
-std::tuple<std::unique_ptr<core::Map>, std::unique_ptr<core::World>, QJsonObject> makeMap();
+class FileKeeper
+{
+public:
+    FileKeeper() = default;
+
+    FileKeeper(const QString& filename, QByteArray content)
+        : f(std::make_unique<QFile>(filename))
+    {
+        f->open(QIODevice::WriteOnly);
+        f->write(content);
+        f->flush();
+        f->close();
+    }
+
+    FileKeeper(FileKeeper&&) = default;
+    FileKeeper& operator=(FileKeeper&&) = default;
+
+    ~FileKeeper()
+    {
+        if (f)
+            f->remove();
+    }
+
+private:
+    std::unique_ptr<QFile> f;
+};
+
+std::tuple<std::unique_ptr<core::World>, QJsonObject, FileKeeper> makeWorld();
+std::tuple<std::unique_ptr<core::Map>, std::unique_ptr<core::World>, QJsonObject, FileKeeper> makeMap();
 
 /**
  * Compare a QJsonObject to a map.

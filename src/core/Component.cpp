@@ -24,63 +24,91 @@
 namespace warmonger {
 namespace core {
 
-static Field* getFieldDefinition(const ComponentType* const type, const QString& name);
-
 Component::Component(ComponentType* type, QObject* parent, int id)
     : WObject(parent, id)
     , type(type)
 {
-    this->fields.clear();
-    const auto& fieldDefs{this->type->getFields()};
+}
+
+void Component::checkAndSetFields(std::unordered_map<QString, FieldValue> fields, std::vector<FieldValue*> values)
+{
+    auto fieldDefs = this->type->getFields();
+
+    for (std::size_t i = 0; i < fieldDefs.size(); ++i)
+    {
+        const auto& name = fieldDefs[i]->getName();
+        auto it = fields.find(name);
+
+        if (it == fields.end())
+            continue;
+
+        auto val = std::move(it->second);
+        fields.erase(it);
+
+        const auto type = fieldDefs[i]->getType();
+        if (val.getType() != type)
+        {
+            wWarning << "Attempted to set value of field `" << name << "' to incompatible type " << val.getType();
+            continue;
+        }
+
+        *values[i] = val;
+    }
+
+    if (fields.empty())
+        return;
+
+    QString msg{"Attempted to set extra fields: "};
+    auto it = fields.begin();
+    msg = msg + "`" + it->first + "'";
+
+    while (++it != fields.end())
+    {
+        msg += msg + ", `" + it->first + "'";
+    }
+
+    wWarning << msg << " for " << this->type->getName() << " component " << this;
+}
+
+void Component::checkAndSetFields(
+    std::unordered_map<QString, FieldValue> fields, std::unordered_map<QString, FieldValue>& values)
+{
+    auto fieldDefs = this->type->getFields();
 
     for (auto& fieldDef : fieldDefs)
     {
-        this->fields.emplace(fieldDef->getName(), FieldValue());
-    }
-}
+        const auto& name = fieldDef->getName();
+        auto it = fields.find(name);
 
-FieldValue* Component::field(const QString& name)
-{
-    const auto field{getFieldDefinition(this->type, name)};
-    if (!field)
-    {
-        wWarning << "Attempt to get value of non-existing field `" << name << "' from `" << type->getName()
-                 << "' component";
-        return nullptr;
-    }
-    else
-    {
-        return &(this->fields[name]);
-    }
-}
+        if (it == fields.end())
+            continue;
 
-const FieldValue* Component::field(const QString& name) const
-{
-    const auto field{getFieldDefinition(this->type, name)};
-    if (!field)
-    {
-        wWarning << "Attempt to get value of non-existing field `" << name << "' from `" << type->getName()
-                 << "' component";
-        return nullptr;
-    }
-    else
-    {
-        return &(this->fields.at(name));
-    }
-}
+        auto val = std::move(it->second);
+        fields.erase(it);
 
-void Component::setFields(std::unordered_map<QString, FieldValue> fields)
-{
-    this->fields = std::move(fields);
-    emit fieldChanged();
-}
+        const auto type = fieldDef->getType();
+        if (val.getType() != type)
+        {
+            wWarning << "Attempted to set value of field `" << name << "' to incompatible type " << val.getType();
+            continue;
+        }
 
-static Field* getFieldDefinition(const ComponentType* const type, const QString& name)
-{
-    const auto& fields = type->getFields();
-    const auto it =
-        std::find_if(fields.begin(), fields.end(), [&name](const auto& field) { return field->getName() == name; });
-    return it == fields.end() ? nullptr : *it;
+        values[name] = val;
+    }
+
+    if (fields.empty())
+        return;
+
+    QString msg{"Attempted to set extra fields: "};
+    auto it = fields.begin();
+    msg = msg + "`" + it->first + "'";
+
+    while (++it != fields.end())
+    {
+        msg += msg + ", `" + it->first + "'";
+    }
+
+    wWarning << msg << " for " << this->type->getName() << " component " << this;
 }
 
 } // namespace core

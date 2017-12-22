@@ -18,6 +18,8 @@
 
 #include "core/Field.h"
 
+#include <QMetaEnum>
+
 #include "core/WObject.h"
 #include "utils/Exception.h"
 
@@ -701,6 +703,16 @@ bool operator<(const FieldValue& a, const FieldValue& b)
     }
 
     return false;
+}
+
+std::ostream& operator<<(std::ostream& os, Field::Type t)
+{
+    const QMetaEnum metaEnum{QMetaEnum::fromType<Field::Type>()};
+    auto str = metaEnum.valueToKey(static_cast<int>(t));
+    if (!str)
+        throw utils::ValueError("Invalid value: " + QString::number(static_cast<int>(t)) + " for enum Field::Type");
+    os << str;
+    return os;
 }
 
 } // namespace core

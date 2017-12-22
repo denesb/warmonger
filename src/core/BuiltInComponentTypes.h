@@ -22,12 +22,25 @@
 
 #include <functional>
 
+#include "core/Component.h"
 #include "core/ComponentType.h"
+#include "core/MapNode.h"
 
 namespace warmonger {
 namespace core {
 
 std::vector<std::tuple<QString, std::function<ComponentType*(QObject*, int)>>> getBuiltInComponentTypesFactories();
+
+class BuiltInComponentType : public ComponentType
+{
+public:
+    using ComponentType::ComponentType;
+
+    bool isBuiltIn() const override
+    {
+        return true;
+    }
+};
 
 /**
  * Position component-type.
@@ -36,24 +49,44 @@ std::vector<std::tuple<QString, std::function<ComponentType*(QObject*, int)>>> g
  * For an overview of the Entity-Component-Systems design pattern (ECS) and how
  * warmonger implements it see \ref docs/ECS.md.
  */
-class PositionComponentType : public ComponentType
+class PositionComponentType : public BuiltInComponentType
 {
     Q_OBJECT
 
 public:
-    using ComponentType::ComponentType;
-
-    bool isBuiltIn() const override
+    static const QString Name;
+    struct FieldName
     {
-        return true;
-    }
+        static const QString MapNode;
+    };
 
-    QString getName() const override
-    {
-        return "position";
-    }
+    using BuiltInComponentType::BuiltInComponentType;
 
+    QString getName() const override;
     std::vector<Field*> getFields() const override;
+    std::unique_ptr<Component> createComponent(int id = WObject::invalidId) override;
+};
+
+/**
+ * Position component.
+ *
+ * \see PositionComponentType.
+ */
+class PositionComponent : public Component
+{
+    Q_OBJECT
+    using Type = PositionComponentType;
+
+public:
+    PositionComponent(PositionComponentType* type, QObject* parent, int id = WObject::invalidId);
+
+    FieldValue* field(const QString& name) override;
+    const FieldValue* field(const QString& name) const override;
+    std::unordered_map<QString, FieldValue> getFields() const override;
+    void setFields(std::unordered_map<QString, FieldValue> fields) override;
+
+private:
+    FieldValue mapNode;
 };
 
 /**
@@ -62,24 +95,44 @@ public:
  * Defines how the entity having this component can be edited by the map
  * editor.
  */
-class EditComponentType : public ComponentType
+class EditComponentType : public BuiltInComponentType
 {
     Q_OBJECT
 
 public:
-    using ComponentType::ComponentType;
-
-    bool isBuiltIn() const override
+    static const QString Name;
+    struct FieldName
     {
-        return true;
-    }
+        static const QString EditableComponents;
+    };
 
-    QString getName() const override
-    {
-        return "edit";
-    }
+    using BuiltInComponentType::BuiltInComponentType;
 
+    QString getName() const override;
     std::vector<Field*> getFields() const override;
+    std::unique_ptr<Component> createComponent(int id = WObject::invalidId) override;
+};
+
+/**
+ * Edit component.
+ *
+ * \see EditComponentType.
+ */
+class EditComponent : public Component
+{
+    Q_OBJECT
+    using Type = EditComponentType;
+
+public:
+    EditComponent(EditComponentType* type, QObject* parent, int id = WObject::invalidId);
+
+    FieldValue* field(const QString& name) override;
+    const FieldValue* field(const QString& name) const override;
+    std::unordered_map<QString, FieldValue> getFields() const override;
+    void setFields(std::unordered_map<QString, FieldValue> fields) override;
+
+private:
+    FieldValue editableComponents;
 };
 
 /**
@@ -103,24 +156,52 @@ public:
  * The path is meant to be an opaque handle to a graphic resource that
  * both the world-rules and the rendering layer understands.
  */
-class GraphicsComponentType : public ComponentType
+class GraphicsComponentType : public BuiltInComponentType
 {
     Q_OBJECT
 
 public:
-    using ComponentType::ComponentType;
-
-    bool isBuiltIn() const override
+    static const QString Name;
+    struct FieldName
     {
-        return true;
-    }
+        static const QString Path;
+        static const QString X;
+        static const QString Y;
+        static const QString Z;
+        static const QString Parent;
+    };
 
-    QString getName() const override
-    {
-        return "graphics";
-    }
+    using BuiltInComponentType::BuiltInComponentType;
 
+    QString getName() const override;
     std::vector<Field*> getFields() const override;
+    std::unique_ptr<Component> createComponent(int id = WObject::invalidId) override;
+};
+
+/**
+ * Graphics component.
+ *
+ * \see GraphicsComponentType.
+ */
+class GraphicsComponent : public Component
+{
+    Q_OBJECT
+    using Type = GraphicsComponentType;
+
+public:
+    GraphicsComponent(GraphicsComponentType* type, QObject* parent, int id = WObject::invalidId);
+
+    FieldValue* field(const QString& name) override;
+    const FieldValue* field(const QString& name) const override;
+    std::unordered_map<QString, FieldValue> getFields() const override;
+    void setFields(std::unordered_map<QString, FieldValue> fields) override;
+
+private:
+    FieldValue path;
+    FieldValue x;
+    FieldValue y;
+    FieldValue z;
+    FieldValue parent;
 };
 
 } // namespace core

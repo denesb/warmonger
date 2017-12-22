@@ -31,6 +31,8 @@
 namespace warmonger {
 namespace core {
 
+class Component;
+
 /**
  * The type of a component.
  *
@@ -110,6 +112,14 @@ public:
      * \returns the fields
      */
     QVariantList readFields() const;
+
+    /**
+     * Create a component appropriate for this component-type.
+     *
+     * Allows for componen-types creating specialized component
+     * instances. The created component's type will be this.
+     */
+    virtual std::unique_ptr<Component> createComponent(int id = WObject::invalidId) = 0;
 
 signals:
     /**

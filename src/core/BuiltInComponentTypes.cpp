@@ -18,6 +18,8 @@
 
 #include "core/BuiltInComponentTypes.h"
 
+#include "utils/Logging.h"
+
 namespace warmonger {
 namespace core {
 
@@ -43,29 +45,201 @@ std::vector<std::tuple<QString, std::function<ComponentType*(QObject*, int)>>> g
         ConcreteComponentTypeFactory<GraphicsComponentType>::create()};
 }
 
+const QString PositionComponentType::Name{"position"};
+const QString PositionComponentType::FieldName::MapNode{"mapNode"};
+
+QString PositionComponentType::getName() const
+{
+    return Name;
+}
+
 std::vector<Field*> PositionComponentType::getFields() const
 {
-    static const FieldsHelper fieldsHelper{{"mapNode", Field::Type::Reference}};
+    static const FieldsHelper fieldsHelper{{FieldName::MapNode, Field::Type::Reference}};
 
     return fieldsHelper.getFields();
+}
+
+std::unique_ptr<Component> PositionComponentType::createComponent(int id)
+{
+    return std::make_unique<PositionComponent>(this, nullptr, id);
+}
+
+PositionComponent::PositionComponent(PositionComponentType* type, QObject* parent, int id)
+    : Component(type, parent, id)
+{
+}
+
+FieldValue* PositionComponent::field(const QString& name)
+{
+    if (name == Type::FieldName::MapNode)
+        return &this->mapNode;
+
+    wWarning << "Attempt to get value of non-existing field `" << name << "' from " << this->type->getName()
+             << " component";
+
+    return nullptr;
+}
+
+const FieldValue* PositionComponent::field(const QString& name) const
+{
+    if (name == Type::FieldName::MapNode)
+        return &this->mapNode;
+
+    wWarning << "Attempt to get value of non-existing field `" << name << "' from " << this->type->getName()
+             << " component";
+
+    return nullptr;
+}
+
+std::unordered_map<QString, FieldValue> PositionComponent::getFields() const
+{
+    return {{Type::FieldName::MapNode, this->mapNode}};
+}
+
+void PositionComponent::setFields(std::unordered_map<QString, FieldValue> fields)
+{
+    this->checkAndSetFields(std::move(fields), {&this->mapNode});
+}
+
+const QString EditComponentType::Name{"edit"};
+const QString EditComponentType::FieldName::EditableComponents{"editableComponents"};
+
+EditComponent::EditComponent(EditComponentType* type, QObject* parent, int id)
+    : Component(type, parent, id)
+{
+}
+
+QString EditComponentType::getName() const
+{
+    return Name;
 }
 
 std::vector<Field*> EditComponentType::getFields() const
 {
-    static const FieldsHelper fieldsHelper{{"editableComponents", Field::Type::List}};
+    static const FieldsHelper fieldsHelper{{FieldName::EditableComponents, Field::Type::List}};
 
     return fieldsHelper.getFields();
 }
 
+std::unique_ptr<Component> EditComponentType::createComponent(int id)
+{
+    return std::make_unique<EditComponent>(this, nullptr, id);
+}
+
+FieldValue* EditComponent::field(const QString& name)
+{
+    if (name == Type::FieldName::EditableComponents)
+        return &this->editableComponents;
+
+    wWarning << "Attempt to get value of non-existing field `" << name << "' from " << this->type->getName()
+             << " component";
+
+    return nullptr;
+}
+
+const FieldValue* EditComponent::field(const QString& name) const
+{
+    if (name == Type::FieldName::EditableComponents)
+        return &this->editableComponents;
+
+    wWarning << "Attempt to get value of non-existing field `" << name << "' from " << this->type->getName()
+             << " component";
+
+    return nullptr;
+}
+
+std::unordered_map<QString, FieldValue> EditComponent::getFields() const
+{
+    return {{Type::FieldName::EditableComponents, this->editableComponents}};
+}
+
+void EditComponent::setFields(std::unordered_map<QString, FieldValue> fields)
+{
+    this->checkAndSetFields(std::move(fields), {&this->editableComponents});
+}
+
+const QString GraphicsComponentType::Name{"graphics"};
+const QString GraphicsComponentType::FieldName::Path{"path"};
+const QString GraphicsComponentType::FieldName::X{"x"};
+const QString GraphicsComponentType::FieldName::Y{"y"};
+const QString GraphicsComponentType::FieldName::Z{"z"};
+const QString GraphicsComponentType::FieldName::Parent{"parent"};
+
+GraphicsComponent::GraphicsComponent(GraphicsComponentType* type, QObject* parent, int id)
+    : Component(type, parent, id)
+{
+}
+
+QString GraphicsComponentType::getName() const
+{
+    return Name;
+}
+
 std::vector<Field*> GraphicsComponentType::getFields() const
 {
-    static const FieldsHelper fieldsHelper{{"path", Field::Type::String},
-        {"x", Field::Type::Integer},
-        {"y", Field::Type::Integer},
-        {"z", Field::Type::Integer},
-        {"parent", Field::Type::Reference}};
+    static const FieldsHelper fieldsHelper{{FieldName::Path, Field::Type::String},
+        {FieldName::X, Field::Type::Integer},
+        {FieldName::Y, Field::Type::Integer},
+        {FieldName::Z, Field::Type::Integer},
+        {FieldName::Parent, Field::Type::Reference}};
 
     return fieldsHelper.getFields();
+}
+
+std::unique_ptr<Component> GraphicsComponentType::createComponent(int id)
+{
+    return std::make_unique<GraphicsComponent>(this, nullptr, id);
+}
+
+FieldValue* GraphicsComponent::field(const QString& name)
+{
+    if (name == Type::FieldName::Path)
+    {
+        return &this->path;
+    }
+    else if (name == Type::FieldName::X)
+    {
+        return &this->x;
+    }
+    else if (name == Type::FieldName::Y)
+    {
+        return &this->y;
+    }
+    else if (name == Type::FieldName::Z)
+    {
+        return &this->z;
+    }
+    else if (name == Type::FieldName::Parent)
+    {
+        return &this->parent;
+    }
+    else
+    {
+        wWarning << "Attempt to get value of non-existing field `" << name << "' from " << this->type->getName()
+                 << " component";
+
+        return nullptr;
+    }
+}
+
+const FieldValue* GraphicsComponent::field(const QString& name) const
+{
+    return const_cast<GraphicsComponent*>(this)->field(name);
+}
+
+std::unordered_map<QString, FieldValue> GraphicsComponent::getFields() const
+{
+    return {{Type::FieldName::Path, this->path},
+        {Type::FieldName::X, this->x},
+        {Type::FieldName::Y, this->y},
+        {Type::FieldName::Z, this->z},
+        {Type::FieldName::Parent, this->parent}};
+}
+
+void GraphicsComponent::setFields(std::unordered_map<QString, FieldValue> fields)
+{
+    this->checkAndSetFields(std::move(fields), {&this->path, &this->x, &this->y, &this->z, &this->parent});
 }
 
 } // namespace core

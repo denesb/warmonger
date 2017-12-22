@@ -18,6 +18,9 @@
 
 #include "core/WorldComponentType.h"
 
+#include "core/Component.h"
+#include "core/WorldRules.h"
+
 #include <cassert>
 
 namespace warmonger {
@@ -25,6 +28,7 @@ namespace core {
 
 WorldComponentType::WorldComponentType(QObject* parent, long id)
     : ComponentType(parent, id)
+    , worldRules(nullptr)
 {
 }
 
@@ -76,6 +80,16 @@ std::unique_ptr<Field> WorldComponentType::removeField(Field* field)
     {
         return std::unique_ptr<Field>();
     }
+}
+
+void WorldComponentType::setWorldRules(WorldRules* worldRules)
+{
+    this->worldRules = worldRules;
+}
+
+std::unique_ptr<Component> WorldComponentType::createComponent(int id)
+{
+    return this->worldRules->createComponent(this, id);
 }
 
 } // namespace core

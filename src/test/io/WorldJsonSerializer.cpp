@@ -27,8 +27,8 @@ using namespace warmonger;
 TEST_CASE("Banner can be serialized to JSON", "[WorldJsonSerializer][JSON][Serialize][HappyPath]")
 {
     auto worlds = makeWorld();
-    const QJsonObject jworld = worlds.second;
-    auto world = worlds.first.get();
+    const QJsonObject jworld = std::get<QJsonObject>(worlds);
+    auto world = std::get<std::unique_ptr<core::World>>(worlds).get();
 
     const io::WorldJsonSerializer serializer;
 
@@ -48,8 +48,8 @@ TEST_CASE("Banner can be serialized to JSON", "[WorldJsonSerializer][JSON][Seria
 TEST_CASE("Civilization can be serialized to JSON", "[WorldJsonSerializer][JSON][Serialize][HappyPath]")
 {
     auto worlds = makeWorld();
-    const QJsonObject jworld = worlds.second;
-    auto world = worlds.first.get();
+    const QJsonObject jworld = std::get<QJsonObject>(worlds);
+    auto world = std::get<std::unique_ptr<core::World>>(worlds).get();
 
     const io::WorldJsonSerializer serializer;
 
@@ -69,8 +69,8 @@ TEST_CASE("Civilization can be serialized to JSON", "[WorldJsonSerializer][JSON]
 TEST_CASE("ComponentType can be serialized to JSON", "[WorldJsonSerializer][JSON][Serialize][HappyPath]")
 {
     auto worlds = makeWorld();
-    const QJsonObject jworld = worlds.second;
-    auto world = worlds.first.get();
+    const QJsonObject jworld = std::get<QJsonObject>(worlds);
+    auto world = std::get<std::unique_ptr<core::World>>(worlds).get();
 
     const io::WorldJsonSerializer serializer;
 
@@ -91,8 +91,8 @@ TEST_CASE("ComponentType can be serialized to JSON", "[WorldJsonSerializer][JSON
 TEST_CASE("World can be serialized to JSON", "[WorldJsonSerializer][JSON][Serialize][HappyPath]")
 {
     auto worlds = makeWorld();
-    const QJsonObject jworld = worlds.second;
-    auto world = worlds.first.get();
+    const QJsonObject jworld = std::get<QJsonObject>(worlds);
+    auto world = std::get<std::unique_ptr<core::World>>(worlds).get();
 
     const io::WorldJsonSerializer serializer;
 

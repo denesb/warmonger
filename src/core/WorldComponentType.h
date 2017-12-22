@@ -27,6 +27,8 @@
 namespace warmonger {
 namespace core {
 
+class WorldRules;
+
 /**
  * Component-type defined by the world.
  *
@@ -107,6 +109,14 @@ public:
      */
     std::unique_ptr<Field> removeField(Field* field);
 
+    /**
+     * Set the world rules.
+     *
+     * It is used for creating the appropriate components for the rules.
+     * TODO: pass it in the constructor once unserializer is fixed.
+     */
+    void setWorldRules(WorldRules* worldRules);
+
     bool isBuiltIn() const override
     {
         return false;
@@ -122,9 +132,12 @@ public:
         return fields;
     }
 
+    std::unique_ptr<Component> createComponent(int id = WObject::invalidId) override;
+
 private:
     QString name;
     std::vector<Field*> fields;
+    WorldRules* worldRules;
 };
 
 } // namespace core

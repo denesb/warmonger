@@ -383,6 +383,8 @@ private:
 bool operator==(const FieldValue& a, const FieldValue& b);
 bool operator<(const FieldValue& a, const FieldValue& b);
 
+std::ostream& operator<<(std::ostream& os, Field::Type t);
+
 } // namespace core
 } // namespace warmonger
 

@@ -163,6 +163,7 @@ QVariantList World::readComponentTypes() const
 WorldComponentType* World::createWorldComponentType(int id)
 {
     auto componentType = new WorldComponentType(this, id);
+    componentType->setWorldRules(this->rules);
 
     this->componentTypes.push_back(componentType);
 
@@ -178,6 +179,7 @@ WorldComponentType* World::addWorldComponentType(std::unique_ptr<WorldComponentT
     assert(worldComponentType->parent() == this);
 
     auto wct = worldComponentType.get();
+    wct->setWorldRules(this->rules);
 
     this->componentTypes.push_back(worldComponentType.release());
 

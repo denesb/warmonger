@@ -24,23 +24,16 @@
 #include "io/WorldJsonSerializer.h"
 #include "test/Util.h"
 
-void createWorldFile(const QString& path)
+std::pair<FileKeeper, FileKeeper> createWorldFile(const QString& path)
 {
-    const auto worlds = makeWorld();
-    const auto world = worlds.first.get();
+    auto worlds = makeWorld();
+    core::World* world = std::get<std::unique_ptr<core::World>>(worlds).get();
 
     io::WorldJsonSerializer serializer;
 
-    QFile file(path);
-    file.open(QIODevice::WriteOnly);
+    FileKeeper worldFile(path, serializer.serializeWorld(world));
 
-    file.write(serializer.serializeWorld(world));
-
-    QFile rulesFile(world->getRulesEntryPoint());
-    rulesFile.open(QIODevice::WriteOnly);
-
-    rulesFile.write("function world_init() w_debug(\"world_init\"); end");
-    rulesFile.flush();
+    return std::make_pair(std::move(worldFile), std::get<FileKeeper>(std::move(worlds)));
 }
 
 void createMapFile(const QString& path)
@@ -59,7 +52,7 @@ void createMapFile(const QString& path)
 TEST_CASE("World can be written to file", "[File]")
 {
     const auto worlds = makeWorld();
-    const auto world = worlds.first.get();
+    core::World* world = std::get<std::unique_ptr<core::World>>(worlds).get();
 
     const QString path("./write_world.wwd");
 
@@ -74,20 +67,17 @@ TEST_CASE("World can be written to file", "[File]")
 TEST_CASE("World can be read from file", "[File]")
 {
     const QString path("./read_world.wwd");
-    createWorldFile(path);
+    auto files = createWorldFile(path);
 
     REQUIRE_NOTHROW(io::readWorld(path));
     REQUIRE(io::readWorld(path));
-
-    QFile file(path);
-    file.remove();
 }
 
 TEST_CASE("World can be written to a file and read back", "[File]")
 {
     const QString path("./write_read_world.wwd");
     const auto worlds = makeWorld();
-    const auto world = worlds.first.get();
+    core::World* world = std::get<std::unique_ptr<core::World>>(worlds).get();
 
     REQUIRE_NOTHROW(io::writeWorld(world, path));
 
@@ -123,7 +113,7 @@ TEST_CASE("Map can be read from file", "[File]")
     const QString path("./read_map.wmd");
 
     const auto worlds = makeWorld();
-    const auto world = worlds.first.get();
+    core::World* world = std::get<std::unique_ptr<core::World>>(worlds).get();
 
     createMapFile(path);
 

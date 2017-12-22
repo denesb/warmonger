@@ -60,8 +60,7 @@ public:
     {
         return visitor.template visitParent<WObject>()
             .visitMember("type", &Component::getType)
-            .visitMember("fields", &Component::getFields, &Component::setFields)
-            .template visitConstructor<ComponentType*, QObject*, int>("type", "parent", "id");
+            .visitMember("fields", &Component::getFields, &Component::setFields);
     }
 
     /**
@@ -93,35 +92,28 @@ public:
      *
      * \returns the property value
      */
-    FieldValue* field(const QString& name);
+    virtual FieldValue* field(const QString& name) = 0;
 
-    const FieldValue* field(const QString& name) const;
+    virtual const FieldValue* field(const QString& name) const = 0;
 
     /**
      * Get all fields of this component.
      */
-    const std::unordered_map<QString, FieldValue>& getFields() const
-    {
-        return this->fields;
-    }
+    virtual std::unordered_map<QString, FieldValue> getFields() const = 0;
 
     /**
      * Set all fields of this component.
      *
      * All previous fields are discarded.
-     * Will emit fieldsChanged().
      */
-    void setFields(std::unordered_map<QString, FieldValue> fields);
+    virtual void setFields(std::unordered_map<QString, FieldValue> fields) = 0;
 
-signals:
-    /**
-     * Emitted when a field's value changes.
-     */
-    void fieldChanged();
+protected:
+    void checkAndSetFields(std::unordered_map<QString, FieldValue> fields, std::vector<FieldValue*> values);
+    void checkAndSetFields(
+        std::unordered_map<QString, FieldValue> fields, std::unordered_map<QString, FieldValue>& values);
 
-private:
     ComponentType* type;
-    std::unordered_map<QString, FieldValue> fields;
 };
 
 /**
@@ -171,4 +163,4 @@ private:
 } // namespace core
 } // namespace warmonger
 
-#endif // W_CORE_COMPONENT_TYPE_H
+#endif // W_CORE_COMPONENT_H

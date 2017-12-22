@@ -31,6 +31,8 @@ namespace core {
 
 class Map;
 class World;
+class Component;
+class ComponentType;
 
 /**
  * World-rules interface.
@@ -58,6 +60,13 @@ public:
      * \returns the world
      */
     virtual World* getWorld() = 0;
+
+    /**
+     * Create a Component instance specifict to this rules.
+     *
+     * \returns the created Component
+     */
+    virtual std::unique_ptr<Component> createComponent(ComponentType* type, int id) = 0;
 
     /**
      * Generate a map.

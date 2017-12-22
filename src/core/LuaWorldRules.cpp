@@ -89,7 +89,7 @@ private:
 
 static void exposeAPI(sol::state& lua);
 static void wLuaLog(sol::this_state ts, utils::LogLevel logLevel, const std::string& msg);
-static FieldValue* getField(Component* const component, sol::stack_object key, sol::this_state L);
+static sol::object getField(const Component* const component, sol::stack_object key, sol::this_state L);
 static void setField(Component* const component, sol::stack_object key, sol::stack_object value, sol::this_state L);
 
 LuaWorldRules::LuaWorldRules(const QString& basePath, core::World* world)
@@ -361,16 +361,46 @@ static void wLuaLog(sol::this_state ts, utils::LogLevel logLevel, const std::str
     }
 }
 
-static FieldValue* getField(Component* const component, sol::stack_object key, sol::this_state)
+static sol::object getField(const Component* const component, sol::stack_object key, sol::this_state L)
 {
     auto maybeFieldName = key.as<sol::optional<QString>>();
     if (!maybeFieldName)
     {
         wWarning << "Attempt to index field with non-string key";
-        return nullptr;
+        return sol::object(L, sol::in_place, sol::lua_nil);
     }
 
-    return component->field(*maybeFieldName);
+    const auto value{component->field(*maybeFieldName)};
+
+    if (value->isNull())
+        return sol::object(L, sol::in_place, sol::lua_nil);
+
+    switch (value->getType())
+    {
+        case Field::Type::Integer:
+            return sol::object(L, sol::in_place, value->asInteger());
+        case Field::Type::Real:
+            return sol::object(L, sol::in_place, value->asReal());
+        case Field::Type::String:
+            return sol::object(L, sol::in_place, value->asString());
+        /*
+    case Field::Type::Reference:
+        // TODO: reference
+        wWarning << "Reference field is not supported yet";
+        return sol::object(L, sol::in_place, sol::lua_nil);
+    case Field::Type::List:
+        // TODO: list
+        wWarning << "List field is not supported yet";
+        return sol::object(L, sol::in_place, sol::lua_nil);
+    case Field::Type::Map:
+        // TODO: map
+        wWarning << "Map field is not supported yet";
+        return sol::object(L, sol::in_place, sol::lua_nil);
+        */
+        default:
+            wWarning << "Field value type is not supported yet";
+            return sol::object(L, sol::in_place, sol::lua_nil);
+    }
 }
 
 static void setField(Component* const component, sol::stack_object key, sol::stack_object value, sol::this_state)

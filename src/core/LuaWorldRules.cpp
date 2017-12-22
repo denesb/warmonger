@@ -90,6 +90,7 @@ private:
 static void exposeAPI(sol::state& lua);
 static void wLuaLog(sol::this_state ts, utils::LogLevel logLevel, const std::string& msg);
 static FieldValue* getField(Component* const component, sol::stack_object key, sol::this_state L);
+static void setField(Component* const component, sol::stack_object key, sol::stack_object value, sol::this_state L);
 
 LuaWorldRules::LuaWorldRules(const QString& basePath, core::World* world)
     : world(world)
@@ -287,7 +288,9 @@ static void exposeAPI(sol::state& lua)
         "type",
         sol::property(&Component::getType),
         sol::meta_function::index,
-        getField);
+        getField,
+        sol::meta_function::new_index,
+        setField);
 
     lua.new_usertype<Entity>("entity",
         sol::meta_function::construct,
@@ -368,6 +371,34 @@ static FieldValue* getField(Component* const component, sol::stack_object key, s
     }
 
     return component->field(*maybeFieldName);
+}
+
+static void setField(Component* const component, sol::stack_object key, sol::stack_object value, sol::this_state)
+{
+    auto maybeFieldName = key.as<sol::optional<QString>>();
+    if (!maybeFieldName)
+    {
+        wWarning << "Attempt to index field with non-string key";
+        return;
+    }
+
+    // TODO a more sofisticated type detection possibly using the Lua type enum
+    if (auto maybeInteger = value.as<sol::optional<int>>())
+    {
+        component->field(*maybeFieldName)->set(*maybeInteger);
+    }
+    else if (auto maybeReal = value.as<sol::optional<double>>())
+    {
+        component->field(*maybeFieldName)->set(*maybeReal);
+    }
+    else if (auto maybeString = value.as<sol::optional<QString>>())
+    {
+        component->field(*maybeFieldName)->set(*maybeString);
+    }
+    else // TODO: reference, list, map
+    {
+        wWarning << "Attempt to set value of unsupported type to field `" << *maybeFieldName << "'";
+    }
 }
 
 } // namespace core

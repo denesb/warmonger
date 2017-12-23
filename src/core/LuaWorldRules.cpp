@@ -20,6 +20,7 @@
 
 #include <set>
 
+#include <QFileInfo>
 #include <sol/sol.hpp>
 
 #include "core/Map.h"
@@ -136,7 +137,9 @@ LuaWorldRules::LuaWorldRules(const QString& basePath, core::World* world)
 
     exposeAPI(lua);
 
-    const auto entryPoint = utils::makePath(basePath, this->world->getRulesEntryPoint()).toStdString();
+    const auto entryPoint = QFileInfo(this->world->getRulesEntryPoint()).isAbsolute()
+        ? this->world->getRulesEntryPoint().toStdString()
+        : utils::makePath(basePath, this->world->getRulesEntryPoint()).toStdString();
 
     wInfo << "Loading lua world rules from entry point " << entryPoint;
 

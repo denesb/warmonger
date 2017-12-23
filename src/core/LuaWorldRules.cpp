@@ -312,9 +312,9 @@ static void exposeAPI(sol::state& lua)
         sol::no_constructor,
         "name",
         sol::property(&Faction::getName, &Faction::setName),
-        "primaryColor",
+        "primary_color",
         sol::property(&Faction::getPrimaryColor, &Faction::setPrimaryColor),
-        "secondaryColor",
+        "secondary_color",
         sol::property(&Faction::getSecondaryColor, &Faction::setSecondaryColor),
         "banner",
         sol::property(&Faction::getBanner, &Faction::setBanner),
@@ -491,13 +491,14 @@ static sol::object fieldValueIndex(FieldValue* const fieldValue, sol::stack_obje
     if (fieldValue->isList())
     {
         auto maybeIndex = key.as<sol::optional<ssize_t>>();
-        if (maybeIndex)
+        if (!maybeIndex)
         {
             wWarning << "Attempt to index list field with non-integer key";
             return sol::object(L, sol::in_place, sol::lua_nil);
         }
 
-        auto index = *maybeIndex;
+        // Lua array indexes start from 1
+        const auto index = *maybeIndex - 1;
         auto& list = fieldValue->asList();
         if (index < 0 || static_cast<std::size_t>(index) >= list.size())
         {
@@ -510,7 +511,7 @@ static sol::object fieldValueIndex(FieldValue* const fieldValue, sol::stack_obje
     else
     {
         auto maybeKey = key.as<sol::optional<QString>>();
-        if (maybeKey)
+        if (!maybeKey)
         {
             wWarning << "Attempt to index map field with non-string key";
             return sol::object(L, sol::in_place, sol::lua_nil);
@@ -541,13 +542,14 @@ static void fieldValueNewIndex(
     if (fieldValue->isList())
     {
         auto maybeIndex = key.as<sol::optional<ssize_t>>();
-        if (maybeIndex)
+        if (!maybeIndex)
         {
             wWarning << "Attempt to new_index list field with non-integer key";
             return;
         }
 
-        auto index = *maybeIndex;
+        // Lua indexes start from 1
+        auto index = *maybeIndex - 1;
         auto& list = fieldValue->asList();
         if (index < 0 || static_cast<std::size_t>(index) >= list.size())
         {
@@ -560,7 +562,7 @@ static void fieldValueNewIndex(
     else
     {
         auto maybeKey = key.as<sol::optional<QString>>();
-        if (maybeKey)
+        if (!maybeKey)
         {
             wWarning << "Attempt to index map field with non-string key";
             return;
@@ -677,7 +679,8 @@ static bool assignTableToListField(sol::stack_object& value, FieldValue& field, 
 
     for (auto& element : table)
     {
-        list[element.first.as<std::size_t>()] = nestedFieldValueFromLua(element.second);
+        // Lua array indexes start from 1
+        list[element.first.as<std::size_t>() - 1] = nestedFieldValueFromLua(element.second);
     }
     return true;
 }

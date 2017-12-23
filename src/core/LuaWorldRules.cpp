@@ -88,7 +88,7 @@ private:
 };
 
 static void exposeAPI(sol::state& lua);
-static void wLuaLog(sol::this_state ts, utils::LogLevel logLevel, const std::string& msg);
+static void wLuaLog(sol::this_state L, utils::LogLevel logLevel, const std::string& msg);
 static sol::object getField(const Component* const component, sol::stack_object key, sol::this_state L);
 static void setField(Component* const component, sol::stack_object key, sol::stack_object value, sol::this_state L);
 
@@ -186,15 +186,15 @@ void LuaWorldComponent::setFields(std::unordered_map<QString, FieldValue> fields
 static void exposeAPI(sol::state& lua)
 {
     lua.set_function(
-        "w_trace", [](sol::this_state ts, const std::string& msg) { wLuaLog(ts, utils::LogLevel::Trace, msg); });
+        "w_trace", [](sol::this_state L, const std::string& msg) { wLuaLog(L, utils::LogLevel::Trace, msg); });
     lua.set_function(
-        "w_debug", [](sol::this_state ts, const std::string& msg) { wLuaLog(ts, utils::LogLevel::Debug, msg); });
+        "w_debug", [](sol::this_state L, const std::string& msg) { wLuaLog(L, utils::LogLevel::Debug, msg); });
     lua.set_function(
-        "w_info", [](sol::this_state ts, const std::string& msg) { wLuaLog(ts, utils::LogLevel::Info, msg); });
+        "w_info", [](sol::this_state L, const std::string& msg) { wLuaLog(L, utils::LogLevel::Info, msg); });
     lua.set_function(
-        "w_warning", [](sol::this_state ts, const std::string& msg) { wLuaLog(ts, utils::LogLevel::Warning, msg); });
+        "w_warning", [](sol::this_state L, const std::string& msg) { wLuaLog(L, utils::LogLevel::Warning, msg); });
     lua.set_function(
-        "w_error", [](sol::this_state ts, const std::string& msg) { wLuaLog(ts, utils::LogLevel::Error, msg); });
+        "w_error", [](sol::this_state L, const std::string& msg) { wLuaLog(L, utils::LogLevel::Error, msg); });
 
     lua.new_usertype<Civilization>("civilization",
         sol::meta_function::construct,
@@ -333,10 +333,8 @@ static void exposeAPI(sol::state& lua)
         [](Map* const map, Entity* entity) { map->removeEntity(entity); });
 }
 
-static void wLuaLog(sol::this_state ts, utils::LogLevel logLevel, const std::string& msg)
+static void wLuaLog(sol::this_state L, utils::LogLevel logLevel, const std::string& msg)
 {
-    lua_State* L = ts;
-
     lua_Debug info;
     int level = 1;
     const int pre_stack_size = lua_gettop(L);

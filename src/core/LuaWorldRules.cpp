@@ -184,7 +184,7 @@ LuaWorldComponent::LuaWorldComponent(ComponentType* type, QObject* parent, int i
     auto fieldDefs = type->getFields();
     for (auto& fieldDef : fieldDefs)
     {
-        this->fields.emplace(fieldDef->getName(), FieldValue{});
+        this->fields.emplace(fieldDef->getName(), FieldValue{fieldDef->getType()});
     }
 }
 

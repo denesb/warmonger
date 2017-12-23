@@ -67,6 +67,7 @@ std::unique_ptr<Component> PositionComponentType::createComponent(int id)
 
 PositionComponent::PositionComponent(PositionComponentType* type, QObject* parent, int id)
     : Component(type, parent, id)
+    , mapNode(Field::Type::Reference)
 {
 }
 
@@ -107,6 +108,7 @@ const QString EditComponentType::FieldName::EditableComponents{"editableComponen
 
 EditComponent::EditComponent(EditComponentType* type, QObject* parent, int id)
     : Component(type, parent, id)
+    , editableComponents(Field::Type::List)
 {
 }
 
@@ -168,6 +170,11 @@ const QString GraphicsComponentType::FieldName::Parent{"parent"};
 
 GraphicsComponent::GraphicsComponent(GraphicsComponentType* type, QObject* parent, int id)
     : Component(type, parent, id)
+    , path(Field::Type::String)
+    , x(Field::Type::Integer)
+    , y(Field::Type::Integer)
+    , z(Field::Type::Integer)
+    , parent(Field::Type::Reference)
 {
 }
 

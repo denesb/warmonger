@@ -279,6 +279,11 @@ public:
     FieldValue();
 
     /**
+     * Construct a default-initialized field of type `type'.
+     */
+    FieldValue(Field::Type type);
+
+    /**
      * @name Construct directly from a value.
      *
      * @{

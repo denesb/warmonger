@@ -70,6 +70,37 @@ FieldValue::FieldValue()
 {
 }
 
+FieldValue::FieldValue(Field::Type type)
+    : buf(new char[FieldValue::bufSize])
+{
+    switch (type)
+    {
+        case Field::Type::Integer:
+            makeInteger();
+            break;
+
+        case Field::Type::Real:
+            makeReal();
+            break;
+
+        case Field::Type::String:
+            makeString();
+            break;
+
+        case Field::Type::Reference:
+            makeReference();
+            break;
+
+        case Field::Type::List:
+            makeList();
+            break;
+
+        case Field::Type::Map:
+            makeMap();
+            break;
+    }
+}
+
 FieldValue::FieldValue(int integer)
     : buf(new char[FieldValue::bufSize])
     , state(State::Integer)

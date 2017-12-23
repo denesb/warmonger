@@ -61,60 +61,62 @@ const std::size_t FieldValue::bufSize{std::max({sizeof(int),
     sizeof(QString),
     sizeof(FieldValue::Reference),
     sizeof(FieldValue::List),
-    sizeof(FieldValue::Map)})};
+    sizeof(FieldValue::Map),
+    sizeof(FieldValue::ExternalValue)})};
 
 FieldValue::FieldValue()
     : buf(new char[FieldValue::bufSize])
-    , null(true)
+    , state(State::Null)
 {
 }
 
 FieldValue::FieldValue(int integer)
     : buf(new char[FieldValue::bufSize])
-    , type(Field::Type::Integer)
-    , null(false)
+    , state(State::Integer)
 {
     *reinterpret_cast<int*>(this->buf.get()) = integer;
 }
 
 FieldValue::FieldValue(double real)
     : buf(new char[FieldValue::bufSize])
-    , type(Field::Type::Real)
-    , null(false)
+    , state(State::Real)
 {
     *reinterpret_cast<double*>(this->buf.get()) = real;
 }
 
 FieldValue::FieldValue(QString string)
     : buf(new char[FieldValue::bufSize])
-    , type(Field::Type::String)
-    , null(false)
+    , state(State::String)
 {
     new (this->buf.get()) QString(std::move(string));
 }
 
 FieldValue::FieldValue(Reference reference)
     : buf(new char[FieldValue::bufSize])
-    , type(Field::Type::Reference)
-    , null(false)
+    , state(State::Reference)
 {
     *reinterpret_cast<Reference*>(this->buf.get()) = reference;
 }
 
 FieldValue::FieldValue(List list)
     : buf(new char[FieldValue::bufSize])
-    , type(Field::Type::List)
-    , null(false)
+    , state(State::List)
 {
     new (this->buf.get()) List(std::move(list));
 }
 
 FieldValue::FieldValue(Map map)
     : buf(new char[FieldValue::bufSize])
-    , type(Field::Type::Map)
-    , null(false)
+    , state(State::Map)
 {
     new (this->buf.get()) Map(std::move(map));
+}
+
+FieldValue::FieldValue(ExternalValue externalValue)
+    : buf(new char[FieldValue::bufSize])
+    , state(State::External)
+{
+    new (this->buf.get()) ExternalValue(std::move(externalValue));
 }
 
 FieldValue::~FieldValue()
@@ -124,71 +126,79 @@ FieldValue::~FieldValue()
 
 FieldValue::FieldValue(const FieldValue& other)
     : buf(new char[FieldValue::bufSize])
-    , type(other.type)
-    , null(other.null)
+    , state(other.state)
 {
-    switch (this->type)
+    switch (other.state)
     {
-        case Field::Type::Integer:
-        case Field::Type::Real:
-        case Field::Type::Reference:
+        case State::Null:
+            break;
+
+        case State::Integer:
+        case State::Real:
+        case State::Reference:
             memcpy(this->buf.get(), other.buf.get(), bufSize);
             break;
 
-        case Field::Type::String:
+        case State::String:
             new (this->buf.get()) QString(*reinterpret_cast<QString*>(other.buf.get()));
             break;
 
-        case Field::Type::List:
+        case State::List:
             new (this->buf.get()) List(*reinterpret_cast<List*>(other.buf.get()));
             break;
 
-        case Field::Type::Map:
+        case State::Map:
             new (this->buf.get()) Map(*reinterpret_cast<Map*>(other.buf.get()));
+            break;
+
+        case State::External:
+            new (this->buf.get()) ExternalValue(*reinterpret_cast<ExternalValue*>(other.buf.get()));
             break;
     }
 }
 
 FieldValue& FieldValue::operator=(const FieldValue& other)
 {
-    const bool sameType{!this->null && this->type != other.type};
-
-    if (!sameType)
+    const auto sameState = this->state == other.state;
+    if (sameState)
         this->destroy();
 
-    this->type = other.type;
-    this->null = other.null;
+    this->state = other.state;
 
-    if (this->null)
-        return *this;
-
-    switch (this->type)
+    switch (this->state)
     {
-        case Field::Type::Integer:
-        case Field::Type::Real:
-        case Field::Type::Reference:
+        case State::Null:
+            break;
+
+        case State::Integer:
+        case State::Real:
+        case State::Reference:
             memcpy(this->buf.get(), other.buf.get(), bufSize);
             break;
 
-        case Field::Type::String:
-            if (sameType)
+        case State::String:
+            if (sameState)
                 *reinterpret_cast<QString*>(this->buf.get()) = *reinterpret_cast<QString*>(other.buf.get());
             else
                 new (this->buf.get()) QString(*reinterpret_cast<QString*>(other.buf.get()));
             break;
 
-        case Field::Type::List:
-            if (sameType)
+        case State::List:
+            if (sameState)
                 *reinterpret_cast<List*>(this->buf.get()) = *reinterpret_cast<List*>(other.buf.get());
             else
                 new (this->buf.get()) List(*reinterpret_cast<List*>(other.buf.get()));
             break;
 
-        case Field::Type::Map:
-            if (sameType)
+        case State::Map:
+            if (sameState)
                 *reinterpret_cast<Map*>(this->buf.get()) = *reinterpret_cast<Map*>(other.buf.get());
             else
                 new (this->buf.get()) Map(*reinterpret_cast<Map*>(other.buf.get()));
+            break;
+
+        case State::External:
+            *reinterpret_cast<ExternalValue*>(this->buf.get()) = *reinterpret_cast<ExternalValue*>(other.buf.get());
             break;
     }
 
@@ -197,10 +207,9 @@ FieldValue& FieldValue::operator=(const FieldValue& other)
 
 FieldValue::FieldValue(FieldValue&& other)
     : buf(std::move(other.buf))
-    , type(other.type)
-    , null(other.null)
+    , state(other.state)
 {
-    other.null = true;
+    other.state = State::Null;
 }
 
 FieldValue& FieldValue::operator=(FieldValue&& other)
@@ -208,21 +217,19 @@ FieldValue& FieldValue::operator=(FieldValue&& other)
     this->destroy();
 
     this->buf = std::move(other.buf);
-    this->type = other.type;
-    this->null = other.null;
+    this->state = other.state;
 
-    other.null = true;
+    other.state = State::Null;
 
     return *this;
 }
 
 FieldValue& FieldValue::operator=(int integer)
 {
-    if (!this->isInteger())
+    if (this->state == State::Integer)
         this->destroy();
 
-    this->null = false;
-    this->type = Field::Type::Integer;
+    this->state = State::Integer;
     *reinterpret_cast<int*>(this->buf.get()) = integer;
 
     return *this;
@@ -230,37 +237,18 @@ FieldValue& FieldValue::operator=(int integer)
 
 FieldValue& FieldValue::operator=(double real)
 {
-    if (!this->isReal())
+    if (this->state == State::Real)
         this->destroy();
 
-    this->null = false;
-    this->type = Field::Type::Real;
+    this->state = State::Real;
     *reinterpret_cast<double*>(this->buf.get()) = real;
 
     return *this;
 }
 
-FieldValue& FieldValue::operator=(const QString& string)
+FieldValue& FieldValue::operator=(QString string)
 {
-    if (this->isString())
-    {
-        *reinterpret_cast<QString*>(this->buf.get()) = string;
-    }
-    else
-    {
-        this->destroy();
-        new (this->buf.get()) QString(string);
-    }
-
-    this->null = false;
-    this->type = Field::Type::String;
-
-    return *this;
-}
-
-FieldValue& FieldValue::operator=(QString&& string)
-{
-    if (this->isString())
+    if (this->state == State::String)
     {
         *reinterpret_cast<QString*>(this->buf.get()) = std::move(string);
     }
@@ -270,45 +258,25 @@ FieldValue& FieldValue::operator=(QString&& string)
         new (this->buf.get()) QString(std::move(string));
     }
 
-    this->null = false;
-    this->type = Field::Type::String;
+    this->state = State::String;
 
     return *this;
 }
 
 FieldValue& FieldValue::operator=(Reference reference)
 {
-    if (!this->isReference())
+    if (this->state != State::Reference)
         this->destroy();
 
-    this->null = false;
-    this->type = Field::Type::Reference;
     *reinterpret_cast<Reference*>(this->buf.get()) = reference;
+    this->state = State::Reference;
 
     return *this;
 }
 
-FieldValue& FieldValue::operator=(const List& list)
+FieldValue& FieldValue::operator=(List list)
 {
-    if (this->isList())
-    {
-        *reinterpret_cast<List*>(this->buf.get()) = list;
-    }
-    else
-    {
-        this->destroy();
-        new (this->buf.get()) List(list);
-    }
-
-    this->null = false;
-    this->type = Field::Type::List;
-
-    return *this;
-}
-
-FieldValue& FieldValue::operator=(List&& list)
-{
-    if (this->isList())
+    if (this->state == State::List)
     {
         *reinterpret_cast<List*>(this->buf.get()) = std::move(list);
     }
@@ -318,33 +286,14 @@ FieldValue& FieldValue::operator=(List&& list)
         new (this->buf.get()) List(std::move(list));
     }
 
-    this->null = false;
-    this->type = Field::Type::List;
+    this->state = State::List;
 
     return *this;
 }
 
-FieldValue& FieldValue::operator=(const Map& map)
+FieldValue& FieldValue::operator=(Map map)
 {
-    if (this->isMap())
-    {
-        *reinterpret_cast<Map*>(this->buf.get()) = map;
-    }
-    else
-    {
-        this->destroy();
-        new (this->buf.get()) Map(map);
-    }
-
-    this->null = false;
-    this->type = Field::Type::Map;
-
-    return *this;
-}
-
-FieldValue& FieldValue::operator=(Map&& map)
-{
-    if (this->isMap())
+    if (this->state == State::Map)
     {
         *reinterpret_cast<Map*>(this->buf.get()) = std::move(map);
     }
@@ -354,15 +303,31 @@ FieldValue& FieldValue::operator=(Map&& map)
         new (this->buf.get()) Map(std::move(map));
     }
 
-    this->null = false;
-    this->type = Field::Type::Map;
+    this->state = State::Map;
+
+    return *this;
+}
+
+FieldValue& FieldValue::operator=(ExternalValue externalValue)
+{
+    if (this->state == State::External)
+    {
+        *reinterpret_cast<ExternalValue*>(this->buf.get()) = std::move(externalValue);
+    }
+    else
+    {
+        this->destroy();
+        new (this->buf.get()) ExternalValue(std::move(externalValue));
+    }
+
+    this->state = State::External;
 
     return *this;
 }
 
 int& FieldValue::asInteger()
 {
-    if (this->isInteger())
+    if (this->state == State::Integer)
         return *reinterpret_cast<int*>(this->buf.get());
 
     throw utils::ValueError("Underlying value is not integer");
@@ -370,7 +335,7 @@ int& FieldValue::asInteger()
 
 double& FieldValue::asReal()
 {
-    if (this->isReal())
+    if (this->state == State::Real)
         return *reinterpret_cast<double*>(this->buf.get());
 
     throw utils::ValueError("Underlying value is not real");
@@ -378,7 +343,7 @@ double& FieldValue::asReal()
 
 QString& FieldValue::asString()
 {
-    if (this->isString())
+    if (this->state == State::String)
         return *reinterpret_cast<QString*>(this->buf.get());
 
     throw utils::ValueError("Underlying value is not string");
@@ -386,7 +351,7 @@ QString& FieldValue::asString()
 
 FieldValue::Reference& FieldValue::asReference()
 {
-    if (this->isReference())
+    if (this->state == State::Reference)
         return *reinterpret_cast<Reference*>(this->buf.get());
 
     throw utils::ValueError("Underlying value is not reference");
@@ -394,7 +359,7 @@ FieldValue::Reference& FieldValue::asReference()
 
 FieldValue::List& FieldValue::asList()
 {
-    if (this->isList())
+    if (this->state == State::List)
         return *reinterpret_cast<List*>(this->buf.get());
 
     throw utils::ValueError("Underlying value is not list");
@@ -402,15 +367,23 @@ FieldValue::List& FieldValue::asList()
 
 FieldValue::Map& FieldValue::asMap()
 {
-    if (this->isMap())
+    if (this->state == State::Map)
         return *reinterpret_cast<Map*>(this->buf.get());
 
     throw utils::ValueError("Underlying value is not map");
 }
 
+FieldValue::ExternalValue& FieldValue::asExternalValue()
+{
+    if (this->state == State::External)
+        return *reinterpret_cast<ExternalValue*>(this->buf.get());
+
+    throw utils::ValueError("Underlying value is not external value");
+}
+
 const int& FieldValue::asInteger() const
 {
-    if (this->isInteger())
+    if (this->state == State::Integer)
         return *reinterpret_cast<int*>(this->buf.get());
 
     throw utils::ValueError("Underlying value is not integer");
@@ -418,7 +391,7 @@ const int& FieldValue::asInteger() const
 
 const double& FieldValue::asReal() const
 {
-    if (this->isReal())
+    if (this->state == State::Real)
         return *reinterpret_cast<double*>(this->buf.get());
 
     throw utils::ValueError("Underlying value is not real");
@@ -426,7 +399,7 @@ const double& FieldValue::asReal() const
 
 const QString& FieldValue::asString() const
 {
-    if (this->isString())
+    if (this->state == State::String)
         return *reinterpret_cast<QString*>(this->buf.get());
 
     throw utils::ValueError("Underlying value is not string");
@@ -434,7 +407,7 @@ const QString& FieldValue::asString() const
 
 const FieldValue::Reference& FieldValue::asReference() const
 {
-    if (this->isReference())
+    if (this->state == State::Reference)
         return *reinterpret_cast<Reference*>(this->buf.get());
 
     throw utils::ValueError("Underlying value is not reference");
@@ -442,44 +415,57 @@ const FieldValue::Reference& FieldValue::asReference() const
 
 const FieldValue::List& FieldValue::asList() const
 {
-    if (this->isList())
+    if (this->state == State::List)
         return *reinterpret_cast<List*>(this->buf.get());
 
     throw utils::ValueError("Underlying value is not list");
 }
 const FieldValue::Map& FieldValue::asMap() const
 {
-    if (this->isMap())
+    if (this->state == State::Map)
         return *reinterpret_cast<Map*>(this->buf.get());
 
     throw utils::ValueError("Underlying value is not map");
 }
 
+const FieldValue::ExternalValue& FieldValue::asExternalValue() const
+{
+    if (this->state == State::External)
+        return *reinterpret_cast<ExternalValue*>(this->buf.get());
+
+    throw utils::ValueError("Underlying value is not external value");
+}
+
 QVariant FieldValue::toQVariant() const
 {
-    switch (this->type)
+    switch (this->state)
     {
-        case Field::Type::Integer:
+        case State::Null:
+        {
+            return QVariant();
+        }
+
+        case State::Integer:
         {
             return QVariant(this->asInteger());
         }
 
-        case Field::Type::Real:
+        case State::Real:
         {
             return QVariant(this->asReal());
         }
 
-        case Field::Type::Reference:
+        case State::Reference:
         {
             return QVariant::fromValue(this->asReference());
         }
 
-        case Field::Type::String:
+        case State::String:
         {
             return QVariant(this->asString());
         }
 
-        case Field::Type::List:
+        case State::List:
         {
             QVariantList qvlist;
             const auto& list = this->asList();
@@ -492,7 +478,7 @@ QVariant FieldValue::toQVariant() const
             return qvlist;
         }
 
-        case Field::Type::Map:
+        case State::Map:
         {
             QVariantMap qvmap;
             const auto& map = this->asMap();
@@ -504,9 +490,14 @@ QVariant FieldValue::toQVariant() const
 
             return qvmap;
         }
+
+        case State::External:
+        {
+            return asExternalValue().materialize().toQVariant();
+        }
     }
 
-    throw utils::ValueError("Invalid field type");
+    throw utils::ValueError("Invalid state");
 }
 
 void FieldValue::set(int integer)
@@ -539,143 +530,185 @@ void FieldValue::set(Map map)
     *this = std::move(map);
 }
 
+void FieldValue::set(ExternalValue externalValue)
+{
+    *this = std::move(externalValue);
+}
+
 int& FieldValue::makeInteger()
 {
-    if (this->isInteger())
+    if (this->state == State::Integer)
     {
         return *reinterpret_cast<int*>(this->buf.get());
     }
     else
     {
         this->destroy();
-        this->null = false;
-        this->type = Field::Type::Integer;
+        this->state = State::Integer;
         return *(new (this->buf.get()) int);
     }
 }
 
 double& FieldValue::makeReal()
 {
-    if (this->isReal())
+    if (this->state == State::Real)
     {
         return *reinterpret_cast<double*>(this->buf.get());
     }
     else
     {
         this->destroy();
-        this->null = false;
-        this->type = Field::Type::Real;
+        this->state = State::Real;
         return *(new (this->buf.get()) double);
     }
 }
 
 QString& FieldValue::makeString()
 {
-    if (this->isString())
+    if (this->state == State::String)
     {
         return *reinterpret_cast<QString*>(this->buf.get());
     }
     else
     {
         this->destroy();
-        this->null = false;
-        this->type = Field::Type::String;
+        this->state = State::String;
         return *(new (this->buf.get()) QString);
     }
 }
 
 FieldValue::Reference& FieldValue::makeReference()
 {
-    if (this->isReference())
+    if (this->state == State::Reference)
     {
         return *reinterpret_cast<Reference*>(this->buf.get());
     }
     else
     {
         this->destroy();
-        this->null = false;
-        this->type = Field::Type::Reference;
+        this->state = State::Reference;
         return *(new (this->buf.get()) Reference);
     }
 }
 
 FieldValue::List& FieldValue::makeList()
 {
-    if (this->isList())
+    if (this->state == State::List)
     {
         return *reinterpret_cast<List*>(this->buf.get());
     }
     else
     {
         this->destroy();
-        this->null = false;
-        this->type = Field::Type::List;
+        this->state = State::List;
         return *(new (this->buf.get()) List);
     }
 }
 
 FieldValue::Map& FieldValue::makeMap()
 {
-    if (this->isMap())
+    if (this->state == State::Map)
     {
         return *reinterpret_cast<Map*>(this->buf.get());
     }
     else
     {
         this->destroy();
-        this->null = false;
-        this->type = Field::Type::Map;
+        this->state = State::Map;
         return *(new (this->buf.get()) Map);
+    }
+}
+
+FieldValue::ExternalValue& FieldValue::makeExternalValue()
+{
+    if (this->state == State::External)
+    {
+        return *reinterpret_cast<ExternalValue*>(this->buf.get());
+    }
+    else
+    {
+        this->destroy();
+        this->state = State::External;
+        return *(new (this->buf.get()) ExternalValue);
+    }
+}
+
+Field::Type FieldValue::getType() const
+{
+    switch (this->state)
+    {
+        case State::Integer:
+            return Field::Type::Integer;
+        case State::Real:
+            return Field::Type::Real;
+        case State::Reference:
+            return Field::Type::Reference;
+        case State::String:
+            return Field::Type::String;
+        case State::List:
+            return Field::Type::List;
+        case State::Map:
+            return Field::Type::Map;
+        default:
+            return static_cast<Field::Type>(-1);
     }
 }
 
 void FieldValue::destroy()
 {
-    if (this->null)
-        return;
-
-    switch (type)
+    switch (this->state)
     {
-        case Field::Type::Integer:
-        case Field::Type::Real:
-        case Field::Type::Reference:
+        case State::Null:
             break;
 
-        case Field::Type::String:
+        case State::Integer:
+        case State::Real:
+        case State::Reference:
+            break;
+
+        case State::String:
             reinterpret_cast<QString*>(this->buf.get())->~QString();
             break;
 
-        case Field::Type::List:
+        case State::List:
             reinterpret_cast<List*>(this->buf.get())->~vector<FieldValue>();
             break;
 
-        case Field::Type::Map:
+        case State::Map:
             reinterpret_cast<Map*>(this->buf.get())->~map<QString, FieldValue>();
+            break;
+
+        case State::External:
+            reinterpret_cast<ExternalValue*>(this->buf.get())->~ExternalValue();
             break;
     }
 
-    this->null = true;
+    this->state = State::Null;
 }
 
 bool operator==(const FieldValue& a, const FieldValue& b)
 {
-    if (a.getType() != b.getType())
+    if (a.getState() != b.getState())
         return false;
 
-    switch (a.getType())
+    switch (a.getState())
     {
-        case Field::Type::Integer:
+        case FieldValue::State::Null:
+            return true;
+        case FieldValue::State::Integer:
             return a.asInteger() == b.asInteger();
-        case Field::Type::Real:
+        case FieldValue::State::Real:
             return a.asReal() == b.asReal();
-        case Field::Type::String:
+        case FieldValue::State::String:
             return a.asString() == b.asString();
-        case Field::Type::Reference:
+        case FieldValue::State::Reference:
             return a.asReference() == b.asReference();
-        case Field::Type::List:
+        case FieldValue::State::List:
             return a.asList() == b.asList();
-        case Field::Type::Map:
+        case FieldValue::State::Map:
             return a.asMap() == b.asMap();
+        case FieldValue::State::External:
+            return a.asExternalValue() == b.asExternalValue();
     }
 
     return false;
@@ -683,23 +716,27 @@ bool operator==(const FieldValue& a, const FieldValue& b)
 
 bool operator<(const FieldValue& a, const FieldValue& b)
 {
-    if (a.getType() != b.getType())
-        throw utils::ValueError("Cannot compare fields of different types");
+    if (a.getState() != b.getState())
+        throw utils::ValueError("Cannot compare fields of different states");
 
-    switch (a.getType())
+    switch (a.getState())
     {
-        case Field::Type::Integer:
+        case FieldValue::State::Null:
+            return false;
+        case FieldValue::State::Integer:
             return a.asInteger() < b.asInteger();
-        case Field::Type::Real:
+        case FieldValue::State::Real:
             return a.asReal() < b.asReal();
-        case Field::Type::String:
+        case FieldValue::State::String:
             return a.asString() < b.asString();
-        case Field::Type::Reference:
+        case FieldValue::State::Reference:
             return a.asReference() < b.asReference();
-        case Field::Type::List:
+        case FieldValue::State::List:
             return a.asList() < b.asList();
-        case Field::Type::Map:
+        case FieldValue::State::Map:
             return a.asMap() < b.asMap();
+        case FieldValue::State::External:
+            return false;
     }
 
     return false;

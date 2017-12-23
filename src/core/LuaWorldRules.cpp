@@ -92,8 +92,11 @@ private:
 static void exposeAPI(sol::state& lua);
 static void wLuaLog(sol::this_state L, utils::LogLevel logLevel, const std::string& msg);
 static sol::object fieldValueToLua(FieldValue& fieldValue, sol::this_state L);
+static FieldValue fieldValueFromLua(sol::stack_object& value, sol::this_state L);
 static FieldValue nestedFieldValueFromLua(sol::object value);
 static sol::object fieldValueIndex(FieldValue* const fieldValue, sol::stack_object key, sol::this_state L);
+static void fieldValueNewIndex(
+    FieldValue* const fieldValue, sol::stack_object key, sol::stack_object value, sol::this_state L);
 static sol::object componentIndex(Component* const component, sol::stack_object key, sol::this_state L);
 static bool isCompatibleType(const FieldValue& fieldValue, int type);
 static bool assignValueToField(sol::stack_object& value, FieldValue& field, sol::this_state L);
@@ -292,8 +295,13 @@ static void exposeAPI(sol::state& lua)
         "civilization",
         sol::property(&Faction::getCivilization, &Faction::setCivilization));
 
-    lua.new_usertype<FieldValue>(
-        "field_value", sol::meta_function::construct, sol::no_constructor, sol::meta_function::index, fieldValueIndex);
+    lua.new_usertype<FieldValue>("field_value",
+        sol::meta_function::construct,
+        sol::no_constructor,
+        sol::meta_function::index,
+        fieldValueIndex,
+        sol::meta_function::new_index,
+        fieldValueNewIndex);
 
     lua.new_usertype<Component>("component",
         sol::meta_function::construct,
@@ -394,6 +402,33 @@ static sol::object fieldValueToLua(FieldValue& fieldValue, sol::this_state L)
     return sol::object(L, sol::in_place, sol::lua_nil);
 }
 
+static FieldValue fieldValueFromLua(sol::stack_object& value, sol::this_state L)
+{
+    switch (lua_type(L, value.stack_index()))
+    {
+        case LUA_TNUMBER:
+            return FieldValue(value.as<double>());
+
+        case LUA_TSTRING:
+            return FieldValue(value.as<QString>());
+
+        case LUA_TUSERDATA:
+            if (value.is<FieldValue*>())
+                return *value.as<FieldValue*>();
+            // TODO: references
+            wWarning << "Reference field is not supported yet";
+            return FieldValue();
+
+        case LUA_TTABLE:
+            wWarning << "Container field is not supported yet";
+            return FieldValue();
+
+        default:
+            wWarning << "Attempt to set value of incompatible type";
+            return {};
+    }
+}
+
 // Convert a nested Lua value (a table element) to a FieldValue:
 // * Copy primitive types (number, boolean, string).
 // * Copy userdata (we only pass pointers to lua anyway). TODO
@@ -462,6 +497,52 @@ static sol::object fieldValueIndex(FieldValue* const fieldValue, sol::stack_obje
         else
         {
             return fieldValueToLua(it->second, L);
+        }
+    }
+}
+
+static void fieldValueNewIndex(
+    FieldValue* const fieldValue, sol::stack_object key, sol::stack_object value, sol::this_state L)
+{
+    if (!fieldValue->isList() && !fieldValue->isMap())
+    {
+        wWarning << "Attempt to new_index non container field";
+        return;
+    }
+
+    if (fieldValue->isList())
+    {
+        auto maybeIndex = key.as<sol::optional<ssize_t>>();
+        if (maybeIndex)
+        {
+            wWarning << "Attempt to new_index list field with non-integer key";
+            return;
+        }
+
+        auto index = *maybeIndex;
+        auto& list = fieldValue->asList();
+        if (index < 0 || static_cast<std::size_t>(index) >= list.size())
+        {
+            wWarning << "Index " << index << " is out of bounds";
+            return;
+        }
+
+        list[index] = fieldValueFromLua(value, L);
+    }
+    else
+    {
+        auto maybeKey = key.as<sol::optional<QString>>();
+        if (maybeKey)
+        {
+            wWarning << "Attempt to index map field with non-string key";
+            return;
+        }
+
+        auto& map = fieldValue->asMap();
+        auto it = map.find(*maybeKey);
+        if (it != map.end())
+        {
+            it->second = fieldValueFromLua(value, L);
         }
     }
 }

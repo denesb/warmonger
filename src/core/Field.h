@@ -258,9 +258,20 @@ public:
             return this->impl->materialize();
         }
 
+        Impl* getImpl()
+        {
+            return this->impl.get();
+        }
+
     private:
         std::shared_ptr<Impl> impl;
     };
+
+    template <typename T, typename... Args>
+    static FieldValue makeExternal(Args&&... args)
+    {
+        return FieldValue(ExternalValue(std::make_shared<T>(std::forward<Args>(args)...)));
+    }
 
     /**
      * Construct a null field value.
@@ -498,6 +509,7 @@ bool operator==(const FieldValue& a, const FieldValue& b);
 bool operator<(const FieldValue& a, const FieldValue& b);
 
 std::ostream& operator<<(std::ostream& os, Field::Type t);
+std::ostream& operator<<(std::ostream& os, FieldValue::State s);
 
 } // namespace core
 } // namespace warmonger

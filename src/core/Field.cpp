@@ -752,5 +752,37 @@ std::ostream& operator<<(std::ostream& os, Field::Type t)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, FieldValue::State s)
+{
+    switch (s)
+    {
+        case FieldValue::State::Null:
+            os << "Null";
+            break;
+        case FieldValue::State::Integer:
+            os << "Integer";
+            break;
+        case FieldValue::State::Real:
+            os << "Real";
+            break;
+        case FieldValue::State::String:
+            os << "String";
+            break;
+        case FieldValue::State::Reference:
+            os << "Reference";
+            break;
+        case FieldValue::State::List:
+            os << "List";
+            break;
+        case FieldValue::State::Map:
+            os << "Map";
+            break;
+        case FieldValue::State::External:
+            os << "External";
+            break;
+    }
+    return os;
+}
+
 } // namespace core
 } // namespace warmonger

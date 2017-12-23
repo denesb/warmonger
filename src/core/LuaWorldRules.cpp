@@ -105,6 +105,29 @@ static bool assignTableToMapField(sol::stack_object& value, FieldValue& field, s
 static void componentNewIndex(
     Component* const component, sol::stack_object key, sol::stack_object value, sol::this_state L);
 
+class LuaExternalValue : public FieldValue::ExternalValue::Impl
+{
+public:
+    LuaExternalValue(sol::object value)
+        : value(std::move(value))
+    {
+    }
+
+    FieldValue materialize() const override
+    {
+        wError << "UIMPLEMENTED";
+        return FieldValue();
+    }
+
+    sol::object getValue() const
+    {
+        return value;
+    }
+
+private:
+    sol::object value;
+};
+
 LuaWorldRules::LuaWorldRules(const QString& basePath, core::World* world)
     : world(world)
     , state(std::make_unique<sol::state>())
@@ -382,23 +405,27 @@ static void wLuaLog(sol::this_state L, utils::LogLevel logLevel, const std::stri
 
 static sol::object fieldValueToLua(FieldValue& fieldValue, sol::this_state L)
 {
-    switch (fieldValue.getType())
+    switch (fieldValue.getState())
     {
-        case Field::Type::Integer:
+        case FieldValue::State::Null:
+            return sol::object(L, sol::in_place, sol::lua_nil);
+        case FieldValue::State::Integer:
             return sol::object(L, sol::in_place, fieldValue.asInteger());
-        case Field::Type::Real:
+        case FieldValue::State::Real:
             return sol::object(L, sol::in_place, fieldValue.asReal());
-        case Field::Type::String:
+        case FieldValue::State::String:
             return sol::object(L, sol::in_place, fieldValue.asString());
-        case Field::Type::Reference:
+        case FieldValue::State::Reference:
             // TODO: reference
             wWarning << "Reference field is not supported yet";
             return sol::object(L, sol::in_place, sol::lua_nil);
-        case Field::Type::List:
-        case Field::Type::Map:
+        case FieldValue::State::List:
+        case FieldValue::State::Map:
             return sol::object(L, sol::in_place, &fieldValue);
+        case FieldValue::State::External:
+            return static_cast<LuaExternalValue*>(fieldValue.asExternalValue().getImpl())->getValue();
     }
-    wWarning << "Uncrecognized field value " << fieldValue.getType();
+    wWarning << "Uncrecognized field state " << fieldValue.getState();
     return sol::object(L, sol::in_place, sol::lua_nil);
 }
 
@@ -420,8 +447,7 @@ static FieldValue fieldValueFromLua(sol::stack_object& value, sol::this_state L)
             return FieldValue();
 
         case LUA_TTABLE:
-            wWarning << "Container field is not supported yet";
-            return FieldValue();
+            return FieldValue::makeExternal<LuaExternalValue>(sol::object(L, value.stack_index()));
 
         default:
             wWarning << "Attempt to set value of incompatible type";
@@ -432,7 +458,7 @@ static FieldValue fieldValueFromLua(sol::stack_object& value, sol::this_state L)
 // Convert a nested Lua value (a table element) to a FieldValue:
 // * Copy primitive types (number, boolean, string).
 // * Copy userdata (we only pass pointers to lua anyway). TODO
-// * Keep "objects" (tables) in lua and keep a reference only. TODO
+// * Keep "objects" (tables) in lua and keep a reference only.
 static FieldValue nestedFieldValueFromLua(sol::object value)
 {
     if (auto maybeNumber = value.as<sol::optional<double>>())
@@ -443,10 +469,9 @@ static FieldValue nestedFieldValueFromLua(sol::object value)
     {
         return FieldValue(*maybeString);
     }
-    else if (auto maybeTable = value.as<sol::optional<sol::table>>())
+    else if (value.is<sol::table>())
     {
-        wWarning << "Container field is not supported yet";
-        return FieldValue();
+        return FieldValue::makeExternal<LuaExternalValue>(std::move(value));
     }
     wWarning << "Unknown type";
     return FieldValue();

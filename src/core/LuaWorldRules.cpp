@@ -89,7 +89,7 @@ private:
 
 static void exposeAPI(sol::state& lua);
 static void wLuaLog(sol::this_state L, utils::LogLevel logLevel, const std::string& msg);
-static sol::object getField(const Component* const component, sol::stack_object key, sol::this_state L);
+static sol::object getField(Component* const component, sol::stack_object key, sol::this_state L);
 static void setField(Component* const component, sol::stack_object key, sol::stack_object value, sol::this_state L);
 
 LuaWorldRules::LuaWorldRules(const QString& basePath, core::World* world)
@@ -359,7 +359,7 @@ static void wLuaLog(sol::this_state L, utils::LogLevel logLevel, const std::stri
     }
 }
 
-static sol::object getField(const Component* const component, sol::stack_object key, sol::this_state L)
+static sol::object getField(Component* const component, sol::stack_object key, sol::this_state L)
 {
     auto maybeFieldName = key.as<sol::optional<QString>>();
     if (!maybeFieldName)

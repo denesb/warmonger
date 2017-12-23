@@ -98,6 +98,7 @@ static FieldValue nestedFieldValueFromLua(sol::object value);
 static sol::object fieldValueIndex(FieldValue* const fieldValue, sol::stack_object key, sol::this_state L);
 static void fieldValueNewIndex(
     FieldValue* const fieldValue, sol::stack_object key, sol::stack_object value, sol::this_state L);
+static sol::object fieldValueLength(FieldValue* const fieldValue, sol::this_state L);
 static sol::object componentIndex(Component* const component, sol::stack_object key, sol::this_state L);
 static bool isCompatibleType(const FieldValue& fieldValue, int type);
 static bool assignValueToField(sol::stack_object& value, FieldValue& field, sol::this_state L);
@@ -327,7 +328,9 @@ static void exposeAPI(sol::state& lua)
         sol::meta_function::index,
         fieldValueIndex,
         sol::meta_function::new_index,
-        fieldValueNewIndex);
+        fieldValueNewIndex,
+        sol::meta_function::length,
+        fieldValueLength);
 
     lua.new_usertype<Component>("component",
         sol::meta_function::construct,
@@ -575,6 +578,28 @@ static void fieldValueNewIndex(
             it->second = fieldValueFromLua(value, L);
         }
     }
+}
+
+static sol::object fieldValueLength(FieldValue* const fieldValue, sol::this_state L)
+{
+    if (fieldValue == nullptr)
+    {
+        wWarning << "Attempt to call length on nil field";
+        return sol::object(L, sol::in_place, sol::lua_nil);
+    }
+
+    if (!fieldValue->isList() && !fieldValue->isMap())
+    {
+        wWarning << "Attempt to call length on non container field";
+        return sol::object(L, sol::in_place, sol::lua_nil);
+    }
+
+    if (fieldValue->isList())
+        return sol::object(L, sol::in_place, fieldValue->asList().size());
+    else if (fieldValue->isMap())
+        return sol::object(L, sol::in_place, fieldValue->asMap().size());
+
+    return sol::object(L, sol::in_place, sol::lua_nil);
 }
 
 static sol::object componentIndex(Component* const component, sol::stack_object key, sol::this_state L)

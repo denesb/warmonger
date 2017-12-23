@@ -288,6 +288,18 @@ if(BUILD_TOOLS)
         utils
         ${COMMON_EXTERNAL_LIBS}
     )
+
+    add_executable(
+        wtest_rules_bindings
+        src/tools/wtest_rules_bindings.cpp
+    )
+
+    target_link_libraries(
+        wtest_rules_bindings
+        core
+        utils
+        ${COMMON_EXTERNAL_LIBS}
+    )
 endif()
 
 if(BUILD_TESTS)

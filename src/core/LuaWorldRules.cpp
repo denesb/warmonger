@@ -552,15 +552,18 @@ static void fieldValueNewIndex(
         }
 
         // Lua indexes start from 1
-        auto index = *maybeIndex - 1;
+        const auto index = *maybeIndex - 1;
         auto& list = fieldValue->asList();
-        if (index < 0 || static_cast<std::size_t>(index) >= list.size())
+        if (index < 0 || static_cast<std::size_t>(index) > list.size())
         {
             wWarning << "Index " << index << " is out of bounds";
             return;
         }
 
-        list[index] = fieldValueFromLua(value, L);
+        if (static_cast<std::size_t>(index) == list.size())
+            list.push_back(fieldValueFromLua(value, L));
+        else
+            list[index] = fieldValueFromLua(value, L);
     }
     else
     {

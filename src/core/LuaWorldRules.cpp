@@ -18,6 +18,8 @@
 
 #include "core/LuaWorldRules.h"
 
+#include <set>
+
 #include <sol/sol.hpp>
 
 #include "core/Map.h"
@@ -90,9 +92,15 @@ private:
 static void exposeAPI(sol::state& lua);
 static void wLuaLog(sol::this_state L, utils::LogLevel logLevel, const std::string& msg);
 static sol::object fieldValueToLua(FieldValue& fieldValue, sol::this_state L);
+static FieldValue nestedFieldValueFromLua(sol::object value);
 static sol::object fieldValueIndex(FieldValue* const fieldValue, sol::stack_object key, sol::this_state L);
 static sol::object componentIndex(Component* const component, sol::stack_object key, sol::this_state L);
-static void componentNewIndex(Component* const component, sol::stack_object key, sol::stack_object value, sol::this_state L);
+static bool isCompatibleType(const FieldValue& fieldValue, int type);
+static bool assignValueToField(sol::stack_object& value, FieldValue& field, sol::this_state L);
+static bool assignTableToListField(sol::stack_object& value, FieldValue& field, sol::this_state L);
+static bool assignTableToMapField(sol::stack_object& value, FieldValue& field, sol::this_state L);
+static void componentNewIndex(
+    Component* const component, sol::stack_object key, sol::stack_object value, sol::this_state L);
 
 LuaWorldRules::LuaWorldRules(const QString& basePath, core::World* world)
     : world(world)
@@ -284,11 +292,8 @@ static void exposeAPI(sol::state& lua)
         "civilization",
         sol::property(&Faction::getCivilization, &Faction::setCivilization));
 
-    lua.new_usertype<FieldValue>("field_value",
-        sol::meta_function::construct,
-        sol::no_constructor,
-        sol::meta_function::index,
-        fieldValueIndex);
+    lua.new_usertype<FieldValue>(
+        "field_value", sol::meta_function::construct, sol::no_constructor, sol::meta_function::index, fieldValueIndex);
 
     lua.new_usertype<Component>("component",
         sol::meta_function::construct,
@@ -389,6 +394,29 @@ static sol::object fieldValueToLua(FieldValue& fieldValue, sol::this_state L)
     return sol::object(L, sol::in_place, sol::lua_nil);
 }
 
+// Convert a nested Lua value (a table element) to a FieldValue:
+// * Copy primitive types (number, boolean, string).
+// * Copy userdata (we only pass pointers to lua anyway). TODO
+// * Keep "objects" (tables) in lua and keep a reference only. TODO
+static FieldValue nestedFieldValueFromLua(sol::object value)
+{
+    if (auto maybeNumber = value.as<sol::optional<double>>())
+    {
+        return FieldValue(*maybeNumber);
+    }
+    else if (auto maybeString = value.as<sol::optional<QString>>())
+    {
+        return FieldValue(*maybeString);
+    }
+    else if (auto maybeTable = value.as<sol::optional<sol::table>>())
+    {
+        wWarning << "Container field is not supported yet";
+        return FieldValue();
+    }
+    wWarning << "Unknown type";
+    return FieldValue();
+}
+
 static sol::object fieldValueIndex(FieldValue* const fieldValue, sol::stack_object key, sol::this_state L)
 {
     if (!fieldValue->isList() && !fieldValue->isMap())
@@ -455,32 +483,149 @@ static sol::object componentIndex(Component* const component, sol::stack_object 
     return fieldValueToLua(*value, L);
 }
 
-static void componentNewIndex(Component* const component, sol::stack_object key, sol::stack_object value, sol::this_state)
+// Checks that `type' is compatible with the type of the component's fields as
+// defined by the component-type.
+// Type compatibility is not a guarantee that the assignment will be
+// successfull as well, but it's a prerequisite.
+static bool isCompatibleType(const FieldValue& fieldValue, int type)
+{
+    const auto fieldType = fieldValue.getType();
+    return (type == LUA_TNUMBER && (fieldType == Field::Type::Integer || fieldType == Field::Type::Real)) ||
+        (type == LUA_TSTRING && fieldType == Field::Type::String) ||
+        (type == LUA_TUSERDATA && fieldType == Field::Type::Reference) ||
+        (type == LUA_TTABLE && (fieldType == Field::Type::List || fieldType == Field::Type::Map));
+}
+
+// Assigns `value' to `field'.
+// Assumes that the types are compatible, check this with isCompatibleType()
+// before calling this function.
+static bool assignValueToField(sol::stack_object& value, FieldValue& field, sol::this_state L)
+{
+    switch (field.getType())
+    {
+        case Field::Type::Integer:
+            field = value.as<int>();
+            return true;
+
+        case Field::Type::Real:
+            field = value.as<double>();
+            return true;
+
+        case Field::Type::String:
+            field = value.as<QString>();
+            return true;
+
+        case Field::Type::Reference:
+            // TODO:
+            wWarning << "Reference assignment not supported yet";
+            return false;
+
+        case Field::Type::List:
+            return assignTableToListField(value, field, L);
+
+        case Field::Type::Map:
+            return assignTableToMapField(value, field, L);
+    }
+    wWarning << "Uncrecognized field value " << field.getType();
+    return false;
+}
+
+// Assign a "list" table to a list field.
+//
+// We assume the table has integer-only indexes but we check anyway...
+// Since tables are unordered first we need to sort the extracted elements
+// to know ho much space to reserve for the list.
+// Supports only convenional Lua lists:
+// * Indexes must start from 1.
+// * Indexes must be strictly increasing.
+// * Indexes must be contiguous.
+static bool assignTableToListField(sol::stack_object& value, FieldValue& field, sol::this_state)
+{
+    auto table = value.as<sol::table>();
+
+    std::set<std::size_t> indexes;
+    for (auto& element : table)
+    {
+        if (auto maybeIndex = element.first.as<sol::optional<std::size_t>>())
+            indexes.insert(*maybeIndex);
+    }
+
+    if (indexes.size() != table.size())
+    {
+        wWarning << "Attempted to assign table with non-integer keys to a list";
+        return false;
+    }
+
+    if (*indexes.begin() != 1 || *indexes.rbegin() != indexes.size())
+    {
+        wWarning << "Attempted to assign table with non-contiguous or non 1-started indexes to a list";
+        return false;
+    }
+
+    auto& list = field.asList();
+    list.clear();
+    list.resize(table.size());
+
+    for (auto& element : table)
+    {
+        list[element.first.as<std::size_t>()] = nestedFieldValueFromLua(element.second);
+    }
+    return true;
+}
+
+// Assign a table to a map field.
+//
+// We are less picky here then with the list fields. The only requirement is
+// that keys are convertible to string. Non-string keys are simply ignored.
+static bool assignTableToMapField(sol::stack_object& value, FieldValue& field, sol::this_state)
+{
+    auto table = value.as<sol::table>();
+
+    auto& map = field.asMap();
+    map.clear();
+
+    for (auto& element : table)
+    {
+        if (auto maybeKey = element.first.as<sol::optional<QString>>())
+        {
+            map[*maybeKey] = nestedFieldValueFromLua(element.second);
+        }
+        else
+        {
+            wWarning << "Ignoring non-string key while assigning table elements to map field";
+            continue;
+        }
+    }
+    return true;
+}
+
+static void componentNewIndex(
+    Component* const component, sol::stack_object key, sol::stack_object value, sol::this_state L)
 {
     auto maybeFieldName = key.as<sol::optional<QString>>();
     if (!maybeFieldName)
     {
-        wWarning << "Attempt to index field with non-string key";
+        wWarning << "Attempt to new_index " << component->getType()->getName() << " component with non-string key";
+        return;
+    }
+    auto fieldName = *maybeFieldName;
+    auto field = component->field(fieldName);
+    if (field == nullptr)
+    {
+        wWarning << "Attempt to assign to non-existing field `" << *maybeFieldName << "' of  "
+                 << component->getType()->getName() << " component";
         return;
     }
 
-    // TODO a more sofisticated type detection possibly using the Lua type enum
-    if (auto maybeInteger = value.as<sol::optional<int>>())
+    auto type = lua_type(L, value.stack_index());
+    if (!isCompatibleType(*field, type))
     {
-        component->field(*maybeFieldName)->set(*maybeInteger);
+        wWarning << "Attempt to assign a value of incompatible type to field `" << fieldName << "' of "
+                 << component->getType()->getName() << " component";
+        return;
     }
-    else if (auto maybeReal = value.as<sol::optional<double>>())
-    {
-        component->field(*maybeFieldName)->set(*maybeReal);
-    }
-    else if (auto maybeString = value.as<sol::optional<QString>>())
-    {
-        component->field(*maybeFieldName)->set(*maybeString);
-    }
-    else // TODO: reference, list, map
-    {
-        wWarning << "Attempt to set value of unsupported type to field `" << *maybeFieldName << "'";
-    }
+
+    assignValueToField(value, *field, L);
 }
 
 } // namespace core

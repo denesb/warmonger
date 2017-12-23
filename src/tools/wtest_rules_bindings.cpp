@@ -95,6 +95,7 @@ int main(int argc, char* const argv[])
 
     // ComponentType
     auto componentType0 = world.createWorldComponentType();
+    componentType0->setName("simple");
 
     auto componentType0Field0 = componentType0->createField();
     componentType0Field0->setName("intField");
@@ -105,7 +106,7 @@ int main(int argc, char* const argv[])
     componentType0Field1->setType(core::Field::Type::List);
 
     auto componentType1 = world.createWorldComponentType();
-    componentType1->setName("componentType1");
+    componentType1->setName("complex");
 
     createEveryFieldType(componentType1);
 

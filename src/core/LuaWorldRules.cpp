@@ -89,6 +89,8 @@ private:
 
 static void exposeAPI(sol::state& lua);
 static void wLuaLog(sol::this_state L, utils::LogLevel logLevel, const std::string& msg);
+static sol::object fieldValueToLua(FieldValue& fieldValue, sol::this_state L);
+static sol::object fieldValueIndex(FieldValue* const fieldValue, sol::stack_object key, sol::this_state L);
 static sol::object componentIndex(Component* const component, sol::stack_object key, sol::this_state L);
 static void componentNewIndex(Component* const component, sol::stack_object key, sol::stack_object value, sol::this_state L);
 
@@ -282,6 +284,12 @@ static void exposeAPI(sol::state& lua)
         "civilization",
         sol::property(&Faction::getCivilization, &Faction::setCivilization));
 
+    lua.new_usertype<FieldValue>("field_value",
+        sol::meta_function::construct,
+        sol::no_constructor,
+        sol::meta_function::index,
+        fieldValueIndex);
+
     lua.new_usertype<Component>("component",
         sol::meta_function::construct,
         sol::no_constructor,
@@ -359,6 +367,77 @@ static void wLuaLog(sol::this_state L, utils::LogLevel logLevel, const std::stri
     }
 }
 
+static sol::object fieldValueToLua(FieldValue& fieldValue, sol::this_state L)
+{
+    switch (fieldValue.getType())
+    {
+        case Field::Type::Integer:
+            return sol::object(L, sol::in_place, fieldValue.asInteger());
+        case Field::Type::Real:
+            return sol::object(L, sol::in_place, fieldValue.asReal());
+        case Field::Type::String:
+            return sol::object(L, sol::in_place, fieldValue.asString());
+        case Field::Type::Reference:
+            // TODO: reference
+            wWarning << "Reference field is not supported yet";
+            return sol::object(L, sol::in_place, sol::lua_nil);
+        case Field::Type::List:
+        case Field::Type::Map:
+            return sol::object(L, sol::in_place, &fieldValue);
+    }
+    wWarning << "Uncrecognized field value " << fieldValue.getType();
+    return sol::object(L, sol::in_place, sol::lua_nil);
+}
+
+static sol::object fieldValueIndex(FieldValue* const fieldValue, sol::stack_object key, sol::this_state L)
+{
+    if (!fieldValue->isList() && !fieldValue->isMap())
+    {
+        wWarning << "Attempt to index non container field";
+        return sol::object(L, sol::in_place, sol::lua_nil);
+    }
+
+    if (fieldValue->isList())
+    {
+        auto maybeIndex = key.as<sol::optional<ssize_t>>();
+        if (maybeIndex)
+        {
+            wWarning << "Attempt to index list field with non-integer key";
+            return sol::object(L, sol::in_place, sol::lua_nil);
+        }
+
+        auto index = *maybeIndex;
+        auto& list = fieldValue->asList();
+        if (index < 0 || static_cast<std::size_t>(index) >= list.size())
+        {
+            wWarning << "Index " << index << " is out of bounds";
+            return sol::object(L, sol::in_place, sol::lua_nil);
+        }
+
+        return fieldValueToLua(list[index], L);
+    }
+    else
+    {
+        auto maybeKey = key.as<sol::optional<QString>>();
+        if (maybeKey)
+        {
+            wWarning << "Attempt to index map field with non-string key";
+            return sol::object(L, sol::in_place, sol::lua_nil);
+        }
+
+        auto& map = fieldValue->asMap();
+        auto it = map.find(*maybeKey);
+        if (it == map.end())
+        {
+            return sol::object(L, sol::in_place, sol::lua_nil);
+        }
+        else
+        {
+            return fieldValueToLua(it->second, L);
+        }
+    }
+}
+
 static sol::object componentIndex(Component* const component, sol::stack_object key, sol::this_state L)
 {
     auto maybeFieldName = key.as<sol::optional<QString>>();
@@ -368,37 +447,12 @@ static sol::object componentIndex(Component* const component, sol::stack_object 
         return sol::object(L, sol::in_place, sol::lua_nil);
     }
 
-    const auto value{component->field(*maybeFieldName)};
+    auto value{component->field(*maybeFieldName)};
 
-    if (value->isNull())
+    if (value == nullptr || value->isNull())
         return sol::object(L, sol::in_place, sol::lua_nil);
 
-    switch (value->getType())
-    {
-        case Field::Type::Integer:
-            return sol::object(L, sol::in_place, value->asInteger());
-        case Field::Type::Real:
-            return sol::object(L, sol::in_place, value->asReal());
-        case Field::Type::String:
-            return sol::object(L, sol::in_place, value->asString());
-        /*
-    case Field::Type::Reference:
-        // TODO: reference
-        wWarning << "Reference field is not supported yet";
-        return sol::object(L, sol::in_place, sol::lua_nil);
-    case Field::Type::List:
-        // TODO: list
-        wWarning << "List field is not supported yet";
-        return sol::object(L, sol::in_place, sol::lua_nil);
-    case Field::Type::Map:
-        // TODO: map
-        wWarning << "Map field is not supported yet";
-        return sol::object(L, sol::in_place, sol::lua_nil);
-        */
-        default:
-            wWarning << "Field value type is not supported yet";
-            return sol::object(L, sol::in_place, sol::lua_nil);
-    }
+    return fieldValueToLua(*value, L);
 }
 
 static void componentNewIndex(Component* const component, sol::stack_object key, sol::stack_object value, sol::this_state)

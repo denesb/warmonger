@@ -130,25 +130,26 @@ private:
     sol::object value;
 };
 
-LuaWorldRules::LuaWorldRules(const QString& basePath, core::World* world)
+LuaWorldRules::LuaWorldRules(core::World* world)
     : world(world)
     , state(std::make_unique<sol::state>())
+{
+}
+
+void LuaWorldRules::loadRules(const QString& basePath, const QString& mainRulesFile)
 {
     sol::state& lua = *this->state.get();
 
     exposeAPI(lua);
 
-    const auto entryPoint = QFileInfo(this->world->getRulesEntryPoint()).isAbsolute()
-        ? this->world->getRulesEntryPoint().toStdString()
-        : utils::makePath(basePath, this->world->getRulesEntryPoint()).toStdString();
-
-    wInfo << "Loading lua world rules from entry point " << entryPoint;
+    const auto path = utils::makePath(basePath, mainRulesFile);
+    wInfo << "Loading lua world rules from entry point " << path;
 
     lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::table, sol::lib::math);
 
     lua["W"] = this->world;
 
-    lua.script_file(entryPoint);
+    lua.script_file(path.toStdString());
 
     this->worldInitHook = lua["world_init"];
     this->generateMapHook = lua["generate_map"];

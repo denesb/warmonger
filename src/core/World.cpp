@@ -28,12 +28,12 @@
 namespace warmonger {
 namespace core {
 
-World::World(const QString& uuid, const std::map<QString, int>& builtInObjectIds, QObject* parent)
+World::World(const QString& uuid, WorldRules::Type rulesType, const std::map<QString, int>& builtInObjectIds, QObject* parent)
     : QObject{parent}
     , uuid{uuid}
     , builtInObjectIds{builtInObjectIds}
-    , rulesType{WorldRules::Type::Lua}
-    , rules{nullptr}
+    , rulesType{rulesType}
+    , rules{createWorldRules(this)}
 {
     const auto& builtInComponentTypes = getBuiltInComponentTypesFactories();
 
@@ -199,18 +199,9 @@ void World::setRulesEntryPoint(const QString& rulesEntryPoint)
     }
 }
 
-void World::setRulesType(const WorldRules::Type rulesType)
-{
-    if (this->rulesType != rulesType)
-    {
-        this->rulesType = rulesType;
-        emit rulesTypeChanged();
-    }
-}
-
 void World::loadRules(const QString& basePath)
 {
-    this->rules = createWorldRules(basePath, this);
+    this->rules->loadRules(basePath, this->rulesEntryPoint);
 }
 
 } // namespace core

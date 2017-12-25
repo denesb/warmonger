@@ -23,7 +23,7 @@ using namespace warmonger;
 
 TEST_CASE("Invokable map-editing members", "[MapEditor]")
 {
-    core::World world("uuid0");
+    core::World world("uuid0", core::WorldRules::Type::Lua);
 
     world.createCivilization();
     world.createBanner();

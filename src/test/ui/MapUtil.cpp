@@ -220,7 +220,7 @@ TEST_CASE("Move tests", "[moveTo]")
 
 TEST_CASE("", "[mapNodeAtPos][!hide]")
 {
-    core::World world("uuid0");
+    core::World world("uuid0", core::WorldRules::Type::Lua);
     core::Map map;
 
     map.generateMapNodes(2);
@@ -258,7 +258,7 @@ TEST_CASE("", "[mapNodeAtPos][!hide]")
 
 TEST_CASE("neighboursByPos", "[MapUtil][!hide]")
 {
-    core::World world("uuid0");
+    core::World world("uuid0", core::WorldRules::Type::Lua);
     core::Map map;
 
     map.generateMapNodes(2);

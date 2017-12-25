@@ -671,7 +671,7 @@ TEST_CASE("Map can't be unserialized from JSON", "[MapJsonUnserializer][JSON][Un
 
     SECTION("Wrong world")
     {
-        core::World w("wrong-uuid");
+        core::World w("wrong-uuid", core::WorldRules::Type::Lua);
 
         REQUIRE_THROWS_AS(unserializer.unserializeMap(QJsonDocument(jmap).toJson(), &w), utils::ValueError);
     }

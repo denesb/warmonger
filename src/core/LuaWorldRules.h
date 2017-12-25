@@ -45,18 +45,19 @@ public:
      *
      * Loads the rules associated with the world and initializes them.
      *
-     * \param basePath base path for relative paths in the rules
      * \param world the world
      *
      * \throws IOError if the rules can't be loaded
      * \throws ValueError if the rules can't be parsed or initialization fails
      */
-    LuaWorldRules(const QString& basePath, core::World* world);
+    LuaWorldRules(core::World* world);
 
     World* getWorld() override
     {
         return this->world;
     }
+
+    void loadRules(const QString& basePath, const QString& mainRulesFile) override;
 
     std::unique_ptr<Component> createComponent(ComponentType* type, int id) override;
 

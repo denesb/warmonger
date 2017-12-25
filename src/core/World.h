@@ -61,21 +61,24 @@ public:
             .visitMember("uuid", &World::getUuid)
             .visitMember("builtInObjectIds", &World::getBuiltInObjectIds)
             .visitMember("rulesEntryPoint", &World::getRulesEntryPoint, &World::setRulesEntryPoint)
-            .visitMember("rulesType", &World::getRulesType, &World::setRulesType)
+            .visitMember("rulesType", &World::getRulesType)
             .visitMember("banners", &World::getBanners, &World::addBanner)
             .visitMember("civilizations", &World::getCivilizations, &World::addCivilization)
             .visitMember("colors", &World::getColors, &World::setColors)
             .visitMember("componentTypes", &World::getWorldComponentTypes, &World::addWorldComponentType)
-            .template visitConstructor<QString, std::map<QString, int>, QObject*>("uuid", "builtInObjectIds", "parent");
+            .template visitConstructor<QString, WorldRules::Type, std::map<QString, int>, QObject*>("uuid", "rulesType", "builtInObjectIds", "parent");
     }
 
     /**
      * Constructs an empty world object.
      *
-     * \param uuid the uuid of the world
+     * \param uuid the unique identifier of the world
+     * \param rulesType the type of the rules
+     * \param builtInObjectIds previously assigned ids for built in component-types
      * \param parent the parent QObject.
      */
     World(const QString& uuid,
+        WorldRules::Type rulesType,
         const std::map<QString, int>& builtInObjectIds = std::map<QString, int>(),
         QObject* parent = nullptr);
 
@@ -326,22 +329,14 @@ public:
     }
 
     /**
-     * Set the rules type.
-     *
-     * Will emit the signal World::rulesTypeChanged() if the newly set
-     * value is different than the current one.
-     *
-     * \param rulesType the type
-     */
-    void setRulesType(const WorldRules::Type rulesType);
-
-    /**
      * Load the rules from basePath.
      *
      * The base-path is used to resolve relative path within the rules,
      * including the entry point.
+     * Should only be called when the world is set-up. Don't modify the
+     * world afterwards.
      *
-     * \param basePath the basePath
+     * \param basePath the path to the world directory
      *
      * \throws IOError if the rules can't be loaded
      * \throws ValueError if the rules can't be parsed or initialization fails
@@ -388,11 +383,6 @@ signals:
      * Emitted when the rules entry point changes.
      */
     void rulesEntryPointChanged();
-
-    /**
-     * Emitted when the rules type changes.
-     */
-    void rulesTypeChanged();
 
 private:
     QString uuid;

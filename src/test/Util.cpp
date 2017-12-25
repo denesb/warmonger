@@ -50,7 +50,7 @@ std::tuple<std::unique_ptr<core::World>, QJsonObject, FileKeeper> makeWorld()
     const QString graphicsComponentType{core::GraphicsComponentType::staticMetaObject.className()};
 
     auto world{std::make_unique<core::World>(
-        "universaly-unique-id-0", std::map<QString, int>{{positionComponentType, 0}, {editComponentType, 1}})};
+        "universaly-unique-id-0", core::WorldRules::Type::Lua, std::map<QString, int>{{positionComponentType, 0}, {editComponentType, 1}})};
     QJsonObject jworld;
 
     jworld["uuid"] = "universaly-unique-id-0";
@@ -60,12 +60,9 @@ std::tuple<std::unique_ptr<core::World>, QJsonObject, FileKeeper> makeWorld()
     world->setRulesEntryPoint("rules.lua");
     jworld["rulesEntryPoint"] = "rules.lua";
 
-    world->setRulesType(core::WorldRules::Type::Lua);
     jworld["rulesType"] = "Lua";
 
     FileKeeper rulesFile(world->getRulesEntryPoint(), "function world_init() w_debug(\"world_init\"); end");
-
-    world->loadRules(".");
 
     setNames(world.get(), jworld, 0);
 

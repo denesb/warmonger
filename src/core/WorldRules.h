@@ -62,6 +62,17 @@ public:
     virtual World* getWorld() = 0;
 
     /**
+     * Loads the rules from the path.
+     *
+     * Parses the rules and calls the world init hook.
+     * After this function returns the rules are ready to use.
+     *
+     * \param basePath the path to the rules directory
+     * \param mainRulesFile the name of the rule's main file
+     */
+    virtual void loadRules(const QString& basePath, const QString& mainRulesFile) = 0;
+
+    /**
      * Create a Component instance specifict to this rules.
      *
      * \returns the created Component
@@ -106,20 +117,20 @@ QString rulesTypeToString(WorldRules::Type type);
 WorldRules::Type rulesTypeFromString(const QString& str);
 
 /**
- * Create and initialize the world rules for the world.
+ * Creates the rules object for the world.
  *
- * Loads the rules associated with the world and initializes them.
+ * This is a factory function that creates the appropriate rules object
+ * for the world's rules-type. It creates and initializes the rules
+ * object but the rules themselves are not loaded yet.
  * The rules object will be created as a children of the world.
  *
- * \param basePath base path for relative paths in the rules
  * \param world the world
  *
  * \returns the created world-rules object, ready to use
  *
- * \throws IOError if the rules can't be loaded
  * \throws ValueError if the rules can't be parsed or initialization fails
  */
-WorldRules* createWorldRules(const QString& basePath, core::World* world);
+WorldRules* createWorldRules(core::World* world);
 
 } // namespace core
 } // namespace warmonger

@@ -29,7 +29,7 @@ using namespace warmonger;
 
 TEST_CASE("MapNode neighbours", "[MapNodeNeighbours]")
 {
-    core::World w("uuid0");
+    core::World w("uuid0", core::WorldRules::Type::Lua);
     core::MapNodeNeighbours neighbours;
 
     SECTION("MapNode has a full neighbour map after construction")

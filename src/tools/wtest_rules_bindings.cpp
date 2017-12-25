@@ -16,8 +16,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <QMetaEnum>
 #include <backward.hpp>
+#include <QMetaEnum>
+#include <QFileInfo>
 
 #include "core/Map.h"
 #include "core/World.h"
@@ -84,13 +85,19 @@ int main(int argc, char* const argv[])
         return 1;
     }
 
+    QFileInfo f(argv[2]);
+
+    if (!f.exists())
+    {
+        std::cout << "Rules file `" << argv[2] << "' does not exists" << std::endl;
+        return 1;
+    }
+
     utils::initLogging();
 
-    core::World world("test_world_uuid");
+    core::World world("test_world_uuid", rulesTypeFromString(argv[1]));
 
-    world.setRulesEntryPoint(argv[2]);
-    world.setRulesType(rulesTypeFromString(argv[1]));
-    world.loadRules(".");
+    world.setRulesEntryPoint(f.fileName());
     world.setName("Test World");
 
     // ComponentType
@@ -124,6 +131,8 @@ int main(int argc, char* const argv[])
 
     // Color
     world.setColors({QColor("#000000"), QColor("#ffffff")});
+
+    world.loadRules(f.canonicalPath());
 
     world.getRules()->generateMap(4);
 

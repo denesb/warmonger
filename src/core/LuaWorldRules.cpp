@@ -579,11 +579,15 @@ static void fieldValueNewIndex(
         auto it = map.find(*maybeKey);
         if (it == map.end())
         {
-            map.emplace(*maybeKey, fieldValueFromLua(value, L));
+            if (value != sol::nil)
+                map.emplace(*maybeKey, fieldValueFromLua(value, L));
         }
         else
         {
-            it->second = fieldValueFromLua(value, L);
+            if (value == sol::nil)
+                map.erase(it);
+            else
+                it->second = fieldValueFromLua(value, L);
         }
     }
 }

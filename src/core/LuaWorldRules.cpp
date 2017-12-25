@@ -577,7 +577,11 @@ static void fieldValueNewIndex(
 
         auto& map = fieldValue->asMap();
         auto it = map.find(*maybeKey);
-        if (it != map.end())
+        if (it == map.end())
+        {
+            map.emplace(*maybeKey, fieldValueFromLua(value, L));
+        }
+        else
         {
             it->second = fieldValueFromLua(value, L);
         }

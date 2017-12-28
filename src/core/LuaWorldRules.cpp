@@ -92,7 +92,9 @@ private:
 
 static void exposeAPI(sol::state& lua);
 static void wLuaLog(sol::this_state L, utils::LogLevel logLevel, const std::string& msg);
+static sol::object referenceToLua(FieldValue& fieldValue, sol::this_state L);
 static sol::object fieldValueToLua(FieldValue& fieldValue, sol::this_state L);
+static FieldValue referenceFromLua(sol::object value);
 static FieldValue fieldValueFromLua(sol::stack_object& value, sol::this_state L);
 static FieldValue nestedFieldValueFromLua(sol::object value);
 static sol::object fieldValueIndex(FieldValue* const fieldValue, sol::stack_object key, sol::this_state L);
@@ -410,6 +412,30 @@ static void wLuaLog(sol::this_state L, utils::LogLevel logLevel, const std::stri
     }
 }
 
+static sol::object referenceToLua(FieldValue& fieldValue, sol::this_state L)
+{
+    auto ref = fieldValue.asReference();
+    const auto& typeId = typeid(*ref);
+
+    if (typeId == typeid(Banner))
+        return sol::object(L, sol::in_place, static_cast<Banner*>(ref));
+    else if (typeId == typeid(Civilization))
+        return sol::object(L, sol::in_place, static_cast<Civilization*>(ref));
+    else if (typeId == typeid(Component))
+        return sol::object(L, sol::in_place, static_cast<Component*>(ref));
+    else if (typeId == typeid(ComponentType))
+        return sol::object(L, sol::in_place, static_cast<ComponentType*>(ref));
+    else if (typeId == typeid(Entity))
+        return sol::object(L, sol::in_place, static_cast<Entity*>(ref));
+    else if (typeId == typeid(Faction))
+        return sol::object(L, sol::in_place, static_cast<Faction*>(ref));
+    else if (typeId == typeid(MapNode))
+        return sol::object(L, sol::in_place, static_cast<MapNode*>(ref));
+
+    wWarning << "Unknown WObject derived type: `" << typeId.name() << "'";
+    return sol::object(L, sol::in_place, sol::lua_nil);
+}
+
 static sol::object fieldValueToLua(FieldValue& fieldValue, sol::this_state L)
 {
     switch (fieldValue.getState())
@@ -423,9 +449,7 @@ static sol::object fieldValueToLua(FieldValue& fieldValue, sol::this_state L)
         case FieldValue::State::String:
             return sol::object(L, sol::in_place, fieldValue.asString());
         case FieldValue::State::Reference:
-            // TODO: reference
-            wWarning << "Reference field is not supported yet";
-            return sol::object(L, sol::in_place, sol::lua_nil);
+            return referenceToLua(fieldValue, L);
         case FieldValue::State::List:
         case FieldValue::State::Map:
             return sol::object(L, sol::in_place, &fieldValue);
@@ -434,6 +458,27 @@ static sol::object fieldValueToLua(FieldValue& fieldValue, sol::this_state L)
     }
     wWarning << "Uncrecognized field state " << fieldValue.getState();
     return sol::object(L, sol::in_place, sol::lua_nil);
+}
+
+static FieldValue referenceFromLua(sol::object value)
+{
+    if (auto v = value.as<sol::optional<Banner*>>())
+        return FieldValue(*v);
+    else if (auto v = value.as<sol::optional<Civilization*>>())
+        return FieldValue(*v);
+    else if (auto v = value.as<sol::optional<Component*>>())
+        return FieldValue(*v);
+    else if (auto v = value.as<sol::optional<ComponentType*>>())
+        return FieldValue(*v);
+    else if (auto v = value.as<sol::optional<Entity*>>())
+        return FieldValue(*v);
+    else if (auto v = value.as<sol::optional<Faction*>>())
+        return FieldValue(*v);
+    else if (auto v = value.as<sol::optional<MapNode*>>())
+        return FieldValue(*v);
+
+    wWarning << "Expected WObject derived userdata, got something else";
+    return FieldValue();
 }
 
 static FieldValue fieldValueFromLua(sol::stack_object& value, sol::this_state L)
@@ -449,9 +494,7 @@ static FieldValue fieldValueFromLua(sol::stack_object& value, sol::this_state L)
         case LUA_TUSERDATA:
             if (value.is<FieldValue*>())
                 return *value.as<FieldValue*>();
-            // TODO: references
-            wWarning << "Reference field is not supported yet";
-            return FieldValue();
+            return referenceFromLua(value);
 
         case LUA_TTABLE:
             return FieldValue::makeExternal<LuaExternalValue>(sol::object(L, value.stack_index()));
@@ -464,7 +507,7 @@ static FieldValue fieldValueFromLua(sol::stack_object& value, sol::this_state L)
 
 // Convert a nested Lua value (a table element) to a FieldValue:
 // * Copy primitive types (number, boolean, string).
-// * Copy userdata (we only pass pointers to lua anyway). TODO
+// * Copy userdata (we only pass pointers to lua anyway).
 // * Keep "objects" (tables) in lua and keep a reference only.
 static FieldValue nestedFieldValueFromLua(sol::object value)
 {
@@ -479,6 +522,12 @@ static FieldValue nestedFieldValueFromLua(sol::object value)
     else if (value.is<sol::table>())
     {
         return FieldValue::makeExternal<LuaExternalValue>(std::move(value));
+    }
+    else
+    {
+        auto ref = referenceFromLua(value);
+        if (!!ref)
+            return ref;
     }
     wWarning << "Unknown type";
     return FieldValue();
@@ -664,8 +713,7 @@ static bool assignValueToField(sol::stack_object& value, FieldValue& field, sol:
             return true;
 
         case Field::Type::Reference:
-            // TODO:
-            wWarning << "Reference assignment not supported yet";
+            field = referenceFromLua(value);
             return false;
 
         case Field::Type::List:

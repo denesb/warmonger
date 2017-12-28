@@ -87,9 +87,9 @@ void WorldComponentType::setWorldRules(WorldRules* worldRules)
     this->worldRules = worldRules;
 }
 
-std::unique_ptr<Component> WorldComponentType::createComponent(ObjectId id)
+std::unique_ptr<Component> WorldComponentType::createComponent(QObject* parent, ObjectId id)
 {
-    return this->worldRules->createComponent(this, id);
+    return this->worldRules->createComponent(this, parent, id);
 }
 
 } // namespace core

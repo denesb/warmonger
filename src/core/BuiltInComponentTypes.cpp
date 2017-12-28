@@ -60,9 +60,9 @@ std::vector<Field*> PositionComponentType::getFields() const
     return fieldsHelper.getFields();
 }
 
-std::unique_ptr<Component> PositionComponentType::createComponent(ObjectId id)
+std::unique_ptr<Component> PositionComponentType::createComponent(QObject* parent, ObjectId id)
 {
-    return std::make_unique<PositionComponent>(this, nullptr, id);
+    return std::make_unique<PositionComponent>(this, parent, id);
 }
 
 PositionComponent::PositionComponent(PositionComponentType* type, QObject* parent, ObjectId id)
@@ -124,9 +124,9 @@ std::vector<Field*> EditComponentType::getFields() const
     return fieldsHelper.getFields();
 }
 
-std::unique_ptr<Component> EditComponentType::createComponent(ObjectId id)
+std::unique_ptr<Component> EditComponentType::createComponent(QObject* parent, ObjectId id)
 {
-    return std::make_unique<EditComponent>(this, nullptr, id);
+    return std::make_unique<EditComponent>(this, parent, id);
 }
 
 FieldValue* EditComponent::field(const QString& name)
@@ -194,9 +194,9 @@ std::vector<Field*> GraphicsComponentType::getFields() const
     return fieldsHelper.getFields();
 }
 
-std::unique_ptr<Component> GraphicsComponentType::createComponent(ObjectId id)
+std::unique_ptr<Component> GraphicsComponentType::createComponent(QObject* parent, ObjectId id)
 {
-    return std::make_unique<GraphicsComponent>(this, nullptr, id);
+    return std::make_unique<GraphicsComponent>(this, parent, id);
 }
 
 FieldValue* GraphicsComponent::field(const QString& name)

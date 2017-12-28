@@ -132,7 +132,7 @@ public:
         return fields;
     }
 
-    std::unique_ptr<Component> createComponent(ObjectId id = ObjectId::Invalid) override;
+    std::unique_ptr<Component> createComponent(QObject* parent, ObjectId id = ObjectId::Invalid) override;
 
 private:
     QString name;

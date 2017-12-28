@@ -104,8 +104,7 @@ static std::unique_ptr<core::Component> unserializeValueFromJson(
     auto type = unserializeKeyFromJson<core::ComponentType*>(jobj, "type", parent);
     auto id = unserializeKeyFromJson<core::ObjectId>(jobj, "id", parent);
 
-    auto component = type->createComponent(id);
-    component->setParent(parent);
+    auto component = type->createComponent(parent, id);
 
     auto description = core::Component::describe(Visitor<core::Component>());
     unserializeMembersFromJson(jobj, *component, description.getMembers().asTuple());

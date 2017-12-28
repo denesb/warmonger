@@ -64,7 +64,7 @@ public:
 
     QString getName() const override;
     std::vector<Field*> getFields() const override;
-    std::unique_ptr<Component> createComponent(ObjectId id = ObjectId::Invalid) override;
+    std::unique_ptr<Component> createComponent(QObject* parent, ObjectId id = ObjectId::Invalid) override;
 };
 
 /**
@@ -110,7 +110,7 @@ public:
 
     QString getName() const override;
     std::vector<Field*> getFields() const override;
-    std::unique_ptr<Component> createComponent(ObjectId id = ObjectId::Invalid) override;
+    std::unique_ptr<Component> createComponent(QObject* parent, ObjectId id = ObjectId::Invalid) override;
 };
 
 /**
@@ -175,7 +175,7 @@ public:
 
     QString getName() const override;
     std::vector<Field*> getFields() const override;
-    std::unique_ptr<Component> createComponent(ObjectId id = ObjectId::Invalid) override;
+    std::unique_ptr<Component> createComponent(QObject* parent, ObjectId id = ObjectId::Invalid) override;
 };
 
 /**

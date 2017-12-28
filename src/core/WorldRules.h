@@ -79,7 +79,7 @@ public:
      *
      * \returns the created Component
      */
-    virtual std::unique_ptr<Component> createComponent(ComponentType* type, ObjectId id) = 0;
+    virtual std::unique_ptr<Component> createComponent(ComponentType* type, QObject* parent, ObjectId id) = 0;
 
     /**
      * Generate a map.

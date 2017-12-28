@@ -158,9 +158,9 @@ void LuaWorldRules::loadRules(const QString& basePath, const QString& mainRulesF
     this->worldInitHook();
 }
 
-std::unique_ptr<Component> LuaWorldRules::createComponent(ComponentType* type, ObjectId id)
+std::unique_ptr<Component> LuaWorldRules::createComponent(ComponentType* type, QObject* parent, ObjectId id)
 {
-    return std::make_unique<LuaWorldComponent>(type, nullptr, id);
+    return std::make_unique<LuaWorldComponent>(type, parent, id);
 }
 
 std::unique_ptr<core::Map> LuaWorldRules::generateMap(unsigned int size)

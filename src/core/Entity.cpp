@@ -67,8 +67,7 @@ Component* Entity::getComponent(const QString& componentTypeName)
 Component* Entity::createComponent(ComponentType* const componentType)
 {
     wDebug << "Creating new component " << componentType->getName() << " in entity " << this;
-    auto componentPtr = componentType->createComponent();
-    componentPtr->setParent(this);
+    auto componentPtr = componentType->createComponent(this);
     auto component = componentPtr.release();
 
     const auto it = std::find_if(this->components.begin(),

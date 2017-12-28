@@ -68,7 +68,7 @@ public:
      *
      * \see WObject::WObject
      */
-    Component(ComponentType* type, QObject* parent, int id = WObject::invalidId);
+    Component(ComponentType* type, QObject* parent, ObjectId id = ObjectId::Invalid);
 
     /**
      * Get the type.

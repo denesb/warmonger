@@ -66,7 +66,8 @@ public:
             .visitMember("civilizations", &World::getCivilizations, &World::addCivilization)
             .visitMember("colors", &World::getColors, &World::setColors)
             .visitMember("componentTypes", &World::getWorldComponentTypes, &World::addWorldComponentType)
-            .template visitConstructor<QString, WorldRules::Type, std::map<QString, int>, QObject*>("uuid", "rulesType", "builtInObjectIds", "parent");
+            .template visitConstructor<QString, WorldRules::Type, std::map<QString, ObjectId>, QObject*>(
+                "uuid", "rulesType", "builtInObjectIds", "parent");
     }
 
     /**
@@ -79,7 +80,7 @@ public:
      */
     World(const QString& uuid,
         WorldRules::Type rulesType,
-        const std::map<QString, int>& builtInObjectIds = std::map<QString, int>(),
+        const std::map<QString, ObjectId>& builtInObjectIds = std::map<QString, ObjectId>(),
         QObject* parent = nullptr);
 
     /**
@@ -145,7 +146,7 @@ public:
      *
      * \return the new banner
      */
-    Banner* createBanner(int id = WObject::invalidId);
+    Banner* createBanner(ObjectId id = ObjectId::Invalid);
 
     /**
      * Add a new banner to the world.
@@ -190,7 +191,7 @@ public:
      *
      * \returns the new civilization
      */
-    Civilization* createCivilization(int id = WObject::invalidId);
+    Civilization* createCivilization(ObjectId id = ObjectId::Invalid);
 
     /**
      * Add a new civilization to the world.
@@ -273,7 +274,7 @@ public:
      *
      * \return the new component-type
      */
-    WorldComponentType* createWorldComponentType(int id = WObject::invalidId);
+    WorldComponentType* createWorldComponentType(ObjectId id = ObjectId::Invalid);
 
     /**
      * Add a new world component-type to the world.
@@ -293,7 +294,7 @@ public:
      *
      * \returns the id mapping
      */
-    const std::map<QString, int>& getBuiltInObjectIds() const
+    const std::map<QString, ObjectId>& getBuiltInObjectIds() const
     {
         return this->builtInObjectIds;
     }
@@ -391,7 +392,7 @@ private:
     std::vector<Civilization*> civilizations;
     std::vector<QColor> colors;
     std::vector<ComponentType*> componentTypes;
-    std::map<QString, int> builtInObjectIds;
+    std::map<QString, ObjectId> builtInObjectIds;
     QString rulesEntryPoint;
     WorldRules::Type rulesType;
     WorldRules* rules;

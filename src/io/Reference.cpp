@@ -24,8 +24,8 @@
 namespace warmonger {
 namespace io {
 
-static std::tuple<QString, QString, long> parseReference(const QString& reference);
-static core::WObject* unserializeReference(const QString& className, long id, QObject* parent);
+static std::tuple<QString, QString, core::ObjectId> parseReference(const QString& reference);
+static core::WObject* unserializeReference(const QString& className, core::ObjectId id, QObject* parent);
 
 QString serializeReference(core::WObject* obj)
 {
@@ -34,12 +34,12 @@ QString serializeReference(core::WObject* obj)
     QObject* root = core::getObjectTreeRoot(obj);
 
     if (root == nullptr)
-        return QString(metaObj->className()) + "#" + QString::number(obj->getId());
+        return QString(metaObj->className()) + "#" + QString::number(obj->getId().get());
 
     const QMetaObject* rootMetaObj = root->metaObject();
 
     return QString(rootMetaObj->className()) + "/" + QString(metaObj->className()) + "#" +
-        QString::number(obj->getId());
+        QString::number(obj->getId().get());
 }
 
 core::WObject* unserializeReference(const QString& reference, core::World* world)
@@ -49,11 +49,11 @@ core::WObject* unserializeReference(const QString& reference, core::World* world
 
     QString parentClassName;
     QString objectClassName;
-    long id;
+    core::ObjectId id;
 
     std::tie(parentClassName, objectClassName, id) = parseReference(reference);
 
-    if (parentClassName.isEmpty() || objectClassName.isEmpty() || id == -1)
+    if (parentClassName.isEmpty() || objectClassName.isEmpty() || id == core::ObjectId::Invalid)
         return nullptr;
 
     if (parentClassName != world->metaObject()->className())
@@ -72,11 +72,11 @@ core::WObject* unserializeReference(const QString& reference, core::Map* map)
 
     QString parentClassName;
     QString objectClassName;
-    long id;
+    core::ObjectId id;
 
     std::tie(parentClassName, objectClassName, id) = parseReference(reference);
 
-    if (parentClassName.isEmpty() || objectClassName.isEmpty() || id == -1)
+    if (parentClassName.isEmpty() || objectClassName.isEmpty() || id == core::ObjectId::Invalid)
         return nullptr;
 
     if (parentClassName == map->metaObject()->className())
@@ -112,13 +112,13 @@ bool isReference(const QString& str)
 {
     QString parentClassName;
     QString objectClassName;
-    long id;
+    core::ObjectId id;
     std::tie(parentClassName, objectClassName, id) = parseReference(str);
 
-    return id != -1l;
+    return !!id;
 }
 
-static std::tuple<QString, QString, long> parseReference(const QString& reference)
+static std::tuple<QString, QString, core::ObjectId> parseReference(const QString& reference)
 {
     const QStringList objects{reference.split('/')};
     const QStringList parts{objects.back().split('#')};
@@ -129,23 +129,23 @@ static std::tuple<QString, QString, long> parseReference(const QString& referenc
 
     if (objects.size() != 2 || parts.size() != 2 || objectClassName.isEmpty() || idStr.isEmpty())
     {
-        return std::make_tuple(QString(), QString(), -1l);
+        return std::make_tuple(QString(), QString(), core::ObjectId());
     }
     else
     {
         bool ok{false};
-        const long id{idStr.toLong(&ok)};
+        const core::ObjectId id{idStr.toInt(&ok)};
 
         if (ok)
             return std::make_tuple(parentClassName, objectClassName, id);
         else
-            return std::make_tuple(parentClassName, objectClassName, -1l);
+            return std::make_tuple(parentClassName, objectClassName, core::ObjectId::Invalid);
     }
 }
 
-static core::WObject* unserializeReference(const QString& className, long id, QObject* parent)
+static core::WObject* unserializeReference(const QString& className, core::ObjectId id, QObject* parent)
 {
-    if (className.isEmpty() || id == -1 || parent == nullptr)
+    if (className.isEmpty() || id == core::ObjectId::Invalid || parent == nullptr)
         return nullptr;
 
     auto children{parent->findChildren<core::WObject*>()};

@@ -49,7 +49,7 @@ public:
     {
         return visitor.template visitParent<WObject>()
             .visitMember("neighbours", &MapNode::getNeighbours, &MapNode::setNeighbours)
-            .template visitConstructor<QObject*, int>("parent", "id");
+            .template visitConstructor<QObject*, ObjectId>("parent", "id");
     }
 
     /**
@@ -60,7 +60,7 @@ public:
      *
      * \see WObject::WObject
      */
-    MapNode(QObject* parent, int id = WObject::invalidId);
+    MapNode(QObject* parent, ObjectId id = ObjectId::Invalid);
 
     /**
      * Get he neighbours of this map.

@@ -25,17 +25,19 @@
 namespace warmonger {
 namespace core {
 
-static int generateId(WObject* obj);
+static ObjectId generateId(WObject* obj);
 
-const int WObject::invalidId{-1};
+const ObjectId ObjectId::Invalid{};
 
-WObject::WObject(QObject* parent, int objectId)
-    : QObject(parent)
+inline bool operator<(ObjectId a, ObjectId b)
 {
-    if (objectId == WObject::invalidId)
-        this->objectId = generateId(this);
-    else
-        this->objectId = objectId;
+    return a.get() < b.get();
+}
+
+WObject::WObject(QObject* parent, ObjectId objectId)
+    : QObject(parent)
+    , objectId(!objectId ? generateId(this) : objectId)
+{
 }
 
 QObject* getObjectTreeRoot(WObject* obj)
@@ -54,13 +56,13 @@ QObject* getObjectTreeRoot(WObject* obj)
         return getObjectTreeRoot(wparent);
 }
 
-static int generateId(WObject* obj)
+static ObjectId generateId(WObject* obj)
 {
     QObject* root{getObjectTreeRoot(obj)};
 
     if (root == nullptr)
     {
-        return WObject::invalidId;
+        return ObjectId::Invalid;
     }
 
     auto siblings{root->findChildren<WObject*>()};
@@ -70,18 +72,18 @@ static int generateId(WObject* obj)
     if (it != siblings.end())
         siblings.erase(it);
 
-    std::vector<int> ids;
+    std::vector<ObjectId> ids;
     std::transform(siblings.cbegin(), siblings.cend(), std::back_inserter(ids), [](const auto& sibling) {
         return sibling->getId();
     });
 
     if (ids.empty())
     {
-        return 0;
+        return ObjectId(0);
     }
     else
     {
-        return *std::max_element(ids.cbegin(), ids.cend()) + 1;
+        return ObjectId(std::max_element(ids.cbegin(), ids.cend())->get() + 1);
     }
 }
 

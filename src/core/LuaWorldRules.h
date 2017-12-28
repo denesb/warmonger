@@ -59,7 +59,7 @@ public:
 
     void loadRules(const QString& basePath, const QString& mainRulesFile) override;
 
-    std::unique_ptr<Component> createComponent(ComponentType* type, int id) override;
+    std::unique_ptr<Component> createComponent(ComponentType* type, ObjectId id) override;
 
     std::unique_ptr<core::Map> generateMap(unsigned int size) override;
 

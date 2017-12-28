@@ -26,20 +26,20 @@ namespace core {
 template <class T>
 struct ConcreteComponentTypeFactory
 {
-    static std::tuple<QString, std::function<ComponentType*(QObject*, int)>> create()
+    static std::tuple<QString, std::function<ComponentType*(QObject*, ObjectId)>> create()
     {
         return std::make_tuple(T::staticMetaObject.className(), ConcreteComponentTypeFactory<T>());
     }
 
-    ComponentType* operator()(QObject* parent, int id) const
+    ComponentType* operator()(QObject* parent, ObjectId id) const
     {
         return new T(parent, id);
     }
 };
 
-std::vector<std::tuple<QString, std::function<ComponentType*(QObject*, int)>>> getBuiltInComponentTypesFactories()
+std::vector<std::tuple<QString, std::function<ComponentType*(QObject*, ObjectId)>>> getBuiltInComponentTypesFactories()
 {
-    return std::vector<std::tuple<QString, std::function<ComponentType*(QObject*, int)>>>{
+    return std::vector<std::tuple<QString, std::function<ComponentType*(QObject*, ObjectId)>>>{
         ConcreteComponentTypeFactory<PositionComponentType>::create(),
         ConcreteComponentTypeFactory<EditComponentType>::create(),
         ConcreteComponentTypeFactory<GraphicsComponentType>::create()};
@@ -60,12 +60,12 @@ std::vector<Field*> PositionComponentType::getFields() const
     return fieldsHelper.getFields();
 }
 
-std::unique_ptr<Component> PositionComponentType::createComponent(int id)
+std::unique_ptr<Component> PositionComponentType::createComponent(ObjectId id)
 {
     return std::make_unique<PositionComponent>(this, nullptr, id);
 }
 
-PositionComponent::PositionComponent(PositionComponentType* type, QObject* parent, int id)
+PositionComponent::PositionComponent(PositionComponentType* type, QObject* parent, ObjectId id)
     : Component(type, parent, id)
     , mapNode(Field::Type::Reference)
 {
@@ -106,7 +106,7 @@ void PositionComponent::setFields(std::unordered_map<QString, FieldValue> fields
 const QString EditComponentType::Name{"edit"};
 const QString EditComponentType::FieldName::EditableComponents{"editableComponents"};
 
-EditComponent::EditComponent(EditComponentType* type, QObject* parent, int id)
+EditComponent::EditComponent(EditComponentType* type, QObject* parent, ObjectId id)
     : Component(type, parent, id)
     , editableComponents(Field::Type::List)
 {
@@ -124,7 +124,7 @@ std::vector<Field*> EditComponentType::getFields() const
     return fieldsHelper.getFields();
 }
 
-std::unique_ptr<Component> EditComponentType::createComponent(int id)
+std::unique_ptr<Component> EditComponentType::createComponent(ObjectId id)
 {
     return std::make_unique<EditComponent>(this, nullptr, id);
 }
@@ -168,7 +168,7 @@ const QString GraphicsComponentType::FieldName::Y{"y"};
 const QString GraphicsComponentType::FieldName::Z{"z"};
 const QString GraphicsComponentType::FieldName::Parent{"parent"};
 
-GraphicsComponent::GraphicsComponent(GraphicsComponentType* type, QObject* parent, int id)
+GraphicsComponent::GraphicsComponent(GraphicsComponentType* type, QObject* parent, ObjectId id)
     : Component(type, parent, id)
     , path(Field::Type::String)
     , x(Field::Type::Integer)
@@ -194,7 +194,7 @@ std::vector<Field*> GraphicsComponentType::getFields() const
     return fieldsHelper.getFields();
 }
 
-std::unique_ptr<Component> GraphicsComponentType::createComponent(int id)
+std::unique_ptr<Component> GraphicsComponentType::createComponent(ObjectId id)
 {
     return std::make_unique<GraphicsComponent>(this, nullptr, id);
 }

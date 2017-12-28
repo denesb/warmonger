@@ -30,6 +30,7 @@
 #include <QJsonObject>
 #include <QMetaEnum>
 
+#include "core/WObject.h"
 #include "io/Visitor.hpp"
 #include "io/Reference.h"
 #include "utils/Exception.h"
@@ -47,6 +48,8 @@ int unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<in
 QString unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<QString>);
 
 QColor unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<QColor>);
+
+core::ObjectId unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<core::ObjectId>);
 
 template <typename T>
 std::unique_ptr<T> unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<std::unique_ptr<T>>);
@@ -198,6 +201,11 @@ inline QColor unserializeValueFromJson(const QJsonValue& jval, QObject*, typeTag
         throw utils::ValueError(QStringLiteral("``%1'' is not a valid color name").arg(jval.toString()));
 
     return color;
+}
+
+inline core::ObjectId unserializeValueFromJson(const QJsonValue& jval, QObject* parent, typeTag<core::ObjectId>)
+{
+    return core::ObjectId(unserializeValueFromJson(jval, parent, typeTag<int>{}));
 }
 
 template <typename T>

@@ -49,8 +49,10 @@ std::tuple<std::unique_ptr<core::World>, QJsonObject, FileKeeper> makeWorld()
     const QString editComponentType{core::EditComponentType::staticMetaObject.className()};
     const QString graphicsComponentType{core::GraphicsComponentType::staticMetaObject.className()};
 
-    auto world{std::make_unique<core::World>(
-        "universaly-unique-id-0", core::WorldRules::Type::Lua, std::map<QString, int>{{positionComponentType, 0}, {editComponentType, 1}})};
+    auto world{std::make_unique<core::World>("universaly-unique-id-0",
+        core::WorldRules::Type::Lua,
+        std::map<QString, core::ObjectId>{
+            {positionComponentType, core::ObjectId(0)}, {editComponentType, core::ObjectId(1)}})};
     QJsonObject jworld;
 
     jworld["uuid"] = "universaly-unique-id-0";
@@ -79,7 +81,7 @@ std::tuple<std::unique_ptr<core::World>, QJsonObject, FileKeeper> makeWorld()
     componentType0Field1->setType(core::Field::Type::List);
 
     QJsonObject jcomponentType0;
-    jcomponentType0["id"] = componentType0->getId();
+    jcomponentType0["id"] = componentType0->getId().get();
     jcomponentType0["name"] = "componentType0";
     jcomponentType0["fields"] = QJsonArray{
         QJsonObject{{"name", "intField"}, {"type", "Integer"}}, QJsonObject{{"name", "listField"}, {"type", "List"}}};
@@ -88,7 +90,7 @@ std::tuple<std::unique_ptr<core::World>, QJsonObject, FileKeeper> makeWorld()
     componentType1->setName("componentType1");
 
     QJsonObject jcomponentType1;
-    jcomponentType1["id"] = componentType1->getId();
+    jcomponentType1["id"] = componentType1->getId().get();
     jcomponentType1["name"] = "componentType1";
 
     createEveryFieldType(componentType1, jcomponentType1);
@@ -100,7 +102,7 @@ std::tuple<std::unique_ptr<core::World>, QJsonObject, FileKeeper> makeWorld()
     QJsonObject jcivilization0;
     setNames(civilization0, jcivilization0, 0);
 
-    jcivilization0["id"] = civilization0->getId();
+    jcivilization0["id"] = civilization0->getId().get();
 
     jworld["civilizations"] = QJsonArray({jcivilization0});
 
@@ -110,14 +112,14 @@ std::tuple<std::unique_ptr<core::World>, QJsonObject, FileKeeper> makeWorld()
     setNames(banner0, jbanner0, 0);
 
     banner0->setCivilizations({civilization0});
-    jbanner0["id"] = banner0->getId();
+    jbanner0["id"] = banner0->getId().get();
     jbanner0["civilizations"] = QJsonArray({io::serializeReference(civilization0)});
 
     auto banner1 = world->createBanner();
     QJsonObject jbanner1;
     setNames(banner1, jbanner1, 1);
 
-    jbanner1["id"] = banner1->getId();
+    jbanner1["id"] = banner1->getId().get();
     jbanner1["civilizations"] = QJsonArray();
 
     jworld["banners"] = QJsonArray({jbanner0, jbanner1});
@@ -145,11 +147,11 @@ std::tuple<std::unique_ptr<core::Map>, std::unique_ptr<core::World>, QJsonObject
     // MapNodes
     auto mapNode0 = map->createMapNode();
     QJsonObject jmapNode0;
-    jmapNode0["id"] = mapNode0->getId();
+    jmapNode0["id"] = mapNode0->getId().get();
 
     auto mapNode1 = map->createMapNode();
     QJsonObject jmapNode1;
-    jmapNode1["id"] = mapNode1->getId();
+    jmapNode1["id"] = mapNode1->getId().get();
 
     // MapNode neighbours
     mapNode0->setNeighbour(core::Direction::West, mapNode1);
@@ -172,7 +174,7 @@ std::tuple<std::unique_ptr<core::Map>, std::unique_ptr<core::World>, QJsonObject
     // Factions
     auto faction0 = map->createFaction();
     QJsonObject jfaction0;
-    jfaction0["id"] = faction0->getId();
+    jfaction0["id"] = faction0->getId().get();
 
     setNames(faction0, jfaction0, 0);
 
@@ -216,12 +218,12 @@ std::tuple<std::unique_ptr<core::Map>, std::unique_ptr<core::World>, QJsonObject
     component1->field("mapField")->set(core::FieldValue::Map{{"key0", 1.2}, {"key1", 3.3243}});
 
     QJsonObject jentity0;
-    jentity0["id"] = entity0->getId();
+    jentity0["id"] = entity0->getId().get();
     jentity0["components"] =
-        QJsonArray{QJsonObject{{"id", component0->getId()},
+        QJsonArray{QJsonObject{{"id", component0->getId().get()},
                        {"type", io::serializeReference(componentType0)},
                        {"fields", QJsonObject{{"intField", 100}, {"listField", QJsonArray{"str0", "str1"}}}}},
-            QJsonObject{{"id", component1->getId()},
+            QJsonObject{{"id", component1->getId().get()},
                 {"type", io::serializeReference(componentType1)},
                 {"fields",
                     QJsonObject{{"intField", 200},

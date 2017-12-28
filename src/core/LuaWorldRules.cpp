@@ -79,7 +79,7 @@ namespace core {
 class LuaWorldComponent : public Component
 {
 public:
-    LuaWorldComponent(ComponentType* type, QObject* parent, int id);
+    LuaWorldComponent(ComponentType* type, QObject* parent, ObjectId id);
 
     FieldValue* field(const QString& name) override;
     const FieldValue* field(const QString& name) const override;
@@ -158,7 +158,7 @@ void LuaWorldRules::loadRules(const QString& basePath, const QString& mainRulesF
     this->worldInitHook();
 }
 
-std::unique_ptr<Component> LuaWorldRules::createComponent(ComponentType* type, int id)
+std::unique_ptr<Component> LuaWorldRules::createComponent(ComponentType* type, ObjectId id)
 {
     return std::make_unique<LuaWorldComponent>(type, nullptr, id);
 }
@@ -180,7 +180,7 @@ void LuaWorldRules::mapInit(Map* map)
     this->mapInitHook(map);
 }
 
-LuaWorldComponent::LuaWorldComponent(ComponentType* type, QObject* parent, int id)
+LuaWorldComponent::LuaWorldComponent(ComponentType* type, QObject* parent, ObjectId id)
     : Component(type, parent, id)
 {
     auto fieldDefs = type->getFields();

@@ -23,7 +23,7 @@
 namespace warmonger {
 namespace core {
 
-Faction::Faction(QObject* parent, int id)
+Faction::Faction(QObject* parent, ObjectId id)
     : WObject(parent, id)
     , banner(nullptr)
     , civilization(nullptr)

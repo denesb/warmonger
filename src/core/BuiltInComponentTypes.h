@@ -29,7 +29,7 @@
 namespace warmonger {
 namespace core {
 
-std::vector<std::tuple<QString, std::function<ComponentType*(QObject*, int)>>> getBuiltInComponentTypesFactories();
+std::vector<std::tuple<QString, std::function<ComponentType*(QObject*, ObjectId)>>> getBuiltInComponentTypesFactories();
 
 class BuiltInComponentType : public ComponentType
 {
@@ -64,7 +64,7 @@ public:
 
     QString getName() const override;
     std::vector<Field*> getFields() const override;
-    std::unique_ptr<Component> createComponent(int id = WObject::invalidId) override;
+    std::unique_ptr<Component> createComponent(ObjectId id = ObjectId::Invalid) override;
 };
 
 /**
@@ -78,7 +78,7 @@ class PositionComponent : public Component
     using Type = PositionComponentType;
 
 public:
-    PositionComponent(PositionComponentType* type, QObject* parent, int id = WObject::invalidId);
+    PositionComponent(PositionComponentType* type, QObject* parent, ObjectId id = ObjectId::Invalid);
 
     FieldValue* field(const QString& name) override;
     const FieldValue* field(const QString& name) const override;
@@ -110,7 +110,7 @@ public:
 
     QString getName() const override;
     std::vector<Field*> getFields() const override;
-    std::unique_ptr<Component> createComponent(int id = WObject::invalidId) override;
+    std::unique_ptr<Component> createComponent(ObjectId id = ObjectId::Invalid) override;
 };
 
 /**
@@ -124,7 +124,7 @@ class EditComponent : public Component
     using Type = EditComponentType;
 
 public:
-    EditComponent(EditComponentType* type, QObject* parent, int id = WObject::invalidId);
+    EditComponent(EditComponentType* type, QObject* parent, ObjectId id = ObjectId::Invalid);
 
     FieldValue* field(const QString& name) override;
     const FieldValue* field(const QString& name) const override;
@@ -175,7 +175,7 @@ public:
 
     QString getName() const override;
     std::vector<Field*> getFields() const override;
-    std::unique_ptr<Component> createComponent(int id = WObject::invalidId) override;
+    std::unique_ptr<Component> createComponent(ObjectId id = ObjectId::Invalid) override;
 };
 
 /**
@@ -189,7 +189,7 @@ class GraphicsComponent : public Component
     using Type = GraphicsComponentType;
 
 public:
-    GraphicsComponent(GraphicsComponentType* type, QObject* parent, int id = WObject::invalidId);
+    GraphicsComponent(GraphicsComponentType* type, QObject* parent, ObjectId id = ObjectId::Invalid);
 
     FieldValue* field(const QString& name) override;
     const FieldValue* field(const QString& name) const override;

@@ -20,8 +20,8 @@
 
 #include "core/Map.h"
 #include "io/Reference.h"
-#include "utils/ToString.h"
 #include "test/WObject.h"
+#include "utils/ToString.h"
 
 using namespace warmonger;
 
@@ -100,7 +100,7 @@ TEST_CASE("unserializeReference(core::Map*)", "[io][Unserialize]")
 
     REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#-1", &m) == nullptr);
 
-    core::WObject* obj0 = new TestWObject1(&m, 1000);
+    core::WObject* obj0 = new TestWObject1(&m, core::ObjectId(1000));
     REQUIRE(io::unserializeReference("warmonger::core::Map/TestWObject1#1000", &m) == obj0);
 
     core::WObject* obj1 = new TestWObject1(&w);

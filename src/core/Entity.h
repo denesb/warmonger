@@ -52,7 +52,7 @@ public:
     {
         return visitor.template visitParent<WObject>()
             .visitMember("components", &Entity::getComponents, &Entity::addComponent)
-            .template visitConstructor<QObject*, int>("parent", "id");
+            .template visitConstructor<QObject*, ObjectId>("parent", "id");
     }
 
     /**
@@ -63,7 +63,7 @@ public:
      *
      * \see WObject::WObject
      */
-    Entity(QObject* parent, int id = WObject::invalidId);
+    Entity(QObject* parent, ObjectId id = ObjectId::Invalid);
 
     /**
      * Get the component with the given type

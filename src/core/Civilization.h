@@ -40,7 +40,7 @@ public:
     {
         return visitor.template visitParent<WObject>()
             .visitMember("name", &Civilization::getName, &Civilization::setName)
-            .template visitConstructor<QObject*, int>("parent", "id");
+            .template visitConstructor<QObject*, ObjectId>("parent", "id");
     }
 
     /**
@@ -51,7 +51,7 @@ public:
      *
      * \see WObject::WObject
      */
-    Civilization(QObject* parent, int id = WObject::invalidId);
+    Civilization(QObject* parent, ObjectId id = ObjectId::Invalid);
 
     /**
      * Get the name.

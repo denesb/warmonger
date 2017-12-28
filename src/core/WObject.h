@@ -26,6 +26,61 @@ namespace warmonger {
 namespace core {
 
 /**
+ * Unique id identifying an WObject.
+ *
+ * This is just a type-safe wrapper around an int.
+ */
+class ObjectId
+{
+public:
+    static const ObjectId Invalid;
+
+    /**
+     * Constructs an invalid ObjectId.
+     *
+     * ObjectId{} == ObjectId::Invalid.
+     */
+    ObjectId()
+        : id(-1)
+    {
+    }
+
+    explicit ObjectId(int id)
+        : id(id)
+    {
+    }
+
+    int get() const
+    {
+        return this->id;
+    }
+
+    bool operator!()
+    {
+        return this->id < 0;
+    }
+
+private:
+    int id = -1;
+};
+
+inline bool operator==(ObjectId a, ObjectId b)
+{
+    return a.get() == b.get();
+}
+
+inline bool operator!=(ObjectId a, ObjectId b)
+{
+    return a.get() != b.get();
+}
+
+inline std::ostream& operator<<(std::ostream& os, ObjectId id)
+{
+    os << id.get();
+    return os;
+}
+
+/**
  * The basic core object of the warmonger object tree.
  *
  * WObjects have an unique id which is either passed in to the constructor or
@@ -43,7 +98,7 @@ class WObject : public QObject
     /**
      * The id of the object.
      */
-    Q_PROPERTY(long id READ getId CONSTANT)
+    Q_PROPERTY(ObjectId id READ getId CONSTANT)
 
 public:
     template <typename Visitor>
@@ -53,14 +108,9 @@ public:
     }
 
     /**
-     * The value of an invalid object id.
-     */
-    static const int invalidId;
-
-    /**
      * Get the object id.
      */
-    int getId() const
+    ObjectId getId() const
     {
         return this->objectId;
     }
@@ -76,12 +126,12 @@ protected:
      * \param parent the parent QObject
      * \param objectId the unique id of this instance
      */
-    WObject(QObject* parent, int objectId);
+    WObject(QObject* parent, ObjectId objectId);
 
 private:
     void onParentChanged();
 
-    int objectId;
+    ObjectId objectId;
 };
 
 /**

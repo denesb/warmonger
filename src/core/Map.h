@@ -195,7 +195,7 @@ public:
      *
      * \returns the new map-node
      */
-    MapNode* createMapNode(int id = WObject::invalidId);
+    MapNode* createMapNode(ObjectId id = ObjectId::Invalid);
 
     /**
      * Add a new mapNode to the map.
@@ -237,7 +237,7 @@ public:
      *
      * \returns the newly created entity
      */
-    Entity* createEntity(int id = WObject::invalidId);
+    Entity* createEntity(ObjectId id = ObjectId::Invalid);
 
     /**
      * Add a new entity to the map.
@@ -276,7 +276,7 @@ public:
      *
      * \returns the newly created faction
      */
-    Faction* createFaction(int id = WObject::invalidId);
+    Faction* createFaction(ObjectId id = ObjectId::Invalid);
 
     /**
      * Add a new faction to the map.

@@ -51,7 +51,7 @@ public:
         return visitor.template visitParent<WObject>()
             .visitMember("name", &WorldComponentType::getName, &WorldComponentType::setName)
             .visitMember("fields", &WorldComponentType::getFields, &WorldComponentType::addField)
-            .template visitConstructor<QObject*, int>("parent", "id");
+            .template visitConstructor<QObject*, ObjectId>("parent", "id");
     }
 
     /**
@@ -62,7 +62,7 @@ public:
      *
      * \see WObject::WObject
      */
-    WorldComponentType(QObject* parent, long id = WObject::invalidId);
+    WorldComponentType(QObject* parent, ObjectId id = ObjectId::Invalid);
 
     /**
      * Set the name.
@@ -132,7 +132,7 @@ public:
         return fields;
     }
 
-    std::unique_ptr<Component> createComponent(int id = WObject::invalidId) override;
+    std::unique_ptr<Component> createComponent(ObjectId id = ObjectId::Invalid) override;
 
 private:
     QString name;

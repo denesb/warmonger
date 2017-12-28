@@ -24,14 +24,12 @@ class TestWObject1 : public core::WObject
 {
     Q_OBJECT
 public:
-
-    TestWObject1(QObject* parent, int id = WObject::invalidId);
+    TestWObject1(QObject* parent, core::ObjectId id = core::ObjectId::Invalid);
 };
 
 class TestWObject2 : public core::WObject
 {
     Q_OBJECT
 public:
-
-    TestWObject2(QObject* parent, int id = WObject::invalidId);
+    TestWObject2(QObject* parent, core::ObjectId id = core::ObjectId::Invalid);
 };

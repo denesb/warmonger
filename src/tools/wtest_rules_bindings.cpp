@@ -16,9 +16,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <backward.hpp>
-#include <QMetaEnum>
 #include <QFileInfo>
+#include <QMetaEnum>
+#include <backward.hpp>
 
 #include "core/Map.h"
 #include "core/World.h"

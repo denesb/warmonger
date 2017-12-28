@@ -58,7 +58,7 @@ public:
             .visitMember("secondaryColor", &Faction::getSecondaryColor, &Faction::setSecondaryColor)
             .visitMember("banner", &Faction::getBanner, &Faction::setBanner)
             .visitMember("civilization", &Faction::getCivilization, &Faction::setCivilization)
-            .template visitConstructor<QObject*, int>("parent", "id");
+            .template visitConstructor<QObject*, ObjectId>("parent", "id");
     }
 
     /**
@@ -69,7 +69,7 @@ public:
      *
      * \see WObject::WObject
      */
-    Faction(QObject* parent, int id = WObject::invalidId);
+    Faction(QObject* parent, ObjectId id = ObjectId::Invalid);
 
     /**
      * Get the name.

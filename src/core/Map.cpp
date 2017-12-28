@@ -74,7 +74,7 @@ QVariantList Map::readEntities() const
     return utils::toQVariantList(this->entities);
 }
 
-MapNode* Map::createMapNode(int id)
+MapNode* Map::createMapNode(ObjectId id)
 {
     MapNode* mapNode = new MapNode(this, id);
 
@@ -124,7 +124,7 @@ std::unique_ptr<MapNode> Map::removeMapNode(MapNode* mapNode)
     }
 }
 
-Entity* Map::createEntity(int id)
+Entity* Map::createEntity(ObjectId id)
 {
     Entity* entity = new Entity(this, id);
 
@@ -174,7 +174,7 @@ std::unique_ptr<Entity> Map::removeEntity(Entity* entity)
     }
 }
 
-Faction* Map::createFaction(int id)
+Faction* Map::createFaction(ObjectId id)
 {
     Faction* faction = new Faction(this, id);
 

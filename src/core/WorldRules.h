@@ -26,6 +26,8 @@
 #include <QObject>
 #include <QString>
 
+#include "core/WObject.h"
+
 namespace warmonger {
 namespace core {
 
@@ -77,7 +79,7 @@ public:
      *
      * \returns the created Component
      */
-    virtual std::unique_ptr<Component> createComponent(ComponentType* type, int id) = 0;
+    virtual std::unique_ptr<Component> createComponent(ComponentType* type, ObjectId id) = 0;
 
     /**
      * Generate a map.

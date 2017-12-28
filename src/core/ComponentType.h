@@ -75,7 +75,7 @@ public:
      *
      * \see WObject::WObject
      */
-    ComponentType(QObject* parent, int id = WObject::invalidId);
+    ComponentType(QObject* parent, ObjectId id = ObjectId::Invalid);
 
     /**
      * Is this component-type built-in?
@@ -119,7 +119,7 @@ public:
      * Allows for componen-types creating specialized component
      * instances. The created component's type will be this.
      */
-    virtual std::unique_ptr<Component> createComponent(int id = WObject::invalidId) = 0;
+    virtual std::unique_ptr<Component> createComponent(ObjectId id = ObjectId::Invalid) = 0;
 
 signals:
     /**

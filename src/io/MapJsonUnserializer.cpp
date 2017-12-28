@@ -102,7 +102,7 @@ static std::unique_ptr<core::Component> unserializeValueFromJson(
 
     const auto jobj = jvalue.toObject();
     auto type = unserializeKeyFromJson<core::ComponentType*>(jobj, "type", parent);
-    auto id = unserializeKeyFromJson<int>(jobj, "id", parent);
+    auto id = unserializeKeyFromJson<core::ObjectId>(jobj, "id", parent);
 
     auto component = type->createComponent(id);
     component->setParent(parent);
@@ -175,9 +175,9 @@ static core::FieldValue unserializeValueFromJson(const QJsonValue& jvalue, QObje
 static std::tuple<std::unique_ptr<core::MapNode>, std::map<core::Direction, QString>> mapNodeFromJson(
     const QJsonObject& jobj, QObject* parent)
 {
-    const int id = jobj["id"].toInt(core::WObject::invalidId);
+    auto id = unserializeKeyFromJson<core::ObjectId>(jobj, "id", parent);
 
-    if (id == core::WObject::invalidId)
+    if (id == core::ObjectId::Invalid)
         throw utils::ValueError("Failed to unserialize mapNode, it has missing or invalid id");
 
     const auto jneighbours = jobj["neighbours"].toObject();

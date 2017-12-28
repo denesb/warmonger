@@ -62,7 +62,7 @@ TEST_CASE("Banner can be unserialized from JSON", "[WorldJsonUnserializer][JSON]
     {
         auto banner = unserializer.unserializeBanner(rawJson, world.get());
 
-        REQUIRE(banner->getId() == jobj["id"].toInt());
+        REQUIRE(banner->getId() == core::ObjectId(jobj["id"].toInt()));
         REQUIRE(banner->getName() == jobj["name"].toString());
         if (jobj.contains("civilizations"))
         {
@@ -158,7 +158,7 @@ TEST_CASE("Civilization can be unserialized from JSON", "[WorldJsonUnserializer]
     {
         auto civilization = unserializer.unserializeCivilization(rawJson, world.get());
 
-        REQUIRE(civilization->getId() == jobj["id"].toInt());
+        REQUIRE(civilization->getId() == core::ObjectId(jobj["id"].toInt()));
         REQUIRE(civilization->getName() == jobj["name"].toString());
     }
 }
@@ -242,7 +242,7 @@ TEST_CASE("ComponentType unserialized from JSON - happy path", "[WorldJsonUnseri
         const QJsonObject jobj{jdoc.object()};
         const QJsonArray jfields(jobj["fields"].toArray());
 
-        REQUIRE(componentType->getId() == jobj["id"].toInt());
+        REQUIRE(componentType->getId() == core::ObjectId(jobj["id"].toInt()));
         REQUIRE(componentType->getName() == jobj["name"].toString());
         REQUIRE(componentType->getFields().size() == jfields.size());
 
@@ -420,7 +420,7 @@ TEST_CASE("World can be unserialized from JSON", "[WorldJsonUnserializer][JSON][
 
         for (auto it = jBuiltInObjectIds.begin(); it != jBuiltInObjectIds.end(); ++it)
         {
-            REQUIRE(builtInObjectIds.at(it.key()) == it.value().toInt());
+            REQUIRE(builtInObjectIds.at(it.key()) == core::ObjectId(it.value().toInt()));
         }
     }
 }

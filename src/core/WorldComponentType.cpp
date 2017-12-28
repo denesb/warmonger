@@ -26,7 +26,7 @@
 namespace warmonger {
 namespace core {
 
-WorldComponentType::WorldComponentType(QObject* parent, long id)
+WorldComponentType::WorldComponentType(QObject* parent, ObjectId id)
     : ComponentType(parent, id)
     , worldRules(nullptr)
 {
@@ -87,7 +87,7 @@ void WorldComponentType::setWorldRules(WorldRules* worldRules)
     this->worldRules = worldRules;
 }
 
-std::unique_ptr<Component> WorldComponentType::createComponent(int id)
+std::unique_ptr<Component> WorldComponentType::createComponent(ObjectId id)
 {
     return this->worldRules->createComponent(this, id);
 }

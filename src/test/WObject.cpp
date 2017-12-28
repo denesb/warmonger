@@ -20,12 +20,12 @@
 
 using namespace warmonger;
 
-TestWObject1::TestWObject1(QObject* parent, int id)
+TestWObject1::TestWObject1(QObject* parent, core::ObjectId id)
     : core::WObject(parent, id)
 {
 }
 
-TestWObject2::TestWObject2(QObject* parent, int id)
+TestWObject2::TestWObject2(QObject* parent, core::ObjectId id)
     : core::WObject(parent, id)
 {
 }

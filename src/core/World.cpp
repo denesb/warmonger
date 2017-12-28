@@ -31,12 +31,15 @@ namespace core {
 struct IdReserver : public WObject
 {
     IdReserver(QObject* parent)
-        : WObject(parent, 999)
+        : WObject(parent, ObjectId(999))
     {
     }
 };
 
-World::World(const QString& uuid, WorldRules::Type rulesType, const std::map<QString, int>& builtInObjectIds, QObject* parent)
+World::World(const QString& uuid,
+    WorldRules::Type rulesType,
+    const std::map<QString, ObjectId>& builtInObjectIds,
+    QObject* parent)
     : QObject{parent}
     , uuid{uuid}
     , builtInObjectIds{builtInObjectIds}
@@ -51,7 +54,7 @@ World::World(const QString& uuid, WorldRules::Type rulesType, const std::map<QSt
 
         if (it == this->builtInObjectIds.end())
         {
-            this->componentTypes.push_back(std::get<1>(builtInComponentType)(this, WObject::invalidId));
+            this->componentTypes.push_back(std::get<1>(builtInComponentType)(this, ObjectId::Invalid));
             this->builtInObjectIds.emplace(std::get<0>(builtInComponentType), this->componentTypes.back()->getId());
 
             wDebug << "Created built-in component-type " << std::get<0>(builtInComponentType) << " with generated id "
@@ -85,7 +88,7 @@ QVariantList World::readBanners() const
     return utils::toQVariantList(this->banners);
 }
 
-Banner* World::createBanner(int id)
+Banner* World::createBanner(ObjectId id)
 {
     auto banner = new Banner(this, id);
 
@@ -114,7 +117,7 @@ QVariantList World::readCivilizations() const
     return utils::toQVariantList(this->civilizations);
 }
 
-Civilization* World::createCivilization(int id)
+Civilization* World::createCivilization(ObjectId id)
 {
     auto civilization = new Civilization(this, id);
 
@@ -168,7 +171,7 @@ QVariantList World::readComponentTypes() const
     return utils::toQVariantList(this->componentTypes);
 }
 
-WorldComponentType* World::createWorldComponentType(int id)
+WorldComponentType* World::createWorldComponentType(ObjectId id)
 {
     auto componentType = new WorldComponentType(this, id);
     componentType->setWorldRules(this->rules);

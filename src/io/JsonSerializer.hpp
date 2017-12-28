@@ -28,6 +28,7 @@
 #include <QJsonArray>
 #include <QMetaEnum>
 
+#include "core/WObject.h"
 #include "io/Visitor.hpp"
 #include "io/Reference.h"
 #include "utils/Exception.h"
@@ -38,6 +39,7 @@ namespace io {
 QJsonValue serializeValueToJson(int value, const QObject&);
 QJsonValue serializeValueToJson(const QString& value, const QObject&);
 QJsonValue serializeValueToJson(const QColor& value, const QObject&);
+QJsonValue serializeValueToJson(core::ObjectId value, const QObject&);
 
 template <typename T>
 QJsonValue serializeValueToJson(const std::vector<T>& value, const QObject& obj);
@@ -126,6 +128,11 @@ inline QJsonValue serializeValueToJson(const QString& value, const QObject&)
 inline QJsonValue serializeValueToJson(const QColor& value, const QObject&)
 {
     return value.name();
+}
+
+inline QJsonValue serializeValueToJson(core::ObjectId value, const QObject&)
+{
+    return value.get();
 }
 
 template <typename T>

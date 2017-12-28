@@ -47,7 +47,7 @@ public:
         return visitor.template visitParent<WObject>()
             .visitMember("name", &Banner::getName, &Banner::setName)
             .visitMember("civilizations", &Banner::getCivilizations, &Banner::setCivilizations)
-            .template visitConstructor<QObject*, int>("parent", "id");
+            .template visitConstructor<QObject*, ObjectId>("parent", "id");
     }
 
     /**
@@ -58,7 +58,7 @@ public:
      *
      * \see WObject::WObject
      */
-    Banner(QObject* parent, int id = WObject::invalidId);
+    Banner(QObject* parent, ObjectId id = ObjectId::Invalid);
 
     /**
      * Get the name.

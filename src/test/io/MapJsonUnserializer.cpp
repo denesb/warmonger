@@ -119,7 +119,7 @@ TEST_CASE("MapNode can be unserialized from JSON", "[MapJsonUnserializer][JSON][
     {
         const auto mapNode = unserializer.unserializeMapNode(rawJson, map);
 
-        REQUIRE(mapNode->getId() == jobj["id"].toInt());
+        REQUIRE(mapNode->getId() == core::ObjectId(jobj["id"].toInt()));
 
         const auto neighbours = mapNode->getNeighbours();
         const auto jneighbours = jobj["neighbours"].toObject();
@@ -225,7 +225,7 @@ TEST_CASE("Faction can be unserialized from JSON", "[MapJsonUnserializer][JSON][
     {
         const auto faction{unserializer.unserializeFaction(jdoc.toJson(), map)};
 
-        REQUIRE(faction->getId() == jobj["id"].toInt());
+        REQUIRE(faction->getId() == core::ObjectId(jobj["id"].toInt()));
         REQUIRE(faction->getName() == jobj["name"].toString());
         REQUIRE(faction->getPrimaryColor().name() == jobj["primaryColor"].toString());
         REQUIRE(faction->getSecondaryColor().name() == jobj["secondaryColor"].toString());
@@ -358,7 +358,7 @@ TEST_CASE("Entity can be unserialized from JSON", "[MapJsonUnserializer][JSON][U
     {
         const auto entity{unserializer.unserializeEntity(jdoc.toJson(), map)};
 
-        REQUIRE(entity->getId() == jobj["id"].toInt());
+        REQUIRE(entity->getId() == core::ObjectId(jobj["id"].toInt()));
 
         const auto& components{entity->getComponents()};
         const auto jcomponents = jobj["components"].toArray();
@@ -628,7 +628,7 @@ TEST_CASE("Map can be unserialized from JSON", "[MapJsonUnserializer][JSON][Unse
             const auto& jmapNode = jmapNodeVal.toObject();
 
             const auto mapNodeIt = std::find_if(mapNodes.cbegin(), mapNodes.cend(), [&jmapNode](const auto& mapNode) {
-                return mapNode->getId() == jmapNode["id"].toInt();
+                return mapNode->getId() == core::ObjectId(jmapNode["id"].toInt());
             });
 
             REQUIRE(mapNodeIt != mapNodes.cend());

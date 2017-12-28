@@ -28,6 +28,14 @@
 namespace warmonger {
 namespace core {
 
+struct IdReserver : public WObject
+{
+    IdReserver(QObject* parent)
+        : WObject(parent, 999)
+    {
+    }
+};
+
 World::World(const QString& uuid, WorldRules::Type rulesType, const std::map<QString, int>& builtInObjectIds, QObject* parent)
     : QObject{parent}
     , uuid{uuid}
@@ -58,9 +66,9 @@ World::World(const QString& uuid, WorldRules::Type rulesType, const std::map<QSt
         }
     }
 
-    // Just to make sure the next wobjects are created with id 1000+,
+    // Just to make sure the next WObjects are created with id 1000+,
     // thus reserving the range 0-998.
-    this->dummy = new WObject(this, 999);
+    new IdReserver(this);
 }
 
 void World::setName(const QString& name)

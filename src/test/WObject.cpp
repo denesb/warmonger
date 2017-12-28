@@ -16,16 +16,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "core/WObject.h"
+#include "test/WObject.h"
 
 using namespace warmonger;
 
-class TestWObject1 : public core::WObject
+TestWObject1::TestWObject1(QObject* parent, int id)
+    : core::WObject(parent, id)
 {
-    using WObject::WObject;
-};
+}
 
-class TestWObject2 : public core::WObject
+TestWObject2::TestWObject2(QObject* parent, int id)
+    : core::WObject(parent, id)
 {
-    using WObject::WObject;
-};
+}

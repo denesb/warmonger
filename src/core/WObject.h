@@ -60,17 +60,6 @@ public:
     static const int invalidId;
 
     /**
-     * Create a WObject.
-     *
-     * This constructor should be used when a new object is created and it's
-     * parent is known. If an id is not passed a new one will be generated.
-     *
-     * \param parent the parent QObject
-     * \param id the id
-     */
-    WObject(QObject* parent, int id = WObject::invalidId);
-
-    /**
      * Get the id.
      *
      * If the id is WObject::invalidId then the object is not yet referencable.
@@ -87,6 +76,18 @@ signals:
      * Emitted when the id changes.
      */
     void idChanged();
+
+protected:
+    /**
+     * Create a WObject.
+     *
+     * This constructor should be used when a new object is created and it's
+     * parent is known. If an id is not passed a new one will be generated.
+     *
+     * \param parent the parent QObject
+     * \param id the id
+     */
+    WObject(QObject* parent, int id);
 
 private:
     void onParentChanged();

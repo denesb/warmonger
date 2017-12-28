@@ -135,16 +135,17 @@ set(
 
 set(
     TEST_SRC_FILES
-    src/test/io/File.cpp
     src/test/Util.cpp
+    src/test/WObject.cpp
     src/test/core/Map.cpp
     src/test/core/MapNodeNeighbours.cpp
     src/test/core/WObject.cpp
-    src/test/io/Reference.cpp
+    src/test/io/File.cpp
     src/test/io/MapJsonSerializer.cpp
     src/test/io/MapJsonUnserializer.cpp
-    src/test/io/WorldJsonUnserializer.cpp
+    src/test/io/Reference.cpp
     src/test/io/WorldJsonSerializer.cpp
+    src/test/io/WorldJsonUnserializer.cpp
     src/test/test_warmonger.cpp
     src/test/ui/MapEditor.cpp
     src/test/ui/MapUtil.cpp

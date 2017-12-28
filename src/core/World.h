@@ -392,7 +392,6 @@ private:
     std::vector<QColor> colors;
     std::vector<ComponentType*> componentTypes;
     std::map<QString, int> builtInObjectIds;
-    WObject* dummy;
     QString rulesEntryPoint;
     WorldRules::Type rulesType;
     WorldRules* rules;

@@ -21,21 +21,22 @@
 #include "core/Map.h"
 #include "io/Reference.h"
 #include "utils/ToString.h"
+#include "test/WObject.h"
 
 using namespace warmonger;
 
 TEST_CASE("serializeReference()", "[io][Serialize]")
 {
-    core::WObject obj1(nullptr);
-    REQUIRE(io::serializeReference(&obj1) == "warmonger::core::WObject#-1");
+    TestWObject1 obj1(nullptr);
+    REQUIRE(io::serializeReference(&obj1) == "TestWObject1#-1");
 
     core::World w("uuid0", core::WorldRules::Type::Lua);
 
-    core::WObject* obj2 = new core::WObject(&w);
-    REQUIRE(io::serializeReference(obj2) == "warmonger::core::World/warmonger::core::WObject#1000");
+    TestWObject1* obj2 = new TestWObject1(&w);
+    REQUIRE(io::serializeReference(obj2) == "warmonger::core::World/TestWObject1#1000");
 
-    core::WObject* obj3 = new core::WObject(obj2);
-    REQUIRE(io::serializeReference(obj3) == "warmonger::core::World/warmonger::core::WObject#1001");
+    TestWObject1* obj3 = new TestWObject1(obj2);
+    REQUIRE(io::serializeReference(obj3) == "warmonger::core::World/TestWObject1#1001");
 }
 
 TEST_CASE("unserializeReference(core::World*)", "[io][Unserialize]")
@@ -48,20 +49,20 @@ TEST_CASE("unserializeReference(core::World*)", "[io][Unserialize]")
     REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#-1", &w) == nullptr);
     REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1000", &w) == nullptr);
 
-    core::WObject* obj0 = new core::WObject(&w);
+    TestWObject1* obj0 = new TestWObject1(&w);
 
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1000", &w) == obj0);
+    REQUIRE(io::unserializeReference("warmonger::core::World/TestWObject1#1000", &w) == obj0);
 
-    core::WObject* obj1 = new core::WObject(&w);
+    TestWObject1* obj1 = new TestWObject1(&w);
 
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1000", &w) == obj0);
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1001", &w) == obj1);
+    REQUIRE(io::unserializeReference("warmonger::core::World/TestWObject1#1000", &w) == obj0);
+    REQUIRE(io::unserializeReference("warmonger::core::World/TestWObject1#1001", &w) == obj1);
 
-    core::WObject* obj2 = new core::WObject(obj0);
+    TestWObject1* obj2 = new TestWObject1(obj0);
 
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1000", &w) == obj0);
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1001", &w) == obj1);
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1002", &w) == obj2);
+    REQUIRE(io::unserializeReference("warmonger::core::World/TestWObject1#1000", &w) == obj0);
+    REQUIRE(io::unserializeReference("warmonger::core::World/TestWObject1#1001", &w) == obj1);
+    REQUIRE(io::unserializeReference("warmonger::core::World/TestWObject1#1002", &w) == obj2);
 
     core::Civilization* obj3 = new core::Civilization(obj0);
 
@@ -99,11 +100,11 @@ TEST_CASE("unserializeReference(core::Map*)", "[io][Unserialize]")
 
     REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#-1", &m) == nullptr);
 
-    core::WObject* obj0 = new core::WObject(&m, 1000);
-    REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::WObject#1000", &m) == obj0);
+    core::WObject* obj0 = new TestWObject1(&m, 1000);
+    REQUIRE(io::unserializeReference("warmonger::core::Map/TestWObject1#1000", &m) == obj0);
 
-    core::WObject* obj1 = new core::WObject(&w);
-    REQUIRE(io::unserializeReference("warmonger::core::World/warmonger::core::WObject#1000", &m) == obj1);
+    core::WObject* obj1 = new TestWObject1(&w);
+    REQUIRE(io::unserializeReference("warmonger::core::World/TestWObject1#1000", &m) == obj1);
 
     core::WObject* obj2 = new core::Faction(&m);
     REQUIRE(io::unserializeReference("warmonger::core::Map/warmonger::core::Faction#1001", &m) == obj2);

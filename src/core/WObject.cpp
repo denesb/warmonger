@@ -29,13 +29,13 @@ static int generateId(WObject* obj);
 
 const int WObject::invalidId{-1};
 
-WObject::WObject(QObject* parent, int id)
+WObject::WObject(QObject* parent, int objectId)
     : QObject(parent)
 {
-    if (id == WObject::invalidId)
-        this->id = generateId(this);
+    if (objectId == WObject::invalidId)
+        this->objectId = generateId(this);
     else
-        this->id = id;
+        this->objectId = objectId;
 }
 
 QObject* getObjectTreeRoot(WObject* obj)

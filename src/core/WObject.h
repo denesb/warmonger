@@ -34,8 +34,6 @@ namespace core {
  * WObject forms the backbone of the inter-object reference system in warmonger,
  * providing persistent references that can be serialized/unserialized to/from
  * the disk or the network.
- * WObjects should not be exposed to client code before their id is generated
- * or assigned.
  * WObjects don't support reparenting!
  */
 class WObject : public QObject
@@ -45,7 +43,7 @@ class WObject : public QObject
     /**
      * The id of the object.
      */
-    Q_PROPERTY(long id READ getId NOTIFY idChanged)
+    Q_PROPERTY(long id READ getId CONSTANT)
 
 public:
     template <typename Visitor>
@@ -55,44 +53,35 @@ public:
     }
 
     /**
-     * The value of invalid ids.
+     * The value of an invalid object id.
      */
     static const int invalidId;
 
     /**
-     * Get the id.
-     *
-     * If the id is WObject::invalidId then the object is not yet referencable.
-     *
-     * \return the id
+     * Get the object id.
      */
     int getId() const
     {
-        return this->id;
+        return this->objectId;
     }
-
-signals:
-    /**
-     * Emitted when the id changes.
-     */
-    void idChanged();
 
 protected:
     /**
      * Create a WObject.
      *
-     * This constructor should be used when a new object is created and it's
-     * parent is known. If an id is not passed a new one will be generated.
+     * If an invalid objectId is passed a new one will be generated.
+     * The id should be unique amongst all the children of the first
+     * non-WObject parent.
      *
      * \param parent the parent QObject
-     * \param id the id
+     * \param objectId the unique id of this instance
      */
-    WObject(QObject* parent, int id);
+    WObject(QObject* parent, int objectId);
 
 private:
     void onParentChanged();
 
-    int id;
+    int objectId;
 };
 
 /**

@@ -5,7 +5,16 @@ import math
 from PIL import Image
 
 
-class HexagonImage:
+# I don't normally align lines but here it helps comparing the colors.
+BORDER_PIXEL      = (0x00, 0x00, 0x00, 0xff)
+MIDDLE_PIXEL      = (0xff, 0xff, 0xff, 0xff)
+UPPER_LEFT_PIXEL  = (0xff, 0xff, 0x00, 0xff)
+UPPER_RIGHT_PIXEL = (0xff, 0x00, 0xff, 0xff)
+LOWER_LEFT_PIXEL  = (0x00, 0xff, 0x00, 0xff)
+LOWER_RIGHT_PIXEL = (0x00, 0x00, 0xff, 0xff)
+
+
+class HexagonTemplateImage:
     def __init__(self, width, height):
         self.width = width
         self.height = height
@@ -13,11 +22,49 @@ class HexagonImage:
         self._image = Image.new(mode="RGBA", size=(width, height), color=0)
 
     def set_at(self, x, y):
-        return self._image.putpixel((x, y), (0x00, 0x00, 0x00, 0xff))
+        return self._image.putpixel((x, y), BORDER_PIXEL)
 
     def write_to(self, filename):
         self._image.save(filename, format="PNG")
 
+
+class HexagonMaskImage:
+    def __init__(self, hexagon_template_image):
+        template_image = hexagon_template_image._image
+        size = template_image.size
+
+        self._image = Image.new(mode="RGBA", size=size, color=0)
+
+        height = size[1]
+
+        self._paint_half_image(template_image,
+                range(0, int(height / 2)),
+                UPPER_LEFT_PIXEL,
+                UPPER_RIGHT_PIXEL)
+
+        self._paint_half_image(template_image,
+                range(int(height / 2), height),
+                LOWER_LEFT_PIXEL,
+                LOWER_RIGHT_PIXEL)
+
+    def _paint_half_image(self, template_image, y_range, left_pixel, right_pixel):
+        width = template_image.size[0]
+
+        for y in y_range:
+            left_mask_pixel = left_pixel
+            right_mask_pixel = right_pixel
+            for x in range(0, int(width / 2)):
+                pixel = template_image.getpixel((x, y))
+
+                if pixel == BORDER_PIXEL:
+                    left_mask_pixel = MIDDLE_PIXEL
+                    right_mask_pixel = MIDDLE_PIXEL
+
+                self._image.putpixel((x, y), left_mask_pixel)
+                self._image.putpixel((width - x - 1, y), right_mask_pixel)
+
+    def write_to(self, filename):
+        self._image.save(filename, format="PNG")
 
 
 def draw_hexagon_image(image, side):
@@ -122,7 +169,7 @@ def params_based_on_side(side):
     return width, height
 
 
-def draw_hexagon(filename, width=None, height=None, side=None):
+def draw_hexagon(template_filename, mask_filename, width=None, height=None, side=None):
     if width:
         height, side = params_based_on_width(width)
     elif height:
@@ -136,18 +183,23 @@ def draw_hexagon(filename, width=None, height=None, side=None):
 
     print("Drawing hexagon with tile size {width} x {height} and approximate side of {side}".format(width=width, height=height, side=side))
 
-    image = HexagonImage(width, height)
+    template_image = HexagonTemplateImage(width, height)
 
-    draw_hexagon_image(image, side)
+    draw_hexagon_image(template_image, side)
 
-    image.write_to(filename)
+    if template_filename is not None:
+        template_image.write_to(template_filename)
+
+    if mask_filename is not None:
+        mask_image = HexagonMaskImage(template_image)
+        mask_image.write_to(mask_filename)
 
 
 if __name__ == '__main__':
 
     description = """\
 Draw a pixel-perfect hexagon.
-Specify on of the following:
+Specify one of the following:
 
      *          |
    *   *        |
@@ -159,6 +211,13 @@ Specify on of the following:
 
  ---------
    width
+
+Can draw a template image (only the borders are drawn) and/or a mask image for
+determining whether a position is inside the hexagon or not.
+For the former set the --template cmd line switch, for the latter set the
+--mask switch to the filename you wish the result to be written to.
+The format for the saved image is PNG, so use .png as the extension for the
+outputs.
 """
 
     parser = argparse.ArgumentParser(
@@ -168,9 +227,13 @@ Specify on of the following:
     parser.add_argument("--width", help="The tile width", type=int)
     parser.add_argument("--height", help="The tile height", type=int)
     parser.add_argument("--side", help="The hexagon's side", type=int)
-    parser.add_argument("--output", help="The filename where the image will be written", required=True)
+    parser.add_argument("--template", help="The filename where the template image will be written", required=False)
+    parser.add_argument("--mask", help="The filename where the mask image will be written", required=False)
 
     args = parser.parse_args()
+
+    if args.template is None and args.mask is None:
+        parser.error("At least one output (--template or --mask) has to be specified")
 
     if args.width is not None:
         if args.width <= 0:
@@ -178,20 +241,20 @@ Specify on of the following:
         elif args.height is not None or args.side is not None:
             parser.error("Only one of the options can be specified")
         else:
-            draw_hexagon(args.output, width=args.width)
+            draw_hexagon(args.template, args.mask, width=args.width)
     elif args.height is not None:
         if args.height <= 0:
             parser.error("The height has to be a positive integer")
         elif args.width is not None or args.side is not None:
             parser.error("Only one of the options can be specified")
         else:
-            draw_hexagon(args.output, height=args.height)
+            draw_hexagon(args.template, args.mask, height=args.height)
     elif args.side is not None:
         if args.side <= 0:
             parser.error("The side has to be a positive integer")
         elif args.width is not None or args.height is not None:
             parser.error("Only one of the options can be specified")
         else:
-            draw_hexagon(args.output, side=args.side)
+            draw_hexagon(args.template, args.mask, side=args.side)
     else:
         parser.error("At least one of the options must be specified")

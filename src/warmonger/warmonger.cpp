@@ -42,7 +42,7 @@ static std::unique_ptr<core::Map> generateBackgroundMap(core::World* world);
 
 int main(int argc, char* argv[])
 {
-    const QString worldName{argv[1]};
+    const QString worldPath{argv[1]};
     const QString worldSurfaceName{argv[2]};
 
     QGuiApplication app(argc, argv);
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 
     try
     {
-        ctx = createContext(worldName, worldSurfaceName);
+        ctx = createContext(worldPath, worldSurfaceName);
     }
     catch (const utils::Exception& e)
     {
@@ -83,24 +83,23 @@ int main(int argc, char* argv[])
     return app.exec();
 }
 
-static std::unique_ptr<Context> createContext(const QString& worldName, const QString& worldSurfaceName)
+static std::unique_ptr<Context> createContext(const QString& worldPath, const QString& worldSurfaceName)
 {
     std::unique_ptr<core::World> world;
 
     try
     {
-        world = io::readWorld(worldName);
+        world = io::readWorld(worldPath);
     }
     catch (const utils::Exception& e)
     {
-        throw utils::Exception(
-            utils::MsgBuilder() << "Loading world " << worldName << " from " << worldPath << " failed: " << e.what());
+        throw utils::Exception(fmt::format("Loading world from {} failed: {}", worldPath, e.what()));
     }
 
-    wInfo << "Loaded world " << worldName << " from " << worldPath;
+    wInfo.format("Loaded world {} from {}", worldPath, worldPath);
 
     std::unique_ptr<ui::WorldSurface> worldSurface;
-    const QString worldSurfacePath = utils::worldSurfacePath(worldName, worldSurfaceName);
+    const QString worldSurfacePath = utils::worldSurfacePath(worldPath, worldSurfaceName);
 
     try
     {
@@ -109,23 +108,16 @@ static std::unique_ptr<Context> createContext(const QString& worldName, const QS
     }
     catch (const utils::Exception& e)
     {
-        throw utils::Exception(utils::MsgBuilder() << "Loading world-surface " << worldSurfaceName << " from "
-                                                   << worldSurfacePath
-                                                   << " failed: "
-                                                   << e.what());
+        throw utils::Exception(
+            fmt::format("Loading world-surface {} from {} failed: {}", worldSurfaceName, worldSurfacePath, e.what()));
     }
 
-    wInfo << "Loaded world-surface " << worldSurfaceName << " from " << worldSurfacePath;
+    wInfo.format("Loaded world-surface {} from {}", worldSurfaceName, worldSurfacePath);
 
     return std::make_unique<Context>(std::move(world), std::move(worldSurface));
 }
 
 static std::unique_ptr<core::Map> generateBackgroundMap(core::World* world)
 {
-    std::unique_ptr<core::Map> map = std::make_unique<core::Map>();
-    map->setWorld(world);
-
-    // TODO: fix map generation, call into the world rules to generate the map
-
-    return map;
+    return world->getRules()->generateMap(8);
 }

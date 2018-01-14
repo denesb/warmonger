@@ -147,7 +147,8 @@ void LuaWorldRules::loadRules(const QString& basePath, const QString& mainRulesF
     const auto path = utils::makePath(basePath, mainRulesFile);
     wInfo << "Loading lua world rules from entry point " << path;
 
-    lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::table, sol::lib::math);
+    lua.open_libraries(
+        sol::lib::base, sol::lib::package, sol::lib::string, sol::lib::math, sol::lib::table, sol::lib::debug);
 
     lua["W"] = this->world;
 

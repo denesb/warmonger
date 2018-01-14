@@ -23,16 +23,10 @@
 
 #include <sstream>
 
-#include <spdlog/spdlog.h>
-
 #include "utils/ToString.h"
 
 namespace warmonger {
 namespace utils {
-
-const char loggerName[] = "console";
-
-void initLogging(std::shared_ptr<spdlog::logger> logger = nullptr);
 
 enum class LogLevel : char
 {
@@ -42,6 +36,63 @@ enum class LogLevel : char
     Warning,
     Error
 };
+
+enum class LogSinkType
+{
+    Console,
+    File,
+    Stream
+};
+
+/**
+ * Logging configuration.
+ */
+class LogConfig {
+public:
+    /**
+     * Create a logging configuration with a log-file.
+     */
+    static LogConfig File(std::string file);
+
+    /**
+     * Create a logging configuration for the console.
+     */
+    static LogConfig Console();
+
+    /**
+     * Create a logging configuration with a stream.
+     */
+    static LogConfig Stream(std::ostream& s);
+
+    LogSinkType getSinkType() const
+    {
+        return this->sinkType;
+    }
+
+    std::string getFile() const
+    {
+        return this->file;
+    }
+
+    std::ostream& getStream() const
+    {
+        return *this->stream;
+    }
+
+private:
+    LogConfig(LogSinkType sinkType, std::string file, std::ostream* stream)
+        : sinkType(sinkType)
+        , file(std::move(file))
+        , stream(stream)
+    {
+    }
+
+    LogSinkType sinkType;
+    std::string file;
+    std::ostream* stream{};
+};
+
+void initLogging(const LogConfig& cfg = LogConfig::Console());
 
 struct LogEntry
 {

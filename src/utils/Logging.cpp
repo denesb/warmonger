@@ -16,13 +16,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "utils/Logging.h"
+
 #include <map>
 
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/ostream_sink.h>
+
 #include "Version.h"
-#include "utils/Logging.h"
 
 namespace warmonger {
 namespace utils {
+
+const char loggerName[] = "console";
 
 static std::shared_ptr<spdlog::logger> wLogger;
 
@@ -30,12 +36,42 @@ static std::string trimSrcFilePath(const char* fileName);
 static void qtMessageHandler(QtMsgType type, const QMessageLogContext& ctx, const QString& msg);
 static void log(LogLevel level, const std::string& file, const char* function, int line, const std::string& msg);
 
-void initLogging(std::shared_ptr<spdlog::logger> logger)
+LogConfig LogConfig::File(std::string file)
 {
-    if (!logger)
-        wLogger = spdlog::stdout_color_mt(loggerName);
-    else
-        wLogger = logger;
+    return LogConfig(LogSinkType::File, std::move(file), {});
+}
+
+LogConfig LogConfig::Console()
+{
+    return LogConfig(LogSinkType::Console, {}, {});
+}
+
+LogConfig LogConfig::Stream(std::ostream& s)
+{
+    return LogConfig(LogSinkType::Stream, {}, &s);
+}
+
+void initLogging(const LogConfig& cfg)
+{
+    switch (cfg.getSinkType())
+    {
+        case LogSinkType::Console:
+        {
+            wLogger = spdlog::stdout_color_mt(loggerName);
+        }
+        break;
+        case LogSinkType::File:
+        {
+            wLogger = spdlog::basic_logger_mt(loggerName, cfg.getFile());
+        }
+        break;
+        case LogSinkType::Stream:
+        {
+            auto sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(cfg.getStream());
+            wLogger = spdlog::create(loggerName, {sink});
+        }
+        break;
+    }
 
     spdlog::set_level(spdlog::level::debug);
     qInstallMessageHandler(qtMessageHandler);

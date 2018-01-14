@@ -28,7 +28,7 @@ using namespace warmonger;
 
 int main(int argc, char* const argv[])
 {
-    utils::initLogging(spdlog::basic_logger_mt(utils::loggerName, "test_warmonger.log"));
+    utils::initLogging(utils::LogConfig::File("test_warmonger.log"));
 
     return Catch::Session().run(argc, argv);
 }

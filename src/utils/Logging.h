@@ -128,14 +128,6 @@ struct LogEntry
 #define wWarning wLog(::warmonger::utils::LogLevel::Warning)
 #define wError wLog(::warmonger::utils::LogLevel::Error)
 
-/* TODO: make it work with the spdlog streaming style
-#define wTrace ::spdlog::get(::warmonger::utils::loggerName)->trace() << __PRETTY__FUNCTION__
-#define wDebug ::spdlog::get(::warmonger::utils::loggerName)->debug()
-#define wInfo ::spdlog::get(::warmonger::utils::loggerName)->info()
-#define wWarning ::spdlog::get(::warmonger::utils::loggerName)->warning()
-#define wError ::spdlog::get(::warmonger::utils::loggerName)->error()
-*/
-
 } // namespace utils
 } // namespace warmonger
 

@@ -23,6 +23,7 @@
 
 #include <sstream>
 
+#include "utils/Format.h"
 #include "utils/ToString.h"
 
 namespace warmonger {
@@ -103,6 +104,13 @@ struct LogEntry
     inline LogEntry& operator<<(T&& v)
     {
         this->msg << v;
+        return *this;
+    }
+
+    template <typename ...Args>
+    LogEntry& format(const char* format, Args&&... args)
+    {
+        this->msg << fmt::format(format, std::forward<Args>(args)...);
         return *this;
     }
 

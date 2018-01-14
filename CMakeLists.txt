@@ -76,6 +76,7 @@ set(CMAKE_AUTORCC ON)
 
 set(
     UTILS_SRC_FILES
+    src/utils/Format.cpp
     src/utils/Logging.cpp
     src/utils/Settings.cpp
     src/utils/ToString.cpp

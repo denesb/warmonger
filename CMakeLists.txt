@@ -159,12 +159,19 @@ file(GLOB_RECURSE ALL_SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 # Libraries
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Quick REQUIRED)
-find_package(KF5Archive REQUIRED)
 find_package(Threads REQUIRED)
+find_package(KF5Archive REQUIRED)
+#TODO: create proper imported target for lua
 find_package(Lua REQUIRED)
+
+# Why to I have to do this??????
+set_target_properties(Qt5::Core PROPERTIES INTERFACE_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/thirdparty/fmt)
 
 include(warmonger_automoc.cmake)
 
+#TODO set this in target_inlude_directories
 include_directories(
     ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/thirdparty
@@ -172,31 +179,35 @@ include_directories(
     ${LUA_INCLUDE_DIR}
 )
 
-set(
-    COMMON_EXTERNAL_LIBS
-    Qt5::Quick
-    Qt5::Core
-    ${LUA_LIBRARIES}
-    ${CMAKE_THREAD_LIBS_INIT}
-)
-
 # Targets
 
 add_library(utils STATIC ${UTILS_SRC_FILES})
-qt5_use_modules(utils Core Quick)
+target_link_libraries(
+    utils
+    PUBLIC Qt5::Core fmt::fmt
+)
 WARMONGER_AUTOMOC(utils)
 
 add_library(core STATIC ${CORE_SRC_FILES})
-qt5_use_modules(core Core Quick)
+target_link_libraries(
+    core
+    PUBLIC Qt5::Core Qt5::Quick utils
+    PRIVATE ${LUA_LIBRARIES}
+)
 WARMONGER_AUTOMOC(core)
 
 add_library(io STATIC ${IO_SRC_FILES})
-qt5_use_modules(io Core Quick)
+target_link_libraries(
+    io
+    PUBLIC Qt5::Core Qt5::Quick core utils
+)
 WARMONGER_AUTOMOC(io)
 
 add_library(ui STATIC ${UI_SRC_FILES})
-qt5_use_modules(ui Core Quick)
-target_link_libraries(ui KF5::Archive)
+target_link_libraries(ui
+    PUBLIC Qt5::Core Qt5::Quick io core utils
+    PRIVATE KF5::Archive
+)
 WARMONGER_AUTOMOC(ui)
 
 add_executable(
@@ -209,11 +220,7 @@ WARMONGER_AUTOMOC(wmapeditor)
 
 target_link_libraries(
     wmapeditor
-    ui
-    io
-    core
-    utils
-    ${COMMON_EXTERNAL_LIBS}
+    PRIVATE ui io core utils
 )
 
 add_executable(
@@ -226,11 +233,7 @@ WARMONGER_AUTOMOC(warmonger)
 
 target_link_libraries(
     warmonger
-    ui
-    io
-    core
-    utils
-    ${COMMON_EXTERNAL_LIBS}
+    PRIVATE ui io core utils
 )
 
 if(BUILD_TOOLS)
@@ -242,11 +245,7 @@ if(BUILD_TOOLS)
 
     target_link_libraries(
         wcheck_world
-        ui
-        io
-        core
-        utils
-        ${COMMON_EXTERNAL_LIBS}
+        PRIVATE ui io core utils
     )
 
     add_executable(
@@ -257,11 +256,7 @@ if(BUILD_TOOLS)
 
     target_link_libraries(
         wcheck_map
-        ui
-        io
-        core
-        utils
-        ${COMMON_EXTERNAL_LIBS}
+        PRIVATE ui io core utils
     )
 
     add_executable(
@@ -272,11 +267,7 @@ if(BUILD_TOOLS)
 
     target_link_libraries(
         wcheck_worldsurface
-        ui
-        io
-        core
-        utils
-        ${COMMON_EXTERNAL_LIBS}
+        PRIVATE ui io core utils
     )
 
     add_executable(
@@ -286,8 +277,7 @@ if(BUILD_TOOLS)
 
     target_link_libraries(
         wcreate_default_settings
-        utils
-        ${COMMON_EXTERNAL_LIBS}
+        PRIVATE utils
     )
 
     add_executable(
@@ -297,9 +287,7 @@ if(BUILD_TOOLS)
 
     target_link_libraries(
         wtest_rules_bindings
-        core
-        utils
-        ${COMMON_EXTERNAL_LIBS}
+        PRIVATE core utils
     )
 endif()
 
@@ -313,11 +301,7 @@ if(BUILD_TESTS)
 
     target_link_libraries(
         test_warmonger
-        ui
-        io
-        core
-        utils
-        ${COMMON_EXTERNAL_LIBS}
+        PRIVATE ui io core utils
     )
 
     set(TEST_DATA "${CMAKE_SOURCE_DIR}/src/test/data")

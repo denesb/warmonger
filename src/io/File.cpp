@@ -49,18 +49,19 @@ void writeWorld(const core::World* const world, const QString& path)
 
 std::unique_ptr<core::World> readWorld(const QString& path)
 {
-    auto file = [&]
-    {
+    auto file = [&] {
         auto file = std::make_unique<QFile>(path);
 
         if (file->exists())
             return file;
 
         const QString worldsPath = settingsValue(utils::SettingsKey::worldsDir).toString();
-        file = std::make_unique<QFile>(utils::makeFileName(utils::makePath(worldsPath, path, path), utils::fileExtensions::worldDefinition));
+        file = std::make_unique<QFile>(
+            utils::makeFileName(utils::makePath(worldsPath, path, path), utils::fileExtensions::worldDefinition));
 
         if (!file->exists())
-            throw utils::ValueError(fmt::format("Failed to read world: {} is not a known world name or a path to one", path));
+            throw utils::ValueError(
+                fmt::format("Failed to read world: {} is not a known world name or a path to one", path));
 
         return file;
     }();

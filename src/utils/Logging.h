@@ -48,7 +48,8 @@ enum class LogSinkType
 /**
  * Logging configuration.
  */
-class LogConfig {
+class LogConfig
+{
 public:
     /**
      * Create a logging configuration with a log-file.
@@ -107,7 +108,7 @@ struct LogEntry
         return *this;
     }
 
-    template <typename ...Args>
+    template <typename... Args>
     LogEntry& format(const char* format, Args&&... args)
     {
         this->msg << fmt::format(format, std::forward<Args>(args)...);

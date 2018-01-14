@@ -20,8 +20,8 @@
 
 #include <map>
 
-#include <spdlog/spdlog.h>
 #include <spdlog/sinks/ostream_sink.h>
+#include <spdlog/spdlog.h>
 
 #include "Version.h"
 

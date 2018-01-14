@@ -76,17 +76,17 @@ public:
     {
     }
 
-    explicit Exception(const Exception& e, const char* message)
+    Exception(const Exception& e, const char* message)
         : message(nestMessage(e.what(), message))
     {
     }
 
-    explicit Exception(const Exception& e, const std::string& message)
+    Exception(const Exception& e, const std::string& message)
         : message(nestMessage(e.what(), message))
     {
     }
 
-    explicit Exception(const Exception& e, const QString& message)
+    Exception(const Exception& e, const QString& message)
         : message(nestMessage(e.what(), message.toStdString()))
     {
     }

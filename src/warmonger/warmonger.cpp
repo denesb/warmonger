@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 
     if (argc < 3)
     {
-        wError << "Too few arguments. Usage: warmonger {world} {world-surface}";
+        wError.format("Too few arguments. Usage: warmonger {world} {world-surface}");
         return 1;
     }
 
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
     }
     catch (const utils::Exception& e)
     {
-        wError << "Failed to create context: " << e.what();
+        wError.format("Failed to create context: {}", e.what());
         return 1;
     }
 

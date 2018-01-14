@@ -67,6 +67,7 @@ public:
 
 private:
     World* world;
+    QString basePath;
     std::unique_ptr<sol::state> state; // to avoid exposing the massive sol.hpp
     std::function<void()> worldInitHook;
     std::function<void(Map*, int)> generateMapHook;

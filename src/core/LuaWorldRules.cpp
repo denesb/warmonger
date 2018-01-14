@@ -108,6 +108,7 @@ static bool assignTableToListField(sol::stack_object& value, FieldValue& field, 
 static bool assignTableToMapField(sol::stack_object& value, FieldValue& field, sol::this_state L);
 static void componentNewIndex(
     Component* const component, sol::stack_object key, sol::stack_object value, sol::this_state L);
+static void loadWorldModule(sol::state& lua, const QString& basePath, const QString& moduleName);
 
 class LuaExternalValue : public FieldValue::ExternalValue::Impl
 {
@@ -140,15 +141,23 @@ LuaWorldRules::LuaWorldRules(core::World* world)
 
 void LuaWorldRules::loadRules(const QString& basePath, const QString& mainRulesFile)
 {
-    sol::state& lua = *this->state.get();
+    this->basePath = basePath;
+    sol::state& lua = *this->state;
 
     exposeAPI(lua);
 
-    const auto path = utils::makePath(basePath, mainRulesFile);
+    const auto path = utils::makePath(this->basePath, mainRulesFile);
     wInfo << "Loading lua world rules from entry point " << path;
 
     lua.open_libraries(
         sol::lib::base, sol::lib::package, sol::lib::string, sol::lib::math, sol::lib::table, sol::lib::debug);
+
+    sol::function tableInsert = lua["table"]["insert"];
+    tableInsert(lua["package"]["searchers"], [this] (sol::stack_object moduleName) {
+        return std::function<void()>([this, moduleName = QString(moduleName.as<const char*>())] {
+            loadWorldModule(*this->state, this->basePath, moduleName);
+        });
+    });
 
     lua["W"] = this->world;
 
@@ -824,6 +833,13 @@ static void componentNewIndex(
     }
 
     assignValueToField(value, *field, L);
+}
+
+static void loadWorldModule(sol::state& lua, const QString& basePath, const QString& moduleName)
+{
+    const auto moduleFile = utils::makePath(basePath, utils::makeFileName(QString(moduleName), "lua"));
+    wInfo.format("Loading required module `{}' from `{}'", moduleName, moduleFile);
+    lua.script_file(moduleFile.toStdString());
 }
 
 } // namespace core

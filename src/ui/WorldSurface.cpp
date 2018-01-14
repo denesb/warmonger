@@ -18,6 +18,7 @@
 
 #include <cmath>
 #include <set>
+#include <unordered_map>
 
 #include <QFile>
 #include <QHash>

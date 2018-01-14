@@ -28,6 +28,8 @@
 #include "io/WorldJsonUnserializer.h"
 #include "utils/Constants.h"
 #include "utils/Exception.h"
+#include "utils/Format.h"
+#include "utils/Settings.h"
 
 namespace warmonger {
 namespace io {
@@ -47,17 +49,32 @@ void writeWorld(const core::World* const world, const QString& path)
 
 std::unique_ptr<core::World> readWorld(const QString& path)
 {
-    QFile file(path);
-    if (!file.open(QIODevice::ReadOnly))
+    auto file = [&]
+    {
+        auto file = std::make_unique<QFile>(path);
+
+        if (file->exists())
+            return file;
+
+        const QString worldsPath = settingsValue(utils::SettingsKey::worldsDir).toString();
+        file = std::make_unique<QFile>(utils::makeFileName(utils::makePath(worldsPath, path, path), utils::fileExtensions::worldDefinition));
+
+        if (!file->exists())
+            throw utils::ValueError(fmt::format("Failed to read world: {} is not a known world name or a path to one", path));
+
+        return file;
+    }();
+
+    if (!file->open(QIODevice::ReadOnly))
     {
         throw utils::IOError(QString("Failed to open %1 for reading").arg(path));
     }
 
     io::WorldJsonUnserializer unserializer;
 
-    auto world{unserializer.unserializeWorld(file.readAll())};
+    auto world{unserializer.unserializeWorld(file->readAll())};
 
-    QFileInfo fileInfo(file);
+    QFileInfo fileInfo(*file);
 
     QString basePath;
 

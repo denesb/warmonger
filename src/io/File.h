@@ -50,8 +50,11 @@ void writeWorld(const core::World* const world, const QString& path);
  * Read the world from path.
  *
  * Read and unserialize the world from the file at path.
+ * The path can be a relative or absolute path to a world description
+ * file or just a name. In the latter case the world will be looked up
+ * in the worlds dir as set in the settings.
  *
- * \param path the path to the world file
+ * \param path the path to the world file or the name of the world
  *
  * \return the loaded world
  *
@@ -61,26 +64,26 @@ void writeWorld(const core::World* const world, const QString& path);
 std::unique_ptr<core::World> readWorld(const QString& path);
 
 /**
- * Write the campaign-map to path.
+ * Write the map to path.
  *
- * Serialize and write the campaign-map to the file at path.
+ * Serialize and write the map to the file at path.
  *
- * \param campaign-map the campaign-map
- * \param path the path where the campaign-map will be saved
+ * \param map the map
+ * \param path the path where the map will be saved
  *
  * \throw utils::IOError if the file at path is not writeable
  */
 void writeMap(const core::Map* const map, const QString& path);
 
 /**
- * Read the campaign-map from path.
+ * Read the map from path.
  *
- * Read and unserialize the campaign-map from the file at path.
+ * Read and unserialize the map from the file at path.
  *
- * \param path the path to the campaign-map file
- * \param world the world this campaign-map belongs to
+ * \param path the path to the map file
+ * \param world the world this map belongs to
  *
- * \return the loaded campaign-map
+ * \return the loaded map
  *
  * \throw utils::IOError if the file at path is not readable
  * \throw utils::ValueError if there is a problem with unserializing

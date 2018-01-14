@@ -86,11 +86,10 @@ int main(int argc, char* argv[])
 static std::unique_ptr<Context> createContext(const QString& worldName, const QString& worldSurfaceName)
 {
     std::unique_ptr<core::World> world;
-    const QString worldPath = utils::worldPath(worldName);
 
     try
     {
-        world = io::readWorld(worldPath);
+        world = io::readWorld(worldName);
     }
     catch (const utils::Exception& e)
     {

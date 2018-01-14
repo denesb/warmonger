@@ -126,17 +126,6 @@ struct DelayedQObjectDeleter
 };
 
 /**
- * Construct the world path for the world.
- *
- * The settings have to be initialized for this to work.
- *
- * \param worldName the name of the world
- *
- * \return the path to the world definition file
- */
-QString worldPath(const QString& worldName);
-
-/**
  * Construct the world-surface path for the world-surface.
  *
  * The settings have to be initialized for this to work.

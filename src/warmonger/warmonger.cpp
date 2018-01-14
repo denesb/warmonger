@@ -37,13 +37,13 @@ backward::SignalHandling sh;
 
 using namespace warmonger;
 
-static std::unique_ptr<Context> createContext(const QString& worldName, const QString& worldSurfaceName);
+static std::unique_ptr<Context> createContext(const QString& worldName, const QString& worldSurfacePath);
 static std::unique_ptr<core::Map> generateBackgroundMap(core::World* world);
 
 int main(int argc, char* argv[])
 {
     const QString worldPath{argv[1]};
-    const QString worldSurfaceName{argv[2]};
+    const QString worldSurfacePath{argv[2]};
 
     QGuiApplication app(argc, argv);
 
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 
     try
     {
-        ctx = createContext(worldPath, worldSurfaceName);
+        ctx = createContext(worldPath, worldSurfacePath);
     }
     catch (const utils::Exception& e)
     {
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
     return app.exec();
 }
 
-static std::unique_ptr<Context> createContext(const QString& worldPath, const QString& worldSurfaceName)
+static std::unique_ptr<Context> createContext(const QString& worldPath, const QString& worldSurfacePath)
 {
     std::unique_ptr<core::World> world;
 
@@ -93,26 +93,30 @@ static std::unique_ptr<Context> createContext(const QString& worldPath, const QS
     }
     catch (const utils::Exception& e)
     {
-        throw utils::Exception(fmt::format("Loading world from {} failed: {}", worldPath, e.what()));
+        throw utils::Exception(fmt::format("Loading world `{}' failed: {}", worldPath, e.what()));
     }
 
-    wInfo.format("Loaded world {} from {}", worldPath, worldPath);
+    wInfo.format("Loaded world `{}'", worldPath);
 
     std::unique_ptr<ui::WorldSurface> worldSurface;
-    const QString worldSurfacePath = utils::worldSurfacePath(worldPath, worldSurfaceName);
+    const QString worldSurfaceFile = ui::findWorldSurface(worldSurfacePath, worldPath);
+
+    if (worldSurfaceFile.isNull())
+    {
+        throw utils::Exception(fmt::format("Failed to find world-surface `{}'", worldSurfacePath));
+    }
 
     try
     {
-        worldSurface = std::make_unique<ui::WorldSurface>(worldSurfacePath, world.get());
+        worldSurface = std::make_unique<ui::WorldSurface>(worldSurfaceFile, world.get());
         worldSurface->activate();
     }
     catch (const utils::Exception& e)
     {
-        throw utils::Exception(
-            fmt::format("Loading world-surface {} from {} failed: {}", worldSurfaceName, worldSurfacePath, e.what()));
+        throw utils::Exception(fmt::format("Loading world-surface `{}' failed: {}", worldSurfacePath, e.what()));
     }
 
-    wInfo.format("Loaded world-surface {} from {}", worldSurfaceName, worldSurfacePath);
+    wInfo.format("Loaded world-surface `{}'", worldSurfacePath);
 
     return std::make_unique<Context>(std::move(world), std::move(worldSurface));
 }

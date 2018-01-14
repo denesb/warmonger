@@ -89,7 +89,7 @@ public:
      * \param world the world this surface belongs to
      * \param parent the parent QObject
      */
-    WorldSurface(const QString& path, core::World* world, QObject* parent = nullptr);
+    WorldSurface(QString path, core::World* world, QObject* parent = nullptr);
 
     /**
      * Deactivates (if it was active) and destroys the surface.
@@ -293,6 +293,16 @@ private:
     int tileHeight;
     QImage hexMask;
 };
+
+/**
+ * Find the world-surface.
+ *
+ * If `surface' is a relative or absolute path to an existing file its
+ * canonical version is returned. Otherwise the surface is looked up in
+ * the world's surfaces directory. If not found a null QString will be
+ * returned.
+ */
+QString findWorldSurface(const QString& surface, const QString& worldPath);
 
 /**
  * Is the world-surface sane?.

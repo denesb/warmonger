@@ -20,7 +20,9 @@
 #include <set>
 #include <unordered_map>
 
+#include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QHash>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -80,8 +82,8 @@ public:
         int tileHeight;
     };
 
-    Storage(const QString& path)
-        : path(path)
+    Storage(QString path)
+        : path(std::move(path))
     {
     }
 
@@ -128,7 +130,8 @@ private:
 
 class DirectoryStorage : public WorldSurface::Storage
 {
-    using WorldSurface::Storage::Storage;
+public:
+    DirectoryStorage(QString path);
 
     Header load() override;
     Body activate() override;
@@ -161,15 +164,15 @@ private:
 
 const QString ArchiveStorage::rootPath{":/surface"};
 
-WorldSurface::WorldSurface(const QString& path, core::World* world, QObject* parent)
+WorldSurface::WorldSurface(QString path, core::World* world, QObject* parent)
     : QObject(parent)
-    , path(path)
+    , path(std::move(path))
     , world(world)
 {
-    if (path.endsWith(utils::fileExtensions::surfaceDefinition))
-        this->storage = std::make_unique<DirectoryStorage>(path);
+    if (this->path.endsWith(utils::fileExtensions::surfacePackage))
+        this->storage = std::make_unique<ArchiveStorage>(this->path);
     else
-        this->storage = std::make_unique<ArchiveStorage>(path);
+        this->storage = std::make_unique<DirectoryStorage>(this->path);
 
     this->storage->load();
 }
@@ -258,6 +261,28 @@ QUrl WorldSurface::getImageUrl(const QString& path) const
 QString WorldSurface::getBannerImagePath(const core::Banner* const banner) const
 {
     return utils::makeFileName(utils::makePath(QStringLiteral("banners"), banner->getName()), fileExtension);
+}
+
+QString findWorldSurface(const QString& surface, const QString& worldPath)
+{
+    if (QFile(surface).exists())
+        return QFileInfo(surface).canonicalFilePath();
+
+    QFileInfo worldFile(worldPath);
+
+    auto surfaceDir = QDir(utils::makePath(worldFile.canonicalPath(), utils::paths::surfaces, surface));
+
+    if (!surfaceDir.exists())
+        return {};
+
+    for (const auto& suffix : {utils::fileExtensions::surfaceDefinition, utils::fileExtensions::surfacePackage})
+    {
+        const auto file = utils::makeFileName(surface, suffix);
+        if (surfaceDir.exists(file))
+            return file;
+    }
+
+    return {};
 }
 
 bool isWorldSurfaceSane(const QString& path, core::World* world)
@@ -349,16 +374,28 @@ WorldSurface::Storage::Header WorldSurface::Storage::parseHeader(const QByteArra
     return header;
 }
 
+DirectoryStorage::DirectoryStorage(QString path)
+    : WorldSurface::Storage(QFileInfo(path).canonicalPath())
+{
+}
+
 WorldSurface::Storage::Header DirectoryStorage::load()
 {
-    QFile metaFile(
-        utils::makePath(this->getPath(), utils::makeFileName(this->getName(), utils::fileExtensions::surfaceMetadata)));
-    if (!metaFile.open(QIODevice::ReadOnly))
+    QDir surfaceDir(this->getPath());
+
+    const auto filter = QDir::Files;
+    const auto entries = surfaceDir.entryList({"*." + utils::fileExtensions::surfaceDefinition}, filter);
+
+    if (entries.isEmpty())
+        throw utils::IOError("No definition file found");
+
+    QFile definitionFile(utils::makePath(surfaceDir.canonicalPath(), entries.front()));
+    if (!definitionFile.open(QIODevice::ReadOnly))
     {
-        throw utils::IOError(
-            "Failed to open surface metadata from directory " + this->getPath() + ": " + metaFile.errorString());
+        throw utils::IOError(fmt::format(
+            "Failed to open definition file `{}': {}", definitionFile.fileName(), definitionFile.errorString()));
     }
-    return parseHeader(metaFile.readAll());
+    return parseHeader(definitionFile.readAll());
 }
 
 WorldSurface::Storage::Body DirectoryStorage::activate()

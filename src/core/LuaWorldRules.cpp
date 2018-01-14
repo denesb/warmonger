@@ -153,8 +153,8 @@ void LuaWorldRules::loadRules(const QString& basePath, const QString& mainRulesF
         sol::lib::base, sol::lib::package, sol::lib::string, sol::lib::math, sol::lib::table, sol::lib::debug);
 
     sol::function tableInsert = lua["table"]["insert"];
-    tableInsert(lua["package"]["searchers"], [this] (sol::stack_object moduleName) {
-        return std::function<void()>([this, moduleName = QString(moduleName.as<const char*>())] {
+    tableInsert(lua["package"]["searchers"], [this](sol::stack_object moduleName) {
+        return std::function<void()>([ this, moduleName = QString(moduleName.as<const char*>()) ] {
             loadWorldModule(*this->state, this->basePath, moduleName);
         });
     });
@@ -398,6 +398,7 @@ static void exposeAPI(sol::state& lua)
 
 static void wLuaLog(sol::this_state L, utils::LogLevel logLevel, const std::string& msg)
 {
+    // TODO: trim source files
     lua_Debug info;
     int level = 1;
     const int pre_stack_size = lua_gettop(L);

@@ -1,5 +1,5 @@
 /** \file
- * To-string functions.
+ * format_arg functions.
  *
  * \copyright (C) 2015-2018 Botond Dénes
  *

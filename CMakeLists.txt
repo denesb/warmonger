@@ -156,6 +156,8 @@ set(
 file(GLOB_RECURSE ALL_HEADER_FILES ${PROJECT_SOURCE_DIR}/src/*.h)
 file(GLOB_RECURSE ALL_SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
+set(CMAKE_CXX_STANDARD 14)
+
 # Libraries
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Quick REQUIRED)

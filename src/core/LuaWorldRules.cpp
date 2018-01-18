@@ -180,6 +180,8 @@ std::unique_ptr<core::Map> LuaWorldRules::generateMap(unsigned int size)
 {
     auto map{std::make_unique<core::Map>()};
 
+    map->setName("New Random Map");
+
     map->setWorld(world);
     map->generateMapNodes(size);
 

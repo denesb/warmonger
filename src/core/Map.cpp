@@ -46,6 +46,7 @@ void Map::setName(const QString& name)
     if (this->name != name)
     {
         this->name = name;
+        this->setObjectName(this->name);
         emit nameChanged();
     }
 }

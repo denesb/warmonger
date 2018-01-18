@@ -21,6 +21,7 @@
 #include <backward.hpp>
 
 #include "utils/Logging.h"
+#include "utils/PathBuilder.h"
 #include "utils/Settings.h"
 #include "utils/Utils.h"
 
@@ -42,8 +43,8 @@ int main()
 
     QDir homeDir{QDir::home()};
 
-    const QString workDirPath{utils::makePath(QDir::homePath(), QStringLiteral(".warmonger"))};
-    const QString worldsDirPath{utils::makePath(workDirPath, QStringLiteral("worlds"))};
+    const QString workDirPath = QDir::homePath() / QStringLiteral(".warmonger");
+    const QString worldsDirPath = workDirPath / QStringLiteral("worlds");
 
     homeDir.mkpath(worldsDirPath);
 

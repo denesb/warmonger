@@ -81,6 +81,7 @@ set(
     src/utils/Settings.cpp
     src/utils/ToString.cpp
     src/utils/Utils.cpp
+    src/utils/PathBuilder.cpp
 )
 
 set(

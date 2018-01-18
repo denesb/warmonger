@@ -29,6 +29,7 @@
 #include "utils/Constants.h"
 #include "utils/Exception.h"
 #include "utils/Format.h"
+#include "utils/PathBuilder.h"
 #include "utils/Settings.h"
 
 namespace warmonger {
@@ -56,8 +57,7 @@ std::unique_ptr<core::World> readWorld(const QString& path)
             return file;
 
         const QString worldsPath = settingsValue(utils::SettingsKey::worldsDir).toString();
-        file = std::make_unique<QFile>(
-            utils::makeFileName(utils::makePath(worldsPath, path, path), utils::fileExtensions::worldDefinition));
+        file = std::make_unique<QFile>(worldsPath / path / path + "." + utils::fileExtensions::worldDefinition);
 
         if (!file->exists())
             throw utils::ValueError(

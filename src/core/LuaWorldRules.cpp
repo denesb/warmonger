@@ -25,6 +25,7 @@
 
 #include "core/Map.h"
 #include "utils/Logging.h"
+#include "utils/PathBuilder.h"
 #include "utils/Utils.h"
 
 namespace sol {
@@ -146,7 +147,7 @@ void LuaWorldRules::loadRules(const QString& basePath, const QString& mainRulesF
 
     exposeAPI(lua);
 
-    const auto path = utils::makePath(this->basePath, mainRulesFile);
+    const QString path = this->basePath / mainRulesFile;
     wInfo << "Loading lua world rules from entry point " << path;
 
     lua.open_libraries(
@@ -838,7 +839,7 @@ static void componentNewIndex(
 
 static void loadWorldModule(sol::state& lua, const QString& basePath, const QString& moduleName)
 {
-    const auto moduleFile = utils::makePath(basePath, utils::makeFileName(QString(moduleName), "lua"));
+    const QString moduleFile = basePath / moduleName + ".lua";
     wInfo.format("Loading required module `{}' from `{}'", moduleName, moduleFile);
     lua.script_file(moduleFile.toStdString());
 }

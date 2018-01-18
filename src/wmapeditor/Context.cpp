@@ -28,9 +28,9 @@
 #include "utils/Constants.h"
 #include "utils/Exception.h"
 #include "utils/Logging.h"
+#include "utils/PathBuilder.h"
 #include "utils/QVariantUtils.h"
 #include "utils/Settings.h"
-#include "utils/Utils.h"
 
 namespace warmonger {
 namespace wmapeditor {
@@ -395,8 +395,8 @@ static QString nextMapName(const std::vector<core::Map*>& maps)
 static QString defaultPath(const core::World* world, const core::Map* map)
 {
     const QString worldsPath{utils::settingsValue(utils::SettingsKey::worldsDir).toString()};
-    const QString fileName{utils::makeFileName(map->objectName(), utils::fileExtensions::mapDefinition)};
-    return utils::makePath(worldsPath, world->objectName(), utils::paths::maps, fileName);
+    const QString fileName{map->objectName() + "." + utils::fileExtensions::mapDefinition};
+    return worldsPath / world->objectName() / utils::paths::maps / fileName;
 }
 
 } // namespace wmapeditor

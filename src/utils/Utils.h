@@ -68,48 +68,6 @@ private:
 };
 
 /**
- * Convenience function to build a path from it's components.
- *
- * Two component specialization.
- *
- * \param head the first path-component
- * \param tail the second path-component
- *
- * \return the constructed path
- */
-template <typename Head, typename Tail>
-Head makePath(const Head& head, const Tail& tail)
-{
-    return head + "/" + tail;
-}
-
-/**
- * Convenience function to build a path from it's components.
- *
- * This function will accepth any number of components.
- *
- * \param head the first path-component
- * \param components the rest of the components
- *
- * \return the constructed path
- */
-template <typename Head, typename... Component>
-Head makePath(const Head& head, const Component&... components)
-{
-    return head + "/" + makePath(components...);
-}
-
-/**
- * Make a full file-name from the file's base-name and extension.
- *
- * \param fileName the base-name of the file
- * \param extension the file extension
- *
- * \return the file-name
- */
-QString makeFileName(const QString& fileName, const QString& extension);
-
-/**
  * Delayed QObject deleter functor.
  *
  * When invoked this functor will call QObject::deleteLater() on the passed-in

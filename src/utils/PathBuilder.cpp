@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015-2017 Botond Dénes
+ * \copyright (C) 2015-2018 Botond Dénes
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,21 +16,17 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "utils/Utils.h"
-
-#include "utils/Constants.h"
 #include "utils/PathBuilder.h"
-#include "utils/Settings.h"
 
 namespace warmonger {
 namespace utils {
 
-QString worldMapsPath(const QString& worldName)
-{
-    const QString worldPath = settingsValue(SettingsKey::worldsDir).toString();
-
-    return worldPath / worldName / paths::maps;
-}
-
 } // namespace utils
 } // namespace warmonger
+
+warmonger::utils::PathBuilder operator/(warmonger::utils::PathBuilder pathBuilder, const QString& path)
+{
+    pathBuilder.append("/");
+    pathBuilder.append(path);
+    return pathBuilder;
+}

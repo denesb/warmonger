@@ -37,7 +37,7 @@
 #include "utils/Exception.h"
 #include "utils/Hash.h"
 #include "utils/Logging.h"
-#include "utils/Utils.h"
+#include "utils/PathBuilder.h"
 
 namespace std {
 
@@ -260,7 +260,7 @@ QUrl WorldSurface::getImageUrl(const QString& path) const
 
 QString WorldSurface::getBannerImagePath(const core::Banner* const banner) const
 {
-    return utils::makeFileName(utils::makePath(QStringLiteral("banners"), banner->getName()), fileExtension);
+    return QStringLiteral("banners") / banner->getName() + "." + fileExtension;
 }
 
 QString findWorldSurface(const QString& surface, const QString& worldPath)
@@ -270,14 +270,14 @@ QString findWorldSurface(const QString& surface, const QString& worldPath)
 
     QFileInfo worldFile(worldPath);
 
-    auto surfaceDir = QDir(utils::makePath(worldFile.canonicalPath(), utils::paths::surfaces, surface));
+    auto surfaceDir = QDir(worldFile.canonicalPath() / utils::paths::surfaces / surface);
 
     if (!surfaceDir.exists())
         return {};
 
     for (const auto& suffix : {utils::fileExtensions::surfaceDefinition, utils::fileExtensions::surfacePackage})
     {
-        const auto file = utils::makeFileName(surface, suffix);
+        const auto file = surface + "." + suffix;
         if (surfaceDir.exists(file))
             return file;
     }
@@ -389,7 +389,7 @@ WorldSurface::Storage::Header DirectoryStorage::load()
     if (entries.isEmpty())
         throw utils::IOError("No definition file found");
 
-    QFile definitionFile(utils::makePath(surfaceDir.canonicalPath(), entries.front()));
+    QFile definitionFile(surfaceDir / entries.front());
     if (!definitionFile.open(QIODevice::ReadOnly))
     {
         throw utils::IOError(fmt::format(
@@ -409,12 +409,12 @@ void DirectoryStorage::deactivate()
 
 QImage DirectoryStorage::loadImage(const QString& path) const
 {
-    return QImage(utils::makePath(this->getPath(), path));
+    return QImage(this->getPath() / path);
 }
 
 QUrl DirectoryStorage::getImageUrl(const QString& path) const
 {
-    return QUrl::fromLocalFile(utils::makePath(this->getPath(), path));
+    return QUrl::fromLocalFile(this->getPath() / path);
 }
 
 WorldSurface::Storage::Header ArchiveStorage::load()
@@ -480,8 +480,7 @@ WorldSurface::Storage::Body ArchiveStorage::activate()
         throw utils::IOError("Failed to register  " + this->getPath());
     }
 
-    QFile jfile(utils::makePath(
-        ArchiveStorage::rootPath, utils::makeFileName(this->getName(), utils::fileExtensions::surfaceDefinition)));
+    QFile jfile(ArchiveStorage::rootPath / this->getName() + "." + utils::fileExtensions::surfaceDefinition);
     if (!jfile.open(QIODevice::ReadOnly))
     {
         throw utils::IOError(
@@ -520,7 +519,7 @@ void ArchiveStorage::deactivate()
 
 QImage ArchiveStorage::loadImage(const QString& path) const
 {
-    return QImage(utils::makePath(QStringLiteral(":"), path));
+    return QImage(QStringLiteral(":") / path);
 }
 
 QUrl ArchiveStorage::getImageUrl(const QString& path) const

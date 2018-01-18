@@ -174,7 +174,10 @@ WorldSurface::WorldSurface(QString path, core::World* world, QObject* parent)
     else
         this->storage = std::make_unique<DirectoryStorage>(this->path);
 
-    this->storage->load();
+    auto header = this->storage->load();
+    this->name = header.name;
+    this->setObjectName(this->name);
+    this->description = header.description;
 }
 
 WorldSurface::~WorldSurface()

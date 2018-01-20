@@ -23,6 +23,7 @@
 
 #include "ui/MapUtil.h"
 #include "ui/MapWatcher.h"
+#include "ui/Render.h"
 #include "utils/Constants.h"
 #include "utils/Logging.h"
 #include "utils/QVariantUtils.h"
@@ -113,7 +114,8 @@ QSGNode* MapView::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
 
     rootNode->setClipRect(QRectF(0, 0, this->width(), this->height()));
 
-    // TODO: invoke GraphicsSystem
+    RenderContext ctx{this->worldSurface, this->window(), this->mapNodesPos, this->mapRect};
+    mapRootNode = renderEntities(this->map->getEntities(), mapRootNode, ctx);
 
     return rootNode;
 }

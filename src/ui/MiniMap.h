@@ -21,7 +21,7 @@
 #ifndef W_UI_CAMPAIGN_MINI_MAP_H
 #define W_UI_CAMPAIGN_MINI_MAP_H
 
-#include <map>
+#include <unordered_map>
 
 #include "core/Map.h"
 #include "ui/BasicMiniMap.h"
@@ -68,7 +68,7 @@ private:
 
     WorldSurface* worldSurface;
     core::Map* map;
-    std::map<core::MapNode*, QPoint> mapNodesPos;
+    std::unordered_map<core::MapNode*, QPoint> mapNodesPos;
 
     MapWatcher* watcher;
 };

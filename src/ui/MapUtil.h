@@ -5,7 +5,7 @@
 #ifndef UI_MAP_UTIL_H
 #define UI_MAP_UTIL_H
 
-#include <map>
+#include <unordered_map>
 
 #include <QMatrix4x4>
 #include <QPoint>
@@ -52,7 +52,7 @@ QPoint neighbourPos(const QPoint& pos, core::Direction dir, const QSize& tileSiz
  * \return the neighbour at each direction, or nullptr if there is none
  */
 core::MapNodeNeighbours neighboursByPos(
-    const QPoint& pos, const WorldSurface* worldSurface, const std::map<core::MapNode*, QPoint>& mapNodesPos);
+    const QPoint& pos, const WorldSurface* worldSurface, const std::unordered_map<core::MapNode*, QPoint>& mapNodesPos);
 
 /**
  * Calculate the position of each map-node.
@@ -68,7 +68,7 @@ core::MapNodeNeighbours neighboursByPos(
  *
  * \return mapping of map-nodes to their position.
  */
-std::map<core::MapNode*, QPoint> positionMapNodes(core::MapNode* startNode, const QSize& tileSize);
+std::unordered_map<core::MapNode*, QPoint> positionMapNodes(core::MapNode* startNode, const QSize& tileSize);
 
 /**
  * Calculate the bounding rectangle of the map-graph.
@@ -82,7 +82,7 @@ std::map<core::MapNode*, QPoint> positionMapNodes(core::MapNode* startNode, cons
  *
  * \return the bounding rectangle
  */
-QRect calculateBoundingRect(const std::map<core::MapNode*, QPoint>& nodesPos, const QSize& tileSize);
+QRect calculateBoundingRect(const std::unordered_map<core::MapNode*, QPoint>& nodesPos, const QSize& tileSize);
 
 /**
  * Find node at position pos.
@@ -94,7 +94,7 @@ QRect calculateBoundingRect(const std::map<core::MapNode*, QPoint>& nodesPos, co
  * \returns the map-node or nullptr if no map-node was found at the position
  */
 core::MapNode* mapNodeAtPos(
-    const QPoint& pos, const std::map<core::MapNode*, QPoint>& mapNodesPos, const WorldSurface* worldSurface);
+    const QPoint& pos, const std::unordered_map<core::MapNode*, QPoint>& mapNodesPos, const WorldSurface* worldSurface);
 
 /**
  * Project point p into the reactangle r.

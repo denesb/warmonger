@@ -22,7 +22,7 @@
 #define W_UI_MAP_EDITOR_H
 
 #include <experimental/optional>
-#include <map>
+#include <unordered_map>
 
 #include "core/Map.h"
 #include "ui/BasicMap.h"
@@ -231,7 +231,7 @@ private:
 
     core::Map* map;
     WorldSurface* worldSurface;
-    std::map<core::MapNode*, QPoint> mapNodesPos;
+    std::unordered_map<core::MapNode*, QPoint> mapNodesPos;
 
     core::MapNode* hoverMapNode;
     std::experimental::optional<QPoint> hoverPos;

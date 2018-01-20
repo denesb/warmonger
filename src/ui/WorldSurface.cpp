@@ -74,10 +74,6 @@ public:
     {
         QString name;
         QString description;
-    };
-
-    struct Body
-    {
         int tileWidth;
         int tileHeight;
     };
@@ -88,7 +84,7 @@ public:
     }
 
     virtual Header load() = 0;
-    virtual Body activate() = 0;
+    virtual void activate() = 0;
     virtual void deactivate() = 0;
 
     QSGTexture* getTexture(const QString& path, QQuickWindow* window) const;
@@ -134,7 +130,7 @@ public:
     DirectoryStorage(QString path);
 
     Header load() override;
-    Body activate() override;
+    void activate() override;
     void deactivate() override;
     QUrl getImageUrl(const QString& path) const override;
 
@@ -152,7 +148,7 @@ public:
     using WorldSurface::Storage::Storage;
 
     Header load() override;
-    Body activate() override;
+    void activate() override;
     void deactivate() override;
     QUrl getImageUrl(const QString& path) const override;
 
@@ -178,6 +174,8 @@ WorldSurface::WorldSurface(QString path, core::World* world, QObject* parent)
     this->name = header.name;
     this->setObjectName(this->name);
     this->description = header.description;
+    this->tileWidth = header.tileWidth;
+    this->tileHeight = header.tileHeight;
 }
 
 WorldSurface::~WorldSurface()
@@ -230,15 +228,9 @@ bool WorldSurface::hexContains(const QPointF& p) const
 
 void WorldSurface::activate()
 {
-    auto body = storage->activate();
+    storage->activate();
 
-    this->tileWidth = body.tileWidth;
-    this->tileHeight = body.tileHeight;
     this->hexMask = storage->getImage(hexagonMask);
-
-    emit tileWidthChanged();
-    emit tileHeightChanged();
-    emit tileSizeChanged();
 }
 
 void WorldSurface::deactivate()
@@ -371,6 +363,8 @@ WorldSurface::Storage::Header WorldSurface::Storage::parseHeader(const QByteArra
 
     header.name = jobj["name"].toString();
     header.description = jobj["description"].toString();
+    header.tileWidth = jobj["tileWidth"].toInt();
+    header.tileHeight = jobj["tileHeight"].toInt();
 
     this->name = header.name;
 
@@ -401,9 +395,8 @@ WorldSurface::Storage::Header DirectoryStorage::load()
     return parseHeader(definitionFile.readAll());
 }
 
-WorldSurface::Storage::Body DirectoryStorage::activate()
+void DirectoryStorage::activate()
 {
-    return Body();
 }
 
 void DirectoryStorage::deactivate()
@@ -451,7 +444,7 @@ WorldSurface::Storage::Header ArchiveStorage::load()
     return this->parseHeader(headerFile->data());
 }
 
-WorldSurface::Storage::Body ArchiveStorage::activate()
+void ArchiveStorage::activate()
 {
     KTar package(this->getPath());
     if (!package.open(QIODevice::ReadOnly))
@@ -482,31 +475,6 @@ WorldSurface::Storage::Body ArchiveStorage::activate()
     {
         throw utils::IOError("Failed to register  " + this->getPath());
     }
-
-    QFile jfile(ArchiveStorage::rootPath / this->getName() + "." + utils::fileExtensions::surfaceDefinition);
-    if (!jfile.open(QIODevice::ReadOnly))
-    {
-        throw utils::IOError(
-            "Failed to open surface definition from package " + this->getPath() + ": " + jfile.errorString());
-    }
-
-    QJsonParseError parseError;
-    const QJsonDocument jdoc = QJsonDocument::fromJson(jfile.readAll(), &parseError);
-
-    if (parseError.error != QJsonParseError::NoError)
-    {
-        throw utils::ValueError("Error parsing surface definition file from surface package " + this->getPath() + ". " +
-            parseError.errorString() + " at " + parseError.offset);
-    }
-
-    const QJsonObject jobj = jdoc.object();
-
-    Body body;
-
-    body.tileWidth = jobj["tileWidth"].toInt();
-    body.tileHeight = jobj["tileHeight"].toInt();
-
-    return body;
 }
 
 void ArchiveStorage::deactivate()

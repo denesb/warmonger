@@ -159,6 +159,9 @@ file(GLOB_RECURSE ALL_HEADER_FILES ${PROJECT_SOURCE_DIR}/src/*.h)
 file(GLOB_RECURSE ALL_SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
 set(CMAKE_CXX_STANDARD 14)
+#TODO: finds possible false positives in Qt code
+#add_compile_options(-fsanitize=address -fsanitize=leak -fsanitize=undefined)
+#set(CMAKE_EXE_LINKER_FLAGS "-lasan -lubsan")
 
 # Libraries
 find_package(Qt5Core REQUIRED)

@@ -28,6 +28,7 @@ namespace core {
 
 Field::Field(QObject* parent)
     : QObject(parent)
+    , type(Type::Integer)
 {
 }
 

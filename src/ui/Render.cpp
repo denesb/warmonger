@@ -56,9 +56,8 @@ struct MapNodeContents
 };
 
 static bool isVisible(const QPoint& position, const RenderContext& ctx);
-static std::vector<MapNodeContents> depthSorted(
-    std::unordered_map<core::WObject*, MapNodeContents> unsortedMapNodeContents);
-static std::unordered_map<core::WObject*, MapNodeContents> visibleMapNodeContents(
+static std::vector<MapNodeContents> depthSorted(std::vector<MapNodeContents> mapNodeContents);
+static std::vector<MapNodeContents> visibleMapNodeContents(
     const std::vector<core::Entity*>& entities, const RenderContext& ctx);
 static QSGNode* drawMapNodeContent(const MapNodeContents& mapNodeContents, QSGNode* oldNode, const RenderContext& ctx);
 static QSGNode* drawGraphicsComponent(
@@ -119,10 +118,11 @@ static bool isVisible(const QPoint& position, const RenderContext& ctx)
     return ctx.renderWindow.intersects(nodeRect);
 }
 
-static std::unordered_map<core::WObject*, MapNodeContents> visibleMapNodeContents(
+static std::vector<MapNodeContents> visibleMapNodeContents(
     const std::vector<core::Entity*>& entities, const RenderContext& ctx)
 {
-    std::unordered_map<core::WObject*, MapNodeContents> mapNodeContents;
+    std::vector<MapNodeContents> mapNodeContents;
+    std::unordered_map<core::WObject*, std::size_t> mapNodeContentsIndex;
 
     for (core::EntityWrapper entity : entities)
     {
@@ -133,39 +133,30 @@ static std::unordered_map<core::WObject*, MapNodeContents> visibleMapNodeContent
             continue;
 
         core::WObject* key = positionComponent["mapNode"];
-        auto it = mapNodeContents.find(key);
-        QPoint pos;
-        if (it == mapNodeContents.end())
+        auto it = mapNodeContentsIndex.find(key);
+        if (it == mapNodeContentsIndex.end())
         {
             auto mapNode = qobject_cast<core::MapNode*>(key);
-            pos = ctx.mapNodesPos.at(mapNode);
+            auto pos = ctx.mapNodesPos.at(mapNode);
 
             if (isVisible(pos, ctx))
             {
-                mapNodeContents.emplace(mapNode, MapNodeContents{mapNode, pos, graphicsComponent});
+                mapNodeContents.emplace_back(mapNode, pos, graphicsComponent);
+                mapNodeContentsIndex.emplace(mapNode, mapNodeContents.size() - 1);
             }
         }
         else
         {
             // If the mapNode is present, it's  visible.
-            it->second.graphicsComponents.emplace_back(std::move(graphicsComponent));
+            mapNodeContents[it->second].graphicsComponents.emplace_back(std::move(graphicsComponent));
         }
     }
 
     return mapNodeContents;
 }
 
-static std::vector<MapNodeContents> depthSorted(
-    std::unordered_map<core::WObject*, MapNodeContents> unsortedMapNodeContents)
+static std::vector<MapNodeContents> depthSorted(std::vector<MapNodeContents> mapNodeContents)
 {
-    std::vector<MapNodeContents> mapNodeContents;
-
-    mapNodeContents.reserve(unsortedMapNodeContents.size());
-    std::transform(unsortedMapNodeContents.begin(),
-        unsortedMapNodeContents.end(),
-        std::back_inserter(mapNodeContents),
-        [](auto& value) { return std::move(value.second); });
-
     std::sort(mapNodeContents.begin(), mapNodeContents.end(), [](const MapNodeContents& a, const MapNodeContents& b) {
         return a.pos.y() < b.pos.y() || a.pos.x() < b.pos.x();
     });

@@ -34,7 +34,8 @@
 namespace warmonger {
 namespace ui {
 
-static void positionMapNode(core::MapNode* node, std::unordered_map<core::MapNode*, QPoint>& nodesPos, const QSize& tileSize);
+static void positionMapNode(
+    core::MapNode* node, std::unordered_map<core::MapNode*, QPoint>& nodesPos, const QSize& tileSize);
 
 QPoint neighbourPos(const QPoint& pos, core::Direction dir, const QSize& tileSize)
 {
@@ -255,7 +256,8 @@ QSGNode* drawRect(const QRect& rect, QSGNode* oldNode)
     return node;
 }
 
-static void positionMapNode(core::MapNode* node, std::unordered_map<core::MapNode*, QPoint>& nodesPos, const QSize& tileSize)
+static void positionMapNode(
+    core::MapNode* node, std::unordered_map<core::MapNode*, QPoint>& nodesPos, const QSize& tileSize)
 {
     QPoint pos = nodesPos[node];
     const core::MapNodeNeighbours& neighbours = node->getNeighbours();

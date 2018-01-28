@@ -760,7 +760,8 @@ static bool assignTableToListField(sol::stack_object& value, FieldValue& field, 
         if (maybeIndex)
             indexes.insert(*maybeIndex);
         else
-            wWarning.format("Ignoring non-integer key {} while extracting indexes from list-table", element.first.as<std::string>());
+            wWarning.format("Ignoring non-integer key {} while extracting indexes from list-table",
+                element.first.as<std::string>());
     }
 
     if (indexes.size() != table.size())

@@ -229,7 +229,8 @@ TEST_CASE("", "[mapNodeAtPos][!hide]")
     ui::WorldSurface surface("./worldsurface-packages/test.wsp", &world);
     surface.activate();
 
-    const std::unordered_map<core::MapNode*, QPoint> nodesPos = ui::positionMapNodes(mapNodes.front(), surface.getTileSize());
+    const std::unordered_map<core::MapNode*, QPoint> nodesPos =
+        ui::positionMapNodes(mapNodes.front(), surface.getTileSize());
 
     const core::MapNode* n;
 

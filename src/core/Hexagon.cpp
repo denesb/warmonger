@@ -187,7 +187,7 @@ std::pair<Direction, Direction> connectingDirectionsPrivate(const Direction d1, 
             "Cannot find connecting directions for direction `" + direction2str(d1) + "' and `" + direction2str(d2));
     }
 }
-}
+} // namespace
 
 } // namespace core
 } // namespace warmonger

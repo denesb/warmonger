@@ -22,7 +22,6 @@
 #include <catch.hpp>
 
 #include "core/MapNode.h"
-#include "core/MapNodeNeighbours.h"
 #include "core/World.h"
 
 using namespace warmonger;

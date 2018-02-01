@@ -24,7 +24,7 @@
 namespace warmonger {
 namespace ui {
 
-static QImage createBannerImage(WorldSurface* worldSurface, core::Banner* banner, const QColor& color);
+static QImage createBannerImage(WorldSurface* worldSurface, core::Banner* banner, core::Color* abstractColor);
 
 Banner::Banner(QQuickItem* parent)
     : QQuickPaintedItem(parent)
@@ -43,7 +43,7 @@ void Banner::setBanner(core::Banner* banner)
     }
 }
 
-void Banner::setPrimaryColor(const QColor& primaryColor)
+void Banner::setPrimaryColor(core::Color* primaryColor)
 {
     if (this->primaryColor != primaryColor)
     {
@@ -52,6 +52,18 @@ void Banner::setPrimaryColor(const QColor& primaryColor)
         this->updateContent();
 
         emit primaryColorChanged();
+    }
+}
+
+void Banner::setSecondaryColor(core::Color* secondaryColor)
+{
+    if (this->secondaryColor != secondaryColor)
+    {
+        this->secondaryColor = secondaryColor;
+
+        this->updateContent();
+
+        emit secondaryColorChanged();
     }
 }
 
@@ -79,21 +91,23 @@ void Banner::paint(QPainter* painter)
 void Banner::updateContent()
 {
     this->bannerImage = createBannerImage(this->worldSurface, this->banner, this->primaryColor);
-    if (this->bannerImage.isNull())
+    if (this->bannerImage.isNull() || this->secondaryColor == nullptr)
         this->setFlags(0);
     else
         this->setFlags(QQuickItem::ItemHasContents);
 
+    this->setFillColor(this->worldSurface->colorFor(this->secondaryColor));
     this->update();
 }
 
-static QImage createBannerImage(WorldSurface* worldSurface, core::Banner* banner, const QColor& color)
+static QImage createBannerImage(WorldSurface* worldSurface, core::Banner* banner, core::Color* abstractColor)
 {
-    if (worldSurface == nullptr || banner == nullptr || !color.isValid())
+    if (worldSurface == nullptr || banner == nullptr || abstractColor == nullptr)
         return QImage();
 
     QImage image(worldSurface->getImage(QStringLiteral("banners") / banner->getName()));
 
+    const QColor color = worldSurface->colorFor(abstractColor);
     const QRgb rgb = color.rgb();
     const QSize size = image.size();
     for (int y = 0; y < size.height(); ++y)

@@ -22,17 +22,17 @@
 #include <iterator>
 #include <random>
 
-#include "core/Banner.h"
 #include "core/Faction.h"
+#include "core/World.h"
 #include "utils/Exception.h"
 
 namespace warmonger {
 namespace core {
 
-std::tuple<Banner*, QColor, QColor> nextAvailableCombination(
-    const std::vector<Faction*>& factions, const std::vector<Banner*>& banners, const std::vector<QColor>& colors)
+std::tuple<Banner*, Color*, Color*> nextAvailableCombination(
+    const std::vector<Faction*>& factions, const std::vector<Banner*>& banners, const std::vector<Color*>& colors)
 {
-    typedef std::tuple<Banner*, QColor, QColor> Combination;
+    typedef std::tuple<Banner*, Color*, Color*> Combination;
 
     std::vector<Combination> usedCombinations;
 
@@ -42,7 +42,7 @@ std::tuple<Banner*, QColor, QColor> nextAvailableCombination(
     }
 
     std::vector<Banner*> shuffledBanners(banners);
-    std::vector<QColor> shuffledColors(colors);
+    std::vector<Color*> shuffledColors(colors);
     std::random_device rd;
     std::mt19937 mtd(rd());
 

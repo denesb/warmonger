@@ -74,5 +74,5 @@ static void addSubdirToSearchPath(const QString& worldPath, const QString& subdi
     wInfo << "Added " << subdirPath << " to " << subdirName << " search path";
 }
 
-} // namespace warmonger
 } // namespace ui
+} // namespace warmonger

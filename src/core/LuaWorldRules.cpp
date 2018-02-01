@@ -79,64 +79,57 @@ namespace core {
 
 class LuaWorldComponent : public Component
 {
-public:
-    LuaWorldComponent(ComponentType* type, QObject* parent, ObjectId id);
+    Q_OBJECT
 
-    FieldValue* field(const QString& name) override;
-    const FieldValue* field(const QString& name) const override;
-    std::unordered_map<QString, FieldValue> getFields() const override;
-    void setFields(std::unordered_map<QString, FieldValue> fields) override;
+public:
+    LuaWorldComponent(QString name, sol::state& L, QObject* parent);
+
+    LuaWorldComponent(ir::Value v, sol::state& L, QObject* parent);
+
+    ir::Value serialize() const override;
+
+    const QString& getName() const override
+    {
+        return this->name;
+    }
+
+    bool isBuiltIn() const override
+    {
+        return false;
+    }
+
+    sol::table& getTable()
+    {
+        return this->table;
+    }
+
+    sol::object index(sol::stack_object key, sol::this_state);
+    void newIndex(sol::stack_object key, sol::stack_object value, sol::this_state);
 
 private:
-    std::unordered_map<QString, FieldValue> fields;
+    sol::state& L;
+    sol::table table;
+    QString name;
 };
 
 static void exposeAPI(sol::state& lua);
 static void wLuaLog(sol::this_state L, utils::LogLevel logLevel, const std::string& msg);
-static sol::object referenceToLua(FieldValue& fieldValue, sol::this_state L);
-static sol::object fieldValueToLua(FieldValue& fieldValue, sol::this_state L);
-static FieldValue referenceFromLua(sol::object value);
-static FieldValue fieldValueFromLua(sol::stack_object& value, sol::this_state L);
-static FieldValue nestedFieldValueFromLua(sol::object value);
-static sol::object fieldValueIndex(FieldValue* const fieldValue, sol::stack_object key, sol::this_state L);
-static void fieldValueNewIndex(
-    FieldValue* const fieldValue, sol::stack_object key, sol::stack_object value, sol::this_state L);
-static sol::object fieldValueLength(FieldValue* const fieldValue, sol::this_state L);
-static sol::object componentIndex(Component* const component, sol::stack_object key, sol::this_state L);
-static bool isCompatibleType(const FieldValue& fieldValue, int type);
-static bool assignValueToField(sol::stack_object& value, FieldValue& field, sol::this_state L);
-static bool assignTableToListField(sol::stack_object& value, FieldValue& field, sol::this_state L);
-static bool assignTableToMapField(sol::stack_object& value, FieldValue& field, sol::this_state L);
-static void componentNewIndex(
-    Component* const component, sol::stack_object key, sol::stack_object value, sol::this_state L);
+static sol::object createComponent(Entity* const entity, QString name, sol::this_state L);
+static sol::object entityIndex(Entity* const entity, sol::stack_object key, sol::this_state L);
 static void loadWorldModule(sol::state& lua, const QString& basePath, const QString& moduleName);
 
-class LuaExternalValue : public FieldValue::ExternalValue::Impl
+std::unique_ptr<WorldRules> LuaWorldRules::make(World* world)
 {
-public:
-    LuaExternalValue(sol::object value)
-        : value(std::move(value))
-    {
-    }
-
-    FieldValue materialize() const override
-    {
-        wError << "UIMPLEMENTED";
-        return FieldValue();
-    }
-
-    sol::object getValue() const
-    {
-        return value;
-    }
-
-private:
-    sol::object value;
-};
+    return std::make_unique<LuaWorldRules>(world);
+}
 
 LuaWorldRules::LuaWorldRules(core::World* world)
     : world(world)
     , state(std::make_unique<sol::state>())
+{
+}
+
+LuaWorldRules::~LuaWorldRules()
 {
 }
 
@@ -171,9 +164,14 @@ void LuaWorldRules::loadRules(const QString& basePath, const QString& mainRulesF
     this->worldInitHook();
 }
 
-std::unique_ptr<Component> LuaWorldRules::createComponent(ComponentType* type, QObject* parent, ObjectId id)
+std::unique_ptr<Component> LuaWorldRules::createComponent(QString name, QObject* parent)
 {
-    return std::make_unique<LuaWorldComponent>(type, parent, id);
+    return std::make_unique<LuaWorldComponent>(std::move(name), *this->state, parent);
+}
+
+std::unique_ptr<Component> LuaWorldRules::createComponent(ir::Value v, QObject* parent)
+{
+    return std::make_unique<LuaWorldComponent>(std::move(v), *this->state, parent);
 }
 
 std::unique_ptr<core::Map> LuaWorldRules::generateMap(unsigned int size)
@@ -195,48 +193,45 @@ void LuaWorldRules::mapInit(Map* map)
     this->mapInitHook(map);
 }
 
-LuaWorldComponent::LuaWorldComponent(ComponentType* type, QObject* parent, ObjectId id)
-    : Component(type, parent, id)
+LuaWorldComponent::LuaWorldComponent(QString name, sol::state& L, QObject* parent)
+    : Component(parent)
+    , L(L)
+    , table(L, sol::create)
+    , name(name)
 {
-    auto fieldDefs = type->getFields();
-    for (auto& fieldDef : fieldDefs)
-    {
-        this->fields.emplace(fieldDef->getName(), FieldValue{fieldDef->getType()});
-    }
 }
 
-FieldValue* LuaWorldComponent::field(const QString& name)
+LuaWorldComponent::LuaWorldComponent(ir::Value v, sol::state& L, QObject* parent)
+    : Component(parent, v.getObjectId())
+    , L(L)
+    , table(L, sol::create)
 {
-    auto it = this->fields.find(name);
-    if (it == this->fields.end())
-    {
-        wWarning << "Attempt to get value of non-existing field `" << name << "' from " << this->type->getName()
-                 << " component";
-        return nullptr;
-    }
-    return &it->second;
+    auto obj = std::move(v).asObject();
+
+    this->name = std::move(obj["name"]).asString();
+
+    // FIXME call into the rules to unserialize
 }
 
-const FieldValue* LuaWorldComponent::field(const QString& name) const
+ir::Value LuaWorldComponent::serialize() const
 {
-    auto it = this->fields.find(name);
-    if (it == this->fields.end())
-    {
-        wWarning << "Attempt to get value of non-existing field `" << name << "' from " << this->type->getName()
-                 << " component";
-        return nullptr;
-    }
-    return &it->second;
+    std::unordered_map<QString, ir::Value> obj;
+
+    obj.emplace("name", this->name);
+
+    // FIXME call into the rules to serialize
+
+    return obj;
 }
 
-std::unordered_map<QString, FieldValue> LuaWorldComponent::getFields() const
+sol::object LuaWorldComponent::index(sol::stack_object key, sol::this_state)
 {
-    return this->fields;
+    return this->table[key];
 }
 
-void LuaWorldComponent::setFields(std::unordered_map<QString, FieldValue> fields)
+void LuaWorldComponent::newIndex(sol::stack_object key, sol::stack_object value, sol::this_state)
 {
-    this->checkAndSetFields(std::move(fields), this->fields);
+    this->table[key] = value;
 }
 
 static void exposeAPI(sol::state& lua)
@@ -258,19 +253,8 @@ static void exposeAPI(sol::state& lua)
         "name",
         sol::property(&Civilization::getName));
 
-    lua.new_usertype<Banner>("banner",
-        sol::meta_function::construct,
-        sol::no_constructor,
-        "name",
-        sol::property(&Banner::getName),
-        "civilizations",
-        sol::property(&Banner::getCivilizations));
-
-    lua.new_usertype<ComponentType>("component_type",
-        sol::meta_function::construct,
-        sol::no_constructor,
-        "name",
-        sol::property(&ComponentType::getName));
+    lua.new_usertype<Banner>(
+        "banner", sol::meta_function::construct, sol::no_constructor, "name", sol::property(&Banner::getName));
 
     lua.new_usertype<World>("world",
         sol::meta_function::construct,
@@ -279,14 +263,18 @@ static void exposeAPI(sol::state& lua)
         sol::property(&World::getName),
         "uuid",
         sol::property(&World::getUuid),
+        "create_banner",
+        &World::createBanner,
         "banners",
         sol::property(&World::getBanners),
+        "create_civilization",
+        &World::createCivilization,
         "civilizations",
         sol::property(&World::getCivilizations),
+        "create_color",
+        &World::createColor,
         "colors",
-        sol::property(&World::getColors),
-        "component_types",
-        sol::property(&World::getComponentTypes));
+        sol::property(&World::getColors));
 
     lua.new_usertype<MapNodeNeighbours>("map_node_neighbours",
         sol::meta_function::construct,
@@ -338,39 +326,55 @@ static void exposeAPI(sol::state& lua)
         "civilization",
         sol::property(&Faction::getCivilization, &Faction::setCivilization));
 
-    lua.new_usertype<FieldValue>("field_value",
+    lua.new_usertype<PositionComponent>("position_component",
         sol::meta_function::construct,
         sol::no_constructor,
-        sol::meta_function::index,
-        fieldValueIndex,
-        sol::meta_function::new_index,
-        fieldValueNewIndex,
-        sol::meta_function::length,
-        fieldValueLength);
+        "name",
+        sol::property(&PositionComponent::getName),
+        "map_node",
+        sol::property(&PositionComponent::getMapNode, &PositionComponent::setMapNode));
 
-    lua.new_usertype<Component>("component",
+    lua.new_usertype<GraphicsComponent>("graphics_component",
         sol::meta_function::construct,
         sol::no_constructor,
-        "type",
-        sol::property(&Component::getType),
+        "name",
+        sol::property(&GraphicsComponent::getName),
+        "path",
+        sol::property(&GraphicsComponent::getPath, &GraphicsComponent::setPath),
+        "x",
+        sol::property(&GraphicsComponent::getX, &GraphicsComponent::setX),
+        "y",
+        sol::property(&GraphicsComponent::getY, &GraphicsComponent::setY),
+        "x",
+        sol::property(&GraphicsComponent::getZ, &GraphicsComponent::setZ),
+        "container",
+        sol::property(&GraphicsComponent::getContainer, &GraphicsComponent::setContainer));
+
+    lua.new_usertype<LuaWorldComponent>("lua_world_component",
+        sol::meta_function::construct,
+        sol::no_constructor,
+        "name",
+        sol::property(&Component::getName),
         sol::meta_function::index,
-        componentIndex,
+        &LuaWorldComponent::index,
         sol::meta_function::new_index,
-        componentNewIndex);
+        &LuaWorldComponent::newIndex);
 
     lua.new_usertype<Entity>("entity",
         sol::meta_function::construct,
         sol::no_constructor,
         "components",
         sol::property(&Entity::getComponents),
-        "get_component",
-        sol::overload(sol::resolve<Component*(const ComponentType* const)>(&Entity::getComponent),
-            sol::resolve<Component*(const QString&)>(&Entity::getComponent)),
+        "position",
+        sol::property(&Entity::getPositionComponent),
+        "graphics",
+        sol::property(&Entity::getGraphicsComponent),
+        sol::meta_function::index,
+        entityIndex,
         "create_component",
-        &Entity::createComponent,
+        createComponent,
         "remove_component",
-        sol::overload([](Entity* entity, const ComponentType* const type) { return entity->removeComponent(type); },
-            [](Entity* entity, const QString& typeName) { return entity->removeComponent(typeName); }));
+        &Entity::removeComponent);
 
     lua.new_usertype<Map>("map",
         sol::meta_function::construct,
@@ -426,421 +430,45 @@ static void wLuaLog(sol::this_state L, utils::LogLevel logLevel, const std::stri
     }
 }
 
-static sol::object referenceToLua(FieldValue& fieldValue, sol::this_state L)
+static sol::object createComponent(Entity* const entity, QString name, sol::this_state L)
 {
-    auto ref = fieldValue.asReference();
-    const auto& typeId = typeid(*ref);
+    auto* c = entity->createComponent(std::move(name));
 
-    if (typeId == typeid(Banner))
-        return sol::object(L, sol::in_place, static_cast<Banner*>(ref));
-    else if (typeId == typeid(Civilization))
-        return sol::object(L, sol::in_place, static_cast<Civilization*>(ref));
-    else if (typeId == typeid(Component))
-        return sol::object(L, sol::in_place, static_cast<Component*>(ref));
-    else if (typeId == typeid(ComponentType))
-        return sol::object(L, sol::in_place, static_cast<ComponentType*>(ref));
-    else if (typeId == typeid(Entity))
-        return sol::object(L, sol::in_place, static_cast<Entity*>(ref));
-    else if (typeId == typeid(Faction))
-        return sol::object(L, sol::in_place, static_cast<Faction*>(ref));
-    else if (typeId == typeid(MapNode))
-        return sol::object(L, sol::in_place, static_cast<MapNode*>(ref));
-
-    wWarning << "Unknown WObject derived type: `" << typeId.name() << "'";
-    return sol::object(L, sol::in_place, sol::lua_nil);
-}
-
-static sol::object fieldValueToLua(FieldValue& fieldValue, sol::this_state L)
-{
-    switch (fieldValue.getState())
+    if (c->isBuiltIn())
     {
-        case FieldValue::State::Null:
-            return sol::object(L, sol::in_place, sol::lua_nil);
-        case FieldValue::State::Integer:
-            return sol::object(L, sol::in_place, fieldValue.asInteger());
-        case FieldValue::State::Real:
-            return sol::object(L, sol::in_place, fieldValue.asReal());
-        case FieldValue::State::String:
-            return sol::object(L, sol::in_place, fieldValue.asString());
-        case FieldValue::State::Reference:
-            return referenceToLua(fieldValue, L);
-        case FieldValue::State::List:
-        case FieldValue::State::Map:
-            return sol::object(L, sol::in_place, &fieldValue);
-        case FieldValue::State::External:
-            return static_cast<LuaExternalValue*>(fieldValue.asExternalValue().getImpl())->getValue();
-    }
-    wWarning << "Uncrecognized field state " << fieldValue.getState();
-    return sol::object(L, sol::in_place, sol::lua_nil);
-}
-
-static FieldValue referenceFromLua(sol::object value)
-{
-    if (auto v = value.as<sol::optional<Banner*>>())
-        return FieldValue(*v);
-    else if (auto v = value.as<sol::optional<Civilization*>>())
-        return FieldValue(*v);
-    else if (auto v = value.as<sol::optional<Component*>>())
-        return FieldValue(*v);
-    else if (auto v = value.as<sol::optional<ComponentType*>>())
-        return FieldValue(*v);
-    else if (auto v = value.as<sol::optional<Entity*>>())
-        return FieldValue(*v);
-    else if (auto v = value.as<sol::optional<Faction*>>())
-        return FieldValue(*v);
-    else if (auto v = value.as<sol::optional<MapNode*>>())
-        return FieldValue(*v);
-
-    wWarning << "Expected WObject derived userdata, got something else";
-    return FieldValue();
-}
-
-static FieldValue fieldValueFromLua(sol::stack_object& value, sol::this_state L)
-{
-    switch (lua_type(L, value.stack_index()))
-    {
-        case LUA_TNUMBER:
-            return FieldValue(value.as<double>());
-
-        case LUA_TSTRING:
-            return FieldValue(value.as<QString>());
-
-        case LUA_TUSERDATA:
-            if (value.is<FieldValue*>())
-                return *value.as<FieldValue*>();
-            return referenceFromLua(value);
-
-        case LUA_TTABLE:
-            return FieldValue::makeExternal<LuaExternalValue>(sol::object(L, value.stack_index()));
-
-        default:
-            wWarning << "Attempt to set value of incompatible type";
-            return {};
-    }
-}
-
-// Convert a nested Lua value (a table element) to a FieldValue:
-// * Copy primitive types (number, boolean, string).
-// * Copy userdata (we only pass pointers to lua anyway).
-// * Keep "objects" (tables) in lua and keep a reference only.
-static FieldValue nestedFieldValueFromLua(sol::object value)
-{
-    if (auto maybeNumber = value.as<sol::optional<double>>())
-    {
-        return FieldValue(*maybeNumber);
-    }
-    else if (auto maybeString = value.as<sol::optional<QString>>())
-    {
-        return FieldValue(*maybeString);
-    }
-    else if (value.is<sol::table>())
-    {
-        return FieldValue::makeExternal<LuaExternalValue>(std::move(value));
+        if (c->getName() == PositionComponent::name)
+            return sol::object(L, sol::in_place, static_cast<PositionComponent*>(c));
+        else if (c->getName() == GraphicsComponent::name)
+            return sol::object(L, sol::in_place, static_cast<GraphicsComponent*>(c));
+        else
+            abort(); // Should never get here
     }
     else
     {
-        auto ref = referenceFromLua(value);
-        if (!!ref)
-            return ref;
+        return sol::object(L, sol::in_place, static_cast<LuaWorldComponent*>(c));
     }
-    wWarning << "Unknown type";
-    return FieldValue();
 }
 
-static sol::object fieldValueIndex(FieldValue* const fieldValue, sol::stack_object key, sol::this_state L)
+static sol::object entityIndex(Entity* const entity, sol::stack_object key, sol::this_state L)
 {
-    if (!fieldValue->isList() && !fieldValue->isMap())
+    auto maybeComponentName = key.as<sol::optional<QString>>();
+    if (!maybeComponentName)
     {
-        wWarning << "Attempt to index non container field";
+        wWarning.format("Attempt to index entity with non-string key");
         return sol::object(L, sol::in_place, sol::lua_nil);
     }
 
-    if (fieldValue->isList())
-    {
-        auto maybeIndex = key.as<sol::optional<ssize_t>>();
-        if (!maybeIndex)
-        {
-            wWarning << "Attempt to index list field with non-integer key";
-            return sol::object(L, sol::in_place, sol::lua_nil);
-        }
+    auto* component = entity->getComponent(*maybeComponentName);
 
-        // Lua array indexes start from 1
-        const auto index = *maybeIndex - 1;
-        auto& list = fieldValue->asList();
-        if (index < 0 || static_cast<std::size_t>(index) >= list.size())
-        {
-            wWarning << "Index " << index << " is out of bounds";
-            return sol::object(L, sol::in_place, sol::lua_nil);
-        }
-
-        return fieldValueToLua(list[index], L);
-    }
-    else
-    {
-        auto maybeKey = key.as<sol::optional<QString>>();
-        if (!maybeKey)
-        {
-            wWarning << "Attempt to index map field with non-string key";
-            return sol::object(L, sol::in_place, sol::lua_nil);
-        }
-
-        auto& map = fieldValue->asMap();
-        auto it = map.find(*maybeKey);
-        if (it == map.end())
-        {
-            return sol::object(L, sol::in_place, sol::lua_nil);
-        }
-        else
-        {
-            return fieldValueToLua(it->second, L);
-        }
-    }
-}
-
-static void fieldValueNewIndex(
-    FieldValue* const fieldValue, sol::stack_object key, sol::stack_object value, sol::this_state L)
-{
-    if (!fieldValue->isList() && !fieldValue->isMap())
-    {
-        wWarning << "Attempt to new_index non container field";
-        return;
-    }
-
-    if (fieldValue->isList())
-    {
-        auto maybeIndex = key.as<sol::optional<ssize_t>>();
-        if (!maybeIndex)
-        {
-            wWarning << "Attempt to new_index list field with non-integer key";
-            return;
-        }
-
-        // Lua indexes start from 1
-        const auto index = *maybeIndex - 1;
-        auto& list = fieldValue->asList();
-        if (index < 0 || static_cast<std::size_t>(index) > list.size())
-        {
-            wWarning << "Index " << index << " is out of bounds";
-            return;
-        }
-
-        if (static_cast<std::size_t>(index) == list.size())
-            list.push_back(fieldValueFromLua(value, L));
-        else
-            list[index] = fieldValueFromLua(value, L);
-    }
-    else
-    {
-        auto maybeKey = key.as<sol::optional<QString>>();
-        if (!maybeKey)
-        {
-            wWarning << "Attempt to index map field with non-string key";
-            return;
-        }
-
-        auto& map = fieldValue->asMap();
-        auto it = map.find(*maybeKey);
-        if (it == map.end())
-        {
-            if (value != sol::nil)
-                map.emplace(*maybeKey, fieldValueFromLua(value, L));
-        }
-        else
-        {
-            if (value == sol::nil)
-                map.erase(it);
-            else
-                it->second = fieldValueFromLua(value, L);
-        }
-    }
-}
-
-static sol::object fieldValueLength(FieldValue* const fieldValue, sol::this_state L)
-{
-    if (fieldValue == nullptr)
-    {
-        wWarning << "Attempt to call length on nil field";
-        return sol::object(L, sol::in_place, sol::lua_nil);
-    }
-
-    if (!fieldValue->isList() && !fieldValue->isMap())
-    {
-        wWarning << "Attempt to call length on non container field";
-        return sol::object(L, sol::in_place, sol::lua_nil);
-    }
-
-    if (fieldValue->isList())
-        return sol::object(L, sol::in_place, fieldValue->asList().size());
-    else if (fieldValue->isMap())
-        return sol::object(L, sol::in_place, fieldValue->asMap().size());
-
-    return sol::object(L, sol::in_place, sol::lua_nil);
-}
-
-static sol::object componentIndex(Component* const component, sol::stack_object key, sol::this_state L)
-{
-    auto maybeFieldName = key.as<sol::optional<QString>>();
-    if (!maybeFieldName)
-    {
-        wWarning << "Attempt to index field with non-string key";
-        return sol::object(L, sol::in_place, sol::lua_nil);
-    }
-
-    auto value{component->field(*maybeFieldName)};
-
-    if (value == nullptr || value->isNull())
+    if (!component)
         return sol::object(L, sol::in_place, sol::lua_nil);
 
-    return fieldValueToLua(*value, L);
-}
+    assert(!component->isBuiltIn());
 
-// Checks that `type' is compatible with the type of the component's fields as
-// defined by the component-type.
-// Type compatibility is not a guarantee that the assignment will be
-// successfull as well, but it's a prerequisite.
-static bool isCompatibleType(const FieldValue& fieldValue, int type)
-{
-    const auto fieldType = fieldValue.getType();
-    return (type == LUA_TNUMBER && (fieldType == Field::Type::Integer || fieldType == Field::Type::Real)) ||
-        (type == LUA_TSTRING && fieldType == Field::Type::String) ||
-        (type == LUA_TUSERDATA && fieldType == Field::Type::Reference) ||
-        (type == LUA_TTABLE && (fieldType == Field::Type::List || fieldType == Field::Type::Map));
-}
-
-// Assigns `value' to `field'.
-// Assumes that the types are compatible, check this with isCompatibleType()
-// before calling this function.
-static bool assignValueToField(sol::stack_object& value, FieldValue& field, sol::this_state L)
-{
-    switch (field.getType())
-    {
-        case Field::Type::Integer:
-            field = value.as<int>();
-            return true;
-
-        case Field::Type::Real:
-            field = value.as<double>();
-            return true;
-
-        case Field::Type::String:
-            field = value.as<QString>();
-            return true;
-
-        case Field::Type::Reference:
-            field = referenceFromLua(value);
-            return false;
-
-        case Field::Type::List:
-            return assignTableToListField(value, field, L);
-
-        case Field::Type::Map:
-            return assignTableToMapField(value, field, L);
-    }
-    wWarning << "Uncrecognized field value " << field.getType();
-    return false;
-}
-
-// Assign a "list" table to a list field.
-//
-// We assume the table has integer-only indexes but we check anyway...
-// Since tables are unordered first we need to sort the extracted elements
-// to know ho much space to reserve for the list.
-// Supports only convenional Lua lists:
-// * Indexes must start from 1.
-// * Indexes must be strictly increasing.
-// * Indexes must be contiguous.
-static bool assignTableToListField(sol::stack_object& value, FieldValue& field, sol::this_state)
-{
-    auto table = value.as<sol::table>();
-
-    std::set<std::size_t> indexes;
-    for (auto& element : table)
-    {
-        auto maybeIndex = element.first.as<sol::optional<std::size_t>>();
-        if (maybeIndex)
-            indexes.insert(*maybeIndex);
-        else
-            wWarning.format("Ignoring non-integer key {} while extracting indexes from list-table",
-                element.first.as<std::string>());
-    }
-
-    if (indexes.size() != table.size())
-    {
-        wWarning << "Attempted to assign table with non-integer keys to a list";
-        return false;
-    }
-
-    if (*indexes.begin() != 1 || *indexes.rbegin() != indexes.size())
-    {
-        wWarning << "Attempted to assign table with non-contiguous or non 1-started indexes to a list";
-        return false;
-    }
-
-    auto& list = field.asList();
-    list.clear();
-    list.resize(table.size());
-
-    for (auto& element : table)
-    {
-        // Lua array indexes start from 1
-        list[element.first.as<std::size_t>() - 1] = nestedFieldValueFromLua(element.second);
-    }
-    return true;
-}
-
-// Assign a table to a map field.
-//
-// We are less picky here then with the list fields. The only requirement is
-// that keys are convertible to string. Non-string keys are simply ignored.
-static bool assignTableToMapField(sol::stack_object& value, FieldValue& field, sol::this_state)
-{
-    auto table = value.as<sol::table>();
-
-    auto& map = field.asMap();
-    map.clear();
-
-    for (auto& element : table)
-    {
-        if (auto maybeKey = element.first.as<sol::optional<QString>>())
-        {
-            map[*maybeKey] = nestedFieldValueFromLua(element.second);
-        }
-        else
-        {
-            wWarning << "Ignoring non-string key while assigning table elements to map field";
-            continue;
-        }
-    }
-    return true;
-}
-
-static void componentNewIndex(
-    Component* const component, sol::stack_object key, sol::stack_object value, sol::this_state L)
-{
-    auto maybeFieldName = key.as<sol::optional<QString>>();
-    if (!maybeFieldName)
-    {
-        wWarning << "Attempt to new_index " << component->getType()->getName() << " component with non-string key";
-        return;
-    }
-    auto fieldName = *maybeFieldName;
-    auto field = component->field(fieldName);
-    if (field == nullptr)
-    {
-        wWarning << "Attempt to assign to non-existing field `" << *maybeFieldName << "' of  "
-                 << component->getType()->getName() << " component";
-        return;
-    }
-
-    auto type = lua_type(L, value.stack_index());
-    if (!isCompatibleType(*field, type))
-    {
-        wWarning << "Attempt to assign a value of incompatible type to field `" << fieldName << "' of "
-                 << component->getType()->getName() << " component";
-        return;
-    }
-
-    assignValueToField(value, *field, L);
+    // At this point we can safely assume we have a LuaWorldComponent.
+    // The entity has specific properties for all the built-in components.
+    // If this cast fails that is a bug.
+    return sol::object(L, sol::in_place, static_cast<LuaWorldComponent*>(component));
 }
 
 static void loadWorldModule(sol::state& lua, const QString& basePath, const QString& moduleName)
@@ -849,6 +477,8 @@ static void loadWorldModule(sol::state& lua, const QString& basePath, const QStr
     wInfo.format("Loading required module `{}' from `{}'", moduleName, moduleFile);
     lua.script_file(moduleFile.toStdString());
 }
+
+#include "LuaWorldRules.moc"
 
 } // namespace core
 } // namespace warmonger

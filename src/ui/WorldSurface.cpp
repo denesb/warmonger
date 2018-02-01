@@ -50,7 +50,7 @@ struct hash<pair<QString, QQuickWindow*>>
         return qHash(key.first);
     }
 };
-}
+} // namespace std
 
 namespace warmonger {
 namespace ui {
@@ -60,7 +60,7 @@ namespace {
 const QString fileExtension{"png"};
 const QString hexagonMask{"hexagonMask.png"};
 
-} // anonymus namespace
+} // namespace
 
 static bool hasAllMandatoryImages(const WorldSurface& surface);
 static QSGTexture* createTexture(const QImage& image, QQuickWindow* window);
@@ -82,6 +82,8 @@ public:
         : path(std::move(path))
     {
     }
+
+    virtual ~Storage() = default;
 
     virtual Header load() = 0;
     virtual void activate() = 0;
@@ -256,6 +258,12 @@ QUrl WorldSurface::getImageUrl(const QString& path) const
 QString WorldSurface::getBannerImagePath(const core::Banner* const banner) const
 {
     return QStringLiteral("banners") / banner->getName() + "." + fileExtension;
+}
+
+QColor WorldSurface::colorFor(core::Color*) const
+{
+    // TODO: implement
+    return QColor();
 }
 
 QString findWorldSurface(const QString& surface, const QString& worldPath)
@@ -502,8 +510,9 @@ static bool hasAllMandatoryImages(const WorldSurface& surface)
 {
     const auto isImageMissing = [&](const QString& path) { return surface.getImage(path).isNull(); };
 
-    const auto isBannerImageMissing = [&](
-        const core::Banner* b) { return isImageMissing(surface.getBannerImagePath(b)); };
+    const auto isBannerImageMissing = [&](const core::Banner* b) {
+        return isImageMissing(surface.getBannerImagePath(b));
+    };
 
     const core::World* world = surface.getWorld();
 

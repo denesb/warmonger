@@ -40,6 +40,8 @@ class Map;
 class LuaWorldRules : public WorldRules
 {
 public:
+    static std::unique_ptr<WorldRules> make(World* world);
+
     /**
      * Create and initialize the world rules object.
      *
@@ -50,7 +52,9 @@ public:
      * \throws IOError if the rules can't be loaded
      * \throws ValueError if the rules can't be parsed or initialization fails
      */
-    LuaWorldRules(core::World* world);
+    LuaWorldRules(World* world);
+
+    ~LuaWorldRules();
 
     World* getWorld() override
     {
@@ -59,7 +63,9 @@ public:
 
     void loadRules(const QString& basePath, const QString& mainRulesFile) override;
 
-    std::unique_ptr<Component> createComponent(ComponentType* type, QObject* parent, ObjectId id) override;
+    std::unique_ptr<Component> createComponent(QString name, QObject* parent) override;
+
+    std::unique_ptr<Component> createComponent(ir::Value v, QObject* parent) override;
 
     std::unique_ptr<core::Map> generateMap(unsigned int size) override;
 

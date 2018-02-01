@@ -52,7 +52,7 @@ void MapWatcher::connectEntitySignals()
     const std::vector<core::Entity*>& entities = this->map->getEntities();
     for (core::Entity* entity : entities)
     {
-        QObject::connect(entity, &core::Entity::componentChanged, this->entityWatcher, &Watcher::changed);
+        QObject::connect(entity, &core::Entity::componentsChanged, this->entityWatcher, &Watcher::changed);
     }
 }
 

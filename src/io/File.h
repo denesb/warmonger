@@ -30,7 +30,7 @@ namespace warmonger {
 namespace core {
 class Map;
 class World;
-}
+} // namespace core
 
 namespace io {
 
@@ -90,7 +90,7 @@ void writeMap(const core::Map* const map, const QString& path);
  */
 std::unique_ptr<core::Map> readMap(const QString& path, core::World* world);
 
-} // namespace warmonger
 } // namespace io
+} // namespace warmonger
 
 #endif // IO_FILE_H

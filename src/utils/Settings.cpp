@@ -133,5 +133,5 @@ static void setSettingsValue(const QString& key, const QVariant& value)
     settings.setValue(key, value);
 }
 
-} // namespace warmonger
 } // namespace utils
+} // namespace warmonger

@@ -24,25 +24,79 @@
 #include <memory>
 #include <vector>
 
-#include <QColor>
 #include <QObject>
-#include <QVariant>
 
-#include "core/Banner.h"
-#include "core/Civilization.h"
-#include "core/WorldComponentType.h"
+#include "core/IntermediateRepresentation.h"
 #include "core/WorldRules.h"
 
 namespace warmonger {
 namespace core {
 
+class NamedType : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QString name READ getName CONSTANT)
+public:
+    NamedType(QString name, QObject* parent)
+        : QObject(parent)
+        , name(name)
+    {
+        this->setObjectName(name);
+    }
+
+    QString getName() const
+    {
+        return this->name;
+    }
+
+private:
+    QString name;
+};
+
+/**
+ * A civilization.
+ */
+class Civilization : public NamedType
+{
+    Q_OBJECT
+
+public:
+    using NamedType::NamedType;
+};
+
+/**
+ * An abstract faction banner.
+ *
+ * Surfaces define the actual look of the banner.
+ */
+class Banner : public NamedType
+{
+    Q_OBJECT
+
+public:
+    using NamedType::NamedType;
+};
+
+/**
+ * Abstract color, used for the banners.
+ *
+ * Surfaces can define concrete colors that are mapped to the abstract
+ * colors defined by the world.
+ */
+class Color : public NamedType
+{
+    Q_OBJECT
+
+public:
+    using NamedType::NamedType;
+};
+
 /**
  * Defines a game world.
  *
  * A world defines the content all its behaviour besides the core game rules.
- * It defines the available civilizations and component-types.
  */
-class World : public QObject
+class World : public QObject, public ir::Serializable
 {
     Q_OBJECT
     Q_PROPERTY(QString name READ getName NOTIFY nameChanged)
@@ -50,38 +104,28 @@ class World : public QObject
     Q_PROPERTY(QVariantList banners READ readBanners NOTIFY bannersChanged)
     Q_PROPERTY(QVariantList civilizations READ readCivilizations NOTIFY civilizationsChanged)
     Q_PROPERTY(QVariantList colors READ readColors NOTIFY colorsChanged)
-    Q_PROPERTY(QVariantList componentTypes READ readComponentTypes NOTIFY componentTypesChanged)
 
 public:
-    template <class Visitor>
-    static auto describe(Visitor&& visitor)
-    {
-        return visitor.template visitParent<QObject>()
-            .visitMember("name", &World::getName, &World::setName)
-            .visitMember("uuid", &World::getUuid)
-            .visitMember("builtInObjectIds", &World::getBuiltInObjectIds)
-            .visitMember("rulesEntryPoint", &World::getRulesEntryPoint, &World::setRulesEntryPoint)
-            .visitMember("rulesType", &World::getRulesType)
-            .visitMember("banners", &World::getBanners, &World::addBanner)
-            .visitMember("civilizations", &World::getCivilizations, &World::addCivilization)
-            .visitMember("colors", &World::getColors, &World::setColors)
-            .visitMember("componentTypes", &World::getWorldComponentTypes, &World::addWorldComponentType)
-            .template visitConstructor<QString, WorldRules::Type, std::map<QString, ObjectId>, QObject*>(
-                "uuid", "rulesType", "builtInObjectIds", "parent");
-    }
-
     /**
      * Constructs an empty world object.
      *
      * \param uuid the unique identifier of the world
      * \param rulesType the type of the rules
-     * \param builtInObjectIds previously assigned ids for built in component-types
      * \param parent the parent QObject.
      */
-    World(const QString& uuid,
-        WorldRules::Type rulesType,
-        const std::map<QString, ObjectId>& builtInObjectIds = std::map<QString, ObjectId>(),
-        QObject* parent = nullptr);
+    World(const QString& uuid, WorldRules::Type rulesType, QObject* parent = nullptr);
+
+    /**
+     * Construct the world from the intermediate-representation.
+     *
+     * Unserializing constructor.
+     *
+     * \param v the intermediate-representation
+     * \param parent the parent QObject.
+     */
+    World(ir::Value v, QObject* parent = nullptr);
+
+    ir::Value serialize() const override;
 
     /**
      * Get the uuid.
@@ -114,10 +158,53 @@ public:
     void setName(const QString& name);
 
     /**
-     * Get the banners.
+     * Get the rules entry point.
      *
-     * \return the banners
+     * The rules entry is an opaque handle to the file or function
+     * (or other) which the world-rules use to load the rules.
+     *
+     * \return the entry point
      */
+    QString getRulesEntryPoint() const
+    {
+        return this->rulesEntryPoint;
+    }
+
+    /**
+     * Set the rules entry point.
+     *
+     * Will emit the signal World::rulesEntryPointChanged() if the newly set
+     * value is different than the current one.
+     *
+     * \param rulesEntryPoint the new entry point
+     */
+    void setRulesEntryPoint(const QString& rulesEntryPoint);
+
+    WorldRules::Type getRulesType() const
+    {
+        return this->rulesType;
+    }
+
+    /**
+     * Load the rules from basePath.
+     *
+     * The base-path is used to resolve relative path within the rules,
+     * including the entry point.
+     * Should only be called when the world is set-up. Don't modify the
+     * world afterwards.
+     *
+     * \param basePath the path to the world directory
+     *
+     * \throws IOError if the rules can't be loaded
+     * \throws ValueError if the rules can't be parsed or initialization fails
+     */
+    void loadRules(const QString& basePath);
+
+    WorldRules* getRules() const
+    {
+        return this->rules.get();
+    }
+
     const std::vector<Banner*>& getBanners() const
     {
         return this->banners;
@@ -139,30 +226,11 @@ public:
      *
      * The world takes ownership of the created object.
      * Will emit the signal World::bannersChanged().
-     * An id value should only be passed when the factions is being
-     * unserialized and it already has a priorly generated id.
      *
-     * \param id the id
-     *
-     * \return the new banner
+     * \return the creted banner
      */
-    Banner* createBanner(ObjectId id = ObjectId::Invalid);
+    Banner* createBanner(QString name);
 
-    /**
-     * Add a new banner to the world.
-     *
-     * The world must already own this banner, i.e. it must have been
-     * created with the world as its parent.
-     *
-     * \returns the added banner
-     */
-    Banner* addBanner(std::unique_ptr<Banner> banner);
-
-    /**
-     * Get the civilizations.
-     *
-     * \return the civilizations
-     */
     const std::vector<Civilization*>& getCivilizations() const
     {
         return this->civilizations;
@@ -184,44 +252,25 @@ public:
      *
      * The world takes ownership of the created object.
      * Will emit the signal World::civilizationsChanged().
-     * An id value should only be passed when the factions is being
-     * unserialized and it already has a priorly generated id.
-     *
-     * \param id the id
      *
      * \returns the new civilization
      */
-    Civilization* createCivilization(ObjectId id = ObjectId::Invalid);
+    Civilization* createCivilization(QString name);
 
-    /**
-     * Add a new civilization to the world.
-     *
-     * The world must already own this civilization, i.e. it must have
-     * been created with the world as its parent.
-     *
-     * \returns the added civilization
-     */
-    Civilization* addCivilization(std::unique_ptr<Civilization> civilization);
-
-    /**
-     * Get the colors.
-     *
-     * \return the colors
-     */
-    const std::vector<QColor>& getColors() const
+    const std::vector<Color*>& getColors() const
     {
         return this->colors;
     }
 
     /**
-     * Set the colors.
+     * Create a new color.
      *
-     * Will emit the signal World::colorsChanged() if the newly set
-     * value is different than the current one.
+     * The world takes ownership of the created object.
+     * Will emit the signal World::colorsChanged().
      *
-     * \param colors the new colors
+     * \returns the new color
      */
-    void setColors(const std::vector<QColor>& colors);
+    Color* createColor(QString name);
 
     /**
      * Get the colors as a QVariantList.
@@ -234,131 +283,16 @@ public:
      */
     QVariantList readColors() const;
 
-    /**
-     * Get the component-types.
-     *
-     * \return the component-types
-     */
-    const std::vector<ComponentType*>& getComponentTypes() const
-    {
-        return this->componentTypes;
-    }
-
-    /**
-     * Get the world component-types.
-     *
-     * This list excludes any built-in component-types.
-     */
-    std::vector<WorldComponentType*> getWorldComponentTypes() const;
-
-    /**
-     * Get the component-types as a QVariantList.
-     *
-     * This function is used as a read function for the mapNodes property and is
-     * not supposed to be called from C++ code. Use World::getComponentTypes()
-     * instead.
-     *
-     * \returns the component-types
-     */
-    QVariantList readComponentTypes() const;
-
-    /**
-     * Create a new world component-type.
-     *
-     * The world takes ownership of the created object.
-     * Will emit the signal World::componentTypesChanged().
-     * An id value should only be passed when the factions is being
-     * unserialized and it already has a priorly generated id.
-     *
-     * \param id the id
-     *
-     * \return the new component-type
-     */
-    WorldComponentType* createWorldComponentType(ObjectId id = ObjectId::Invalid);
-
-    /**
-     * Add a new world component-type to the world.
-     *
-     * The world must already own this component-type, i.e. it must have
-     * been created with the world as its parent.
-     *
-     * \returns the added world component-type
-     */
-    WorldComponentType* addWorldComponentType(std::unique_ptr<WorldComponentType> worldComponentType);
-
-    /**
-     * Get the built-in object id mapping.
-     *
-     * This mapping is used to permanently pin a certain built-in object to
-     * the id it's first given when created.
-     *
-     * \returns the id mapping
-     */
-    const std::map<QString, ObjectId>& getBuiltInObjectIds() const
-    {
-        return this->builtInObjectIds;
-    }
-
-    /**
-     * Get the rules entry point.
-     *
-     * \return the entry point
-     */
-    QString getRulesEntryPoint() const
-    {
-        return this->rulesEntryPoint;
-    }
-
-    /**
-     * Set the rules entry point.
-     *
-     * Will emit the signal World::rulesEntryPointChanged() if the newly set
-     * value is different than the current one.
-     *
-     * \param rulesEntryPoint the new entry point
-     */
-    void setRulesEntryPoint(const QString& rulesEntryPoint);
-
-    /**
-     * Get the rules type.
-     *
-     * \return the type
-     */
-    WorldRules::Type getRulesType() const
-    {
-        return this->rulesType;
-    }
-
-    /**
-     * Load the rules from basePath.
-     *
-     * The base-path is used to resolve relative path within the rules,
-     * including the entry point.
-     * Should only be called when the world is set-up. Don't modify the
-     * world afterwards.
-     *
-     * \param basePath the path to the world directory
-     *
-     * \throws IOError if the rules can't be loaded
-     * \throws ValueError if the rules can't be parsed or initialization fails
-     */
-    void loadRules(const QString& basePath);
-
-    /**
-     * Get the world-rules.
-     *
-     * \returns the rules
-     */
-    WorldRules* getRules() const
-    {
-        return this->rules;
-    }
-
 signals:
     /**
      * Emitted when the name changes.
      */
     void nameChanged();
+
+    /**
+     * Emitted when the rules entry point changes.
+     */
+    void rulesEntryPointChanged();
 
     /**
      * Emitted when the banners change.
@@ -375,27 +309,15 @@ signals:
      */
     void colorsChanged();
 
-    /**
-     * Emitted when the terrain-types change.
-     */
-    void componentTypesChanged();
-
-    /**
-     * Emitted when the rules entry point changes.
-     */
-    void rulesEntryPointChanged();
-
 private:
     QString uuid;
     QString name;
-    std::vector<Banner*> banners;
-    std::vector<Civilization*> civilizations;
-    std::vector<QColor> colors;
-    std::vector<ComponentType*> componentTypes;
-    std::map<QString, ObjectId> builtInObjectIds;
     QString rulesEntryPoint;
     WorldRules::Type rulesType;
-    WorldRules* rules;
+    std::unique_ptr<WorldRules> rules;
+    std::vector<Banner*> banners;
+    std::vector<Civilization*> civilizations;
+    std::vector<Color*> colors;
 };
 
 } // namespace core

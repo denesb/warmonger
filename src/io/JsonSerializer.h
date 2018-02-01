@@ -1,5 +1,7 @@
-/**
- * Copyright (C) 2015-2018 Botond Dénes
+/** \file
+ * JsonSerializer class.
+ *
+ * \copyright (C) 2015-2018 Botond Dénes
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,30 +18,22 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "core/Civilization.h"
-#include "utils/QVariantUtils.h"
+#ifndef W_IO_JSON_SERIALIZER_H
+#define W_IO_JSON_SERIALIZER_H
+
+#include "io/Serializer.h"
 
 namespace warmonger {
-namespace core {
+namespace io {
 
-Civilization::Civilization(QObject* parent, ObjectId id)
-    : WObject(parent, id)
+class JsonSerializer : public Serializer
 {
-}
+public:
+    QByteArray serialize(core::ir::Value) const override;
+    core::ir::Value unserialize(const QByteArray&) const override;
+};
 
-QString Civilization::getName() const
-{
-    return this->name;
-}
-
-void Civilization::setName(const QString& name)
-{
-    if (this->name != name)
-    {
-        this->name = name;
-        emit nameChanged();
-    }
-}
-
-} // namespace core
+} // namespace io
 } // namespace warmonger
+
+#endif // W_IO_JSON_SERIALIZER_H

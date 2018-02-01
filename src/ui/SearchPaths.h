@@ -26,7 +26,7 @@ namespace ui {
 
 void setupSearchPaths();
 
-} // namespace warmonger
 } // namespace ui
+} // namespace warmonger
 
 #endif // W_UI_SEARCH_PATHS_H

@@ -20,19 +20,10 @@
 #ifndef W_CORE_COMPONENT_H
 #define W_CORE_COMPONENT_H
 
-#include <unordered_map>
-#include <vector>
-
-#include <QString>
-
-#include "core/Field.h"
-#include "core/WObject.h"
-#include "utils/Hash.h"
+#include "core/IntermediateRepresentation.h"
 
 namespace warmonger {
 namespace core {
-
-class ComponentType;
 
 /**
  * The component of a game entity.
@@ -40,124 +31,189 @@ class ComponentType;
  * For an overview of the Entity-Component-Systems design pattern (ECS) and how
  * warmonger implements it see \ref docs/ECS.md.
  *
- * Components have a set of fields defined by their component-type. The
- * type of a component cannot be changed once it's created.
- *
- * \see warmonger::core::ComponentType
+ * Components have a name that defines their identity.
  */
-class Component : public WObject
+class Component : public WObject, public ir::Serializable
 {
     Q_OBJECT
 
     /**
-     * The type of the component
+     * The name of the component
      */
-    Q_PROPERTY(ComponentType* type READ getType CONSTANT)
+    Q_PROPERTY(QString name READ getName CONSTANT)
 
 public:
-    template <class Visitor>
-    static auto describe(Visitor&& visitor)
-    {
-        return visitor.template visitParent<WObject>()
-            .visitMember("type", &Component::getType)
-            .visitMember("fields", &Component::getFields, &Component::setFields);
-    }
-
     /**
-     * Create an component with the specified type.
+     * Create a component with the specified name.
      *
      * \see WObject::WObject
      */
-    Component(ComponentType* type, QObject* parent, ObjectId id = ObjectId::Invalid);
+    Component(QObject* parent, ObjectId id = ObjectId::Invalid);
 
-    /**
-     * Get the type.
-     *
-     * \returns the type
-     */
-    ComponentType* getType() const
-    {
-        return this->type;
-    }
+    virtual const QString& getName() const = 0;
 
-    /**
-     * Get the field value with the given name.
-     *
-     * If this component doesn't have a field with the given name a nullptr
-     * will be returned.
-     * TODO: Consider using std::string_view as the key, as QString
-     * conversion to-from char* is expensive.
-     *
-     * \param name the name of the field
-     *
-     * \returns the property value
-     */
-    virtual FieldValue* field(const QString& name) = 0;
-
-    virtual const FieldValue* field(const QString& name) const = 0;
-
-    /**
-     * Get all fields of this component.
-     */
-    virtual std::unordered_map<QString, FieldValue> getFields() const = 0;
-
-    /**
-     * Set all fields of this component.
-     *
-     * All previous fields are discarded.
-     */
-    virtual void setFields(std::unordered_map<QString, FieldValue> fields) = 0;
-
-protected:
-    void checkAndSetFields(std::unordered_map<QString, FieldValue> fields, std::vector<FieldValue*> values);
-    void checkAndSetFields(
-        std::unordered_map<QString, FieldValue> fields, std::unordered_map<QString, FieldValue>& values);
-
-    ComponentType* type;
+    virtual bool isBuiltIn() const = 0;
 };
 
-/**
- * Convenience wrapper over Component for C++ users.
- *
- * C++ users will almost always work with built-in component-types,
- * hence we can assume that lookups will always succeed and dereference
- * results unconditionally.
- */
-class ComponentWrapper
+class BuiltInComponent : public Component
 {
 public:
-    ComponentWrapper(Component* component)
-        : component(component)
+    using Component::Component;
+
+    bool isBuiltIn() const override
     {
+        return true;
+    }
+};
+
+class MapNode;
+
+/**
+ * Position component-type.
+ *
+ * Defines the position of an entity on the map.
+ * For an overview of the Entity-Component-Systems design pattern (ECS) and how
+ * warmonger implements it see \ref docs/ECS.md.
+ */
+class PositionComponent : public BuiltInComponent
+{
+    Q_OBJECT
+
+public:
+    static const QString name;
+
+    /**
+     * Crate an empty component.
+     */
+    PositionComponent(QObject* parent);
+
+    /**
+     * Construct the component from the intermediate-representation.
+     *
+     * Unserializing constructor.
+     *
+     * \param v the intermediate-representation
+     * \param parent the parent QObject.
+     */
+    PositionComponent(ir::Value v, QObject* parent);
+
+    /**
+     * Serialize the component.
+     */
+    ir::Value serialize() const override;
+
+    const QString& getName() const override
+    {
+        return PositionComponent::name;
     }
 
-    ComponentType* getType() const
+    MapNode* getMapNode() const
     {
-        return this->component->getType();
+        return this->mapNode;
     }
 
-    FieldValue& operator[](const QString& name)
-    {
-        return *this->component->field(name);
-    }
-
-    const FieldValue& operator[](const QString& name) const
-    {
-        return *this->component->field(name);
-    }
-
-    bool operator!() const
-    {
-        return !this->component;
-    }
-
-    Component* wrapped()
-    {
-        return component;
-    }
+    void setMapNode(MapNode* mapNode);
 
 private:
-    Component* component;
+    MapNode* mapNode{nullptr};
+};
+
+class Entity;
+
+/**
+ * Graphics component-type.
+ *
+ * Defines how the entity having this component can be rendered.
+ * It has the following fields:
+ * - path the path to the image.
+ * - x the x offset from the upper-left corner of parent.
+ * - y the y offset from the upper-left corner of parent.
+ * - z depth-ordering, larger z values will be more to the foreground.
+ * - container the entity this entity is graphically part of.
+ *
+ * Note:
+ * Offsets are in pixels.
+ * The parent allows entities to be organized in a tree. When the root
+ * object changes position, all its children also change position
+ * automatically. If the entity doesn't have a parent its position
+ * component will be used to determine the position. If it doesn't have
+ * a position component either it won't be rendered at all.
+ * The path is meant to be an opaque handle to a graphic resource that
+ * both the world-rules and the rendering layer understands.
+ */
+class GraphicsComponent : public BuiltInComponent
+{
+    Q_OBJECT
+
+public:
+    static const QString name;
+
+    /**
+     * Construct an empty component.
+     */
+    GraphicsComponent(QObject* parent);
+
+    /**
+     * Construct the component from the intermediate-representation.
+     *
+     * Unserializing constructor.
+     *
+     * \param v the intermediate-representation
+     * \param parent the parent QObject.
+     */
+    GraphicsComponent(ir::Value v, QObject* parent);
+
+    /**
+     * Serialize the component.
+     */
+    ir::Value serialize() const override;
+
+    const QString& getName() const override
+    {
+        return GraphicsComponent::name;
+    }
+
+    QString getPath() const
+    {
+        return this->path;
+    }
+
+    void setPath(QString path);
+
+    int getX() const
+    {
+        return this->x;
+    }
+
+    void setX(int x);
+
+    int getY() const
+    {
+        return this->y;
+    }
+
+    void setY(int y);
+
+    int getZ() const
+    {
+        return this->z;
+    }
+
+    void setZ(int z);
+
+    Entity* getContainer() const
+    {
+        return this->container;
+    }
+
+    void setContainer(Entity* container);
+
+private:
+    QString path;
+    int x{0};
+    int y{0};
+    int z{0};
+    Entity* container{nullptr};
 };
 
 } // namespace core

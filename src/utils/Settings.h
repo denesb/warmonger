@@ -88,7 +88,7 @@ void setSettingsValue(const SettingsKey key, const QVariant& value);
  */
 void setSettingsValue(const QObject* world, const WorldSettingsKey key, const QVariant& value);
 
-} // namespace warmonger
 } // namespace utils
+} // namespace warmonger
 
 #endif // W_UTILS_SETTINGS_H

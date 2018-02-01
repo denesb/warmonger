@@ -18,97 +18,112 @@
 
 #include "core/Component.h"
 
-#include "core/ComponentType.h"
-#include "utils/Logging.h"
+#include "core/Entity.h"
+#include "core/MapNode.h"
+#include "utils/Format.h"
 
 namespace warmonger {
 namespace core {
 
-Component::Component(ComponentType* type, QObject* parent, ObjectId id)
+static void checkName(const std::unordered_map<QString, ir::Value>& obj, const QString& name);
+
+Component::Component(QObject* parent, ObjectId id)
     : WObject(parent, id)
-    , type(type)
 {
 }
 
-void Component::checkAndSetFields(std::unordered_map<QString, FieldValue> fields, std::vector<FieldValue*> values)
+const QString PositionComponent::name{"position"};
+
+PositionComponent::PositionComponent(QObject* parent)
+    : BuiltInComponent(parent)
 {
-    auto fieldDefs = this->type->getFields();
-
-    for (std::size_t i = 0; i < fieldDefs.size(); ++i)
-    {
-        const auto& name = fieldDefs[i]->getName();
-        auto it = fields.find(name);
-
-        if (it == fields.end())
-            continue;
-
-        auto val = std::move(it->second);
-        fields.erase(it);
-
-        const auto type = fieldDefs[i]->getType();
-        if (val.getType() != type)
-        {
-            wWarning << "Attempted to set value of field `" << name << "' to incompatible type " << val.getType();
-            continue;
-        }
-
-        *values[i] = val;
-    }
-
-    if (fields.empty())
-        return;
-
-    QString msg{"Attempted to set extra fields: "};
-    auto it = fields.begin();
-    msg = msg + "`" + it->first + "'";
-
-    while (++it != fields.end())
-    {
-        msg += msg + ", `" + it->first + "'";
-    }
-
-    wWarning << msg << " for " << this->type->getName() << " component " << this;
 }
 
-void Component::checkAndSetFields(
-    std::unordered_map<QString, FieldValue> fields, std::unordered_map<QString, FieldValue>& values)
+PositionComponent::PositionComponent(ir::Value v, QObject* parent)
+    : BuiltInComponent(parent, v.getObjectId())
 {
-    auto fieldDefs = this->type->getFields();
+    auto obj = std::move(v).asObject();
+    checkName(obj, PositionComponent::name);
+    this->mapNode = obj.at("mapNode").asReference<MapNode>(parent);
+}
 
-    for (auto& fieldDef : fieldDefs)
+ir::Value PositionComponent::serialize() const
+{
+    std::unordered_map<QString, ir::Value> obj;
+    obj["id"] = this->getId().get();
+    obj["name"] = this->name;
+    obj["mapNode"] = this->mapNode;
+    return obj;
+}
+
+void PositionComponent::setMapNode(MapNode* mapNode)
+{
+    this->mapNode = mapNode;
+}
+
+const QString GraphicsComponent::name{"graphics"};
+
+GraphicsComponent::GraphicsComponent(QObject* parent)
+    : BuiltInComponent(parent)
+{
+}
+
+GraphicsComponent::GraphicsComponent(ir::Value v, QObject* parent)
+    : BuiltInComponent(parent, v.getObjectId())
+{
+    auto obj = std::move(v).asObject();
+    checkName(obj, GraphicsComponent::name);
+    this->path = std::move(obj["path"]).asString();
+    this->x = obj.at("x").asInteger();
+    this->y = obj.at("y").asInteger();
+    this->z = obj.at("z").asInteger();
+    this->container = obj.at("container").asReference<Entity>(parent);
+}
+
+ir::Value GraphicsComponent::serialize() const
+{
+    std::unordered_map<QString, ir::Value> obj;
+    obj["id"] = this->getId().get();
+    obj["name"] = this->name;
+    obj["path"] = this->path;
+    obj["x"] = this->x;
+    obj["y"] = this->y;
+    obj["z"] = this->z;
+    obj["container"] = this->container;
+    return obj;
+}
+
+void GraphicsComponent::setPath(QString path)
+{
+    this->path = std::move(path);
+}
+
+void GraphicsComponent::setX(int x)
+{
+    this->x = x;
+}
+
+void GraphicsComponent::setY(int y)
+{
+    this->y = y;
+}
+
+void GraphicsComponent::setZ(int z)
+{
+    this->z = z;
+}
+
+void GraphicsComponent::setContainer(Entity* container)
+{
+    this->container = container;
+}
+
+static void checkName(const std::unordered_map<QString, ir::Value>& obj, const QString& name)
+{
+    if (obj.at("name").asString() != name)
     {
-        const auto& name = fieldDef->getName();
-        auto it = fields.find(name);
-
-        if (it == fields.end())
-            continue;
-
-        auto val = std::move(it->second);
-        fields.erase(it);
-
-        const auto type = fieldDef->getType();
-        if (val.getType() != type)
-        {
-            wWarning << "Attempted to set value of field `" << name << "' to incompatible type " << val.getType();
-            continue;
-        }
-
-        values[name] = val;
+        throw utils::ValueError(fmt::format("Name mismatch, should be {} but got {}", name, obj.at("name").asString()));
     }
-
-    if (fields.empty())
-        return;
-
-    QString msg{"Attempted to set extra fields: "};
-    auto it = fields.begin();
-    msg = msg + "`" + it->first + "'";
-
-    while (++it != fields.end())
-    {
-        msg += msg + ", `" + it->first + "'";
-    }
-
-    wWarning << msg << " for " << this->type->getName() << " component " << this;
 }
 
 } // namespace core

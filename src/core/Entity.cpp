@@ -18,133 +18,141 @@
 
 #include "core/Entity.h"
 
-#include "core/ComponentType.h"
+#include "core/WorldRules.h"
+#include "utils/Format.h"
 #include "utils/Logging.h"
-#include "utils/QVariantUtils.h"
 
 namespace warmonger {
 namespace core {
 
-Entity::Entity(QObject* parent, ObjectId id)
+Entity::Entity(WorldRules* rules, QObject* parent, ObjectId id)
     : WObject(parent, id)
+    , rules(rules)
 {
 }
 
-Component* Entity::getComponent(const ComponentType* const componentType)
+Entity::Entity(ir::Value v, WorldRules* rules, QObject* parent)
+    : WObject(parent, v.getObjectId())
+    , rules(rules)
 {
-    const auto it = std::find_if(this->components.begin(),
-        this->components.end(),
-        [componentType](const auto& component) { return component->getType() == componentType; });
+    auto obj = std::move(v).asObject();
+    auto serializedComponents = std::move(obj["components"]).asMap();
+
+    for (auto& c : serializedComponents)
+    {
+        if (c.first == PositionComponent::name)
+        {
+            this->components.emplace(c.first, new PositionComponent(std::move(c.second), this));
+        }
+        else if (c.first == GraphicsComponent::name)
+        {
+            this->components.emplace(c.first, new GraphicsComponent(std::move(c.second), this));
+        }
+        else
+        {
+            this->components.emplace(c.first, rules->createComponent(std::move(c.second), this).release());
+        }
+    }
+}
+
+ir::Value Entity::serialize() const
+{
+    std::unordered_map<QString, ir::Value> obj;
+
+    obj["id"] = this->getId().get();
+
+    std::unordered_map<QString, ir::Value> componentsMap;
+
+    for (auto& c : this->components)
+    {
+        componentsMap.emplace(c.first, c.second->serialize());
+    }
+
+    obj["components"] = std::move(componentsMap);
+
+    return obj;
+}
+
+Component* Entity::getComponent(const QString& name)
+{
+    const auto it = this->components.find(name);
 
     if (it == this->components.end())
     {
-        wDebug << "Entity " << this << " doesn't have a component of type " << componentType->getName();
+        wDebug.format("Entity {} doesn't have a component with the name `{}'", *this, name);
         return nullptr;
     }
     else
     {
-        return *it;
+        return it->second;
     }
 }
 
-Component* Entity::getComponent(const QString& componentTypeName)
+Component* Entity::createComponent(const QString& name)
 {
-    const auto it = std::find_if(this->components.begin(),
-        this->components.end(),
-        [&componentTypeName](const auto& component) { return component->getType()->getName() == componentTypeName; });
+    wDebug.format("Creating new component `{}' in entity {}", name, *this);
 
-    if (it == this->components.end())
+    Component* component{nullptr};
+    if (name == PositionComponent::name)
     {
-        wDebug << "Entity " << this << " doesn't have a component of type " << componentTypeName;
-        return nullptr;
+        component = new PositionComponent(this);
+    }
+    else if (name == GraphicsComponent::name)
+    {
+        component = new GraphicsComponent(this);
     }
     else
     {
-        return *it;
+        component = rules->createComponent(name, this).release();
     }
-}
 
-Component* Entity::createComponent(ComponentType* const componentType)
-{
-    wDebug << "Creating new component " << componentType->getName() << " in entity " << this;
-    auto componentPtr = componentType->createComponent(this);
-    auto component = componentPtr.release();
-
-    const auto it = std::find_if(this->components.begin(),
-        this->components.end(),
-        [componentType](const auto& component) { return component->getType() == componentType; });
+    const auto it = this->components.find(name);
 
     if (it == this->components.end())
     {
-        this->components.push_back(component);
+        this->components.emplace(name, component);
     }
     else
     {
-        wDebug << "Overwriting previously existing component with new one";
-        delete *it;
-        *it = component;
+        wDebug.format("Overwriting previously existing component with new one");
+        delete it->second;
+        it->second = component;
     }
 
-    emit componentChanged();
+    emit componentsChanged();
 
     return component;
 }
 
-Component* Entity::addComponent(std::unique_ptr<Component> component)
+std::unique_ptr<Component> Entity::removeComponent(const QString& name)
 {
-    assert(component->parent() == this);
+    const auto it = this->components.find(name);
 
-    auto c = component.get();
+    if (it == this->components.end())
+    {
+        return std::unique_ptr<Component>();
+    }
+    else
+    {
+        auto component = it->second;
+        this->components.erase(it);
 
-    this->components.push_back(component.release());
+        wDebug.format("Removed component `{}' from entity {}", name, *this);
 
-    wDebug << "Added component " << c << " to entity " << this;
+        emit componentsChanged();
 
-    emit componentChanged();
+        return std::unique_ptr<Component>(component);
+    }
+}
 
+std::vector<Component*> Entity::getComponents() const
+{
+    std::vector<Component*> c;
+    std::transform(this->components.begin(),
+        this->components.end(),
+        std::back_inserter(c),
+        [](const std::pair<QString, Component*>& e) { return e.second; });
     return c;
-}
-
-std::unique_ptr<Component> Entity::removeComponent(const ComponentType* const componentType)
-{
-    const auto it = std::remove_if(this->components.begin(),
-        this->components.end(),
-        [componentType](const auto& component) { return component->getType() == componentType; });
-
-    if (it == this->components.end())
-    {
-        return std::unique_ptr<Component>();
-    }
-    else
-    {
-        auto component = *it;
-        component->setParent(nullptr);
-
-        this->components.erase(it);
-
-        return std::unique_ptr<Component>(component);
-    }
-}
-
-std::unique_ptr<Component> Entity::removeComponent(const QString& componentTypeName)
-{
-    const auto it = std::remove_if(this->components.begin(),
-        this->components.end(),
-        [&componentTypeName](const auto& component) { return component->getType()->getName() == componentTypeName; });
-
-    if (it == this->components.end())
-    {
-        return std::unique_ptr<Component>();
-    }
-    else
-    {
-        auto component = *it;
-        component->setParent(nullptr);
-
-        this->components.erase(it);
-
-        return std::unique_ptr<Component>(component);
-    }
 }
 
 } // namespace core

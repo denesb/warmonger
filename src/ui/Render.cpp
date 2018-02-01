@@ -26,7 +26,6 @@
 #include <QSGTransformNode>
 #include <QString>
 
-#include "core/Component.h"
 #include "core/Entity.h"
 #include "core/MapNode.h"
 #include "ui/WorldSurface.h"
@@ -34,20 +33,13 @@
 namespace warmonger {
 namespace ui {
 
-// component-types of interest
-namespace ComponentType {
-
-const QString Position{"position"};
-const QString Graphics{"graphics"};
-}
-
 struct MapNodeContents
 {
     core::MapNode* mapNode;
     QPoint pos;
-    std::vector<core::ComponentWrapper> graphicsComponents;
+    std::vector<core::GraphicsComponent*> graphicsComponents;
 
-    MapNodeContents(core::MapNode* mapNode, QPoint pos, core::ComponentWrapper graphicsComponent)
+    MapNodeContents(core::MapNode* mapNode, QPoint pos, core::GraphicsComponent* graphicsComponent)
         : mapNode(mapNode)
         , pos(pos)
         , graphicsComponents(1, std::move(graphicsComponent))
@@ -61,7 +53,7 @@ static std::vector<MapNodeContents> visibleMapNodeContents(
     const std::vector<core::Entity*>& entities, const RenderContext& ctx);
 static QSGNode* drawMapNodeContent(const MapNodeContents& mapNodeContents, QSGNode* oldNode, const RenderContext& ctx);
 static QSGNode* drawGraphicsComponent(
-    const core::ComponentWrapper& graphicsComponent, QSGNode* oldNode, const RenderContext& ctx);
+    const core::GraphicsComponent* graphicsComponent, QSGNode* oldNode, const RenderContext& ctx);
 
 template <typename Source, typename Func>
 static void syncChildNodesWithSource(QSGNode* rootNode, Source&& source, const RenderContext& ctx, Func&& func)
@@ -122,21 +114,20 @@ static std::vector<MapNodeContents> visibleMapNodeContents(
     const std::vector<core::Entity*>& entities, const RenderContext& ctx)
 {
     std::vector<MapNodeContents> mapNodeContents;
-    std::unordered_map<core::WObject*, std::size_t> mapNodeContentsIndex;
+    std::unordered_map<core::MapNode*, std::size_t> mapNodeContentsIndex;
 
-    for (core::EntityWrapper entity : entities)
+    for (auto* entity : entities)
     {
-        core::ComponentWrapper positionComponent = entity[ComponentType::Position];
-        core::ComponentWrapper graphicsComponent = entity[ComponentType::Graphics];
+        auto* positionComponent = entity->getPositionComponent();
+        auto* graphicsComponent = entity->getGraphicsComponent();
 
         if (!positionComponent || !graphicsComponent)
             continue;
 
-        core::WObject* key = positionComponent["mapNode"];
-        auto it = mapNodeContentsIndex.find(key);
+        auto* mapNode = positionComponent->getMapNode();
+        auto it = mapNodeContentsIndex.find(mapNode);
         if (it == mapNodeContentsIndex.end())
         {
-            auto mapNode = qobject_cast<core::MapNode*>(key);
             auto pos = ctx.mapNodesPos.at(mapNode);
 
             if (isVisible(pos, ctx))
@@ -164,8 +155,8 @@ static std::vector<MapNodeContents> depthSorted(std::vector<MapNodeContents> map
     std::for_each(mapNodeContents.begin(), mapNodeContents.end(), [](MapNodeContents& m) {
         std::sort(m.graphicsComponents.begin(),
             m.graphicsComponents.end(),
-            [](core::ComponentWrapper& a, core::ComponentWrapper& b) {
-                return a["z"] < b["z"] || a["y"] < b["y"] || a["x"] < b["x"];
+            [](core::GraphicsComponent* a, core::GraphicsComponent* b) {
+                return a->getZ() < b->getZ() || a->getY() < b->getY() || a->getX() < b->getX();
             });
     });
 
@@ -198,7 +189,7 @@ static QSGNode* drawMapNodeContent(const MapNodeContents& mapNodeContents, QSGNo
 }
 
 static QSGNode* drawGraphicsComponent(
-    const core::ComponentWrapper& graphicsComponent, QSGNode* oldNode, const RenderContext& ctx)
+    const core::GraphicsComponent* graphicsComponent, QSGNode* oldNode, const RenderContext& ctx)
 {
     QSGSimpleTextureNode* node;
     if (oldNode == nullptr)
@@ -212,7 +203,7 @@ static QSGNode* drawGraphicsComponent(
         node = static_cast<QSGSimpleTextureNode*>(oldNode);
     }
 
-    QSGTexture* texture = ctx.surface->getTexture(graphicsComponent["path"], ctx.window);
+    QSGTexture* texture = ctx.surface->getTexture(graphicsComponent->getPath(), ctx.window);
     QSGTexture* currentTexture = node->texture();
 
     if (currentTexture == nullptr || currentTexture->textureId() != texture->textureId())
@@ -221,7 +212,7 @@ static QSGNode* drawGraphicsComponent(
     }
 
     // TODO: don't assume image is of the same size as the tile size
-    const QRect nodeRect(QPoint(graphicsComponent["x"], graphicsComponent["y"]), ctx.surface->getTileSize());
+    const QRect nodeRect(QPoint(graphicsComponent->getX(), graphicsComponent->getY()), ctx.surface->getTileSize());
     if (node->rect() != nodeRect)
     {
         node->setRect(nodeRect);

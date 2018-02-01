@@ -13,7 +13,6 @@
 
 #include "core/Hexagon.h"
 #include "core/Map.h"
-#include "core/MapNodeNeighbours.h"
 
 class QSGNode;
 class QQuickWindow;

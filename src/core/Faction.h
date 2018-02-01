@@ -21,12 +21,7 @@
 #ifndef CORE_FACTION_H
 #define CORE_FACTION_H
 
-#include <QColor>
-#include <QString>
-
-#include "core/Banner.h"
-#include "core/Civilization.h"
-#include "core/WObject.h"
+#include "core/World.h"
 
 namespace warmonger {
 namespace core {
@@ -39,28 +34,16 @@ namespace core {
  * \see Civilization
  * \see Banner
  */
-class Faction : public WObject
+class Faction : public WObject, public ir::Serializable
 {
     Q_OBJECT
     Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)
-    Q_PROPERTY(QColor primaryColor READ getPrimaryColor WRITE setPrimaryColor NOTIFY primaryColorChanged)
-    Q_PROPERTY(QColor secondaryColor READ getSecondaryColor WRITE setSecondaryColor NOTIFY secondaryColorChanged)
+    Q_PROPERTY(Color* primaryColor READ getPrimaryColor WRITE setPrimaryColor NOTIFY primaryColorChanged)
+    Q_PROPERTY(Color* secondaryColor READ getSecondaryColor WRITE setSecondaryColor NOTIFY secondaryColorChanged)
     Q_PROPERTY(Banner* banner READ getBanner WRITE setBanner NOTIFY bannerChanged)
     Q_PROPERTY(Civilization* civilization READ getCivilization WRITE setCivilization NOTIFY civilizationChanged)
 
 public:
-    template <class Visitor>
-    static auto describe(Visitor&& visitor)
-    {
-        return visitor.template visitParent<WObject>()
-            .visitMember("name", &Faction::getName, &Faction::setName)
-            .visitMember("primaryColor", &Faction::getPrimaryColor, &Faction::setPrimaryColor)
-            .visitMember("secondaryColor", &Faction::getSecondaryColor, &Faction::setSecondaryColor)
-            .visitMember("banner", &Faction::getBanner, &Faction::setBanner)
-            .visitMember("civilization", &Faction::getCivilization, &Faction::setCivilization)
-            .template visitConstructor<QObject*, ObjectId>("parent", "id");
-    }
-
     /**
      * Construct an empty Faction.
      *
@@ -70,6 +53,18 @@ public:
      * \see WObject::WObject
      */
     Faction(QObject* parent, ObjectId id = ObjectId::Invalid);
+
+    /**
+     * Construct the faction from the intermediate-representation.
+     *
+     * Unserializing constructor.
+     *
+     * \param v the intermediate-representation
+     * \param parent the parent QObject.
+     */
+    Faction(ir::Value v, const World& world, QObject* parent);
+
+    ir::Value serialize() const override;
 
     /**
      * Get the name.
@@ -94,11 +89,9 @@ public:
     /**
      * Get the primary-color.
      *
-     * \return the primary-color.
-     *
      * \see Faction::setPrimaryColor()
      */
-    const QColor& getPrimaryColor() const
+    Color* getPrimaryColor() const
     {
         return this->primaryColor;
     }
@@ -113,16 +106,14 @@ public:
      *
      * \param the primary-color
      */
-    void setPrimaryColor(const QColor& primaryColor);
+    void setPrimaryColor(Color* primaryColor);
 
     /**
      * Get the secondary-color.
      *
-     * \return the secondary-color.
-     *
      * \see Faction::setSecondaryColor()
      */
-    const QColor& getSecondaryColor() const
+    Color* getSecondaryColor() const
     {
         return this->secondaryColor;
     }
@@ -137,7 +128,7 @@ public:
      *
      * \param the secondary-color
      */
-    void setSecondaryColor(const QColor& secondaryColor);
+    void setSecondaryColor(Color* secondaryColor);
 
     /**
      * Get the banner.
@@ -218,8 +209,8 @@ signals:
 
 private:
     QString name;
-    QColor primaryColor;
-    QColor secondaryColor;
+    Color* primaryColor;
+    Color* secondaryColor;
     Banner* banner;
     Civilization* civilization;
 };

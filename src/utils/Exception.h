@@ -140,7 +140,7 @@ public:
     using Exception::Exception;
 };
 
-} // utils
-} // warmonger
+} // namespace utils
+} // namespace warmonger
 
 #endif // W_UTILS_EXCEPTION_H

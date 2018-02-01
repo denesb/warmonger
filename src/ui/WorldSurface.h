@@ -253,6 +253,11 @@ public:
      */
     QString getBannerImagePath(const core::Banner* const banner) const;
 
+    /**
+     * This surface's concrete color for the world's abstract one.
+     */
+    QColor colorFor(core::Color* color) const;
+
 signals:
     /**
      * Emitted when the name changes.

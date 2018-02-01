@@ -34,7 +34,7 @@ namespace warmonger {
 namespace core {
 class MapNode;
 class Entity;
-}
+} // namespace core
 
 namespace ui {
 

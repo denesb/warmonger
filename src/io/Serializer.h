@@ -1,4 +1,6 @@
-/**
+/** \file
+ * Serializer interface.
+ *
  * \copyright (C) 2015-2018 Botond Dénes
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,30 +18,24 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "core/ComponentType.h"
+#ifndef W_IO_SERIALIZER_H
+#define W_IO_SERIALIZER_H
 
-#include "utils/QVariantUtils.h"
+#include <QByteArray>
+
+#include "core/IntermediateRepresentation.h"
 
 namespace warmonger {
-namespace core {
+namespace io {
 
-ComponentType::ComponentType(QObject* parent, ObjectId id)
-    : WObject(parent, id)
+class Serializer
 {
-}
+public:
+    virtual QByteArray serialize(core::ir::Value) const = 0;
+    virtual core::ir::Value unserialize(const QByteArray&) const = 0;
+};
 
-QVariantList ComponentType::readFields() const
-{
-    return utils::toQVariantList(this->getFields());
-}
-
-FieldsHelper::FieldsHelper(std::initializer_list<FieldParams> fieldParams)
-{
-    for (auto& param : fieldParams)
-    {
-        this->fields.push_back(new Field(param.name, param.type, &this->parent));
-    }
-}
-
-} // namespace core
+} // namespace io
 } // namespace warmonger
+
+#endif // W_IO_SERIALIZER_H

@@ -24,7 +24,9 @@
 #include <fmt/format.h>
 
 class QString;
+class QObject;
 
 void format_arg(fmt::BasicFormatter<char>& f, const char*&, const QString& qstr);
+void format_arg(fmt::BasicFormatter<char>& f, const char*&, const QObject& qobj);
 
 #endif // W_UTILS_FORMAT_H

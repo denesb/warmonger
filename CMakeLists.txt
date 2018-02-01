@@ -22,6 +22,7 @@ project(Warmonger)
 
 option(BUILD_TOOLS "Build development tools" OFF)
 option(BUILD_TESTS "Build unit test suite" OFF)
+option(USE_ASAN "Use ASAN" OFF)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -86,35 +87,24 @@ set(
 
 set(
     CORE_SRC_FILES
-    src/core/Banner.cpp
-    src/core/BuiltInComponentTypes.cpp
-    src/core/Civilization.cpp
     src/core/Component.cpp
-    src/core/ComponentType.cpp
     src/core/Entity.cpp
     src/core/Faction.cpp
-    src/core/Field.cpp
     src/core/Hexagon.cpp
+    src/core/IntermediateRepresentation.cpp
     src/core/LuaWorldRules.cpp
     src/core/Map.cpp
     src/core/MapNode.cpp
-    src/core/MapNodeNeighbours.cpp
     src/core/Utils.cpp
     src/core/WObject.cpp
     src/core/World.cpp
-    src/core/WorldComponentType.cpp
     src/core/WorldRules.cpp
 )
 
 set(
     IO_SRC_FILES
     src/io/File.cpp
-    src/io/JsonUnserializer.cpp
-    src/io/MapJsonSerializer.cpp
-    src/io/MapJsonUnserializer.cpp
-    src/io/Reference.cpp
-    src/io/WorldJsonSerializer.cpp
-    src/io/WorldJsonUnserializer.cpp
+    src/io/JsonSerializer.cpp
 )
 
 set(
@@ -137,17 +127,11 @@ set(
 
 set(
     TEST_SRC_FILES
-    src/test/Util.cpp
     src/test/WObject.cpp
     src/test/core/Map.cpp
     src/test/core/MapNodeNeighbours.cpp
     src/test/core/WObject.cpp
-    src/test/io/File.cpp
-    src/test/io/MapJsonSerializer.cpp
-    src/test/io/MapJsonUnserializer.cpp
-    src/test/io/Reference.cpp
-    src/test/io/WorldJsonSerializer.cpp
-    src/test/io/WorldJsonUnserializer.cpp
+    src/test/io/Serializer.cpp
     src/test/test_warmonger.cpp
     src/test/ui/MapEditor.cpp
     src/test/ui/MapUtil.cpp
@@ -159,9 +143,11 @@ file(GLOB_RECURSE ALL_HEADER_FILES ${PROJECT_SOURCE_DIR}/src/*.h)
 file(GLOB_RECURSE ALL_SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
 set(CMAKE_CXX_STANDARD 14)
-#TODO: finds possible false positives in Qt code
-#add_compile_options(-fsanitize=address -fsanitize=leak -fsanitize=undefined)
-#set(CMAKE_EXE_LINKER_FLAGS "-lasan -lubsan")
+
+if (USE_ASAN)
+    add_compile_options(-fsanitize=address -fsanitize=leak -fsanitize=undefined)
+    set(CMAKE_EXE_LINKER_FLAGS "-lasan -lubsan")
+endif()
 
 # Libraries
 find_package(Qt5Core REQUIRED)

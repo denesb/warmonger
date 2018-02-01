@@ -28,6 +28,8 @@
 namespace warmonger {
 namespace core {
 
+class WorldRules;
+
 /**
  * A game entity.
  *
@@ -35,184 +37,116 @@ namespace core {
  * warmonger implements it see \ref docs/ECS.md.
  *
  * Entities have a set of components, The components of an entity defines how it
- * interacts with the systems.  An entity can have only one component of a given
+ * interacts with the systems. An entity can have only one component of a given
  * type so retrieving them is possible by type or name.
  *
  * \see warmonger::core::Component
- * \see warmonger::core::ComponentType
  * \see warmonger::core::World
  */
-class Entity : public WObject
+class Entity : public WObject, public ir::Serializable
 {
     Q_OBJECT
 
 public:
-    template <class Visitor>
-    static auto describe(Visitor&& visitor)
-    {
-        return visitor.template visitParent<WObject>()
-            .visitMember("components", &Entity::getComponents, &Entity::addComponent)
-            .template visitConstructor<QObject*, ObjectId>("parent", "id");
-    }
-
     /**
      * Create an empty entity.
      *
-     * \param parent the parent QObject
-     * \param id the id
+     * \param world-rules the world-rules of the world
+     * \param parent the parent QObject.
+     * \param id the id of the object
      *
      * \see WObject::WObject
      */
-    Entity(QObject* parent, ObjectId id = ObjectId::Invalid);
+    Entity(WorldRules* rules, QObject* parent, ObjectId id = ObjectId::Invalid);
 
     /**
-     * Get the component with the given type
+     * Construct the entity from the intermediate-representation.
      *
-     * Changing the component will trigger the Entity::componentChanged()
-     * signal.
+     * Unserializing constructor.
      *
-     * \param componentType the component-type
-     *
-     * \return the component or nullptr if entity doesn't have componentType
+     * \param v the intermediate-representation
+     * \param world-rules the world-rules of the world
+     * \param parent the parent QObject.
      */
-    Component* getComponent(const ComponentType* const componentType);
+    Entity(ir::Value v, WorldRules* rules, QObject* parent);
+
+    ir::Value serialize() const override;
 
     /**
-     * Get the component with the given type by it's name
+     * Get the component with the given name of this entity.
      *
-     * Changing the component will trigger the Entity::componentChanged()
-     * signal.
-     *
-     * \param componentTypeName the component-type's name
-     *
-     * \return the component or nullptr if entity doesn't have componentType
+     * \return the component or nullptr if entity doesn't have the
+     * component.
      */
-    Component* getComponent(const QString& componentTypeName);
+    Component* getComponent(const QString& name);
 
     /**
-     * Create a new component with the given type.
+     * Get the position-component of this entity.
+     *
+     * Convenience getter for C++ code.
+     *
+     * \returns the position-component or nullptr if it doesn't have it.
+     */
+    PositionComponent* getPositionComponent()
+    {
+        return qobject_cast<PositionComponent*>(this->getComponent(PositionComponent::name));
+    }
+
+    /**
+     * Get the graphics-component of this entity.
+     *
+     * Convenience getter for C++ code.
+     *
+     * \returns the graphics-component or nullptr if it doesn't have it
+     */
+    GraphicsComponent* getGraphicsComponent()
+    {
+        return qobject_cast<GraphicsComponent*>(this->getComponent(GraphicsComponent::name));
+    }
+
+    /**
+     * Create a new component with the given name.
      *
      * The Entity takes ownership of the created component. If the Entity
-     * already has a component with the given type it's replaced with the
+     * already has a component with the given name it's replaced with the
      * new component.
      * Will emit Entity::componentsChanged().
      *
-     * \param componentType the type of the component
-     *
      * \returns the newly created component
+     *
+     * \throws ValueError if cannot create a component with said name.
+     * This depends on the world-rules, it can refuse to create a
+     * component.
      */
-    Component* createComponent(ComponentType* const componentType);
+    Component* createComponent(const QString& name);
 
     /**
-     * Add a new compoennt to the entity.
-     *
-     * The entity must already own this component, i.e. it must have
-     * been created with the entity as its parent.
-     * Will emit the signal Entity::componentChanged().
-     *
-     * \returns the added component
-     */
-    Component* addComponent(std::unique_ptr<Component> component);
-
-    /**
-     * Remove the component with the given type.
+     * Remove the component with the given name.
      *
      * If the Entity doesn't have a component with the given type nothing is
-     * done. Either way tha result of this method is that the Entity won't have
-     * and entity with the given type.
-     *
-     * \param componentType the type of the component
+     * done. Either way the result of this method is that the Entity won't have
+     * and entity with the given name.
      *
      * \returns the removed component or nullptr if no component was removed
      */
-    std::unique_ptr<Component> removeComponent(const ComponentType* const componentType);
-
-    /**
-     * Remove the component with the given type by it's name.
-     *
-     * If the Entity doesn't have a component with the given type nothing is
-     * done. Either way tha result of this method is that the Entity won't have
-     * and entity with the given type.
-     *
-     * \param componentType the type of the component
-     *
-     * \returns the removed component or nullptr if no component was removed
-     */
-    std::unique_ptr<Component> removeComponent(const QString& componentTypeName);
+    std::unique_ptr<Component> removeComponent(const QString& name);
 
     /**
      * Get the components.
      *
      * \return the components
      */
-    const std::vector<Component*>& getComponents() const
-    {
-        return this->components;
-    }
+    std::vector<Component*> getComponents() const;
 
 signals:
     /**
      * Emitted when one of the components change.
      */
-    void componentChanged();
+    void componentsChanged();
 
 private:
-    std::vector<Component*> components;
-};
-
-/**
- * Convenience wrapper over Entity for C++ users.
- */
-class EntityWrapper
-{
-public:
-    EntityWrapper(Entity* entity)
-        : entity(entity)
-    {
-    }
-
-    ComponentWrapper operator[](const ComponentType* const componentType)
-    {
-        return this->entity->getComponent(componentType);
-    }
-
-    ComponentWrapper operator[](const QString& componentTypeName)
-    {
-        return this->entity->getComponent(componentTypeName);
-    }
-
-    bool hasComponent(const QString& componentTypeName)
-    {
-        return this->entity->getComponent(componentTypeName);
-    }
-
-    ComponentWrapper createComponent(ComponentType* const componentType)
-    {
-        return this->entity->createComponent(componentType);
-    }
-
-    std::unique_ptr<Component> removeComponent(const ComponentType* const componentType)
-    {
-        return this->entity->removeComponent(componentType);
-    }
-
-    std::unique_ptr<Component> removeComponent(const QString& componentTypeName)
-    {
-        return this->entity->removeComponent(componentTypeName);
-    }
-
-    const std::vector<Component*>& getComponents() const
-    {
-        return this->entity->getComponents();
-    }
-
-    Entity* wrapped()
-    {
-        return this->entity;
-    }
-
-private:
-    Entity* entity;
+    WorldRules* rules;
+    std::unordered_map<QString, Component*> components;
 };
 
 } // namespace core

@@ -23,10 +23,7 @@
 
 #include <memory>
 
-#include <QObject>
-#include <QString>
-
-#include "core/WObject.h"
+#include "core/IntermediateRepresentation.h"
 
 namespace warmonger {
 namespace core {
@@ -56,6 +53,8 @@ public:
     };
     Q_ENUM(Type);
 
+    virtual ~WorldRules() = default;
+
     /**
      * Get the world.
      *
@@ -75,11 +74,23 @@ public:
     virtual void loadRules(const QString& basePath, const QString& mainRulesFile) = 0;
 
     /**
-     * Create a Component instance specifict to this rules.
+     * Create a Component instance specific to this rules.
+     *
+     * The component is created as a child of parent.
      *
      * \returns the created Component
      */
-    virtual std::unique_ptr<Component> createComponent(ComponentType* type, QObject* parent, ObjectId id) = 0;
+    virtual std::unique_ptr<Component> createComponent(QString name, QObject* parent) = 0;
+
+    /**
+     * Create a Component instance specific to this rules.
+     *
+     * Unserializing version.
+     * The component is created as a child of parent.
+     *
+     * \returns the created Component
+     */
+    virtual std::unique_ptr<Component> createComponent(ir::Value v, QObject* parent) = 0;
 
     /**
      * Generate a map.
@@ -132,7 +143,7 @@ WorldRules::Type rulesTypeFromString(const QString& str);
  *
  * \throws ValueError if the rules can't be parsed or initialization fails
  */
-WorldRules* createWorldRules(core::World* world);
+std::unique_ptr<WorldRules> createWorldRules(core::World* world);
 
 } // namespace core
 } // namespace warmonger

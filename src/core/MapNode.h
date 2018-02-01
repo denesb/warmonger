@@ -24,11 +24,66 @@
 #include <map>
 
 #include "core/Hexagon.h"
-#include "core/MapNodeNeighbours.h"
-#include "core/WObject.h"
+#include "core/IntermediateRepresentation.h"
 
 namespace warmonger {
 namespace core {
+
+class MapNode;
+
+/**
+ * The neighbours of a map-node.
+ *
+ * This class ensures that the map-node registry of a map-node is always
+ * consistent, after creation, insertion, removal or change.
+ * A map-node is expected to store nullptr for direction for which it doesn't
+ * have a neighbour.
+ */
+class MapNodeNeighbours
+{
+public:
+    typedef std::map<Direction, MapNode*> NeighbourMap;
+    typedef NeighbourMap::iterator iterator;
+    typedef NeighbourMap::const_iterator const_iterator;
+    typedef std::pair<Direction, MapNode*> value_type;
+
+    /**
+     * Construct an empty neighbours object.
+     */
+    MapNodeNeighbours();
+
+    /**
+     * Construct an empty neighbours object from the initializer list.
+     */
+    MapNodeNeighbours(std::initializer_list<std::pair<Direction, MapNode*>> init);
+
+    /**
+     * Get the size (always 6).
+     */
+    std::size_t size() const
+    {
+        return 6;
+    }
+
+    iterator begin();
+    const_iterator begin() const;
+    const_iterator cbegin() const;
+
+    iterator end();
+    const_iterator end() const;
+    const_iterator cend() const;
+
+    bool operator==(const MapNodeNeighbours& other);
+    bool operator!=(const MapNodeNeighbours& other);
+
+    MapNode*& operator[](const Direction direction);
+    MapNode* at(const Direction direction) const;
+
+    bool empty() const;
+
+private:
+    NeighbourMap neighbours;
+};
 
 /**
  * The basic building block of any game map.
@@ -39,19 +94,11 @@ namespace core {
  * The map-node is assumed to be hexagonal, and thus has exactly six
  * neighbours.
  */
-class MapNode : public WObject
+class MapNode : public WObject, public ir::Serializable
 {
     Q_OBJECT
 
 public:
-    template <class Visitor>
-    static auto describe(Visitor&& visitor)
-    {
-        return visitor.template visitParent<WObject>()
-            .visitMember("neighbours", &MapNode::getNeighbours, &MapNode::setNeighbours)
-            .template visitConstructor<QObject*, ObjectId>("parent", "id");
-    }
-
     /**
      * Constructs an empty map-node.
      *
@@ -61,6 +108,18 @@ public:
      * \see WObject::WObject
      */
     MapNode(QObject* parent, ObjectId id = ObjectId::Invalid);
+
+    /**
+     * Construct the map-node from the intermediate-representation.
+     *
+     * Unserializing constructor.
+     *
+     * \param v the intermediate-representation
+     * \param parent the parent QObject.
+     */
+    MapNode(ir::Value v, QObject* parent);
+
+    ir::Value serialize() const override;
 
     /**
      * Get he neighbours of this map.

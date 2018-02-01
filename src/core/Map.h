@@ -51,7 +51,7 @@ namespace core {
  * \see warmonger::core::MapNode
  * \see warmonger::core::World
  */
-class Map : public QObject
+class Map : public QObject, public ir::Serializable
 {
     Q_OBJECT
     Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)
@@ -61,24 +61,25 @@ class Map : public QObject
     Q_PROPERTY(QVariantList entities READ readEntities NOTIFY entitiesChanged)
 
 public:
-    template <class Visitor>
-    static auto describe(Visitor&& visitor)
-    {
-        return visitor.template visitParent<QObject>()
-            .visitMember("name", &Map::getName, &Map::setName)
-            .visitMember("world", &Map::getWorld)
-            .visitMember("mapNodes", &Map::getMapNodes, &Map::addMapNode)
-            .visitMember("factions", &Map::getFactions, &Map::addFaction)
-            .visitMember("entities", &Map::getEntities, &Map::addEntity)
-            .template visitConstructor<QObject*>("parent");
-    }
-
     /**
      * Constructs an empty Map.
      *
      * \param parent the parent QObject.
      */
     explicit Map(QObject* parent = nullptr);
+
+    /**
+     * Construct the map from the intermediate-representation.
+     *
+     * Unserializing constructor.
+     *
+     * \param v the intermediate-representation
+     * \param world the world this map belongs to
+     * \param parent the parent QObject.
+     */
+    Map(ir::Value v, World& world, QObject* parent);
+
+    ir::Value serialize() const override;
 
     /**
      * Get the name.

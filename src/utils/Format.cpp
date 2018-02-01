@@ -18,9 +18,25 @@
 
 #include "utils/Format.h"
 
+#include <QObject>
 #include <QString>
 
 void format_arg(fmt::BasicFormatter<char>& f, const char*&, const QString& qstr)
 {
     f.writer().write(qstr.toStdString());
+}
+
+void format_arg(fmt::BasicFormatter<char>& f, const char*&, const QObject& qobj)
+{
+    auto& w = f.writer();
+
+    w.write("{}<{:#x}", qobj.metaObject()->className(), reinterpret_cast<uintptr_t>(&qobj));
+
+    if (!qobj.objectName().isEmpty())
+    {
+        w.write(" ");
+        w.write(qobj.objectName().toStdString());
+    }
+
+    w.write(">");
 }

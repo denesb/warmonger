@@ -28,6 +28,7 @@ namespace core {
 
 const QString factionNameTemplate{"New Faction %1"};
 
+static std::vector<MapNode*> unserializeMapNodes(std::vector<ir::Value> serializedMapNodes, Map* map);
 static void addMapNodeRing(std::vector<MapNode*>& nodes, Map* map);
 static MapNode* createNeighbour(MapNode* node, const Direction direction, Map* map);
 static void connectWithCommonNeighbour(MapNode* n1, MapNode* n2, const Direction dn1n2, const Direction dn1n3);
@@ -39,6 +40,62 @@ Map::Map(QObject* parent)
     , entityIndex(0)
     , factionIndex(0)
 {
+}
+
+Map::Map(ir::Value v, World& world, QObject* parent)
+    : QObject(parent)
+{
+    auto obj = std::move(v).asObject();
+
+    if (world.getUuid() != obj["world"].asString())
+        throw utils::ValueError(
+            fmt::format("World mismatch, expected `{}' got `{}'", obj["world"].asString(), world.getUuid()));
+
+    this->world = &world;
+
+    this->name = std::move(obj["name"]).asString();
+    this->mapNodes = unserializeMapNodes(std::move(obj["mapNodes"]).asList(), this);
+
+    auto factionList = std::move(obj["factions"]).asList();
+    std::transform(factionList.begin(), factionList.end(), std::back_inserter(this->factions), [this](ir::Value& v) {
+        return new Faction(std::move(v), *this->world, this);
+    });
+
+    auto entityList = std::move(obj["entities"]).asList();
+    std::transform(entityList.begin(), entityList.end(), std::back_inserter(this->entities), [this](ir::Value& v) {
+        return new Entity(std::move(v), this->world->getRules(), this);
+    });
+}
+
+ir::Value Map::serialize() const
+{
+    std::unordered_map<QString, ir::Value> obj;
+
+    obj["name"] = this->name;
+    obj["world"] = this->world->getUuid();
+
+    std::vector<ir::Value> serializedMapNodes;
+    std::transform(
+        this->mapNodes.cbegin(), this->mapNodes.cend(), std::back_inserter(serializedMapNodes), [](MapNode* mn) {
+            return mn->serialize();
+        });
+    obj["mapNodes"] = std::move(serializedMapNodes);
+
+    std::vector<ir::Value> serializedFactions;
+    std::transform(
+        this->factions.cbegin(), this->factions.cend(), std::back_inserter(serializedFactions), [](Faction* f) {
+            return f->serialize();
+        });
+    obj["factions"] = std::move(serializedFactions);
+
+    std::vector<ir::Value> serializedEntities;
+    std::transform(
+        this->entities.cbegin(), this->entities.cend(), std::back_inserter(serializedEntities), [](Entity* e) {
+            return e->serialize();
+        });
+    obj["entities"] = std::move(serializedEntities);
+
+    return std::move(obj);
 }
 
 void Map::setName(const QString& name)
@@ -127,7 +184,7 @@ std::unique_ptr<MapNode> Map::removeMapNode(MapNode* mapNode)
 
 Entity* Map::createEntity(ObjectId id)
 {
-    Entity* entity = new Entity(this, id);
+    Entity* entity = new Entity(this->world->getRules(), this, id);
 
     this->entities.push_back(entity);
 
@@ -251,6 +308,38 @@ void Map::generateMapNodes(unsigned int radius)
     this->mapNodes = generatedMapNodes;
 
     emit mapNodesChanged();
+}
+
+static std::vector<MapNode*> unserializeMapNodes(std::vector<ir::Value> serializedMapNodes, Map* map)
+{
+    std::vector<MapNode*> mapNodes;
+    std::vector<std::tuple<MapNode*, Direction, ir::Value>> neighbours;
+
+    for (auto& element : serializedMapNodes)
+    {
+        auto object = std::move(element).asMap();
+        auto nodeNeighbours = std::move(object["neighbours"]).asMap();
+
+        mapNodes.push_back(new MapNode(std::move(object), map));
+
+        // for now just store the references to the neighbours
+        // they will be resolved after all mapnodes have been processed
+        for (auto& nodeNeighbour : nodeNeighbours)
+        {
+            neighbours.emplace_back(
+                mapNodes.back(), str2direction(nodeNeighbour.first), std::move(nodeNeighbour.second));
+        }
+    }
+
+    MapNode* mn;
+    Direction d;
+    for (const auto& neighbour : neighbours)
+    {
+        std::tie(mn, d, std::ignore) = neighbour;
+        mn->setNeighbour(d, std::get<ir::Value>(std::move(neighbour)).asReference<MapNode>(map));
+    }
+
+    return mapNodes;
 }
 
 static void addMapNodeRing(std::vector<MapNode*>& nodes, Map* map)

@@ -32,7 +32,7 @@ namespace warmonger {
 namespace core {
 class MapNode;
 class World;
-}
+} // namespace core
 
 namespace ui {
 

@@ -22,10 +22,7 @@
 #include "core/Map.h"
 #include "core/World.h"
 #include "io/File.h"
-#include "io/MapJsonSerializer.h"
-#include "io/MapJsonUnserializer.h"
-#include "io/WorldJsonSerializer.h"
-#include "io/WorldJsonUnserializer.h"
+#include "io/JsonSerializer.h"
 #include "utils/Constants.h"
 #include "utils/Exception.h"
 #include "utils/Format.h"
@@ -43,9 +40,9 @@ void writeWorld(const core::World* const world, const QString& path)
         throw utils::IOError(QString("Failed to open %1 for writing").arg(path));
     }
 
-    io::WorldJsonSerializer serializer;
+    io::JsonSerializer serializer;
 
-    file.write(serializer.serializeWorld(world));
+    file.write(serializer.serialize(world->serialize()));
 }
 
 std::unique_ptr<core::World> readWorld(const QString& path)
@@ -71,9 +68,9 @@ std::unique_ptr<core::World> readWorld(const QString& path)
         throw utils::IOError(QString("Failed to open %1 for reading").arg(path));
     }
 
-    io::WorldJsonUnserializer unserializer;
+    io::JsonSerializer serializer;
 
-    auto world{unserializer.unserializeWorld(file->readAll())};
+    auto world = std::make_unique<core::World>(serializer.unserialize(file->readAll()));
 
     QFileInfo fileInfo(*file);
 
@@ -101,9 +98,9 @@ void writeMap(const core::Map* const map, const QString& path)
         throw utils::IOError(QString("Failed to open %1 for writing").arg(path));
     }
 
-    io::MapJsonSerializer serializer;
+    io::JsonSerializer serializer;
 
-    file.write(serializer.serializeMap(map));
+    file.write(serializer.serialize(map->serialize()));
 }
 
 std::unique_ptr<core::Map> readMap(const QString& path, core::World* world)
@@ -114,10 +111,10 @@ std::unique_ptr<core::Map> readMap(const QString& path, core::World* world)
         throw utils::IOError(QString("Failed to open %1 for reading").arg(path));
     }
 
-    io::MapJsonUnserializer unserializer;
+    io::JsonSerializer serializer;
 
-    return unserializer.unserializeMap(file.readAll(), world);
+    return std::make_unique<core::Map>(serializer.unserialize(file.readAll()), *world, nullptr);
 }
 
-} // namespace warmonger
 } // namespace io
+} // namespace warmonger

@@ -25,9 +25,9 @@ TEST_CASE("Invokable map-editing members", "[MapEditor]")
 {
     core::World world("uuid0", core::WorldRules::Type::Lua);
 
-    world.createCivilization();
-    world.createBanner();
-    world.setColors({QColor("black"), QColor("white"), QColor("gray")});
+    world.createCivilization("Nomadic");
+    world.createBanner("Striped");
+    world.createColor("Black");
 
     core::Map map;
     map.setWorld(&world);

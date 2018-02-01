@@ -21,7 +21,6 @@
 #ifndef W_CORE_UTIL_H
 #define W_CORE_UTIL_H
 
-#include <QColor>
 #include <QObject>
 #include <QString>
 
@@ -30,6 +29,7 @@ namespace core {
 
 class Faction;
 class Banner;
+class Color;
 
 /**
  * Given the existing factions generate a possible combination.
@@ -40,8 +40,8 @@ class Banner;
  *
  * \return the next possible combination
  */
-std::tuple<Banner*, QColor, QColor> nextAvailableCombination(
-    const std::vector<Faction*>& factions, const std::vector<Banner*>& banners, const std::vector<QColor>& colors);
+std::tuple<Banner*, Color*, Color*> nextAvailableCombination(
+    const std::vector<Faction*>& factions, const std::vector<Banner*>& banners, const std::vector<Color*>& colors);
 
 } // namespace core
 } // namespace warmonger

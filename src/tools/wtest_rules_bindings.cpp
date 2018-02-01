@@ -33,35 +33,6 @@ backward::SignalHandling sh;
 
 using namespace warmonger;
 
-static void createEveryFieldType(core::WorldComponentType* componentType)
-{
-    using FT = core::Field::Type;
-
-    auto intField = componentType->createField();
-    intField->setName("intField");
-    intField->setType(FT::Integer);
-
-    auto realField = componentType->createField();
-    realField->setName("realField");
-    realField->setType(FT::Real);
-
-    auto strField = componentType->createField();
-    strField->setName("strField");
-    strField->setType(FT::String);
-
-    auto refField = componentType->createField();
-    refField->setName("refField");
-    refField->setType(FT::Reference);
-
-    auto listField = componentType->createField();
-    listField->setName("listField");
-    listField->setType(FT::List);
-
-    auto mapField = componentType->createField();
-    mapField->setName("mapField");
-    mapField->setType(FT::Map);
-}
-
 static core::WorldRules::Type rulesTypeFromString(const char* str)
 {
     const QMetaEnum metaEnum{QMetaEnum::fromType<core::WorldRules::Type>()};
@@ -100,37 +71,16 @@ int main(int argc, char* const argv[])
     world.setRulesEntryPoint(f.fileName());
     world.setName("Test World");
 
-    // ComponentType
-    auto componentType0 = world.createWorldComponentType();
-    componentType0->setName("simple");
-
-    auto componentType0Field0 = componentType0->createField();
-    componentType0Field0->setName("intField");
-    componentType0Field0->setType(core::Field::Type::Integer);
-
-    auto componentType0Field1 = componentType0->createField();
-    componentType0Field1->setName("listField");
-    componentType0Field1->setType(core::Field::Type::List);
-
-    auto componentType1 = world.createWorldComponentType();
-    componentType1->setName("complex");
-
-    createEveryFieldType(componentType1);
-
     // Civilization
-    auto civilization0 = world.createCivilization();
-    civilization0->setName("Civilization 0");
+    world.createCivilization("Nomadic");
 
     // Banner
-    auto banner0 = world.createBanner();
-    banner0->setName("Banner 0");
-    banner0->setCivilizations({civilization0});
-
-    auto banner1 = world.createBanner();
-    banner1->setName("Banner 1");
+    world.createBanner("Eagle");
+    world.createBanner("Stripes");
 
     // Color
-    world.setColors({QColor("#000000"), QColor("#ffffff")});
+    world.createColor("White");
+    world.createColor("Black");
 
     world.loadRules(f.canonicalPath());
 

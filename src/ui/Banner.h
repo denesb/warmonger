@@ -21,10 +21,8 @@
 #ifndef UI_BANNER_H
 #define UI_BANNER_H
 
-#include <QColor>
 #include <QQuickPaintedItem>
 
-#include "core/Banner.h"
 #include "ui/WorldSurface.h"
 
 class QPainter;
@@ -45,8 +43,8 @@ class Banner : public QQuickPaintedItem
     Q_OBJECT
 
     Q_PROPERTY(warmonger::core::Banner* banner READ getBanner WRITE setBanner NOTIFY bannerChanged)
-    Q_PROPERTY(QColor primaryColor READ getPrimaryColor WRITE setPrimaryColor NOTIFY primaryColorChanged)
-    Q_PROPERTY(QColor secondaryColor READ fillColor WRITE setFillColor NOTIFY secondaryColorChanged)
+    Q_PROPERTY(core::Color* primaryColor READ getPrimaryColor WRITE setPrimaryColor NOTIFY primaryColorChanged)
+    Q_PROPERTY(core::Color* secondaryColor READ getSecondaryColor WRITE setSecondaryColor NOTIFY secondaryColorChanged)
     Q_PROPERTY(WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
 
 public:
@@ -74,17 +72,10 @@ public:
      * The Banner does not assume ownership of the banner!
      * Will emit the signal Banner::bannerChanged() if the newly set value is
      * different than the current one.
-     *
-     * \param banner the banner
      */
     void setBanner(core::Banner* banner);
 
-    /**
-     * Get the primary-color.
-     *
-     * \return the primary-color
-     */
-    const QColor& getPrimaryColor() const
+    core::Color* getPrimaryColor() const
     {
         return this->primaryColor;
     }
@@ -92,22 +83,34 @@ public:
     /**
      * Set primary-color
      *
-     * The secondary color is used as the foreground color of the banner.
+     * The promary color is used as the foreground color of the banner.
      * If all conditions are given for drawing the banner, this will trigger a
      * redraw. If this was the missing piece it will trigger the first drawing.
      * Will emit the signal Banner::primaryColorChanged() if the
      * newly set value is different than the current one.
-     *
-     * \param primaryColor the primary-color
      */
-    void setPrimaryColor(const QColor& primaryColor);
+    void setPrimaryColor(core::Color* primaryColor);
+
+    core::Color* getSecondaryColor() const
+    {
+        return this->secondaryColor;
+    }
+
+    /**
+     * Set secondary-color
+     *
+     * The secondary color is used as the background color of the banner.
+     * If all conditions are given for drawing the banner, this will trigger a
+     * redraw. If this was the missing piece it will trigger the first drawing.
+     * Will emit the signal Banner::primaryColorChanged() if the
+     * newly set value is different than the current one.
+     */
+    void setSecondaryColor(core::Color* secondaryColor);
 
     /**
      * Get the world-surface used for drawing the banner.
      *
      * The Banner does not own the world-surface!
-     *
-     * \return the world-surface
      */
     WorldSurface* getWorldSurface() const
     {
@@ -159,7 +162,8 @@ private:
     void updateContent();
 
     core::Banner* banner;
-    QColor primaryColor;
+    core::Color* primaryColor;
+    core::Color* secondaryColor;
     WorldSurface* worldSurface;
     QImage bannerImage;
 };

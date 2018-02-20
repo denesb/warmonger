@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 
     if (argc < 3)
     {
-        wError.format("Too few arguments. Usage: warmonger {world} {world-surface}");
+        std::cout << "Too few arguments. Usage: warmonger {world} {world-surface}" << std::endl;
         return 1;
     }
 

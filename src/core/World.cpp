@@ -42,6 +42,8 @@ World::World(ir::Value v, QObject* parent)
     this->rulesEntryPoint = std::move(map["rulesEntryPoint"]).asString();
     this->rulesType = map["rulesType"].asEnum<WorldRules::Type>();
 
+    this->setObjectName(this->name);
+
     this->rules = createWorldRules(this);
 }
 

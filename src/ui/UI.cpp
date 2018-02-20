@@ -30,12 +30,10 @@ namespace ui {
 
 void initUI()
 {
-    const char* const applicationName = utils::applicationName.toStdString().c_str();
-
-    qmlRegisterType<Banner>(applicationName, 1, 0, "Banner");
-    qmlRegisterType<MapEditor>(applicationName, 1, 0, "MapEditor");
-    qmlRegisterType<MapView>(applicationName, 1, 0, "MapView");
-    qmlRegisterType<MiniMap>(applicationName, 1, 0, "MiniMap");
+    qmlRegisterType<Banner>(utils::applicationNameCStr, 1, 0, "Banner");
+    qmlRegisterType<MapEditor>(utils::applicationNameCStr, 1, 0, "MapEditor");
+    qmlRegisterType<MapView>(utils::applicationNameCStr, 1, 0, "MapView");
+    qmlRegisterType<MiniMap>(utils::applicationNameCStr, 1, 0, "MiniMap");
 }
 
 } // namespace ui

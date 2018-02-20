@@ -28,7 +28,8 @@
 namespace warmonger {
 namespace utils {
 
-const QString applicationName{"Warmonger"};
+const char* const applicationNameCStr = "Warmonger";
+const QString applicationName{applicationNameCStr};
 const QString organizationName{"Warmonger"};
 const QString organizationDomain{"warmonger.org"};
 

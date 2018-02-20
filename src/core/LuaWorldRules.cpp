@@ -345,7 +345,7 @@ static void exposeAPI(sol::state& lua)
         sol::property(&GraphicsComponent::getX, &GraphicsComponent::setX),
         "y",
         sol::property(&GraphicsComponent::getY, &GraphicsComponent::setY),
-        "x",
+        "z",
         sol::property(&GraphicsComponent::getZ, &GraphicsComponent::setZ),
         "container",
         sol::property(&GraphicsComponent::getContainer, &GraphicsComponent::setContainer));

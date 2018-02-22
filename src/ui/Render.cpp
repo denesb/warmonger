@@ -42,7 +42,7 @@ struct MapNodeContents
     MapNodeContents(core::MapNode* mapNode, QPoint pos, core::GraphicsComponent* graphicsComponent)
         : mapNode(mapNode)
         , pos(pos)
-        , graphicsComponents(1, std::move(graphicsComponent))
+        , graphicsComponents(1, graphicsComponent)
     {
     }
 };
@@ -149,7 +149,10 @@ static std::vector<MapNodeContents> visibleMapNodeContents(
 static std::vector<MapNodeContents> depthSorted(std::vector<MapNodeContents> mapNodeContents)
 {
     std::sort(mapNodeContents.begin(), mapNodeContents.end(), [](const MapNodeContents& a, const MapNodeContents& b) {
-        return a.pos.y() < b.pos.y() || a.pos.x() < b.pos.x();
+        if (a.pos.y() == b.pos.y())
+            return a.pos.x() < b.pos.x();
+        else
+            return a.pos.y() < b.pos.y();
     });
 
     std::for_each(mapNodeContents.begin(), mapNodeContents.end(), [](MapNodeContents& m) {

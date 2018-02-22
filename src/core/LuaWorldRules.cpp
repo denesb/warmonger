@@ -174,7 +174,7 @@ std::unique_ptr<Component> LuaWorldRules::createComponent(ir::Value v, QObject* 
     return std::make_unique<LuaWorldComponent>(std::move(v), *this->state, parent);
 }
 
-std::unique_ptr<core::Map> LuaWorldRules::generateMap(unsigned int size)
+std::unique_ptr<core::Map> LuaWorldRules::generateMap(unsigned int size, int seed)
 {
     auto map{std::make_unique<core::Map>()};
 
@@ -183,7 +183,7 @@ std::unique_ptr<core::Map> LuaWorldRules::generateMap(unsigned int size)
     map->setWorld(world);
     map->generateMapNodes(size);
 
-    this->generateMapHook(map.get(), size);
+    this->generateMapHook(map.get(), size, seed);
 
     return map;
 }

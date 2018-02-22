@@ -96,10 +96,12 @@ public:
      * Generate a map.
      *
      * \param size the radius of the map
+     * \param seed to seed the pseudo-random generator, the same seed
+     * should always generate the same map
      *
      * \returns the generated map
      */
-    virtual std::unique_ptr<core::Map> generateMap(unsigned int size) = 0;
+    virtual std::unique_ptr<core::Map> generateMap(unsigned int size, int seed) = 0;
 
     /**
      * Do any map-related initialization.

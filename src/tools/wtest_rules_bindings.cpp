@@ -84,7 +84,7 @@ int main(int argc, char* const argv[])
 
     world.loadRules(f.canonicalPath());
 
-    world.getRules()->generateMap(4);
+    world.getRules()->generateMap(4, 0);
 
     return 0;
 }

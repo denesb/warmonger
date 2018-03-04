@@ -123,5 +123,5 @@ static std::unique_ptr<Context> createContext(const QString& worldPath, const QS
 
 static std::unique_ptr<core::Map> generateBackgroundMap(core::World* world)
 {
-    return world->getRules()->generateMap(10);
+    return world->getRules()->generateMap(10, 0);
 }

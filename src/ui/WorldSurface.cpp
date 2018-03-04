@@ -63,7 +63,6 @@ const QString hexagonMask{"hexagonMask.png"};
 } // namespace
 
 static bool hasAllMandatoryImages(const WorldSurface& surface);
-static QSGTexture* createTexture(const QImage& image, QQuickWindow* window);
 
 const std::vector<QString> staticImages{};
 
@@ -326,7 +325,7 @@ QSGTexture* WorldSurface::Storage::getTexture(const QString& path, QQuickWindow*
 
     if (it == this->textures.end())
     {
-        texture = createTexture(this->getImage(path), window);
+        texture = window->createTextureFromImage(this->getImage(path));
 
         if (texture != nullptr)
         {
@@ -413,7 +412,13 @@ void DirectoryStorage::deactivate()
 
 QImage DirectoryStorage::loadImage(const QString& path) const
 {
-    return QImage(this->getPath() / path);
+    QImage image(this->getPath() / path);
+
+    if (image.isNull()) {
+        throw utils::ValueError(fmt::format("Failed to load image from path `{}'", path));
+    }
+
+    return image;
 }
 
 QUrl DirectoryStorage::getImageUrl(const QString& path) const
@@ -528,16 +533,6 @@ static bool hasAllMandatoryImages(const WorldSurface& surface)
     }
 
     return true;
-}
-
-static QSGTexture* createTexture(const QImage& image, QQuickWindow* window)
-{
-    if (image.isNull())
-    {
-        return nullptr;
-    }
-
-    return window->createTextureFromImage(image);
 }
 
 } // namespace ui

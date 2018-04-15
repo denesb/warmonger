@@ -17,7 +17,7 @@
  */
 
 import QtQuick 2.2
-import QtQuick.Controls 1.4
+import QtQuick.Controls 2.2
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts 1.3
 import Warmonger 1.0
@@ -90,62 +90,49 @@ Rectangle {
                     margins: 20
                 }
 
-                Component {
-                    id: menuButtonStyle
-
-                    ButtonStyle {
-                        background: Rectangle {
-                            implicitWidth: 160
-                            implicitHeight: 20
-                            radius: 4
-                            border.width: 1
-                            border.color: W.normalPalette.midlight
-                            gradient: Gradient {
-                                GradientStop { position: 0 ; color: control.pressed ? "#ccc" : "#eee" }
-                                GradientStop { position: 1 ; color: control.pressed ? "#aaa" : "#ccc" }
-                            }
-                        }
-                    }
-                }
-
                 Button {
                     text: "New Game"
 
-                    style: menuButtonStyle
+                    Layout.preferredWidth: 160
+                    Layout.preferredHeight: 20
 
                     onClicked: {
-                        root.Stack.view.push(Qt.resolvedUrl("NewGame.qml"));
+                        root.StackView.view.push(Qt.resolvedUrl("NewGame.qml"));
                     }
                 }
 
                 Button {
                     text: "Continue Game"
 
-                    enabled: false
+                    Layout.preferredWidth: 160
+                    Layout.preferredHeight: 20
 
-                    style: menuButtonStyle
+                    enabled: false
                 }
 
                 Button {
                     text: "Manual"
 
-                    enabled: false
+                    Layout.preferredWidth: 160
+                    Layout.preferredHeight: 20
 
-                    style: menuButtonStyle
+                    enabled: false
                 }
 
                 Button {
                     text: "About"
 
-                    enabled: false
+                    Layout.preferredWidth: 160
+                    Layout.preferredHeight: 20
 
-                    style: menuButtonStyle
+                    enabled: false
                 }
 
                 Button {
                     text: "Exit"
 
-                    style: menuButtonStyle
+                    Layout.preferredWidth: 160
+                    Layout.preferredHeight: 20
 
                     onClicked: {
                         window.close();

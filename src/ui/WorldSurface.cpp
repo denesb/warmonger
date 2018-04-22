@@ -414,7 +414,8 @@ QImage DirectoryStorage::loadImage(const QString& path) const
 {
     QImage image(this->getPath() / path);
 
-    if (image.isNull()) {
+    if (image.isNull())
+    {
         throw utils::ValueError(fmt::format("Failed to load image from path `{}'", path));
     }
 

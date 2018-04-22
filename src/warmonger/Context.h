@@ -47,8 +47,6 @@ class Context : public QObject
     Q_OBJECT
     Q_PROPERTY(warmonger::core::World* world READ getWorld CONSTANT)
     Q_PROPERTY(warmonger::ui::WorldSurface* worldSurface READ getWorldSurface CONSTANT)
-    Q_PROPERTY(warmonger::core::Map* map READ getMap WRITE setMap NOTIFY mapChanged)
-    Q_PROPERTY(QVariantList maps READ readMaps NOTIFY mapsChanged)
     Q_PROPERTY(QString version READ getVersion CONSTANT)
     Q_PROPERTY(warmonger::ui::Palette* disabledPalette READ getDisabledPalette CONSTANT)
     Q_PROPERTY(warmonger::ui::Palette* inactivePalette READ getActivePalette CONSTANT)
@@ -56,6 +54,14 @@ class Context : public QObject
     Q_PROPERTY(warmonger::ui::Palette* normalPalette READ getNormalPalette CONSTANT)
 
 public:
+    enum class State
+    {
+        MainMenu,
+        NewRandomMap,
+        Gameplay,
+    };
+    Q_ENUM(State);
+
     /**
      * Constructs a context object.
      *
@@ -97,39 +103,6 @@ public:
 
         return this->worldSurface;
     }
-
-    /**
-     * Get the campaign-map.
-     *
-     * Will be nullptr when there is no campaign-map selected.
-     *
-     * \return the campaign-map
-     */
-    core::Map* getMap() const
-    {
-        return this->map;
-    }
-
-    /**
-     * Set the campaign-map.
-     *
-     * The context will take ownership of the map.
-     * Will emit the signal Context::mapChanged() if the newly set
-     * value is different than the current one.
-     *
-     * \param map the new campaign-map
-     */
-    void setMap(core::Map* map);
-
-    /**
-     * Get the campaign-maps as a QVariantList.
-     *
-     * This function is used as a read function for the campaign-maps property
-     * and is not supposed to be called from C++ code.
-     *
-     * \returns the campaign-maps
-     */
-    QVariantList readMaps() const;
 
     /**
      * Get the application version.
@@ -189,26 +162,66 @@ public:
         return this->normalPalette;
     }
 
-signals:
     /**
-     * Emitted when the campaign-map changes.
+     * Set the state to `nextState`.
+     *
+     * The context object is always in a state. Each state is tied to
+     * a specific QML page and almost each state has an associated
+     * special context object that provides additional functionality
+     * needed by the associated QML page. The default state is
+     * MainMenu. For a list of states see the \ref State enum.
+     * The following state transitions are valid:
+     * * MainMenu -> NewRandomMap
+     * * NewRandomMap -> Gameplay
+     *
+     * Transitioning from any state to MainMenu is always valid.
+     *
+     * Some states expose special context objects:
+     * * NewRandomMap: \ref NewRandomMapContext
+     *
+     * \trows utils::ValueError if an invalid state transition is requested.
      */
-    void mapChanged();
-
-    /**
-     * Emitted when the campaign-maps change.
-     */
-    void mapsChanged();
+    void setState(State nextState);
 
 private:
     core::World* world;
     ui::WorldSurface* worldSurface;
-    core::Map* map;
-    std::vector<core::Map*> maps;
     ui::Palette* disabledPalette;
     ui::Palette* activePalette;
     ui::Palette* inactivePalette;
     ui::Palette* normalPalette;
+    State state = State::MainMenu;
+    QObject* specialContextObject = nullptr;
+    const char* specialContextPropertyName;
+};
+
+/**
+ * Context class for the random map generation QML page.
+ */
+class NewRandomMapContext : public QObject
+{
+    Q_OBJECT
+
+public:
+    NewRandomMapContext(core::World& world, QObject* parent = nullptr)
+        : QObject(parent)
+        , world(world)
+    {
+    }
+
+    std::unique_ptr<core::Map> generateMap() const;
+
+private:
+    core::World& world;
+};
+
+class GameplayContext : public QObject
+{
+public:
+    GameplayContext(std::unique_ptr<core::Map> map, QObject* parent = nullptr);
+
+private:
+    core::Map& map;
 };
 
 } // namespace warmonger

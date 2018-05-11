@@ -228,6 +228,26 @@ private:
 class NewRandomMapContext : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(unsigned size READ getSize WRITE setSize NOTIFY sizeChanged)
+    Q_PROPERTY(unsigned numOfPlayers READ getNumOfPlayers WRITE setNumOfPlayers NOTIFY numOfPlayersChanged)
+    Q_PROPERTY(QVariantList players READ readPlayers NOTIFY playersChanged)
+
+    struct BannerConfiguration
+    {
+        core::Banner* banner = nullptr;
+        core::Color* primaryColor = nullptr;
+        core::Color* secondaryColor = nullptr;
+
+        BannerConfiguration() = default;
+        BannerConfiguration(core::Banner* banner, core::Color* primaryColor, core::Color* secondaryColor)
+            : banner(banner)
+            , primaryColor(primaryColor)
+            , secondaryColor(secondaryColor)
+        {
+        }
+
+        bool operator==(const BannerConfiguration& other) const;
+    };
 
 public:
     NewRandomMapContext(core::World& world, QObject* parent = nullptr)
@@ -236,10 +256,38 @@ public:
     {
     }
 
+    unsigned getSize() const
+    {
+        return this->size;
+    }
+
+    void setSize(unsigned size);
+
+    unsigned getNumOfPlayers() const
+    {
+        return this->numOfPlayers;
+    }
+
+    void setNumOfPlayers(unsigned numOfPlayers);
+
+    QVariantList readPlayers() const;
+
     std::unique_ptr<core::Map> generateMap() const;
 
+signals:
+    void sizeChanged();
+    void numOfPlayersChanged();
+    void playersChanged();
+
 private:
+    void adjustPlayers();
+
+    BannerConfiguration nextAvailableBannerConfiguration() const;
+
     core::World& world;
+    unsigned size = 0;
+    unsigned numOfPlayers = 0;
+    std::vector<std::unique_ptr<core::Faction>> players;
 };
 
 class GameplayContext : public QObject

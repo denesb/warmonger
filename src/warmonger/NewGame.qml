@@ -53,7 +53,7 @@ Rectangle {
                 text: "Back"
 
                 onClicked: {
-                    root.Stack.view.pop();
+                    root.StackView.view.pop();
                 }
             }
 
@@ -68,7 +68,7 @@ Rectangle {
     }
 
     Rectangle {
-        id: listWrapper
+        id: mapOptions
 
         color: W.normalPalette.window
 
@@ -79,81 +79,48 @@ Rectangle {
         }
         width: 400
 
-        Component {
-            id: mapDelegate
-
-            Rectangle {
-                id: wrapper
-
-                width: mapList.width
-                height: 40
-
-                color: {
-                    if (wrapper.ListView.isCurrentItem)
-                        W.normalPalette.highlight;
-                    else if(index % 2)
-                        W.normalPalette.base;
-                    else
-                        W.normalPalette.alternateBase;
-                }
-
-                Item {
-                    anchors {
-                        fill: parent
-                        leftMargin: 4
-                        rightMargin: 4
-                    }
-
-                    Text {
-                        anchors.verticalCenter: parent.verticalCenter
-
-                        color: wrapper.ListView.isCurrentItem ? W.normalPalette.highlightedText : W.normalPalette.windowText
-
-                        text: model.modelData.name
-                    }
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-
-                    onClicked: {
-                        wrapper.ListView.view.currentIndex = index;
-                    }
-                }
-            }
-        }
-
-        Rectangle {
+        Column {
             anchors {
                 fill: parent
-                margins: 8
             }
 
-            color: W.normalPalette.light
+            Label {
+                text: "Size: " + sizeSlider.value
+            }
+            Slider {
+                id: sizeSlider
+                from: 8
+                to: 16
+                stepSize: 1
 
-            ScrollView {
-                anchors.fill: parent
+                onValueChanged: {
+                    W.randomMapGenerator.size = this.value;
+                }
+            }
 
-                ListView {
-                    id: mapList
+            Label {
+                text: "Players: " + playersSlider.value
+            }
+            Slider {
+                id: playersSlider
+                from: 2
+                to: 8
+                stepSize: 1
 
-                    currentIndex: -1
-
-                    model: W.maps
-
-                    delegate: mapDelegate
+                onValueChanged: {
+                    W.randomMapGenerator.numOfPlayers = this.value;
                 }
             }
         }
     }
 
     Rectangle {
-        id: detailsWrapper
+        id: gameplayOptions
 
         anchors {
             top: topBar.bottom
             bottom: parent.bottom
-            left: listWrapper.right
+            left: mapOptions.right
             right: parent.right
             topMargin: 8
             bottomMargin: 8
@@ -172,7 +139,7 @@ Rectangle {
 
                 Column {
                     Repeater {
-                        model: mapList.currentIndex == -1 ? null : W.maps[mapList.currentIndex].factions
+                        model: W.randomMapGenerator.players
 
                         Rectangle {
                             color: W.normalPalette.window
@@ -191,8 +158,6 @@ Rectangle {
                                     }
 
                                     Layout.fillWidth: true
-
-                                    textColor: W.normalPalette.windowText
 
                                     text: model.modelData.name
 
@@ -252,39 +217,6 @@ Rectangle {
                                 }
                             }
                         }
-                    }
-                }
-            }
-
-            Item {
-                Layout.preferredWidth: 400
-                Layout.fillHeight: true
-
-                Rectangle {
-                    id: previewWrapper
-
-                    anchors {
-                        top: parent.top
-                        left: parent.left
-                        right: parent.right
-                        margins: 8
-                    }
-
-                    height: width
-
-                    border {
-                        color: W.normalPalette.midlight
-                        width: 1
-                    }
-                    radius: 4
-
-                    color: W.normalPalette.light
-
-                    MapView {
-                        anchors.fill: parent
-
-                        map: mapList.currentIndex == -1 ? null : W.maps[mapList.currentIndex]
-                        worldSurface: W.worldSurface
                     }
                 }
             }

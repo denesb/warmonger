@@ -18,6 +18,8 @@
 
 #include "warmonger/Context.h"
 
+#include <random>
+
 #include <QDir>
 #include <QGuiApplication>
 #include <QStringList>
@@ -25,7 +27,6 @@
 #include "io/File.h"
 #include "utils/Constants.h"
 #include "utils/Logging.h"
-#include "utils/QVariantUtils.h"
 #include "utils/Settings.h"
 #include "utils/Utils.h"
 
@@ -119,9 +120,119 @@ void Context::setState(State nextState)
     this->state = nextState;
 }
 
+bool NewRandomMapContext::BannerConfiguration::operator==(const BannerConfiguration& other) const
+{
+    return this->banner == other.banner && this->primaryColor == other.primaryColor &&
+        this->secondaryColor == other.secondaryColor;
+}
+
+void NewRandomMapContext::setSize(unsigned size)
+{
+    if (this->size == size)
+        return;
+
+    this->size = size;
+    emit sizeChanged();
+}
+
+void NewRandomMapContext::setNumOfPlayers(unsigned numOfPlayers)
+{
+    if (this->numOfPlayers == numOfPlayers)
+        return;
+
+    if (numOfPlayers > this->world.maxNumberOfFactions())
+    {
+        wError.format("Requested number of players {} is larger than the maximum possible number of players ({})",
+            numOfPlayers,
+            this->world.maxNumberOfFactions());
+        return;
+    }
+
+    this->numOfPlayers = numOfPlayers;
+    emit numOfPlayersChanged();
+
+    adjustPlayers();
+}
+
+QVariantList NewRandomMapContext::readPlayers() const
+{
+    QVariantList vlist;
+    vlist.reserve(this->players.size());
+    std::transform(this->players.begin(),
+        this->players.end(),
+        std::back_inserter(vlist),
+        [](const std::unique_ptr<core::Faction>& f) { return QVariant::fromValue(f.get()); });
+    return vlist;
+}
+
 std::unique_ptr<core::Map> NewRandomMapContext::generateMap() const
 {
     return nullptr;
+}
+
+void NewRandomMapContext::adjustPlayers()
+{
+    if (this->numOfPlayers == this->players.size())
+        return;
+
+    if (this->numOfPlayers < this->players.size())
+    {
+        while (this->players.size() != this->numOfPlayers)
+        {
+            this->players.pop_back();
+        }
+    }
+    else
+    {
+        while (this->players.size() != this->numOfPlayers)
+        {
+            this->players.emplace_back(std::make_unique<core::Faction>(nullptr));
+            auto conf = this->nextAvailableBannerConfiguration();
+            auto& player = *this->players.back();
+
+            player.setBanner(conf.banner);
+            player.setPrimaryColor(conf.primaryColor);
+            player.setSecondaryColor(conf.secondaryColor);
+        }
+    }
+
+    emit this->playersChanged();
+}
+
+NewRandomMapContext::BannerConfiguration NewRandomMapContext::nextAvailableBannerConfiguration() const
+{
+    std::vector<BannerConfiguration> usedConfigurations;
+    usedConfigurations.reserve(this->players.size());
+
+    for (const auto& player : this->players)
+    {
+        usedConfigurations.emplace_back(player->getBanner(), player->getPrimaryColor(), player->getSecondaryColor());
+    }
+
+    auto& banners = this->world.getBanners();
+    auto& colors = this->world.getColors();
+
+    std::random_device rd;
+    std::mt19937 mtd(rd());
+
+    std::uniform_int_distribution<std::size_t> bannersDist(0, banners.size() - 1);
+    std::uniform_int_distribution<std::size_t> colorsDist(0, colors.size() - 1);
+
+    BannerConfiguration nextConfiguration;
+    do
+    {
+        std::size_t primaryColorIndex = colorsDist(mtd);
+        std::size_t secondaryColorIndex = colorsDist(mtd);
+
+        if (secondaryColorIndex == primaryColorIndex)
+            secondaryColorIndex = (secondaryColorIndex + 1) % colors.size();
+
+        nextConfiguration = BannerConfiguration{
+            banners.at(bannersDist(mtd)), colors.at(primaryColorIndex), colors.at(secondaryColorIndex)};
+    } while (
+        std::find(usedConfigurations.begin(), usedConfigurations.end(), nextConfiguration) != usedConfigurations.end());
+
+    return nextConfiguration;
 }
 
 GameplayContext::GameplayContext(std::unique_ptr<core::Map> map, QObject* parent)

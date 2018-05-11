@@ -283,6 +283,15 @@ public:
      */
     QVariantList readColors() const;
 
+    /**
+     * The maximum number of factions possible with this world.
+     *
+     * This is determined by the number of available banners and
+     * colors, more precisely how many unique combinations of these can
+     * be created.
+     */
+    std::size_t maxNumberOfFactions() const;
+
 signals:
     /**
      * Emitted when the name changes.

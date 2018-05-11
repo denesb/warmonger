@@ -136,5 +136,10 @@ QVariantList World::readColors() const
     return utils::toQVariantList(this->colors);
 }
 
+std::size_t World::maxNumberOfFactions() const
+{
+    return this->banners.size() * this->colors.size() * (this->colors.size() - 1);
+}
+
 } // namespace core
 } // namespace warmonger

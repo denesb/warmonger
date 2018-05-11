@@ -43,9 +43,12 @@ class Banner : public QQuickPaintedItem
     Q_OBJECT
 
     Q_PROPERTY(warmonger::core::Banner* banner READ getBanner WRITE setBanner NOTIFY bannerChanged)
-    Q_PROPERTY(core::Color* primaryColor READ getPrimaryColor WRITE setPrimaryColor NOTIFY primaryColorChanged)
-    Q_PROPERTY(core::Color* secondaryColor READ getSecondaryColor WRITE setSecondaryColor NOTIFY secondaryColorChanged)
-    Q_PROPERTY(WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
+    Q_PROPERTY(
+        warmonger::core::Color* primaryColor READ getPrimaryColor WRITE setPrimaryColor NOTIFY primaryColorChanged)
+    Q_PROPERTY(warmonger::core::Color* secondaryColor READ getSecondaryColor WRITE setSecondaryColor NOTIFY
+            secondaryColorChanged)
+    Q_PROPERTY(
+        warmonger::ui::WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
 
 public:
     /**

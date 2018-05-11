@@ -95,7 +95,6 @@ set(
     src/core/LuaWorldRules.cpp
     src/core/Map.cpp
     src/core/MapNode.cpp
-    src/core/Utils.cpp
     src/core/WObject.cpp
     src/core/World.cpp
     src/core/WorldRules.cpp

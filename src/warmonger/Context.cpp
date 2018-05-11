@@ -76,6 +76,7 @@ Context::Context(
     , inactivePalette(new ui::Palette(QGuiApplication::palette(), QPalette::Inactive, this))
     , normalPalette(new ui::Palette(QGuiApplication::palette(), QPalette::Normal, this))
 {
+    this->setObjectName("W");
     this->world->setParent(this);
     this->worldSurface->setParent(this);
 }

@@ -110,8 +110,10 @@ void Context::setState(State nextState)
         auto* nextName = statePropertyNames.at(nextState);
         assert(nextName);
 
-        this->setProperty(nextName, QVariant::fromValue(nextContextObject.get()));
+        this->setProperty(nextName, QVariant::fromValue(this->specialContextObject));
     }
+
+    wInfo.format("Context state transition: {} -> {}", prevState, nextState);
 
     this->state = nextState;
 }

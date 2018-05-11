@@ -24,6 +24,7 @@
 #include "io/File.h"
 #include "ui/SearchPaths.h"
 #include "ui/UI.h"
+#include "utils/Constants.h"
 #include "utils/Exception.h"
 #include "utils/Logging.h"
 #include "utils/Settings.h"
@@ -58,6 +59,9 @@ int main(int argc, char* argv[])
 
     ui::setupSearchPaths();
     ui::initUI();
+
+    qmlRegisterUncreatableType<Context>(
+        utils::applicationNameCStr, 1, 0, "Context", "Access to State enum members only");
 
     std::unique_ptr<Context> ctx;
 

@@ -52,6 +52,11 @@ class Context : public QObject
     Q_PROPERTY(warmonger::ui::Palette* inactivePalette READ getActivePalette CONSTANT)
     Q_PROPERTY(warmonger::ui::Palette* activePalette READ getInactivePalette CONSTANT)
     Q_PROPERTY(warmonger::ui::Palette* normalPalette READ getNormalPalette CONSTANT)
+    Q_PROPERTY(State state READ getState WRITE setState NOTIFY stateChanged)
+    // Each special context object exposed by their respective states.
+    // QML doesn't appear to see newly added dynamic properties so they
+    // need to be statically pre-declared here.
+    Q_PROPERTY(QObject* randomMapGenerator READ getSpecialContextObject NOTIFY stateChanged)
 
 public:
     enum class State
@@ -162,6 +167,11 @@ public:
         return this->normalPalette;
     }
 
+    State getState() const
+    {
+        return this->state;
+    }
+
     /**
      * Set the state to `nextState`.
      *
@@ -182,6 +192,23 @@ public:
      * \trows utils::ValueError if an invalid state transition is requested.
      */
     void setState(State nextState);
+
+    /**
+     * The special context object associated with the current state.
+     *
+     * The special context object will be different for each state and
+     * may be null in some states. This is to be used from QML and hence
+     * only a QObject* is exposed here.
+     *
+     * \see \ref setState()
+     */
+    QObject* getSpecialContextObject() const
+    {
+        return this->specialContextObject;
+    }
+
+signals:
+    void stateChanged();
 
 private:
     core::World* world;

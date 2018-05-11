@@ -97,6 +97,7 @@ Rectangle {
                     Layout.preferredHeight: 20
 
                     onClicked: {
+                        W.state = Context.NewRandomMap;
                         root.StackView.view.push(Qt.resolvedUrl("NewGame.qml"));
                     }
                 }

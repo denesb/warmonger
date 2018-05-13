@@ -166,10 +166,17 @@ WorldSurface::WorldSurface(QString path, core::World* world, QObject* parent)
     , path(std::move(path))
     , world(world)
 {
+    QString storageName;
     if (this->path.endsWith(utils::fileExtensions::surfacePackage))
+    {
         this->storage = std::make_unique<ArchiveStorage>(this->path);
+        storageName = "archive";
+    }
     else
+    {
+        storageName = "directory";
         this->storage = std::make_unique<DirectoryStorage>(this->path);
+    }
 
     auto header = this->storage->load();
     this->name = header.name;
@@ -177,6 +184,8 @@ WorldSurface::WorldSurface(QString path, core::World* world, QObject* parent)
     this->description = header.description;
     this->tileWidth = header.tileWidth;
     this->tileHeight = header.tileHeight;
+
+    wInfo.format("Created WorldSurface `{}' with {} storage @ {}", this->name, storageName, this->path);
 }
 
 WorldSurface::~WorldSurface()

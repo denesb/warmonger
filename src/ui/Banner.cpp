@@ -24,7 +24,8 @@
 namespace warmonger {
 namespace ui {
 
-static QImage createBannerImage(WorldSurface* worldSurface, core::Banner* banner, core::Color* abstractColor);
+static QImage createBannerImage(
+    WorldSurface* worldSurface, core::Banner* banner, core::Color* primaryColor, core::Color* secondaryColor);
 
 Banner::Banner(QQuickItem* parent)
     : QQuickPaintedItem(parent)
@@ -90,47 +91,43 @@ void Banner::paint(QPainter* painter)
 
 void Banner::updateContent()
 {
-    this->bannerImage = createBannerImage(this->worldSurface, this->banner, this->primaryColor);
-    if (this->bannerImage.isNull() || this->secondaryColor == nullptr)
+    this->bannerImage = createBannerImage(this->worldSurface, this->banner, this->primaryColor, this->secondaryColor);
+    if (this->bannerImage.isNull())
         this->setFlags(0);
     else
         this->setFlags(QQuickItem::ItemHasContents);
 
-    this->setFillColor(this->worldSurface->colorFor(this->secondaryColor));
     this->update();
 }
 
-static QImage createBannerImage(WorldSurface* worldSurface, core::Banner* banner, core::Color* abstractColor)
+static QImage createBannerImage(
+    WorldSurface* worldSurface, core::Banner* banner, core::Color* primaryColor, core::Color* secondaryColor)
 {
-    if (worldSurface == nullptr || banner == nullptr || abstractColor == nullptr)
+    if (!worldSurface || !banner || !primaryColor || !secondaryColor)
         return QImage();
 
-    QImage image(worldSurface->getImage(QStringLiteral("banners") / banner->getName()));
+    QImage image = worldSurface->getBannerImage(*banner);
 
-    const QColor color = worldSurface->colorFor(abstractColor);
-    const QRgb rgb = color.rgb();
+    static const QColor foregroundPlaceholderColor("black");
+    static const QColor backgroundPlaceholderColor("white");
+    const QColor foregroundColor = worldSurface->colorFor(*primaryColor);
+    const QColor backgroundColor = worldSurface->colorFor(*secondaryColor);
+
     const QSize size = image.size();
     for (int y = 0; y < size.height(); ++y)
+    {
         for (int x = 0; x < size.width(); ++x)
         {
-            QRgb pixel = image.pixel(x, y);
-            int alpha = qAlpha(pixel);
-
-            if (alpha == 0x00)
-                continue;
-
-            if (alpha == 0xff)
+            if (image.pixelColor(x, y) == foregroundPlaceholderColor)
             {
-                image.setPixel(x, y, rgb);
+                image.setPixelColor(x, y, foregroundColor);
             }
-            else
+            else if (image.pixelColor(x, y) == backgroundPlaceholderColor)
             {
-                QColor c(rgb);
-                c.setAlpha(alpha);
-
-                image.setPixel(x, y, c.rgba());
+                image.setPixelColor(x, y, backgroundColor);
             }
         }
+    }
 
     return image;
 }

@@ -1,7 +1,7 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
 <qresource>
-    <file>BannerDialog.qml</file>
+    <file alias="BannerDialog.qml">../ui/BannerDialog.qml</file>
     <file>MapsWindow.qml</file>
     <file>FactionsWindow.qml</file>
     <file>MapEditor.qml</file>

@@ -294,7 +294,7 @@ QString findWorldSurface(const QString& surface, const QString& worldPath)
     {
         const auto file = surface + "." + suffix;
         if (surfaceDir.exists(file))
-            return file;
+            return surfaceDir.canonicalPath() / file;
     }
 
     return {};

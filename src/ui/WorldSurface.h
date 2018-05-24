@@ -246,17 +246,14 @@ public:
     QUrl getImageUrl(const QString& path) const;
 
     /**
-     * Get the path of the banner.
-     *
-     * The path is an internal path, only usable to fetch the image
-     * via WorldSurface::getImageUrl().
+     * Get the banner image.
      */
-    QString getBannerImagePath(const core::Banner* const banner) const;
+    QImage getBannerImage(const core::Banner& banner) const;
 
     /**
      * This surface's concrete color for the world's abstract one.
      */
-    QColor colorFor(core::Color* color) const;
+    QColor colorFor(const core::Color& color) const;
 
 signals:
     /**
@@ -297,6 +294,9 @@ private:
     int tileWidth;
     int tileHeight;
     QImage hexMask;
+
+    std::unordered_map<QString, QString> banners;
+    std::unordered_map<QString, QColor> colors;
 };
 
 /**

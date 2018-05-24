@@ -32,6 +32,7 @@
 
 #include <ktar.h>
 
+#include "io/JsonSerializer.h"
 #include "ui/WorldSurface.h"
 #include "utils/Constants.h"
 #include "utils/Exception.h"
@@ -75,6 +76,8 @@ public:
         QString description;
         int tileWidth;
         int tileHeight;
+        std::unordered_map<QString, QString> banners;
+        std::unordered_map<QString, QColor> colors;
     };
 
     Storage(QString path)
@@ -184,6 +187,8 @@ WorldSurface::WorldSurface(QString path, core::World* world, QObject* parent)
     this->description = header.description;
     this->tileWidth = header.tileWidth;
     this->tileHeight = header.tileHeight;
+    this->banners = std::move(header.banners);
+    this->colors = std::move(header.colors);
 
     wInfo.format("Created WorldSurface `{}' with {} storage @ {}", this->name, storageName, this->path);
 }
@@ -263,15 +268,14 @@ QUrl WorldSurface::getImageUrl(const QString& path) const
     return storage->getImageUrl(path);
 }
 
-QString WorldSurface::getBannerImagePath(const core::Banner* const banner) const
+QImage WorldSurface::getBannerImage(const core::Banner& banner) const
 {
-    return QStringLiteral("banners") / banner->getName() + "." + fileExtension;
+    return this->storage->getImage(this->banners.at(banner.getName()));
 }
 
-QColor WorldSurface::colorFor(core::Color*) const
+QColor WorldSurface::colorFor(const core::Color& color) const
 {
-    // TODO: implement
-    return QColor();
+    return this->colors.at(color.getName());
 }
 
 QString findWorldSurface(const QString& surface, const QString& worldPath)
@@ -364,27 +368,38 @@ QImage WorldSurface::Storage::getImage(const QString& path) const
 
 WorldSurface::Storage::Header WorldSurface::Storage::parseHeader(const QByteArray& rawHeader)
 {
-    QJsonParseError parseError;
-    QJsonDocument jdoc = QJsonDocument::fromJson(rawHeader, &parseError);
+    io::JsonSerializer serializer;
 
-    if (parseError.error != QJsonParseError::NoError)
+    try
     {
-        throw utils::ValueError("Error parsing surface meta file from surface package " + this->path + ". " +
-            parseError.errorString() + " at " + parseError.offset);
+        const auto obj = serializer.unserialize(rawHeader).asObject();
+
+        WorldSurface::Storage::Header header;
+
+        header.name = obj.at("name").asString();
+        header.description = obj.at("description").asString();
+        header.tileWidth = obj.at("tileWidth").asInteger();
+        header.tileHeight = obj.at("tileHeight").asInteger();
+
+        for (const auto& banner : obj.at("banners").asMap())
+        {
+            header.banners.emplace(banner.first, banner.second.asString());
+        }
+
+        for (const auto& color : obj.at("colors").asMap())
+        {
+            header.colors.emplace(color.first, color.second.asColor());
+        }
+
+        this->name = header.name;
+
+        return header;
     }
-
-    QJsonObject jobj = jdoc.object();
-
-    WorldSurface::Storage::Header header;
-
-    header.name = jobj["name"].toString();
-    header.description = jobj["description"].toString();
-    header.tileWidth = jobj["tileWidth"].toInt();
-    header.tileHeight = jobj["tileHeight"].toInt();
-
-    this->name = header.name;
-
-    return header;
+    catch (utils::ValueError& e)
+    {
+        throw utils::ValueError(
+            fmt::format("Error parsing surface meta file from surface package {}: {}", this->path, e.what()));
+    }
 }
 
 DirectoryStorage::DirectoryStorage(QString path)
@@ -526,7 +541,7 @@ static bool hasAllMandatoryImages(const WorldSurface& surface)
     const auto isImageMissing = [&](const QString& path) { return surface.getImage(path).isNull(); };
 
     const auto isBannerImageMissing = [&](const core::Banner* b) {
-        return isImageMissing(surface.getBannerImagePath(b));
+        return surface.getBannerImage(*b).isNull();
     };
 
     const core::World* world = surface.getWorld();

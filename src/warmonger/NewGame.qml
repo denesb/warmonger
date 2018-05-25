@@ -114,6 +114,14 @@ Rectangle {
         }
     }
 
+    BannerDialog {
+        id: bannerDialog
+
+        visible: false
+
+        faction: W.randomMapGenerator.players[0]
+    }
+
     Rectangle {
         id: gameplayOptions
 

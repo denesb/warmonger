@@ -4,5 +4,6 @@
     <file>Warmonger.qml</file>
     <file>NewGame.qml</file>
     <file>MainMenu.qml</file>
+    <file alias="BannerDialog.qml">../ui/BannerDialog.qml</file>
 </qresource>
 </RCC>

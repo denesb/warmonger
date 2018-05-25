@@ -64,6 +64,20 @@ Rectangle {
 
                 text: "New Game"
             }
+
+            Button {
+                anchors {
+                    right: parent.right
+                    verticalCenter: parent.verticalCenter
+                }
+
+                text: "Create"
+
+                onClicked: {
+                    W.state = Context.Gameplay;
+                    root.StackView.view.push(Qt.resolvedUrl("Gameplay.qml"));
+                }
+            }
         }
     }
 

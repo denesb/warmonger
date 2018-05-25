@@ -95,7 +95,7 @@ Window {
                     color: W.normalPalette.mid
                 }
 
-                color: root.faction.primaryColor
+                color: W.color(root.faction.primaryColor)
 
                 MouseArea {
                     anchors.fill: parent
@@ -127,7 +127,7 @@ Window {
                     color: W.normalPalette.mid
                 }
 
-                color: root.faction.secondaryColor
+                color: W.color(root.faction.secondaryColor)
 
                 MouseArea {
                     anchors.fill: parent
@@ -191,7 +191,7 @@ Window {
                     color: W.normalPalette.mid
                 }
 
-                color: model.modelData
+                color: W.color(model.modelData)
 
                 MouseArea {
                     anchors.fill: parent

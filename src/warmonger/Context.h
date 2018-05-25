@@ -207,6 +207,10 @@ public:
         return this->specialContextObject;
     }
 
+    Q_INVOKABLE QColor color(warmonger::core::Color* color) const {
+        return this->worldSurface->colorFor(*color);
+    }
+
 signals:
     void stateChanged();
 

@@ -33,22 +33,22 @@
 namespace warmonger {
 
 static void format_arg(fmt::BasicFormatter<char>& f, const char*&, Context::State state);
-static std::unique_ptr<QObject> defaultStateTransitionFunction(const Context& ctx, const QObject* const);
-static std::unique_ptr<QObject> fromMainMenuToNewRandomMap(const Context& ctx, const QObject* const);
-static std::unique_ptr<QObject> fromNewRandomMapToGameplay(const Context& ctx, const QObject* const);
+static std::unique_ptr<QObject> defaultStateTransitionFunction(const Context& ctx, QObject* const);
+static std::unique_ptr<QObject> fromMainMenuToNewRandomMap(const Context& ctx, QObject* const);
+static std::unique_ptr<QObject> fromNewRandomMapToGameplay(const Context& ctx, QObject* const);
 
 struct StateTransition
 {
     Context::State from;
     Context::State to;
-    std::function<std::unique_ptr<QObject>(const Context& ctx, const QObject* const)> transition;
+    std::function<std::unique_ptr<QObject>(const Context& ctx, QObject* const)> transition;
 
     bool matches(Context::State from, Context::State to) const
     {
         return this->from == from && this->to == to;
     }
 
-    std::unique_ptr<QObject> operator()(const Context& ctx, const QObject* const old) const
+    std::unique_ptr<QObject> operator()(const Context& ctx, QObject* const old) const
     {
         return this->transition(ctx, old);
     }
@@ -259,17 +259,17 @@ static void format_arg(fmt::BasicFormatter<char>& f, const char*&, Context::Stat
     }
 }
 
-static std::unique_ptr<QObject> defaultStateTransitionFunction(const Context&, const QObject* const)
+static std::unique_ptr<QObject> defaultStateTransitionFunction(const Context&, QObject* const)
 {
     return nullptr;
 }
 
-static std::unique_ptr<QObject> fromMainMenuToNewRandomMap(const Context& ctx, const QObject* const)
+static std::unique_ptr<QObject> fromMainMenuToNewRandomMap(const Context& ctx, QObject* const)
 {
     return std::make_unique<NewRandomMapContext>(*ctx.getWorld());
 }
 
-static std::unique_ptr<QObject> fromNewRandomMapToGameplay(const Context&, const QObject* const old)
+static std::unique_ptr<QObject> fromNewRandomMapToGameplay(const Context&, QObject* const old)
 {
     auto randomMapContext = std::unique_ptr<const NewRandomMapContext>(qobject_cast<const NewRandomMapContext*>(old));
     assert(randomMapContext);

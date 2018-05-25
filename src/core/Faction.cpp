@@ -18,6 +18,8 @@
 
 #include "core/Faction.h"
 
+#include "utils/Logging.h"
+
 namespace warmonger {
 namespace core {
 
@@ -84,20 +86,36 @@ void Faction::setName(const QString& name)
 
 void Faction::setPrimaryColor(Color* primaryColor)
 {
-    if (this->primaryColor != primaryColor)
+    if (this->primaryColor == primaryColor)
     {
-        this->primaryColor = primaryColor;
-        emit primaryColorChanged();
+        return;
     }
+
+    if (primaryColor == this->secondaryColor)
+    {
+        wWarning.format("New value for primaryColor (`{}') cannot be the same as secondaryColor", primaryColor->getName());
+        return;
+    }
+
+    this->primaryColor = primaryColor;
+    emit primaryColorChanged();
 }
 
 void Faction::setSecondaryColor(Color* secondaryColor)
 {
-    if (this->secondaryColor != secondaryColor)
+    if (this->secondaryColor == secondaryColor)
     {
-        this->secondaryColor = secondaryColor;
-        emit secondaryColorChanged();
+        return;
     }
+
+    if (secondaryColor == this->primaryColor)
+    {
+        wWarning.format("New value for secondaryColor (`{}') cannot be the same as primaryColor", secondaryColor->getName());
+        return;
+    }
+
+    this->secondaryColor = secondaryColor;
+    emit secondaryColorChanged();
 }
 
 void Faction::setBanner(Banner* banner)

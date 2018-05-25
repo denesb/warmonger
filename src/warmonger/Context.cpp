@@ -165,9 +165,19 @@ QVariantList NewRandomMapContext::readPlayers() const
     return vlist;
 }
 
-std::unique_ptr<core::Map> NewRandomMapContext::generateMap() const
+std::unique_ptr<core::Map> NewRandomMapContext::generateMap()
 {
-    return nullptr;
+    auto map = this->world.getRules()->generateMap(this->size, 1);
+
+    map->setName("New Random Map");
+
+    for (auto& player : this->players)
+    {
+        player->setParent(map.get());
+        map->addFaction(std::move(player));
+    }
+
+    return map;
 }
 
 void NewRandomMapContext::adjustPlayers()
@@ -271,7 +281,7 @@ static std::unique_ptr<QObject> fromMainMenuToNewRandomMap(const Context& ctx, Q
 
 static std::unique_ptr<QObject> fromNewRandomMapToGameplay(const Context&, QObject* const old)
 {
-    auto randomMapContext = std::unique_ptr<const NewRandomMapContext>(qobject_cast<const NewRandomMapContext*>(old));
+    auto randomMapContext = qobject_cast<NewRandomMapContext*>(old);
     assert(randomMapContext);
 
     return std::make_unique<GameplayContext>(randomMapContext->generateMap());

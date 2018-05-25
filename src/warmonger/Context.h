@@ -277,7 +277,7 @@ public:
 
     QVariantList readPlayers() const;
 
-    std::unique_ptr<core::Map> generateMap() const;
+    std::unique_ptr<core::Map> generateMap();
 
 signals:
     void sizeChanged();

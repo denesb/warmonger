@@ -540,9 +540,7 @@ static bool hasAllMandatoryImages(const WorldSurface& surface)
 {
     const auto isImageMissing = [&](const QString& path) { return surface.getImage(path).isNull(); };
 
-    const auto isBannerImageMissing = [&](const core::Banner* b) {
-        return surface.getBannerImage(*b).isNull();
-    };
+    const auto isBannerImageMissing = [&](const core::Banner* b) { return surface.getBannerImage(*b).isNull(); };
 
     const core::World* world = surface.getWorld();
 

@@ -93,7 +93,8 @@ void Faction::setPrimaryColor(Color* primaryColor)
 
     if (primaryColor == this->secondaryColor)
     {
-        wWarning.format("New value for primaryColor (`{}') cannot be the same as secondaryColor", primaryColor->getName());
+        wWarning.format(
+            "New value for primaryColor (`{}') cannot be the same as secondaryColor", primaryColor->getName());
         return;
     }
 
@@ -110,7 +111,8 @@ void Faction::setSecondaryColor(Color* secondaryColor)
 
     if (secondaryColor == this->primaryColor)
     {
-        wWarning.format("New value for secondaryColor (`{}') cannot be the same as primaryColor", secondaryColor->getName());
+        wWarning.format(
+            "New value for secondaryColor (`{}') cannot be the same as primaryColor", secondaryColor->getName());
         return;
     }
 

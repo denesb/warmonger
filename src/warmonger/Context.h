@@ -237,23 +237,6 @@ class NewRandomMapContext : public QObject
     Q_PROPERTY(unsigned numOfPlayers READ getNumOfPlayers WRITE setNumOfPlayers NOTIFY numOfPlayersChanged)
     Q_PROPERTY(QVariantList players READ readPlayers NOTIFY playersChanged)
 
-    struct BannerConfiguration
-    {
-        core::Banner* banner = nullptr;
-        core::Color* primaryColor = nullptr;
-        core::Color* secondaryColor = nullptr;
-
-        BannerConfiguration() = default;
-        BannerConfiguration(core::Banner* banner, core::Color* primaryColor, core::Color* secondaryColor)
-            : banner(banner)
-            , primaryColor(primaryColor)
-            , secondaryColor(secondaryColor)
-        {
-        }
-
-        bool operator==(const BannerConfiguration& other) const;
-    };
-
 public:
     NewRandomMapContext(core::World& world, QObject* parent = nullptr)
         : QObject(parent)
@@ -286,8 +269,6 @@ signals:
 
 private:
     void adjustPlayers();
-
-    BannerConfiguration nextAvailableBannerConfiguration() const;
 
     core::World& world;
     unsigned size = 0;

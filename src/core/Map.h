@@ -353,6 +353,26 @@ private:
     std::vector<Entity*> entities;
 };
 
+struct BannerConfiguration
+{
+    Banner* banner = nullptr;
+    Color* primaryColor = nullptr;
+    Color* secondaryColor = nullptr;
+
+    BannerConfiguration() = default;
+    BannerConfiguration(Banner& banner, Color& primaryColor, Color& secondaryColor)
+        : banner(&banner)
+        , primaryColor(&primaryColor)
+        , secondaryColor(&secondaryColor)
+    {
+    }
+};
+
+bool operator==(const BannerConfiguration& a, const BannerConfiguration& b);
+
+BannerConfiguration nextAvailableBannerConfiguration(
+    const World& world, const std::vector<std::unique_ptr<Faction>>& factions);
+
 } // namespace core
 } // namespace warmonger
 

@@ -310,6 +310,49 @@ void Map::generateMapNodes(unsigned int radius)
     emit mapNodesChanged();
 }
 
+bool operator==(const BannerConfiguration& a, const BannerConfiguration& b)
+{
+    return a.banner == b.banner && a.primaryColor == b.primaryColor && a.secondaryColor == b.secondaryColor;
+}
+
+BannerConfiguration nextAvailableBannerConfiguration(
+    const World& world, const std::vector<std::unique_ptr<Faction>>& factions)
+{
+    std::vector<BannerConfiguration> usedConfigurations;
+    usedConfigurations.reserve(factions.size());
+
+    for (const auto& faction : factions)
+    {
+        usedConfigurations.emplace_back(
+            *faction->getBanner(), *faction->getPrimaryColor(), *faction->getSecondaryColor());
+    }
+
+    auto& banners = world.getBanners();
+    auto& colors = world.getColors();
+
+    std::random_device rd;
+    std::mt19937 mtd(rd());
+
+    std::uniform_int_distribution<std::size_t> bannersDist(0, banners.size() - 1);
+    std::uniform_int_distribution<std::size_t> colorsDist(0, colors.size() - 1);
+
+    BannerConfiguration nextConfiguration;
+    do
+    {
+        std::size_t primaryColorIndex = colorsDist(mtd);
+        std::size_t secondaryColorIndex = colorsDist(mtd);
+
+        if (secondaryColorIndex == primaryColorIndex)
+            secondaryColorIndex = (secondaryColorIndex + 1) % colors.size();
+
+        nextConfiguration = BannerConfiguration{
+            *banners.at(bannersDist(mtd)), *colors.at(primaryColorIndex), *colors.at(secondaryColorIndex)};
+    } while (
+        std::find(usedConfigurations.begin(), usedConfigurations.end(), nextConfiguration) != usedConfigurations.end());
+
+    return nextConfiguration;
+}
+
 static std::vector<MapNode*> unserializeMapNodes(std::vector<ir::Value> serializedMapNodes, Map* map)
 {
     std::vector<MapNode*> mapNodes;

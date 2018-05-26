@@ -30,8 +30,8 @@ namespace core {
 
 class Map;
 class World;
+class Faction;
 class Component;
-class ComponentType;
 
 /**
  * World-rules interface.
@@ -95,13 +95,15 @@ public:
     /**
      * Generate a map.
      *
+     * \param seed to seed the pseudo-random generator with, the same seed
+     *      should always generate the same map
      * \param size the radius of the map
-     * \param seed to seed the pseudo-random generator, the same seed
-     * should always generate the same map
+     * \param players the faction of players
      *
      * \returns the generated map
      */
-    virtual std::unique_ptr<core::Map> generateMap(unsigned int size, int seed) = 0;
+    virtual std::unique_ptr<core::Map> generateMap(
+        int seed, unsigned int size, std::vector<std::unique_ptr<Faction>> players) = 0;
 
     /**
      * Do any map-related initialization.

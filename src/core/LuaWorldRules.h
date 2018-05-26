@@ -67,7 +67,8 @@ public:
 
     std::unique_ptr<Component> createComponent(ir::Value v, QObject* parent) override;
 
-    std::unique_ptr<core::Map> generateMap(unsigned int size, int seed) override;
+    std::unique_ptr<core::Map> generateMap(
+        int seed, unsigned int size, std::vector<std::unique_ptr<Faction>> players) override;
 
     void mapInit(Map* map) override;
 
@@ -76,7 +77,7 @@ private:
     QString basePath;
     std::unique_ptr<sol::state> state; // to avoid exposing the massive sol.hpp
     std::function<void()> worldInitHook;
-    std::function<void(Map*, int, int)> generateMapHook;
+    std::function<void(Map*, int, unsigned int)> generateMapHook;
     std::function<void(Map*)> mapInitHook;
 };
 

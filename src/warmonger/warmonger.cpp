@@ -127,5 +127,19 @@ static std::unique_ptr<Context> createContext(const QString& worldPath, const QS
 
 static std::unique_ptr<core::Map> generateBackgroundMap(core::World* world)
 {
-    return world->getRules()->generateMap(10, 0);
+    std::vector<std::unique_ptr<core::Faction>> players;
+
+    players.reserve(2);
+    players.emplace_back(std::make_unique<core::Faction>());
+    players.emplace_back(std::make_unique<core::Faction>());
+
+    for (auto& player : players)
+    {
+        auto conf = core::nextAvailableBannerConfiguration(*world, {});
+        player->setBanner(conf.banner);
+        player->setPrimaryColor(conf.primaryColor);
+        player->setSecondaryColor(conf.secondaryColor);
+    }
+
+    return world->getRules()->generateMap(0, 10, std::move(players));
 }

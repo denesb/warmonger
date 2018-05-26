@@ -164,10 +164,10 @@ signals:
 private:
     void updateContent();
 
-    core::Banner* banner;
-    core::Color* primaryColor;
-    core::Color* secondaryColor;
-    WorldSurface* worldSurface;
+    core::Banner* banner = nullptr;
+    core::Color* primaryColor = nullptr;
+    core::Color* secondaryColor = nullptr;
+    WorldSurface* worldSurface = nullptr;
     QImage bannerImage;
 };
 

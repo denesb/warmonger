@@ -52,7 +52,7 @@ public:
      *
      * \see WObject::WObject
      */
-    Faction(QObject* parent, ObjectId id = ObjectId::Invalid);
+    explicit Faction(QObject* parent = nullptr, ObjectId id = ObjectId::Invalid);
 
     /**
      * Construct the faction from the intermediate-representation.

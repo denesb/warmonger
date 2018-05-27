@@ -158,7 +158,7 @@ void LuaWorldRules::loadRules(const QString& basePath, const QString& mainRulesF
     lua.script_file(path.toStdString());
 
     this->worldInitHook = lua["world_init"];
-    this->generateMapHook = lua["generate_map"];
+    this->generateMapHook = lua["generate_random_map_content"];
     this->mapInitHook = lua["map_init"];
 
     this->worldInitHook();

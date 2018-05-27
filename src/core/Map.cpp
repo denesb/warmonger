@@ -138,7 +138,7 @@ MapNode* Map::createMapNode(ObjectId id)
 
     this->mapNodes.push_back(mapNode);
 
-    wDebug << "Created map-node " << mapNode << " in map " << this;
+    wTrace << "Created map-node " << mapNode << " in map " << this;
 
     emit mapNodesChanged();
 
@@ -153,7 +153,7 @@ MapNode* Map::addMapNode(std::unique_ptr<MapNode> mapNode)
 
     this->mapNodes.push_back(mapNode.release());
 
-    wDebug << "Added mapNode " << mn << " to map " << this;
+    wTrace << "Added mapNode " << mn << " to map " << this;
 
     emit mapNodesChanged();
 
@@ -170,7 +170,7 @@ std::unique_ptr<MapNode> Map::removeMapNode(MapNode* mapNode)
 
         QObject::disconnect(mapNode, nullptr, this, nullptr);
 
-        wDebug << "Removed map-node " << mapNode;
+        wTrace << "Removed map-node " << mapNode;
 
         emit mapNodesChanged();
 
@@ -188,7 +188,7 @@ Entity* Map::createEntity(ObjectId id)
 
     this->entities.push_back(entity);
 
-    wDebug << "Created entity " << entity << " in map " << this;
+    wTrace << "Created entity " << entity << " in map " << this;
 
     emit entitiesChanged();
 
@@ -203,7 +203,7 @@ Entity* Map::addEntity(std::unique_ptr<Entity> entity)
 
     this->entities.push_back(entity.release());
 
-    wDebug << "Added entity " << e << " to map " << this;
+    wTrace << "Added entity " << e << " to map " << this;
 
     emit entitiesChanged();
 
@@ -222,7 +222,7 @@ std::unique_ptr<Entity> Map::removeEntity(Entity* entity)
 
         QObject::disconnect(entity, nullptr, this, nullptr);
 
-        wDebug << "Removed entity " << entity;
+        wTrace << "Removed entity " << entity;
 
         return std::unique_ptr<Entity>(entity);
     }
@@ -238,7 +238,7 @@ Faction* Map::createFaction(ObjectId id)
 
     this->factions.emplace_back(faction);
 
-    wDebug << "Created faction " << faction << " in map " << this;
+    wTrace << "Created faction " << faction << " in map " << this;
 
     emit factionsChanged();
 
@@ -253,7 +253,7 @@ Faction* Map::addFaction(std::unique_ptr<Faction> faction)
 
     this->factions.push_back(faction.release());
 
-    wDebug << "Added faction " << f << " to map " << this;
+    wTrace << "Added faction " << f << " to map " << this;
 
     emit factionsChanged();
 
@@ -276,7 +276,7 @@ std::unique_ptr<Faction> Map::removeFaction(Faction* faction)
 
         QObject::disconnect(faction, nullptr, this, nullptr);
 
-        wDebug << "Removed faction " << faction;
+        wTrace << "Removed faction " << faction;
 
         emit factionsChanged();
 

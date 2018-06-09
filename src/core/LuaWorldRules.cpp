@@ -409,7 +409,9 @@ static void exposeAPI(sol::state& lua)
         "create_entity",
         [](Map* const map, QString name) { return map->createEntity(name); },
         "remove_entity",
-        [](Map* const map, Entity* entity) { map->removeEntity(entity); });
+        [](Map* const map, Entity* entity) { map->removeEntity(entity); },
+        "find_entity_on_map_node",
+        &Map::findEntityOnMapNode);
 }
 
 static void wLuaLog(sol::this_state L, utils::LogLevel logLevel, const std::string& msg)

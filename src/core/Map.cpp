@@ -310,6 +310,23 @@ void Map::generateMapNodes(unsigned int radius)
     emit mapNodesChanged();
 }
 
+Entity* Map::findEntityOnMapNode(QString name, MapNode& mapNode)
+{
+    //TODO: will possibly need a more efficient implementation, like maintaining
+    //a lookup table.
+    auto it = std::find_if(this->entities.begin(), this->entities.end(), [&] (Entity* e) {
+        if (e->getName() != name)
+            return false;
+        if (auto c = e->getPositionComponent())
+            return c->getMapNode() == &mapNode;
+        return false;
+    });
+    if (it != this->entities.end())
+        return *it;
+
+    return nullptr;
+}
+
 bool operator==(const BannerConfiguration& a, const BannerConfiguration& b)
 {
     return a.banner == b.banner && a.primaryColor == b.primaryColor && a.secondaryColor == b.secondaryColor;

@@ -314,6 +314,13 @@ public:
      */
     void generateMapNodes(unsigned int radius);
 
+    /**
+     * Find the first entity with name `name` that is position on `mapNode`.
+     *
+     * \return the found entity or nullptr if no matching entity is found.
+     */
+    Entity* findEntityOnMapNode(QString name, MapNode& mapNode);
+
 signals:
     /**
      * Emitted when the name changes.

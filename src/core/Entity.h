@@ -47,17 +47,20 @@ class Entity : public WObject, public ir::Serializable
 {
     Q_OBJECT
 
+    Q_PROPERTY(QString name READ getName CONSTANT)
+
 public:
     /**
      * Create an empty entity.
      *
+     * \param name the name of the entity
      * \param world-rules the world-rules of the world
      * \param parent the parent QObject.
      * \param id the id of the object
      *
      * \see WObject::WObject
      */
-    Entity(WorldRules* rules, QObject* parent, ObjectId id = ObjectId::Invalid);
+    Entity(QString name, WorldRules* rules, QObject* parent, ObjectId id = ObjectId::Invalid);
 
     /**
      * Construct the entity from the intermediate-representation.
@@ -71,6 +74,11 @@ public:
     Entity(ir::Value v, WorldRules* rules, QObject* parent);
 
     ir::Value serialize() const override;
+
+    QString getName() const
+    {
+        return this->name;
+    }
 
     /**
      * Get the component with the given name of this entity.
@@ -145,6 +153,7 @@ signals:
     void componentsChanged();
 
 private:
+    QString name;
     WorldRules* rules;
     std::unordered_map<QString, Component*> components;
 };

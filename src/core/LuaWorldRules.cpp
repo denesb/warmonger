@@ -370,6 +370,8 @@ static void exposeAPI(sol::state& lua)
     lua.new_usertype<Entity>("entity",
         sol::meta_function::construct,
         sol::no_constructor,
+        "name",
+        sol::property(&Entity::getName),
         "components",
         sol::property(&Entity::getComponents),
         "position",
@@ -405,7 +407,7 @@ static void exposeAPI(sol::state& lua)
         "entities",
         sol::property(&Map::getEntities),
         "create_entity",
-        [](Map* const map) { return map->createEntity(); },
+        [](Map* const map, QString name) { return map->createEntity(name); },
         "remove_entity",
         [](Map* const map, Entity* entity) { map->removeEntity(entity); });
 }

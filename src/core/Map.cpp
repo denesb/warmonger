@@ -182,9 +182,9 @@ std::unique_ptr<MapNode> Map::removeMapNode(MapNode* mapNode)
     }
 }
 
-Entity* Map::createEntity(ObjectId id)
+Entity* Map::createEntity(QString name, ObjectId id)
 {
-    Entity* entity = new Entity(this->world->getRules(), this, id);
+    Entity* entity = new Entity(std::move(name), this->world->getRules(), this, id);
 
     this->entities.push_back(entity);
 

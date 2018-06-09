@@ -25,8 +25,9 @@
 namespace warmonger {
 namespace core {
 
-Entity::Entity(WorldRules* rules, QObject* parent, ObjectId id)
+Entity::Entity(QString name, WorldRules* rules, QObject* parent, ObjectId id)
     : WObject(parent, id)
+    , name(std::move(name))
     , rules(rules)
 {
 }
@@ -36,6 +37,10 @@ Entity::Entity(ir::Value v, WorldRules* rules, QObject* parent)
     , rules(rules)
 {
     auto obj = std::move(v).asObject();
+
+    this->name = std::move(obj["name"]).asString();
+    this->setObjectName(this->name);
+
     auto serializedComponents = std::move(obj["components"]).asMap();
 
     for (auto& c : serializedComponents)

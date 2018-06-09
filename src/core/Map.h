@@ -234,11 +234,9 @@ public:
      * An id value should only be passed when the entity is being
      * unserialized and it already has a priorly generated id.
      *
-     * \param id the id
-     *
      * \returns the newly created entity
      */
-    Entity* createEntity(ObjectId id = ObjectId::Invalid);
+    Entity* createEntity(QString name, ObjectId id = ObjectId::Invalid);
 
     /**
      * Add a new entity to the map.

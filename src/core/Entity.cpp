@@ -84,7 +84,7 @@ Component* Entity::getComponent(const QString& name)
 
     if (it == this->components.end())
     {
-        wDebug.format("Entity {} doesn't have a component with the name `{}'", *this, name);
+        wTrace.format("Entity {} doesn't have a component with the name `{}'", *this, name);
         return nullptr;
     }
     else
@@ -95,7 +95,7 @@ Component* Entity::getComponent(const QString& name)
 
 Component* Entity::createComponent(const QString& name)
 {
-    wDebug.format("Creating new component `{}' in entity {}", name, *this);
+    wTrace.format("Creating new component `{}' in entity {}", name, *this);
 
     Component* component{nullptr};
     if (name == PositionComponent::name)
@@ -119,7 +119,7 @@ Component* Entity::createComponent(const QString& name)
     }
     else
     {
-        wDebug.format("Overwriting previously existing component with new one");
+        wTrace.format("Overwriting previously existing component with new one");
         delete it->second;
         it->second = component;
     }
@@ -142,7 +142,7 @@ std::unique_ptr<Component> Entity::removeComponent(const QString& name)
         auto component = it->second;
         this->components.erase(it);
 
-        wDebug.format("Removed component `{}' from entity {}", name, *this);
+        wTrace.format("Removed component `{}' from entity {}", name, *this);
 
         emit componentsChanged();
 

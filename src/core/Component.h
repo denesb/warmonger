@@ -201,19 +201,11 @@ public:
 
     void setZ(int z);
 
-    Entity* getContainer() const
-    {
-        return this->container;
-    }
-
-    void setContainer(Entity* container);
-
 private:
     QString path;
     int x{0};
     int y{0};
     int z{0};
-    Entity* container{nullptr};
 };
 
 } // namespace core

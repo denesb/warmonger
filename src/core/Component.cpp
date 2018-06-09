@@ -77,7 +77,6 @@ GraphicsComponent::GraphicsComponent(ir::Value v, QObject* parent)
     this->x = obj.at("x").asInteger();
     this->y = obj.at("y").asInteger();
     this->z = obj.at("z").asInteger();
-    this->container = obj.at("container").asReference<Entity>(parent);
 }
 
 ir::Value GraphicsComponent::serialize() const
@@ -89,7 +88,6 @@ ir::Value GraphicsComponent::serialize() const
     obj["x"] = this->x;
     obj["y"] = this->y;
     obj["z"] = this->z;
-    obj["container"] = this->container;
     return obj;
 }
 
@@ -111,11 +109,6 @@ void GraphicsComponent::setY(int y)
 void GraphicsComponent::setZ(int z)
 {
     this->z = z;
-}
-
-void GraphicsComponent::setContainer(Entity* container)
-{
-    this->container = container;
 }
 
 static void checkName(const std::unordered_map<QString, ir::Value>& obj, const QString& name)

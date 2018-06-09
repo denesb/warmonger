@@ -353,9 +353,7 @@ static void exposeAPI(sol::state& lua)
         "y",
         sol::property(&GraphicsComponent::getY, &GraphicsComponent::setY),
         "z",
-        sol::property(&GraphicsComponent::getZ, &GraphicsComponent::setZ),
-        "container",
-        sol::property(&GraphicsComponent::getContainer, &GraphicsComponent::setContainer));
+        sol::property(&GraphicsComponent::getZ, &GraphicsComponent::setZ));
 
     lua.new_usertype<LuaWorldComponent>("lua_world_component",
         sol::meta_function::construct,
@@ -372,6 +370,10 @@ static void exposeAPI(sol::state& lua)
         sol::no_constructor,
         "name",
         sol::property(&Entity::getName),
+        "parent",
+        sol::property(&Entity::getParentEntity, &Entity::setParentEntity),
+        "children",
+        sol::property(&Entity::getChildEntities),
         "components",
         sol::property(&Entity::getComponents),
         "position",

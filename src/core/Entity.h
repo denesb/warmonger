@@ -81,6 +81,42 @@ public:
     }
 
     /**
+     * The parent entity of this entity.
+     *
+     * \see setParentEntity()
+     */
+    Entity* getParentEntity() const
+    {
+        return this->parent;
+    }
+
+    /**
+     * Set the parent entity of this entity.
+     *
+     * Allows for organizing entities into a hierarchy. This has an effect on
+     * how the entity's components are interpreted:
+     * * PositionComponent is inherited from parent but can be overriden.
+     * * GraphicsComponent is rendered as a child of the parent's GraphicsComponent
+     *
+     * The effect on the components defined by the world-rules is, naturally,
+     * defined by the world rules.
+     *
+     * \param entity the new parent entity of this entity, can be null.
+     *
+     * This entity is added to the parent's children list.
+     * \see \ref getChildEntities().
+     */
+    void setParentEntity(Entity* entity);
+
+    /**
+     * Get the list of entities this entity is a parent of.
+     */
+    const std::vector<Entity*>& getChildEntities() const
+    {
+        return this->children;
+    }
+
+    /**
      * Get the component with the given name of this entity.
      *
      * \return the component or nullptr if entity doesn't have the
@@ -97,7 +133,12 @@ public:
      */
     PositionComponent* getPositionComponent()
     {
-        return qobject_cast<PositionComponent*>(this->getComponent(PositionComponent::name));
+        if (auto* c = this->getComponent(PositionComponent::name))
+            return qobject_cast<PositionComponent*>();
+        else if (this->parent)
+            return this->parent->getPositionComponent();
+        else
+            return nullptr;
     }
 
     /**
@@ -156,6 +197,8 @@ private:
     QString name;
     WorldRules* rules;
     std::unordered_map<QString, Component*> components;
+    Entity* parent{nullptr};
+    std::vector<Entity*> children;
 };
 
 } // namespace core

@@ -32,11 +32,8 @@ TEST_CASE("Invokable map-editing members", "[MapEditor]")
     core::Map map;
     map.setWorld(&world);
 
-    ui::WorldSurface surface("./worldsurface-packages/test.wsp", &world);
-
     ui::MapEditor mapEditor;
     mapEditor.setMap(&map);
-    mapEditor.setWorldSurface(&surface);
 
     SECTION("setNumberOfFactions")
     {

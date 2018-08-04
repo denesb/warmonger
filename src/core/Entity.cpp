@@ -41,6 +41,8 @@ Entity::Entity(ir::Value v, WorldRules* rules, QObject* parent)
     this->name = std::move(obj["name"]).asString();
     this->setObjectName(this->name);
 
+    this->parentEntity = obj["parentEntity"].asReference<Entity>(parent);
+
     auto serializedComponents = std::move(obj["components"]).asMap();
 
     for (auto& c : serializedComponents)
@@ -65,6 +67,8 @@ ir::Value Entity::serialize() const
     std::unordered_map<QString, ir::Value> obj;
 
     obj["id"] = this->getId().get();
+    obj["name"] = this->name;
+    obj["parentEntity"] = this->parentEntity;
 
     std::unordered_map<QString, ir::Value> componentsMap;
 

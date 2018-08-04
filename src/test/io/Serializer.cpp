@@ -59,7 +59,7 @@ TEST_CASE("Map serialized and unserilized", "[Serializer]")
     m.setWorld(&w);
     m.generateMapNodes(8);
 
-    auto* e0 = m.createEntity();
+    auto* e0 = m.createEntity("entity0");
     auto* e0comp0 = dynamic_cast<core::PositionComponent*>(e0->createComponent(core::PositionComponent::name));
     e0comp0->setMapNode(m.getMapNodes().front());
     auto* e0comp1 = dynamic_cast<core::GraphicsComponent*>(e0->createComponent(core::GraphicsComponent::name));
@@ -68,7 +68,8 @@ TEST_CASE("Map serialized and unserilized", "[Serializer]")
     e0comp1->setY(67);
     e0comp1->setZ(70);
 
-    auto* e1 = m.createEntity();
+    auto* e1 = m.createEntity("entity1");
+    e1->setParentEntity(e0);
     auto* e1comp0 = dynamic_cast<core::PositionComponent*>(e1->createComponent(core::PositionComponent::name));
     e1comp0->setMapNode(m.getMapNodes().back());
     auto* e1comp1 = dynamic_cast<core::GraphicsComponent*>(e1->createComponent(core::GraphicsComponent::name));
@@ -76,7 +77,6 @@ TEST_CASE("Map serialized and unserilized", "[Serializer]")
     e1comp1->setX(2);
     e1comp1->setY(3);
     e1comp1->setZ(100);
-    e1comp1->setContainer(e0);
 
     auto* f0 = m.createFaction();
     f0->setName("The Achmeid Empire");
@@ -129,6 +129,7 @@ TEST_CASE("Map serialized and unserilized", "[Serializer]")
     // Entity 0
     auto newE0 = newMap.getEntities().front();
     REQUIRE(newE0->getId() == e0->getId());
+    REQUIRE(newE0->getParentEntity() == nullptr);
     auto newE0comp0 = newE0->getPositionComponent();
     REQUIRE(newE0comp0->getMapNode()->getId() == e0comp0->getMapNode()->getId());
     auto newE0comp1 = newE0->getGraphicsComponent();
@@ -136,11 +137,12 @@ TEST_CASE("Map serialized and unserilized", "[Serializer]")
     REQUIRE(newE0comp1->getX() == e0comp1->getX());
     REQUIRE(newE0comp1->getY() == e0comp1->getY());
     REQUIRE(newE0comp1->getZ() == e0comp1->getZ());
-    REQUIRE(newE0comp1->getContainer() == nullptr);
 
     // Entity 1
     auto newE1 = newMap.getEntities().back();
     REQUIRE(newE1->getId() == e1->getId());
+    REQUIRE(newE1->getParentEntity() != nullptr);
+    REQUIRE(newE1->getParentEntity()->getId() == newE0->getId());
     auto newE1comp0 = newE1->getPositionComponent();
     REQUIRE(newE1comp0->getMapNode()->getId() == e1comp0->getMapNode()->getId());
     auto newE1comp1 = newE1->getGraphicsComponent();
@@ -148,7 +150,6 @@ TEST_CASE("Map serialized and unserilized", "[Serializer]")
     REQUIRE(newE1comp1->getX() == e1comp1->getX());
     REQUIRE(newE1comp1->getY() == e1comp1->getY());
     REQUIRE(newE1comp1->getZ() == e1comp1->getZ());
-    REQUIRE(newE1comp1->getContainer()->getId() == e1comp1->getContainer()->getId());
 
     // Factions
     REQUIRE(newMap.getFactions().size() == m.getFactions().size());

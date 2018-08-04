@@ -87,7 +87,7 @@ public:
      */
     Entity* getParentEntity() const
     {
-        return this->parent;
+        return this->parentEntity;
     }
 
     /**
@@ -113,7 +113,7 @@ public:
      */
     const std::vector<Entity*>& getChildEntities() const
     {
-        return this->children;
+        return this->childEntities;
     }
 
     /**
@@ -134,9 +134,9 @@ public:
     PositionComponent* getPositionComponent()
     {
         if (auto* c = this->getComponent(PositionComponent::name))
-            return qobject_cast<PositionComponent*>();
-        else if (this->parent)
-            return this->parent->getPositionComponent();
+            return qobject_cast<PositionComponent*>(c);
+        else if (this->parentEntity)
+            return this->parentEntity->getPositionComponent();
         else
             return nullptr;
     }
@@ -197,8 +197,8 @@ private:
     QString name;
     WorldRules* rules;
     std::unordered_map<QString, Component*> components;
-    Entity* parent{nullptr};
-    std::vector<Entity*> children;
+    Entity* parentEntity{nullptr};
+    std::vector<Entity*> childEntities;
 };
 
 } // namespace core

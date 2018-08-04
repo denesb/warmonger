@@ -80,20 +80,20 @@ ir::Value Entity::serialize() const
 
 void Entity::setParentEntity(Entity* entity)
 {
-    if (this->parent)
+    if (this->parentEntity)
     {
-        auto it = std::remove(this->parent->children.begin(), this->parent->children.end(), this);
-        if (it == this->parent->children.end())
+        auto it = std::remove(this->parentEntity->childEntities.begin(), this->parentEntity->childEntities.end(), this);
+        if (it == this->parentEntity->childEntities.end())
         {
-            wWarning.format("Supposed to remove this entity ({}) from parent's ({}) children but not found", this, this->parent);
+            wWarning.format("Supposed to remove this entity ({}) from parent's ({}) children but not found", *this, *this->parentEntity);
         }
-        this->parent->children.erase(it, this->parent->children.end());
+        this->parentEntity->childEntities.erase(it, this->parentEntity->childEntities.end());
     }
 
-    this->parent = entity;
+    this->parentEntity = entity;
 
-    if (this->parent)
-        entity->children.emplace_back(this);
+    if (this->parentEntity)
+        entity->childEntities.emplace_back(this);
 }
 
 Component* Entity::getComponent(const QString& name)

@@ -18,8 +18,6 @@
 
 #include "tools/Utils.h"
 
-#include "utils/Logging.h"
-
 namespace warmonger {
 namespace tools {
 

@@ -40,59 +40,59 @@ TEST_CASE("Failed to load surface metadata", "[WorldSurface][!hide]")
 
     SECTION("No package file")
     {
-        REQUIRE_THROWS_AS(ui::WorldSurface("./worldsurface-packages/test_nonExistent.wsp", &world), utils::IOError);
+        REQUIRE_THROWS_AS(ui::WorldSurface("./worldsurface-packages/test_nonExistent.wsp", &world), utils::IOError&);
     }
 
     SECTION("No metadata file in package")
     {
-        REQUIRE_THROWS_AS(ui::WorldSurface("./worldsurface-packages/test_noMeta.wsp", &world), utils::IOError);
+        REQUIRE_THROWS_AS(ui::WorldSurface("./worldsurface-packages/test_noMeta.wsp", &world), utils::IOError&);
     }
 
     SECTION("Metadata file is not a file")
     {
-        REQUIRE_THROWS_AS(ui::WorldSurface("./worldsurface-packages/test_metaDir.wsp", &world), utils::IOError);
+        REQUIRE_THROWS_AS(ui::WorldSurface("./worldsurface-packages/test_metaDir.wsp", &world), utils::IOError&);
     }
 
     SECTION("Metadata file not valid JSON")
     {
         REQUIRE_THROWS_AS(
-            ui::WorldSurface("./worldsurface-packages/test_metaInvalidJson.wsp", &world), utils::ValueError);
+            ui::WorldSurface("./worldsurface-packages/test_metaInvalidJson.wsp", &world), utils::ValueError&);
     }
 
     SECTION("No resource file")
     {
         ui::WorldSurface s("./worldsurface-packages/test_noRcc.wsp", &world);
-        REQUIRE_THROWS_AS(s.activate(), utils::IOError);
+        REQUIRE_THROWS_AS(s.activate(), utils::IOError&);
     }
 
     SECTION("Resource file is not a file")
     {
         ui::WorldSurface s("./worldsurface-packages/test_rccDir.wsp", &world);
-        REQUIRE_THROWS_AS(s.activate(), utils::IOError);
+        REQUIRE_THROWS_AS(s.activate(), utils::IOError&);
     }
 
     SECTION("Resource file is invalid")
     {
         ui::WorldSurface s("./worldsurface-packages/test_rccInvalid.wsp", &world);
-        REQUIRE_THROWS_AS(s.activate(), utils::IOError);
+        REQUIRE_THROWS_AS(s.activate(), utils::IOError&);
     }
 
     SECTION("Resource file, missing definition file")
     {
         ui::WorldSurface s("./worldsurface-packages/test_noDefinition.wsp", &world);
-        REQUIRE_THROWS_AS(s.activate(), utils::IOError);
+        REQUIRE_THROWS_AS(s.activate(), utils::IOError&);
     }
 
     SECTION("Resource file, definition file - invalid json")
     {
         ui::WorldSurface s("./worldsurface-packages/test_definitionInvalidJson.wsp", &world);
-        REQUIRE_THROWS_AS(s.activate(), utils::ValueError);
+        REQUIRE_THROWS_AS(s.activate(), utils::ValueError&);
     }
 
     SECTION("Resource file, no hexmask")
     {
         ui::WorldSurface s("./worldsurface-packages/test_noHexMask.wsp", &world);
-        REQUIRE_THROWS_AS(s.activate(), utils::IOError);
+        REQUIRE_THROWS_AS(s.activate(), utils::IOError&);
     }
 }
 
@@ -103,31 +103,31 @@ TEST_CASE("Missing required images", "[WorldSurface][!hide]")
     SECTION("Missing army-type images")
     {
         ui::WorldSurface s("./worldsurface-packages/test_noArmyTypeImage.wsp", world.get());
-        REQUIRE_THROWS_AS(s.activate(), utils::IOError);
+        REQUIRE_THROWS_AS(s.activate(), utils::IOError&);
     }
 
     SECTION("Missing settlement-type images")
     {
         ui::WorldSurface s("./worldsurface-packages/test_noSettlementTypeImage.wsp", world.get());
-        REQUIRE_THROWS_AS(s.activate(), utils::IOError);
+        REQUIRE_THROWS_AS(s.activate(), utils::IOError&);
     }
 
     SECTION("Missing banner images")
     {
         ui::WorldSurface s("./worldsurface-packages/test_noBannerImage.wsp", world.get());
-        REQUIRE_THROWS_AS(s.activate(), utils::IOError);
+        REQUIRE_THROWS_AS(s.activate(), utils::IOError&);
     }
 
     SECTION("Missing terrain-type images")
     {
         ui::WorldSurface s("./worldsurface-packages/test_noTerrainTypeImage.wsp", world.get());
-        REQUIRE_THROWS_AS(s.activate(), utils::IOError);
+        REQUIRE_THROWS_AS(s.activate(), utils::IOError&);
     }
 
     SECTION("Missing unit-type images")
     {
         ui::WorldSurface s("./worldsurface-packages/test_noUnitTypeImage.wsp", world.get());
-        REQUIRE_THROWS_AS(s.activate(), utils::IOError);
+        REQUIRE_THROWS_AS(s.activate(), utils::IOError&);
     }
 }
 

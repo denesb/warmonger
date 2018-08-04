@@ -62,8 +62,7 @@ int main(int argc, char* const argv[])
     }
     catch (const std::exception& e)
     {
-        wError << "Unexpected exception while trying to load world: " << e.what();
-        FAIL(1);
+        tools::die(logStream, "Unexpected exception while trying to load world: ", e.what());
     }
 
     wInfo << "Successfully loaded world " << world.get();
@@ -74,8 +73,7 @@ int main(int argc, char* const argv[])
     }
     catch (const std::exception& e)
     {
-        wError << "Unexpected exception while trying to load map: " << e.what();
-        FAIL(1);
+        tools::die(logStream, "Unexpected exception while trying to load map: {}", e.what());
     }
 
     return 0;

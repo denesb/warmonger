@@ -32,7 +32,6 @@ const char loggerName[] = "console";
 
 static std::shared_ptr<spdlog::logger> wLogger;
 
-static std::string trimSrcFilePath(const char* fileName);
 static void qtMessageHandler(QtMsgType type, const QMessageLogContext& ctx, const QString& msg);
 static void log(LogLevel level, const std::string& file, const char* function, int line, const std::string& msg);
 
@@ -79,7 +78,7 @@ void initLogging(const LogConfig& cfg)
 
 LogEntry::LogEntry(LogLevel level, const char* file, const char* function, int line)
     : level(level)
-    , file(trimSrcFilePath(file))
+    , file(file)
     , function(function)
     , line(line)
 {
@@ -88,22 +87,6 @@ LogEntry::LogEntry(LogLevel level, const char* file, const char* function, int l
 LogEntry::~LogEntry()
 {
     log(this->level, this->file, this->function, this->line, this->msg.str());
-}
-
-std::string trimSrcFilePath(const char* fileName)
-{
-    if (fileName == nullptr)
-        return std::string();
-
-    const std::string path(fileName);
-    if (path.compare(0, basePath.size(), basePath) == 0)
-    {
-        return path.substr(basePath.size() + 1);
-    }
-    else
-    {
-        return path;
-    }
 }
 
 static void qtMessageHandler(QtMsgType type, const QMessageLogContext& ctx, const QString& msg)
@@ -129,7 +112,7 @@ static void qtMessageHandler(QtMsgType type, const QMessageLogContext& ctx, cons
             break;
     }
 
-    log(lvl, trimSrcFilePath(ctx.file), nullptr, ctx.line, msg.toStdString());
+    log(lvl, ctx.file, nullptr, ctx.line, msg.toStdString());
 }
 
 static void log(LogLevel level, const std::string& file, const char* function, int line, const std::string& msg)

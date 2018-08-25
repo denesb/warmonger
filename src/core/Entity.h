@@ -90,6 +90,11 @@ public:
         return this->parentEntity;
     }
 
+    bool hasParentEntity() const
+    {
+        return this->parentEntity != nullptr;
+    }
+
     /**
      * Set the parent entity of this entity.
      *

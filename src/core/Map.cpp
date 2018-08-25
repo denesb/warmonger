@@ -312,9 +312,9 @@ void Map::generateMapNodes(unsigned int radius)
 
 Entity* Map::findEntityOnMapNode(QString name, MapNode& mapNode)
 {
-    //TODO: will possibly need a more efficient implementation, like maintaining
-    //a lookup table.
-    auto it = std::find_if(this->entities.begin(), this->entities.end(), [&] (Entity* e) {
+    // TODO: will possibly need a more efficient implementation, like maintaining
+    // a lookup table.
+    auto it = std::find_if(this->entities.begin(), this->entities.end(), [&](Entity* e) {
         if (e->getName() != name)
             return false;
         if (auto c = e->getPositionComponent())

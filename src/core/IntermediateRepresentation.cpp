@@ -244,7 +244,7 @@ double Value::asReal() const
         return this->data->real;
 }
 
-const QString& Value::asString() const &
+const QString& Value::asString() const&
 {
     this->throwIfIncompatibleValue(Type::String);
     return this->data->string;
@@ -256,7 +256,7 @@ QString Value::asString() &&
     return std::move(this->data->string);
 }
 
-const Reference& Value::asReference() const &
+const Reference& Value::asReference() const&
 {
     this->throwIfIncompatibleValue(Type::Reference);
     return this->data->reference;
@@ -268,7 +268,7 @@ Reference Value::asReference() &&
     return std::move(this->data->reference);
 }
 
-const std::vector<Value>& Value::asList() const &
+const std::vector<Value>& Value::asList() const&
 {
     this->throwIfIncompatibleValue(Type::List);
     return this->data->list;
@@ -280,7 +280,7 @@ std::vector<Value> Value::asList() &&
     return std::move(this->data->list);
 }
 
-const std::unordered_map<QString, Value>& Value::asMap() const &
+const std::unordered_map<QString, Value>& Value::asMap() const&
 {
     this->throwIfIncompatibleValue(Type::Map);
     return this->data->map;

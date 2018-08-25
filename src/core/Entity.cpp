@@ -89,7 +89,9 @@ void Entity::setParentEntity(Entity* entity)
         auto it = std::remove(this->parentEntity->childEntities.begin(), this->parentEntity->childEntities.end(), this);
         if (it == this->parentEntity->childEntities.end())
         {
-            wWarning.format("Supposed to remove this entity ({}) from parent's ({}) children but not found", *this, *this->parentEntity);
+            wWarning.format("Supposed to remove this entity ({}) from parent's ({}) children but not found",
+                *this,
+                *this->parentEntity);
         }
         this->parentEntity->childEntities.erase(it, this->parentEntity->childEntities.end());
     }

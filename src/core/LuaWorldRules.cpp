@@ -148,7 +148,7 @@ void LuaWorldRules::loadRules(const QString& basePath, const QString& mainRulesF
 
     sol::function tableInsert = lua["table"]["insert"];
     tableInsert(lua["package"]["searchers"], [this](sol::stack_object moduleName) {
-        return std::function<void()>([ this, moduleName = QString(moduleName.as<const char*>()) ] {
+        return std::function<void()>([this, moduleName = QString(moduleName.as<const char*>())] {
             loadWorldModule(*this->state, this->basePath, moduleName);
         });
     });

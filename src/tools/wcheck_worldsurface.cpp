@@ -63,7 +63,9 @@ int main(int argc, char* const argv[])
     }
     catch (std::exception& e)
     {
-        tools::die(logStream, "Unexpected exception while trying to load world: {} - the world probably isn't right", e.what());
+        tools::die(logStream,
+            "Unexpected exception while trying to load world: {} - the world probably isn't right",
+            e.what());
     }
 
     if (!ui::isWorldSurfaceSane(worldSurfacePath, world.get()))

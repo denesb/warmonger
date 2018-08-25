@@ -151,18 +151,18 @@ public:
     bool asBoolean() const;
     int asInteger() const;
     double asReal() const;
-    const QString& asString() const &;
+    const QString& asString() const&;
     QString asString() &&;
-    const Reference& asReference() const &;
+    const Reference& asReference() const&;
     Reference asReference() &&;
-    const std::vector<Value>& asList() const &;
+    const std::vector<Value>& asList() const&;
     std::vector<Value> asList() &&;
-    const std::unordered_map<QString, Value>& asMap() const &;
+    const std::unordered_map<QString, Value>& asMap() const&;
     std::unordered_map<QString, Value> asMap() &&;
     /**
      * Alias to asMap();
      */
-    const std::unordered_map<QString, Value>& asObject() const &
+    const std::unordered_map<QString, Value>& asObject() const&
     {
         return this->asMap();
     }

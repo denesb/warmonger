@@ -15,11 +15,11 @@ LOWER_RIGHT_PIXEL = (0x00, 0x00, 0xff, 0xff)
 
 
 class HexagonTemplateImage:
-    def __init__(self, width, height):
-        self.width = width
-        self.height = height
+    def __init__(self, size):
+        self.width = size
+        self.height = size
 
-        self._image = Image.new(mode="RGBA", size=(width, height), color=0)
+        self._image = Image.new(mode="RGBA", size=(self.width, self.height), color=0)
 
     def set_at(self, x, y):
         return self._image.putpixel((x, y), BORDER_PIXEL)
@@ -67,11 +67,12 @@ class HexagonMaskImage:
         self._image.save(filename, format="PNG")
 
 
-def draw_hexagon_image(image, side):
-    vpad = int((image.height - side) / 2)
+def draw_hexagon_image(image, size):
+    vside = int(size / 2)
+    vpad = int((image.height - vside) / 2)
 
     # draw lateral sides
-    for x in range(vpad, vpad + side):
+    for x in range(vpad, vpad + vside):
         image.set_at(0, x)
         image.set_at(image.width - 1, x)
 
@@ -142,50 +143,10 @@ def draw_hexagon_image(image, side):
     image.set_at(x_bottom_right, y_bottom)
 
 
-def nearest_even(n):
-    nf = math.floor(n)
+def draw_hexagon(template_filename, mask_filename, size=None):
+    template_image = HexagonTemplateImage(size)
 
-    if nf % 2:
-        return nf + 1
-    else:
-        return nf
-
-
-def params_based_on_width(width):
-    side = width / math.sqrt(3)
-    height = 2 * side
-    return height, side
-
-
-def params_based_on_height(height):
-    side = height / 2
-    width = side * math.sqrt(3)
-    return width, side
-
-
-def params_based_on_side(side):
-    width = side * math.sqrt(3)
-    height = 2 * side
-    return width, height
-
-
-def draw_hexagon(template_filename, mask_filename, width=None, height=None, side=None):
-    if width:
-        height, side = params_based_on_width(width)
-    elif height:
-        width, side = params_based_on_height(height)
-    elif side:
-        width, height = params_based_on_side(side)
-    else:
-        pass # WAT?
-
-    width, height, side = map(nearest_even, [width, height, side])
-
-    print("Drawing hexagon with tile size {width} x {height} and approximate side of {side}".format(width=width, height=height, side=side))
-
-    template_image = HexagonTemplateImage(width, height)
-
-    draw_hexagon_image(template_image, side)
+    draw_hexagon_image(template_image, size)
 
     if template_filename is not None:
         template_image.write_to(template_filename)
@@ -198,20 +159,9 @@ def draw_hexagon(template_filename, mask_filename, width=None, height=None, side
 if __name__ == '__main__':
 
     description = """\
-Draw a pixel-perfect hexagon.
-Specify one of the following:
-
-     *          |
-   *   *        |
- *       *      |
- *       * side | height
- *       *      |
-   *   *        |
-     *          |
-
- ---------
-   width
-
+Draw a hexagon. The hexagon is drawn into an even-sided tile. This will not
+yield a perfect hexagon but it is one that is easy to work with.
+The tile size has to be divisible by 4.
 Can draw a template image (only the borders are drawn) and/or a mask image for
 determining whether a position is inside the hexagon or not.
 For the former set the --template cmd line switch, for the latter set the
@@ -224,9 +174,7 @@ outputs.
             description=description,
             formatter_class=argparse.RawDescriptionHelpFormatter)
 
-    parser.add_argument("--width", help="The tile width", type=int)
-    parser.add_argument("--height", help="The tile height", type=int)
-    parser.add_argument("--side", help="The hexagon's side", type=int)
+    parser.add_argument("--size", help="The tile size", type=int, required=True)
     parser.add_argument("--template", help="The filename where the template image will be written", required=False)
     parser.add_argument("--mask", help="The filename where the mask image will be written", required=False)
 
@@ -235,26 +183,9 @@ outputs.
     if args.template is None and args.mask is None:
         parser.error("At least one output (--template or --mask) has to be specified")
 
-    if args.width is not None:
-        if args.width <= 0:
-            parser.error("The width has to be a positive integer")
-        elif args.height is not None or args.side is not None:
-            parser.error("Only one of the options can be specified")
-        else:
-            draw_hexagon(args.template, args.mask, width=args.width)
-    elif args.height is not None:
-        if args.height <= 0:
-            parser.error("The height has to be a positive integer")
-        elif args.width is not None or args.side is not None:
-            parser.error("Only one of the options can be specified")
-        else:
-            draw_hexagon(args.template, args.mask, height=args.height)
-    elif args.side is not None:
-        if args.side <= 0:
-            parser.error("The side has to be a positive integer")
-        elif args.width is not None or args.height is not None:
-            parser.error("Only one of the options can be specified")
-        else:
-            draw_hexagon(args.template, args.mask, side=args.side)
+    if args.size <= 0:
+        parser.error("The size has to be a positive integer")
+    elif args.size % 4 != 0:
+        parser.error("The size has to be divisible by four")
     else:
-        parser.error("At least one of the options must be specified")
+        draw_hexagon(args.template, args.mask, size=args.size)

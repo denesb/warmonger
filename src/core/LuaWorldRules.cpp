@@ -317,7 +317,9 @@ static void exposeAPI(sol::state& lua)
         sol::meta_function::construct,
         sol::no_constructor,
         "neighbours",
-        sol::property(&MapNode::getNeighbours));
+        sol::property(&MapNode::getNeighbours),
+        "terrain_type",
+        sol::property(&MapNode::getTerrainType, &MapNode::setTerrainType));
 
     lua.new_usertype<Faction>("faction",
         sol::meta_function::construct,

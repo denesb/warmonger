@@ -147,5 +147,14 @@ void MapNode::setNeighbour(Direction direction, MapNode* mapNode)
     }
 }
 
+void MapNode::setTerrainType(QString terrainType)
+{
+    if (this->terrainType != terrainType)
+    {
+        this->terrainType = terrainType;
+        emit terrainTypeChanged();
+    }
+}
+
 } // namespace core
 } // namespace warmonger

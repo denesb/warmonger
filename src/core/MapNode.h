@@ -98,6 +98,8 @@ class MapNode : public WObject, public ir::Serializable
 {
     Q_OBJECT
 
+    Q_PROPERTY(QString terrainType READ getTerrainType NOTIFY terrainTypeChanged)
+
 public:
     /**
      * Constructs an empty map-node.
@@ -166,14 +168,24 @@ public:
      */
     void setNeighbour(Direction direction, MapNode* mapNode);
 
+    const QString& getTerrainType() const
+    {
+        return this->terrainType;
+    }
+
+    void setTerrainType(QString terrainType);
+
 signals:
     /**
      * Emitted when the map-nodes change.
      */
     void neighboursChanged();
 
+    void terrainTypeChanged();
+
 private:
     MapNodeNeighbours neighbours;
+    QString terrainType;
 };
 
 } // namespace core

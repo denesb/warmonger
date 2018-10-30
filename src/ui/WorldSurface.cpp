@@ -24,8 +24,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QHash>
-#include <QJsonDocument>
-#include <QJsonObject>
 #include <QQuickWindow>
 #include <QResource>
 #include <QSGTexture>

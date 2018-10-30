@@ -20,6 +20,8 @@
 #include <random>
 
 #include "core/Map.h"
+
+#include "core/Settlement.h"
 #include "utils/Logging.h"
 #include "utils/QVariantUtils.h"
 
@@ -65,6 +67,11 @@ Map::Map(ir::Value v, World& world, QObject* parent)
     std::transform(entityList.begin(), entityList.end(), std::back_inserter(this->entities), [this](ir::Value& v) {
         return new Entity(std::move(v), this->world->getRules(), this);
     });
+
+    auto settlementList = std::move(obj["settlements"]).asList();
+    std::transform(settlementList.begin(), settlementList.end(), std::back_inserter(this->settlements), [this](ir::Value& v) {
+        return new Settlement(std::move(v), *this, this);
+    });
 }
 
 ir::Value Map::serialize() const
@@ -94,6 +101,13 @@ ir::Value Map::serialize() const
             return e->serialize();
         });
     obj["entities"] = std::move(serializedEntities);
+
+    std::vector<ir::Value> serializedSettlements;
+    std::transform(
+        this->settlements.cbegin(), this->settlements.cend(), std::back_inserter(serializedSettlements), [](Settlement* s) {
+            return s->serialize();
+        });
+    obj["settlements"] = std::move(serializedSettlements);
 
     return std::move(obj);
 }
@@ -130,6 +144,11 @@ QVariantList Map::readFactions() const
 QVariantList Map::readEntities() const
 {
     return utils::toQVariantList(this->entities);
+}
+
+QVariantList Map::readSettlements() const
+{
+    return utils::toQVariantList(this->settlements);
 }
 
 MapNode* Map::createMapNode(ObjectId id)
@@ -282,6 +301,19 @@ std::unique_ptr<Faction> Map::removeFaction(Faction* faction)
 
         return std::unique_ptr<Faction>(faction);
     }
+}
+
+Settlement* Map::createSettlement()
+{
+    auto* settlement = new Settlement(this);
+
+    this->settlements.push_back(settlement);
+
+    wTrace << "Created settlement " << settlement << " in map " << this;
+
+    emit settlementsChanged();
+
+    return settlement;
 }
 
 void Map::generateMapNodes(unsigned int radius)

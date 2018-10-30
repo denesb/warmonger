@@ -24,6 +24,7 @@
 #include <sol/sol.hpp>
 
 #include "core/Map.h"
+#include "core/Settlement.h"
 #include "utils/Logging.h"
 #include "utils/PathBuilder.h"
 #include "utils/Utils.h"
@@ -389,6 +390,16 @@ static void exposeAPI(sol::state& lua)
         "remove_component",
         &Entity::removeComponent);
 
+    lua.new_usertype<Settlement>("settlement",
+        sol::meta_function::construct,
+        sol::no_constructor,
+        "type",
+        sol::property(&Settlement::getType, &Settlement::setType),
+        "position",
+        sol::property(&Settlement::getPosition, &Settlement::setPosition),
+        "owner",
+        sol::property(&Settlement::getOwner, &Settlement::setOwner));
+
     lua.new_usertype<Map>("map",
         sol::meta_function::construct,
         sol::no_constructor,
@@ -414,6 +425,10 @@ static void exposeAPI(sol::state& lua)
         [](Map* const map, QString name) { return map->createEntity(name); },
         "remove_entity",
         [](Map* const map, Entity* entity) { map->removeEntity(entity); },
+        "settlements",
+        sol::property(&Map::getSettlements),
+        "create_settlement",
+        [](Map* const map) { return map->createSettlement(); },
         "find_entity_on_map_node",
         &Map::findEntityOnMapNode);
 }

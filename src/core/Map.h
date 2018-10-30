@@ -37,6 +37,8 @@
 namespace warmonger {
 namespace core {
 
+class Settlement;
+
 /**
  * A campaign-map.
  *
@@ -59,6 +61,7 @@ class Map : public QObject, public ir::Serializable
     Q_PROPERTY(QVariantList mapNodes READ readMapNodes NOTIFY mapNodesChanged)
     Q_PROPERTY(QVariantList factions READ readFactions NOTIFY factionsChanged)
     Q_PROPERTY(QVariantList entities READ readEntities NOTIFY entitiesChanged)
+    Q_PROPERTY(QVariantList settlements READ readSettlements NOTIFY settlementsChanged)
 
 public:
     /**
@@ -184,6 +187,20 @@ public:
      */
     QVariantList readEntities() const;
 
+    const std::vector<Settlement*>& getSettlements() const
+    {
+        return this->settlements;
+    }
+
+    /**
+     * Get the settlements as a QVariantList.
+     *
+     * This function is used as a read function for the settlements property and
+     * is not supposed to be called from C++ code. Use Map::getSettlements()
+     * instead.
+     */
+    QVariantList readSettlements() const;
+
     /**
      * Create a new map-node and add it to the map.
      *
@@ -303,6 +320,16 @@ public:
     std::unique_ptr<Faction> removeFaction(Faction* faction);
 
     /**
+     * Create a new settlement and add it to the map.
+     *
+     * The map takes ownership of the created object.
+     * Will emit the signal Map::settlementsChanged().
+     *
+     * \returns the newly created settlement
+     */
+    Settlement* createSettlement();
+
+    /**
      * Generate a hexagonal map with the given radius.
      *
      * The radius is the number of map-nodes that make the shortest path from
@@ -347,6 +374,8 @@ signals:
      */
     void entitiesChanged();
 
+    void settlementsChanged();
+
 private:
     QString name;
     World* world;
@@ -356,6 +385,7 @@ private:
     std::vector<Faction*> factions;
     std::vector<MapNode*> mapNodes;
     std::vector<Entity*> entities;
+    std::vector<Settlement*> settlements;
 };
 
 struct BannerConfiguration

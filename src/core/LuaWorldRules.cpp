@@ -18,11 +18,6 @@
 
 #include "core/LuaWorldRules.h"
 
-#include <set>
-
-#include <QFileInfo>
-#include <sol/sol.hpp>
-
 #include "core/Map.h"
 #include "core/Settlement.h"
 #include "utils/Logging.h"

@@ -26,53 +26,16 @@
 #include "core/Map.h"
 #include "core/Settlement.h"
 #include "utils/Logging.h"
-#include "utils/PathBuilder.h"
+#include "utils/Lua.h"
 #include "utils/Utils.h"
 
 namespace sol {
-
-template <>
-struct lua_type_of<QString> : std::integral_constant<sol::type, sol::type::string>
-{
-};
-
-template <>
-struct lua_type_of<QColor> : std::integral_constant<sol::type, sol::type::string>
-{
-};
 
 template <>
 struct is_container<::warmonger::core::MapNodeNeighbours> : std::false_type
 {
 };
 
-namespace stack {
-
-template <>
-struct getter<QString>
-{
-    static QString get(lua_State* L, int index, record& tracking);
-};
-
-template <>
-struct pusher<QString>
-{
-    static int push(lua_State* L, const QString& str);
-};
-
-template <>
-struct getter<QColor>
-{
-    static QColor get(lua_State* L, int index, record& tracking);
-};
-
-template <>
-struct pusher<QColor>
-{
-    static int push(lua_State* L, const QColor& color);
-};
-
-} // namespace stack
 } // namespace sol
 
 namespace warmonger {
@@ -114,10 +77,8 @@ private:
 };
 
 static void exposeAPI(sol::state& lua);
-static void wLuaLog(sol::this_state L, utils::LogLevel logLevel, const std::string& msg);
 static sol::object createComponent(Entity* const entity, QString name, sol::this_state L);
 static sol::object entityIndex(Entity* const entity, sol::stack_object key, sol::this_state L);
-static void loadWorldModule(sol::state& lua, const QString& basePath, const QString& moduleName);
 
 std::unique_ptr<WorldRules> LuaWorldRules::make(World* world)
 {
@@ -141,22 +102,9 @@ void LuaWorldRules::loadRules(const QString& basePath, const QString& mainRulesF
 
     exposeAPI(lua);
 
-    const QString path = this->basePath / mainRulesFile;
-    wInfo << "Loading lua world rules from entry point " << path;
-
-    lua.open_libraries(
-        sol::lib::base, sol::lib::package, sol::lib::string, sol::lib::math, sol::lib::table, sol::lib::debug);
-
-    sol::function tableInsert = lua["table"]["insert"];
-    tableInsert(lua["package"]["searchers"], [this](sol::stack_object moduleName) {
-        return std::function<void()>([this, moduleName = QString(moduleName.as<const char*>())] {
-            loadWorldModule(*this->state, this->basePath, moduleName);
-        });
-    });
-
     lua["W"] = this->world;
 
-    lua.script_file(path.toStdString());
+    utils::initLuaScript(lua, basePath, mainRulesFile);
 
     this->worldInitHook = lua["world_init"];
     this->generateMapHook = lua["generate_random_map_content"];
@@ -244,17 +192,6 @@ void LuaWorldComponent::newIndex(sol::stack_object key, sol::stack_object value,
 
 static void exposeAPI(sol::state& lua)
 {
-    lua.set_function(
-        "w_trace", [](sol::this_state L, const std::string& msg) { wLuaLog(L, utils::LogLevel::Trace, msg); });
-    lua.set_function(
-        "w_debug", [](sol::this_state L, const std::string& msg) { wLuaLog(L, utils::LogLevel::Debug, msg); });
-    lua.set_function(
-        "w_info", [](sol::this_state L, const std::string& msg) { wLuaLog(L, utils::LogLevel::Info, msg); });
-    lua.set_function(
-        "w_warning", [](sol::this_state L, const std::string& msg) { wLuaLog(L, utils::LogLevel::Warning, msg); });
-    lua.set_function(
-        "w_error", [](sol::this_state L, const std::string& msg) { wLuaLog(L, utils::LogLevel::Error, msg); });
-
     lua.new_usertype<Civilization>("civilization",
         sol::meta_function::construct,
         sol::no_constructor,
@@ -433,33 +370,6 @@ static void exposeAPI(sol::state& lua)
         &Map::findEntityOnMapNode);
 }
 
-static void wLuaLog(sol::this_state L, utils::LogLevel logLevel, const std::string& msg)
-{
-    // TODO: trim source files
-    lua_Debug info;
-    int level = 1;
-    const int pre_stack_size = lua_gettop(L);
-
-    if (lua_getstack(L, level, &info) != 1)
-    {
-        wError << "Unable to traverse the Lua stack";
-        lua_settop(L, pre_stack_size);
-
-        utils::LogEntry(logLevel, "", "", -1) << msg;
-    }
-    else if (lua_getinfo(L, "nlS", &info) == 0)
-    {
-        wError << "Unable to get Lua debug info";
-        lua_settop(L, pre_stack_size);
-
-        utils::LogEntry(logLevel, "", "", -1) << msg;
-    }
-    else
-    {
-        utils::LogEntry(logLevel, info.short_src, info.name, info.currentline) << msg;
-    }
-}
-
 static sol::object createComponent(Entity* const entity, QString name, sol::this_state L)
 {
     auto* c = entity->createComponent(std::move(name));
@@ -501,50 +411,7 @@ static sol::object entityIndex(Entity* const entity, sol::stack_object key, sol:
     return sol::object(L, sol::in_place, static_cast<LuaWorldComponent*>(component));
 }
 
-static void loadWorldModule(sol::state& lua, const QString& basePath, const QString& moduleName)
-{
-    const QString moduleFile = basePath / moduleName + ".lua";
-    wInfo.format("Loading required module `{}' from `{}'", moduleName, moduleFile);
-    lua.script_file(moduleFile.toStdString());
-}
-
 #include "LuaWorldRules.moc"
 
 } // namespace core
 } // namespace warmonger
-
-namespace sol {
-namespace stack {
-
-QString getter<QString>::get(lua_State* L, int index, record& tracking)
-{
-    tracking.use(1);
-    std::size_t len;
-    const auto str = lua_tolstring(L, index, &len);
-    return QString::fromLocal8Bit(str, len);
-}
-
-int pusher<QString>::push(lua_State* L, const QString& str)
-{
-    const QByteArray data = str.toLocal8Bit();
-    lua_pushlstring(L, data.data(), data.size());
-    return 1;
-}
-
-QColor getter<QColor>::get(lua_State* L, int index, record& tracking)
-{
-    tracking.use(1);
-    std::size_t len;
-    const auto str = lua_tolstring(L, index, &len);
-    return QColor(QString::fromLocal8Bit(str, len));
-}
-
-int pusher<QColor>::push(lua_State* L, const QColor& color)
-{
-    const QByteArray data = color.name().toLocal8Bit();
-    lua_pushlstring(L, data.data(), data.size());
-    return 1;
-}
-
-} // namespace stack
-} // namespace sol

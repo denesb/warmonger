@@ -79,6 +79,7 @@ set(
     UTILS_SRC_FILES
     src/utils/Format.cpp
     src/utils/Logging.cpp
+    src/utils/Lua.cpp
     src/utils/Settings.cpp
     src/utils/ToString.cpp
     src/utils/Utils.cpp
@@ -177,7 +178,7 @@ include_directories(
 add_library(utils STATIC ${UTILS_SRC_FILES})
 target_link_libraries(
     utils
-    PUBLIC Qt5::Core fmt::fmt
+    PUBLIC Qt5::Core Qt5::Quick fmt::fmt
 )
 WARMONGER_AUTOMOC(utils)
 

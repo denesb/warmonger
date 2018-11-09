@@ -21,8 +21,12 @@
 #ifndef W_UTILS_H
 #define W_UTILS_H
 
+#include <QMetaEnum>
 #include <QObject>
 #include <QString>
+#include <fmt/format.h>
+
+#include "utils/Exception.h"
 
 namespace warmonger {
 namespace utils {
@@ -93,6 +97,34 @@ struct DelayedQObjectDeleter
  * \return the path to the world's maps directory
  */
 QString worldMapsPath(const QString& worldName);
+
+template <typename Enum>
+QString enumToString(Enum e)
+{
+    static_assert(std::is_enum<Enum>::value, "Enum type must be an enum");
+    const QMetaEnum metaEnum{QMetaEnum::fromType<Enum>()};
+    auto str = metaEnum.valueToKey(static_cast<int>(e));
+    if (!str)
+        throw utils::ValueError("Cannot serialize unknown enum value: " + QString::number(static_cast<int>(e)));
+    return QString(str);
+}
+
+template <typename Enum>
+Enum enumFromString(const QString& str)
+{
+    static_assert(std::is_enum<Enum>::value, "Enum type must be an enum");
+    const QMetaEnum metaEnum{QMetaEnum::fromType<Enum>()};
+    bool ok{true};
+    auto e = metaEnum.keyToValue(str.toLocal8Bit().data(), &ok);
+
+    if (!ok)
+        throw utils::ValueError(fmt::format(
+            "Failed to unserialize enum: value `{}' does not correspont to any of the member values of `{}'",
+            str,
+            metaEnum.name()));
+
+    return static_cast<Enum>(e);
+}
 
 } // namespace utils
 } // namespace warmonger

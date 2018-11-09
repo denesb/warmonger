@@ -25,13 +25,13 @@
 #include <vector>
 
 #include <QColor>
-#include <QMetaEnum>
 #include <QString>
 
 #include "core/WObject.h"
 #include "utils/Exception.h"
 #include "utils/Format.h"
 #include "utils/Hash.h"
+#include "utils/Utils.h"
 
 namespace warmonger {
 namespace core {
@@ -203,7 +203,10 @@ public:
      * \throws utils::ValueError if the value is invalid
      */
     template <typename Enum>
-    Enum asEnum() const;
+    Enum asEnum() const
+    {
+        return utils::enumFromString<Enum>(this->asString());
+    }
 
     /**
      * Convert the value to a QColor.
@@ -231,15 +234,12 @@ private:
     void throwIfIncompatibleValue(Type t) const;
     WObject* asResolvedReference(QObject* parent) const;
 
-    template <typename Enum>
-    static QString enumToStr(Enum e);
-
     std::unique_ptr<Data> data;
 };
 
 template <typename Enum, typename = typename std::enable_if<std::is_enum<Enum>::value>::type>
 Value::Value(Enum e)
-    : Value(enumToStr(e))
+    : Value(utils::enumToString(e))
 {
 }
 
@@ -258,34 +258,6 @@ T* Value::asReference(QObject* parent) const
             "Failed to cast resolved reference {} to requested type {}", *wobj, T::staticMetaObject.className()));
 
     return obj;
-}
-
-template <typename Enum>
-Enum Value::asEnum() const
-{
-    static_assert(std::is_enum<Enum>::value, "Enum type must be an enum");
-    const QMetaEnum metaEnum{QMetaEnum::fromType<Enum>()};
-    bool ok{true};
-    auto e = metaEnum.keyToValue(this->asString().toLocal8Bit().data(), &ok);
-
-    if (!ok)
-        throw utils::ValueError(fmt::format(
-            "Failed to unserialize enum: value `{}' does not correspont to any of the member values of `{}'",
-            this->asString(),
-            metaEnum.name()));
-
-    return static_cast<Enum>(e);
-}
-
-template <typename Enum>
-QString Value::enumToStr(Enum e)
-{
-    static_assert(std::is_enum<Enum>::value, "Enum type must be an enum");
-    const QMetaEnum metaEnum{QMetaEnum::fromType<Enum>()};
-    auto str = metaEnum.valueToKey(static_cast<int>(e));
-    if (!str)
-        throw utils::ValueError("Cannot serialize unknown enum value: " + QString::number(static_cast<int>(e)));
-    return QString(str);
 }
 
 struct Serializable

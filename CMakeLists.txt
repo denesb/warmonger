@@ -113,6 +113,7 @@ set(
     src/ui/Banner.cpp
     src/ui/BasicMap.cpp
     src/ui/BasicMiniMap.cpp
+    src/ui/LuaWorldSurfaceRules.cpp
     src/ui/MapEditor.cpp
     src/ui/MapUtil.cpp
     src/ui/MapView.cpp

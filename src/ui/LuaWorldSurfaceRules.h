@@ -1,4 +1,6 @@
-/**
+/** \file
+ * LuaWorldSurfaceRules class.
+ *
  * \copyright (C) 2015-2018 Botond Dénes
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,42 +18,39 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef W_UI_LUA_WORLD_SURFACE_RULES_H
+#define W_UI_LUA_WORLD_SURFACE_RULES_H
+
+#include <functional>
+
 #include "ui/WorldSurfaceRules.h"
 
-#include "core/Map.h"
-#include "ui/LuaWorldSurfaceRules.h"
-#include "ui/WorldSurface.h"
-#include "utils/Utils.h"
+namespace sol {
+class state;
+}
 
 namespace warmonger {
 namespace ui {
 
-WorldSurfaceRules::WorldSurfaceRules(WorldSurface& worldSurface)
-    : worldSurface(worldSurface)
+/**
+ * Lua World Surface Rules.
+ */
+class LuaWorldSurfaceRules : public WorldSurfaceRules
 {
-}
+public:
+    LuaWorldSurfaceRules(WorldSurface& worldSurface);
+    ~LuaWorldSurfaceRules();
 
-QString rulesTypeToString(WorldSurfaceRules::Type type)
-{
-    return utils::enumToString(type);
-}
+    void loadRules(const QString& basePath, const QString& mainRulesFile) override;
 
-WorldSurfaceRules::Type rulesTypeFromString(const QString& str)
-{
-    return utils::enumFromString<WorldSurfaceRules::Type>(str);
-}
+    graphics::Map initialRenderMap(core::Map& map) override;
 
-std::unique_ptr<WorldSurfaceRules> createWorldSurfaceRules(WorldSurface& worldSurface)
-{
-    switch (worldSurface.getRulesType())
-    {
-        case WorldSurfaceRules::Type::Lua:
-            return std::make_unique<LuaWorldSurfaceRules>(worldSurface);
-    }
-
-    throw utils::ValueError("Cannot create world surface rules for unknown rules type: " +
-        QString::number(static_cast<int>(worldSurface.getRulesType())));
-}
+private:
+    std::unique_ptr<sol::state> state; // to avoid exposing the massive sol.hpp
+    std::function<graphics::Map(core::Map& map)> initialRenderMapFunc;
+};
 
 } // namespace ui
 } // namespace warmonger
+
+#endif // W_UI_LUA_WORLD_SURFACE_RULES_H

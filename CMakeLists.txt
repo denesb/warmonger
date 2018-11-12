@@ -137,7 +137,6 @@ set(
     src/test/ui/MapEditor.cpp
     src/test/ui/MapUtil.cpp
     src/test/ui/MapWindow.cpp
-    src/test/ui/WorldSurface.cpp
 )
 
 file(GLOB_RECURSE ALL_HEADER_FILES ${PROJECT_SOURCE_DIR}/src/*.h)

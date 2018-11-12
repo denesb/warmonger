@@ -119,6 +119,8 @@ public:
  * \param the type
  *
  * \returns the string representation
+ *
+ * \throws utils::ValueError if type is not a valid enum member.
  */
 QString rulesTypeToString(WorldRules::Type type);
 

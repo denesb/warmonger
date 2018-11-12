@@ -84,6 +84,12 @@ LuaWorldRules::LuaWorldRules(core::World* world)
     : world(world)
     , state(std::make_unique<sol::state>())
 {
+    sol::state& lua = *this->state;
+
+    utils::initLuaAPI(lua);
+    exposeAPI(lua);
+
+    lua["W"] = this->world;
 }
 
 LuaWorldRules::~LuaWorldRules()
@@ -92,21 +98,14 @@ LuaWorldRules::~LuaWorldRules()
 
 void LuaWorldRules::loadRules(const QString& basePath, const QString& mainRulesFile)
 {
-    this->basePath = basePath;
     sol::state& lua = *this->state;
-
-    utils::initLuaAPI(lua);
-    exposeAPI(lua);
-
-    lua["W"] = this->world;
 
     utils::initLuaScript(lua, basePath, mainRulesFile);
 
-    this->worldInitHook = lua["world_init"];
     this->generateMapHook = lua["generate_random_map_content"];
     this->mapInitHook = lua["map_init"];
 
-    this->worldInitHook();
+    lua["world_init"]();
 }
 
 std::unique_ptr<Component> LuaWorldRules::createComponent(QString name, QObject* parent)

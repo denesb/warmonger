@@ -124,6 +124,7 @@ set(
     src/ui/SearchPaths.cpp
     src/ui/UI.cpp
     src/ui/WorldSurface.cpp
+    src/ui/WorldSurfaceRules.cpp
 )
 
 set(

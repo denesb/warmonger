@@ -29,6 +29,7 @@
 #include <QUrl>
 
 #include "core/World.h"
+#include "ui/WorldSurfaceRules.h"
 #include "utils/Utils.h"
 
 class QQuickWindow;
@@ -140,6 +141,16 @@ public:
     int getGridSize() const
     {
         return this->gridSize;
+    }
+
+    WorldSurfaceRules::Type getRulesType() const
+    {
+        return this->rulesType;
+    }
+
+    WorldSurfaceRules& getRules()
+    {
+        return *this->rules;
     }
 
     /**
@@ -275,6 +286,10 @@ private:
     int tileSize;
     int gridSize;
     QImage hexMask;
+
+    QString rulesEntryPoint;
+    WorldSurfaceRules::Type rulesType;
+    std::unique_ptr<WorldSurfaceRules> rules;
 
     std::unordered_map<QString, QString> banners;
     std::unordered_map<QString, QColor> colors;

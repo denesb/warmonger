@@ -69,9 +69,10 @@ Map::Map(ir::Value v, World& world, QObject* parent)
     });
 
     auto settlementList = std::move(obj["settlements"]).asList();
-    std::transform(settlementList.begin(), settlementList.end(), std::back_inserter(this->settlements), [this](ir::Value& v) {
-        return new Settlement(std::move(v), *this, this);
-    });
+    std::transform(
+        settlementList.begin(), settlementList.end(), std::back_inserter(this->settlements), [this](ir::Value& v) {
+            return new Settlement(std::move(v), *this, this);
+        });
 }
 
 ir::Value Map::serialize() const
@@ -103,10 +104,10 @@ ir::Value Map::serialize() const
     obj["entities"] = std::move(serializedEntities);
 
     std::vector<ir::Value> serializedSettlements;
-    std::transform(
-        this->settlements.cbegin(), this->settlements.cend(), std::back_inserter(serializedSettlements), [](Settlement* s) {
-            return s->serialize();
-        });
+    std::transform(this->settlements.cbegin(),
+        this->settlements.cend(),
+        std::back_inserter(serializedSettlements),
+        [](Settlement* s) { return s->serialize(); });
     obj["settlements"] = std::move(serializedSettlements);
 
     return std::move(obj);

@@ -66,7 +66,6 @@ struct pusher<QColor>
 } // namespace stack
 } // namespace sol
 
-
 namespace warmonger {
 namespace utils {
 

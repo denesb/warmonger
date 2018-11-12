@@ -63,7 +63,7 @@ namespace utils {
 static void wLuaLog(sol::this_state L, utils::LogLevel logLevel, const std::string& msg);
 static void loadModule(sol::state& lua, const QString& basePath, const QString& moduleName);
 
-void initLuaScript(sol::state& lua, const QString& basePath, const QString& mainRulesFile)
+void initLuaAPI(sol::state& lua)
 {
     lua.set_function(
         "w_trace", [](sol::this_state L, const std::string& msg) { wLuaLog(L, utils::LogLevel::Trace, msg); });
@@ -78,7 +78,10 @@ void initLuaScript(sol::state& lua, const QString& basePath, const QString& main
 
     lua.open_libraries(
         sol::lib::base, sol::lib::package, sol::lib::string, sol::lib::math, sol::lib::table, sol::lib::debug);
+}
 
+void initLuaScript(sol::state& lua, const QString& basePath, const QString& mainRulesFile)
+{
     sol::function tableInsert = lua["table"]["insert"];
     tableInsert(lua["package"]["searchers"], [&lua, basePath](sol::stack_object moduleName) {
         return std::function<void()>([&lua, basePath, moduleName = QString(moduleName.as<const char*>())] {

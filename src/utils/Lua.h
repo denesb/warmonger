@@ -70,6 +70,7 @@ struct pusher<QColor>
 namespace warmonger {
 namespace utils {
 
+void initLuaAPI(sol::state& lua);
 void initLuaScript(sol::state& lua, const QString& basePath, const QString& mainRulesFile);
 
 } // namespace utils

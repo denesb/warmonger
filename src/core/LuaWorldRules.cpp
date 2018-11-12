@@ -95,6 +95,7 @@ void LuaWorldRules::loadRules(const QString& basePath, const QString& mainRulesF
     this->basePath = basePath;
     sol::state& lua = *this->state;
 
+    utils::initLuaAPI(lua);
     exposeAPI(lua);
 
     lua["W"] = this->world;

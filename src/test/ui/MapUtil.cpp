@@ -234,8 +234,8 @@ TEST_CASE("", "[mapNodeAtPos][!hide]")
 
     const core::MapNode* n;
 
-    const int w = surface.getTileSize().width();
-    const int h = surface.getTileSize().height();
+    const int w = surface.getTileSize();
+    const int h = surface.getTileSize();
 
     n = ui::mapNodeAtPos(QPoint(w / 2, h / 2), nodesPos, &surface);
     REQUIRE(n != nullptr);
@@ -266,7 +266,7 @@ TEST_CASE("neighboursByPos", "[MapUtil][!hide]")
     const auto& mapNodes = map.getMapNodes();
 
     ui::WorldSurface worldSurface("./worldsurface-packages/test.wsp", &world);
-    const QSize tileSize = worldSurface.getTileSize();
+    const auto tileSize = worldSurface.getTileSize();
 
     worldSurface.activate();
 
@@ -277,7 +277,7 @@ TEST_CASE("neighboursByPos", "[MapUtil][!hide]")
         const core::MapNode* mapNode = mapNodePos.first;
         const QPoint cornerPos = mapNodePos.second;
 
-        const QPoint middlePos = cornerPos + QPoint(tileSize.width() / 2, tileSize.height() / 2);
+        const QPoint middlePos = cornerPos + QPoint(tileSize / 2, tileSize / 2);
 
         core::MapNodeNeighbours neighbours = ui::neighboursByPos(middlePos, &worldSurface, mapNodesPos);
         REQUIRE(neighbours == mapNode->getNeighbours());

@@ -72,8 +72,8 @@ public:
     {
         QString name;
         QString description;
-        int tileWidth;
-        int tileHeight;
+        int tileSize;
+        int gridSize;
         std::unordered_map<QString, QString> banners;
         std::unordered_map<QString, QColor> colors;
     };
@@ -183,8 +183,8 @@ WorldSurface::WorldSurface(QString path, core::World* world, QObject* parent)
     this->name = header.name;
     this->setObjectName(this->name);
     this->description = header.description;
-    this->tileWidth = header.tileWidth;
-    this->tileHeight = header.tileHeight;
+    this->tileSize = header.tileSize;
+    this->gridSize = header.gridSize;
     this->banners = std::move(header.banners);
     this->colors = std::move(header.colors);
 
@@ -207,8 +207,8 @@ bool WorldSurface::hexContains(const QPoint& p) const
 {
     const int x = p.x();
     const int y = p.y();
-    const int w = this->tileWidth;
-    const int h = this->tileHeight;
+    const int w = this->tileSize;
+    const int h = this->tileSize;
 
     if (x < 0 || x >= w || y < 0 || y >= h)
         return false;
@@ -222,8 +222,8 @@ bool WorldSurface::hexContains(const QPointF& p) const
 {
     const qreal x = p.x();
     const qreal y = p.y();
-    const qreal w = static_cast<qreal>(this->tileWidth);
-    const qreal h = static_cast<qreal>(this->tileHeight);
+    const qreal w = static_cast<qreal>(this->tileSize);
+    const qreal h = static_cast<qreal>(this->tileSize);
 
     if (x < 0.0 || x >= w || y < 0.0 || y >= h)
         return false;
@@ -376,8 +376,8 @@ WorldSurface::Storage::Header WorldSurface::Storage::parseHeader(const QByteArra
 
         header.name = obj.at("name").asString();
         header.description = obj.at("description").asString();
-        header.tileWidth = obj.at("tileWidth").asInteger();
-        header.tileHeight = obj.at("tileHeight").asInteger();
+        header.tileSize = obj.at("tileSize").asInteger();
+        header.gridSize = obj.at("gridSize").asInteger();
 
         for (const auto& banner : obj.at("banners").asMap())
         {

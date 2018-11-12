@@ -38,7 +38,7 @@ class WorldSurface;
  *
  * \return the position of the neighbour map-node
  */
-QPoint neighbourPos(const QPoint& pos, core::Direction dir, const QSize& tileSize);
+QPoint neighbourPos(const QPoint& pos, core::Direction dir, int tileSize);
 
 /**
  * Find the neighbours by position.
@@ -67,7 +67,7 @@ core::MapNodeNeighbours neighboursByPos(
  *
  * \return mapping of map-nodes to their position.
  */
-std::unordered_map<core::MapNode*, QPoint> positionMapNodes(core::MapNode* startNode, const QSize& tileSize);
+std::unordered_map<core::MapNode*, QPoint> positionMapNodes(core::MapNode* startNode, int tileSize);
 
 /**
  * Calculate the bounding rectangle of the map-graph.
@@ -81,7 +81,7 @@ std::unordered_map<core::MapNode*, QPoint> positionMapNodes(core::MapNode* start
  *
  * \return the bounding rectangle
  */
-QRect calculateBoundingRect(const std::unordered_map<core::MapNode*, QPoint>& nodesPos, const QSize& tileSize);
+QRect calculateBoundingRect(const std::unordered_map<core::MapNode*, QPoint>& nodesPos, int tileSize);
 
 /**
  * Find node at position pos.

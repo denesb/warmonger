@@ -64,7 +64,8 @@ class WorldSurface : public QObject
     Q_OBJECT
     Q_PROPERTY(QString name READ getName NOTIFY nameChanged)
     Q_PROPERTY(QString description READ getDescription NOTIFY descriptionChanged)
-    Q_PROPERTY(QSize tileSize READ getTileSize NOTIFY tileSizeChanged)
+    Q_PROPERTY(int tileSize READ getTileSize CONSTANT)
+    Q_PROPERTY(int gridSize READ getGridSize CONSTANT)
 
 public:
     class Storage;
@@ -127,33 +128,18 @@ public:
     }
 
     /**
-     * Get the tile-width.
-     *
-     * \return the tile-width
-     */
-    int getTileWidth() const
-    {
-        return this->tileWidth;
-    }
-
-    /**
-     * Get the tile-height.
-     *
-     * \return the tile-height
-     */
-    int getTileHeight() const
-    {
-        return this->tileHeight;
-    }
-
-    /**
      * Get the tile-size.
      *
      * \return the tile-size
      */
-    QSize getTileSize() const
+    int getTileSize() const
     {
-        return QSize(this->tileWidth, this->tileHeight);
+        return this->tileSize;
+    }
+
+    int getGridSize() const
+    {
+        return this->gridSize;
     }
 
     /**
@@ -276,11 +262,6 @@ signals:
      */
     void tileHeightChanged();
 
-    /**
-     * Emitted when the tile-size changes.
-     */
-    void tileSizeChanged();
-
 private:
     void parseHeader(const QByteArray& header);
 
@@ -291,8 +272,8 @@ private:
 
     std::unique_ptr<Storage> storage;
 
-    int tileWidth;
-    int tileHeight;
+    int tileSize;
+    int gridSize;
     QImage hexMask;
 
     std::unordered_map<QString, QString> banners;

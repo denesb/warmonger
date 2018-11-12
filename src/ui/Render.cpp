@@ -106,7 +106,8 @@ QSGNode* renderEntities(const std::vector<core::Entity*>& entities, QSGNode* old
 
 static bool isVisible(const QPoint& position, const RenderContext& ctx)
 {
-    const QRect nodeRect(position, ctx.surface->getTileSize());
+    const auto tileSize = ctx.surface->getTileSize();
+    const QRect nodeRect(position, QSize(tileSize, tileSize));
     return ctx.renderWindow.intersects(nodeRect);
 }
 
@@ -227,7 +228,8 @@ static QSGNode* drawEntity(core::Entity* const entity, QSGNode* oldNode, const R
     }
 
     // TODO: don't assume image is of the same size as the tile size
-    const QRect nodeRect(QPoint(graphicsComponent.getX(), graphicsComponent.getY()), ctx.surface->getTileSize());
+    const auto tileSize = ctx.surface->getTileSize();
+    const QRect nodeRect(QPoint(graphicsComponent.getX(), graphicsComponent.getY()), QSize(tileSize, tileSize));
     if (node->rect() != nodeRect)
     {
         node->setRect(nodeRect);

@@ -34,36 +34,35 @@
 namespace warmonger {
 namespace ui {
 
-static void positionMapNode(
-    core::MapNode* node, std::unordered_map<core::MapNode*, QPoint>& nodesPos, const QSize& tileSize);
+static void positionMapNode(core::MapNode* node, std::unordered_map<core::MapNode*, QPoint>& nodesPos, int tileSize);
 
-QPoint neighbourPos(const QPoint& pos, core::Direction dir, const QSize& tileSize)
+QPoint neighbourPos(const QPoint& pos, core::Direction dir, int tileSize)
 {
     QSize displacement(0, 0);
 
     switch (dir)
     {
         case core::Direction::West:
-            displacement.setWidth(-tileSize.width());
+            displacement.setWidth(-tileSize);
             break;
         case core::Direction::NorthWest:
-            displacement.setWidth(-tileSize.width() / 2);
-            displacement.setHeight(-tileSize.height() * 3 / 4);
+            displacement.setWidth(-tileSize / 2);
+            displacement.setHeight(-tileSize * 3 / 4);
             break;
         case core::Direction::NorthEast:
-            displacement.setWidth(tileSize.width() / 2);
-            displacement.setHeight(-tileSize.height() * 3 / 4);
+            displacement.setWidth(tileSize / 2);
+            displacement.setHeight(-tileSize * 3 / 4);
             break;
         case core::Direction::East:
-            displacement.setWidth(tileSize.width());
+            displacement.setWidth(tileSize);
             break;
         case core::Direction::SouthEast:
-            displacement.setWidth(tileSize.width() / 2);
-            displacement.setHeight(tileSize.height() * 3 / 4);
+            displacement.setWidth(tileSize / 2);
+            displacement.setHeight(tileSize * 3 / 4);
             break;
         case core::Direction::SouthWest:
-            displacement.setWidth(-tileSize.width() / 2);
-            displacement.setHeight(tileSize.height() * 3 / 4);
+            displacement.setWidth(-tileSize / 2);
+            displacement.setHeight(tileSize * 3 / 4);
             break;
     }
 
@@ -75,7 +74,7 @@ core::MapNodeNeighbours neighboursByPos(
 {
     core::MapNodeNeighbours neighbours;
 
-    const QSize tileSize = worldSurface->getTileSize();
+    const auto tileSize = worldSurface->getTileSize();
     for (core::Direction direction : core::directions)
     {
         QPoint nPos = neighbourPos(pos, direction, tileSize);
@@ -86,7 +85,7 @@ core::MapNodeNeighbours neighboursByPos(
     return neighbours;
 }
 
-std::unordered_map<core::MapNode*, QPoint> positionMapNodes(core::MapNode* startNode, const QSize& tileSize)
+std::unordered_map<core::MapNode*, QPoint> positionMapNodes(core::MapNode* startNode, int tileSize)
 {
     std::unordered_map<core::MapNode*, QPoint> nodesPos;
 
@@ -97,7 +96,7 @@ std::unordered_map<core::MapNode*, QPoint> positionMapNodes(core::MapNode* start
     return nodesPos;
 }
 
-QRect calculateBoundingRect(const std::unordered_map<core::MapNode*, QPoint>& nodesPos, const QSize& tileSize)
+QRect calculateBoundingRect(const std::unordered_map<core::MapNode*, QPoint>& nodesPos, int tileSize)
 {
     if (nodesPos.size() == 0)
         return QRect(0, 0, 0, 0);
@@ -118,10 +117,10 @@ QRect calculateBoundingRect(const std::unordered_map<core::MapNode*, QPoint>& no
 
     // x,y is the top-left corner of the node so we need to add the tile
     // size
-    bottomRight += QPoint(tileSize.width(), tileSize.height());
+    bottomRight += QPoint(tileSize, tileSize);
 
     // leave a half-tile padding
-    QPoint padding(tileSize.width() / 2, tileSize.height() / 2);
+    QPoint padding(tileSize / 2, tileSize / 2);
     topLeft -= padding;
     bottomRight += padding;
 
@@ -131,41 +130,16 @@ QRect calculateBoundingRect(const std::unordered_map<core::MapNode*, QPoint>& no
 core::MapNode* mapNodeAtPos(
     const QPoint& pos, const std::unordered_map<core::MapNode*, QPoint>& nodesPos, const WorldSurface* worldSurface)
 {
-    const QSize tileSize(worldSurface->getTileSize());
+    auto tileSize = worldSurface->getTileSize();
     for (const std::pair<core::MapNode*, QPoint>& nodePosItem : nodesPos)
     {
         const QPoint& nodePos = nodePosItem.second;
         const QPoint hexPos = pos - nodePos;
-        if (QRect(nodePos, tileSize).contains(pos) && worldSurface->hexContains(hexPos))
+        if (QRect(nodePos, QSize(tileSize, tileSize)).contains(pos) && worldSurface->hexContains(hexPos))
             return nodePosItem.first;
     }
 
     return nullptr;
-}
-
-QPainterPath hexagonPath(const QSize& tileSize)
-{
-    const int w = tileSize.width();
-    const int h = tileSize.height();
-
-    const QPoint p0(0, h / 4);
-    const QPoint p1(w / 2, 0);
-    const QPoint p2(w, h / 4);
-    const QPoint p3(w, 3 * h / 4);
-    const QPoint p4(w / 2, h - 1);
-    const QPoint p5(0, 3 * h / 4);
-
-    QPainterPath path;
-
-    path.moveTo(p0);
-    path.lineTo(p1);
-    path.lineTo(p2);
-    path.lineTo(p3);
-    path.lineTo(p4);
-    path.lineTo(p5);
-    path.lineTo(p0);
-
-    return path;
 }
 
 QPoint project(const QPoint& p, const QRect& r)
@@ -256,8 +230,7 @@ QSGNode* drawRect(const QRect& rect, QSGNode* oldNode)
     return node;
 }
 
-static void positionMapNode(
-    core::MapNode* node, std::unordered_map<core::MapNode*, QPoint>& nodesPos, const QSize& tileSize)
+static void positionMapNode(core::MapNode* node, std::unordered_map<core::MapNode*, QPoint>& nodesPos, int tileSize)
 {
     QPoint pos = nodesPos[node];
     const core::MapNodeNeighbours& neighbours = node->getNeighbours();

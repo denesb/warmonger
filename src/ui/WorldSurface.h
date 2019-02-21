@@ -199,9 +199,23 @@ public:
     void deactivate();
 
     /**
-     * Get the QSGTexture for the object and window.
+     * Get the asset id for the asset.
      *
-     * If the the texture is not found for `window' it is created.
+     * Translate the `assetName` to the opaque asset id, which then can be used
+     * to access the asset. The `assetName` is defined by the world surface and
+     * is known by the world surface rules.
+     * The asset id is ephemeral, it should not be persisted after the surface
+     * is deactivated.
+     *
+     * \param assetName the name of the asset, as defined by the world surface
+     *      definition file.
+     */
+    AssetId assetIdFor(const QString& assetName);
+
+    /**
+     * Get the QSGTexture for the asset id and window.
+     *
+     * If the texture is not found for `window' it is created.
      * If the lookup and creation fails nullptr will be returned.
      *
      * Warning: Only call this function on the rendering thread, i.e.
@@ -210,37 +224,58 @@ public:
      * Warning: The returned texture is owned by the surface, do not delete
      * it and do not allow any QSGNodes to take ownership!
      *
-     * \param object the object to get the texture for
+     * \param id the asset id to get the texture for
      * \param window the window to which the texture belongs to
      *
      * \return the texture
      */
+    QSGTexture* getTexture(AssetId id, QQuickWindow* window) const;
+
+    /**
+     * Get the QSGTexture for the path and window.
+     *
+     * DEPRECATED! Use the AssetId overload.
+     */
     QSGTexture* getTexture(const QString& path, QQuickWindow* window) const;
 
     /**
-     * Get the image for the path.
+     * Get the image for the asset id.
      *
      * Can be used to supply the image path to e.g. QImage.
-     * The returned path points to a QResource component and as such is
+     * The returned path points to a QAsset component and as such is
      * only compatible with Qt's components.
      *
-     * \param object the object to get the image for
+     * \param id the asset id to get the image for
      *
-     * \return the path
+     * \return the image
+     */
+    QImage getImage(AssetId id) const;
+
+    /**
+     * Get the image for the asset id.
+     *
+     * DEPRECATED! Use the AssetId overload.
      */
     QImage getImage(const QString& path) const;
 
     /**
-     * Get the url of the image for the object.
+     * Get the url of the image for the asset id.
      *
      * Can be used to supply the image url for Image qml components.
      * The returned url may point to a QResource component and as such
      * is only compatible with Qt's components.
      * TODO: make the surface a ImageProvider instead.
      *
-     * \param object the object to get the image for
+     * \param id the asset id to get the url for
      *
      * \return the url
+     */
+    QUrl getImageUrl(AssetId id) const;
+
+    /**
+     * Get the url of the image for the asset id.
+     *
+     * DEPRECATED! Use the AssetId overload.
      */
     QUrl getImageUrl(const QString& path) const;
 

@@ -261,14 +261,29 @@ void WorldSurface::deactivate()
     this->storage->deactivate();
 }
 
+QSGTexture* WorldSurface::getTexture(AssetId id, QQuickWindow* window) const
+{
+    return storage->getTexture(this->graphicAssetsById.at(id), window);
+}
+
 QSGTexture* WorldSurface::getTexture(const QString& path, QQuickWindow* window) const
 {
     return storage->getTexture(path, window);
 }
 
+QImage WorldSurface::getImage(AssetId id) const
+{
+    return storage->getImage(this->graphicAssetsById.at(id));
+}
+
 QImage WorldSurface::getImage(const QString& path) const
 {
     return storage->getImage(path);
+}
+
+QUrl WorldSurface::getImageUrl(AssetId id) const
+{
+    return storage->getImageUrl(this->graphicAssetsById.at(id));
 }
 
 QUrl WorldSurface::getImageUrl(const QString& path) const

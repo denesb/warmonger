@@ -71,6 +71,8 @@ class WorldSurface : public QObject
 public:
     class Storage;
 
+    using AssetId = int;
+
     /**
      * Static images used in the drawing of the world.
      */
@@ -293,6 +295,9 @@ private:
 
     std::unordered_map<QString, QString> banners;
     std::unordered_map<QString, QColor> colors;
+    std::unordered_map<QString, QString> graphicAssetsByName; // name -> path
+    std::unordered_map<AssetId, QString> graphicAssetsById; // id -> path
+    std::unordered_map<QString, AssetId> graphicAssetNameToId; // name -> id
 };
 
 /**

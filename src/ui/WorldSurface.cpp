@@ -76,6 +76,7 @@ public:
         int gridSize;
         std::unordered_map<QString, QString> banners;
         std::unordered_map<QString, QColor> colors;
+        std::unordered_map<QString, QString> graphicAssets;
     };
 
     Storage(QString path)
@@ -187,6 +188,15 @@ WorldSurface::WorldSurface(QString path, core::World* world, QObject* parent)
     this->gridSize = header.gridSize;
     this->banners = std::move(header.banners);
     this->colors = std::move(header.colors);
+    this->graphicAssetsByName = std::move(header.graphicAssets);
+
+    int id = 0;
+    for (const auto& graphicAsset : this->graphicAssetsByName)
+    {
+        this->graphicAssetsById.emplace(id, graphicAsset.second);
+        this->graphicAssetNameToId.emplace(graphicAsset.first, id);
+        ++id;
+    }
 
     wInfo.format("Created WorldSurface `{}' with {} storage @ {}", this->name, storageName, this->path);
 }
@@ -387,6 +397,11 @@ WorldSurface::Storage::Header WorldSurface::Storage::parseHeader(const QByteArra
         for (const auto& color : obj.at("colors").asMap())
         {
             header.colors.emplace(color.first, color.second.asColor());
+        }
+
+        for (const auto& graphicAsset : obj.at("graphicAssets").asMap())
+        {
+            header.graphicAssets.emplace(graphicAsset.first, graphicAsset.second.asString());
         }
 
         this->name = header.name;

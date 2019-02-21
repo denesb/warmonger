@@ -74,6 +74,8 @@ public:
         QString description;
         int tileSize;
         int gridSize;
+        QString rulesEntryPoint;
+        WorldSurfaceRules::Type rulesType;
         std::unordered_map<QString, QString> banners;
         std::unordered_map<QString, QColor> colors;
         std::unordered_map<QString, QString> graphicAssets;
@@ -197,6 +199,9 @@ WorldSurface::WorldSurface(QString path, core::World* world, QObject* parent)
         this->graphicAssetNameToId.emplace(graphicAsset.first, id);
         ++id;
     }
+
+    this->rules = createWorldSurfaceRules(*this);
+    this->rules->loadRules(this->path, this->rulesEntryPoint);
 
     wInfo.format("Created WorldSurface `{}' with {} storage @ {}", this->name, storageName, this->path);
 }
@@ -403,6 +408,8 @@ WorldSurface::Storage::Header WorldSurface::Storage::parseHeader(const QByteArra
         header.description = obj.at("description").asString();
         header.tileSize = obj.at("tileSize").asInteger();
         header.gridSize = obj.at("gridSize").asInteger();
+        header.rulesEntryPoint = obj.at("rulesEntryPoint").asString();
+        header.rulesType = obj.at("rulesType").asEnum<WorldSurfaceRules::Type>();
 
         for (const auto& banner : obj.at("banners").asMap())
         {

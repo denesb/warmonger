@@ -33,12 +33,15 @@ namespace warmonger {
 
 namespace core {
 class MapNode;
-class Entity;
 } // namespace core
 
 namespace ui {
 
 class WorldSurface;
+
+namespace graphics {
+class Map;
+} // namespace graphics
 
 struct RenderContext
 {
@@ -48,7 +51,7 @@ struct RenderContext
     QRect renderWindow;
 };
 
-QSGNode* renderEntities(const std::vector<core::Entity*>& entities, QSGNode* oldNode, const RenderContext& ctx);
+QSGNode* renderMap(const graphics::Map& map, QSGNode* oldNode, const RenderContext& ctx);
 
 } // namespace ui
 } // namespace warmonger

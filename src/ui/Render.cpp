@@ -35,25 +35,22 @@ namespace ui {
 
 struct MapNodeContents
 {
-    core::MapNode* mapNode;
+    const graphics::MapNode* mapNode;
     QPoint pos;
-    std::vector<core::Entity*> entities;
 
-    MapNodeContents(core::MapNode* mapNode, QPoint pos, core::Entity* entity)
-        : mapNode(mapNode)
+    MapNodeContents(const graphics::MapNode& mapNode, QPoint pos)
+        : mapNode(&mapNode)
         , pos(pos)
-        , entities(1, entity)
     {
     }
 };
 
 static bool isVisible(const QPoint& position, const RenderContext& ctx);
 static std::vector<MapNodeContents> depthSorted(std::vector<MapNodeContents> mapNodeContents);
-static std::vector<MapNodeContents> visibleRootEntities(
-    const std::vector<core::Entity*>& entities, const RenderContext& ctx);
+static std::vector<MapNodeContents> visibleMapNodes(const graphics::Map& map, const RenderContext& ctx);
 static QSGNode* drawMapNodeContent(const MapNodeContents& mapNodeContents, QSGNode* oldNode, const RenderContext& ctx);
-static std::vector<core::Entity*> drawableEntities(const std::vector<core::Entity*>& entities);
-static QSGNode* drawEntity(core::Entity* entity, QSGNode* oldNode, const RenderContext& ctx);
+static QSGNode* drawMapNodeLayer(const graphics::MapNodeLayer& layer, QSGNode* oldNode, const RenderContext& ctx);
+static QSGNode* drawGridTile(const graphics::GridTile& gridTile, QSGNode* oldNode, const RenderContext& ctx);
 
 template <typename Source, typename Func>
 static void syncChildNodesWithSource(QSGNode* rootNode, Source&& source, const RenderContext& ctx, Func&& func)
@@ -85,9 +82,9 @@ static void syncChildNodesWithSource(QSGNode* rootNode, Source&& source, const R
     }
 }
 
-QSGNode* renderEntities(const std::vector<core::Entity*>& entities, QSGNode* oldNode, const RenderContext& ctx)
+QSGNode* renderMap(const graphics::Map& map, QSGNode* oldNode, const RenderContext& ctx)
 {
-    const std::vector<MapNodeContents> mapNodeContents = depthSorted(visibleRootEntities(entities, ctx));
+    const std::vector<MapNodeContents> mapNodeContents = depthSorted(visibleMapNodes(map, ctx));
 
     QSGNode* rootNode;
     if (oldNode)
@@ -111,39 +108,16 @@ static bool isVisible(const QPoint& position, const RenderContext& ctx)
     return ctx.renderWindow.intersects(nodeRect);
 }
 
-static std::vector<MapNodeContents> visibleRootEntities(
-    const std::vector<core::Entity*>& entities, const RenderContext& ctx)
+static std::vector<MapNodeContents> visibleMapNodes(const graphics::Map& map, const RenderContext& ctx)
 {
     std::vector<MapNodeContents> mapNodeContents;
-    std::unordered_map<core::MapNode*, std::size_t> mapNodeContentsIndex;
 
-    for (auto* entity : entities)
+    for (auto& mapNode : map.mapNodes)
     {
-        if (entity->hasParentEntity())
-            continue;
-
-        auto* positionComponent = entity->getPositionComponent();
-        auto* graphicsComponent = entity->getGraphicsComponent();
-
-        if (!positionComponent || !graphicsComponent)
-            continue;
-
-        auto* mapNode = positionComponent->getMapNode();
-        auto it = mapNodeContentsIndex.find(mapNode);
-        if (it == mapNodeContentsIndex.end())
+        auto pos = ctx.mapNodesPos.at(mapNode.mapNode);
+        if (isVisible(pos, ctx))
         {
-            auto pos = ctx.mapNodesPos.at(mapNode);
-
-            if (isVisible(pos, ctx))
-            {
-                mapNodeContents.emplace_back(mapNode, pos, entity);
-                mapNodeContentsIndex.emplace(mapNode, mapNodeContents.size() - 1);
-            }
-        }
-        else
-        {
-            // If the mapNode is present, it's  visible.
-            mapNodeContents[it->second].entities.emplace_back(entity);
+            mapNodeContents.emplace_back(mapNode, pos);
         }
     }
 
@@ -157,14 +131,6 @@ static std::vector<MapNodeContents> depthSorted(std::vector<MapNodeContents> map
             return a.pos.x() < b.pos.x();
         else
             return a.pos.y() < b.pos.y();
-    });
-
-    std::for_each(mapNodeContents.begin(), mapNodeContents.end(), [](MapNodeContents& m) {
-        std::sort(m.entities.begin(), m.entities.end(), [](core::Entity* a, core::Entity* b) {
-            auto& gca = *a->getGraphicsComponent();
-            auto& gcb = *b->getGraphicsComponent();
-            return gca.getZ() < gcb.getZ() || gca.getY() < gcb.getY() || gca.getX() < gcb.getX();
-        });
     });
 
     return mapNodeContents;
@@ -190,21 +156,29 @@ static QSGNode* drawMapNodeContent(const MapNodeContents& mapNodeContents, QSGNo
         node->setMatrix(matrix);
     }
 
-    syncChildNodesWithSource(node, mapNodeContents.entities, ctx, drawEntity);
+    syncChildNodesWithSource(node, mapNodeContents.mapNode->layers, ctx, drawMapNodeLayer);
 
     return node;
 }
 
-static std::vector<core::Entity*> drawableEntities(const std::vector<core::Entity*>& entities)
+static QSGNode* drawMapNodeLayer(const graphics::MapNodeLayer& layer, QSGNode* oldNode, const RenderContext& ctx)
 {
-    std::vector<core::Entity*> filtered;
-    std::copy_if(entities.cbegin(), entities.cend(), std::back_inserter(filtered), [](core::Entity* const e) {
-        return bool(e->getGraphicsComponent());
-    });
-    return filtered;
+    QSGNode* rootNode;
+    if (oldNode)
+    {
+        rootNode = oldNode;
+    }
+    else
+    {
+        rootNode = new QSGNode();
+    }
+
+    syncChildNodesWithSource(rootNode, layer.gridTiles, ctx, drawGridTile);
+
+    return rootNode;
 }
 
-static QSGNode* drawEntity(core::Entity* const entity, QSGNode* oldNode, const RenderContext& ctx)
+static QSGNode* drawGridTile(const graphics::GridTile& gridTile, QSGNode* oldNode, const RenderContext& ctx)
 {
     QSGSimpleTextureNode* node;
     if (oldNode == nullptr)
@@ -218,8 +192,7 @@ static QSGNode* drawEntity(core::Entity* const entity, QSGNode* oldNode, const R
         node = static_cast<QSGSimpleTextureNode*>(oldNode);
     }
 
-    auto& graphicsComponent = *entity->getGraphicsComponent();
-    QSGTexture* texture = ctx.surface->getTexture(graphicsComponent.getPath(), ctx.window);
+    QSGTexture* texture = ctx.surface->getTexture(gridTile.assetId, ctx.window);
     QSGTexture* currentTexture = node->texture();
 
     if (currentTexture == nullptr || currentTexture->textureId() != texture->textureId())
@@ -228,14 +201,13 @@ static QSGNode* drawEntity(core::Entity* const entity, QSGNode* oldNode, const R
     }
 
     // TODO: don't assume image is of the same size as the tile size
-    const auto tileSize = ctx.surface->getTileSize();
-    const QRect nodeRect(QPoint(graphicsComponent.getX(), graphicsComponent.getY()), QSize(tileSize, tileSize));
+    const auto gridSize = ctx.surface->getGridSize();
+    const QRect nodeRect(QPoint(gridTile.x * gridSize, gridTile.y * gridSize),
+        QSize(gridTile.width * gridSize, gridTile.height * gridSize));
     if (node->rect() != nodeRect)
     {
         node->setRect(nodeRect);
     }
-
-    syncChildNodesWithSource(node, drawableEntities(entity->getChildEntities()), ctx, drawEntity);
 
     return node;
 }

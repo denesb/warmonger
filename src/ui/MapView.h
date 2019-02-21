@@ -139,6 +139,8 @@ private:
     WorldSurface* worldSurface;
     std::unordered_map<core::MapNode*, QPoint> mapNodesPos;
 
+    graphics::Map graphicMap;
+
     MapWatcher* watcher;
 };
 

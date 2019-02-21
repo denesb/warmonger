@@ -115,7 +115,7 @@ QSGNode* MapView::updatePaintNode(QSGNode* oldRootNode, UpdatePaintNodeData*)
     rootNode->setClipRect(QRectF(0, 0, this->width(), this->height()));
 
     RenderContext ctx{this->worldSurface, this->window(), this->mapNodesPos, this->mapRect};
-    mapRootNode = renderEntities(this->map->getEntities(), mapRootNode, ctx);
+    mapRootNode = renderMap(this->graphicMap, mapRootNode, ctx);
 
     return rootNode;
 }
@@ -133,6 +133,7 @@ void MapView::updateContent()
         this->mapNodesPos = positionMapNodes(this->map->getMapNodes()[0], this->worldSurface->getTileSize());
         this->updateMapRect();
         this->updateTransform();
+        this->graphicMap = this->worldSurface->getRules().initialRenderMap(*this->map);
     }
 }
 

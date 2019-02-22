@@ -36,44 +36,7 @@ struct is_container<::warmonger::core::MapNodeNeighbours> : std::false_type
 namespace warmonger {
 namespace core {
 
-class LuaWorldComponent : public Component
-{
-    Q_OBJECT
-
-public:
-    LuaWorldComponent(QString name, sol::state& L, QObject* parent);
-
-    LuaWorldComponent(ir::Value v, sol::state& L, QObject* parent);
-
-    ir::Value serialize() const override;
-
-    const QString& getName() const override
-    {
-        return this->name;
-    }
-
-    bool isBuiltIn() const override
-    {
-        return false;
-    }
-
-    sol::table& getTable()
-    {
-        return this->table;
-    }
-
-    sol::object index(sol::stack_object key, sol::this_state);
-    void newIndex(sol::stack_object key, sol::stack_object value, sol::this_state);
-
-private:
-    sol::state& L;
-    sol::table table;
-    QString name;
-};
-
 static void exposeAPI(sol::state& lua);
-static sol::object createComponent(Entity* const entity, QString name, sol::this_state L);
-static sol::object entityIndex(Entity* const entity, sol::stack_object key, sol::this_state L);
 
 std::unique_ptr<WorldRules> LuaWorldRules::make(World* world)
 {
@@ -108,16 +71,6 @@ void LuaWorldRules::loadRules(const QString& basePath, const QString& mainRulesF
     lua["world_init"]();
 }
 
-std::unique_ptr<Component> LuaWorldRules::createComponent(QString name, QObject* parent)
-{
-    return std::make_unique<LuaWorldComponent>(std::move(name), *this->state, parent);
-}
-
-std::unique_ptr<Component> LuaWorldRules::createComponent(ir::Value v, QObject* parent)
-{
-    return std::make_unique<LuaWorldComponent>(std::move(v), *this->state, parent);
-}
-
 std::unique_ptr<core::Map> LuaWorldRules::generateMap(
     int seed, unsigned int size, std::vector<std::unique_ptr<Faction>> players)
 {
@@ -142,47 +95,6 @@ std::unique_ptr<core::Map> LuaWorldRules::generateMap(
 void LuaWorldRules::mapInit(Map* map)
 {
     this->mapInitHook(map);
-}
-
-LuaWorldComponent::LuaWorldComponent(QString name, sol::state& L, QObject* parent)
-    : Component(parent)
-    , L(L)
-    , table(L, sol::create)
-    , name(name)
-{
-}
-
-LuaWorldComponent::LuaWorldComponent(ir::Value v, sol::state& L, QObject* parent)
-    : Component(parent, v.getObjectId())
-    , L(L)
-    , table(L, sol::create)
-{
-    auto obj = std::move(v).asObject();
-
-    this->name = std::move(obj["name"]).asString();
-
-    // FIXME call into the rules to unserialize
-}
-
-ir::Value LuaWorldComponent::serialize() const
-{
-    std::unordered_map<QString, ir::Value> obj;
-
-    obj.emplace("name", this->name);
-
-    // FIXME call into the rules to serialize
-
-    return obj;
-}
-
-sol::object LuaWorldComponent::index(sol::stack_object key, sol::this_state)
-{
-    return this->table[key];
-}
-
-void LuaWorldComponent::newIndex(sol::stack_object key, sol::stack_object value, sol::this_state)
-{
-    this->table[key] = value;
 }
 
 static void exposeAPI(sol::state& lua)
@@ -268,60 +180,6 @@ static void exposeAPI(sol::state& lua)
         "civilization",
         sol::property(&Faction::getCivilization, &Faction::setCivilization));
 
-    lua.new_usertype<PositionComponent>("position_component",
-        sol::meta_function::construct,
-        sol::no_constructor,
-        "name",
-        sol::property(&PositionComponent::getName),
-        "map_node",
-        sol::property(&PositionComponent::getMapNode, &PositionComponent::setMapNode));
-
-    lua.new_usertype<GraphicsComponent>("graphics_component",
-        sol::meta_function::construct,
-        sol::no_constructor,
-        "name",
-        sol::property(&GraphicsComponent::getName),
-        "path",
-        sol::property(&GraphicsComponent::getPath, &GraphicsComponent::setPath),
-        "x",
-        sol::property(&GraphicsComponent::getX, &GraphicsComponent::setX),
-        "y",
-        sol::property(&GraphicsComponent::getY, &GraphicsComponent::setY),
-        "z",
-        sol::property(&GraphicsComponent::getZ, &GraphicsComponent::setZ));
-
-    lua.new_usertype<LuaWorldComponent>("lua_world_component",
-        sol::meta_function::construct,
-        sol::no_constructor,
-        "name",
-        sol::property(&Component::getName),
-        sol::meta_function::index,
-        &LuaWorldComponent::index,
-        sol::meta_function::new_index,
-        &LuaWorldComponent::newIndex);
-
-    lua.new_usertype<Entity>("entity",
-        sol::meta_function::construct,
-        sol::no_constructor,
-        "name",
-        sol::property(&Entity::getName),
-        "parent",
-        sol::property(&Entity::getParentEntity, &Entity::setParentEntity),
-        "children",
-        sol::property(&Entity::getChildEntities),
-        "components",
-        sol::property(&Entity::getComponents),
-        "position",
-        sol::property(&Entity::getPositionComponent),
-        "graphics",
-        sol::property(&Entity::getGraphicsComponent),
-        sol::meta_function::index,
-        entityIndex,
-        "create_component",
-        createComponent,
-        "remove_component",
-        &Entity::removeComponent);
-
     lua.new_usertype<Settlement>("settlement",
         sol::meta_function::construct,
         sol::no_constructor,
@@ -351,62 +209,11 @@ static void exposeAPI(sol::state& lua)
         [](Map* const map) { return map->createFaction(); },
         "remove_faction",
         [](Map* const map, Faction* faction) { map->removeFaction(faction); },
-        "entities",
-        sol::property(&Map::getEntities),
-        "create_entity",
-        [](Map* const map, QString name) { return map->createEntity(name); },
-        "remove_entity",
-        [](Map* const map, Entity* entity) { map->removeEntity(entity); },
         "settlements",
         sol::property(&Map::getSettlements),
         "create_settlement",
-        [](Map* const map) { return map->createSettlement(); },
-        "find_entity_on_map_node",
-        &Map::findEntityOnMapNode);
+        [](Map* const map) { return map->createSettlement(); });
 }
-
-static sol::object createComponent(Entity* const entity, QString name, sol::this_state L)
-{
-    auto* c = entity->createComponent(std::move(name));
-
-    if (c->isBuiltIn())
-    {
-        if (c->getName() == PositionComponent::name)
-            return sol::object(L, sol::in_place, static_cast<PositionComponent*>(c));
-        else if (c->getName() == GraphicsComponent::name)
-            return sol::object(L, sol::in_place, static_cast<GraphicsComponent*>(c));
-        else
-            abort(); // Should never get here
-    }
-    else
-    {
-        return sol::object(L, sol::in_place, static_cast<LuaWorldComponent*>(c));
-    }
-}
-
-static sol::object entityIndex(Entity* const entity, sol::stack_object key, sol::this_state L)
-{
-    auto maybeComponentName = key.as<sol::optional<QString>>();
-    if (!maybeComponentName)
-    {
-        wWarning.format("Attempt to index entity with non-string key");
-        return sol::object(L, sol::in_place, sol::lua_nil);
-    }
-
-    auto* component = entity->getComponent(*maybeComponentName);
-
-    if (!component)
-        return sol::object(L, sol::in_place, sol::lua_nil);
-
-    assert(!component->isBuiltIn());
-
-    // At this point we can safely assume we have a LuaWorldComponent.
-    // The entity has specific properties for all the built-in components.
-    // If this cast fails that is a bug.
-    return sol::object(L, sol::in_place, static_cast<LuaWorldComponent*>(component));
-}
-
-#include "LuaWorldRules.moc"
 
 } // namespace core
 } // namespace warmonger

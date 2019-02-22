@@ -88,8 +88,6 @@ set(
 
 set(
     CORE_SRC_FILES
-    src/core/Component.cpp
-    src/core/Entity.cpp
     src/core/Faction.cpp
     src/core/Hexagon.cpp
     src/core/IntermediateRepresentation.cpp

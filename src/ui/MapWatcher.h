@@ -77,14 +77,11 @@ signals:
 
 private:
     void connectMapNodeSignals();
-    void connectEntitySignals();
     void onMapNodesChanged();
-    void onEntitiesChanged();
 
 private:
     const core::Map* const map;
     Watcher* mapNodeWatcher;
-    Watcher* entityWatcher;
 };
 
 } // namespace ui

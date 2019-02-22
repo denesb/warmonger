@@ -26,16 +26,12 @@ MapWatcher::MapWatcher(const core::Map* const map, QObject* parent)
     : QObject(parent)
     , map(map)
     , mapNodeWatcher(new Watcher(this))
-    , entityWatcher(new Watcher(this))
 {
     QObject::connect(this->map, &core::Map::mapNodesChanged, this, &MapWatcher::onMapNodesChanged);
-    QObject::connect(this->map, &core::Map::entitiesChanged, this, &MapWatcher::onEntitiesChanged);
 
     QObject::connect(this->mapNodeWatcher, &Watcher::changed, this, &MapWatcher::changed);
-    QObject::connect(this->entityWatcher, &Watcher::changed, this, &MapWatcher::changed);
 
     this->connectMapNodeSignals();
-    this->connectEntitySignals();
 }
 
 void MapWatcher::connectMapNodeSignals()
@@ -47,27 +43,10 @@ void MapWatcher::connectMapNodeSignals()
     }
 }
 
-void MapWatcher::connectEntitySignals()
-{
-    const std::vector<core::Entity*>& entities = this->map->getEntities();
-    for (core::Entity* entity : entities)
-    {
-        QObject::connect(entity, &core::Entity::componentsChanged, this->entityWatcher, &Watcher::changed);
-    }
-}
-
 void MapWatcher::onMapNodesChanged()
 {
     QObject::disconnect(this->map, nullptr, this->mapNodeWatcher, nullptr);
     this->connectMapNodeSignals();
-
-    emit changed();
-}
-
-void MapWatcher::onEntitiesChanged()
-{
-    QObject::disconnect(this->map, nullptr, this->entityWatcher, nullptr);
-    this->connectEntitySignals();
 
     emit changed();
 }

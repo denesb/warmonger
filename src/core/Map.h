@@ -28,8 +28,6 @@
 #include <QString>
 #include <QVariant>
 
-#include "core/Component.h"
-#include "core/Entity.h"
 #include "core/Faction.h"
 #include "core/MapNode.h"
 #include "core/World.h"
@@ -44,11 +42,10 @@ class Settlement;
  *
  * The campaign-map is were the game actually take place. The campaign-map
  * contain the graph of map-nodes that form the map. It also contains the list
- * of factions and entities that participate in the game. A campaign-map is
- * linked to a world which defines all aspects of its behaviour.
+ * of factions, settlements, armies, etc. that participate in the game.
+ * A campaign-map is linked to a world which defines all aspects of its
+ * behaviour.
  *
- * \see warmonger::core::Component
- * \see warmonger::core::Entity
  * \see warmonger::core::Faction
  * \see warmonger::core::MapNode
  * \see warmonger::core::World
@@ -60,7 +57,6 @@ class Map : public QObject, public ir::Serializable
     Q_PROPERTY(World* world READ getWorld WRITE setWorld NOTIFY worldChanged)
     Q_PROPERTY(QVariantList mapNodes READ readMapNodes NOTIFY mapNodesChanged)
     Q_PROPERTY(QVariantList factions READ readFactions NOTIFY factionsChanged)
-    Q_PROPERTY(QVariantList entities READ readEntities NOTIFY entitiesChanged)
     Q_PROPERTY(QVariantList settlements READ readSettlements NOTIFY settlementsChanged)
 
 public:
@@ -166,27 +162,6 @@ public:
      */
     QVariantList readFactions() const;
 
-    /**
-     * Get the entities.
-     *
-     * \return the entities
-     */
-    const std::vector<Entity*>& getEntities() const
-    {
-        return this->entities;
-    }
-
-    /**
-     * Get the entities as a QVariantList.
-     *
-     * This function is used as a read function for the mapNodes property and is
-     * not supposed to be called from C++ code. Use Map::getEntitys()
-     * instead.
-     *
-     * \returns the entities
-     */
-    QVariantList readEntities() const;
-
     const std::vector<Settlement*>& getSettlements() const
     {
         return this->settlements;
@@ -238,47 +213,10 @@ public:
      *
      * \param mapNode the map-node to be removed
      *
-     * \returns the removed map-node or an empty pointer if the entity
+     * \returns the removed map-node or an empty pointer if the map node
      * was not found
      */
     std::unique_ptr<MapNode> removeMapNode(MapNode* mapNode);
-
-    /**
-     * Create a new entity and add it to the map.
-     *
-     * The map takes ownership of the created object.
-     * Will emit the signal Map::entitiesChanged().
-     * An id value should only be passed when the entity is being
-     * unserialized and it already has a priorly generated id.
-     *
-     * \returns the newly created entity
-     */
-    Entity* createEntity(QString name, ObjectId id = ObjectId::Invalid);
-
-    /**
-     * Add a new entity to the map.
-     *
-     * The map must already own this entity, i.e. it must have been
-     * created with the map as its parent.
-     * Will emit the signal Map::entitysChanged().
-     *
-     * \returns the added entity
-     */
-    Entity* addEntity(std::unique_ptr<Entity> entity);
-
-    /**
-     * Remove the entity and renounce ownership.
-     *
-     * The entity is removed and it's returned as an std::unique_ptr and
-     * will be destroyed if the caller doesn't save it.
-     * If the entity is not found, nothing happens.
-     *
-     * \param entity the entity to remove
-     *
-     * \returns the removed entity or an empty pointer if the entity
-     * was not found
-     */
-    std::unique_ptr<Entity> removeEntity(Entity* entity);
 
     /**
      * Create a new faction and add it to the map.
@@ -341,13 +279,6 @@ public:
      */
     void generateMapNodes(unsigned int radius);
 
-    /**
-     * Find the first entity with name `name` that is position on `mapNode`.
-     *
-     * \return the found entity or nullptr if no matching entity is found.
-     */
-    Entity* findEntityOnMapNode(QString name, MapNode& mapNode);
-
 signals:
     /**
      * Emitted when the name changes.
@@ -369,22 +300,15 @@ signals:
      */
     void mapNodesChanged();
 
-    /**
-     * Emitted when the entities change.
-     */
-    void entitiesChanged();
-
     void settlementsChanged();
 
 private:
     QString name;
     World* world;
     unsigned int mapNodeIndex;
-    unsigned int entityIndex;
     unsigned int factionIndex;
     std::vector<Faction*> factions;
     std::vector<MapNode*> mapNodes;
-    std::vector<Entity*> entities;
     std::vector<Settlement*> settlements;
 };
 

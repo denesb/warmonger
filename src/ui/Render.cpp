@@ -26,7 +26,6 @@
 #include <QSGTransformNode>
 #include <QString>
 
-#include "core/Entity.h"
 #include "core/MapNode.h"
 #include "ui/WorldSurface.h"
 

@@ -39,7 +39,6 @@ Map::Map(QObject* parent)
     : QObject(parent)
     , world(nullptr)
     , mapNodeIndex(0)
-    , entityIndex(0)
     , factionIndex(0)
 {
 }
@@ -61,11 +60,6 @@ Map::Map(ir::Value v, World& world, QObject* parent)
     auto factionList = std::move(obj["factions"]).asList();
     std::transform(factionList.begin(), factionList.end(), std::back_inserter(this->factions), [this](ir::Value& v) {
         return new Faction(std::move(v), *this->world, this);
-    });
-
-    auto entityList = std::move(obj["entities"]).asList();
-    std::transform(entityList.begin(), entityList.end(), std::back_inserter(this->entities), [this](ir::Value& v) {
-        return new Entity(std::move(v), this->world->getRules(), this);
     });
 
     auto settlementList = std::move(obj["settlements"]).asList();
@@ -95,13 +89,6 @@ ir::Value Map::serialize() const
             return f->serialize();
         });
     obj["factions"] = std::move(serializedFactions);
-
-    std::vector<ir::Value> serializedEntities;
-    std::transform(
-        this->entities.cbegin(), this->entities.cend(), std::back_inserter(serializedEntities), [](Entity* e) {
-            return e->serialize();
-        });
-    obj["entities"] = std::move(serializedEntities);
 
     std::vector<ir::Value> serializedSettlements;
     std::transform(this->settlements.cbegin(),
@@ -140,11 +127,6 @@ QVariantList Map::readMapNodes() const
 QVariantList Map::readFactions() const
 {
     return utils::toQVariantList(this->factions);
-}
-
-QVariantList Map::readEntities() const
-{
-    return utils::toQVariantList(this->entities);
 }
 
 QVariantList Map::readSettlements() const
@@ -199,56 +181,6 @@ std::unique_ptr<MapNode> Map::removeMapNode(MapNode* mapNode)
     else
     {
         return std::unique_ptr<MapNode>();
-    }
-}
-
-Entity* Map::createEntity(QString name, ObjectId id)
-{
-    Entity* entity = new Entity(std::move(name), this->world->getRules(), this, id);
-
-    this->entities.push_back(entity);
-
-    wTrace << "Created entity " << entity << " in map " << this;
-
-    emit entitiesChanged();
-
-    return entity;
-}
-
-Entity* Map::addEntity(std::unique_ptr<Entity> entity)
-{
-    assert(entity->parent() == this);
-
-    auto e = entity.get();
-
-    this->entities.push_back(entity.release());
-
-    wTrace << "Added entity " << e << " to map " << this;
-
-    emit entitiesChanged();
-
-    return e;
-}
-
-std::unique_ptr<Entity> Map::removeEntity(Entity* entity)
-{
-    auto it = std::find(this->entities.cbegin(), this->entities.cend(), entity);
-    if (it != this->entities.end())
-    {
-        this->entities.erase(it);
-        entity->setParent(nullptr);
-
-        emit entitiesChanged();
-
-        QObject::disconnect(entity, nullptr, this, nullptr);
-
-        wTrace << "Removed entity " << entity;
-
-        return std::unique_ptr<Entity>(entity);
-    }
-    else
-    {
-        return std::unique_ptr<Entity>();
     }
 }
 
@@ -341,23 +273,6 @@ void Map::generateMapNodes(unsigned int radius)
     this->mapNodes = generatedMapNodes;
 
     emit mapNodesChanged();
-}
-
-Entity* Map::findEntityOnMapNode(QString name, MapNode& mapNode)
-{
-    // TODO: will possibly need a more efficient implementation, like maintaining
-    // a lookup table.
-    auto it = std::find_if(this->entities.begin(), this->entities.end(), [&](Entity* e) {
-        if (e->getName() != name)
-            return false;
-        if (auto c = e->getPositionComponent())
-            return c->getMapNode() == &mapNode;
-        return false;
-    });
-    if (it != this->entities.end())
-        return *it;
-
-    return nullptr;
 }
 
 bool operator==(const BannerConfiguration& a, const BannerConfiguration& b)

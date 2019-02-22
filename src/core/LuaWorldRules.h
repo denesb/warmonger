@@ -63,10 +63,6 @@ public:
 
     void loadRules(const QString& basePath, const QString& mainRulesFile) override;
 
-    std::unique_ptr<Component> createComponent(QString name, QObject* parent) override;
-
-    std::unique_ptr<Component> createComponent(ir::Value v, QObject* parent) override;
-
     std::unique_ptr<core::Map> generateMap(
         int seed, unsigned int size, std::vector<std::unique_ptr<Faction>> players) override;
 

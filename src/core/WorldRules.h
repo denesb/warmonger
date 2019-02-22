@@ -31,7 +31,6 @@ namespace core {
 class Map;
 class World;
 class Faction;
-class Component;
 
 /**
  * World-rules interface.
@@ -72,25 +71,6 @@ public:
      * \param mainRulesFile the name of the rule's main file
      */
     virtual void loadRules(const QString& basePath, const QString& mainRulesFile) = 0;
-
-    /**
-     * Create a Component instance specific to this rules.
-     *
-     * The component is created as a child of parent.
-     *
-     * \returns the created Component
-     */
-    virtual std::unique_ptr<Component> createComponent(QString name, QObject* parent) = 0;
-
-    /**
-     * Create a Component instance specific to this rules.
-     *
-     * Unserializing version.
-     * The component is created as a child of parent.
-     *
-     * \returns the created Component
-     */
-    virtual std::unique_ptr<Component> createComponent(ir::Value v, QObject* parent) = 0;
 
     /**
      * Generate a map.

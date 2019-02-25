@@ -61,7 +61,7 @@ void LuaWorldSurfaceRules::loadRules(const QString& basePath, const QString& mai
 
     this->renderMapFunc = lua["render_map"];
 
-    lua["world_surface_init"]();
+    lua["init"]();
 }
 
 graphics::Map LuaWorldSurfaceRules::renderMap(core::Map& map)

@@ -188,6 +188,8 @@ WorldSurface::WorldSurface(QString path, core::World* world, QObject* parent)
     this->description = header.description;
     this->tileSize = header.tileSize;
     this->gridSize = header.gridSize;
+    this->rulesType = header.rulesType;
+    this->rulesEntryPoint = std::move(header.rulesEntryPoint);
     this->banners = std::move(header.banners);
     this->colors = std::move(header.colors);
     this->graphicAssetsByName = std::move(header.graphicAssets);

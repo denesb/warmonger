@@ -112,7 +112,8 @@ static void qtMessageHandler(QtMsgType type, const QMessageLogContext& ctx, cons
             break;
     }
 
-    log(lvl, ctx.file, nullptr, ctx.line, msg.toStdString());
+    const auto file = ctx.file ? std::string{ctx.file} : std::string{};
+    log(lvl, file, nullptr, ctx.line, msg.toStdString());
 }
 
 static void log(LogLevel level, const std::string& file, const char* function, int line, const std::string& msg)

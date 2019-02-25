@@ -133,7 +133,7 @@ void MapView::updateContent()
         this->mapNodesPos = positionMapNodes(this->map->getMapNodes()[0], this->worldSurface->getTileSize());
         this->updateMapRect();
         this->updateTransform();
-        this->graphicMap = this->worldSurface->getRules().initialRenderMap(*this->map);
+        this->graphicMap = this->worldSurface->getRules().renderMap(*this->map);
     }
 }
 

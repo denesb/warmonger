@@ -100,7 +100,7 @@ public:
      */
     virtual void loadRules(const QString& basePath, const QString& mainRulesFile) = 0;
 
-    virtual graphics::Map initialRenderMap(core::Map& map) = 0;
+    virtual graphics::Map renderMap(core::Map& map) = 0;
 
     WorldSurface& getWorldSurface() const
     {

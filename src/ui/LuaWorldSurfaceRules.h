@@ -43,11 +43,11 @@ public:
 
     void loadRules(const QString& basePath, const QString& mainRulesFile) override;
 
-    graphics::Map initialRenderMap(core::Map& map) override;
+    graphics::Map renderMap(core::Map& map) override;
 
 private:
     std::unique_ptr<sol::state> state; // to avoid exposing the massive sol.hpp
-    std::function<graphics::Map(core::Map& map)> initialRenderMapFunc;
+    std::function<graphics::Map(core::Map& map)> renderMapFunc;
 };
 
 } // namespace ui

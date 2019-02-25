@@ -59,14 +59,14 @@ void LuaWorldSurfaceRules::loadRules(const QString& basePath, const QString& mai
 
     utils::initLuaScript(lua, basePath, mainRulesFile);
 
-    this->initialRenderMapFunc = lua["initialRenderMap"];
+    this->renderMapFunc = lua["render_map"];
 
     lua["world_surface_init"]();
 }
 
-graphics::Map LuaWorldSurfaceRules::initialRenderMap(core::Map& map)
+graphics::Map LuaWorldSurfaceRules::renderMap(core::Map& map)
 {
-    return this->initialRenderMapFunc(map);
+    return this->renderMapFunc(map);
 }
 
 static void exposeAPI(sol::state& lua)

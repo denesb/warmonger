@@ -185,6 +185,18 @@ static void exposeAPI(sol::state& lua)
         sol::property(&graphics::MapNode::layers));
 
     lua.new_usertype<graphics::Map>("graphic_map", "map_nodes", sol::property(&graphics::Map::mapNodes));
+
+    lua.new_usertype<WorldSurface>("world_surface",
+        sol::meta_function::construct,
+        sol::no_constructor,
+        "name",
+        sol::property(&WorldSurface::getName),
+        "tile_size",
+        sol::property(&WorldSurface::getTileSize),
+        "grid_size",
+        sol::property(&WorldSurface::getGridSize),
+        "get_asset_id_for",
+        &WorldSurface::getAssetIdFor);
 }
 
 } // namespace ui

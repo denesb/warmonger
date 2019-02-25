@@ -268,6 +268,11 @@ void WorldSurface::deactivate()
     this->storage->deactivate();
 }
 
+int WorldSurface::getAssetIdFor(const QString &assetName)
+{
+    return this->graphicAssetNameToId.at(assetName);
+}
+
 QSGTexture* WorldSurface::getTexture(AssetId id, QQuickWindow* window) const
 {
     return storage->getTexture(this->graphicAssetsById.at(id), window);

@@ -210,7 +210,7 @@ public:
      * \param assetName the name of the asset, as defined by the world surface
      *      definition file.
      */
-    AssetId assetIdFor(const QString& assetName);
+    AssetId getAssetIdFor(const QString& assetName);
 
     /**
      * Get the QSGTexture for the asset id and window.

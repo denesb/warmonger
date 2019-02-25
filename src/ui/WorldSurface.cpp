@@ -203,7 +203,7 @@ WorldSurface::WorldSurface(QString path, core::World* world, QObject* parent)
     }
 
     this->rules = createWorldSurfaceRules(*this);
-    this->rules->loadRules(this->path, this->rulesEntryPoint);
+    this->rules->loadRules(this->storage->getPath(), this->rulesEntryPoint);
 
     wInfo.format("Created WorldSurface `{}' with {} storage @ {}", this->name, storageName, this->path);
 }
@@ -440,7 +440,7 @@ WorldSurface::Storage::Header WorldSurface::Storage::parseHeader(const QByteArra
 }
 
 DirectoryStorage::DirectoryStorage(QString path)
-    : WorldSurface::Storage(QFileInfo(path).canonicalPath())
+    : WorldSurface::Storage(QFileInfo(path).dir().canonicalPath())
 {
 }
 

@@ -199,10 +199,7 @@ static QSGNode* drawGridTile(const graphics::GridTile& gridTile, QSGNode* oldNod
         node->setTexture(texture);
     }
 
-    // TODO: don't assume image is of the same size as the tile size
-    const auto gridSize = ctx.surface->getGridSize();
-    const QRect nodeRect(QPoint(gridTile.x * gridSize, gridTile.y * gridSize),
-        QSize(gridTile.width * gridSize, gridTile.height * gridSize));
+    const QRect nodeRect(QPoint(gridTile.x, gridTile.y), QSize(gridTile.width, gridTile.height));
     if (node->rect() != nodeRect)
     {
         node->setRect(nodeRect);

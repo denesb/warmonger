@@ -36,3 +36,6 @@ build/
 
 # Warmonger intermediary files
 *.wsm
+
+# IDE user settings
+CMakeLists.txt.user.*

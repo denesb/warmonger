@@ -268,7 +268,7 @@ void WorldSurface::deactivate()
     this->storage->deactivate();
 }
 
-int WorldSurface::getAssetIdFor(const QString &assetName)
+int WorldSurface::getAssetIdFor(const QString& assetName)
 {
     return this->graphicAssetNameToId.at(assetName);
 }

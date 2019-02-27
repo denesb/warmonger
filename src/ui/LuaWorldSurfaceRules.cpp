@@ -179,26 +179,23 @@ static void exposeAPI(sol::state& lua)
 
     lua.new_usertype<graphics::GridTile>("graphic_grid_tile",
         "x",
-        sol::property(&graphics::GridTile::x),
+        &graphics::GridTile::x,
         "y",
-        sol::property(&graphics::GridTile::y),
+        &graphics::GridTile::y,
         "width",
-        sol::property(&graphics::GridTile::width),
+        &graphics::GridTile::width,
         "height",
-        sol::property(&graphics::GridTile::height),
+        &graphics::GridTile::height,
         "asset_id",
-        sol::property(&graphics::GridTile::assetId));
+        &graphics::GridTile::assetId);
 
     lua.new_usertype<graphics::MapNodeLayer>(
-        "graphic_map_node_layer", "grid_tiles", sol::property(&graphics::MapNodeLayer::gridTiles));
+        "graphic_map_node_layer", "grid_tiles", &graphics::MapNodeLayer::gridTiles);
 
-    lua.new_usertype<graphics::MapNode>("graphic_map_node",
-        "map_node",
-        sol::property(&graphics::MapNode::mapNode),
-        "layers",
-        sol::property(&graphics::MapNode::layers));
+    lua.new_usertype<graphics::MapNode>(
+        "graphic_map_node", "map_node", &graphics::MapNode::mapNode, "layers", &graphics::MapNode::layers);
 
-    lua.new_usertype<graphics::Map>("graphic_map", "map_nodes", sol::property(&graphics::Map::mapNodes));
+    lua.new_usertype<graphics::Map>("graphic_map", "map_nodes", &graphics::Map::mapNodes);
 
     lua.new_usertype<WorldSurface>("world_surface",
         sol::meta_function::construct,

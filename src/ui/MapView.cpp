@@ -133,7 +133,15 @@ void MapView::updateContent()
         this->mapNodesPos = positionMapNodes(this->map->getMapNodes()[0], this->worldSurface->getTileSize());
         this->updateMapRect();
         this->updateTransform();
-        this->graphicMap = this->worldSurface->getRules().renderMap(*this->map);
+        try
+        {
+            this->graphicMap = this->worldSurface->getRules().renderMap(*this->map);
+        }
+        catch (utils::Exception& e)
+        {
+            // FIXME: we need a way to communicate this to the user.
+            wError.format("Failed to render map `{}': {}", *this->map, e.what());
+        }
     }
 }
 

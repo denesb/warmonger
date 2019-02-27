@@ -75,7 +75,17 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    std::unique_ptr<core::Map> backgroundMap = generateBackgroundMap(ctx->getWorld());
+    std::unique_ptr<core::Map> backgroundMap;
+
+    try
+    {
+        backgroundMap = generateBackgroundMap(ctx->getWorld());
+    }
+    catch (const utils::Exception& e)
+    {
+        wError.format("Failed to create background map: {}", e.what());
+        return 1;
+    }
 
     QQmlApplicationEngine engine;
 

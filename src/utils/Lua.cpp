@@ -90,7 +90,7 @@ void initLuaScript(sol::state& lua, const QString& basePath, const QString& main
     });
 
     const QString path = basePath / mainRulesFile;
-    wInfo << "Loading lua world rules from entry point " << path;
+    wInfo << "Loading lua script from `" << path << "'";
 
     lua.script_file(path.toStdString());
 }

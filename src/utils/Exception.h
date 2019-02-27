@@ -132,6 +132,18 @@ public:
 };
 
 /**
+ * Script error.
+ *
+ * A game script failed to run. This can be any problem that makes the
+ * script engine fail.
+ */
+class ScriptError : public Exception
+{
+public:
+    using Exception::Exception;
+};
+
+/**
  * A game rule was violated
  */
 class GameRuleError : public Exception

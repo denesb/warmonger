@@ -61,12 +61,26 @@ void LuaWorldSurfaceRules::loadRules(const QString& basePath, const QString& mai
 
     this->renderMapFunc = lua["render_map"];
 
-    lua["init"]();
+    try
+    {
+        lua["init"]();
+    }
+    catch (sol::error& e)
+    {
+        throw utils::ScriptError(fmt::format("LuaWorldSurfaceRules: init() failed: {}", e.what()));
+    }
 }
 
 graphics::Map LuaWorldSurfaceRules::renderMap(core::Map& map)
 {
-    return this->renderMapFunc(map);
+    try
+    {
+        return this->renderMapFunc(map);
+    }
+    catch (sol::error& e)
+    {
+        throw utils::ScriptError(fmt::format("LuaWorldSurfaceRules: render_map() failed: {}", e.what()));
+    }
 }
 
 static void exposeAPI(sol::state& lua)

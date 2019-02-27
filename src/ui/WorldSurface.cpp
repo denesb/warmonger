@@ -170,6 +170,8 @@ WorldSurface::WorldSurface(QString path, core::World* world, QObject* parent)
     , path(std::move(path))
     , world(world)
 {
+    wInfo.format("Loading WorldSurface from `{}'", this->path);
+
     QString storageName;
     if (this->path.endsWith(utils::fileExtensions::surfacePackage))
     {
@@ -205,7 +207,7 @@ WorldSurface::WorldSurface(QString path, core::World* world, QObject* parent)
     this->rules = createWorldSurfaceRules(*this);
     this->rules->loadRules(this->storage->getPath(), this->rulesEntryPoint);
 
-    wInfo.format("Created WorldSurface `{}' with {} storage @ {}", this->name, storageName, this->path);
+    wInfo.format("Created WorldSurface `{}' with {} storage @ {}", this->name, storageName, this->storage->getPath());
 }
 
 WorldSurface::~WorldSurface()

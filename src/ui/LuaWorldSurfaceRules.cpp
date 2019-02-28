@@ -35,6 +35,7 @@ struct is_container<::warmonger::core::MapNodeNeighbours> : std::false_type
 namespace warmonger {
 namespace ui {
 
+static int getObjectId(const core::WObject& obj);
 static void exposeAPI(sol::state& lua);
 
 LuaWorldSurfaceRules::LuaWorldSurfaceRules(WorldSurface& worldSurface)
@@ -81,6 +82,11 @@ graphics::Map LuaWorldSurfaceRules::renderMap(core::Map& map)
     {
         throw utils::ScriptError(fmt::format("LuaWorldSurfaceRules: render_map() failed: {}", e.what()));
     }
+}
+
+static int getObjectId(const core::WObject& obj)
+{
+    return obj.getId().get();
 }
 
 static void exposeAPI(sol::state& lua)
@@ -134,6 +140,8 @@ static void exposeAPI(sol::state& lua)
     lua.new_usertype<core::MapNode>("map_node",
         sol::meta_function::construct,
         sol::no_constructor,
+        "id",
+        sol::property(getObjectId),
         "neighbours",
         sol::property(&core::MapNode::getNeighbours),
         "terrain_type",
@@ -142,6 +150,8 @@ static void exposeAPI(sol::state& lua)
     lua.new_usertype<core::Faction>("faction",
         sol::meta_function::construct,
         sol::no_constructor,
+        "id",
+        sol::property(getObjectId),
         "name",
         sol::property(&core::Faction::getName),
         "primary_color",
@@ -156,6 +166,8 @@ static void exposeAPI(sol::state& lua)
     lua.new_usertype<core::Settlement>("settlement",
         sol::meta_function::construct,
         sol::no_constructor,
+        "id",
+        sol::property(getObjectId),
         "type",
         sol::property(&core::Settlement::getType),
         "position",

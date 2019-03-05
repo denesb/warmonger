@@ -175,10 +175,6 @@ Rectangle {
                                 spacing: 4
 
                                 TextField {
-                                    anchors {
-                                        verticalCenter: parent.verticalCenter
-                                    }
-
                                     Layout.fillWidth: true
 
                                     text: model.modelData.name
@@ -189,10 +185,6 @@ Rectangle {
                                 }
 
                                 ComboBox {
-                                    anchors {
-                                        verticalCenter: parent.verticalCenter
-                                    }
-
                                     Layout.preferredWidth: 150
 
                                     model: W.world.civilizations
@@ -210,10 +202,6 @@ Rectangle {
                                     border {
                                         width: 1
                                         color: W.normalPalette.mid
-                                    }
-
-                                    anchors {
-                                        verticalCenter: parent.verticalCenter
                                     }
 
                                     Banner {

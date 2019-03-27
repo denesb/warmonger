@@ -16,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import QtQuick 2.2
+import QtQuick 2.7
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import Warmonger 1.0
@@ -61,69 +61,10 @@ Rectangle {
                 anchors.centerIn: parent
 
                 color: W.normalPalette.windowText
+                font.pointSize: 20
+                font.weight: Font.Bold
 
                 text: "New Game"
-            }
-
-            Button {
-                anchors {
-                    right: parent.right
-                    verticalCenter: parent.verticalCenter
-                }
-
-                text: "Create"
-
-                onClicked: {
-                    W.state = Context.Gameplay;
-                    root.StackView.view.push(Qt.resolvedUrl("Gameplay.qml"));
-                }
-            }
-        }
-    }
-
-    Rectangle {
-        id: mapOptions
-
-        color: W.normalPalette.window
-
-        anchors {
-            top: topBar.bottom
-            bottom: parent.bottom
-            left: parent.left
-        }
-        width: 400
-
-        Column {
-            anchors {
-                fill: parent
-            }
-
-            Label {
-                text: "Size: " + sizeSlider.value
-            }
-            Slider {
-                id: sizeSlider
-                from: 8
-                to: 16
-                stepSize: 1
-
-                onValueChanged: {
-                    W.randomMapGenerator.size = this.value;
-                }
-            }
-
-            Label {
-                text: "Players: " + playersSlider.value
-            }
-            Slider {
-                id: playersSlider
-                from: 2
-                to: 8
-                stepSize: 1
-
-                onValueChanged: {
-                    W.randomMapGenerator.numOfPlayers = this.value;
-                }
             }
         }
     }
@@ -137,94 +78,224 @@ Rectangle {
     }
 
     Rectangle {
-        id: gameplayOptions
+        id: playerOptions
+
+        color: W.normalPalette.window
 
         anchors {
             top: topBar.bottom
             bottom: parent.bottom
-            left: mapOptions.right
+            left: parent.left
+        }
+        width: 800
+
+        ColumnLayout {
+            anchors.fill: parent
+
+            Label {
+                Layout.margins: 8
+                text: "Player options"
+                font.pointSize: 16
+                font.weight: Font.Bold
+                horizontalAlignment: Text.AlignHCenter
+                color: W.normalPalette.text
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 60
+                Layout.margins: 8
+                color: W.normalPalette.window
+
+                RowLayout {
+                    anchors.fill: parent
+
+                    Label {
+                        Layout.alignment: Qt.AlignVCenter
+                        text: "Players: " + playersSlider.value
+                        color: W.normalPalette.text
+                    }
+                    Slider {
+                        Layout.fillWidth: true
+                        Layout.margins: 8
+                        id: playersSlider
+                        from: 2
+                        to: 8
+                        stepSize: 1
+
+                        onValueChanged: {
+                            W.randomMapGenerator.numOfPlayers = this.value;
+                        }
+                    }
+                }
+            }
+
+            Rectangle {
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+                Layout.margins: 8
+                color: W.normalPalette.light
+
+                ScrollView {
+                    id: playerList
+                    anchors.fill: parent
+
+                    Column {
+                        spacing: 4
+
+                        Repeater {
+                            model: W.randomMapGenerator.players
+
+                            Rectangle {
+                                width: playerList.width
+                                height: 40
+
+                                RowLayout {
+                                    anchors.fill: parent
+
+                                    spacing: 4
+
+                                    TextField {
+                                        Layout.fillWidth: true
+
+                                        text: model.modelData.name
+
+                                        onEditingFinished: {
+                                            model.modelData.name = text
+                                        }
+                                    }
+
+                                    ComboBox {
+                                        Layout.preferredWidth: 150
+
+                                        model: W.world.civilizations
+                                        textRole: "name"
+
+                                        onActivated: {
+                                            model.modelData.civilization = W.world.civilizations[index];
+                                        }
+                                    }
+
+                                    Rectangle {
+                                        Layout.preferredHeight: 40
+                                        Layout.preferredWidth: 40
+
+                                        border {
+                                            width: 1
+                                            color: W.normalPalette.mid
+                                        }
+
+                                        Banner {
+                                            anchors {
+                                                centerIn: parent
+                                            }
+                                            width: 30
+                                            height: 30
+
+                                            banner: model.modelData.banner
+                                            primaryColor: model.modelData.primaryColor
+                                            secondaryColor: model.modelData.secondaryColor
+                                            worldSurface: W.worldSurface
+                                        }
+
+                                        MouseArea {
+                                            anchors.fill: parent
+
+                                            onClicked: {
+                                                bannerDialog.faction = model.modelData
+                                                bannerDialog.visible = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        id: mapOptions
+
+        anchors {
+            top: topBar.bottom
+            bottom: parent.bottom
+            left: playerOptions.right
             right: parent.right
-            topMargin: 8
-            bottomMargin: 8
         }
 
         color: W.normalPalette.window
 
-        RowLayout {
+        ColumnLayout {
             anchors.fill: parent
 
-            ScrollView {
-                id: playerList
+            Label {
+                Layout.margins: 8
+                text: "Map options"
+                font.pointSize: 16
+                font.weight: Font.Bold
+                horizontalAlignment: Text.AlignHCenter
+                color: W.normalPalette.text
+            }
 
+            Rectangle {
                 Layout.fillWidth: true
+                Layout.preferredHeight: 60
+                Layout.margins: 8
+                color: W.normalPalette.window
+
+                RowLayout {
+                    anchors.fill: parent
+
+                    Label {
+                        Layout.alignment: Qt.AlignVCenter
+                        text: "Size: " + sizeSlider.value
+                        color: W.normalPalette.text
+                    }
+                    Slider {
+                        Layout.fillWidth: true
+                        Layout.margins: 8
+                        id: sizeSlider
+                        from: 8
+                        to: 16
+                        stepSize: 1
+
+                        onValueChanged: {
+                            W.randomMapGenerator.size = this.value;
+                        }
+                    }
+                }
+            }
+
+            Rectangle {
                 Layout.fillHeight: true
+                Layout.fillWidth: true
+                Layout.margins: 8
+                color: W.normalPalette.light
 
-                Column {
-                    Repeater {
-                        model: W.randomMapGenerator.players
+                Item {
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        bottom: parent.bottom
+                    }
+                    height: 60
 
-                        Rectangle {
-                            color: W.normalPalette.window
+                    RowLayout {
+                        anchors {
+                            fill: parent
+                            margins: 8
+                        }
 
-                            width: playerList.width
-                            height: 40
+                        Button {
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            text: "Create"
 
-                            RowLayout {
-                                anchors.fill: parent
-
-                                spacing: 4
-
-                                TextField {
-                                    Layout.fillWidth: true
-
-                                    text: model.modelData.name
-
-                                    onEditingFinished: {
-                                        model.modelData.name = text
-                                    }
-                                }
-
-                                ComboBox {
-                                    Layout.preferredWidth: 150
-
-                                    model: W.world.civilizations
-                                    textRole: "name"
-
-                                    onActivated: {
-                                        model.modelData.civilization = W.world.civilizations[index];
-                                    }
-                                }
-
-                                Rectangle {
-                                    Layout.preferredHeight: 30
-                                    Layout.preferredWidth: 30
-
-                                    border {
-                                        width: 1
-                                        color: W.normalPalette.mid
-                                    }
-
-                                    Banner {
-                                        anchors {
-                                            fill: parent
-                                            margins: 1
-                                        }
-
-                                        banner: model.modelData.banner
-                                        primaryColor: model.modelData.primaryColor
-                                        secondaryColor: model.modelData.secondaryColor
-                                        worldSurface: W.worldSurface
-                                    }
-
-                                    MouseArea {
-                                        anchors.fill: parent
-
-                                        onClicked: {
-                                            bannerDialog.faction = model.modelData
-                                            bannerDialog.visible = true
-                                        }
-                                    }
-                                }
+                            onClicked: {
+                                W.state = Context.Gameplay;
+                                root.StackView.view.push(Qt.resolvedUrl("Gameplay.qml"));
                             }
                         }
                     }

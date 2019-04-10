@@ -16,12 +16,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+// These have to be included before Logging.h otherwise the latter overrides
+// spdlog's bundled format lib... its' a mess.
+#include <spdlog/sinks/ostream_sink.h>
+#include <spdlog/spdlog.h>
+
 #include "utils/Logging.h"
 
 #include <map>
-
-#include <spdlog/sinks/ostream_sink.h>
-#include <spdlog/spdlog.h>
 
 #include "Version.h"
 

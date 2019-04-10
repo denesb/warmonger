@@ -77,7 +77,6 @@ set(CMAKE_AUTORCC ON)
 
 set(
     UTILS_SRC_FILES
-    src/utils/Format.cpp
     src/utils/Logging.cpp
     src/utils/Lua.cpp
     src/utils/Settings.cpp
@@ -156,11 +155,10 @@ find_package(Threads REQUIRED)
 find_package(KF5Archive REQUIRED)
 #TODO: create proper imported target for lua
 find_package(Lua REQUIRED)
+find_package(fmt REQUIRED)
 
 # Why to I have to do this??????
 set_target_properties(Qt5::Core PROPERTIES INTERFACE_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
-
-add_subdirectory(${PROJECT_SOURCE_DIR}/thirdparty/fmt)
 
 include(warmonger_automoc.cmake)
 

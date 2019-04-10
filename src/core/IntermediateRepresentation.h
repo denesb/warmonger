@@ -24,12 +24,13 @@
 #include <unordered_map>
 #include <vector>
 
+#include <fmt/ostream.h>
 #include <QColor>
 #include <QString>
 
 #include "core/WObject.h"
 #include "utils/Exception.h"
-#include "utils/Format.h"
+#include "utils/ToString.h"
 #include "utils/Hash.h"
 #include "utils/Utils.h"
 

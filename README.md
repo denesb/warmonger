@@ -65,11 +65,11 @@ Version numbers refer to the minimum supported version of each dependency.
 Kudos to the authors and contributors of all this awesome, freely available stuff.
 
 ### Install dependencies on Ubuntu
-    sudo apt install cmake qtbase5-dev qtdeclarative5-dev libkf5archive-dev liblua5.3-dev
+    sudo apt install cmake qtbase5-dev qtdeclarative5-dev libkf5archive-dev liblua5.3-dev libfmt-dev
     sudo apt install doxygen graphviz clang-format
 
 ### Install dependencies on Fedora
-    sudo dnf install cmake qt5-qtbase-devel qt5-qtdeclarative-devel kf5-karchive-devel lua-devel
+    sudo dnf install cmake qt5-qtbase-devel qt5-qtdeclarative-devel kf5-karchive-devel lua-devel fmt-devel
     sudo dnf install doxygen graphviz clang
 
 ## Other awesome strategy game projects

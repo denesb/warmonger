@@ -23,8 +23,7 @@
 
 #include <sstream>
 
-#include "utils/Format.h"
-#include "utils/ToString.h"
+#include <fmt/format.h>
 
 namespace warmonger {
 namespace utils {

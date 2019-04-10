@@ -18,6 +18,7 @@
 
 #include "warmonger/Context.h"
 
+#include <fmt/format.h>
 #include <QDir>
 #include <QGuiApplication>
 #include <QStringList>
@@ -30,7 +31,7 @@
 
 namespace warmonger {
 
-static void format_arg(fmt::BasicFormatter<char>& f, const char*&, Context::State state);
+static std::ostream& operator<<(std::ostream& os, Context::State state);
 static std::unique_ptr<QObject> defaultStateTransitionFunction(const Context& ctx, QObject* const);
 static std::unique_ptr<QObject> fromMainMenuToNewRandomMap(const Context& ctx, QObject* const);
 static std::unique_ptr<QObject> fromNewRandomMapToGameplay(const Context& ctx, QObject* const);
@@ -199,20 +200,21 @@ GameplayContext::GameplayContext(std::unique_ptr<core::Map> map, QObject* parent
     map.release();
 }
 
-static void format_arg(fmt::BasicFormatter<char>& f, const char*&, Context::State state)
+static std::ostream& operator<<(std::ostream& os, Context::State state)
 {
     switch (state)
     {
         case Context::State::MainMenu:
-            f.writer().write("Context::State::MainMenu");
+            os << "Context::State::MainMenu";
             break;
         case Context::State::NewRandomMap:
-            f.writer().write("Context::State::NewRandomMap");
+            os << "Context::State::NewRandomMap";
             break;
         case Context::State::Gameplay:
-            f.writer().write("Context::State::Gameplay");
+            os << "Context::State::Gameplay";
             break;
     }
+    return os;
 }
 
 static std::unique_ptr<QObject> defaultStateTransitionFunction(const Context&, QObject* const)

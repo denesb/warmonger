@@ -19,10 +19,13 @@
 #include <algorithm>
 #include <random>
 
+#include <fmt/ostream.h>
+
 #include "core/Map.h"
 
 #include "core/Settlement.h"
 #include "utils/Logging.h"
+#include "utils/ToString.h"
 #include "utils/QVariantUtils.h"
 
 namespace warmonger {

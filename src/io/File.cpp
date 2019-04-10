@@ -25,7 +25,6 @@
 #include "io/JsonSerializer.h"
 #include "utils/Constants.h"
 #include "utils/Exception.h"
-#include "utils/Format.h"
 #include "utils/PathBuilder.h"
 #include "utils/Settings.h"
 

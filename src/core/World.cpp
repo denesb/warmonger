@@ -18,8 +18,10 @@
 
 #include "core/World.h"
 
-#include "utils/Format.h"
+#include <fmt/ostream.h>
+
 #include "utils/Logging.h"
+#include "utils/ToString.h"
 #include "utils/QVariantUtils.h"
 
 namespace warmonger {

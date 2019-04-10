@@ -18,7 +18,10 @@
 
 #include "utils/Lua.h"
 
+#include <fmt/ostream.h>
+
 #include "utils/Logging.h"
+#include "utils/ToString.h"
 #include "utils/PathBuilder.h"
 
 namespace sol {

@@ -296,23 +296,6 @@ if(BUILD_TESTS)
         test_warmonger
         PRIVATE ui io core utils
     )
-
-    set(TEST_DATA "${CMAKE_SOURCE_DIR}/src/test/data")
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${TEST_DATA}/worldsurface-packages
-        ${CMAKE_BINARY_DIR}/worldsurface-packages
-    )
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${TEST_DATA}/world-packages
-        ${CMAKE_BINARY_DIR}/world-packages
-    )
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${TEST_DATA}/map-packages
-        ${CMAKE_BINARY_DIR}/map-packages
-    )
 endif()
 
 add_custom_target(

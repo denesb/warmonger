@@ -16,7 +16,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-cmake_minimum_required(VERSION 3.1.3)
+cmake_minimum_required(VERSION 3.8.2)
 
 project(Warmonger)
 
@@ -24,7 +24,8 @@ option(BUILD_TOOLS "Build development tools" OFF)
 option(BUILD_TESTS "Build unit test suite" OFF)
 option(USE_ASAN "Use ASAN" OFF)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 17)
 
 add_compile_options(
     -Werror
@@ -140,8 +141,6 @@ set(
 
 file(GLOB_RECURSE ALL_HEADER_FILES ${PROJECT_SOURCE_DIR}/src/*.h)
 file(GLOB_RECURSE ALL_SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
-
-set(CMAKE_CXX_STANDARD 14)
 
 if (USE_ASAN)
     add_compile_options(-fsanitize=address -fsanitize=leak -fsanitize=undefined)

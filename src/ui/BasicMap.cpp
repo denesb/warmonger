@@ -25,6 +25,7 @@ namespace ui {
 
 BasicMap::BasicMap(QQuickItem* parent)
     : QQuickItem(parent)
+    , mapWindow(QSize(int(this->width()), int(this->height())))
 {
     QObject::connect(this, &BasicMap::widthChanged, this, &BasicMap::updateWindow);
     QObject::connect(this, &BasicMap::heightChanged, this, &BasicMap::updateWindow);
@@ -93,7 +94,7 @@ void BasicMap::mouseMoveEvent(QMouseEvent* event)
 
 void BasicMap::updateWindow()
 {
-    this->mapWindow.setWindowSize(QSize(this->width(), this->height()));
+    this->mapWindow.setWindowSize(QSize(int(this->width()), int(this->height())));
 }
 
 } // namespace ui

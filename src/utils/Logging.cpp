@@ -74,7 +74,7 @@ void initLogging(const LogConfig& cfg)
         break;
     }
 
-    spdlog::set_level(spdlog::level::debug);
+    spdlog::set_level(spdlog::level::trace);
     qInstallMessageHandler(qtMessageHandler);
 }
 

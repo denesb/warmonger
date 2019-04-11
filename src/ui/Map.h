@@ -34,7 +34,8 @@ class Map : public BasicMap
 {
     Q_OBJECT
     Q_PROPERTY(warmonger::core::Map* map READ getMap WRITE setMap NOTIFY mapChanged)
-    Q_PROPERTY(WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
+    Q_PROPERTY(
+        warmonger::ui::WorldSurface* worldSurface READ getWorldSurface WRITE setWorldSurface NOTIFY worldSurfaceChanged)
 public:
     Map(QQuickItem* parent = nullptr);
 
@@ -78,12 +79,16 @@ signals:
 
 private:
     void maybeUpdateContent();
+    void updatePlayerLastPosition();
+    void restorePlayerContext();
 
     core::Map* map = nullptr;
     WorldSurface* worldSurface = nullptr;
 
     std::unordered_map<core::MapNode*, QPoint> mapNodesPos;
     graphics::Map graphicMap;
+
+    std::unordered_map<core::Faction*, QPoint> playerLastWindowPosition;
 };
 
 } // namespace ui

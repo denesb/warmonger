@@ -24,14 +24,14 @@
 #include <unordered_map>
 #include <vector>
 
-#include <fmt/ostream.h>
 #include <QColor>
 #include <QString>
+#include <fmt/ostream.h>
 
 #include "core/WObject.h"
 #include "utils/Exception.h"
-#include "utils/ToString.h"
 #include "utils/Hash.h"
+#include "utils/ToString.h"
 #include "utils/Utils.h"
 
 namespace warmonger {

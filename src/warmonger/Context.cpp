@@ -18,10 +18,10 @@
 
 #include "warmonger/Context.h"
 
-#include <fmt/format.h>
 #include <QDir>
 #include <QGuiApplication>
 #include <QStringList>
+#include <fmt/format.h>
 
 #include "io/File.h"
 #include "utils/Constants.h"
@@ -198,6 +198,12 @@ GameplayContext::GameplayContext(std::unique_ptr<core::Map> map, QObject* parent
 {
     map->setParent(this);
     map.release();
+
+    // Start the very first turn.
+    if (!this->map.getCurrentTurn())
+    {
+        this->map.endTurn();
+    }
 }
 
 static std::ostream& operator<<(std::ostream& os, Context::State state)

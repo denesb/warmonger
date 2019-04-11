@@ -34,6 +34,16 @@ Rectangle {
             right: panel.left
         }
         color: "red"
+
+        Map {
+            anchors {
+                fill: parent
+                margins: 5
+            }
+
+            map: W.gameplay.map
+            worldSurface: W.worldSurface
+        }
     }
 
     Rectangle {

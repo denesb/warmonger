@@ -25,6 +25,12 @@ namespace ui {
 static int adjustAxis(const int n, const int minN, const int mapLength, const int windowLength);
 
 MapWindow::MapWindow()
+    : MapWindow({}, {})
+{
+}
+
+MapWindow::MapWindow(const QSize& windowSize)
+    : MapWindow({}, windowSize)
 {
 }
 
@@ -32,7 +38,6 @@ MapWindow::MapWindow(const QRect& mapRect, const QSize& windowSize)
     : mapRect(mapRect)
     , windowRect(this->mapRect.topLeft(), windowSize)
 {
-    this->setWindowPos(this->windowRect.topLeft());
 }
 
 const QRect& MapWindow::getMapRect() const
@@ -48,7 +53,7 @@ void MapWindow::setMapRect(const QRect& mapRect)
 
         emit mapRectChanged();
 
-        this->setWindowPos(this->windowRect.topLeft());
+        this->setWindowPos(this->mapRect.topLeft());
     }
 }
 

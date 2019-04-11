@@ -57,6 +57,7 @@ class Context : public QObject
     // QML doesn't appear to see newly added dynamic properties so they
     // need to be statically pre-declared here.
     Q_PROPERTY(QObject* randomMapGenerator READ getSpecialContextObject NOTIFY stateChanged)
+    Q_PROPERTY(QObject* gameplay READ getSpecialContextObject NOTIFY stateChanged)
 
 public:
     enum class State
@@ -278,8 +279,16 @@ private:
 
 class GameplayContext : public QObject
 {
+    Q_OBJECT
+    Q_PROPERTY(warmonger::core::Map* map READ getMap CONSTANT)
+
 public:
     GameplayContext(std::unique_ptr<core::Map> map, QObject* parent = nullptr);
+
+    core::Map* getMap() const
+    {
+        return &this->map;
+    }
 
 private:
     core::Map& map;

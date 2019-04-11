@@ -25,8 +25,8 @@
 
 #include "core/Settlement.h"
 #include "utils/Logging.h"
-#include "utils/ToString.h"
 #include "utils/QVariantUtils.h"
+#include "utils/ToString.h"
 
 namespace warmonger {
 namespace core {
@@ -276,6 +276,30 @@ void Map::generateMapNodes(unsigned int radius)
     this->mapNodes = generatedMapNodes;
 
     emit mapNodesChanged();
+}
+
+Map::turn Map::endTurn()
+{
+    if (!this->currentTurn)
+    {
+        this->currentPlayer = this->factions.at(0);
+        emit currentPlayerChanged();
+
+        return ++this->currentTurn;
+    }
+
+    auto it = std::find(this->factions.begin(), this->factions.end(), this->currentPlayer);
+    ++it;
+    if (it == this->factions.end())
+    {
+        it = this->factions.begin();
+        ++this->currentTurn;
+    }
+
+    this->currentPlayer = *it;
+    emit currentPlayerChanged();
+
+    return this->currentTurn;
 }
 
 bool operator==(const BannerConfiguration& a, const BannerConfiguration& b)

@@ -43,6 +43,7 @@ class MapWindow : public QObject
 
 public:
     MapWindow();
+    MapWindow(const QSize& windowSize);
     MapWindow(const QRect& mapRect, const QSize& windowSize);
 
     const QRect& getMapRect() const;

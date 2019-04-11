@@ -60,6 +60,8 @@ class Map : public QObject, public ir::Serializable
     Q_PROPERTY(QVariantList settlements READ readSettlements NOTIFY settlementsChanged)
 
 public:
+    using turn = unsigned;
+
     /**
      * Constructs an empty Map.
      *
@@ -279,6 +281,25 @@ public:
      */
     void generateMapNodes(unsigned int radius);
 
+    Faction* getCurrentPlayer() const
+    {
+        return this->currentPlayer;
+    }
+
+    turn getCurrentTurn() const
+    {
+        return this->currentTurn;
+    }
+
+    /**
+     * Ends the turn for the current player.
+     *
+     * If there was no turn yet, this triggers the start of the very first turn.
+     *
+     * \return the current turn.
+     */
+    turn endTurn();
+
 signals:
     /**
      * Emitted when the name changes.
@@ -301,6 +322,7 @@ signals:
     void mapNodesChanged();
 
     void settlementsChanged();
+    void currentPlayerChanged();
 
 private:
     QString name;
@@ -310,6 +332,9 @@ private:
     std::vector<Faction*> factions;
     std::vector<MapNode*> mapNodes;
     std::vector<Settlement*> settlements;
+
+    turn currentTurn = 0;
+    Faction* currentPlayer = nullptr;
 };
 
 struct BannerConfiguration

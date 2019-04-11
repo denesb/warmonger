@@ -19,6 +19,7 @@
 #include <QtQml>
 
 #include "ui/Banner.h"
+#include "ui/Map.h"
 #include "ui/MapEditor.h"
 #include "ui/MapView.h"
 #include "ui/MiniMap.h"
@@ -34,6 +35,7 @@ void initUI()
     qmlRegisterType<MapEditor>(utils::applicationNameCStr, 1, 0, "MapEditor");
     qmlRegisterType<MapView>(utils::applicationNameCStr, 1, 0, "MapView");
     qmlRegisterType<MiniMap>(utils::applicationNameCStr, 1, 0, "MiniMap");
+    qmlRegisterType<Map>(utils::applicationNameCStr, 1, 0, "Map");
 }
 
 } // namespace ui

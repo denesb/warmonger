@@ -69,7 +69,7 @@ Kudos to the authors and contributors of all this awesome, freely available stuf
     sudo apt install doxygen graphviz clang-format
 
 ### Install dependencies on Fedora
-    sudo dnf install cmake qt5-qtbase-devel qt5-qtdeclarative-devel kf5-karchive-devel lua-devel fmt-devel
+    sudo dnf install cmake qt5-qtbase-devel qt5-qtdeclarative-devel qt5-qtquickcontrols2 kf5-karchive-devel lua-devel fmt-devel
     sudo dnf install doxygen graphviz clang
 
 ## Other awesome strategy game projects

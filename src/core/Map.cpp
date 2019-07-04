@@ -100,7 +100,7 @@ ir::Value Map::serialize() const
         [](Settlement* s) { return s->serialize(); });
     obj["settlements"] = std::move(serializedSettlements);
 
-    return std::move(obj);
+    return obj;
 }
 
 void Map::setName(const QString& name)

@@ -72,7 +72,7 @@ ir::Value Faction::serialize() const
     else
         obj["civilization"] = {};
 
-    return std::move(obj);
+    return obj;
 }
 
 void Faction::setName(const QString& name)

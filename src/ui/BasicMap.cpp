@@ -18,7 +18,10 @@
 
 #include "ui/BasicMap.h"
 
+#include <fmt/ostream.h>
+
 #include "utils/Logging.h"
+#include "utils/ToString.h"
 
 namespace warmonger {
 namespace ui {
@@ -27,6 +30,8 @@ BasicMap::BasicMap(QQuickItem* parent)
     : QQuickItem(parent)
     , mapWindow(QSize(int(this->width()), int(this->height())))
 {
+    wTrace.format("windowRect={}", this->mapWindow.getWindowRect());
+
     QObject::connect(this, &BasicMap::widthChanged, this, &BasicMap::updateWindow);
     QObject::connect(this, &BasicMap::heightChanged, this, &BasicMap::updateWindow);
     QObject::connect(this, &BasicMap::mapRectChanged, this, &BasicMap::update);
@@ -94,7 +99,9 @@ void BasicMap::mouseMoveEvent(QMouseEvent* event)
 
 void BasicMap::updateWindow()
 {
-    this->mapWindow.setWindowSize(QSize(int(this->width()), int(this->height())));
+    const auto newSize = QSize(int(this->width()), int(this->height()));
+    wTrace.format("windowSize: {} -> {}", this->mapWindow.getWindowRect().size(), newSize);
+    this->mapWindow.setWindowSize(newSize);
 }
 
 } // namespace ui

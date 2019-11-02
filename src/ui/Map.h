@@ -81,6 +81,7 @@ private:
     void maybeUpdateContent();
     void updatePlayerLastPosition();
     void restorePlayerContext();
+    void onWindowRectChanged();
 
     core::Map* map = nullptr;
     WorldSurface* worldSurface = nullptr;

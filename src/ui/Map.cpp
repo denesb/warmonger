@@ -33,7 +33,7 @@ Map::Map(QQuickItem* parent)
 {
     this->setFlags(nullptr);
 
-    QObject::connect(this, &BasicMap::windowRectChanged, this, &Map::updatePlayerLastPosition);
+    QObject::connect(this, &BasicMap::windowRectChanged, this, &Map::onWindowRectChanged);
 }
 
 void Map::setMap(core::Map* map)
@@ -103,6 +103,9 @@ void Map::maybeUpdateContent()
         this->setFlags(QQuickItem::ItemHasContents);
         this->mapNodesPos = positionMapNodes(this->map->getMapNodes()[0], this->worldSurface->getTileSize());
         this->setMapRect(calculateBoundingRect(this->mapNodesPos, this->worldSurface->getTileSize()));
+
+        wTrace.format("windowRect={}, mapRect={}", this->getWindowRect(), this->getMapRect());
+
         try
         {
             this->graphicMap = this->worldSurface->getRules().renderMap(*this->map);
@@ -135,6 +138,7 @@ void Map::restorePlayerContext()
 
     if (auto it = this->playerLastWindowPosition.find(currentPlayer); it != this->playerLastWindowPosition.end())
     {
+        wTrace.format("Center on {}", it->second);
         this->centerWindow(it->second);
         return;
     }
@@ -152,6 +156,11 @@ void Map::restorePlayerContext()
     }
 
     this->centerWindow(this->mapNodesPos.at((*it)->getPosition()));
+}
+
+void Map::onWindowRectChanged()
+{
+    updatePlayerLastPosition();
 }
 
 } // namespace ui

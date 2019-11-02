@@ -18,6 +18,9 @@
 
 #include "ui/MapWindow.h"
 #include "utils/Logging.h"
+#include "utils/ToString.h"
+
+#include <fmt/ostream.h>
 
 namespace warmonger {
 namespace ui {
@@ -32,6 +35,7 @@ MapWindow::MapWindow()
 MapWindow::MapWindow(const QSize& windowSize)
     : MapWindow({}, windowSize)
 {
+    wTrace.format("windowRect={}", this->windowRect);
 }
 
 MapWindow::MapWindow(const QRect& mapRect, const QSize& windowSize)

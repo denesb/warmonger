@@ -9,24 +9,7 @@ strategy games mixed with my own ideas.
 
 The project is under development and is not functional yet. As it is a pet
 project and I work on it in my free time, I have no idea when it will be
-anywhere near ready to use.
-
-## Why?
-
-Mainly because I love to write code and I enjoy working on it. I also
-want to experiment with my own ideas for the perfect turn-based strategy
-game.
-
-## How?
-
-Warmonger is written with moddability and hackability in mind from the very
-first line of code where mods are first-class and there is no favoured built-in
-content.
-
-Warmonger is a hexagon-based wargame, with action happens is happening on the
-campaign map and battles being resolved on the battle map.
-
-See the [design overview](doc/OVERVIEW.md) for more details.
+anywhere near ready to use (if ever).
 
 ## Contributing
 
@@ -36,43 +19,20 @@ interested feel free to drop me a line at dns dot botond at gmail dot com.
 
 ## Dependencies
 
-### Build
-
- * C++14 compliant C++ compiler (tested with gcc 5.4)
- * CMake
- * Qt 5.5 (QtCore and QtQuick)
- * KF5Archive
- * lua 5.3
-
-### Format the code
-
- * clang-format (clang-tools)
-
-### Generate documentation
-
- * doxygen 1.8
- * graphviz
+ * [Godot](https://godotengine.org/) 3.1 (details still to be worked out)
+ * [Warmonger native library](./warmonger)
 
 Version numbers refer to the minimum supported version of each dependency.
-
-### Other thirdparty libraries used (bundled)
-
- * [catch](https://github.com/philsquared/Catch)
- * [backward-cpp](https://github.com/bombela/backward-cpp)
- * [spdlog](https://github.com/gabime/spdlog)
- * [sol2](https://github.com/ThePhD/sol2)
 
 Kudos to the authors and contributors of all this awesome, freely available stuff.
 
 ### Install dependencies on Ubuntu
-    sudo apt install cmake qtbase5-dev qtdeclarative5-dev libkf5archive-dev liblua5.3-dev libfmt-dev
-    sudo apt install doxygen graphviz clang-format
+    TODO
 
 ### Install dependencies on Fedora
-    sudo dnf install cmake qt5-qtbase-devel qt5-qtdeclarative-devel qt5-qtquickcontrols2 kf5-karchive-devel lua-devel fmt-devel
-    sudo dnf install doxygen graphviz clang
+    sudo dnf install godot
 
-## Other awesome strategy game projects
+## Other, awesome strategy game projects
  * [0 A.D.](https://play0ad.com/)
  * [Battle for Wesnoth](https://www.wesnoth.org/)
  * [FreeCiv](http://www.freeciv.org/)

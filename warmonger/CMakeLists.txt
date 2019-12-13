@@ -159,6 +159,12 @@ find_package(fmt REQUIRED)
 # Why to I have to do this??????
 set_target_properties(Qt5::Core PROPERTIES INTERFACE_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
 
+add_library (GodotEngine::godot UNKNOWN IMPORTED)
+set_target_properties (GodotEngine::godot
+PROPERTIES
+  IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/thirdparty/godot-cpp/bin/libgodot-cpp.linux.debug.64.a"
+  INTERFACE_INCLUDE_DIRECTORIES "${PROJECT_SOURCE_DIR}/thirdparty/godot-cpp/include;${PROJECT_SOURCE_DIR}/thirdparty/godot-cpp/include/core;${PROJECT_SOURCE_DIR}/thirdparty/godot-cpp/include/gen;${PROJECT_SOURCE_DIR}/thirdparty/godot-cpp/godot_headers")
+
 include(warmonger_automoc.cmake)
 
 #TODO set this in target_inlude_directories
@@ -200,30 +206,13 @@ target_link_libraries(ui
 )
 WARMONGER_AUTOMOC(ui)
 
-add_executable(
-    wmapeditor
-    src/wmapeditor/Context.cpp
-    src/wmapeditor/wmapeditor.cpp
-    src/wmapeditor/wmapeditor.qrc
-)
-WARMONGER_AUTOMOC(wmapeditor)
-
-target_link_libraries(
-    wmapeditor
-    PRIVATE ui io core utils
-)
-
-add_executable(
-    warmonger
-    src/warmonger/Context.cpp
+add_library(warmonger SHARED
     src/warmonger/warmonger.cpp
-    src/warmonger/warmonger.qrc
 )
-WARMONGER_AUTOMOC(warmonger)
 
 target_link_libraries(
     warmonger
-    PRIVATE ui io core utils
+    PRIVATE io core utils GodotEngine::godot
 )
 
 if(BUILD_TOOLS)

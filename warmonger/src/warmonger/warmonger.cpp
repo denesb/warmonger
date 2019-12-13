@@ -16,16 +16,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
-#include <QQmlContext>
 #include <backward.hpp>
+#include <Godot.hpp>
 
-#include "io/File.h"
-#include "ui/SearchPaths.h"
-#include "ui/UI.h"
-#include "utils/Constants.h"
-#include "utils/Exception.h"
 #include "utils/Logging.h"
 #include "utils/Settings.h"
 #include "warmonger/Context.h"
@@ -36,66 +29,23 @@ backward::SignalHandling sh;
 
 } // namespace backward
 
-using namespace warmonger;
-
-static std::unique_ptr<Context> createContext(const QString& worldName, const QString& worldSurfacePath);
-static std::unique_ptr<core::Map> generateBackgroundMap(core::World* world);
-
-int main(int argc, char* argv[])
-{
-    const QString worldPath{argv[1]};
-    const QString worldSurfacePath{argv[2]};
-
-    QGuiApplication app(argc, argv);
-
-    utils::initSettings();
-    utils::initLogging();
-
-    if (argc < 3)
-    {
-        std::cout << "Too few arguments. Usage: warmonger {world} {world-surface}" << std::endl;
-        return 1;
-    }
-
-    ui::setupSearchPaths();
-    ui::initUI();
-
-    qmlRegisterUncreatableType<Context>(
-        utils::applicationNameCStr, 1, 0, "Context", "Access to State enum members only");
-
-    std::unique_ptr<Context> ctx;
-
-    try
-    {
-        ctx = createContext(worldPath, worldSurfacePath);
-    }
-    catch (const utils::Exception& e)
-    {
-        wError.format("Failed to create context: {}", e.what());
-        return 1;
-    }
-
-    std::unique_ptr<core::Map> backgroundMap;
-
-    try
-    {
-        backgroundMap = generateBackgroundMap(ctx->getWorld());
-    }
-    catch (const utils::Exception& e)
-    {
-        wError.format("Failed to create background map: {}", e.what());
-        return 1;
-    }
-
-    QQmlApplicationEngine engine;
-
-    engine.rootContext()->setContextProperty("W", ctx.get());
-    engine.rootContext()->setContextProperty("backgroundMap", backgroundMap.get());
-
-    engine.load(QUrl("qrc:/Warmonger.qml"));
-
-    return app.exec();
+extern "C" void GDN_EXPORT godot_gdnative_init(godot_gdnative_init_options *o) {
+    godot::Godot::gdnative_init(o);
+    warmonger::utils::initSettings();
+    warmonger::utils::initLogging();
 }
+
+extern "C" void GDN_EXPORT godot_gdnative_terminate(godot_gdnative_terminate_options *o) {
+    godot::Godot::gdnative_terminate(o);
+}
+
+extern "C" void GDN_EXPORT godot_nativescript_init(void *handle) {
+    godot::Godot::nativescript_init(handle);
+
+    godot::register_class<warmonger::Context>();
+}
+
+#if 0
 
 static std::unique_ptr<Context> createContext(const QString& worldPath, const QString& worldSurfacePath)
 {
@@ -153,3 +103,5 @@ static std::unique_ptr<core::Map> generateBackgroundMap(core::World* world)
 
     return world->getRules()->generateMap(0, 10, std::move(players));
 }
+
+#endif

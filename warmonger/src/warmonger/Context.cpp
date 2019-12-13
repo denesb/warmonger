@@ -70,7 +70,6 @@ const std::unordered_map<Context::State, const char*> statePropertyNames{
 
 void Context::_register_methods()
 {
-    //register_method("get_version", &Context::getVersion);
     godot::register_property<Context, godot::String>("version", nullptr, &Context::getVersion, "");
 }
 

@@ -1,0 +1,3 @@
+[submodule "warmonger/thirdparty/godot-cpp"]
+	path = warmonger/thirdparty/godot-cpp
+	url = https://github.com/GodotNativeTools/godot-cpp

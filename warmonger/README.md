@@ -7,6 +7,7 @@
  * Qt 5.5 (QtCore and QtQuick)
  * KF5Archive
  * lua 5.3
+ * fmt
 
 ### Format the code
 

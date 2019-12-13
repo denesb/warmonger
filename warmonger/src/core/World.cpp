@@ -21,8 +21,8 @@
 #include <fmt/ostream.h>
 
 #include "utils/Logging.h"
-#include "utils/ToString.h"
 #include "utils/QVariantUtils.h"
+#include "utils/ToString.h"
 
 namespace warmonger {
 namespace core {

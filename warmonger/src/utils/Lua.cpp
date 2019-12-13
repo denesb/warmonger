@@ -21,8 +21,8 @@
 #include <fmt/ostream.h>
 
 #include "utils/Logging.h"
-#include "utils/ToString.h"
 #include "utils/PathBuilder.h"
+#include "utils/ToString.h"
 
 namespace sol {
 namespace stack {

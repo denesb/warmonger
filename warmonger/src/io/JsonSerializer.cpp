@@ -164,32 +164,26 @@ static core::ir::Value toIRValue(QJsonValue v)
     switch (v.type())
     {
         case QJsonValue::Null:
-        case QJsonValue::Undefined:
-        {
+        case QJsonValue::Undefined: {
             return {};
         }
-        case QJsonValue::Bool:
-        {
+        case QJsonValue::Bool: {
             return {v.toBool()};
         }
-        case QJsonValue::Double:
-        {
+        case QJsonValue::Double: {
             return {v.toDouble()};
         }
-        case QJsonValue::String:
-        {
+        case QJsonValue::String: {
             auto jstr = v.toString();
             if (isReference(jstr))
                 return toIRReference(std::move(jstr));
             else
                 return {std::move(jstr)};
         }
-        case QJsonValue::Array:
-        {
+        case QJsonValue::Array: {
             return toIRList(v.toArray());
         }
-        case QJsonValue::Object:
-        {
+        case QJsonValue::Object: {
             return toIRMap(v.toObject());
         }
     }

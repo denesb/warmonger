@@ -190,7 +190,8 @@ static void exposeAPI(sol::state& lua)
         "owner",
         sol::property(&Settlement::getOwner, &Settlement::setOwner));
 
-    lua.new_usertype<Map>("map",
+    lua.new_usertype<Map>(
+        "map",
         sol::meta_function::construct,
         sol::no_constructor,
         "name",

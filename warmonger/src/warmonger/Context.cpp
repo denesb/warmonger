@@ -18,10 +18,10 @@
 
 #include "warmonger/Context.h"
 
-#include <fmt/format.h>
 #include <QDir>
 #include <QGuiApplication>
 #include <QStringList>
+#include <fmt/format.h>
 
 #include "io/File.h"
 #include "utils/Constants.h"

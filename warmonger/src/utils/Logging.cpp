@@ -56,18 +56,15 @@ void initLogging(const LogConfig& cfg)
 {
     switch (cfg.getSinkType())
     {
-        case LogSinkType::Console:
-        {
+        case LogSinkType::Console: {
             wLogger = spdlog::stdout_color_mt(loggerName);
         }
         break;
-        case LogSinkType::File:
-        {
+        case LogSinkType::File: {
             wLogger = spdlog::basic_logger_mt(loggerName, cfg.getFile());
         }
         break;
-        case LogSinkType::Stream:
-        {
+        case LogSinkType::Stream: {
             auto sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(cfg.getStream());
             wLogger = spdlog::create(loggerName, {sink});
         }

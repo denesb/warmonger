@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <backward.hpp>
 #include <Godot.hpp>
+#include <backward.hpp>
 
 #include "utils/Logging.h"
 #include "utils/Settings.h"
@@ -29,17 +29,20 @@ backward::SignalHandling sh;
 
 } // namespace backward
 
-extern "C" void GDN_EXPORT godot_gdnative_init(godot_gdnative_init_options *o) {
+extern "C" void GDN_EXPORT godot_gdnative_init(godot_gdnative_init_options* o)
+{
     godot::Godot::gdnative_init(o);
     warmonger::utils::initSettings();
     warmonger::utils::initLogging();
 }
 
-extern "C" void GDN_EXPORT godot_gdnative_terminate(godot_gdnative_terminate_options *o) {
+extern "C" void GDN_EXPORT godot_gdnative_terminate(godot_gdnative_terminate_options* o)
+{
     godot::Godot::gdnative_terminate(o);
 }
 
-extern "C" void GDN_EXPORT godot_nativescript_init(void *handle) {
+extern "C" void GDN_EXPORT godot_nativescript_init(void* handle)
+{
     godot::Godot::nativescript_init(handle);
 
     godot::register_class<warmonger::Context>();

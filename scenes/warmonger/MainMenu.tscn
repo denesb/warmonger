@@ -1,0 +1,82 @@
+[gd_scene format=2]
+
+[node name="Control" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="MainMenuPanel" type="Panel" parent="."]
+editor/display_folded = true
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -235.0
+margin_top = -156.0
+margin_right = -5.0
+margin_bottom = -5.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainMenuPanel"]
+margin_left = 5.0
+margin_top = 5.0
+margin_right = 224.0
+margin_bottom = 145.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="NewGameButton" type="Button" parent="MainMenuPanel/VBoxContainer"]
+margin_right = 219.0
+margin_bottom = 20.0
+text = "New Game"
+
+[node name="ContinueGameButton" type="Button" parent="MainMenuPanel/VBoxContainer"]
+margin_top = 24.0
+margin_right = 219.0
+margin_bottom = 44.0
+disabled = true
+text = "Continue Game"
+
+[node name="SettingsButton" type="Button" parent="MainMenuPanel/VBoxContainer"]
+margin_top = 48.0
+margin_right = 219.0
+margin_bottom = 68.0
+disabled = true
+text = "Settings"
+
+[node name="ManualButton" type="Button" parent="MainMenuPanel/VBoxContainer"]
+margin_top = 72.0
+margin_right = 219.0
+margin_bottom = 92.0
+disabled = true
+text = "Manual"
+
+[node name="AboutButton" type="Button" parent="MainMenuPanel/VBoxContainer"]
+margin_top = 96.0
+margin_right = 219.0
+margin_bottom = 116.0
+disabled = true
+text = "About"
+
+[node name="ExitButton" type="Button" parent="MainMenuPanel/VBoxContainer"]
+margin_top = 120.0
+margin_right = 219.0
+margin_bottom = 140.0
+text = "Exit"
+
+[node name="VersionLabel" type="Label" parent="."]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 6.0
+margin_top = -21.0
+margin_right = 45.0
+margin_bottom = -5.0
+text = "v0.0.0"
+
+[node name="TitleLabel" type="Label" parent="."]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -35.0
+margin_top = 5.0
+margin_right = -35.0
+margin_bottom = 14.0
+text = "Warmonger"

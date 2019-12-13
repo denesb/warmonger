@@ -31,6 +31,7 @@
 
 namespace warmonger {
 
+#if 0
 static std::ostream& operator<<(std::ostream& os, Context::State state);
 static std::unique_ptr<QObject> defaultStateTransitionFunction(const Context& ctx, QObject* const);
 static std::unique_ptr<QObject> fromMainMenuToNewRandomMap(const Context& ctx, QObject* const);
@@ -65,22 +66,35 @@ const std::unordered_map<Context::State, const char*> statePropertyNames{
     {Context::State::NewRandomMap, "randomMapGenerator"},
     {Context::State::Gameplay, "game"},
 };
+#endif
 
-Context::Context(
-    std::unique_ptr<core::World>&& world, std::unique_ptr<ui::WorldSurface>&& worldSurface, QObject* parent)
-    : QObject(parent)
-    , world(world.release())
-    , worldSurface(worldSurface.release())
-    , disabledPalette(new ui::Palette(QGuiApplication::palette(), QPalette::Disabled, this))
-    , activePalette(new ui::Palette(QGuiApplication::palette(), QPalette::Active, this))
-    , inactivePalette(new ui::Palette(QGuiApplication::palette(), QPalette::Inactive, this))
-    , normalPalette(new ui::Palette(QGuiApplication::palette(), QPalette::Normal, this))
+void Context::_register_methods()
 {
-    this->setObjectName("W");
-    this->world->setParent(this);
-    this->worldSurface->setParent(this);
+    //register_method("get_version", &Context::getVersion);
+    godot::register_property<Context, godot::String>("version", nullptr, &Context::getVersion, "");
 }
 
+Context::Context()
+    : world(nullptr)
+    , worldSurface(nullptr)
+{
+#if 0
+    this->world->setParent(this);
+    this->worldSurface->setParent(this);
+#endif
+}
+
+void Context::_init()
+{
+}
+
+godot::String Context::getVersion() const
+{
+    const auto str = version.toStdString();
+    return str.c_str();
+}
+
+#if 0
 void Context::setState(State nextState)
 {
     if (this->state == nextState)
@@ -234,5 +248,7 @@ static std::unique_ptr<QObject> fromNewRandomMapToGameplay(const Context&, QObje
 
     return std::make_unique<GameplayContext>(randomMapContext->generateMap());
 }
+
+#endif
 
 } // namespace warmonger

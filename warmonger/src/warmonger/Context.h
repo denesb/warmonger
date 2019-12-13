@@ -23,12 +23,12 @@
 
 #include <cassert>
 
-#include <QVariant>
+#include <Godot.hpp>
+#include <Reference.hpp>
 
 #include "Version.h"
 #include "core/Map.h"
 #include "core/World.h"
-#include "ui/Palette.h"
 #include "ui/WorldSurface.h"
 
 namespace warmonger {
@@ -42,21 +42,9 @@ namespace warmonger {
  * and others.
  * It also provides functions to access core functionality.
  */
-class Context : public QObject
+class Context : public godot::Reference
 {
-    Q_OBJECT
-    Q_PROPERTY(warmonger::core::World* world READ getWorld CONSTANT)
-    Q_PROPERTY(warmonger::ui::WorldSurface* worldSurface READ getWorldSurface CONSTANT)
-    Q_PROPERTY(QString version READ getVersion CONSTANT)
-    Q_PROPERTY(warmonger::ui::Palette* disabledPalette READ getDisabledPalette CONSTANT)
-    Q_PROPERTY(warmonger::ui::Palette* inactivePalette READ getActivePalette CONSTANT)
-    Q_PROPERTY(warmonger::ui::Palette* activePalette READ getInactivePalette CONSTANT)
-    Q_PROPERTY(warmonger::ui::Palette* normalPalette READ getNormalPalette CONSTANT)
-    Q_PROPERTY(State state READ getState WRITE setState NOTIFY stateChanged)
-    // Each special context object exposed by their respective states.
-    // QML doesn't appear to see newly added dynamic properties so they
-    // need to be statically pre-declared here.
-    Q_PROPERTY(QObject* randomMapGenerator READ getSpecialContextObject NOTIFY stateChanged)
+    GODOT_CLASS(Context, Reference)
 
 public:
     enum class State
@@ -65,7 +53,8 @@ public:
         NewRandomMap,
         Gameplay,
     };
-    Q_ENUM(State);
+
+    static void _register_methods();
 
     /**
      * Constructs a context object.
@@ -76,9 +65,9 @@ public:
      *
      * The context object takes ownership of the world and worldSurface.
      */
-    Context(std::unique_ptr<core::World>&& world,
-        std::unique_ptr<ui::WorldSurface>&& worldSurface,
-        QObject* parent = nullptr);
+    Context();
+
+    void _init();
 
     /**
      * Get the world.
@@ -114,59 +103,9 @@ public:
      *
      * \returns the application version
      */
-    QString getVersion() const
-    {
-        return version;
-    }
+    godot::String getVersion() const;
 
-    /**
-     * Get the disabled palette.
-     *
-     * \see Palette
-     *
-     * \return the disabled palette
-     */
-    ui::Palette* getDisabledPalette() const
-    {
-        return this->disabledPalette;
-    }
-
-    /**
-     * Get the active palette.
-     *
-     * \see Palette
-     *
-     * \return the active palette
-     */
-    ui::Palette* getActivePalette() const
-    {
-        return this->activePalette;
-    }
-
-    /**
-     * Get the inactive palette.
-     *
-     * \see Palette
-     *
-     * \return the inactive palette
-     */
-    ui::Palette* getInactivePalette() const
-    {
-        return this->inactivePalette;
-    }
-
-    /**
-     * Get the normal palette.
-     *
-     * \see Palette
-     *
-     * \return the normal palette
-     */
-    ui::Palette* getNormalPalette() const
-    {
-        return this->normalPalette;
-    }
-
+#if 0
     State getState() const
     {
         return this->state;
@@ -206,11 +145,7 @@ public:
     {
         return this->specialContextObject;
     }
-
-    Q_INVOKABLE QColor color(warmonger::core::Color* color) const
-    {
-        return this->worldSurface->colorFor(*color);
-    }
+#endif
 
 signals:
     void stateChanged();
@@ -218,15 +153,14 @@ signals:
 private:
     core::World* world;
     ui::WorldSurface* worldSurface;
-    ui::Palette* disabledPalette;
-    ui::Palette* activePalette;
-    ui::Palette* inactivePalette;
-    ui::Palette* normalPalette;
     State state = State::MainMenu;
+#if 0
     QObject* specialContextObject = nullptr;
     const char* specialContextPropertyName;
+#endif
 };
 
+#if 0
 /**
  * Context class for the random map generation QML page.
  */
@@ -284,6 +218,8 @@ public:
 private:
     core::Map& map;
 };
+
+#endif
 
 } // namespace warmonger
 

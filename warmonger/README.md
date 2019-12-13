@@ -2,8 +2,8 @@
 
 ### Build
 
- * C++14 compliant C++ compiler (tested with gcc 5.4)
- * CMake
+ * C++17 compliant C++ compiler
+ * CMake 3.8.2
  * Qt 5.5 (QtCore and QtQuick)
  * KF5Archive
  * lua 5.3

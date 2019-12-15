@@ -20,7 +20,6 @@ interested feel free to drop me a line at dns dot botond at gmail dot com.
 ## Dependencies
 
  * [Godot](https://godotengine.org/) 3.1 (details still to be worked out)
- * [Warmonger native library](./warmonger)
 
 Version numbers refer to the minimum supported version of each dependency.
 

@@ -209,6 +209,7 @@ WARMONGER_AUTOMOC(ui)
 add_library(warmonger SHARED
     src/warmonger/warmonger.cpp
     src/warmonger/Context.cpp
+    src/warmonger/Config.cpp
 )
 
 target_link_libraries(

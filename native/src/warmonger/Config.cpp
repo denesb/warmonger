@@ -19,21 +19,44 @@
 #include "warmonger/Config.h"
 
 #include <ConfigFile.hpp>
+#include <fmt/format.h>
+
+#include "utils/Exception.h"
 
 namespace warmonger {
 
+namespace {
+
+const auto configFilePath = "user://config.cfg";
+
+} // anonymous namespace
+
 Config::Config()
-    : configFile(ConfigFile::_new())
+    : configFile(godot::ConfigFile::_new())
 {
-    if (const auto res = config->load("user://config.cfg"); !res)
+    if (const auto res = configFile->load(configFilePath); res != godot::Error::OK)
     {
-        // FIXME: error handling
-        return
+        throw utils::GodotError(res, fmt::format("Failed to load configuration from {}", configFilePath));
     }
 }
 
 std::optional<godot::String> Config::getDefaultWorldPath() const
 {
+    auto val = configFile->get_value("", "default_world_path");
+    if (val.get_type() == godot::Variant::Type::NIL)
+    {
+        return {};
+    }
+    return val;
+}
+
+void Config::setDefaultWorldPath(godot::String path)
+{
+    configFile->set_value("", "default_world_path", path);
+    if (const auto res = configFile->load(configFilePath); res != godot::Error::OK)
+    {
+        throw utils::GodotError(res, fmt::format("Failed to save configuration to {}", configFilePath));
+    }
 }
 
 } // namespace warmonger

@@ -23,6 +23,7 @@
 
 #include <optional>
 
+#include <ConfigFile.hpp>
 #include <Ref.hpp>
 #include <String.hpp>
 
@@ -30,7 +31,9 @@ namespace warmonger {
 
 class Config
 {
+    Config();
     std::optional<godot::String> getDefaultWorldPath() const;
+    void setDefaultWorldPath(godot::String path);
 
 private:
     godot::Ref<godot::ConfigFile> configFile;

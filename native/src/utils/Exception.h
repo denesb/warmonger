@@ -24,6 +24,7 @@
 #include <sstream>
 
 #include <QString>
+#include <Defs.hpp>
 
 #include "utils/ToString.h"
 
@@ -117,6 +118,19 @@ class IOError : public Exception
 {
 public:
     using Exception::Exception;
+};
+
+/**
+ * Godot error.
+ *
+ * An error returned from the godot engine.
+ */
+class GodotError : public Exception
+{
+public:
+    using Exception::Exception;
+    GodotError(godot::Error godotErrorCode, const char* message);
+    GodotError(godot::Error godotErrorCode, const std::string& message);
 };
 
 /**
